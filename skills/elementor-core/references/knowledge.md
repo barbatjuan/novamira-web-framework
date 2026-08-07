@@ -1,0 +1,40 @@
+# Elementor knowledge (stable)
+
+## Helper library API (`assets/es-builder.php`)
+- `es_uid()` / `es_uid_reset($seed)` — deterministic seeded element IDs.
+- `es_c($settings,$children,$inner=true)` — container (elType container). `es_w($type,$settings)` — widget.
+- `es_size($n,$unit='px')` — slider value. `es_box($t,$r,$b,$l)` — dimensions.
+- `es_section($children,$opts)` — boxed section with responsive padding.
+- `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
+- `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
+  (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
+- `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
+- `es_img($slug)` — attachment lookup by slug → url+id.
+
+## Containers, flex, grid
+- Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.
+- Flex item sizing: `_flex_grow` / `_flex_shrink` / `_element_width:auto`. To keep a cluster from
+  stretching, set grow/shrink 0 and DON'T set `content_width:full` on it (that forces ~100% width).
+- Grid columns: `grid_columns_grid` (+ `_tablet` / `_mobile`). For a 2-col mobile grid pass
+  `grid_columns_grid_mobile => {unit:fr,size:2}`.
+
+## Breakpoints & responsive keys
+- Per-device suffixes: `_tablet`, `_mobile` on most controls (`width_mobile`, `align_mobile`,
+  `flex_justify_content_mobile`, `flex_wrap_mobile`, `padding_mobile`, typography sizes…).
+- Visibility: `hide_desktop:'hidden-desktop'`, `hide_tablet`, `hide_mobile`.
+- Button full width inside its container: `align => 'justify'` (or force `.elementor-button{width:100%}`).
+
+## Global kit
+- Kit id = `get_option('elementor_active_kit')`. Set global colors/typography/buttons there so
+  the whole site inherits. Regenerate kit CSS after cache clears.
+
+## Control names that are easy to get wrong (introspect to confirm)
+- Archive products widget: `wc-archive-products` (NOT `archive-products`).
+- Button hover: `button_background_hover_color`, `hover_color`, `button_hover_border_color`
+  (NOT `background_hover_color`).
+- Menu cart: `cart_type` = `side-cart` | `mini-cart`; `automatically_open_cart:'yes'`;
+  item colors `product_title_color` / `product_price_color` / `product_quantity_color`.
+- image-box: `image_size` = width slider (%), `thumbnail_size` = WP file size,
+  `image_height` + `image_object_fit`.
+- Introspect anything unsure:
+  `array_keys(\Elementor\Plugin::instance()->widgets_manager->get_widget_types('<name>')->get_controls())`.

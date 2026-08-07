@@ -1,0 +1,35 @@
+# Motion, cards, glass, buttons — the premium recipes
+
+Battle-tested on Elementor; the values are builder-agnostic (apply via each builder's
+native custom-CSS field, scoped to the element, never a global stylesheet).
+
+## Hover timing (calm, not brusque)
+- Curve: `cubic-bezier(.22,1,.36,1)`. Duration: `.35s` color, `.5s` lift/shadow, `.7s` image zoom.
+- Lift: `translateY(-4px)` (cards) or `-6px` (feature cards). Image: `scale(1.045)`.
+- Shadow on hover: `0 18px 40px -12px rgba(21,24,26,.16)` (soft, not a hard border swap).
+- `will-change:transform`. Avoid `translateY(-6px)`+`scale(1.06)`+`.35s` → feels snappy/cheap.
+
+## Premium feature card (reuse everywhere)
+White card, 1px neutral border, radius 16, padding ~34/30. Accent circular icon chip
+(icon widget `view:stacked`, `shape:circle`, accent fill, white glyph). On hover:
+lift + soft shadow + a top accent bar revealing via `::before{transform:scaleX(0)→1}`.
+One recipe, used in home advantages AND inner-page value cards, etc.
+
+## Product-card grid (WooCommerce)
+Equal height is mandatory on 2-col mobile: `ul.products{align-items:stretch}` +
+`li.product{display:flex;flex-direction:column;height:100%}` + push the button down with
+`.button{margin-top:auto}`. Force the CTA to the accent color with `!important` (theme wins otherwise).
+
+## Glass
+Never put `backdrop-filter` on the container — it becomes a containing block that traps
+`position:fixed` descendants (e.g. a side cart) inside its box. Put the frost on a
+`::before` layer: `selector{position:relative} selector::before{content:"";position:absolute;
+inset:0;z-index:-1;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(16px)}`.
+
+## Button system (two families, real hover in both states)
+- Solid accent: accent bg → darker accent on hover + `translateY(-2px)` + accent glow shadow.
+- Ghost/outline: transparent, dark text, soft border → on hover faint accent-tint bg +
+  accent text + accent border (NOT white text, which vanishes on light bg).
+- Ghost on dark heroes: white text/border → white fill + dark text on hover.
+- Drive transition + lift via the element's native custom-CSS so it never depends on
+  conditionally-enqueued hover assets.
