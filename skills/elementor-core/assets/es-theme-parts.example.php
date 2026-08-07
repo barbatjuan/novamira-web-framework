@@ -241,8 +241,8 @@ function es_build_theme_parts() {
 					),
 					array(
 						es_btn(
-							'680 705 698',
-							'tel:680705698',
+							'000 000 000',
+							'tel:0000000000',
 							'outline',
 							array(
 								'selected_icon'        => array( 'value' => 'fas fa-phone-alt', 'library' => 'fa-solid' ),
@@ -433,8 +433,8 @@ function es_build_theme_parts() {
 						es_foot_col(
 							'Contacto',
 							array(
-								'680 705 698'               => 'tel:680705698',
-								'Elorrietasport@gmail.com'  => 'mailto:Elorrietasport@gmail.com',
+								'000 000 000'               => 'tel:0000000000',
+								'hello@example.com'  => 'mailto:hello@example.com',
 								'Cómo llegar'               => '/encuentranos/',
 								'Pedir cita'                => '/contacto/',
 							)
