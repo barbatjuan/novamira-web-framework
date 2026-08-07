@@ -6,7 +6,7 @@ Swap the values per brand; keep the ROLES. The orchestrator gets these from
 ## Palette (roles, not fixed colors)
 - **Dominant** — white / near-white background. Carries most of the page.
 - **Contrast** — near-black text/dark sections (e.g. `#15181A`).
-- **Accent** — ONE color, CTAs / action icons / important links ONLY (Elorrieta: green `#0FA968`,
+- **Accent** — ONE color, CTAs / action icons / important links ONLY (example accent green `#0FA968`,
   hover darker `#0C8A55`). Never use the accent for body text or decoration.
 - Neutrals: border `#EAECEA`/`#E5E7E5`, muted text `#6A6F6C`, tint bg `#F4F5F3`.
 

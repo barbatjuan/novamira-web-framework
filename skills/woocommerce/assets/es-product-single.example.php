@@ -1,6 +1,6 @@
 <?php
 /**
- * Elorrieta Sport - single product template (Elementor Pro Theme Builder).
+ * Example - single product template (Elementor Pro Theme Builder).
  * Native WooCommerce single-product widgets only.
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -236,7 +236,7 @@ function es_build_product_single() {
 
 	return es_save_theme_part(
 		'es-single-product',
-		'Elorrieta - Producto',
+		'Site - Product',
 		'product',
 		$el,
 		array( 'include/product' )

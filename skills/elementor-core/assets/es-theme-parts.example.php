@@ -1,6 +1,6 @@
 <?php
 /**
- * Elorrieta Sport - global header and footer (Elementor Pro Theme Builder).
+ * Example site - global header and footer (Elementor Pro Theme Builder).
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -137,7 +137,7 @@ function es_build_theme_parts() {
 				es_w(
 					'heading',
 					array(
-						'title'                     => 'ELORRIETA<span style="color:#0FA968">SPORT</span>',
+						'title'                     => 'YOUR<span style="color:#0FA968">BRAND</span>',
 						'header_size'               => 'div',
 						'link'                      => array( 'url' => home_url( '/' ) ),
 						'title_color'               => '#15181A',
@@ -339,7 +339,7 @@ function es_build_theme_parts() {
 
 	$header_id = es_save_theme_part(
 		'es-header',
-		'Elorrieta - Cabecera',
+		'Site - Header',
 		'header',
 		$header,
 		array( 'include/general' )
@@ -372,7 +372,7 @@ function es_build_theme_parts() {
 								es_w(
 									'heading',
 									array(
-										'title'                  => 'ELORRIETA<span style="color:#0FA968">SPORT</span>',
+										'title'                  => 'YOUR<span style="color:#0FA968">BRAND</span>',
 										'header_size'            => 'div',
 										'title_color'            => '#FFFFFF',
 										'typography_typography'  => 'custom',
@@ -383,7 +383,7 @@ function es_build_theme_parts() {
 									)
 								),
 								es_p(
-									'Taller mecánico de coches y motos. Cercanía, transparencia y presupuesto cerrado en cada reparación.',
+									'Short brand tagline goes here — one or two lines describing the business.',
 									array(
 										'text_color'           => 'rgba(255,255,255,0.52)',
 										'typography_font_size' => es_size( 14 ),
@@ -424,10 +424,10 @@ function es_build_theme_parts() {
 						es_foot_col(
 							'Servicios',
 							array(
-								'Mecánica general' => '/servicios/',
-								'Diagnosis'        => '/servicios/',
-								'Pre ITV'          => '/servicios/',
-								'Ruedas'           => '/servicios/',
+								'Servicio 1' => '/servicios/',
+								'Servicio 2'        => '/servicios/',
+								'Servicio 3'          => '/servicios/',
+								'Servicio 4'           => '/servicios/',
 							)
 						),
 						es_foot_col(
@@ -459,7 +459,7 @@ function es_build_theme_parts() {
 					),
 					array(
 						es_p(
-							'© ' . gmdate( 'Y' ) . ' Elorrieta Sport. Todos los derechos reservados.',
+							'© ' . gmdate( 'Y' ) . ' Your Brand. All rights reserved.',
 							array( 'text_color' => 'rgba(255,255,255,0.42)', 'typography_font_size' => es_size( 13 ), '_element_width' => 'auto' )
 						),
 						es_p(
@@ -475,7 +475,7 @@ function es_build_theme_parts() {
 	
 	$footer_id = es_save_theme_part(
 		'es-footer',
-		'Elorrieta - Pie de página',
+		'Site - Footer',
 		'footer',
 		$footer,
 		array( 'include/general' )

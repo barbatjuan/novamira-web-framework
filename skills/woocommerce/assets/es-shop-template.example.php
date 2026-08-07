@@ -1,6 +1,6 @@
 <?php
 /**
- * Elorrieta Sport - product archive template (Elementor Pro Theme Builder).
+ * Example - product archive template (Elementor Pro Theme Builder).
  * Uses the native archive-products widget so WooCommerce owns the loop.
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -163,7 +163,7 @@ function es_build_shop_template() {
 
 	return es_save_theme_part(
 		'es-shop-archive',
-		'Elorrieta - Archivo de productos',
+		'Site - Product archive',
 		'product-archive',
 		$el,
 		array( 'include/product_archive' )

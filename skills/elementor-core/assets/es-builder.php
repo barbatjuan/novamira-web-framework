@@ -1,6 +1,6 @@
 <?php
 /**
- * Elorrieta Sport - Elementor page builder helpers.
+ * Elementor page builder helpers (NovaMira raw-PHP).
  * Native Elementor / Elementor Pro widgets only. No custom CSS, no third-party widgets.
  */
 if ( ! defined( 'ABSPATH' ) ) {

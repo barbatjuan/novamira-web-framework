@@ -1,7 +1,7 @@
 # NovaMira Web Framework — overview
 
 A modular system for building premium WordPress sites via NovaMira. Reusable across
-projects (Elorrieta, a clinic, a real-estate site, an ecommerce) by swapping brand config
+projects (a workshop, a clinic, a real-estate site, an ecommerce) by swapping brand config
 and adding domain skills — the orchestrator and bases stay the same.
 
 ## Principle
