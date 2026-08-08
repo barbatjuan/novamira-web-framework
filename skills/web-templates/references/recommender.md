@@ -60,7 +60,15 @@ defaults sugeridos, no en blanco).
 | Muchas familias de producto, navegación por categoría | **TPL-E-04 Categories-First** |
 | Outlet/campaña/estacional, urgencia, descuentos protagonistas | **TPL-E-05 Promo / Campaign** |
 
-(Corporate: mapa en `templates/corporate/_README.md` cuando se definan los TPL-C.)
+## 3b. Mapa señal → plantilla (corporate)
+
+| Perfil dominante | Recomienda |
+|------------------|-----------|
+| Servicios B2B/profesionales, objetivo = leads, CTA/formulario protagonista | **TPL-C-01 Services / Lead-Gen** |
+| Empresa establecida, salud/legal/financiero, autoridad + credenciales + cifras | **TPL-C-02 Institutional / Trust** |
+| Estudio creativo/arquitectura/foto, el trabajo manda, mucho visual | **TPL-C-03 Portfolio / Showcase** |
+| Una sola oferta/servicio/campaña, secuencia persuasiva a un CTA | **TPL-C-04 Landing / Single-Offer** |
+| Local con reserva/turno, ubicación y horarios protagonistas | **TPL-C-05 Local / Booking** |
 
 Empates: presentar las 2 candidatas con el trade-off y dejar elegir. Nunca decidir solo un empate.
 

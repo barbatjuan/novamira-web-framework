@@ -1,25 +1,24 @@
 # Corporate templates (TPL-C-*)
 
-Stub. Se define en la próxima iteración. Misma mecánica que ecommerce: arquetipos con secciones
-FIJAS / TOGGLE, mismo `design-system.md` y `toggles.md` compartidos (se agregarán toggles propios
-de corporate: leads, servicios, equipo, casos de éxito).
+Cinco arquetipos corporativos. Misma mecánica que ecommerce: secciones FIJAS (ADN) / TOGGLE,
+`design-system.md` y `toggles.md` compartidos (con toggles propios de corporate). El recomendador
+elige por perfil (ver `recommender.md` §3b).
 
-## Arquetipos previstos (a confirmar con el usuario)
+| ID | Nombre | Ideal para | Hero | Foco |
+|----|--------|-----------|------|------|
+| TPL-C-01 | Services / Lead-Gen | Consultoras, agencias, servicios pro | Headline + form/CTA ~50vh | Generación de leads |
+| TPL-C-02 | Institutional / Trust | Empresas, salud, legal, financiero | Imagen fija + claim ~45vh | Autoridad / confianza |
+| TPL-C-03 | Portfolio / Showcase | Estudios creativos, arquitectura, foto | Visual grande ~60vh | Mostrar el trabajo |
+| TPL-C-04 | Landing / Single-Offer | Una oferta única, campañas, SaaS | Propuesta + CTA fuerte ~55vh | Conversión de 1 oferta |
+| TPL-C-05 | Local / Booking | Clínicas, gastronómico, servicios locales | Imagen + CTA reserva ~45vh | Reserva + ubicación |
 
-| ID | Nombre (tentativo) | Ideal para | Foco |
-|----|--------------------|-----------|------|
-| TPL-C-01 | Services / Lead-Gen | Consultoras, agencias, estudios | Generación de leads (CTA + formulario) |
-| TPL-C-02 | Institutional / Trust | Empresas, salud, legal | Confianza, autoridad, credenciales |
-| TPL-C-03 | Portfolio / Showcase | Estudios creativos, arquitectura | Mostrar trabajos/casos |
-| TPL-C-04 | Landing / Single-Offer | Un servicio/producto único, campañas B2B | Conversión de una oferta |
-| TPL-C-05 | Local / Booking | Clínicas, gastronómico, servicios locales | Reserva/turno + ubicación + NAP |
+## Diferenciación real (no mismo template)
+- **C-01** vive del formulario/lead; **C-02** del prestigio y las cifras (stats fijos), CTA calmo.
+- **C-03** es casi solo visual (portfolio grid), sin pricing ni stats ni forms largos.
+- **C-04** es una secuencia lineal a UN CTA, sin menú ni catálogo.
+- **C-05** es el único con booking + mapa/NAP + horarios como ADN.
 
-Diferenciación por: presencia/ausencia de secciones (equipo, casos, precios, FAQ, reserva),
-posición del formulario/CTA, peso del social proof, y densidad editorial.
-
-## Toggles corporate a agregar (cuando se defina)
-`TGL-LEAD-FORM` (posición del formulario), `TGL-TEAM` (equipo sí/no), `TGL-CASES` (casos/portfolio),
-`TGL-PRICING` (tabla de precios), `TGL-FAQ`, `TGL-BOOKING` (reserva/turnos), `TGL-MAP` (mapa/NAP).
-
-Cuando arranquemos: replicar el patrón de `templates/ecommerce/TPL-E-01` y extender
-`recommender.md` (mapa señal→plantilla corporate) y `toggles.md`.
+## Componentes corporate reutilizables
+`COMP-SERVICES`, `COMP-LEAD-FORM`, `COMP-PROCESS`, `COMP-CASES`, `COMP-LOGOS`, `COMP-STATS`,
+`COMP-TEAM`, `COMP-PORTFOLIO-GRID`, `COMP-FEATURES`, `COMP-PRICING`, `COMP-FAQ`, `COMP-BOOKING`,
+`COMP-MAP-NAP`, `COMP-GALLERY`, `COMP-CTA` (+ los compartidos `COMP-HEADER`/`COMP-HERO`/`COMP-FOOTER`/`COMP-TESTIMONIAL`).

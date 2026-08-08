@@ -23,10 +23,29 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-TRUST` | ¿Trust badges (pagos seguros, medios)? | sí / no | COMP-TRUST-BADGES | todas |
 | `TGL-CTA-STRENGTH` | ¿Qué tan agresivo el CTA? | suave / medio / fuerte | estilo de COMP-CTA | todas |
 
+## Catálogo de toggles — corporate
+
+| ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
+|----|--------------------|----------|--------|-----------|
+| `TGL-LEAD-FORM` | ¿Formulario en el hero o solo CTA (form al final)? | form en hero / solo CTA | COMP-LEAD-FORM | TPL-C-01 |
+| `TGL-LOGOS` | ¿Logos de clientes / credenciales? | sí / no | COMP-LOGOS | TPL-C-01, C-02, C-03 |
+| `TGL-PROCESS` | ¿Bloque "cómo trabajamos" / pasos? | sí / no | COMP-PROCESS | TPL-C-01 |
+| `TGL-CASES` | ¿Casos de éxito / resultados? | sí / no | COMP-CASES | TPL-C-01 |
+| `TGL-STATS` | ¿Cifras / números (años, clientes)? | sí / no | COMP-STATS | TPL-C-02 (fijo) |
+| `TGL-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-C-02 |
+| `TGL-FEATURES` | ¿Detalle de "qué incluye"? | sí / no | COMP-FEATURES | TPL-C-04 |
+| `TGL-PRICING` | ¿Tabla de precios / planes? | sí / no | COMP-PRICING | TPL-C-04 |
+| `TGL-FAQ` | ¿Preguntas frecuentes? | sí / no | COMP-FAQ | TPL-C-04 |
+| `TGL-BOOKING` | ¿Cómo reserva el cliente? | form/embed / WhatsApp / teléfono | COMP-BOOKING | TPL-C-05 |
+| `TGL-MAP` | ¿Mapa + ubicación? | sí / no | COMP-MAP-NAP | TPL-C-05 (fijo) |
+
+Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TGL-STYLE`,
+`TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`.
+
 ## Notas
 
-- Un toggle marcado **FIJO** en una plantilla no se pregunta (ej: `TGL-TESTIMONIALS` en TPL-E-03).
+- Un toggle marcado **FIJO** en una plantilla no se pregunta (ej: `TGL-TESTIMONIALS` en TPL-E-03,
+  `TGL-MAP` en TPL-C-05).
 - Los toggles nunca rompen el ADN. No hay toggle "poné storytelling en TPL-E-02" — si el cliente
   lo pide, sugerir cambiar de plantilla, no deformar la actual.
 - Cada `TPL-*` declara en su doc qué toggles admite y con qué default.
-- Toggles corporate (leads, servicios, equipo, casos) se agregan al definir los TPL-C-*.
