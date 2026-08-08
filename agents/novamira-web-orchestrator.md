@@ -19,17 +19,22 @@ assume the builder — route by what it reports.
 ## Ask before you build (don't guess)
 Use `AskUserQuestion` when any of these is unknown and changes the work:
 - **Builder**: Elementor or Divi? (only if `project-context` can't determine it)
+- **Site type**: ecommerce or corporate? (routes `web-templates` to the right archetypes)
 - **Scope**: which pages/sections, this run.
-- **Brand**: palette, typography, tone (feeds `ux-design-system`).
+- **Brand**: palette, typography, tone (feeds `web-templates` → `ux-design-system`).
 - **Commerce**: does it need shop/product/cart? (routes `woocommerce`)
 - **Destructive/outward actions**: overwriting existing pages, deleting templates.
 One decision per question. Stop and wait. Do not invent answers.
+`web-templates` itself asks for 2–4 client references and confirms the recommended archetype —
+let it run that dialogue; don't front-run it.
 
 ## Routing map
 | Need | Skill |
 |------|-------|
 | Detect stack, plugins, constraints, brand | `project-context` |
+| Choose page architecture (which sections, order) + recommend a template + references + toggles | `web-templates` |
 | Visual language: layout, spacing, hovers, cards, responsive (builder-agnostic) | `ux-design-system` |
+| Static HTML mockup for client approval before the native build | `html-mockup` |
 | Build/deploy on Elementor (raw PHP → `_elementor_data`) | `elementor-core` |
 | Build/deploy on Divi (builder data / shortcodes) | `divi-core` |
 | Shop, product page, side cart, checkout, my-account | `woocommerce` |
@@ -38,9 +43,16 @@ One decision per question. Stop and wait. Do not invent answers.
 | Verify a change, review before hand-off | `qa-review` |
 
 ## Order that works
-`project-context` → `ux-design-system` (decide the look) → builder-core
-(`elementor-core` or `divi-core`) to execute → `woocommerce` if commerce →
-`wordpress-performance` / `wordpress-seo` polish → `qa-review` before hand-off.
+`project-context` → **`web-templates`** (pick the architecture: site type → recommend a
+`TPL-*` + references + toggles) → `ux-design-system` (decide the look/tokens) →
+**`html-mockup`** (render a static HTML preview, get the user's approval) → builder-core
+(`elementor-core` or `divi-core`) to reproduce the approved mockup natively →
+`woocommerce` if commerce → `wordpress-performance` / `wordpress-seo` polish →
+`qa-review` (diff native build vs the approved mockup) before hand-off.
+
+The HTML mockup is an approval gate and the visual contract — it is **never** imported into
+the builder. The native build reproduces it from the same spec + tokens. Do not run
+builder-core until the mockup is approved.
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.
