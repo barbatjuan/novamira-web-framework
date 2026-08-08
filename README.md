@@ -14,12 +14,20 @@ agents/novamira-web-orchestrator.md   # tiny router (thinks, asks, routes)
 skills/
   _novamira-framework.md              # architecture overview
   project-context/                    # detect builder (elementor|divi), plugins, brand
+  web-templates/                      # page ARCHITECTURE: archetypes + recommender + toggles (ecommerce|corporate)
   ux-design-system/                   # builder-agnostic visual language (tokens, motion, layout)
+  html-mockup/                        # static HTML preview for client approval before the native build
   elementor-core/                     # Elementor execution — battle-tested (+ es-builder.php)
   divi-core/                          # Divi execution — scaffold, grow the gotchas
   woocommerce/                        # shop / product / side cart / templates
   wordpress-performance/  wordpress-seo/  qa-review/
 ```
+
+**Build flow:** `project-context` → `web-templates` (pick a `TPL-*` archetype by site type,
+ask for references, resolve toggles) → `ux-design-system` (tokens/look) → `html-mockup`
+(approve a static preview) → `elementor-core`/`divi-core` (reproduce it natively) →
+`woocommerce`/`performance`/`seo` → `qa-review` (diff native vs approved mockup). The mockup
+is an approval gate and visual contract — never imported into the builder.
 Two kinds of skill: **knowledge** (teach, modify nothing) and **operative** (deploy). Each
 core skill splits stable `references/knowledge.md` from hard-won `references/gotchas.md`.
 
