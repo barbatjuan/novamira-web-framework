@@ -77,6 +77,16 @@ per-breakpoint notes of the `TPL-*.md`:
 - Never let `body` scroll horizontally. Carousels scroll inside their own `overflow-x:auto`.
 - Use relative units and `max-width:100%`. Test the three breakpoints before publishing.
 
+## Multi-page preview: ONE artifact, in-page switching
+When previewing several pages of the same site, publish **one** Artifact with all pages as
+`<div class="page">` sections and switch between them with in-page JS (`show(id)` toggling
+`.active`). Do NOT split pages across multiple Artifacts and link them with `target="_top"` —
+cross-artifact navigation is flaky in the sandbox (dead clicks, "logo doesn't return home").
+Keep the **header, announcement bar and footer as global elements OUTSIDE the `.page`
+containers** so they never disappear when the active page changes. The logo switches to `home`;
+nav items and the cart icon switch pages; product cards open the PDP. (Per-page separate files
+are still correct as the handoff spec for the native build — this rule is about the preview UX.)
+
 ## Handoff
 On approval, list the sections present (in order) + the token values used. `elementor-core` /
 `divi-core` reproduce this NATIVELY; `qa-review` compares the native output against this mockup.
