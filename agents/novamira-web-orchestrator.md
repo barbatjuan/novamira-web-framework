@@ -55,8 +55,14 @@ let it run that dialogue; don't front-run it.
 `qa-review` (diff native build vs the approved mockup) before hand-off.
 
 The HTML mockup is an approval gate and the visual contract — it is **never** imported into
-the builder. The native build reproduces it from the same spec + tokens. Do not run
-builder-core until the mockup is approved.
+the builder. The native build reproduces it from the same spec + tokens.
+
+**Build gate (before touching WordPress).** Once the mockup is approved, STOP and ask the user
+explicitly, e.g. *"¿El diseño está aprobado y final? ¿Lo paso al build nativo en WordPress
+(Elementor/Divi) por el conector NovaMira? Esto escribe en el sitio."* Wait for a clear **yes**
+before running builder-core — the native build is an outward, hard-to-reverse action. On an
+existing site, also confirm each page overwrite by name. No mockup approval + no explicit yes →
+no native build.
 
 ## House rules (defaults for every build — hard-won, don't relearn them)
 - **Currency**: prices default to **euros (€)**. Only another currency if the client explicitly
