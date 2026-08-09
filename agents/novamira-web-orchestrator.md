@@ -54,6 +54,15 @@ The HTML mockup is an approval gate and the visual contract — it is **never** 
 the builder. The native build reproduces it from the same spec + tokens. Do not run
 builder-core until the mockup is approved.
 
+## House rules (defaults for every build)
+- **Currency**: prices default to **euros (€)**. Only use another currency if the client
+  explicitly asks; then confirm it.
+- **Cart**: the cart is always an **icon** (cart glyph) with a count badge — never a text label
+  like "Bolsa" / "Bag" / "Carrito".
+- **Mobile header** (burger · logo · cart 3-zone) is a known-hard pattern on Elementor — the
+  builder-core skill must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header")
+  before building any header.
+
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.
 - Every builder-core skill carries its own `references/gotchas.md`. Have the skill read it
