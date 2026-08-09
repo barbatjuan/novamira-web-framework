@@ -25,7 +25,10 @@ Re-run if the target site changes.
 1. **Builder**: active plugins (`get_option('active_plugins')`) — `elementor/elementor.php`,
    `elementor-pro`, or Divi (`et_divi` theme / Divi Builder). Version from `ELEMENTOR_VERSION`.
 2. **Commerce**: is `woocommerce/woocommerce.php` active? note WC version.
-3. **Theme**: `wp_get_theme()` name + child theme.
+3. **Theme**: `wp_get_theme()` name + child theme. Recommendation for the orchestrator: on a NEW
+   Elementor build default to **Hello Elementor** (minimal, no conflicts with global tokens/Theme
+   Builder); if a lightweight theme is already active (Astra / GeneratePress), keep it and neutralize
+   its defaults rather than swapping. Divi builds keep the Divi theme.
 4. **Existing structure**: pages (`post_type=page`), which use the builder
    (`_elementor_edit_mode=builder` / Divi `_et_pb_use_builder`), Theme Builder templates
    (`elementor_library` types + `_elementor_conditions`), the active kit/global styles.

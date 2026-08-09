@@ -63,6 +63,9 @@ builder-core until the mockup is approved.
   asks; then confirm it.
 - **Cart**: always an **icon** (cart glyph) with a count badge — never a text label ("Bolsa" /
   "Bag" / "Carrito").
+- **Theme**: new **Elementor** builds default to **Hello Elementor** (minimal, no styles that fight
+  the global tokens / Theme Builder). Don't swap an existing lightweight theme (Astra / GeneratePress)
+  — keep it and neutralize its defaults. **Divi** builds use the Divi theme itself (no Hello/Astra).
 - **Logo → home**: the header logo always links to the homepage, on every page.
 - **Navbar is real navigation**: exactly ONE menu (never a second nav or a duplicated item), every
   item is navigable, and the header stays visible/sticky and consistent across every page. No
