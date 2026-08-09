@@ -58,14 +58,21 @@ The HTML mockup is an approval gate and the visual contract — it is **never** 
 the builder. The native build reproduces it from the same spec + tokens. Do not run
 builder-core until the mockup is approved.
 
-## House rules (defaults for every build)
-- **Currency**: prices default to **euros (€)**. Only use another currency if the client
-  explicitly asks; then confirm it.
-- **Cart**: the cart is always an **icon** (cart glyph) with a count badge — never a text label
-  like "Bolsa" / "Bag" / "Carrito".
-- **Mobile header** (burger · logo · cart 3-zone) is a known-hard pattern on Elementor — the
-  builder-core skill must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header")
-  before building any header.
+## House rules (defaults for every build — hard-won, don't relearn them)
+- **Currency**: prices default to **euros (€)**. Only another currency if the client explicitly
+  asks; then confirm it.
+- **Cart**: always an **icon** (cart glyph) with a count badge — never a text label ("Bolsa" /
+  "Bag" / "Carrito").
+- **Logo → home**: the header logo always links to the homepage, on every page.
+- **Navbar is real navigation**: exactly ONE menu (never a second nav or a duplicated item), every
+  item is navigable, and the header stays visible/sticky and consistent across every page. No
+  dead links, no page that loses its header.
+- **Reuse header/footer** verbatim across all pages of the site (one global component each).
+- **Mobile header** (burger · logo · cart 3-zone) is a known-hard pattern on Elementor — builder-core
+  must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header") before building headers.
+- **Mockups** (`html-mockup`): one Artifact with in-page navigation, header/announcement/footer as
+  global elements OUTSIDE the page containers; never split pages across Artifacts with `target="_top"`
+  links. Start from `html-mockup/assets/ecommerce-mockup.html`. Detail: `html-mockup/references/mockup-guide.md`.
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.
