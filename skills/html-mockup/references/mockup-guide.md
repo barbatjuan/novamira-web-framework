@@ -69,8 +69,9 @@ per-breakpoint notes of the `TPL-*.md`:
 - **Benefits**: 2×2 mobile → row of 3–4 desktop.
 - **Testimonials**: 1 per view (snap row) mobile → 3 cols desktop.
 - **Newsletter**: stacked mobile → inline (`display:flex`) desktop.
-- **Header/Footer**: sticky header with logo + nav placeholder + cart; footer columns collapse to
-  stacked on mobile.
+- **Header/Footer**: sticky header with logo + nav placeholder + cart. The **logo always links to
+  home** (`href="/"`). Cart is an **icon** with a count badge, never a text label. Footer columns
+  collapse to stacked on mobile. Reuse the exact same header/footer across every page of the set.
 
 ## Responsive rules
 - Never let `body` scroll horizontally. Carousels scroll inside their own `overflow-x:auto`.
