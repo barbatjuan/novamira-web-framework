@@ -99,7 +99,7 @@ heredar el default coherente con la home.
 
 | Tipo de sitio | Set de páginas sugerido |
 |---------------|-------------------------|
-| Ecommerce | Home + **Shop/Catálogo** + **Product/PDP** + **About** + **Contacto** (Cart/Checkout los arma `woocommerce`) |
+| Ecommerce | Home + **Shop/Catálogo** + **Product/PDP** + **Carrito** + **Checkout** (layout; funcional = `woocommerce`) + **About** + **Contacto** |
 | Corporate | Home + **About** + **Contacto** (+ Services/Portfolio según la home) |
 
 Herencia de default (coherencia con la home):

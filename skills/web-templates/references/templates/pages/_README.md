@@ -10,6 +10,8 @@ Precios siempre en **€** (regla de casa del orquestador).
 |--------|-----------|-----------|
 | Product / PDP | `TPL-PDP-01` Standard, `TPL-PDP-02` Editorial | ecommerce |
 | Shop / Catálogo | `TPL-SHOP-01` Sidebar, `TPL-SHOP-02` Full-width | ecommerce |
+| Carrito | `TPL-CART-01` (side-cart + página) | ecommerce |
+| Checkout | `TPL-CHECKOUT-01` (solo layout — funcional = `woocommerce`) | ecommerce |
 | About / Nosotros | `TPL-ABOUT-01` | ecommerce + corporate |
 | Contacto | `TPL-CONTACT-01` | ecommerce + corporate |
 

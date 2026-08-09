@@ -51,6 +51,12 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-ABOUT-STATS` | ¿Cifras/números en Nosotros? | sí / no | COMP-STATS | TPL-ABOUT-01 |
 | `TGL-ABOUT-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-ABOUT-01 |
 | `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 |
+| `TGL-CART-VIEW` | ¿Carrito como drawer, página o ambos? | drawer / page / both | side-cart / cart page | TPL-CART-01 |
+| `TGL-CART-CROSSSELL` | ¿"Completá tu compra" en el carrito? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-CART-01 |
+| `TGL-CART-SHIPBAR` | ¿Barra "te falta €X para envío gratis"? | sí / no | side-cart | TPL-CART-01 |
+| `TGL-ORDER-SUMMARY` | ¿Resumen de orden sticky? | sticky / colapsable | resumen | TPL-CART-01, TPL-CHECKOUT-01 |
+| `TGL-CHECKOUT-STEPS` | ¿Checkout en 1 paso o 2 pasos? | 1-step / 2-step | form checkout | TPL-CHECKOUT-01 |
+| `TGL-CHECKOUT-HEADER` | ¿Header de checkout minimal o completo? | minimal / full | COMP-HEADER | TPL-CHECKOUT-01 |
 
 Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TGL-STYLE`,
 `TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`, `TGL-TRUST`, `TGL-FAQ`, `TGL-CARD-STYLE`,
