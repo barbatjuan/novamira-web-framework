@@ -1,0 +1,440 @@
+<!--
+  NovaMira · ecommerce mockup reference (brand-neutral)
+  Single-artifact, in-page navigation, global header/footer OUTSIDE the .page containers.
+  Pages: home · shop · pdp · cart · checkout · about · contact. Prices in €. Cart = icon.
+  To re-brand for a client: (1) swap the :root tokens (colors/fonts/radii) for the brand,
+  (2) replace "MARCA" + copy + placeholder .ph blocks with real content, (3) keep only the
+  pages/sections the resolved archetypes call for. Checkout is LAYOUT ONLY — woocommerce builds
+  the functional one. See ../SKILL.md and ../references/mockup-guide.md.
+-->
+<style>
+  :root{
+    --font-display: Georgia,'Times New Roman',serif;
+    --font-body: system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+    --fs-h1: clamp(2.2rem,5.5vw,4rem); --fs-h2: clamp(1.6rem,3.4vw,2.5rem); --fs-h3:1.25rem;
+    --fs-body: clamp(1rem,1.1vw,1.075rem); --fs-small:.82rem; --fs-eyebrow:.72rem;
+    --fs-price:1.2rem; --fs-price-old:.9rem;
+    --c-paper:#F3EFEA; --c-sand:#E7E0D6; --c-ink:#211E1B; --c-muted:#7A7167; --c-border:#D9D1C4; --c-accent:#5C574F;
+    --c-bg:var(--c-paper); --c-bg-alt:var(--c-sand); --c-text:var(--c-ink); --c-text-muted:var(--c-muted); --c-line:var(--c-border);
+    --sp-s:1rem; --sp-m:1.5rem; --sp-l:3rem; --sp-xl:5rem;
+    --content:1180px; --pad-x:20px; --r:2px; --ease:cubic-bezier(.22,1,.36,1);
+  }
+  @media (prefers-color-scheme: dark){:root{--c-bg:#17150F;--c-bg-alt:#211E17;--c-text:#EDE7DC;--c-text-muted:#9A9184;--c-line:#3A352B;--c-accent:#B7B0A6;}}
+  :root[data-theme="dark"]{--c-bg:#17150F;--c-bg-alt:#211E17;--c-text:#EDE7DC;--c-text-muted:#9A9184;--c-line:#3A352B;--c-accent:#B7B0A6;}
+  :root[data-theme="light"]{--c-bg:var(--c-paper);--c-bg-alt:var(--c-sand);--c-text:var(--c-ink);--c-text-muted:var(--c-muted);--c-line:var(--c-border);--c-accent:#5C574F;}
+  *{box-sizing:border-box} body,figure,h1,h2,h3,p,ul,form{margin:0;padding:0}
+  body{font-family:var(--font-body);color:var(--c-text);background:var(--c-bg);line-height:1.6;font-size:var(--fs-body)}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.1;font-weight:600;text-wrap:balance}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3)}
+  a{color:inherit;text-decoration:none} img{max-width:100%}
+  .wrap{max-width:var(--content);margin-inline:auto;padding-inline:var(--pad-x)}
+  section{padding-block:var(--sp-xl)}
+  .eyebrow{font-size:var(--fs-eyebrow);letter-spacing:.22em;text-transform:uppercase;color:var(--c-text-muted);font-weight:600}
+  .muted{color:var(--c-text-muted)}
+  .bg-alt{background:var(--c-bg-alt)}
+  .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-line) 55%,transparent) 11px,color-mix(in srgb,var(--c-line) 55%,transparent) 12px),var(--c-bg-alt);
+      border:1px solid var(--c-line);display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.14em;text-transform:uppercase;border-radius:var(--r)}
+  .btn{display:inline-block;padding:.9rem 1.9rem;font-size:.85rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--r);border:1px solid var(--c-text);cursor:pointer;transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);background:transparent;color:var(--c-text)}
+  .btn-primary{background:var(--c-text);color:var(--c-bg)}
+  .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);transform:translateY(-2px)}
+  .btn-outline:hover{background:var(--c-text);color:var(--c-bg);transform:translateY(-2px)}
+  input,textarea{font:inherit;color:inherit;background:transparent;border:1px solid var(--c-text);border-radius:var(--r);padding:.85rem 1rem}
+  :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  .note{background:var(--c-accent);color:#fff;text-align:center;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.4rem}
+  .ann{background:var(--c-text);color:var(--c-bg);text-align:center;font-size:var(--fs-small);letter-spacing:.08em;padding:.55rem;text-transform:uppercase}
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--c-line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-m);padding-block:.9rem}
+  .logo{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.35em;padding-left:.35em;cursor:pointer}
+  .mainnav{display:flex;gap:1.1rem;overflow-x:auto;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;scrollbar-width:none}
+  .mainnav::-webkit-scrollbar{display:none}
+  .mainnav a{padding:.3rem 0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--c-text-muted)}
+  .mainnav a[aria-current]{color:var(--c-text);border-color:var(--c-accent)}
+  .tools{display:flex;align-items:center;gap:1.1rem}
+  .tools .srch{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  .icart{position:relative;display:inline-flex;width:24px;height:24px;cursor:pointer}
+  .icart svg{width:24px;height:24px;stroke:var(--c-text);fill:none;stroke-width:1.5}
+  .icart b{position:absolute;top:-6px;right:-8px;background:var(--c-accent);color:#fff;font-size:.6rem;font-weight:700;min-width:15px;height:15px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
+
+  .page{display:none} .page.active{display:block}
+  .breadcrumb{font-size:var(--fs-small);color:var(--c-text-muted);letter-spacing:.04em;padding-top:var(--sp-m)}
+  .price{font-size:var(--fs-price);font-weight:600} .price s{color:var(--c-text-muted);font-size:var(--fs-price-old);margin-right:.5rem}
+  .head{display:flex;align-items:end;justify-content:space-between;gap:var(--sp-m);margin-bottom:var(--sp-l)}
+  .linkline{letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;cursor:pointer}
+
+  /* HOME */
+  .hero{position:relative;min-height:70vh;display:grid}
+  .hero>.ph{border:none;border-radius:0;min-height:70vh}
+  .hero .inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--sp-m);padding:var(--sp-l) var(--pad-x) var(--sp-xl);background:linear-gradient(to top,color-mix(in srgb,var(--c-ink) 55%,transparent),transparent 60%)}
+  .hero .inner *{color:#F3EFEA} .hero h1{max-width:12ch}
+  .hero .btn-outline{color:#F3EFEA;border-color:#F3EFEA}.hero .btn-outline:hover{background:#F3EFEA;color:var(--c-ink)}
+  .slider-dots{display:flex;gap:.5rem}.slider-dots i{width:26px;height:2px;background:#F3EFEA;opacity:.4}.slider-dots i:first-child{opacity:1}
+  @media(min-width:768px){.hero,.hero>.ph{min-height:60vh}.hero .inner{padding-inline:6%}}
+  .grid{display:grid;gap:var(--sp-m)}
+  .cats{grid-template-columns:1fr 1fr}
+  .cat{position:relative;display:block;cursor:pointer}.cat .ph{aspect-ratio:3/4}
+  .cat .label{position:absolute;left:1rem;bottom:1rem;color:#F3EFEA;font-family:var(--font-display);font-size:1.2rem;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+  @media(min-width:768px){.cats{grid-template-columns:repeat(4,1fr)}}
+  .rail{display:grid;grid-auto-flow:column;grid-auto-columns:70%;gap:var(--sp-m);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:1rem}
+  .rail .card{scroll-snap-align:start}.card{cursor:pointer}.card .ph{aspect-ratio:3/4;margin-bottom:.8rem}.card h3{font-family:var(--font-body);font-size:.92rem;font-weight:600}
+  @media(min-width:768px){.rail{grid-auto-columns:1fr;grid-template-columns:repeat(4,1fr);overflow:visible}}
+  .editorial{display:grid;gap:var(--sp-l);align-items:center}.editorial .ph{aspect-ratio:4/5}
+  @media(min-width:768px){.editorial{grid-template-columns:1fr 1fr}}
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
+  .benefit .ico{width:34px;height:34px;margin:0 auto .7rem;border:1px solid var(--c-text);border-radius:50%}
+  .benefit h3{font-family:var(--font-body);font-size:.95rem}
+  @media(min-width:768px){.benefits{grid-template-columns:repeat(4,1fr)}}
+  .quotes{display:grid;gap:var(--sp-l)}.quote{border-top:1px solid var(--c-line);padding-top:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s)}.quote p{font-family:var(--font-display);font-size:1.2rem;line-height:1.45}
+  @media(min-width:768px){.quotes{grid-template-columns:repeat(3,1fr)}}
+  .news{text-align:center;display:flex;flex-direction:column;gap:var(--sp-m);align-items:center}
+  .news form{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:440px}.news input{flex:1}
+  @media(min-width:560px){.news form{flex-direction:row}}
+
+  /* SHOP */
+  .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;margin-block:var(--sp-m);position:sticky;top:53px;background:var(--c-bg);padding-block:.6rem;z-index:30}
+  .chips{display:flex;gap:.5rem;overflow-x:auto}.chips span{border:1px solid var(--c-line);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;white-space:nowrap;cursor:pointer}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-m)}.grid4 article{cursor:pointer}.grid4 .ph{aspect-ratio:3/4;margin-bottom:.6rem}
+  .grid4 h3{font-family:var(--font-body);font-size:.92rem;font-weight:600}
+  .pagination{display:flex;gap:.4rem;justify-content:center;margin-top:var(--sp-l)}
+  .pagination span{border:1px solid var(--c-line);width:40px;height:40px;display:grid;place-items:center;border-radius:var(--r);cursor:pointer}
+  .pagination span[aria-current]{background:var(--c-text);color:var(--c-bg)}
+  @media(min-width:640px){.grid4{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:1024px){.grid4{grid-template-columns:repeat(4,1fr)}}
+
+  /* PDP */
+  .pdp{display:grid;gap:var(--sp-l)}.pdp .gallery{display:grid;gap:var(--sp-s)}.pdp .gallery .ph{aspect-ratio:4/5}
+  .pdp .info{display:flex;flex-direction:column;gap:var(--sp-m);align-self:start}
+  .swatch{display:flex;gap:.5rem}.swatch i{width:30px;height:30px;border-radius:50%;border:1px solid var(--c-line);display:block}
+  .swatch i:nth-child(1){background:#211E1B}.swatch i:nth-child(2){background:#B8A991}.swatch i:nth-child(3){background:#5C574F}
+  .sizes{display:flex;gap:.4rem;flex-wrap:wrap}.sizes span{border:1px solid var(--c-line);padding:.5rem .8rem;font-size:.85rem;border-radius:var(--r);cursor:pointer}
+  .acc details{border-top:1px solid var(--c-line);padding:1rem 0}.acc summary{cursor:pointer;font-weight:600}
+  @media(min-width:768px){.pdp{grid-template-columns:1.3fr 1fr;align-items:start}.pdp .info{position:sticky;top:70px}}
+
+  /* ABOUT */
+  .hero-sm{position:relative;min-height:38vh;display:grid}.hero-sm>.ph{border:none;border-radius:0;min-height:38vh}
+  .hero-sm .in{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:.6rem;padding:var(--pad-x);background:linear-gradient(color-mix(in srgb,var(--c-ink) 25%,transparent),color-mix(in srgb,var(--c-ink) 45%,transparent))}
+  .hero-sm .in *{color:#F3EFEA}
+  .values,.stats,.team{display:grid;gap:var(--sp-l) var(--sp-m);text-align:center}
+  .values{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.team{grid-template-columns:1fr 1fr}
+  .stat b{font-family:var(--font-display);font-size:2.4rem;display:block}.ico{width:34px;height:34px;border:1px solid var(--c-text);border-radius:50%;margin:0 auto .7rem}
+  .team .ph{aspect-ratio:1/1;margin-bottom:.6rem}
+  @media(min-width:768px){.values,.stats,.team{grid-template-columns:repeat(4,1fr)}}
+
+  /* CONTACT */
+  .contact{display:grid;gap:var(--sp-l)}.cform{display:flex;flex-direction:column;gap:.8rem}
+  .cdata{display:flex;flex-direction:column;gap:var(--sp-m)}.cdata b{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:.2rem}
+  .map .ph{aspect-ratio:21/9}
+  @media(min-width:768px){.contact{grid-template-columns:1.2fr 1fr}}
+
+  /* CART + CHECKOUT */
+  .cartgrid{display:grid;gap:var(--sp-l)}
+  .cart{display:flex;flex-direction:column}
+  .citem{display:grid;grid-template-columns:56px 1fr auto;gap:var(--sp-m);align-items:center;border-bottom:1px solid var(--c-line);padding-block:var(--sp-m)}
+  .citem .ph{width:56px;height:72px}
+  .citem h3{font-family:var(--font-body);font-size:.95rem;font-weight:600}
+  .rm{font-size:.72rem;color:var(--c-text-muted);cursor:pointer;letter-spacing:.06em}
+  .stepper{display:inline-flex;align-items:center;border:1px solid var(--c-line);border-radius:var(--r);margin-top:.5rem}
+  .stepper button{background:none;border:none;color:inherit;font:inherit;padding:.25rem .7rem;cursor:pointer}
+  .stepper span{min-width:2ch;text-align:center;font-size:.9rem}
+  .summary{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:var(--r);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem;align-self:start}
+  .summary .row{display:flex;justify-content:space-between;font-size:.92rem}
+  .summary .total{border-top:1px solid var(--c-line);padding-top:.7rem;font-weight:700;font-size:1.05rem}
+  .summary .coupon{display:flex;gap:.4rem}.summary .coupon input{flex:1;padding:.6rem .8rem}
+  .cofields{display:flex;flex-direction:column;gap:var(--sp-m)}
+  .cofields fieldset{border:1px solid var(--c-line);border-radius:var(--r);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem}
+  .cofields legend{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);padding:0 .4rem}
+  .cofields input{width:100%}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .trust{display:flex;gap:1rem;flex-wrap:wrap;color:var(--c-text-muted);font-size:.8rem}
+  @media(min-width:768px){
+    .cartgrid{grid-template-columns:1.6fr 1fr;align-items:start}
+    .checkout{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp-l);align-items:start}
+    .summary.sticky{position:sticky;top:70px}
+  }
+
+  footer.site{background:var(--c-text);color:var(--c-bg);padding-block:var(--sp-xl) var(--sp-l);margin-top:var(--sp-xl)}
+  footer.site a{color:var(--c-bg);opacity:.75}.fcols{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m)}
+  .fcols h3{font-family:var(--font-body);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
+  .fcols ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;font-size:.9rem}
+  .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
+  @media(min-width:768px){.fcols{grid-template-columns:2fr 1fr 1fr}}
+</style>
+
+<div class="note">Maqueta estructural · MARCA · sitio completo · precios en € · sin fotos/textos finales</div>
+<div class="ann">Envío sin cargo desde €90 · 3 cuotas sin interés</div>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="logo" data-t="home" aria-label="MARCA — inicio">MARCA</a>
+    <nav class="mainnav">
+      <a data-t="shop">Tienda</a>
+      <a data-t="about">Nosotros</a>
+      <a data-t="contact">Contacto</a>
+    </nav>
+    <div class="tools">
+      <span class="srch">Buscar</span>
+      <a class="icart" data-t="cart" aria-label="Carrito, 3 productos">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/><path d="M2 3h2l2.4 13.2a1.5 1.5 0 0 0 1.5 1.3h9.2a1.5 1.5 0 0 0 1.5-1.2L21 7H5"/></svg>
+        <b>3</b>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HOME · TPL-E-01 ================= -->
+<div class="page active" id="home">
+  <section class="hero" style="padding:0" aria-label="Hero">
+    <div class="ph">Imagen hero · slide 1/3</div>
+    <div class="inner wrap">
+      <span class="eyebrow">Colección Otoño</span>
+      <h1>La forma sigue al cuerpo</h1>
+      <div><a class="btn btn-outline" data-t="shop">Ver colección</a></div>
+      <div class="slider-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section aria-label="Categorías"><div class="wrap">
+    <div class="head"><div><span class="eyebrow">Explorar</span><h2>Categorías</h2></div><a class="muted linkline" data-t="shop">Ver todo</a></div>
+    <div class="grid cats">
+      <a class="cat" data-t="shop"><div class="ph">&nbsp;</div><span class="label">Remeras</span></a>
+      <a class="cat" data-t="shop"><div class="ph">&nbsp;</div><span class="label">Pantalones</span></a>
+      <a class="cat" data-t="shop"><div class="ph">&nbsp;</div><span class="label">Abrigos</span></a>
+      <a class="cat" data-t="shop"><div class="ph">&nbsp;</div><span class="label">Accesorios</span></a>
+    </div>
+  </div></section>
+
+  <section aria-label="Destacados"><div class="wrap">
+    <div class="head"><div><span class="eyebrow">Selección</span><h2>Destacados</h2></div><a class="muted linkline" data-t="shop">Toda la tienda</a></div>
+    <div class="rail">
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Camisa lino crudo</h3><div class="price">€68,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Pantalón sastrero</h3><div class="price">€94,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Trench algodón</h3><div class="price"><s>€180,00</s>€145,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Sweater lana</h3><div class="price">€82,00</div></article>
+    </div>
+  </div></section>
+
+  <section aria-label="Editorial"><div class="wrap editorial">
+    <div class="ph">Lookbook</div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start">
+      <span class="eyebrow">Lookbook OI25</span><h2>Menos, pero mejor</h2>
+      <p class="muted">Prendas pensadas para durar: fibras naturales, moldería atemporal, paleta que no pasa de moda.</p>
+      <a class="btn btn-outline" data-t="about">Nuestra historia</a>
+    </div>
+  </div></section>
+
+  <section class="bg-alt" aria-label="Beneficios"><div class="wrap benefits">
+    <div class="benefit"><div class="ico"></div><h3>Envío a todo el país</h3><p class="muted" style="font-size:.85rem">Gratis desde €90</p></div>
+    <div class="benefit"><div class="ico"></div><h3>Cambios sin costo</h3><p class="muted" style="font-size:.85rem">30 días</p></div>
+    <div class="benefit"><div class="ico"></div><h3>3 cuotas sin interés</h3><p class="muted" style="font-size:.85rem">Todas las tarjetas</p></div>
+    <div class="benefit"><div class="ico"></div><h3>Pago seguro</h3><p class="muted" style="font-size:.85rem">Protección total</p></div>
+  </div></section>
+
+  <section aria-label="Testimonios"><div class="wrap">
+    <div class="head"><div><span class="eyebrow">Clientas</span><h2>Lo que dicen</h2></div></div>
+    <div class="quotes">
+      <figure class="quote"><p>“La calidad de las telas se nota apenas las tocás.”</p><figcaption class="muted" style="font-size:.85rem">Malena R.</figcaption></figure>
+      <figure class="quote"><p>“Moldería impecable y envío rapidísimo.”</p><figcaption class="muted" style="font-size:.85rem">Sofía T.</figcaption></figure>
+      <figure class="quote"><p>“Prendas que combinan con todo.”</p><figcaption class="muted" style="font-size:.85rem">Camila V.</figcaption></figure>
+    </div>
+  </div></section>
+
+  <section class="bg-alt" aria-label="Newsletter"><div class="wrap news">
+    <span class="eyebrow">Comunidad MARCA</span><h2>10% en tu primera compra</h2>
+    <p class="muted">Sumate y recibí lanzamientos antes que nadie.</p>
+    <form onsubmit="return false"><input type="email" placeholder="Tu email" aria-label="Email"><button class="btn btn-primary" type="submit">Suscribirme</button></form>
+  </div></section>
+</div>
+
+<!-- ================= TIENDA · TPL-SHOP-02 ================= -->
+<div class="page" id="shop"><main class="wrap">
+  <p class="breadcrumb">Inicio / Tienda</p>
+  <section style="padding-block:var(--sp-l);text-align:center">
+    <span class="eyebrow">Catálogo</span><h1 style="margin:.4rem 0">Tienda</h1>
+    <p class="muted">Edición corta, fibras naturales. 24 productos.</p>
+    <p class="muted" style="font-size:.78rem;margin-top:.4rem">Tip de maqueta: cliqueá un producto para ver la ficha (PDP).</p>
+  </section>
+  <div class="toolbar">
+    <div class="chips"><span>Categoría ▾</span><span>Talle ▾</span><span>Color ▾</span><span>Precio € ▾</span></div>
+    <span class="muted" style="font-size:.8rem">Ordenar: Novedad ▾</span>
+  </div>
+  <div class="grid4">
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Camisa lino crudo</h3><div class="price">€68,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Pantalón sastrero</h3><div class="price">€94,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Trench algodón</h3><div class="price"><s>€180,00</s>€145,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Sweater lana</h3><div class="price">€82,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Camisa oxford</h3><div class="price">€59,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Vestido midi</h3><div class="price">€110,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Blazer lino</h3><div class="price">€135,00</div></article>
+    <article class="to-pdp"><div class="ph">Producto</div><h3>Falda plisada</h3><div class="price">€72,00</div></article>
+  </div>
+  <div class="pagination"><span aria-current="page">1</span><span>2</span><span>3</span><span>→</span></div>
+</main></div>
+
+<!-- ================= PDP · TPL-PDP-02 ================= -->
+<div class="page" id="pdp"><main class="wrap">
+  <p class="breadcrumb">Inicio / <a class="linkline" data-t="shop" style="text-transform:none;letter-spacing:0;text-decoration:underline">Tienda</a> / Camisa lino crudo</p>
+  <section class="pdp" style="padding-top:var(--sp-m)">
+    <div class="gallery"><div class="ph">Foto producto 1</div><div class="ph">Foto producto 2</div></div>
+    <div class="info">
+      <span class="eyebrow">Colección Otoño</span><h1>Camisa lino crudo</h1>
+      <div class="price">€68,00</div>
+      <p class="muted">Lino europeo, corte holgado, botones de coco. Edición corta.</p>
+      <div><span class="eyebrow">Color</span><div class="swatch" style="margin-top:.5rem"><i></i><i></i><i></i></div></div>
+      <div><span class="eyebrow">Talle</span><div class="sizes" style="margin-top:.5rem"><span>XS</span><span>S</span><span>M</span><span>L</span><span>XL</span></div></div>
+      <button class="btn btn-primary" style="width:100%">Agregar al carrito · €68,00</button>
+      <p class="muted" style="font-size:.85rem">Envío sin cargo desde €90 · 3 cuotas sin interés</p>
+    </div>
+  </section>
+  <section class="editorial"><div class="ph">Detalle / fit</div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start">
+      <span class="eyebrow">El detalle</span><h2>Hecha para durar</h2>
+      <p class="muted">El lino se ablanda con cada lavado. Costuras francesas, cero plástico en el packaging.</p>
+    </div>
+  </section>
+  <section class="acc" style="padding-block:var(--sp-l)">
+    <details open><summary>Descripción</summary><p class="muted" style="margin-top:.6rem">100% lino. Corte relajado. La modelo mide 1,75 m y usa talle S.</p></details>
+    <details><summary>Envíos</summary><p class="muted" style="margin-top:.6rem">24–72 h en península. Gratis desde €90.</p></details>
+    <details><summary>Devoluciones</summary><p class="muted" style="margin-top:.6rem">30 días, sin costo.</p></details>
+  </section>
+  <section style="padding-top:0">
+    <span class="eyebrow">Completá el look</span><h2 style="margin:.4rem 0 var(--sp-m)">También te puede gustar</h2>
+    <div class="rail">
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Pantalón sastrero</h3><div class="price">€94,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Trench algodón</h3><div class="price"><s>€180,00</s>€145,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Sweater lana</h3><div class="price">€82,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Camisa oxford</h3><div class="price">€59,00</div></article>
+    </div>
+  </section>
+</main></div>
+
+<!-- ================= NOSOTROS · TPL-ABOUT-01 ================= -->
+<div class="page" id="about">
+  <div class="hero-sm"><div class="ph">Imagen marca</div><div class="in"><span class="eyebrow">Nosotros</span><h1>Menos, pero mejor</h1></div></div>
+  <main class="wrap">
+    <section class="editorial"><div class="ph">Historia</div>
+      <div style="display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start">
+        <span class="eyebrow">Desde 2019</span><h2>Ropa que no pasa de moda</h2>
+        <p class="muted">Nacimos cansados del descarte. Prendas atemporales, fibras naturales, ediciones cortas. Producción local, cero stock muerto.</p>
+      </div>
+    </section>
+    <section class="values">
+      <div><div class="ico"></div><h3>Fibras naturales</h3></div>
+      <div><div class="ico"></div><h3>Producción local</h3></div>
+      <div><div class="ico"></div><h3>Ediciones cortas</h3></div>
+      <div><div class="ico"></div><h3>Sin plástico</h3></div>
+    </section>
+    <section class="stats bg-alt" style="border-radius:var(--r);padding:var(--sp-l) var(--sp-m)">
+      <div class="stat"><b>6</b><span class="muted">años</span></div>
+      <div class="stat"><b>+12k</b><span class="muted">clientas</span></div>
+      <div class="stat"><b>100%</b><span class="muted">local</span></div>
+      <div class="stat"><b>0</b><span class="muted">stock muerto</span></div>
+    </section>
+    <section class="team">
+      <div><div class="ph"></div><h3>Ana</h3><p class="muted" style="font-size:.85rem">Dirección</p></div>
+      <div><div class="ph"></div><h3>Lucas</h3><p class="muted" style="font-size:.85rem">Diseño</p></div>
+      <div><div class="ph"></div><h3>Sofía</h3><p class="muted" style="font-size:.85rem">Producción</p></div>
+      <div><div class="ph"></div><h3>Marco</h3><p class="muted" style="font-size:.85rem">Atención</p></div>
+    </section>
+    <section style="text-align:center;display:flex;flex-direction:column;gap:var(--sp-m);align-items:center">
+      <h2>Conocé la colección</h2><a class="btn btn-primary" data-t="shop">Ver tienda</a>
+    </section>
+  </main>
+</div>
+
+<!-- ================= CONTACTO · TPL-CONTACT-01 ================= -->
+<div class="page" id="contact"><main class="wrap">
+  <section style="padding-block:var(--sp-l)"><span class="eyebrow">Contacto</span><h1 style="margin-top:.4rem">Hablemos</h1><p class="muted">Te respondemos dentro de las 24 h hábiles.</p></section>
+  <section class="contact" style="padding-top:0">
+    <form class="cform" onsubmit="return false">
+      <input placeholder="Nombre" aria-label="Nombre"><input type="email" placeholder="Email" aria-label="Email">
+      <input placeholder="Asunto" aria-label="Asunto"><textarea rows="5" placeholder="Mensaje" aria-label="Mensaje"></textarea>
+      <button class="btn btn-primary" type="submit">Enviar</button>
+    </form>
+    <div class="cdata">
+      <div><b>Showroom</b>Dirección 000 · Ciudad</div>
+      <div><b>Teléfono</b><a href="tel:+34600000000">+34 600 000 000</a></div>
+      <div><b>Email</b><a href="mailto:hola@marca.com">hola@marca.com</a></div>
+      <div><b>Horarios</b>Lun a Vie · 10–19 h</div>
+      <div><b>Seguinos</b>Instagram · TikTok</div>
+    </div>
+  </section>
+  <section class="map" style="padding-top:0"><div class="ph">Mapa · ubicación</div></section>
+</main></div>
+
+<!-- ================= CARRITO · TPL-CART-01 ================= -->
+<div class="page" id="cart"><main class="wrap">
+  <p class="breadcrumb">Inicio / Carrito</p>
+  <section style="padding-block:var(--sp-l)">
+    <div class="head"><div><span class="eyebrow">Tu carrito</span><h1>Carrito (3)</h1></div><a class="linkline muted" data-t="shop">Seguir comprando</a></div>
+    <div class="cartgrid">
+      <div class="cart">
+        <div class="citem"><div class="ph"></div><div><h3>Camisa lino crudo</h3><p class="muted" style="font-size:.82rem">Talle S · Crudo</p><div class="stepper"><button aria-label="Menos">–</button><span>1</span><button aria-label="Más">+</button></div></div><div style="text-align:right"><div class="price">€68,00</div><span class="rm">Quitar</span></div></div>
+        <div class="citem"><div class="ph"></div><div><h3>Pantalón sastrero</h3><p class="muted" style="font-size:.82rem">Talle M · Negro</p><div class="stepper"><button aria-label="Menos">–</button><span>1</span><button aria-label="Más">+</button></div></div><div style="text-align:right"><div class="price">€94,00</div><span class="rm">Quitar</span></div></div>
+        <div class="citem"><div class="ph"></div><div><h3>Sweater lana</h3><p class="muted" style="font-size:.82rem">Talle S · Camel</p><div class="stepper"><button aria-label="Menos">–</button><span>1</span><button aria-label="Más">+</button></div></div><div style="text-align:right"><div class="price">€82,00</div><span class="rm">Quitar</span></div></div>
+      </div>
+      <div class="summary sticky">
+        <div class="row"><span>Subtotal</span><span>€244,00</span></div>
+        <div class="coupon"><input placeholder="Cupón" aria-label="Cupón"><button class="btn btn-outline" style="padding:.6rem 1rem">Aplicar</button></div>
+        <div class="row muted"><span>Envío</span><span>Gratis</span></div>
+        <div class="row total"><span>Total</span><span>€244,00</span></div>
+        <button class="btn btn-primary" data-t="checkout" style="width:100%">Finalizar compra</button>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0">
+    <span class="eyebrow">Completá tu compra</span><h2 style="margin:.4rem 0 var(--sp-m)">También te puede gustar</h2>
+    <div class="rail">
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Camisa oxford</h3><div class="price">€59,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Falda plisada</h3><div class="price">€72,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Blazer lino</h3><div class="price">€135,00</div></article>
+      <article class="card to-pdp"><div class="ph">Producto</div><h3>Vestido midi</h3><div class="price">€110,00</div></article>
+    </div>
+  </section>
+</main></div>
+
+<!-- ================= CHECKOUT · TPL-CHECKOUT-01 (solo layout) ================= -->
+<div class="page" id="checkout"><main class="wrap">
+  <p class="breadcrumb">Inicio / <a class="linkline" data-t="cart" style="text-transform:none;letter-spacing:0;text-decoration:underline">Carrito</a> / Checkout</p>
+  <section style="padding-block:var(--sp-l)">
+    <div class="note" style="border-radius:var(--r);margin-bottom:var(--sp-l)">Solo estructura de layout — el checkout funcional (pagos, validación, envío) lo construye WooCommerce nativo</div>
+    <div class="checkout">
+      <form class="cofields" onsubmit="return false">
+        <fieldset><legend>Contacto</legend><input placeholder="Email" aria-label="Email"></fieldset>
+        <fieldset><legend>Envío</legend><input placeholder="Nombre y apellido" aria-label="Nombre"><div class="row2"><input placeholder="Dirección" aria-label="Dirección"><input placeholder="Código postal" aria-label="CP"></div><div class="row2"><input placeholder="Ciudad" aria-label="Ciudad"><input placeholder="País" aria-label="País"></div></fieldset>
+        <fieldset><legend>Método de envío</legend><div class="row"><span>Estándar (24–72 h)</span><span>Gratis</span></div></fieldset>
+        <fieldset><legend>Pago</legend><div class="ph" style="height:52px;aspect-ratio:auto">Pasarela de pago · WooCommerce</div></fieldset>
+        <button class="btn btn-primary" type="submit" style="width:100%">Pagar €244,00</button>
+        <div class="trust"><span>🔒 Pago seguro</span><span>Visa · Mastercard · PayPal</span></div>
+      </form>
+      <aside class="summary sticky">
+        <span class="eyebrow">Resumen</span>
+        <div class="row"><span>Camisa lino crudo ×1</span><span>€68,00</span></div>
+        <div class="row"><span>Pantalón sastrero ×1</span><span>€94,00</span></div>
+        <div class="row"><span>Sweater lana ×1</span><span>€82,00</span></div>
+        <div class="row muted"><span>Envío</span><span>Gratis</span></div>
+        <div class="row total"><span>Total</span><span>€244,00</span></div>
+      </aside>
+    </div>
+  </section>
+</main></div>
+
+<footer class="site"><div class="wrap">
+  <div class="fcols">
+    <div><div class="logo" style="cursor:default;margin-bottom:.6rem">MARCA</div><p class="muted" style="opacity:.7;font-size:.85rem">Ropa atemporal, ediciones cortas.</p></div>
+    <div><h3>Tienda</h3><ul><li><a data-t="shop">Ver todo</a></li><li><a data-t="shop">Novedades</a></li><li><a data-t="shop">Outlet</a></li></ul></div>
+    <div><h3>Ayuda</h3><ul><li><a data-t="contact">Contacto</a></li><li><a data-t="about">Nosotros</a></li><li><a data-t="contact">Envíos</a></li></ul></div>
+  </div>
+  <div class="fbottom">© 2026 MARCA · Precios en EUR</div>
+</div></footer>
+
+<script>
+  function show(id){
+    var p=document.getElementById(id); if(!p||!p.classList.contains('page')) return;
+    document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id);});
+    document.querySelectorAll('.mainnav a').forEach(function(a){ a.dataset.t===id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'); });
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  document.querySelectorAll('[data-t]').forEach(function(el){ el.addEventListener('click',function(e){e.preventDefault();show(el.dataset.t);}); });
+  document.querySelectorAll('.to-pdp').forEach(function(el){ el.addEventListener('click',function(){show('pdp');}); });
+</script>
