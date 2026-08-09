@@ -21,6 +21,10 @@ Use `AskUserQuestion` when any of these is unknown and changes the work:
 - **Builder**: Elementor or Divi? (only if `project-context` can't determine it)
 - **Site type**: ecommerce or corporate? (routes `web-templates` to the right archetypes)
 - **Scope**: which pages/sections, this run.
+- **Business brief**: is there a web summary / brief describing the business? Ask for it up front
+  (or 2–3 lines on what they do, who they sell to). Feeds `web-templates` analysis + copy tone.
+- **Logo**: is there a logo (file / URL)? Ask for it up front — derive the palette from it and pass
+  to `ux-design-system`. If none yet, note it and propose a palette to confirm.
 - **Brand**: palette, typography, tone (feeds `web-templates` → `ux-design-system`).
 - **Commerce**: does it need shop/product/cart? (routes `woocommerce`)
 - **Destructive/outward actions**: overwriting existing pages, deleting templates.
