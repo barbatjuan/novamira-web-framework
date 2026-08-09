@@ -44,9 +44,13 @@ spec. Modifies nothing on the site.
    present the recommendation + rationale, get confirmation.
 3. Read `references/toggles.md` → run only the toggles the chosen template admits, precharged
    with defaults derived from the references.
-4. Read the chosen `references/templates/<type>/TPL-*.md` → resolve the section inventory
+4. Read the chosen `references/templates/<type>/TPL-*.md` → resolve the home section inventory
    (order + fixed/toggle state + toggle answers).
-5. Hand the resolved spec + `references/design-system.md` tokens to `ux-design-system`.
+5. **Resolve the page set** (recommender §6): propose the inner pages the site needs
+   (Shop, Product/PDP, About, Contact…), assign an archetype from `references/templates/pages/`
+   to each (inherit the default coherent with the home, user can override), run each page's toggles.
+6. Hand the resolved specs (home + each page) + `references/design-system.md` tokens to
+   `ux-design-system`, then to `html-mockup` (one mockup per page).
 
 ## Output Contract
 A resolved architecture spec: template id, site type, ordered section list with each
@@ -57,5 +61,7 @@ tokens, and per-breakpoint notes. No visual or builder-specific code.
 - `references/design-system.md` — shared tokens (type, color, spacing, buttons, containers, radii).
 - `references/recommender.md` — CAPA 2: analysis + reference intake + signal→template map.
 - `references/toggles.md` — CAPA 3: modular toggle catalog.
-- `references/templates/ecommerce/` — TPL-E-01..05.
-- `references/templates/corporate/` — TPL-C-* (defined per project; see `_README.md`).
+- `references/templates/ecommerce/` — home archetypes TPL-E-01..05.
+- `references/templates/corporate/` — home archetypes TPL-C-01..05.
+- `references/templates/pages/` — inner-page archetypes: `product/` (PDP), `shop-archive/`,
+  `about/`, `contact/`; see `pages/_README.md` for the page-set model.

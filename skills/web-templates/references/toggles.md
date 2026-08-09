@@ -39,8 +39,22 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-BOOKING` | ¿Cómo reserva el cliente? | form/embed / WhatsApp / teléfono | COMP-BOOKING | TPL-C-05 |
 | `TGL-MAP` | ¿Mapa + ubicación? | sí / no | COMP-MAP-NAP | TPL-C-05 (fijo) |
 
+## Catálogo de toggles — páginas internas
+
+| ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
+|----|--------------------|----------|--------|-----------|
+| `TGL-PDP-LAYOUT` | ¿Ficha de producto estándar o editorial? | standard / editorial | arquetipo PDP | TPL-PDP-01/02 |
+| `TGL-PDP-STICKY` | ¿Info de compra pegada al scroll (desktop)? | sí / no | COMP-PRODUCT-INFO | TPL-PDP-01/02 |
+| `TGL-RELATED` | ¿Productos relacionados? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-PDP-01/02 |
+| `TGL-SHOP-FILTERS` | ¿Filtros en sidebar, barra superior o sin filtros? | sidebar / topbar / off | COMP-FILTERS/TOOLBAR | TPL-SHOP-01/02 |
+| `TGL-SHOP-SORT` | ¿Control de orden? | sí / no | COMP-TOOLBAR | TPL-SHOP-01/02 |
+| `TGL-ABOUT-STATS` | ¿Cifras/números en Nosotros? | sí / no | COMP-STATS | TPL-ABOUT-01 |
+| `TGL-ABOUT-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-ABOUT-01 |
+| `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 |
+
 Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TGL-STYLE`,
-`TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`.
+`TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`, `TGL-TRUST`, `TGL-FAQ`, `TGL-CARD-STYLE`,
+`TGL-CARD-IMG`.
 
 ## Notas
 

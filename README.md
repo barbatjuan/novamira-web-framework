@@ -14,7 +14,7 @@ agents/novamira-web-orchestrator.md   # tiny router (thinks, asks, routes)
 skills/
   _novamira-framework.md              # architecture overview
   project-context/                    # detect builder (elementor|divi), plugins, brand
-  web-templates/                      # page ARCHITECTURE: archetypes + recommender + toggles (ecommerce|corporate)
+  web-templates/                      # page ARCHITECTURE: home archetypes (ecommerce|corporate) + inner pages (PDP, shop, about, contact) + recommender + toggles
   ux-design-system/                   # builder-agnostic visual language (tokens, motion, layout)
   html-mockup/                        # static HTML preview for client approval before the native build
   elementor-core/                     # Elementor execution — battle-tested (+ es-builder.php)

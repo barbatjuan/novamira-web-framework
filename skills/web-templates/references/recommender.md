@@ -90,3 +90,22 @@ Alternativa: TPL-X-0M si preferís [trade-off].
 - Recién con plantilla confirmada, correr CAPA 3 (`toggles.md`) filtrando solo los toggles que
   esa plantilla admite, precargados con los defaults del intake.
 - Ninguna decisión estructural importante se toma sin confirmación.
+
+## 6. Resolución del set de páginas (más allá de la home)
+
+Tras confirmar la home, resolver qué **páginas internas** necesita el sitio y asignar un arquetipo a
+cada una (ver `templates/pages/`). Proponer el set, confirmar, y por cada página elegir arquetipo o
+heredar el default coherente con la home.
+
+| Tipo de sitio | Set de páginas sugerido |
+|---------------|-------------------------|
+| Ecommerce | Home + **Shop/Catálogo** + **Product/PDP** + **About** + **Contacto** (Cart/Checkout los arma `woocommerce`) |
+| Corporate | Home + **About** + **Contacto** (+ Services/Portfolio según la home) |
+
+Herencia de default (coherencia con la home):
+- Home TPL-E-01 Visual Brand / TPL-E-03 Brand Story → **PDP TPL-PDP-02 Editorial**, **Shop TPL-SHOP-02 Full-width**.
+- Home TPL-E-02 Catalog / TPL-E-04 Categories → **PDP TPL-PDP-01 Standard**, **Shop TPL-SHOP-01 Sidebar**.
+- About/Contacto heredan tokens y tono de la home.
+
+El usuario puede overridear cualquier arquetipo por página. Cada página luego pasa por sus toggles y
+por `html-mockup` (una maqueta por página).
