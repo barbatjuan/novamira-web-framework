@@ -36,6 +36,11 @@ Use `AskUserQuestion` when any of these is unknown and changes the work:
   to `ux-design-system`. If none yet, note it and propose a palette to confirm.
 - **Brand**: palette, typography, tone (feeds `web-templates` → `ux-design-system`).
 - **Commerce**: does it need shop/product/cart? (routes `woocommerce`)
+- **Copy**: who writes the real text? NO skill owns copywriting — the brief feeds tone, not words.
+  Either the client supplies it, or you draft it here and get it approved with the mockup. Say which.
+- **Images**: who supplies photography/media? NO skill owns image sourcing either. Mockups ship
+  placeholders only (Artifact CSP forbids remote images); the native build needs real assets or it
+  ships grey boxes. Agree the source before the build gate, not after.
 - **Destructive/outward actions**: overwriting existing pages, deleting templates.
 One decision per question. Stop and wait. Do not invent answers.
 `web-templates` itself asks for 2–4 client references and confirms the recommended archetype —
@@ -49,7 +54,7 @@ let it run that dialogue; don't front-run it.
 | Visual language: layout, spacing, hovers, cards, responsive (builder-agnostic) | `ux-design-system` |
 | Static HTML mockup for client approval before the native build | `html-mockup` |
 | Build/deploy on Elementor (raw PHP → `_elementor_data`) | `elementor-core` |
-| Build/deploy on Divi (builder data / shortcodes) | `divi-core` |
+| Build/deploy on Divi (builder data / shortcodes) — **scaffold, not proven; see below** | `divi-core` |
 | Shop, product page, side cart, checkout, my-account | `woocommerce` |
 | Lazy load, image/CSS/JS weight, Core Web Vitals | `wordpress-performance` |
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
@@ -98,7 +103,10 @@ no native build.
   must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header") before building headers.
 - **Mockups** (`html-mockup`): one Artifact with in-page navigation, header/announcement/footer as
   global elements OUTSIDE the page containers; never split pages across Artifacts with `target="_top"`
-  links. Start from `html-mockup/assets/ecommerce-mockup.html`. Detail: `html-mockup/references/mockup-guide.md`.
+  links. Start from the asset matching the SITE TYPE — `html-mockup/assets/ecommerce-mockup.html`
+  for commerce, `html-mockup/assets/corporate-mockup.html` for corporate. Never start a corporate
+  site from the ecommerce asset: it carries cart, prices and shop pages a corporate site must not
+  inherit. Detail: `html-mockup/references/mockup-guide.md`.
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.
@@ -107,5 +115,37 @@ no native build.
 - The sandbox domain is usually policy-blocked from the browser, so verification is
   server-side (fetch compiled CSS/HTML, grep expected selectors). Report what was verified
   that way and state plainly that visual confirmation needs the user. Never claim a visual result you did not see.
-- Elementor path is battle-tested. The Divi path is a scaffold — flag unverified Divi steps
-  as such and capture new gotchas into `divi-core/references/gotchas.md` as you learn them.
+- Elementor path is battle-tested. The Divi path is a **scaffold, not a peer**: `divi-core/assets/`
+  is empty, there are no `di_*` helpers, and its `gotchas.md` holds no confirmed entries. Divi +
+  WooCommerce is undefined — every widget, control key and asset in `woocommerce` is Elementor-Pro
+  specific. Before routing real work to Divi, say plainly that it is unproven and agree with the
+  user that this build is the one that validates it. Flag every unverified step as such and capture
+  what you learn into `divi-core/references/gotchas.md`.
+- The build gate is also enforced skill-side: every write-capable skill (`elementor-core`,
+  `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`) re-checks for an explicit
+  yes before its first write. That is deliberate redundancy — those skills are reachable by their
+  own triggers without passing through here, so the gate cannot live only in this file.
+
+## When a build breaks mid-flight
+A native build is NOT atomic, and partial failure is expected — the connector token expires around
+20 minutes and intermittently returns "requires additional permissions"
+(`elementor-core/references/gotchas.md`). Assume you will be interrupted.
+- **Stop; do not retry blindly.** Re-running a half-finished sequence overwrites pages that already
+  landed. Establish what actually got written before touching anything again.
+- **Report the partial state by name** — which pages/templates were written, which were not, what
+  the last successful step was. A half-built site the user does not know about is worse than a
+  failed build they do.
+- **Caches are the sharp edge.** `es_rebuild_css` clears caches on every save; a run that dies after
+  a clear can leave the site unstyled. If the kit CSS is gone, regenerating it is the first repair,
+  before any further writes.
+- **Resume, don't restart.** Rebuild only what is missing, and confirm each overwrite by name again
+  — the earlier yes covered the original scope, not a second pass over pages that already exist.
+- Record whatever surprised you into the relevant `references/gotchas.md` in the CONTRIBUTING shape.
+  Confirmed findings only.
+
+## Carry decisions across sessions
+A site build outlives one conversation and nothing in this framework persists state. Before a long
+build, and again after the mockup is approved, write down the decisions that are expensive to
+re-derive: site type, chosen `TPL-*`, the token block, approved mockup URL, builder, connector
+target, and which pages are already live. On resume, restate them and confirm they still hold
+rather than re-asking the whole intake or, worse, silently assuming the old answers.
