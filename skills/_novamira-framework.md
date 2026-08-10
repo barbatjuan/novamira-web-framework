@@ -4,36 +4,100 @@ A modular system for building premium WordPress sites via NovaMira. Reusable acr
 projects (a workshop, a clinic, a real-estate site, an ecommerce) by swapping brand config
 and adding domain skills — the orchestrator and bases stay the same.
 
+The contract lives in `agents/novamira-web-orchestrator.md`. If this overview and the agent
+ever disagree, **the agent wins** — fix this file.
+
 ## Principle
-**The agent thinks. The skills execute.** The orchestrator agent
-(`agents/novamira-web-orchestrator.md`) only decides which skill runs, in what order, with
-what context. It holds no CSS/HTML/PHP. Those live in skills and their `assets/`.
+**The agent thinks. The skills execute.** The orchestrator agent only decides which skill
+runs, in what order, with what context. It holds no CSS/HTML/PHP. Those live in skills and
+their `assets/`.
 
-## Two kinds of skill
-- **Knowledge** (teach, modify nothing): `ux-design-system`, and the `references/knowledge.md`
-  inside each core skill. Living documentation.
-- **Operative** (do work, deploy): `elementor-core`, `divi-core`, `woocommerce`,
-  `wordpress-performance`, `wordpress-seo`, `project-context`, `qa-review`.
-
-## Knowledge vs gotchas
-Each core skill splits stable knowledge (`references/knowledge.md`) from hard-won traps
-(`references/gotchas.md`). Gotchas are gold — grow them every time something surprises you.
-
-## Builder-agnostic vs builder-specific
-- Agnostic (both Elementor & Divi): `ux-design-system` (palette, spacing, motion, cards,
-  responsive), `project-context`, `woocommerce` patterns, performance, seo, qa.
-- Specific: `elementor-core` (battle-tested) and `divi-core` (scaffold). `project-context`
-  detects the builder; the orchestrator routes and asks the user when unsure.
-
-## Assets (library, not skill)
-Reusable code lives under a skill's `assets/`: `elementor-core/assets/es-builder.php`
-(helpers), `es-theme-parts.example.php`, and the `woocommerce/assets/*.example.php` templates.
-Skills reference assets by path — they don't paste code inline.
+## Three kinds of skill
+- **Knowledge** (decide and teach; touch nothing, need no WordPress): `web-templates`
+  (page architecture: which sections, order, hierarchy), `ux-design-system` (visual
+  language: tokens, motion, layout patterns).
+- **Read-only** (inspect and report; never write): `project-context` — "Read-only
+  reconnaissance… Modifies nothing" — and `qa-review`, which verifies an already-built page
+  server-side and reports PASS/FAIL with evidence.
+- **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
+  Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
+  `wordpress-performance` and `wordpress-seo` write to the live site — each one carries its
+  own blocking build gate.
 
 ## Flow
-`project-context` → `ux-design-system` (decide the look) → `elementor-core` | `divi-core`
-(execute) → `woocommerce` (if commerce) → `wordpress-performance` / `wordpress-seo` →
-`qa-review` → hand off.
+The first question is **new site or existing site?** It decides whether WordPress gets
+inspected at all; do not run `project-context` reflexively.
+
+**New site (greenfield)** — nothing is written to WordPress until the gate:
+`web-templates` → `ux-design-system` → `html-mockup` (client approves) → **BUILD GATE** →
+`project-context` (now, to confirm connector / builder / theme on the real target) →
+`elementor-core` | `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` /
+`wordpress-seo` → `qa-review` → hand off.
+
+**Existing site** — inspect first, so routing is based on facts, never assumption:
+`project-context` → `web-templates` → `ux-design-system` → `html-mockup` (approve) →
+**BUILD GATE** → `elementor-core` | `divi-core` → `woocommerce` (if commerce) →
+`wordpress-performance` / `wordpress-seo` → `qa-review` → hand off.
+
+Either way the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
+builder-agnostic and needs no WordPress and no connector.
+
+## The build gate (hard stop)
+Once the mockup is approved and BEFORE any skill writes to WordPress, the orchestrator
+STOPS and asks the user for an explicit **yes** for this build — the native build is an
+outward, hard-to-reverse action. No mockup approval + no explicit yes → no native build. On
+an existing site, every page overwrite is also confirmed by name. Each operative WordPress
+skill repeats the gate itself, so it still holds when that skill is invoked directly instead
+of through the orchestrator.
+
+The mockup is the approval gate and the visual contract. It is **never** imported into the
+builder — the native build reproduces it from the same spec + tokens, and `qa-review` diffs
+the result against it.
+
+## Builder-agnostic vs builder-specific
+- **Agnostic, no WordPress at all**: `web-templates`, `ux-design-system`, `html-mockup`.
+- **Agnostic, WordPress-aware**: `project-context` (reports `elementor` | `divi` | `unknown`
+  and never guesses), `wordpress-performance`, `wordpress-seo`.
+- **Builder-aware, validated on Elementor only**: `qa-review` — its evidence checks look for
+  Elementor build artefacts; the Divi equivalents are not validated. Also `woocommerce`: the
+  commerce structure is generic, but every execution step and asset targets the Elementor
+  Theme Builder, so there is no Divi commerce path today.
+- **Builder-specific**: `elementor-core` (battle-tested) and `divi-core` (scaffold).
+
+**The Divi path is unvalidated.** `divi-core` is version 0.2, has no `assets/` directory at
+all, and the `di_section` / `di_row` / `di_module` helper library its own SKILL.md describes
+does not exist yet. Nothing on the Divi path has been proven end-to-end on a real site. Do
+not present it as parity with Elementor: flag unverified steps as unverified and append
+confirmed findings to `divi-core/references/gotchas.md`.
+
+## Knowledge vs gotchas — what actually exists today
+The intended shape is that each core skill splits stable knowledge
+(`references/knowledge.md`) from hard-won traps (`references/gotchas.md`). Only two skills
+have reached it:
+
+| Skill | `references/` today |
+|---|---|
+| `elementor-core` | `knowledge.md` + `gotchas.md` |
+| `woocommerce` | `knowledge.md` + `gotchas.md` |
+| `divi-core` | `gotchas.md` only — no knowledge file yet |
+| `ux-design-system` | `design-tokens.md`, `layout-patterns.md`, `motion.md` |
+| `web-templates` | `design-system.md`, `recommender.md`, `toggles.md`, `templates/` |
+| `html-mockup` | `mockup-guide.md` |
+| `project-context`, `qa-review`, `wordpress-performance`, `wordpress-seo` | none |
+
+Gotchas are the gold — grow them every time something surprises you. Shape and rules:
+`CONTRIBUTING.md`.
+
+## Assets (library, not skill)
+Reusable code lives under a skill's `assets/`; skills reference assets by path and never
+paste code inline. What exists:
+- `elementor-core/assets/es-builder.php` — helper library;
+  `es-theme-parts.example.php` — header/footer + Theme Builder parts.
+- `woocommerce/assets/es-shop-template.example.php`,
+  `woocommerce/assets/es-product-single.example.php`.
+- `html-mockup/assets/ecommerce-mockup.html` — the brand-neutral reference mockup the
+  orchestrator mandates as the starting point for every mockup (copy it, swap the tokens).
+- `divi-core` has no `assets/` yet.
 
 ## Extending per project
 Add domain-specific operative skills next to these (e.g. `build-home`, `build-product-page`,
