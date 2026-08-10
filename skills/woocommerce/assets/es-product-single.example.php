@@ -6,8 +6,20 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
-require_once WP_CONTENT_DIR . '/novamira-sandbox/es-theme-parts.php';
+/*
+ * Dependencies. Any .php dropped in novamira-sandbox/ executes on upload, so a bare
+ * require_once on a missing file fatals before execute-php is ever called — taking the
+ * site down. Fail loudly but safely instead: report what is missing and stop.
+ * es-theme-parts.php is es-theme-parts.example.php with the .example suffix stripped.
+ */
+foreach ( array( 'es-builder.php', 'es-theme-parts.php' ) as $es_dep ) {
+	$es_dep_path = WP_CONTENT_DIR . '/novamira-sandbox/' . $es_dep;
+	if ( ! file_exists( $es_dep_path ) ) {
+		error_log( 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first.' );
+		return;
+	}
+	require_once $es_dep_path;
+}
 
 function es_build_product_single() {
 	es_uid_reset( 'prodsingle' );
