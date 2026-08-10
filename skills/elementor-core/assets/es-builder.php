@@ -130,8 +130,15 @@ function es_card_hover_css() {
  * Smooth hover lift + image zoom, green add-to-cart with hover, equal-height
  * cards (button pinned to the bottom), the redundant inline "Ver carrito" link
  * hidden, and the added-state button relabelled to "Añadido".
+ *
+ * This is the single source of truth for the products grid — every consumer must
+ * call it instead of pasting a copy, because hand-copied duplicates drift (the
+ * archive and related-products templates had already diverged from each other).
+ * Grid-specific extras that genuinely belong to one template only (archive
+ * pagination, for instance) ride in through `$extra_css` so the shared rules stay
+ * shared and the difference stays visible at the call site.
  */
-function es_products_css() {
+function es_products_css( $extra_css = '' ) {
 	return 'selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
 		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}'
 		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
@@ -142,7 +149,8 @@ function es_products_css() {
 		. 'selector ul.products li.product .button:hover{background-color:#0C8A55!important;box-shadow:0 10px 22px -8px rgba(15,169,104,0.5)!important;}'
 		. 'selector ul.products li.product a.added_to_cart{display:none!important;}'
 		. 'selector ul.products li.product a.button.added{font-size:0!important;}'
-		. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}';
+		. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}'
+		. $extra_css;
 }
 
 /**
@@ -509,14 +517,30 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
  * silently loses the global header, breaking the "header on every page" house rule.
  * Pass `elementor_canvas` explicitly for the rare page that must have no chrome
  * (a standalone landing, a coming-soon splash).
+ *
+ * Overwriting an existing page is destructive and irreversible on its own: writing
+ * `_elementor_data` through the meta API replaces the whole layout and leaves no
+ * revision behind. Every overwrite therefore parks the previous layout in a
+ * timestamped backup key first (see es_backup_elementor_data).
+ *
+ * The existing `post_status` is preserved too. Forcing `publish` here used to push a
+ * client's draft live as a side effect of rebuilding its layout; only pages this
+ * function creates are published.
+ *
+ * `$action` is an out-parameter reporting 'created' or 'updated' so a caller can
+ * confirm each overwrite by name. It is passed by reference rather than returned
+ * because callers rely on `es_save_page()` returning the page id.
  */
-function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer' ) {
+function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
 	$page = get_page_by_path( $slug, OBJECT, 'page' );
 	if ( $page ) {
-		$id = $page->ID;
-		wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => 'publish' ) );
+		$id     = $page->ID;
+		$action = 'updated';
+		/* post_status intentionally mirrors what is already there - see docblock. */
+		wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => $page->post_status ) );
 	} else {
-		$id = wp_insert_post(
+		$action = 'created';
+		$id     = wp_insert_post(
 			array(
 				'post_title'   => $title,
 				'post_name'    => $slug,
@@ -527,6 +551,7 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 		);
 	}
 	if ( is_wp_error( $id ) || ! $id ) {
+		$action = 'failed';
 		return 0;
 	}
 
@@ -534,10 +559,37 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 	update_post_meta( $id, '_elementor_template_type', 'wp-page' );
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
 	update_post_meta( $id, '_wp_page_template', $tpl );
+	es_backup_elementor_data( $id );
 	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
 	es_rebuild_css( $id );
 
 	return $id;
+}
+
+/**
+ * Park a post's current `_elementor_data` in a timestamped backup meta key.
+ *
+ * Elementor stores a layout as one blob of post meta, so rewriting it through the API
+ * destroys the previous design outright: no revision, no diff, nothing to roll back to.
+ * Copying the old blob aside first is the cheapest thing that makes an accidental
+ * overwrite recoverable by a human.
+ *
+ * Backup key: `_es_elementor_data_backup_<Ymd-His>` (UTC). Restore by hand with
+ * `update_post_meta( $id, '_elementor_data', wp_slash( get_post_meta( $id, '<key>', true ) ) )`.
+ * The leading underscore keeps the backups out of the custom-fields UI; they are never
+ * pruned automatically, so a long-lived page accumulates one per rebuild on purpose.
+ *
+ * Returns the key written, or '' when the post had no layout worth preserving.
+ */
+function es_backup_elementor_data( $post_id ) {
+	$previous = get_post_meta( $post_id, '_elementor_data', true );
+	if ( ! is_string( $previous ) || '' === $previous || '[]' === $previous ) {
+		return '';
+	}
+	$key = '_es_elementor_data_backup_' . gmdate( 'Ymd-His' );
+	update_post_meta( $post_id, $key, wp_slash( $previous ) );
+
+	return $key;
 }
 
 /**
@@ -560,4 +612,64 @@ function es_rebuild_css( $post_id ) {
 	}
 	delete_post_meta( $post_id, '_elementor_css' );
 	\Elementor\Core\Files\CSS\Post::create( $post_id )->update();
+}
+
+/**
+ * Regenerate the Theme Builder conditions cache.
+ *
+ * Writing `_elementor_conditions` post-meta does NOT register a template: at runtime
+ * Elementor Pro reads the cached option `elementor_pro_theme_builder_conditions`
+ * (`{location:{post_id:[conds]}}`) and never the meta. A template saved without this
+ * step exists in the library and simply never renders on the front end.
+ *
+ * Use `get_cache()->regenerate()` and not the conditions manager's `save_conditions()`,
+ * which throws "Cannot unset string offsets".
+ *
+ * Every hop is guarded so a site without Elementor Pro degrades to a logged no-op
+ * instead of a fatal. Returns true only when the cache was actually rebuilt.
+ */
+function es_rebuild_theme_conditions() {
+	if ( ! class_exists( '\ElementorPro\Modules\ThemeBuilder\Module' )
+		|| ! method_exists( '\ElementorPro\Modules\ThemeBuilder\Module', 'instance' ) ) {
+		return false;
+	}
+	$module = \ElementorPro\Modules\ThemeBuilder\Module::instance();
+	if ( ! $module || ! method_exists( $module, 'get_conditions_manager' ) ) {
+		return false;
+	}
+	$manager = $module->get_conditions_manager();
+	if ( ! $manager || ! method_exists( $manager, 'get_cache' ) ) {
+		return false;
+	}
+	$cache = $manager->get_cache();
+	if ( ! $cache || ! method_exists( $cache, 'regenerate' ) ) {
+		return false;
+	}
+	$cache->regenerate();
+
+	return true;
+}
+
+/**
+ * Is a template actually present in the Theme Builder conditions cache?
+ *
+ * Regenerating is not proof: the gotcha is explicit that you must VERIFY the option
+ * contains your template afterwards, because a condition string the runtime does not
+ * recognise is dropped silently and the template stays invisible.
+ */
+function es_theme_conditions_registered( $post_id ) {
+	$cache = get_option( 'elementor_pro_theme_builder_conditions' );
+	if ( ! is_array( $cache ) ) {
+		return false;
+	}
+	foreach ( $cache as $templates ) {
+		if ( ! is_array( $templates ) ) {
+			continue;
+		}
+		if ( array_key_exists( (int) $post_id, $templates ) || array_key_exists( (string) $post_id, $templates ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }

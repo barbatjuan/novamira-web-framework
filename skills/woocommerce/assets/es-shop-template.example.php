@@ -103,24 +103,16 @@ function es_build_shop_template() {
 					/* Image hover zoom */
 					'image_border_radius'      => es_box( 8, 8, 8, 8 ),
 					/* Hover via native Custom CSS so it does not rely on
-					   conditionally-enqueued animation assets. */
-					'custom_css'               => 'selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
-						. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}'
-						. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
-						. 'selector ul.products li.product:hover img{transform:scale(1.045);}'
-						. 'selector ul.products li.product a.button{background-color:#0FA968!important;border-color:#0FA968!important;color:#fff!important;border-radius:6px!important;transition:background-color .3s ease,box-shadow .35s ease!important;}'
-						. 'selector ul.products li.product a.button:hover{background-color:#0C8A55!important;box-shadow:0 10px 22px -8px rgba(15,169,104,0.5)!important;}'
-						. 'selector ul.products{align-items:stretch;}'
-						. 'selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}'
-						. 'selector ul.products li.product .button{margin-top:auto;}'
-						/* Hide the inline "Ver carrito" link; the side cart covers it */
-						. 'selector ul.products li.product a.added_to_cart{display:none!important;}'
-						. 'selector ul.products li.product a.button.added{font-size:0!important;}'
-						. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}'
+					   conditionally-enqueued animation assets. The grid rules come from the
+					   shared es_products_css() helper rather than a local copy - hand-copied
+					   duplicates drift, and this one already had. Only the pagination, which
+					   exists on the archive and nowhere else, is passed in as an extra. */
+					'custom_css'               => es_products_css(
 						/* Pagination in palette (was inheriting a pink link color) */
-						. 'selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#6A6F6C!important;border-color:#E5E7E5!important;border-radius:8px!important;transition:color .25s ease,background-color .25s ease,border-color .25s ease;}'
+						'selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#6A6F6C!important;border-color:#E5E7E5!important;border-radius:8px!important;transition:color .25s ease,background-color .25s ease,border-color .25s ease;}'
 						. 'selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:#0FA968!important;border-color:#0FA968!important;}'
-						. 'selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#FFFFFF!important;background-color:#0FA968!important;border-color:#0FA968!important;}',
+						. 'selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#FFFFFF!important;background-color:#0FA968!important;border-color:#0FA968!important;}'
+					),
 					/* Pagination */
 					'pagination_color'         => '#6A6F6C',
 					'pagination_color_hover'   => '#0FA968',
@@ -173,11 +165,16 @@ function es_build_shop_template() {
 		array( 'bg' => '#F4F5F3' )
 	);
 
+	/*
+	 * Archive conditions must name a sub-location: the runtime accepts
+	 * include/product_archive/shop_page | /product_cat | /product_search, and the bare
+	 * parent form does not register the template at all. This is the main shop page.
+	 */
 	return es_save_theme_part(
 		'es-shop-archive',
 		'Site - Product archive',
 		'product-archive',
 		$el,
-		array( 'include/product_archive' )
+		array( 'include/product_archive/shop_page' )
 	);
 }
