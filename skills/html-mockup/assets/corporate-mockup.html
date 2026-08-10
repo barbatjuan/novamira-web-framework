@@ -1,7 +1,8 @@
 <!--
   NovaMira · corporate mockup reference (brand-neutral)
   Single-artifact, in-page navigation, global announcement/header/footer OUTSIDE the .page containers.
-  Pages: home · services · about · cases · contact. Zero commerce chrome — no basket icon, no
+  Pages: home · services (índice) · service (detalle, TPL-SERVICE-01) · about · cases · contact.
+  Zero commerce chrome — no basket icon, no
   figures, no catalogue. This is the corporate twin of ecommerce-mockup.html (commerce variant).
   Archetypes covered: TPL-C-01 (lead-gen) as the backbone, plus blocks from TPL-C-02 (trust),
   TPL-C-03 (portfolio), TPL-C-04 (single-offer) and TPL-C-05 (local/booking).
@@ -113,9 +114,11 @@
   .herocta{display:flex;flex-wrap:wrap;gap:var(--sp-s)}
   @media(min-width:900px){.hero .inner{grid-template-columns:1.05fr .95fr;min-height:50vh}}
 
+  /* ── COMP-HERO · imagen fija (TGL-LEAD-FORM = solo CTA: sin formulario aquí) ── */
+  .heroimg{aspect-ratio:4/3;width:100%}
+  @media(min-width:900px){.heroimg{aspect-ratio:4/5;min-height:50vh}}
+
   /* ── COMP-LEAD-FORM ── */
-  .leadcard{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-container);
-        padding:var(--sp-m);box-shadow:0 14px 34px color-mix(in srgb,var(--c-text) 9%,transparent)}
   .form{display:flex;flex-direction:column;gap:.75rem}
   .field{display:flex;flex-direction:column;gap:.3rem;min-width:0}
   .row2{display:grid;grid-template-columns:1fr;gap:.75rem}
@@ -143,6 +146,7 @@
        background:color-mix(in srgb,var(--c-accent) 12%,transparent);color:var(--c-accent)}
   .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   .linkline{font-size:var(--fs-small);font-weight:600;color:var(--c-accent);cursor:pointer;margin-top:auto;padding-top:var(--sp-xs)}
+  .card[data-t]{cursor:pointer}
 
   /* ── COMP-PROCESS ── */
   .steps{display:grid;gap:var(--sp-m)}
@@ -297,7 +301,9 @@
 <!-- ================= HOME · TPL-C-01 (Services / Lead-Gen) ================= -->
 <div class="page active" id="home">
 
-  <!-- COMP-HERO + COMP-LEAD-FORM (mini) · TGL-LEAD-FORM: form en hero -->
+  <!-- COMP-HERO · TGL-LEAD-FORM: solo CTA.
+       Regla de casa: NUNCA formulario en el hero. El COMP-LEAD-FORM completo vive en la
+       banda de conversión del cierre, que es ADN fijo de TPL-C-01. -->
   <section class="hero" aria-label="Propuesta de valor">
     <div class="wrap inner">
       <div class="stack">
@@ -309,23 +315,7 @@
           <a class="btn btn-outline" data-t="services">Ver servicios</a>
         </div>
       </div>
-      <div class="leadcard">
-        <h2 style="font-size:var(--fs-h3);margin-bottom:var(--sp-s)">Contanos tu proyecto</h2>
-        <form class="form" onsubmit="return false">
-          <div class="field"><label for="h-name">Nombre y apellido</label><input id="h-name" placeholder="Nombre de ejemplo"></div>
-          <div class="field"><label for="h-mail">Email corporativo</label><input id="h-mail" type="email" placeholder="nombre@empresa.com"></div>
-          <div class="field"><label for="h-serv">¿Qué necesitás?</label>
-            <select id="h-serv">
-              <option>Consultoría estratégica</option>
-              <option>Diseño de servicio</option>
-              <option>Implementación</option>
-              <option>Otro</option>
-            </select>
-          </div>
-          <button class="btn btn-primary btn-full" type="submit">Enviar consulta</button>
-          <p class="small muted">Campos de ejemplo. El envío real se conecta en el build nativo.</p>
-        </form>
-      </div>
+      <div class="ph heroimg">Imagen del hero</div>
     </div>
   </section>
 
@@ -349,19 +339,19 @@
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10M9 20V4M15 20v-7M21 20V8"/></svg></div>
         <h3>Consultoría estratégica</h3>
         <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
-        <span class="linkline" data-t="services">Conocer más →</span>
+        <span class="linkline" data-t="service">Conocer más →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg></div>
         <h3>Diseño de servicio</h3>
         <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
-        <span class="linkline" data-t="services">Conocer más →</span>
+        <span class="linkline" data-t="service">Conocer más →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
         <h3>Implementación</h3>
         <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
-        <span class="linkline" data-t="services">Conocer más →</span>
+        <span class="linkline" data-t="service">Conocer más →</span>
       </article>
     </div>
   </div></section>
@@ -455,26 +445,32 @@
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10M9 20V4M15 20v-7M21 20V8"/></svg></div>
         <h3>Consultoría estratégica</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg></div>
         <h3>Diseño de servicio</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
         <h3>Implementación</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
         <h3>Automatización de procesos</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 3L20 7"/></svg></div>
         <h3>Analítica y reporting</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
       <article class="card">
         <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 4 6v6c0 4.6 3.4 8.3 8 9.5 4.6-1.2 8-4.9 8-9.5V6l-8-3.5Z"/></svg></div>
         <h3>Soporte y evolución</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+        <span class="linkline" data-t="service">Ver detalle →</span>
       </article>
     </div>
   </div></section>
@@ -531,6 +527,100 @@
   <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
     <div class="stack"><span class="eyebrow">Siguiente paso</span><h2>¿Empezamos por un diagnóstico?</h2></div>
     <div class="herocta"><a class="btn btn-primary" data-t="contact">Solicitar propuesta</a><a class="btn btn-outline" data-t="cases">Ver casos</a></div>
+  </div></section>
+  </main>
+</div>
+
+<!-- ================= SERVICIO (detalle) · TPL-SERVICE-01 =================
+     UNA página por servicio/área. Es la landing de entrada de SEO: "<servicio> <ciudad>" cae
+     aquí, nunca en la home. Al replicarla, el contenido cambia entero — clonar cambiando sólo
+     el sustantivo produce duplicados que no rankean. Ver
+     web-templates/references/templates/pages/service/TPL-SERVICE-01-service-detail.md -->
+<div class="page" id="service">
+  <div class="pagehead"><div class="wrap">
+    <p class="breadcrumb">Inicio / Servicios / Consultoría estratégica</p>
+    <span class="eyebrow">Servicio</span>
+    <h1>Consultoría estratégica</h1>
+    <p class="muted" style="margin-top:var(--sp-s)">El H1 es el nombre del servicio TAL COMO LO BUSCA el cliente, no el nombre comercial interno. Texto de maqueta.</p>
+    <div class="herocta" style="margin-top:var(--sp-m)"><a class="btn btn-primary" data-t="contact">Solicitar propuesta</a></div>
+  </div></div>
+
+  <main>
+  <!-- Qué resolvemos · fijo ADN -->
+  <section aria-label="Qué resolvemos"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Qué resolvemos</span><h2>Situaciones que atiende este servicio</h2>
+      <p class="muted">Escrito desde el síntoma del cliente, no desde la nomenclatura del gremio.</p>
+    </div></div>
+    <div class="cards">
+      <article class="card"><h3>Situación 1</h3><p class="muted small">Descripción de maqueta: el problema concreto, en el lenguaje en que el cliente lo cuenta.</p></article>
+      <article class="card"><h3>Situación 2</h3><p class="muted small">Descripción de maqueta: el problema concreto, en el lenguaje en que el cliente lo cuenta.</p></article>
+      <article class="card"><h3>Situación 3</h3><p class="muted small">Descripción de maqueta: el problema concreto, en el lenguaje en que el cliente lo cuenta.</p></article>
+      <article class="card"><h3>Situación 4</h3><p class="muted small">Descripción de maqueta: el problema concreto, en el lenguaje en que el cliente lo cuenta.</p></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-FEATURES · alcance (fijo) -->
+  <section class="bg-alt" aria-label="Alcance"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Alcance</span><h2>Qué incluye este servicio</h2></div></div>
+    <div class="cards c4">
+      <article class="card"><h3>Incluye 1</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Incluye 2</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Incluye 3</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Incluye 4</h3><p class="muted small">Detalle de maqueta.</p></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-PROCESS · TGL-PROCESS on -->
+  <section aria-label="Cómo se lleva"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Cómo se lleva</span><h2>El proceso de este servicio</h2></div></div>
+    <div class="steps">
+      <div class="step"><b>01</b><div><h3>Paso uno</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+      <div class="step"><b>02</b><div><h3>Paso dos</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+      <div class="step"><b>03</b><div><h3>Paso tres</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+    </div>
+  </div></section>
+
+  <!-- COMP-FAQ · TGL-FAQ default ON en este arquetipo (superficie de cola larga) -->
+  <section class="bg-alt" aria-label="Preguntas frecuentes"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Dudas de este servicio</span><h2>Preguntas frecuentes</h2>
+      <p class="muted">Las preguntas son consultas de búsqueda literales de ESTE servicio, no dudas genéricas del negocio.</p>
+    </div></div>
+    <div class="faq">
+      <details open><summary>Pregunta 1 de este servicio</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>Pregunta 2 de este servicio</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>Pregunta 3 de este servicio</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>Pregunta 4 de este servicio</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+    </div>
+  </div></section>
+
+  <!-- Otros servicios · cross-link FIJO (sin él no se forma el cluster de enlazado interno) -->
+  <section aria-label="Otros servicios"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Otros servicios</span><h2>¿Buscabas otra cosa?</h2></div></div>
+    <div class="cards c3">
+      <article class="card" data-t="service"><h3>Diseño de servicio</h3><p class="muted small">Una línea de maqueta.</p></article>
+      <article class="card" data-t="service"><h3>Implementación</h3><p class="muted small">Una línea de maqueta.</p></article>
+      <article class="card" data-t="services"><h3>Ver todos</h3><p class="muted small">El catálogo completo de servicios.</p></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-CTA + COMP-LEAD-FORM · fijo ADN (nunca en el hero) -->
+  <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
+    <div class="stack">
+      <span class="eyebrow">Siguiente paso</span>
+      <h2>¿Hablamos de este servicio?</h2>
+      <p style="opacity:.85;max-width:44ch">El claim de esta banda se refiere a ESTE servicio, no al negocio en general. Texto de maqueta.</p>
+    </div>
+    <form class="form" onsubmit="return false">
+      <div class="row2">
+        <div class="field"><label for="s-name">Nombre</label><input id="s-name" placeholder="Nombre de ejemplo"></div>
+        <div class="field"><label for="s-mail">Email</label><input id="s-mail" type="email" placeholder="nombre@empresa.com"></div>
+      </div>
+      <div class="field"><label for="s-msg">Mensaje</label><textarea id="s-msg" rows="4" placeholder="Contanos brevemente el contexto"></textarea></div>
+      <label class="consent"><input type="checkbox" id="s-ok"> Acepto la política de tratamiento de datos (texto legal de ejemplo).</label>
+      <button class="btn btn-primary btn-full" type="submit">Enviar</button>
+    </form>
   </div></section>
   </main>
 </div>
@@ -747,9 +837,9 @@
       <p class="small" style="opacity:.7;max-width:34ch">Descriptor corto de la empresa en una línea. Texto de maqueta.</p>
     </div>
     <div><h3>Servicios</h3><ul>
-      <li><a data-t="services">Consultoría estratégica</a></li>
-      <li><a data-t="services">Diseño de servicio</a></li>
-      <li><a data-t="services">Implementación</a></li>
+      <li><a data-t="service">Consultoría estratégica</a></li>
+      <li><a data-t="service">Diseño de servicio</a></li>
+      <li><a data-t="service">Implementación</a></li>
     </ul></div>
     <div><h3>Compañía</h3><ul>
       <li><a data-t="about">Nosotros</a></li>
@@ -770,7 +860,9 @@
   function show(id){
     var p=document.getElementById(id); if(!p||!p.classList.contains('page')) return;
     document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id);});
-    document.querySelectorAll('.mainnav a').forEach(function(a){ a.dataset.t===id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'); });
+    // El detalle de servicio cuelga de "Servicios": el menú sigue siendo UNO solo (regla de casa).
+    var navId = (id === 'service') ? 'services' : id;
+    document.querySelectorAll('.mainnav a').forEach(function(a){ a.dataset.t===navId ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'); });
     window.scrollTo({top:0,behavior:'instant'});
   }
   document.querySelectorAll('[data-t]').forEach(function(el){ el.addEventListener('click',function(e){e.preventDefault();show(el.dataset.t);}); });

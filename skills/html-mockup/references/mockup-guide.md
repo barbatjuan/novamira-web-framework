@@ -64,7 +64,9 @@ per-breakpoint notes of the `TPL-*.md`.
 ### Shared (both site types)
 - **Hero**: full-bleed block using `--c-bg-alt`; height per `TGL-HERO-HEIGHT` (`min-height:45vh`
   mobile → target vh desktop via `@media`); H1 + CTA. Slider vs fixed per `TGL-HERO-TYPE` (a static
-  first-slide is fine for the mockup; note "slider" in a caption).
+  first-slide is fine for the mockup; note "slider" in a caption). **Never a capture form here** —
+  house rule; the lead form belongs to the closing conversion band. On a split hero the second
+  column is an image `.ph`, not a form card.
 - **Editorial / Story**: 1 col mobile → 2 cols (`grid-template-columns:1fr 1fr`) desktop, alternating.
 - **Benefits / Features** (`COMP-FEATURES`): 2×2 mobile → row of 3–4 desktop.
 - **Testimonials**: 1 per view (snap row) mobile → 3 cols desktop.
@@ -86,7 +88,14 @@ per-breakpoint notes of the `TPL-*.md`.
   `.ph` (`aspect-ratio:1`, ~48px) + H3 + 2 lines + "Ver más" ghost link. One card recipe site-wide.
 - **Lead form** (`COMP-LEAD-FORM`): stacked fields full-width mobile → 2-col field grid with the
   submit spanning both desktop; labels above inputs, `--radius-input`, one solid accent submit.
-  Inert in the mockup — never wire a real endpoint.
+  Inert in the mockup — never wire a real endpoint. It renders in the **closing conversion band**,
+  never in the hero.
+- **Service detail** (`TPL-SERVICE-01`): one page per corporate service/area. H1 = the service as
+  the client searches it. "What we solve" is a 1-col mobile → 2-col desktop grid of the card recipe
+  without icons; scope reuses the 4-up card row; FAQ is on by default here. It ends with a **sibling
+  cross-link block** — compact cards to the other services plus "see all" — which is FIXED, not a
+  toggle: without links between siblings each service hangs off the home alone. Reuse the site-wide
+  card recipe; do not invent a second one for this page.
 - **Process / Steps** (`COMP-PROCESS`): numbered vertical list with a left rule mobile → row of
   3–4 columns desktop; big muted step number + H3 + one line.
 - **Cases / Projects** (`COMP-CASES`): 1 col mobile → 2 desktop; `.ph` 16/9 + client placeholder +

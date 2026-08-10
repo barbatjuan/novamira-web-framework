@@ -4,7 +4,7 @@ description: "Trigger: maqueta, mockup, HTML preview, prototipo, visual approval
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.1"
+  version: "1.2"
 ---
 
 # HTML Mockup (approval preview)
@@ -68,7 +68,9 @@ against it. On iteration, report what changed.
   global header/announcement/footer, 7 pages wired (home · shop · pdp · cart · checkout · about ·
   contact), prices in €, cart icon.
 - `assets/corporate-mockup.html` — **corporate start**: same one-Artifact shell, no cart/commerce;
-  services, lead form, process, cases, team, FAQ, booking/NAP.
+  6 pages wired (home · services index · **service detail (`TPL-SERVICE-01`)** · about · cases ·
+  contact); process, cases, team, FAQ, booking/NAP. Hero carries a CTA only — the lead form sits in
+  the closing band, never in the hero.
 - Copy the matching asset, swap `:root` tokens + brand name + copy + placeholders, keep only the
   pages/sections the archetypes resolved.
 - `references/mockup-guide.md` — governing rules: base HTML shell, `:root` token block, the
