@@ -99,6 +99,11 @@ no native build.
   item is navigable, and the header stays visible/sticky and consistent across every page. No
   dead links, no page that loses its header.
 - **Reuse header/footer** verbatim across all pages of the site (one global component each).
+- **Never a form in the hero.** The hero carries headline + value prop + CTA — never a capture
+  form. The lead form lives in the closing conversion band, which is fixed DNA, so nothing is lost
+  by moving it: a form above the fold reads as a toll gate before the visitor knows what is on
+  offer. `TGL-LEAD-FORM` defaults to `solo CTA` in `TPL-C-01` for this reason; a project may still
+  flip it, but only deliberately and never as the starting point.
 - **Mobile header** (burger · logo · cart 3-zone) is a known-hard pattern on Elementor — builder-core
   must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header") before building headers.
 - **Mockups** (`html-mockup`): one Artifact with in-page navigation, header/announcement/footer as

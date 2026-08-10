@@ -16,7 +16,7 @@
 
 ```
 COMP-HEADER (logo + nav + CTA "Contactar") [fijo]
-COMP-HERO (headline + value prop + CTA/form ~50vh) [fijo · ADN]
+COMP-HERO (headline + value prop + CTA ~50vh) [fijo · ADN]
 COMP-LOGOS (clientes / confían en nosotros) [toggle]
 COMP-SERVICES (grid de servicios) [fijo · ADN]
 COMP-PROCESS (cómo trabajamos) [toggle]
@@ -34,12 +34,15 @@ Todo empuja al contacto. Ausencia intencional: sin reserva/turnos, sin portfolio
 Objetivo: navegar + CTA siempre visible (conversión). Logo, nav corto, **botón "Contactar"** destacado.
 Mobile: hamburguesa + CTA visible. Desktop: nav + CTA sólido. Sticky. Reutilizable: GLOBAL.
 
-### COMP-HERO — headline + captura `[fijo · ADN] · TGL-HERO-TYPE, TGL-LEAD-FORM`
-Objetivo: proponer valor y capturar (conversión). Headline claro (qué resolvés), subtítulo, y
-**CTA fuerte o mini-formulario** (nombre + email/teléfono). Mobile: 55vh, texto + CTA full-width,
-form corto. Desktop: ~50vh, split (texto | form) o texto + CTA. H1 único. `TGL-LEAD-FORM` decide
-form en hero vs solo CTA. Reutilizable: SECCIÓN + `COMP-LEAD-FORM`. Elementor: Form widget. Divi:
-Contact Form / módulo de formulario.
+### COMP-HERO — headline + CTA `[fijo · ADN] · TGL-HERO-TYPE, TGL-LEAD-FORM`
+Objetivo: proponer valor y llevar al formulario (conversión). Headline claro (qué se resuelve),
+subtítulo y **CTA**. Mobile: 55vh, texto + CTA full-width. Desktop: ~50vh, texto + imagen fija.
+H1 único. Reutilizable: SECCIÓN.
+
+**Sin formulario en el hero** — regla de casa del orquestador, no una preferencia de esta
+plantilla. `TGL-LEAD-FORM` sigue existiendo por si un proyecto la revierte a conciencia, pero su
+default es `solo CTA`. El lead-form vive en la banda de cierre, que es ADN fijo: el ADN de C-01 es
+que el formulario **exista y domine el cierre**, no que esté arriba.
 
 ### COMP-LOGOS — prueba social `[toggle TGL-LOGOS]`
 Objetivo: confianza rápida (confianza). Fila de logos de clientes/partners en gris. Mobile: 2–3
@@ -75,7 +78,7 @@ Objetivo: contacto, servicios, legal, redes. Incluir email/teléfono. Reutilizab
 | Toggle | Default | Nota |
 |--------|---------|------|
 | `TGL-HERO-TYPE` | imagen/color fija | slider opcional |
-| `TGL-LEAD-FORM` | form en hero | o solo CTA en hero + form al final |
+| `TGL-LEAD-FORM` | **solo CTA** | form SIEMPRE al final; nunca en el hero (regla de casa) |
 | `TGL-LOGOS` | on | |
 | `TGL-PROCESS` | on | |
 | `TGL-CASES` | on | |

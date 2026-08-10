@@ -27,7 +27,7 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 
 | ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
 |----|--------------------|----------|--------|-----------|
-| `TGL-LEAD-FORM` | ¿Formulario en el hero o solo CTA (form al final)? | form en hero / solo CTA | COMP-LEAD-FORM | TPL-C-01 |
+| `TGL-LEAD-FORM` | ¿Formulario en el hero o solo CTA (form al final)? | form en hero / **solo CTA** (default) | COMP-LEAD-FORM | TPL-C-01 |
 | `TGL-LOGOS` | ¿Logos de clientes / credenciales? | sí / no | COMP-LOGOS | TPL-C-01, C-02, C-03 |
 | `TGL-PROCESS` | ¿Bloque "cómo trabajamos" / pasos? | sí / no | COMP-PROCESS | TPL-C-01 |
 | `TGL-CASES` | ¿Casos de éxito / resultados? | sí / no | COMP-CASES | TPL-C-01 |
