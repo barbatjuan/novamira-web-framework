@@ -4,7 +4,7 @@ description: "Trigger: performance, lazy load, image optimization, Core Web Vita
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # WordPress Performance
@@ -15,6 +15,11 @@ then fix the biggest offender first.
 ## Activation Contract
 Use after `elementor-core` / `divi-core` have built pages, or when the user reports slowness /
 poor Core Web Vitals. Read-then-tune; never redesign here.
+
+**Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
+has given an explicit **yes** for THIS build. Reached directly instead of routed by the
+orchestrator? Ask for that yes yourself before the first write and stop until you get it.
+On an existing site, confirm every page/template/asset you would overwrite by name first.
 
 ## Hard Rules
 - Do not add heavy plugins or custom JS to chase a metric. Prefer builder-native + host options.

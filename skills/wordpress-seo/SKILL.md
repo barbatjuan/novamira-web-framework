@@ -4,7 +4,7 @@ description: "Trigger: SEO, meta title, meta description, H1/H2 hierarchy, schem
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # WordPress SEO
@@ -14,6 +14,12 @@ On-page SEO for the built pages. Content-first and honest; no manipulation.
 ## Activation Contract
 Use after pages exist, or when the user asks for SEO. Works with whatever SEO plugin
 `project-context` found (Yoast / Rank Math) or WordPress defaults.
+
+**Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
+has given an explicit **yes** for THIS build. Reached directly instead of routed by the
+orchestrator? Ask for that yes yourself before the first write and stop until you get it.
+On an existing site, confirm every page/template you would overwrite by name first.
+Sitemap submission (step 5) is an outward action to a third party — confirm it separately.
 
 ## Hard Rules
 - One H1 per page; logical H2/H3 outline that matches the visible structure.

@@ -4,18 +4,28 @@ description: "Trigger: WooCommerce, shop page, product page, side cart, mini car
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # WooCommerce
 
 Build the storefront: shop archive, single product, side cart, and the account/checkout
-flows. Native widgets only. Uses the active builder's core skill (`elementor-core` /
-`divi-core`) to emit and deploy; this skill owns the commerce-specific structure and gotchas.
+flows. Native widgets only. Deploys through the active builder's core skill; this skill owns
+the commerce-specific structure and gotchas.
+
+**Elementor-only in practice.** Every execution step here is Elementor Pro Theme Builder, both
+assets are `es_*` examples, and the output contract greps for `elementor-<id>`. There is no Divi
+equivalent in this repo — `divi-core` is a scaffold with no helpers. On a Divi site, say so and
+stop; do not improvise a Divi path and do not present one as supported.
 
 ## Activation Contract
 Use when `project-context` reports WooCommerce active and the task touches shop, product,
 cart, checkout, or my-account. Deploy through the builder-core pipeline.
+
+**Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
+has given an explicit **yes** for THIS build. Reached directly instead of routed by the
+orchestrator? Ask for that yes yourself before the first write and stop until you get it.
+On an existing site, confirm every page/template you would overwrite by name first.
 
 ## Hard Rules
 - Native commerce widgets only; no custom JS. Style the CTA to the accent color with

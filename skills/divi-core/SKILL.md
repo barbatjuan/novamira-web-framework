@@ -4,7 +4,7 @@ description: "Trigger: Divi builder, Divi theme, Divi via PHP, build Divi page, 
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "0.1"
+  version: "0.2"
 ---
 
 # Divi Core (execution) — scaffold
@@ -18,6 +18,11 @@ The visual spec still comes from `ux-design-system`; only the emit/deploy mechan
 
 ## Activation Contract
 Use only when the active builder is Divi. Otherwise route to `elementor-core`.
+
+**Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
+has given an explicit **yes** for THIS build. Reached directly instead of routed by the
+orchestrator? Ask for that yes yourself before the first write and stop until you get it.
+On an existing site, confirm every page/template you would overwrite by name first.
 
 ## Hard Rules
 - Native Divi modules only. No custom JS. Custom CSS via the module's built-in Custom CSS

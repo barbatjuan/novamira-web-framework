@@ -4,7 +4,7 @@ description: "Trigger: Elementor via PHP, NovaMira, es-builder, _elementor_data,
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Elementor Core (execution)
@@ -16,6 +16,11 @@ Elementor failure modes. Takes its visual spec from `ux-design-system`.
 ## Activation Contract
 Use when `project-context` reports builder = `elementor` and work runs through NovaMira
 `execute-php` / `create-upload-link` (not the Elementor UI).
+
+**Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
+has given an explicit **yes** for THIS build. Reached directly instead of routed by the
+orchestrator? Ask for that yes yourself before the first write and stop until you get it.
+On an existing site, confirm every page/template you would overwrite by name first.
 
 ## Hard Rules
 - Native Elementor / Elementor Pro widgets only. No third-party widgets. No custom JS.
