@@ -4,7 +4,7 @@ description: "Trigger: verify, QA, review before handoff, did it work, check the
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # QA Review
@@ -13,8 +13,8 @@ The gate before hand-off. Confirm the change actually landed and matches intent.
 before assertions — never claim "done" without a check.
 
 ## Activation Contract
-Run after any build/deploy skill and before the orchestrator reports completion. Also on
-"does it work?" / "verify".
+After any build/deploy skill, before the orchestrator reports completion. Also on "does it
+work?" / "verify".
 
 ## Hard Rules
 - No success claim without evidence. If a check couldn't run, say so — don't assume PASS.
@@ -23,17 +23,29 @@ Run after any build/deploy skill and before the orchestrator reports completion.
 - Report failures with the actual output, not a summary that hides them.
 
 ## Execution Steps
-1. **Applied?** Fetch the target `post-<id>.css` and front HTML; count the selectors/values the
-   change was supposed to add (hover transforms, `100vw`, accent `!important`, template
-   `elementor-<id>`, etc.). Zero counts = not applied → investigate cache/conditions, don't report done.
-2. **Responsive**: check the per-device rules exist (mobile centering, 2-col grids, header one row
-   on desktop, full-width mobile CTA). Ask the user to eyeball ~430 / 768 / 1280 since you can't see it.
-3. **Accessibility quick pass**: one H1, alt text on images, color contrast on text/buttons
-   (ghost buttons legible in BOTH states), focus states, tap targets ≥ ~44px.
-4. **Regression**: confirm nothing adjacent broke (header not wrapping, no leftover template
-   hijack, kit/global CSS intact).
+1. **Applied?** — builder-aware; know the builder before counting.
+   - *Elementor*: fetch `post-<id>.css` + front HTML; count the selectors/values the change added
+     (hover transforms, `100vw`, accent `!important`, template `elementor-<id>`). Zero counts =
+     not applied → investigate cache/conditions, don't report done.
+   - *Divi*: emits neither artifact — zero counts prove nothing. Check `post_content` (`et_pb_*`)
+     + front HTML. Divi's compiled-CSS artifact name is unconfirmed here (`divi-core` is a
+     scaffold) → report UNVERIFIED, never PASS or FAIL; record the real name in
+     `divi-core/references/gotchas.md`.
+2. **House rules**: run `references/house-rules.md` end to end (currency, cart icon + badge, theme,
+   logo → home, ONE menu, no dead links, header everywhere, sticky, header/footer verbatim, mobile
+   3-zone). One verdict per row, skip none silently.
+3. **Responsive**: the per-device rules exist (mobile centering, 2-col grids, header one row on
+   desktop, full-width mobile CTA). Ask the user to eyeball ~430 / 768 / 1280 — you can't see it.
+4. **Accessibility quick pass**: one H1, alt text, contrast on text/buttons (ghost buttons legible
+   in BOTH states), focus states, tap targets ≥ ~44px.
+5. **Regression**: nothing adjacent broke (header not wrapping, no leftover template hijack,
+   kit/global CSS intact).
 
 ## Output Contract
-Return a short checklist with PASS/FAIL + the evidence (grep counts) for each item, the list
-of things only the user can confirm visually, and any follow-ups. If anything failed, the
-orchestrator must NOT report done.
+Return a short checklist with PASS / FAIL / UNVERIFIED / N/A + the evidence (grep counts) per
+item, house-rule rows included, then what only the user can confirm visually, then follow-ups.
+UNVERIFIED is not a pass. If anything failed, the orchestrator must NOT report done.
+
+## References
+- `references/house-rules.md` — per house rule: the server-side method, and whether it is
+  automatable, needs the user's eyes, or is Divi-unverified.
