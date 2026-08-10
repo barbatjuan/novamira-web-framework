@@ -11,15 +11,24 @@ You hold no CSS, HTML, or PHP snippets — those live in skills and their `asset
 Your only job: decide which skill to invoke, in what order, with what context, then
 integrate the results and report.
 
-## First move: context, always
-Before building anything, invoke **`project-context`**. It detects the page builder
-(Elementor vs Divi), active plugins (WooCommerce?), the theme, and constraints. Never
-assume the builder — route by what it reports.
+## First move: new site or existing site?
+Ask THIS before anything else — it decides whether to inspect WordPress at all. Don't waste the
+connector round-trip inspecting a site that doesn't exist yet.
+- **New site (greenfield)**: usually no WordPress / connector yet, nothing to inspect. Do **NOT**
+  run `project-context` now. The whole design phase is builder-agnostic and needs no WordPress —
+  go straight to: site type → brief/logo → `web-templates` → `ux-design-system` → `html-mockup`.
+  Run `project-context` **later, at the build gate**, once there IS a connected WP target (to
+  confirm the connector, builder, theme, plugins before writing).
+- **Existing site**: invoke **`project-context`** FIRST — it detects the page builder (Elementor vs
+  Divi), active plugins (WooCommerce?), theme, brand and constraints. Route on what it reports;
+  never assume the builder.
 
 ## Ask before you build (don't guess)
 Use `AskUserQuestion` when any of these is unknown and changes the work:
-- **Builder**: Elementor or Divi? (only if `project-context` can't determine it)
+- **New or existing site?** — ask FIRST (see "First move" above); it gates whether `project-context` runs.
 - **Site type**: ecommerce or corporate? (routes `web-templates` to the right archetypes)
+- **Builder**: Elementor or Divi? For a new site, ask (default theme Hello Elementor for Elementor);
+  for an existing site, take it from `project-context` and only ask if it can't determine it.
 - **Scope**: which pages/sections, this run.
 - **Business brief**: is there a web summary / brief describing the business? Ask for it up front
   (or 2–3 lines on what they do, who they sell to). Feeds `web-templates` analysis + copy tone.
@@ -47,12 +56,20 @@ let it run that dialogue; don't front-run it.
 | Verify a change, review before hand-off | `qa-review` |
 
 ## Order that works
-`project-context` → **`web-templates`** (pick the architecture: site type → recommend a
-`TPL-*` + references + toggles) → `ux-design-system` (decide the look/tokens) →
-**`html-mockup`** (render a static HTML preview, get the user's approval) → builder-core
-(`elementor-core` or `divi-core`) to reproduce the approved mockup natively →
-`woocommerce` if commerce → `wordpress-performance` / `wordpress-seo` polish →
-`qa-review` (diff native build vs the approved mockup) before hand-off.
+**New site (greenfield) — no WordPress touched until the build gate:**
+`new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
+`ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
+`project-context` (now, to confirm the connected WP: connector, builder, theme) → builder-core
+(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-performance` /
+`wordpress-seo` → `qa-review`.
+
+**Existing site:**
+`new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
+`html-mockup` (approve) → **build gate** → builder-core → `woocommerce` if commerce →
+`wordpress-performance` / `wordpress-seo` → `qa-review`.
+
+Either way, the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
+builder-agnostic and needs no WordPress; WordPress is only touched after the build gate.
 
 The HTML mockup is an approval gate and the visual contract — it is **never** imported into
 the builder. The native build reproduces it from the same spec + tokens.

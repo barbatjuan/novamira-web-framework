@@ -13,7 +13,10 @@ Read-only reconnaissance. Determine WHAT you are building on before any skill wr
 anything. Modifies nothing.
 
 ## Activation Contract
-Run first, before `ux-design-system`, `elementor-core`, `divi-core`, or `woocommerce`.
+**Existing site**: run FIRST, before `web-templates` / `ux-design-system` / builder-core — the
+build routes on what it reports. **New site (greenfield)**: do NOT run during the design phase
+(nothing to inspect, wastes the connector round-trip); run at the **build gate** instead, once a
+WordPress target + connector exist, to confirm connector/builder/theme before writing.
 Re-run if the target site changes.
 
 ## Hard Rules
