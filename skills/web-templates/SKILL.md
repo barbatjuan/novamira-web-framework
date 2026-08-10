@@ -4,7 +4,7 @@ description: "Trigger: plantilla, wireframe, arquitectura de home, elegir planti
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Web Templates (architecture)
@@ -51,7 +51,8 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
 4. Read the chosen `references/templates/<type>/TPL-*.md` → resolve the home section inventory
    (order + fixed/toggle state + toggle answers).
 5. **Resolve the page set** (recommender §6): propose the inner pages the site needs
-   (Shop, Product/PDP, About, Contact…), assign an archetype from `references/templates/pages/`
+   (Shop, Product/PDP, one Service page per corporate service/area, About, Contact…), assign an
+   archetype from `references/templates/pages/`
    to each (inherit the default coherent with the home, user can override), run each page's toggles.
 6. Hand the resolved specs (home + each page) + `references/design-system.md` tokens to
    `ux-design-system`, then to `html-mockup` — one section inventory per page, rendered as ONE
@@ -69,4 +70,5 @@ tokens, and per-breakpoint notes. No visual or builder-specific code.
 - `references/templates/ecommerce/` — home archetypes TPL-E-01..05.
 - `references/templates/corporate/` — home archetypes TPL-C-01..05.
 - `references/templates/pages/` — inner-page archetypes: `product/` (PDP), `shop-archive/`,
-  `about/`, `contact/`; see `pages/_README.md` for the page-set model.
+  `service/` (one page per corporate service/area), `about/`, `contact/`; see `pages/_README.md`
+  for the page-set model.

@@ -100,11 +100,13 @@ heredar el default coherente con la home.
 | Tipo de sitio | Set de páginas sugerido |
 |---------------|-------------------------|
 | Ecommerce | Home + **Shop/Catálogo** + **Product/PDP** + **Carrito** + **Checkout** (layout; funcional = `woocommerce`) + **About** + **Contacto** |
-| Corporate | Home + **About** + **Contacto** (+ Services/Portfolio según la home) |
+| Corporate | Home + **una `TPL-SERVICE-01` por servicio/área** + **About** + **Contacto** |
 
 Herencia de default (coherencia con la home):
 - Home TPL-E-01 Visual Brand / TPL-E-03 Brand Story → **PDP TPL-PDP-02 Editorial**, **Shop TPL-SHOP-02 Full-width**.
 - Home TPL-E-02 Catalog / TPL-E-04 Categories → **PDP TPL-PDP-01 Standard**, **Shop TPL-SHOP-01 Sidebar**.
+- Home TPL-C-01 / TPL-C-02 (llevan `COMP-SERVICES`) → **una `TPL-SERVICE-01` por servicio o área**.
+  TPL-C-04 es una oferta única y no las necesita; TPL-C-03 enlaza a páginas de proyecto, no de servicio.
 - About/Contacto heredan tokens y tono de la home.
 
 El usuario puede overridear cualquier arquetipo por página. Cada página luego pasa por sus toggles y

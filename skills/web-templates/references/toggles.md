@@ -51,6 +51,11 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-ABOUT-STATS` | ¿Cifras/números en Nosotros? | sí / no | COMP-STATS | TPL-ABOUT-01 |
 | `TGL-ABOUT-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-ABOUT-01 |
 | `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 |
+
+`TPL-SERVICE-01` (página de servicio/área) no estrena toggles: reutiliza `TGL-PROCESS`, `TGL-CASES`,
+`TGL-FAQ`, `TGL-TESTIMONIALS`, `TGL-PRICING`, `TGL-STYLE` y `TGL-CTA-STRENGTH`. Ojo con dos
+defaults propios: `TGL-FAQ` va **on** (al revés que en `TPL-CONTACT-01`, porque ahí es ADN de SEO) y
+`TGL-PRICING` va **off**. Su bloque de cross-link a las áreas hermanas es FIJO y no tiene toggle.
 | `TGL-CART-VIEW` | ¿Carrito como drawer, página o ambos? | drawer / page / both | side-cart / cart page | TPL-CART-01 |
 | `TGL-CART-CROSSSELL` | ¿"Completá tu compra" en el carrito? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-CART-01 |
 | `TGL-CART-SHIPBAR` | ¿Barra "te falta €X para envío gratis"? | sí / no | side-cart | TPL-CART-01 |
