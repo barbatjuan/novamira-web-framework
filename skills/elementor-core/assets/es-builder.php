@@ -500,8 +500,17 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 	);
 }
 
-/** Save an Elementor layout onto a page, creating the page when missing. */
-function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_canvas' ) {
+/**
+ * Save an Elementor layout onto a page, creating the page when missing.
+ *
+ * `$tpl` defaults to `elementor_header_footer` (Elementor Full Width): full-bleed
+ * content that KEEPS the theme / Theme Builder header and footer. Do not switch the
+ * default to `elementor_canvas` — Canvas renders neither, so every page built with it
+ * silently loses the global header, breaking the "header on every page" house rule.
+ * Pass `elementor_canvas` explicitly for the rare page that must have no chrome
+ * (a standalone landing, a coming-soon splash).
+ */
+function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer' ) {
 	$page = get_page_by_path( $slug, OBJECT, 'page' );
 	if ( $page ) {
 		$id = $page->ID;
