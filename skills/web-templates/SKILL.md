@@ -4,7 +4,7 @@ description: "Trigger: plantilla, wireframe, arquitectura de home, elegir planti
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Web Templates (architecture)
@@ -16,8 +16,12 @@ Not five designs with different colors: five different architectures + a layer t
 picks and tunes one.
 
 ## Activation Contract
-Run after `project-context`, before `ux-design-system`. Produces a resolved architecture
-spec. Modifies nothing on the site.
+Runs before `ux-design-system`. Prerequisite is conditional:
+- **Existing site**: run after `project-context` (stack, plugins, brand already detected).
+- **New site (greenfield)**: run FIRST, with no WordPress and no `project-context` at all — there
+  is nothing to inspect yet. `project-context` comes later, at the build gate.
+
+Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the site.
 
 ## The 3 layers
 - **CAPA 1 — Archetypes** (`references/templates/<type>/TPL-*.md`): proven skeletons. Each
@@ -50,7 +54,8 @@ spec. Modifies nothing on the site.
    (Shop, Product/PDP, About, Contact…), assign an archetype from `references/templates/pages/`
    to each (inherit the default coherent with the home, user can override), run each page's toggles.
 6. Hand the resolved specs (home + each page) + `references/design-system.md` tokens to
-   `ux-design-system`, then to `html-mockup` (one mockup per page).
+   `ux-design-system`, then to `html-mockup` — one section inventory per page, rendered as ONE
+   Artifact with in-page navigation (never one mockup or one Artifact per page).
 
 ## Output Contract
 A resolved architecture spec: template id, site type, ordered section list with each

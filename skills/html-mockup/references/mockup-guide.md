@@ -2,7 +2,7 @@
 
 How to render a resolved template into a self-contained, responsive HTML mockup for Artifact
 publishing. The mockup is the visual contract; keep it faithful to the tokens so the native build
-can reproduce it.
+can reproduce it. This file is not boilerplate: the one-Artifact rule below is binding.
 
 ## Base shell
 
@@ -52,41 +52,77 @@ one inline `<style>`. No external anything.
 
 ## Placeholder recipe
 - Images: `<div class="ph" style="aspect-ratio:16/9">imagen</div>` — never a real client photo.
-- Copy: short neutral placeholders ("Título de sección", "Categoría", "$ 0.000"). Mark clearly it's a preview.
-- Product/category cards: `.ph` for the image + placeholder name + price token.
+- Copy: short neutral placeholders ("Título de sección", "Categoría", "0,00 €" — euros, house
+  rule). Mark clearly it's a preview.
+- Product/category cards (ecommerce): `.ph` for the image + placeholder name + price token.
+- Corporate: no prices unless the template resolved `COMP-PRICING`; no cart, ever.
 
 ## Section blueprints (mobile-first)
 Build only the sections the template resolved as kept/on, in the template's order. Each mirrors the
-per-breakpoint notes of the `TPL-*.md`:
+per-breakpoint notes of the `TPL-*.md`.
 
+### Shared (both site types)
 - **Hero**: full-bleed block using `--c-bg-alt`; height per `TGL-HERO-HEIGHT` (`min-height:45vh`
   mobile → target vh desktop via `@media`); H1 + CTA. Slider vs fixed per `TGL-HERO-TYPE` (a static
   first-slide is fine for the mockup; note "slider" in a caption).
+- **Editorial / Story**: 1 col mobile → 2 cols (`grid-template-columns:1fr 1fr`) desktop, alternating.
+- **Benefits / Features** (`COMP-FEATURES`): 2×2 mobile → row of 3–4 desktop.
+- **Testimonials**: 1 per view (snap row) mobile → 3 cols desktop.
+- **Banner CTA** (`COMP-CTA`): full-width `--c-bg-alt` band, centered H2 + one accent button.
+- **Header/Footer**: sticky header with logo + nav placeholder. The **logo always links to
+  home**. Footer columns collapse to stacked on mobile. Reuse the exact same header/footer across
+  every page of the set. Ecommerce ends the header with a **cart icon + count badge** (never a text
+  label); corporate ends it with the primary CTA button (contacto / reserva) instead.
+
+### Ecommerce-only
 - **Category grid**: `.grid` 1 col mobile → `repeat(3–4,1fr)` desktop.
 - **Product grid/carousel**: `.grid` 2 cols mobile → 4 desktop (grid); for carousel, a horizontal
   `overflow-x:auto` row with `scroll-snap`.
-- **Editorial / Story**: 1 col mobile → 2 cols (`grid-template-columns:1fr 1fr`) desktop, alternating.
-- **Benefits**: 2×2 mobile → row of 3–4 desktop.
-- **Testimonials**: 1 per view (snap row) mobile → 3 cols desktop.
 - **Newsletter**: stacked mobile → inline (`display:flex`) desktop.
-- **Header/Footer**: sticky header with logo + nav placeholder + cart. The **logo always links to
-  home** (`href="/"`). Cart is an **icon** with a count badge, never a text label. Footer columns
-  collapse to stacked on mobile. Reuse the exact same header/footer across every page of the set.
+- Prices render in **€** (house rule) — ecommerce path only.
+
+### Corporate-only
+- **Services** (`COMP-SERVICES`): card grid, 1 col mobile → 2 tablet → 3 desktop; each card = icon
+  `.ph` (`aspect-ratio:1`, ~48px) + H3 + 2 lines + "Ver más" ghost link. One card recipe site-wide.
+- **Lead form** (`COMP-LEAD-FORM`): stacked fields full-width mobile → 2-col field grid with the
+  submit spanning both desktop; labels above inputs, `--radius-input`, one solid accent submit.
+  Inert in the mockup — never wire a real endpoint.
+- **Process / Steps** (`COMP-PROCESS`): numbered vertical list with a left rule mobile → row of
+  3–4 columns desktop; big muted step number + H3 + one line.
+- **Cases / Projects** (`COMP-CASES`): 1 col mobile → 2 desktop; `.ph` 16/9 + client placeholder +
+  one-line result. Card opens the case page only if the page set resolved one.
+- **Logos** (`COMP-LOGOS`): row of neutral `.ph` boxes (`aspect-ratio:5/2`, grayscale), 2 cols
+  mobile → 5–6 desktop, low contrast so they never compete with the accent.
+- **Stats** (`COMP-STATS`): 2×2 mobile → row of 3–4 desktop; big number (`--fs-h2`) + short label
+  in `--c-text-muted`. Numbers are placeholders until the client confirms them.
+- **Team** (`COMP-TEAM`): 2 cols mobile → 3–4 desktop; `.ph` `aspect-ratio:1` (or 3/4) + name + role.
+- **Portfolio grid** (`COMP-PORTFOLIO-GRID`): the visual centerpiece of TPL-C-03 — 1 col mobile →
+  2–3 desktop masonry-ish grid of `.ph` blocks, minimal chrome, caption on hover only.
+- **Pricing** (`COMP-PRICING`): stacked cards mobile → 3 cols desktop, middle plan highlighted with
+  the accent border (one accent only); feature list as plain `ul`.
+- **FAQ** (`COMP-FAQ`): native `<details>/<summary>` accordion, full width, `--c-border` divider
+  per row. No JS needed.
+- **Booking** (`COMP-BOOKING`): stacked service + date/time selects mobile → inline row desktop,
+  ending in the solid accent CTA. Inert placeholder, no real calendar.
+- **Map / NAP** (`COMP-MAP-NAP`): map is a `.ph` block (`aspect-ratio:16/9`) — never an embedded
+  iframe (Artifact CSP blocks it). Beside it (stacked mobile → 2 cols desktop) the NAP block:
+  name, address, phone, hours as a small `dl`.
 
 ## Responsive rules
 - Never let `body` scroll horizontally. Carousels scroll inside their own `overflow-x:auto`.
 - Use relative units and `max-width:100%`. Test the three breakpoints before publishing.
 
-## Multi-page preview: ONE artifact, in-page switching
-When previewing several pages of the same site, publish **one** Artifact with all pages as
-`<div class="page">` sections and switch between them with in-page JS (`show(id)` toggling
-`.active`). Do NOT split pages across multiple Artifacts and link them with `target="_top"` —
-cross-artifact navigation is flaky in the sandbox (dead clicks, "logo doesn't return home").
+## Multi-page preview: ONE Artifact, in-page switching (binding)
+The whole page set ships as **one** HTML file published as **one** Artifact, with each page as a
+`<div class="page">` section switched by in-page JS (`show(id)` toggling `.active`). **Never** one
+mockup per page, never one Artifact per page, never `target="_top"` links between Artifacts —
+cross-artifact navigation is dead in the sandbox (dead clicks, "logo doesn't return home").
 Keep the **header, announcement bar and footer as global elements OUTSIDE the `.page`
 containers** so they never disappear when the active page changes. The logo switches to `home`;
-nav items and the cart icon switch pages; product cards open the PDP. (Per-page separate files
-are still correct as the handoff spec for the native build — this rule is about the preview UX.)
+nav items switch pages; on ecommerce the cart icon switches pages and product cards open the PDP.
+The per-page split survives only as the **handoff spec** — one section inventory per page for the
+native build — never as separate mockup files or URLs.
 
 ## Handoff
-On approval, list the sections present (in order) + the token values used. `elementor-core` /
+On approval, list the sections present per page (in order) + the token values used. `elementor-core` /
 `divi-core` reproduce this NATIVELY; `qa-review` compares the native output against this mockup.

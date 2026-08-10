@@ -4,7 +4,7 @@ description: "Trigger: premium web design, hero, layout, cards, hover effects, r
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # UX Design System
@@ -13,8 +13,10 @@ The visual language, independent of the page builder. Decide HOW it should look 
 feel; `elementor-core` / `divi-core` translate these decisions into builder data.
 
 ## Activation Contract
-Use when deciding layout, spacing, color, hover/motion, card style, or responsive
-behavior — before the builder-core skill executes. Applies to Elementor and Divi alike.
+Run after `web-templates` (architecture resolved), before `html-mockup`. Use when deciding
+layout, spacing, color, hover/motion, card style, or responsive behavior. Applies to
+Elementor and Divi alike. Never hand off straight to builder-core: the mockup approval gate
+sits between this skill and any WordPress write.
 
 ## Hard Rules
 - One accent color, used ONLY for CTAs / action icons / important links. Neutrals carry the rest.
@@ -31,11 +33,13 @@ behavior — before the builder-core skill executes. Applies to Elementor and Di
 2. Read `references/motion.md` for the hover/microinteraction timings and the premium card recipe.
 3. Read `references/layout-patterns.md` for hero, feature grid, banner CTA, testimonial carousel,
    glass header, mega/mobile menu, and responsive rules.
-4. Hand the chosen tokens + pattern list to the builder-core skill as the spec to implement.
+4. Hand the chosen tokens + pattern list to **`html-mockup`** as the spec to render for client
+   approval. builder-core only receives it after the mockup is approved.
 
 ## Output Contract
-Return a short spec: palette + roles, type pair, spacing/radii, motion timings, the list of
-sections/patterns to build, and per-breakpoint notes. No builder-specific code here.
+Return a short spec addressed to `html-mockup`: palette + roles, type pair, spacing/radii,
+motion timings, the list of sections/patterns to build, and per-breakpoint notes. No
+builder-specific code here.
 
 ## References
 - `references/design-tokens.md` — palette roles, type, spacing, radii.

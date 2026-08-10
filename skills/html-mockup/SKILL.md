@@ -1,10 +1,10 @@
 ---
 name: html-mockup
-description: "Trigger: maqueta, mockup, HTML preview, prototipo, visual approval, aprobar diseño, static mockup. Materialize the resolved architecture + tokens into a static responsive HTML/CSS homepage for client approval BEFORE the native builder build. Builder-agnostic, published as an Artifact."
+description: "Trigger: maqueta, mockup, HTML preview, prototipo, visual approval, aprobar diseño, static mockup. Materialize the resolved architecture + tokens into a static responsive HTML/CSS page set for client approval BEFORE the native builder build. Builder-agnostic, published as ONE Artifact with in-page navigation."
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.0"
+  version: "1.1"
 ---
 
 # HTML Mockup (approval preview)
@@ -13,8 +13,8 @@ Turn the resolved architecture (`web-templates`) + visual spec (`ux-design-syste
 static, responsive HTML/CSS pages — the home AND the inner pages resolved in the page set
 (Shop, Product/PDP, About, Contact…) — that the client can SEE and approve before paying the
 expensive, fragile native build. Operative skill: it produces HTML/CSS (like `elementor-core`
-produces `_elementor_data`), published as an Artifact for live review. One mockup per page,
-sharing the same `:root` tokens.
+produces `_elementor_data`), published as **ONE Artifact** for live review — the whole page set
+in a single file, sharing one `:root` token block.
 
 ## Activation Contract
 Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-core` /
@@ -24,6 +24,11 @@ Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-c
 - The mockup is a PREVIEW + approval artifact and the visual contract — **never** a source to
   import into the builder. Elementor/Divi builds are reproduced NATIVELY from the same spec, never
   by pasting this HTML (pasted HTML = one dead block, not editable widgets).
+- **ONE Artifact for the whole page set.** Every page is a `<div class="page">` inside the same
+  file; switch with in-page JS. Header, announcement bar and footer are global elements OUTSIDE
+  the page containers, so they survive every switch. **Never split pages across Artifacts** and
+  never link them with `target="_top"` — cross-artifact nav is dead in the sandbox. Governing
+  detail: `references/mockup-guide.md` § "Multi-page preview".
 - Mobile-first, responsive at the framework breakpoints (`<768 / 768–1024 / >1024`).
 - Declare the design-system tokens as CSS variables in `:root` ONCE; every section references them.
   Same tokens the native build will use — single source of truth.
@@ -38,28 +43,35 @@ Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-c
 
 ## Execution Steps
 1. Take the resolved section inventory(ies) (`web-templates`, home + page set) + tokens/patterns
-   (`ux-design-system`). Start from `assets/ecommerce-mockup.html` (brand-neutral reference) and
-   read `references/mockup-guide.md` for the shell + token block.
-2. For EACH page in the set, build ONE responsive HTML file: the SAME `:root` tokens, semantic
-   `header/main/section/footer`, each section per that archetype's per-breakpoint notes, only the
-   sections resolved as kept/on. Reuse header/footer verbatim across pages. Prices in €.
-3. Publish each page as an **Artifact** (title = "<brand> — <page> maqueta", a favicon emoji,
-   one-line description). Share the URLs. State plainly: structural preview, no final imagery/copy,
-   needs the user's visual confirmation. Start with the home; add inner pages as the user approves.
+   (`ux-design-system`). Pick the starting asset **by site type**: ecommerce →
+   `assets/ecommerce-mockup.html`, corporate → `assets/corporate-mockup.html`. Never start a
+   corporate site from the ecommerce asset (cart, shipping bar, Tienda nav are ecommerce DNA).
+   Read `references/mockup-guide.md` for the shell, token block and section blueprints.
+2. Build ONE responsive HTML file for the whole set: one `:root` token block, semantic
+   `header/main/section/footer`, one `.page` container per page, only the sections resolved as
+   kept/on, each per that archetype's per-breakpoint notes. Header/announcement/footer stay
+   global and verbatim across pages. **Ecommerce path only**: prices in €, cart icon + badge.
+3. Publish the file as ONE **Artifact** (title = "<brand> — maqueta", a favicon emoji, one-line
+   description). Share the URL. State plainly: structural preview, no final imagery/copy, needs
+   the user's visual confirmation. Start with the home page active; wire inner pages as resolved.
 4. Collect approval or a change list per page. Iterate the same file → republish to the same URL.
-5. On approval: freeze each as the visual contract and hand the approved section inventories +
-   tokens to `elementor-core` / `divi-core`, noting the native build must match these mockups.
+5. On approval: freeze the file as the visual contract and hand the approved per-page section
+   inventories + tokens to `elementor-core` / `divi-core`; the native build must match it.
 
 ## Output Contract
-Return the Artifact URL of the approved mockup, the section inventory it represents, the toggle
-states baked in, and the note that `qa-review` diffs the native build against it. On iteration,
-report what changed.
+Return the single Artifact URL of the approved mockup, the section inventory per page it
+represents, the toggle states baked in, and the note that `qa-review` diffs the native build
+against it. On iteration, report what changed.
 
 ## References
-- `assets/ecommerce-mockup.html` — brand-neutral, ready reference mockup: one artifact, in-page
-  nav, global header/footer, all 7 pages wired (home · shop · pdp · cart · checkout · about ·
-  contact), prices in €, cart icon. START FROM THIS: copy it, swap `:root` tokens + brand name +
-  copy + placeholders, keep only the pages/sections the archetypes resolved.
-- `references/mockup-guide.md` — base HTML shell, `:root` token block, section blueprints,
-  placeholder recipes, responsive rules. Pairs with `web-templates` (spec) and `ux-design-system`
-  (look); hands off to `elementor-core` / `divi-core`.
+- `assets/ecommerce-mockup.html` — **ecommerce start**: brand-neutral, one Artifact, in-page nav,
+  global header/announcement/footer, 7 pages wired (home · shop · pdp · cart · checkout · about ·
+  contact), prices in €, cart icon.
+- `assets/corporate-mockup.html` — **corporate start**: same one-Artifact shell, no cart/commerce;
+  services, lead form, process, cases, team, FAQ, booking/NAP.
+- Copy the matching asset, swap `:root` tokens + brand name + copy + placeholders, keep only the
+  pages/sections the archetypes resolved.
+- `references/mockup-guide.md` — governing rules: base HTML shell, `:root` token block, the
+  one-Artifact multi-page contract, section blueprints (ecommerce + corporate), placeholder
+  recipes, responsive rules. Pairs with `web-templates` (spec) and `ux-design-system` (look);
+  hands off to `elementor-core` / `divi-core`.
