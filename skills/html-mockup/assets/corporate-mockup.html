@@ -1,0 +1,780 @@
+<!--
+  NovaMira · corporate mockup reference (brand-neutral)
+  Single-artifact, in-page navigation, global announcement/header/footer OUTSIDE the .page containers.
+  Pages: home · services · about · cases · contact. Zero commerce chrome — no basket icon, no
+  figures, no catalogue. This is the corporate twin of ecommerce-mockup.html (commerce variant).
+  Archetypes covered: TPL-C-01 (lead-gen) as the backbone, plus blocks from TPL-C-02 (trust),
+  TPL-C-03 (portfolio), TPL-C-04 (single-offer) and TPL-C-05 (local/booking).
+  Every section is labelled with its COMP-* / TPL-C-* code so the native build knows what it reproduces.
+  To re-brand for a client: (1) swap the :root tokens (they are the canonical design-system.md names),
+  (2) replace "MARCA" + copy + placeholder .ph blocks with real content, (3) keep only the
+  pages/sections the resolved archetypes call for. See ../SKILL.md and ../references/mockup-guide.md.
+-->
+<style>
+  :root{
+    /* ── tokens: canonical names from web-templates/references/design-system.md ── */
+    /* Typography — two families max; secondary may equal primary (corporate default). */
+    --font-primary: system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --font-secondary: var(--font-primary);
+    --fs-h1: clamp(2rem,5vw,3.5rem); --fs-h2: clamp(1.6rem,3.5vw,2.5rem);
+    --fs-h3: clamp(1.25rem,2.5vw,1.75rem); --fs-body: clamp(1rem,1.2vw,1.125rem);
+    --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
+    /* Colors */
+    --c-primary:#132F4C; --c-secondary:#4B5D72; --c-accent:#1F7A8C;
+    --c-bg:#FFFFFF; --c-bg-alt:#F3F6F9; --c-text:#12212E; --c-text-muted:#5F6E7D;
+    --c-border:#DEE5EC; --c-success:#2E7D32; --c-error:#C62828;
+    /* Spacing */
+    --sp-xs:.5rem; --sp-s:1rem; --sp-m:1.5rem; --sp-l:3rem; --sp-xl:5rem; --sp-xxl:7.5rem;
+    /* Containers */
+    --container-max:1280px; --content-width:1140px;
+    --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
+    /* Radius */
+    --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
+    /* Buttons + motion */
+    --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
+    --btn-border-width:1.5px; --ease:cubic-bezier(.22,1,.36,1); --btn-transition:all .25s var(--ease);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--c-primary:#DCE7F0;--c-secondary:#8FA2B6;--c-accent:#58B6C9;
+          --c-bg:#0F1620;--c-bg-alt:#17212D;--c-text:#E9F0F6;--c-text-muted:#98A6B5;--c-border:#26313E;}
+  }
+  :root[data-theme="dark"]{--c-primary:#DCE7F0;--c-secondary:#8FA2B6;--c-accent:#58B6C9;
+    --c-bg:#0F1620;--c-bg-alt:#17212D;--c-text:#E9F0F6;--c-text-muted:#98A6B5;--c-border:#26313E;}
+  :root[data-theme="light"]{--c-primary:#132F4C;--c-secondary:#4B5D72;--c-accent:#1F7A8C;
+    --c-bg:#FFFFFF;--c-bg-alt:#F3F6F9;--c-text:#12212E;--c-text-muted:#5F6E7D;--c-border:#DEE5EC;}
+
+  *{box-sizing:border-box} body,figure,h1,h2,h3,p,ul,ol,form,fieldset,dl,dd{margin:0;padding:0}
+  body{font-family:var(--font-secondary);color:var(--c-text);background:var(--c-bg);line-height:1.6;font-size:var(--fs-body)}
+  h1,h2,h3{font-family:var(--font-primary);line-height:1.15;font-weight:700;letter-spacing:-.012em;text-wrap:balance}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3)}
+  a{color:inherit;text-decoration:none} img,svg{max-width:100%}
+  .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
+  .wrap-wide{max-width:var(--container-max);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
+  section{padding-block:var(--sp-l)}
+  .eyebrow{font-size:var(--fs-eyebrow);letter-spacing:.2em;text-transform:uppercase;color:var(--c-accent);font-weight:600;display:block}
+  .muted{color:var(--c-text-muted)}
+  .small{font-size:var(--fs-small)}
+  .bg-alt{background:var(--c-bg-alt)}
+  .head{display:flex;align-items:end;justify-content:space-between;gap:var(--sp-m);margin-bottom:var(--sp-l)}
+  .head p{max-width:56ch}
+  .stack{display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start}
+  .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 12px),var(--c-bg-alt);
+      border:1px solid var(--c-border);border-radius:var(--radius-image);display:grid;place-items:center;
+      color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:.5rem}
+  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;line-height:1.2;
+       text-align:center;border-radius:var(--btn-radius);border:var(--btn-border-width) solid transparent;
+       cursor:pointer;transition:var(--btn-transition)}
+  .btn-primary{background:var(--c-primary);color:var(--c-bg);border-color:var(--c-primary)}
+  .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);transform:translateY(-2px)}
+  .btn-outline{background:transparent;color:var(--c-text);border-color:var(--c-primary)}
+  .btn-outline:hover{background:var(--c-primary);color:var(--c-bg);transform:translateY(-2px)}
+  .btn:active{transform:scale(.98)}
+  .btn-sm{padding:.55rem 1.05rem;font-size:var(--fs-nav)}
+  .btn-full{width:100%}
+  label{font-size:var(--fs-small);color:var(--c-text-muted);font-weight:500}
+  input,select,textarea{width:100%;min-width:0;font:inherit;font-size:var(--fs-small);color:inherit;background:transparent;
+       border:1px solid var(--c-border);border-radius:var(--radius-input);padding:.8rem .9rem}
+  textarea{resize:vertical}
+  ::placeholder{color:var(--c-text-muted);opacity:.8}
+  :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(min-width:768px){ section{padding-block:var(--sp-xl)} .wrap,.wrap-wide{padding-inline:var(--pad-x-tablet)} }
+  @media(min-width:1024px){ .wrap,.wrap-wide{padding-inline:var(--pad-x-desktop)} }
+
+  /* ── GLOBAL CHROME (outside .page) ── */
+  .note{background:var(--c-accent);color:var(--c-bg);text-align:center;font-size:var(--fs-eyebrow);
+        letter-spacing:.12em;text-transform:uppercase;padding:.45rem var(--pad-x-mobile)}
+  .ann{background:var(--c-text);color:var(--c-bg);text-align:center;font-size:var(--fs-small);padding:.55rem var(--pad-x-mobile)}
+  header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 92%,transparent);
+        backdrop-filter:blur(8px);border-bottom:1px solid var(--c-border)}
+  .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:.75rem}
+  .logo{flex:none;font-family:var(--font-primary);font-weight:700;font-size:1.25rem;letter-spacing:.18em;cursor:pointer}
+  .mainnav{flex:1;min-width:0;display:flex;gap:1.1rem;overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
+  .mainnav::-webkit-scrollbar{display:none}
+  .mainnav a{padding:.3rem 0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--c-text-muted);transition:color .2s var(--ease)}
+  .mainnav a:hover{color:var(--c-text)}
+  .mainnav a[aria-current]{color:var(--c-text);border-color:var(--c-accent)}
+  .tools{flex:none;display:flex;align-items:center;gap:var(--sp-s)}
+  .tel{display:inline-flex;align-items:center;gap:.4rem;font-size:var(--fs-nav);color:var(--c-text-muted);white-space:nowrap}
+  .tel svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+  .tel span{display:none}
+  @media(min-width:1024px){.tel span{display:inline}}
+
+  .page{display:none} .page.active{display:block}
+  .pagehead{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-l)}
+  .pagehead p{max-width:60ch}
+  .breadcrumb{font-size:var(--fs-small);color:var(--c-text-muted);margin-bottom:var(--sp-s)}
+
+  /* ── COMP-HERO (lead-gen split) ── */
+  .hero{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-xl)}
+  .hero .inner{display:grid;gap:var(--sp-l);align-items:center;min-height:45vh}
+  .hero h1{max-width:16ch}
+  .hero p{max-width:52ch}
+  .herocta{display:flex;flex-wrap:wrap;gap:var(--sp-s)}
+  @media(min-width:900px){.hero .inner{grid-template-columns:1.05fr .95fr;min-height:50vh}}
+
+  /* ── COMP-LEAD-FORM ── */
+  .leadcard{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-container);
+        padding:var(--sp-m);box-shadow:0 14px 34px color-mix(in srgb,var(--c-text) 9%,transparent)}
+  .form{display:flex;flex-direction:column;gap:.75rem}
+  .field{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+  .row2{display:grid;grid-template-columns:1fr;gap:.75rem}
+  @media(min-width:560px){.row2{grid-template-columns:1fr 1fr}}
+  .consent{display:flex;gap:.55rem;align-items:flex-start;font-size:var(--fs-small);color:var(--c-text-muted)}
+  .consent input{width:16px;height:16px;flex:none;margin-top:.25rem;padding:0}
+
+  /* ── COMP-LOGOS ── */
+  .logos{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-s);align-items:center}
+  .logoph{height:46px;border:1px dashed var(--c-border);border-radius:var(--radius-image);display:grid;place-items:center;
+        color:var(--c-text-muted);font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+  @media(min-width:640px){.logos{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:1024px){.logos{grid-template-columns:repeat(6,1fr)}}
+
+  /* ── COMP-SERVICES / COMP-FEATURES cards ── */
+  .cards{display:grid;gap:var(--sp-m)}
+  @media(min-width:768px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1024px){.cards.c3{grid-template-columns:repeat(3,1fr)} .cards.c4{grid-template-columns:repeat(4,1fr)}}
+  .card{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);
+        display:flex;flex-direction:column;gap:var(--sp-xs);align-items:flex-start;
+        transition:transform .35s var(--ease),border-color .35s var(--ease),box-shadow .35s var(--ease)}
+  .card:hover{transform:translateY(-4px);border-color:var(--c-accent);box-shadow:0 14px 30px color-mix(in srgb,var(--c-text) 10%,transparent)}
+  .card h3{font-size:1.1rem}
+  .ico{width:42px;height:42px;border-radius:var(--radius-button);display:grid;place-items:center;margin-bottom:var(--sp-xs);
+       background:color-mix(in srgb,var(--c-accent) 12%,transparent);color:var(--c-accent)}
+  .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .linkline{font-size:var(--fs-small);font-weight:600;color:var(--c-accent);cursor:pointer;margin-top:auto;padding-top:var(--sp-xs)}
+
+  /* ── COMP-PROCESS ── */
+  .steps{display:grid;gap:var(--sp-m)}
+  .step{position:relative;display:grid;grid-template-columns:auto 1fr;gap:var(--sp-s);align-items:start}
+  .step b{width:40px;height:40px;flex:none;border-radius:50%;border:var(--btn-border-width) solid var(--c-secondary);
+        display:grid;place-items:center;font-size:var(--fs-small);color:var(--c-secondary)}
+  .step h3{font-size:1.05rem}
+  .step:not(:last-child)::after{content:"";position:absolute;left:20px;top:46px;bottom:calc(var(--sp-m) * -1);width:1px;background:var(--c-border)}
+  @media(min-width:768px){
+    .steps{grid-template-columns:repeat(4,1fr)}
+    .step{grid-template-columns:1fr;gap:var(--sp-xs)}
+    .step:not(:last-child)::after{left:52px;right:calc(var(--sp-m) * -1);top:20px;bottom:auto;width:auto;height:1px}
+  }
+
+  /* ── COMP-STATS ── */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
+  .stat b{display:block;font-family:var(--font-primary);font-size:clamp(2rem,4.5vw,2.9rem);line-height:1;color:var(--c-primary)}
+  .stat span{font-size:var(--fs-small);color:var(--c-text-muted)}
+  @media(min-width:768px){.stats{grid-template-columns:repeat(4,1fr)}}
+
+  /* ── COMP-CASES ── */
+  .cases{display:grid;gap:var(--sp-m)}
+  .case{border:1px solid var(--c-border);border-radius:var(--radius-card);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;
+        transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+  .case:hover{transform:translateY(-4px);box-shadow:0 14px 30px color-mix(in srgb,var(--c-text) 10%,transparent)}
+  .case>.ph{aspect-ratio:16/10;border:none;border-radius:0}
+  .case .body{padding:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-xs)}
+  .metric{font-family:var(--font-primary);font-size:1.9rem;font-weight:700;line-height:1;color:var(--c-accent)}
+  @media(min-width:768px){.cases{grid-template-columns:repeat(3,1fr)}}
+
+  /* ── COMP-TESTIMONIAL ── */
+  .quotes{display:grid;gap:var(--sp-l)}
+  .quote{border-top:2px solid var(--c-accent);padding-top:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s)}
+  .quote p{font-size:1.1rem;line-height:1.5}
+  @media(min-width:768px){.quotes{grid-template-columns:repeat(3,1fr)}}
+
+  /* ── COMP-CTA band ── */
+  .ctaband{background:var(--c-primary);color:var(--c-bg);padding-block:var(--sp-xl)}
+  .ctaband .inner{display:grid;gap:var(--sp-l);align-items:center}
+  .ctaband .eyebrow{color:inherit;opacity:.75}
+  .ctaband label,.ctaband .consent{color:inherit;opacity:.8}
+  .ctaband input,.ctaband textarea,.ctaband select{border-color:color-mix(in srgb,var(--c-bg) 40%,transparent)}
+  .ctaband ::placeholder{color:inherit;opacity:.6}
+  .ctaband .btn-primary{background:var(--c-bg);color:var(--c-primary);border-color:var(--c-bg)}
+  .ctaband .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg)}
+  .ctaband .btn-outline{color:var(--c-bg);border-color:var(--c-bg)}
+  .ctaband .btn-outline:hover{background:var(--c-bg);color:var(--c-primary)}
+  @media(min-width:900px){.ctaband .inner{grid-template-columns:1fr 1fr}}
+  @media(min-width:1024px){.ctaband{padding-block:var(--sp-xxl)}}
+
+  /* ── COMP-ABOUT (editorial) ── */
+  .editorial{display:grid;gap:var(--sp-l);align-items:center}
+  .editorial .ph{aspect-ratio:4/3}
+  @media(min-width:768px){.editorial{grid-template-columns:1fr 1fr}}
+
+  /* ── COMP-PORTFOLIO-GRID ── */
+  .pgrid{display:grid;gap:var(--sp-m)}
+  .pitem{cursor:pointer}
+  .pitem .ph{aspect-ratio:4/3;transition:transform .45s var(--ease),border-color .35s var(--ease)}
+  .pitem:hover .ph{transform:translateY(-4px);border-color:var(--c-accent)}
+  .pitem h3{font-size:1.05rem;margin-top:.7rem}
+  @media(min-width:640px){.pgrid{grid-template-columns:1fr 1fr}}
+  @media(min-width:1024px){.pgrid{grid-template-columns:repeat(3,1fr)}}
+
+  /* ── COMP-GALLERY ── */
+  .gallery{display:grid;grid-auto-flow:column;grid-auto-columns:72%;gap:var(--sp-s);overflow-x:auto;
+        scroll-snap-type:x mandatory;padding-bottom:.75rem}
+  .gallery .ph{aspect-ratio:3/2;scroll-snap-align:start}
+  @media(min-width:768px){.gallery{grid-auto-flow:row;grid-template-columns:repeat(4,1fr);overflow:visible}}
+
+  /* ── COMP-TEAM ── */
+  .team{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
+  .team .ph{aspect-ratio:1/1;margin-bottom:.6rem}
+  .team h3{font-size:1rem}
+  @media(min-width:768px){.team{grid-template-columns:repeat(4,1fr)}}
+
+  /* ── COMP-PRICING (no figures: scope-based plans) ── */
+  .plans{display:grid;gap:var(--sp-m)}
+  .plan{border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s)}
+  .plan.feat{border-color:var(--c-accent);box-shadow:0 14px 30px color-mix(in srgb,var(--c-accent) 16%,transparent)}
+  .plan .scope{font-family:var(--font-primary);font-size:1.35rem;font-weight:700;color:var(--c-primary)}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:.45rem;font-size:var(--fs-small);color:var(--c-text-muted)}
+  .plan li::before{content:"— ";color:var(--c-accent)}
+  .plan .btn{margin-top:auto}
+  @media(min-width:768px){.plans{grid-template-columns:repeat(3,1fr)}}
+
+  /* ── COMP-FAQ ── */
+  .faq{max-width:60rem}
+  .faq details{border-bottom:1px solid var(--c-border);padding:1rem 0}
+  .faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:var(--sp-s)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--c-accent);font-weight:700}
+  .faq details[open] summary::after{content:"–"}
+  .faq details p{margin-top:.6rem;color:var(--c-text-muted);font-size:var(--fs-small)}
+
+  /* ── COMP-BOOKING ── */
+  .booking{display:grid;gap:var(--sp-l);align-items:start}
+  .bookcard{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:var(--radius-container);padding:var(--sp-m)}
+  .slots{display:flex;flex-wrap:wrap;gap:.5rem}
+  .slots span{border:1px solid var(--c-border);border-radius:20px;padding:.4rem .85rem;font-size:var(--fs-small);cursor:pointer;white-space:nowrap}
+  .slots span[aria-current]{background:var(--c-primary);color:var(--c-bg);border-color:var(--c-primary)}
+  .avail{display:inline-flex;align-items:center;gap:.45rem;font-size:var(--fs-small);color:var(--c-text-muted)}
+  .avail i{width:8px;height:8px;border-radius:50%;background:var(--c-success);display:inline-block}
+  @media(min-width:768px){.booking{grid-template-columns:1fr 1fr}}
+
+  /* ── COMP-MAP-NAP ── */
+  .nap{display:grid;gap:var(--sp-l);align-items:start}
+  .nap .ph{aspect-ratio:16/10}
+  .napdata{display:flex;flex-direction:column;gap:var(--sp-m)}
+  .napdata b{display:block;font-size:var(--fs-eyebrow);letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:.2rem}
+  .hours{display:grid;grid-template-columns:auto 1fr;gap:.3rem var(--sp-s);font-size:var(--fs-small)}
+  .hours dt{color:var(--c-text-muted)}
+  @media(min-width:768px){.nap{grid-template-columns:1.25fr 1fr}}
+
+  /* ── contact split ── */
+  .contact{display:grid;gap:var(--sp-l);align-items:start}
+  @media(min-width:768px){.contact{grid-template-columns:1.2fr 1fr}}
+
+  /* ── COMP-FOOTER ── */
+  footer.site{background:var(--c-text);color:var(--c-bg);padding-block:var(--sp-xl) var(--sp-l);margin-top:var(--sp-xl)}
+  footer.site a{opacity:.75;cursor:pointer} footer.site a:hover{opacity:1}
+  .fcols{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m)}
+  .fcols h3{font-family:var(--font-secondary);font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
+  .fcols ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;font-size:var(--fs-small)}
+  .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
+  @media(min-width:768px){.fcols{grid-template-columns:1.6fr 1fr 1fr 1.2fr}}
+</style>
+
+<!-- ===== GLOBAL: preview note + announcement bar (OUTSIDE .page) ===== -->
+<div class="note">Maqueta estructural · MARCA · sitio corporativo · sin fotos ni textos finales</div>
+<div class="ann">Diagnóstico inicial sin cargo · Respondemos en 24 h hábiles</div>
+
+<!-- ===== GLOBAL: COMP-HEADER · sticky, ONE menu, logo → home (OUTSIDE .page) ===== -->
+<header class="site">
+  <div class="wrap nav">
+    <a class="logo" data-t="home" aria-label="MARCA — inicio">MARCA</a>
+    <nav class="mainnav" aria-label="Menú principal">
+      <a data-t="services">Servicios</a>
+      <a data-t="about">Nosotros</a>
+      <a data-t="cases">Casos</a>
+    </nav>
+    <div class="tools">
+      <a class="tel" href="tel:+34600000000" aria-label="Llamar al +34 600 000 000">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2.1z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>+34 600 000 000</span>
+      </a>
+      <a class="btn btn-primary btn-sm" data-t="contact">Contactar</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HOME · TPL-C-01 (Services / Lead-Gen) ================= -->
+<div class="page active" id="home">
+
+  <!-- COMP-HERO + COMP-LEAD-FORM (mini) · TGL-LEAD-FORM: form en hero -->
+  <section class="hero" aria-label="Propuesta de valor">
+    <div class="wrap inner">
+      <div class="stack">
+        <span class="eyebrow">Servicios profesionales</span>
+        <h1>Titular principal: el problema que resolvemos</h1>
+        <p class="muted">Subtítulo de apoyo. Una frase que explica a quién ayudamos, con qué método y qué resultado esperar. Texto de maqueta, no definitivo.</p>
+        <div class="herocta">
+          <a class="btn btn-primary" data-t="contact">Solicitar propuesta</a>
+          <a class="btn btn-outline" data-t="services">Ver servicios</a>
+        </div>
+      </div>
+      <div class="leadcard">
+        <h2 style="font-size:var(--fs-h3);margin-bottom:var(--sp-s)">Contanos tu proyecto</h2>
+        <form class="form" onsubmit="return false">
+          <div class="field"><label for="h-name">Nombre y apellido</label><input id="h-name" placeholder="Nombre de ejemplo"></div>
+          <div class="field"><label for="h-mail">Email corporativo</label><input id="h-mail" type="email" placeholder="nombre@empresa.com"></div>
+          <div class="field"><label for="h-serv">¿Qué necesitás?</label>
+            <select id="h-serv">
+              <option>Consultoría estratégica</option>
+              <option>Diseño de servicio</option>
+              <option>Implementación</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-full" type="submit">Enviar consulta</button>
+          <p class="small muted">Campos de ejemplo. El envío real se conecta en el build nativo.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMP-LOGOS · TGL-LOGOS on -->
+  <section aria-label="Clientes y partners"><div class="wrap">
+    <p class="eyebrow" style="text-align:center;margin-bottom:var(--sp-m)">Trabajamos con equipos de</p>
+    <div class="logos">
+      <div class="logoph">Logo 1</div><div class="logoph">Logo 2</div><div class="logoph">Logo 3</div>
+      <div class="logoph">Logo 4</div><div class="logoph">Logo 5</div><div class="logoph">Logo 6</div>
+    </div>
+  </div></section>
+
+  <!-- COMP-SERVICES · fijo ADN -->
+  <section class="bg-alt" aria-label="Servicios"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Qué hacemos</span><h2>Servicios</h2>
+      <p class="muted">Tres a seis servicios claros, cada uno con su promesa y su enlace al detalle.</p>
+    </div><a class="linkline" data-t="services" style="margin-top:0">Ver todos →</a></div>
+    <div class="cards c3">
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10M9 20V4M15 20v-7M21 20V8"/></svg></div>
+        <h3>Consultoría estratégica</h3>
+        <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
+        <span class="linkline" data-t="services">Conocer más →</span>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg></div>
+        <h3>Diseño de servicio</h3>
+        <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
+        <span class="linkline" data-t="services">Conocer más →</span>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
+        <h3>Implementación</h3>
+        <p class="muted small">Descripción corta del servicio: qué incluye y qué problema resuelve. Texto de maqueta.</p>
+        <span class="linkline" data-t="services">Conocer más →</span>
+      </article>
+    </div>
+  </div></section>
+
+  <!-- COMP-PROCESS · TGL-PROCESS on -->
+  <section aria-label="Cómo trabajamos"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Método</span><h2>Cómo trabajamos</h2>
+    </div></div>
+    <div class="steps">
+      <div class="step"><b>01</b><div><h3>Diagnóstico</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+      <div class="step"><b>02</b><div><h3>Propuesta</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+      <div class="step"><b>03</b><div><h3>Ejecución</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+      <div class="step"><b>04</b><div><h3>Medición</h3><p class="muted small">Qué pasa en esta etapa, en una o dos líneas de maqueta.</p></div></div>
+    </div>
+  </div></section>
+
+  <!-- COMP-STATS · TPL-C-02 ADN, reutilizado en home -->
+  <section class="bg-alt" aria-label="Cifras"><div class="wrap stats">
+    <div class="stat"><b>00</b><span>años de trayectoria</span></div>
+    <div class="stat"><b>+000</b><span>proyectos entregados</span></div>
+    <div class="stat"><b>+00</b><span>especialistas</span></div>
+    <div class="stat"><b>00 %</b><span>continuidad de clientes</span></div>
+  </div></section>
+
+  <!-- COMP-CASES · TGL-CASES on -->
+  <section aria-label="Casos"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Resultados</span><h2>Casos de éxito</h2>
+    </div><a class="linkline" data-t="cases" style="margin-top:0">Ver todos →</a></div>
+    <div class="cases">
+      <article class="case" data-t="cases"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">+00 %</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Resultado principal en una línea. Contenido de maqueta.</p></div></article>
+      <article class="case" data-t="cases"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">−00 %</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Resultado principal en una línea. Contenido de maqueta.</p></div></article>
+      <article class="case" data-t="cases"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">00×</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Resultado principal en una línea. Contenido de maqueta.</p></div></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-TESTIMONIAL · TGL-TESTIMONIALS on -->
+  <section class="bg-alt" aria-label="Testimonios"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Opiniones</span><h2>Lo que dicen</h2></div></div>
+    <div class="quotes">
+      <figure class="quote"><p>“Cita de ejemplo del cliente. Se reemplaza por un testimonio real en el contenido final.”</p><figcaption class="muted small">Cliente · Sector A</figcaption></figure>
+      <figure class="quote"><p>“Cita de ejemplo del cliente. Se reemplaza por un testimonio real en el contenido final.”</p><figcaption class="muted small">Cliente · Sector B</figcaption></figure>
+      <figure class="quote"><p>“Cita de ejemplo del cliente. Se reemplaza por un testimonio real en el contenido final.”</p><figcaption class="muted small">Cliente · Sector C</figcaption></figure>
+    </div>
+  </div></section>
+
+  <!-- COMP-CTA + COMP-LEAD-FORM · banda de conversión (fijo ADN) -->
+  <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
+    <div class="stack">
+      <span class="eyebrow">Siguiente paso</span>
+      <h2>Contanos qué necesitás</h2>
+      <p style="opacity:.85;max-width:44ch">Una llamada de 30 minutos para entender el contexto y decir si podemos ayudar. Texto de maqueta.</p>
+      <p class="small" style="opacity:.75">O escribinos a <a href="mailto:hola@marca.com" style="text-decoration:underline">hola@marca.com</a></p>
+    </div>
+    <form class="form" onsubmit="return false">
+      <div class="row2">
+        <div class="field"><label for="c-name">Nombre</label><input id="c-name" placeholder="Nombre de ejemplo"></div>
+        <div class="field"><label for="c-mail">Email</label><input id="c-mail" type="email" placeholder="nombre@empresa.com"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="c-org">Empresa</label><input id="c-org" placeholder="Empresa de ejemplo"></div>
+        <div class="field"><label for="c-tel">Teléfono</label><input id="c-tel" type="tel" placeholder="+34 600 000 000"></div>
+      </div>
+      <div class="field"><label for="c-msg">Mensaje</label><textarea id="c-msg" rows="4" placeholder="Contanos brevemente el contexto"></textarea></div>
+      <label class="consent"><input type="checkbox" id="c-ok"> Acepto la política de tratamiento de datos (texto legal de ejemplo).</label>
+      <button class="btn btn-primary btn-full" type="submit">Enviar</button>
+    </form>
+  </div></section>
+</div>
+
+<!-- ================= SERVICIOS · TPL-C-01 detalle + bloques de TPL-C-04 ================= -->
+<div class="page" id="services">
+  <div class="pagehead"><div class="wrap">
+    <p class="breadcrumb">Inicio / Servicios</p>
+    <span class="eyebrow">Qué hacemos</span>
+    <h1>Servicios</h1>
+    <p class="muted" style="margin-top:var(--sp-s)">Bajada de sección: alcance, a quién se dirige y cómo se contrata. Texto de maqueta.</p>
+  </div></div>
+
+  <!-- COMP-SERVICES · grid completa -->
+  <main>
+  <section aria-label="Servicios"><div class="wrap">
+    <div class="cards c3">
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V10M9 20V4M15 20v-7M21 20V8"/></svg></div>
+        <h3>Consultoría estratégica</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg></div>
+        <h3>Diseño de servicio</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></div>
+        <h3>Implementación</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
+        <h3>Automatización de procesos</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 3L20 7"/></svg></div>
+        <h3>Analítica y reporting</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+      <article class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 4 6v6c0 4.6 3.4 8.3 8 9.5 4.6-1.2 8-4.9 8-9.5V6l-8-3.5Z"/></svg></div>
+        <h3>Soporte y evolución</h3><p class="muted small">Descripción de maqueta: alcance del servicio en dos líneas, sin promesas concretas todavía.</p>
+      </article>
+    </div>
+  </div></section>
+
+  <!-- COMP-FEATURES · qué incluye (TPL-C-04) -->
+  <section class="bg-alt" aria-label="Qué incluye"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Alcance</span><h2>Qué incluye cada colaboración</h2></div></div>
+    <div class="cards c4">
+      <article class="card"><h3>Equipo asignado</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Plan de trabajo</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Reportes periódicos</h3><p class="muted small">Detalle de maqueta.</p></article>
+      <article class="card"><h3>Traspaso y formación</h3><p class="muted small">Detalle de maqueta.</p></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-PRICING · TGL-PRICING (variante sin cifras: planes por alcance) -->
+  <section aria-label="Planes de trabajo"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Modalidades</span><h2>Planes de trabajo</h2>
+      <p class="muted">Tres modalidades de colaboración. Las cifras se definen por alcance, tras el diagnóstico.</p>
+    </div></div>
+    <div class="plans">
+      <div class="plan">
+        <h3>Esencial</h3><span class="scope">Alcance acotado</span>
+        <ul><li>Diagnóstico inicial</li><li>Plan de acción</li><li>Una sesión de seguimiento</li></ul>
+        <a class="btn btn-outline" data-t="contact">Solicitar propuesta</a>
+      </div>
+      <div class="plan feat">
+        <h3>Avanzado</h3><span class="scope">Alcance ampliado</span>
+        <ul><li>Todo lo del plan Esencial</li><li>Ejecución acompañada</li><li>Reportes mensuales</li><li>Equipo asignado</li></ul>
+        <a class="btn btn-primary" data-t="contact">Solicitar propuesta</a>
+      </div>
+      <div class="plan">
+        <h3>A medida</h3><span class="scope">Alcance abierto</span>
+        <ul><li>Programa diseñado a medida</li><li>Integración con el equipo interno</li><li>Acuerdo de nivel de servicio</li></ul>
+        <a class="btn btn-outline" data-t="contact">Solicitar propuesta</a>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- COMP-FAQ · TGL-FAQ on -->
+  <section class="bg-alt" aria-label="Preguntas frecuentes"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Dudas</span><h2>Preguntas frecuentes</h2></div></div>
+    <div class="faq">
+      <details open><summary>¿Cómo empieza una colaboración?</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>¿Cuánto dura un proyecto típico?</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>¿Trabajan en remoto o presencial?</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>¿Quién forma el equipo asignado?</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+      <details><summary>¿Cómo se mide el resultado?</summary><p>Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.</p></details>
+    </div>
+  </div></section>
+
+  <!-- COMP-CTA · cierre sobrio -->
+  <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
+    <div class="stack"><span class="eyebrow">Siguiente paso</span><h2>¿Empezamos por un diagnóstico?</h2></div>
+    <div class="herocta"><a class="btn btn-primary" data-t="contact">Solicitar propuesta</a><a class="btn btn-outline" data-t="cases">Ver casos</a></div>
+  </div></section>
+  </main>
+</div>
+
+<!-- ================= NOSOTROS · TPL-C-02 (Institutional / Trust) ================= -->
+<div class="page" id="about">
+  <div class="pagehead"><div class="wrap">
+    <p class="breadcrumb">Inicio / Nosotros</p>
+    <span class="eyebrow">Quiénes somos</span>
+    <h1>Nosotros</h1>
+    <p class="muted" style="margin-top:var(--sp-s)">Claim institucional de una línea. Texto de maqueta.</p>
+  </div></div>
+
+  <main>
+  <!-- COMP-ABOUT · fijo -->
+  <section aria-label="Historia"><div class="wrap editorial">
+    <div class="ph">Imagen equipo / oficina</div>
+    <div class="stack">
+      <span class="eyebrow">Desde 0000</span>
+      <h2>Misión y contexto</h2>
+      <p class="muted">Párrafo institucional de maqueta: origen, propósito y forma de trabajar. Se reemplaza por el texto real del cliente.</p>
+      <p class="muted">Segundo párrafo de apoyo, también de maqueta.</p>
+    </div>
+  </div></section>
+
+  <!-- COMP-STATS · fijo ADN -->
+  <section class="bg-alt" aria-label="Cifras"><div class="wrap stats">
+    <div class="stat"><b>00</b><span>años de trayectoria</span></div>
+    <div class="stat"><b>+000</b><span>proyectos entregados</span></div>
+    <div class="stat"><b>+00</b><span>especialistas</span></div>
+    <div class="stat"><b>00</b><span>países</span></div>
+  </div></section>
+
+  <!-- COMP-TEAM · TGL-TEAM on -->
+  <section aria-label="Equipo"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Personas</span><h2>Equipo</h2></div></div>
+    <div class="team">
+      <div><div class="ph">Retrato</div><h3>Nombre Apellido</h3><p class="muted small">Dirección general</p></div>
+      <div><div class="ph">Retrato</div><h3>Nombre Apellido</h3><p class="muted small">Dirección de operaciones</p></div>
+      <div><div class="ph">Retrato</div><h3>Nombre Apellido</h3><p class="muted small">Responsable técnico</p></div>
+      <div><div class="ph">Retrato</div><h3>Nombre Apellido</h3><p class="muted small">Relación con clientes</p></div>
+    </div>
+  </div></section>
+
+  <!-- COMP-LOGOS · credenciales / certificaciones (TGL-LOGOS) -->
+  <section class="bg-alt" aria-label="Credenciales"><div class="wrap">
+    <p class="eyebrow" style="text-align:center;margin-bottom:var(--sp-m)">Certificaciones y partners</p>
+    <div class="logos">
+      <div class="logoph">Cert. 1</div><div class="logoph">Cert. 2</div><div class="logoph">Cert. 3</div>
+      <div class="logoph">Partner 1</div><div class="logoph">Partner 2</div><div class="logoph">Prensa</div>
+    </div>
+  </div></section>
+
+  <!-- COMP-CTA · calmo (ADN C-02) -->
+  <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
+    <div class="stack"><span class="eyebrow">Hablemos</span><h2>Conocé cómo trabajamos</h2></div>
+    <div class="herocta"><a class="btn btn-primary" data-t="contact">Contactar</a><a class="btn btn-outline" data-t="services">Ver servicios</a></div>
+  </div></section>
+  </main>
+</div>
+
+<!-- ================= CASOS · TPL-C-03 (Portfolio / Showcase) ================= -->
+<div class="page" id="cases">
+  <div class="pagehead"><div class="wrap">
+    <p class="breadcrumb">Inicio / Casos</p>
+    <span class="eyebrow">Trabajo</span>
+    <h1>Casos y proyectos</h1>
+    <p class="muted" style="margin-top:var(--sp-s)">Selección de proyectos. Cada tarjeta abre su ficha en el sitio final.</p>
+  </div></div>
+
+  <main>
+  <!-- COMP-PORTFOLIO-GRID · fijo ADN C-03 -->
+  <section aria-label="Proyectos"><div class="wrap-wide">
+    <div class="pgrid">
+      <article class="pitem"><div class="ph">Proyecto 1</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+      <article class="pitem"><div class="ph">Proyecto 2</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+      <article class="pitem"><div class="ph">Proyecto 3</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+      <article class="pitem"><div class="ph">Proyecto 4</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+      <article class="pitem"><div class="ph">Proyecto 5</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+      <article class="pitem"><div class="ph">Proyecto 6</div><h3>Nombre del proyecto</h3><p class="muted small">Categoría · Año</p></article>
+    </div>
+    <p class="muted small" style="margin-top:var(--sp-m)">Nota de maqueta: en el sitio final cada proyecto tiene su propia ficha.</p>
+  </div></section>
+
+  <!-- COMP-CASES · resultados con métrica -->
+  <section class="bg-alt" aria-label="Resultados"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Resultados</span><h2>Casos con métrica</h2></div></div>
+    <div class="cases">
+      <article class="case"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">+00 %</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Punto de partida, intervención y resultado. Texto de maqueta.</p></div></article>
+      <article class="case"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">−00 %</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Punto de partida, intervención y resultado. Texto de maqueta.</p></div></article>
+      <article class="case"><div class="ph">Imagen caso</div><div class="body">
+        <span class="metric">00×</span><h3>Nombre del caso</h3>
+        <p class="muted small">Sector · Punto de partida, intervención y resultado. Texto de maqueta.</p></div></article>
+    </div>
+  </div></section>
+
+  <!-- COMP-GALLERY · toggle (fotos del estudio / proceso) -->
+  <section aria-label="Galería"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Detrás</span><h2>Galería</h2></div></div>
+    <div class="gallery">
+      <div class="ph">Foto 1</div><div class="ph">Foto 2</div><div class="ph">Foto 3</div><div class="ph">Foto 4</div>
+    </div>
+  </div></section>
+
+  <!-- COMP-CTA -->
+  <section class="ctaband" aria-label="Contacto"><div class="wrap inner">
+    <div class="stack"><span class="eyebrow">Trabajemos juntos</span><h2>¿Tenés un proyecto en mente?</h2></div>
+    <div class="herocta"><a class="btn btn-primary" data-t="contact">Contactar</a></div>
+  </div></section>
+  </main>
+</div>
+
+<!-- ================= CONTACTO · TPL-C-01 (lead) + TPL-C-05 (booking + NAP) ================= -->
+<div class="page" id="contact">
+  <div class="pagehead"><div class="wrap">
+    <p class="breadcrumb">Inicio / Contacto</p>
+    <span class="eyebrow">Contacto</span>
+    <h1>Hablemos</h1>
+    <p class="muted" style="margin-top:var(--sp-s)">Respondemos dentro de las 24 h hábiles. Texto de maqueta.</p>
+  </div></div>
+
+  <main>
+  <!-- COMP-LEAD-FORM · formulario completo + datos de contacto -->
+  <section aria-label="Formulario de contacto"><div class="wrap contact">
+    <form class="form" onsubmit="return false">
+      <div class="row2">
+        <div class="field"><label for="f-name">Nombre y apellido</label><input id="f-name" placeholder="Nombre de ejemplo"></div>
+        <div class="field"><label for="f-org">Empresa</label><input id="f-org" placeholder="Empresa de ejemplo"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="f-mail">Email</label><input id="f-mail" type="email" placeholder="nombre@empresa.com"></div>
+        <div class="field"><label for="f-tel">Teléfono</label><input id="f-tel" type="tel" placeholder="+34 600 000 000"></div>
+      </div>
+      <div class="field"><label for="f-serv">Motivo de la consulta</label>
+        <select id="f-serv"><option>Consultoría estratégica</option><option>Diseño de servicio</option><option>Implementación</option><option>Soporte y evolución</option><option>Otro</option></select>
+      </div>
+      <div class="field"><label for="f-msg">Mensaje</label><textarea id="f-msg" rows="5" placeholder="Contanos brevemente el contexto"></textarea></div>
+      <label class="consent"><input type="checkbox" id="f-ok"> Acepto la política de tratamiento de datos (texto legal de ejemplo).</label>
+      <button class="btn btn-primary" type="submit">Enviar consulta</button>
+    </form>
+    <div class="napdata">
+      <div><b>Oficina</b>Dirección 000 · Ciudad · País</div>
+      <div><b>Teléfono</b><a href="tel:+34600000000">+34 600 000 000</a></div>
+      <div><b>Email</b><a href="mailto:hola@marca.com">hola@marca.com</a></div>
+      <div><b>Atención</b>Lunes a viernes · 9–18 h</div>
+      <div><b>Redes</b><span class="muted">LinkedIn · Instagram (enlaces reales en el sitio final)</span></div>
+    </div>
+  </div></section>
+
+  <!-- COMP-BOOKING · TGL-BOOKING (form; degrada a teléfono si no hay plugin) -->
+  <section class="bg-alt" aria-label="Reserva de cita"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)">
+      <span class="eyebrow">Agenda</span><h2>Reservá una reunión</h2>
+      <p class="muted">Bloque de reserva de maqueta. En el sitio final se conecta al plugin de turnos o a la agenda del equipo.</p>
+    </div></div>
+    <div class="booking">
+      <div class="bookcard">
+        <form class="form" onsubmit="return false">
+          <div class="field"><label for="b-serv">Tipo de reunión</label>
+            <select id="b-serv"><option>Diagnóstico inicial (30 min)</option><option>Reunión de seguimiento (45 min)</option><option>Presentación de propuesta (60 min)</option></select>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="b-date">Fecha</label><input id="b-date" type="date"></div>
+            <div class="field"><label for="b-mail">Email</label><input id="b-mail" type="email" placeholder="nombre@empresa.com"></div>
+          </div>
+          <div class="field"><label id="b-hlabel">Franja horaria</label>
+            <div class="slots" role="group" aria-labelledby="b-hlabel">
+              <span aria-current="true">09:00</span><span>11:00</span><span>13:00</span><span>16:00</span><span>18:00</span>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" type="submit">Confirmar reunión</button>
+          <span class="avail"><i aria-hidden="true"></i> Franjas de ejemplo · disponibilidad simulada</span>
+        </form>
+      </div>
+      <div class="stack">
+        <h3>¿Preferís hablar directamente?</h3>
+        <p class="muted small">Alternativa de maqueta a la reserva online: llamada directa o mensaje. Útil cuando el sitio final no tiene plugin de turnos.</p>
+        <a class="btn btn-outline" href="tel:+34600000000">Llamar al +34 600 000 000</a>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- COMP-MAP-NAP · TGL-MAP on (ADN C-05) -->
+  <section aria-label="Ubicación"><div class="wrap">
+    <div class="head"><div class="stack" style="gap:var(--sp-xs)"><span class="eyebrow">Dónde estamos</span><h2>Ubicación y horarios</h2></div></div>
+    <div class="nap">
+      <div class="map"><div class="ph">Mapa · ubicación (embed en el sitio final)</div></div>
+      <div class="napdata">
+        <div><b>Dirección</b>Dirección 000 · Ciudad · País</div>
+        <div><b>Cómo llegar</b><span class="muted small">Indicaciones de transporte de maqueta.</span></div>
+        <div><b>Horarios</b>
+          <dl class="hours">
+            <dt>Lunes a jueves</dt><dd>9–18 h</dd>
+            <dt>Viernes</dt><dd>9–15 h</dd>
+            <dt>Sábado y domingo</dt><dd>Cerrado</dd>
+          </dl>
+        </div>
+        <div><b>Teléfono</b><a href="tel:+34600000000">+34 600 000 000</a></div>
+      </div>
+    </div>
+  </div></section>
+  </main>
+</div>
+
+<!-- ===== GLOBAL: COMP-FOOTER (OUTSIDE .page) ===== -->
+<footer class="site"><div class="wrap">
+  <div class="fcols">
+    <div>
+      <div class="logo" style="cursor:default;margin-bottom:.6rem">MARCA</div>
+      <p class="small" style="opacity:.7;max-width:34ch">Descriptor corto de la empresa en una línea. Texto de maqueta.</p>
+    </div>
+    <div><h3>Servicios</h3><ul>
+      <li><a data-t="services">Consultoría estratégica</a></li>
+      <li><a data-t="services">Diseño de servicio</a></li>
+      <li><a data-t="services">Implementación</a></li>
+    </ul></div>
+    <div><h3>Compañía</h3><ul>
+      <li><a data-t="about">Nosotros</a></li>
+      <li><a data-t="cases">Casos</a></li>
+      <li><a data-t="contact">Contacto</a></li>
+    </ul></div>
+    <div><h3>Contacto</h3><ul>
+      <li>Dirección 000 · Ciudad</li>
+      <li><a href="tel:+34600000000">+34 600 000 000</a></li>
+      <li><a href="mailto:hola@marca.com">hola@marca.com</a></li>
+      <li>Lun a Vie · 9–18 h</li>
+    </ul></div>
+  </div>
+  <div class="fbottom">© 2026 MARCA · Maqueta estructural · Datos, cifras y textos son de ejemplo · Aviso legal y Privacidad se enlazan en el sitio final</div>
+</div></footer>
+
+<script>
+  function show(id){
+    var p=document.getElementById(id); if(!p||!p.classList.contains('page')) return;
+    document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id);});
+    document.querySelectorAll('.mainnav a').forEach(function(a){ a.dataset.t===id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'); });
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  document.querySelectorAll('[data-t]').forEach(function(el){ el.addEventListener('click',function(e){e.preventDefault();show(el.dataset.t);}); });
+  document.querySelectorAll('.slots span').forEach(function(s){ s.addEventListener('click',function(){
+    s.parentNode.querySelectorAll('span').forEach(function(x){x.removeAttribute('aria-current');}); s.setAttribute('aria-current','true');
+  }); });
+</script>
