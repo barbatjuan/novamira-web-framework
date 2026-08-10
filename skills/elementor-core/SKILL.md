@@ -29,8 +29,15 @@ Use when `project-context` reports builder = `elementor` and work runs through N
 ## Execution Steps
 1. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/` as the shared library;
    swap the palette/type constants at the top for the brand from `ux-design-system`.
-2. Write one `es_build_<page>()` per page → `es_save_page(...)`. Header/footer + Theme Builder
-   templates: model on `assets/es-theme-parts.example.php`. Commerce templates: see `woocommerce`.
+   Building header/footer, Theme Builder parts, or ANY commerce template? Also copy
+   `assets/es-theme-parts.example.php` as `es-theme-parts.php` (drop `.example`) — it defines
+   `es_save_theme_part()`, which those files require. Upload dependencies BEFORE the file that
+   needs them: sandbox `.php` executes on upload, so a missing dependency stops the run.
+2. Write one `es_build_<page>()` per page → `es_save_page(...)`, which defaults to the
+   `elementor_header_footer` template so the global header/footer survive. Header/footer +
+   Theme Builder templates: model on `assets/es-theme-parts.example.php`, and read the
+   "Mobile 3-zone header" recipe in `references/gotchas.md` before building a header.
+   Commerce templates: see `woocommerce`.
 3. Deploy with the pipeline in `references/gotchas.md`
    (upload multipart → require+call → clear `_elementor_css` + `_elementor_element_cache` +
    post CSS file → regenerate kit CSS → regenerate conditions cache → verify).
