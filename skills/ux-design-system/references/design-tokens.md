@@ -1,25 +1,55 @@
 # Design tokens
 
-Swap the values per brand; keep the ROLES. The orchestrator gets these from
-`project-context` (brand) or asks the user.
+`web-templates/references/design-system.md` is the **single authority** for token NAMES and
+VALUES. This file covers only the ROLES: what each token is FOR, how to derive a value for a
+brand, and when to use it. Never restate a number here — read it there. The orchestrator gets
+the brand input from `project-context` (logo, palette) or asks the user.
 
-## Palette (roles, not fixed colors)
-- **Dominant** — white / near-white background. Carries most of the page.
-- **Contrast** — near-black text/dark sections (e.g. `#15181A`).
-- **Accent** — ONE color, CTAs / action icons / important links ONLY (example accent green `#0FA968`,
-  hover darker `#0C8A55`). Never use the accent for body text or decoration.
-- Neutrals: border `#EAECEA`/`#E5E7E5`, muted text `#6A6F6C`, tint bg `#F4F5F3`.
+Swap the values per brand; keep the roles.
 
-## Typography
-- Display/headings: a distinctive geometric (e.g. Space Grotesk), weight 700, tight line-height.
-- Body/UI: a clean humanist sans (e.g. Manrope), 14–18px, line-height ~1.6.
-- Clear hierarchy: eyebrow (uppercase, accent, small, letter-spaced) → H → paragraph.
+## Palette roles
 
-## Spacing & radii
-- Section padding: desktop ~88/24, tablet ~72/24, mobile ~56/20 (top/side).
-- Card radius 14–16, chips/inputs 8–12, buttons 8.
-- Consistent gaps (grids 24, tight mobile 12). Audit margins as a dedicated pass — inconsistent
-  spacing is the #1 tell of a cheap template.
+| Job | Tokens | What it is FOR |
+|-----|--------|----------------|
+| Dominant | `--c-bg`, `--c-bg-alt` | white / near-white background (or near-black in a dark brand). Carries most of the page; nothing competes with it. |
+| Contrast | `--c-text`, `--c-primary` | near-black type and inverted dark surfaces (footer, announcement bar, solid CTA). Structure and readability. |
+| Accent | `--c-accent` | ONE color. CTAs, action icons, important links, active states. Never body text, never decoration. |
+| Neutrals | `--c-text-muted`, `--c-border` | meta text, dividers, tinted sections. Derived from the contrast color, desaturated. |
+| States | `--c-success`, `--c-error`, `--c-sale` | stock/confirmation, errors, discount badges and offer prices. Semantic only — never reused as decoration. |
+
+`--c-secondary` is the second action level (outline / ghost buttons). It may equal the contrast
+color; it must never equal the accent, or the one-accent rule collapses.
+
+### Deriving a palette from a logo
+1. Take the logo's most saturated color → candidate **accent**. If the logo has two, the second
+   becomes a hover/active shade, not a second accent.
+2. **Dominant** = the lightest neutral in the brand material, or plain white.
+3. **Contrast** = the darkest brand neutral pushed to near-black. Check 4.5:1 against the dominant.
+4. Derive the neutrals from the contrast, not from grey: muted text ≈ 55–60% of the way toward
+   the dominant, border ≈ 85%. Sampling off the contrast keeps the whole page coherent.
+5. Accent hover = the accent darkened ~10%. Verify the CTA label still passes contrast on it.
+
+Reject an accent that fails 4.5:1 with both white and near-black label text — pick a darker
+variant instead of adding a second color.
+
+## Typography roles
+- `--font-primary` — headings + UI. A distinctive geometric (e.g. Space Grotesk) reads premium:
+  heavy weight, tight line-height.
+- `--font-secondary` — body. A clean humanist sans (e.g. Manrope), normal weight, open
+  line-height. May equal `--font-primary`. Never a third family.
+- Hierarchy per section: eyebrow (`--fs-eyebrow`, uppercase, letter-spaced) → heading → paragraph.
+  One `--fs-h1` per page.
+- The scale is fluid (`clamp()`), so sizes come from the token, never from a per-section override.
+
+## Spacing & radii roles
+- Section rhythm: the same padding tokens on every section, stepping up mobile → tablet → desktop.
+  A bespoke margin anywhere breaks the rhythm.
+- Grid gaps use one step of the `--sp-*` scale; tight mobile gaps use the step below. Nothing
+  outside the scale.
+- Radii carry meaning: containers are the softest, then cards; buttons, inputs and images share
+  the smallest step. Separate tokens are what let a brand go sharp (`TGL-STYLE` minimalista) or
+  soft without touching a single module.
+- Audit margins as a dedicated pass — inconsistent spacing is the #1 tell of a cheap template.
 
 ## Imagery
 - Real, high-quality photography (stock via a licensed source). Cover-fit with subtle dark

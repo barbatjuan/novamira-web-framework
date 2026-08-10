@@ -8,6 +8,11 @@ Elementor (Global Settings) y Divi (Theme Options + Global Presets), y con la sk
 Los valores son **defaults**. El recomendador puede ajustarlos por marca vía toggles
 (`TGL-STYLE`). Los ROLES no cambian; los valores sí.
 
+Este archivo es la **única autoridad** sobre NOMBRES y VALORES de token.
+`ux-design-system/references/design-tokens.md` explica los ROLES (para qué sirve cada token,
+cómo derivar la paleta de un logo) y no define valores. Ante cualquier diferencia, manda este
+archivo.
+
 ## Breakpoints (mobile-first)
 
 | Nombre | Rango | Uso |
