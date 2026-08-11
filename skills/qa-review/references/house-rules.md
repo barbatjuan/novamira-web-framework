@@ -23,6 +23,8 @@ Run every per-page row on EVERY page in scope, not just the home.
 | 9 | Header/footer reused verbatim | One global header and one global footer, byte-identical across pages | Extract the header fragment and the footer fragment from each page, normalise whitespace, hash them. All header hashes must match; all footer hashes must match. A mismatch = a per-page copy crept in. Also confirm there is ONE header template and ONE footer template with a single site-wide condition | **auto** |
 | 10 | Mobile 3-zone header (burger · logo · cart) | Burger left, logo centred, cart right, all vertically centred, below 768px | Two layers. (a) Server-side: the mobile-only rules from `elementor-core/references/gotchas.md` ("Mobile 3-zone header") exist in the compiled `post-<id>.css` — count the positioning-context, absolute-centred logo, `space-between` cluster and pinned-actions rules. (b) Geometry: measure with the in-app browser under mobile emulation reading each zone's bounding rect (bust the CSS cache with a `?v=` query). Rules present but never measured = UNVERIFIED, not PASS | **auto (rules) + measured or eyes (layout)** |
 
+| 11 | Fewest containers that do the job | No container nested "just because": none empty, none wrapping a single widget without carrying its own background/border/shadow, and nothing past depth 3 | Read `_elementor_data` back for each page in scope, `json_decode` it, and walk the tree — the same walk `es_container_audit()` does, run against what actually landed rather than what was sent. Report `containers / widgets / max_depth` per page and list every offender by path. PASS needs zero offenders. `optimizable` entries (a container whose only child is a container) are reported as a **note**, never a FAIL — that call needs a human | **auto** |
+
 ## Honest limits — do not dress these up
 
 - **Row 1 is a live read, never an assumption.** No skill in this repo sets `woocommerce_currency`
@@ -38,6 +40,11 @@ Run every per-page row on EVERY page in scope, not just the home.
 
 Rows 1, 3, 4, 6, 7, 9 read WordPress options or plain front HTML and are builder-agnostic —
 they run unchanged on Divi.
+
+Row 11 is builder-agnostic as a RULE but not as a METHOD: the walk above reads `_elementor_data`,
+which Divi does not have. On a Divi build, count nesting depth in the rendered front HTML instead
+(`.et_pb_section` > `.et_pb_row` > `.et_pb_column` > module) and report it as **UNVERIFIED** until
+the Divi storage format is confirmed and written into `divi-core/references/gotchas.md`.
 
 Rows 2, 5, 8, 10 lean on Elementor artifacts (`elementor-menu-cart`, the nav-menu widget
 attribute, the stored `sticky` control, `post-<id>.css`). The Divi equivalents are NOT confirmed

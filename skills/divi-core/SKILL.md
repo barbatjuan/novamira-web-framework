@@ -4,7 +4,7 @@ description: "Trigger: Divi builder, Divi theme, Divi via PHP, build Divi page, 
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "0.2"
+  version: "0.3"
 ---
 
 # Divi Core (execution) — scaffold
@@ -27,6 +27,13 @@ On an existing site, confirm every page/template you would overwrite by name fir
 ## Hard Rules
 - Native Divi modules only. No custom JS. Custom CSS via the module's built-in Custom CSS
   fields or the page/section advanced CSS — scoped, never a global stylesheet.
+- **Fewest containers that do the job** (house rule). Divi differs from Elementor here and the
+  difference matters: `section → row → column → module` is Divi's *mandatory* grammar, not
+  padding you can trim. So the rule is not "flatten it" — it is **never nest beyond that
+  grammar**. No section inside a section, no row inside a row, no extra one-column row whose
+  only job is padding the module already supports. There is no `es_container_report()`
+  equivalent here: `divi-core` has no helper library yet, so the count is a manual read of the
+  shortcode tree. Report it as **UNVERIFIED**, never as a measured PASS.
 - Wrap all build logic in named functions; the NovaMira sandbox auto-runs any uploaded `.php`.
 - Verify server-side (fetch compiled HTML/CSS, grep). The sandbox domain is usually
   browser-blocked; state that visual confirmation needs the user.

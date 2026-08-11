@@ -10,9 +10,21 @@
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
 - `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
 - `es_img($slug)` — attachment lookup by slug → url+id.
+- `es_container_audit($elements)` → `{containers,widgets,max_depth,offenders[],optimizable[]}`.
+  `es_container_report($elements,$label)` logs a one-liner and returns the same array;
+  `es_save_page()` calls it automatically before writing.
 
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.
+- **Fewest containers that do the job** (house rule). A container earns its place only by grouping
+  2+ children, carrying its own background/border/shadow, or changing direction at a breakpoint.
+  Target depth `section → grid|row → widget`. Padding alone is never a reason to exist — put it on
+  the widget's `_padding`. `es_container_audit()` measures this; read its log line.
+- Open question worth resolving on a real site: `es_section( es_grid(...) )` is this repo's dominant
+  idiom and costs one level. A single grid container with `content_width:'boxed'` plus the section
+  padding *should* collapse the pair into one. Plausible, NOT confirmed — the audit reports it as
+  `optimizable`, never as an error. Confirm on a live build before flattening anything wholesale,
+  then record the result here.
 - Flex item sizing: `_flex_grow` / `_flex_shrink` / `_element_width:auto`. To keep a cluster from
   stretching, set grow/shrink 0 and DON'T set `content_width:full` on it (that forces ~100% width).
 - Grid columns: `grid_columns_grid` (+ `_tablet` / `_mobile`). For a 2-col mobile grid pass

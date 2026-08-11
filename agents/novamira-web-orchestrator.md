@@ -99,6 +99,14 @@ no native build.
   item is navigable, and the header stays visible/sticky and consistent across every page. No
   dead links, no page that loses its header.
 - **Reuse header/footer** verbatim across all pages of the site (one global component each).
+- **Fewest containers that do the job.** Never a container inside a container "just because". One
+  earns its place only if it groups 2+ children, carries its own background / border / shadow, or
+  changes direction at a breakpoint — otherwise its padding belongs on the widget. Target depth is
+  `section → grid|row → widget`; going past three levels needs a stated reason. Every extra level is
+  paid three times: a wrapper `<div>` in the DOM, a block of generated CSS, and one more click
+  between a human and the widget they opened the editor to change. This is measured, not a matter of
+  taste: `es_container_report()` logs the count and the offenders on every save, and `qa-review`
+  reads `_elementor_data` back to check it.
 - **Never a form in the hero.** The hero carries headline + value prop + CTA — never a capture
   form. The lead form lives in the closing conversion band, which is fixed DNA, so nothing is lost
   by moving it: a form above the fold reads as a toll gate before the visitor knows what is on

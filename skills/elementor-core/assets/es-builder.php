@@ -531,6 +531,102 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
  * confirm each overwrite by name. It is passed by reference rather than returned
  * because callers rely on `es_save_page()` returning the page id.
  */
+/**
+ * Audit the container tree before it is written.
+ *
+ * Every extra container level is paid three times: one more wrapper <div> in the DOM, one
+ * more block of generated CSS, and one more thing a human has to click through in the
+ * Elementor editor to reach the widget they actually want. Nesting that buys nothing is the
+ * fastest way a generated layout becomes one nobody wants to maintain.
+ *
+ * Reports, never blocks, and separates two severities on purpose:
+ *
+ *   offenders   — wrong with no argument. An empty container; a container wrapping a single
+ *                 WIDGET while carrying no background/border/shadow of its own (its padding
+ *                 belongs on the widget); anything nested past depth 3.
+ *   optimizable — a container whose only child is another container. Usually mergeable into
+ *                 one, but not always, and the call needs a human. Kept OUT of `offenders`
+ *                 deliberately: `es_section( es_grid(...) )` is this repo's own dominant idiom,
+ *                 and an audit that screams on every normal build is one people learn to
+ *                 ignore. Merging that pair into a single boxed grid container is plausible
+ *                 but NOT yet confirmed on a live site — verify before doing it wholesale.
+ *
+ * @return array{containers:int,widgets:int,max_depth:int,offenders:string[],optimizable:string[]}
+ */
+function es_container_audit( array $elements ) {
+	$out = array( 'containers' => 0, 'widgets' => 0, 'max_depth' => 0, 'offenders' => array(), 'optimizable' => array() );
+	es_container_walk( $elements, 0, '', $out );
+	return $out;
+}
+
+function es_container_walk( array $els, $depth, $path, array &$out ) {
+	foreach ( $els as $i => $el ) {
+		$type = isset( $el['elType'] ) ? $el['elType'] : '';
+		$here = $path . '/' . $i;
+		if ( 'container' === $type ) {
+			$out['containers']++;
+			$d = $depth + 1;
+			if ( $d > $out['max_depth'] ) {
+				$out['max_depth'] = $d;
+			}
+			$kids     = ( isset( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : array();
+			$settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : array();
+			if ( ! $kids ) {
+				$out['offenders'][] = $here . ' contenedor vacio';
+			} elseif ( 1 === count( $kids ) && ! es_container_earns_its_place( $settings ) ) {
+				$only = isset( $kids[0]['elType'] ) ? $kids[0]['elType'] : '?';
+				if ( 'container' === $only ) {
+					$out['optimizable'][] = $here . ' contenedor cuyo unico hijo es otro contenedor: candidato a fusionar';
+				} else {
+					$out['offenders'][] = $here . ' envoltorio de 1 widget sin fondo/borde/sombra: pasa el padding al widget';
+				}
+			}
+			if ( $d > 3 ) {
+				$out['offenders'][] = $here . ' anidado a profundidad ' . $d . ' (max recomendado 3)';
+			}
+			es_container_walk( $kids, $d, $here, $out );
+		} elseif ( 'widget' === $type ) {
+			$out['widgets']++;
+		}
+	}
+}
+
+/** A container with a single child is only justified if it carries visual weight of its own. */
+function es_container_earns_its_place( array $s ) {
+	foreach ( array( 'background_background', 'background_image', 'border_border', 'border_radius', 'box_shadow_box_shadow_type', 'sticky' ) as $k ) {
+		if ( ! empty( $s[ $k ] ) ) {
+			return true;
+		}
+	}
+	/* Changing direction or column count at a breakpoint is a real reason to exist. */
+	foreach ( $s as $k => $v ) {
+		if ( ! empty( $v ) && preg_match( '/^(flex_direction|grid_columns_grid|content_width)_(tablet|mobile)$/', $k ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/** Log the audit next to the build so the count is visible without opening the editor. */
+function es_container_report( array $elements, $label = '' ) {
+	$a   = es_container_audit( $elements );
+	$msg = sprintf(
+		'NovaMira contenedores%s: %d contenedores / %d widgets, profundidad max %d',
+		$label ? ' [' . $label . ']' : '',
+		$a['containers'],
+		$a['widgets'],
+		$a['max_depth']
+	);
+	if ( $a['offenders'] ) {
+		$msg .= ' | ' . count( $a['offenders'] ) . ' a corregir: ' . implode( ' ; ', array_slice( $a['offenders'], 0, 8 ) );
+	}
+	if ( $a['optimizable'] ) {
+		$msg .= ' | ' . count( $a['optimizable'] ) . ' fusionables';
+	}
+	error_log( $msg );
+	return $a;
+}
+
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
 	$page = get_page_by_path( $slug, OBJECT, 'page' );
 	if ( $page ) {
@@ -560,6 +656,7 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
 	update_post_meta( $id, '_wp_page_template', $tpl );
 	es_backup_elementor_data( $id );
+	es_container_report( $elements, $slug );
 	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
 	es_rebuild_css( $id );
 

@@ -4,7 +4,7 @@ description: "Trigger: Elementor via PHP, NovaMira, es-builder, _elementor_data,
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Elementor Core (execution)
@@ -26,6 +26,14 @@ On an existing site, confirm every page/template you would overwrite by name fir
 - Native Elementor / Elementor Pro widgets only. No third-party widgets. No custom JS.
 - Custom CSS ONLY via the widget's native `custom_css` field (`selector{}`) — it always
   compiles; conditionally-enqueued assets (hover animations, swiper) do not.
+- **Fewest containers that do the job** (house rule). A container earns its place only if it
+  groups 2+ children, carries its own background / border / shadow, or changes direction at a
+  breakpoint. One that wraps a single widget is not a layout — move its padding to the widget's
+  `_padding`. Target depth `section → grid|row → widget`; past 3 levels, state why.
+  `es_save_page()` calls `es_container_report()` before writing, which logs
+  `N contenedores / M widgets, profundidad max D` plus the specific offenders. **Read that line
+  and act on it** — it is the whole point of it existing. `optimizable` entries (a container
+  whose only child is a container) are a judgement call, not an error.
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
 - Wrap all build logic in named functions — the sandbox auto-runs any uploaded `.php`.
 - **Read `references/gotchas.md` before the first deploy.** Introspect widget/control names;
