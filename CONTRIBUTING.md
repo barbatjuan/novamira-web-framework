@@ -19,9 +19,10 @@ Only add CONFIRMED findings. "Probably" belongs in a PR discussion, not in gotch
 ## 2. Keep the shape
 - `SKILL.md` body stays concise: **aim ~300 words, hard ceiling ~600**. Detail → `references/`.
   Code → `assets/`. The body is what loads on activation, so every word is a tax on every run.
-  (The old "~180–450 tokens" was aspirational and never held — half the skills were already past
-  it. Measure with `wc -w`, not by eye. `html-mockup` and `web-templates` are over the ceiling
-  today and should shed detail into `references/` next time they are touched.)
+  (The old "~180–450 tokens" was aspirational and never held. Don't measure by eye — the audit
+  counts for you and FAILs past the ceiling. Be honest about the ~300 aim too: **0 of 11 skills
+  meet it**, so it is currently a wish, not a budget. Either trim them or move the number; a
+  threshold nothing ever meets teaches people to skip the whole report.)
 - Frontmatter needs `name`, `description` (with trigger words first), `license`,
   `metadata.author`, `metadata.version`.
 - The orchestrator never gains CSS/HTML/PHP. Execution lives in skills.
@@ -70,7 +71,7 @@ stays < 1.0 until its path is validated end-to-end on a real site.
 First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php tools/framework-audit.php && php tests/test-container-hygiene.php
+php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php
 ```
 
 The audit enforces everything on this page that a machine can decide: frontmatter, the word
@@ -80,7 +81,7 @@ verifier. Its `JUDGE` rows are NOT passes — a model has to read them; that hal
 `skills/framework-audit/SKILL.md`. The test suite guards the container audit itself, because the
 code that enforces the rules needs something enforcing it too.
 
-Add checks to `tools/framework-audit.php`, never as prose in a skill.
+Add checks to `skills/framework-audit/assets/framework-audit.php`, never as prose in a skill.
 
 Then install locally (`install.ps1` / `install.sh`) and test at the right depth:
 

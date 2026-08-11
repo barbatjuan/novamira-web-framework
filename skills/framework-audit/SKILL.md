@@ -20,7 +20,7 @@ is added to a `SKILL.md`. Read-only against the repo — it never writes to Word
 connector. Fixing what it finds is a normal edit, done deliberately, not by this skill silently.
 
 ## Hard Rules
-- **Run the script first, argue second.** `php tools/framework-audit.php` owns everything a
+- **Run the script first, argue second.** `php skills/framework-audit/assets/framework-audit.php` owns everything a
   machine can decide. Never re-check those by hand: two implementations of one rule drift, and
   the hand-rolled one loses.
 - **JUDGE rows are not passes.** The script reports them precisely because it cannot decide them.
@@ -31,7 +31,7 @@ connector. Fixing what it finds is a normal edit, done deliberately, not by this
   no "not checked" section is incomplete, not clean.
 
 ## Execution Steps
-1. `php tools/framework-audit.php` (add `--strict` to fail on WARN). Then
+1. `php skills/framework-audit/assets/framework-audit.php` (add `--strict` to fail on WARN). Then
    `php tests/test-container-hygiene.php` — the audit code needs its own regression guard.
 2. **FAIL** — objectively wrong (broken reference, missing build gate, absent frontmatter field,
    `error_log()` with no stdout channel, body past the ~600 ceiling). Fix before merging.
@@ -48,5 +48,5 @@ gap admitted and why), the drift found by reading, and **what you did not check*
 run is not a green framework — it is a green half.
 
 ## References
-- `tools/framework-audit.php` — the deterministic half. Add checks there, never in prose here.
+- `assets/framework-audit.php` — the deterministic half. Add checks there, never in prose here.
 - `CONTRIBUTING.md` §3 — the rules this audit enforces, and why each one exists.

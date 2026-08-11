@@ -2,8 +2,19 @@
 /**
  * NovaMira framework self-audit — the checks that need no judgement.
  *
- * Run:  php tools/framework-audit.php            (exit 0 = no FAILs)
- *       php tools/framework-audit.php --strict    (WARNs also fail)
+ * Run:  php skills/framework-audit/assets/framework-audit.php           (exit 0 = no FAILs)
+ *         …/framework-audit.php --strict                                (WARNs also fail)
+ *         …/framework-audit.php --root=/path/to/checkout                (audit another tree)
+ *
+ * Lives in the skill's assets/ rather than a repo-level tools/ for a boring but load-bearing
+ * reason: install.ps1 copies only skills/ and agents/, so a script anywhere else does not travel
+ * with the skill that tells you to run it.
+ *
+ * It audits a CHECKOUT, never an install. Pointing it at ~/.claude was tried and cut: an install
+ * holds every skill from every source, so it judged 34 unrelated skills against this repo's
+ * CONTRIBUTING and produced 690 warnings about files nobody here owns. An audit that fires on
+ * things you cannot fix is one people learn to ignore. Verifying an install still matters — that
+ * is a diff against the repo, which is a different tool.
  *
  * Everything this framework verifies is about a BUILT SITE. Nothing verified the framework
  * itself, which is how "fewest containers" stayed violated through a whole build cycle and how
@@ -19,8 +30,41 @@
  * launders an unknown into a green tick. skills/framework-audit/SKILL.md owns that half.
  */
 
-$root   = dirname( __DIR__ );
 $strict = in_array( '--strict', $argv, true );
+
+/* Root = the tree that holds skills/ and agents/. Walk up rather than hardcoding a depth, so the
+   same file works from the repo checkout and from an install. --root wins when given. */
+$root = '';
+foreach ( $argv as $a ) {
+	if ( 0 === strpos( $a, '--root=' ) ) {
+		$root = rtrim( substr( $a, 7 ), '/\\' );
+	}
+}
+if ( '' === $root ) {
+	$probe = __DIR__;
+	for ( $i = 0; $i < 5; $i++ ) {
+		if ( is_dir( $probe . '/skills' ) && is_dir( $probe . '/agents' ) ) {
+			$root = $probe;
+			break;
+		}
+		$probe = dirname( $probe );
+	}
+}
+if ( '' === $root || ! is_dir( $root . '/skills' ) ) {
+	fwrite( STDERR, "framework-audit: no skills/ + agents/ tree found. Pass --root=<checkout>.\n" );
+	exit( 2 );
+}
+/* CONTRIBUTING.md is what distinguishes a checkout from an install directory. Refuse the latter
+   rather than judging unrelated skills by this repo's rules — see the header. */
+if ( ! file_exists( $root . '/CONTRIBUTING.md' ) ) {
+	fwrite(
+		STDERR,
+		"framework-audit: \"$root\" has no CONTRIBUTING.md, so it is an install directory, not a\n"
+		. "NovaMira checkout. This audits the repo. To check an install, diff it against the repo.\n"
+	);
+	exit( 2 );
+}
+echo 'framework-audit: ' . $root . "\n\n";
 
 /* Skills that write to a live WordPress site. The canonical list is the orchestrator's
    "the build gate is also enforced skill-side" paragraph; it is repeated here so the script
