@@ -64,9 +64,10 @@ the result against it.
   Theme Builder, so there is no Divi commerce path today.
 - **Builder-specific**: `elementor-core` (battle-tested) and `divi-core` (scaffold).
 
-**The Divi path is unvalidated.** `divi-core` is version 0.2, has no `assets/` directory at
-all, and the `di_section` / `di_row` / `di_module` helper library its own SKILL.md describes
-does not exist yet. Nothing on the Divi path has been proven end-to-end on a real site. Do
+**The Divi path is unvalidated.** `divi-core` has no `assets/` directory at all, and the
+`di_section` / `di_row` / `di_module` helper library its own SKILL.md describes does not exist
+yet — which also means no Divi build gets an automatic container audit, because that audit
+lives in the Elementor helper library. Nothing on the Divi path has been proven end-to-end on a real site. Do
 not present it as parity with Elementor: flag unverified steps as unverified and append
 confirmed findings to `divi-core/references/gotchas.md`.
 
@@ -95,8 +96,9 @@ paste code inline. What exists:
   `es-theme-parts.example.php` — header/footer + Theme Builder parts.
 - `woocommerce/assets/es-shop-template.example.php`,
   `woocommerce/assets/es-product-single.example.php`.
-- `html-mockup/assets/ecommerce-mockup.html` — the brand-neutral reference mockup the
-  orchestrator mandates as the starting point for every mockup (copy it, swap the tokens).
+- `html-mockup/assets/ecommerce-mockup.html` and `html-mockup/assets/corporate-mockup.html` —
+  the brand-neutral reference mockups; the orchestrator mandates starting from the one matching
+  the SITE TYPE (copy it, swap the tokens). Never start a corporate site from the ecommerce one.
 - `divi-core` has no `assets/` yet.
 
 ## Extending per project

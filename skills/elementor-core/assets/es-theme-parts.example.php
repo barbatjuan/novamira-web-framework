@@ -61,14 +61,18 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 	update_post_meta( $id, '_elementor_edit_mode', 'builder' );
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
 	es_backup_elementor_data( $id );
+	/* Theme parts used to skip the audit entirely, which is backwards: headers, footers and
+	   commerce templates are the MOST nested artifacts in the system (see the mobile 3-zone
+	   header recipe) and they are reused on every page, so a wasted level here is paid site-wide. */
+	es_container_report( $elements, $type . ':' . $slug );
 	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
 	update_post_meta( $id, '_elementor_conditions', $conditions );
 	es_rebuild_css( $id );
 
 	if ( ! es_rebuild_theme_conditions() ) {
-		error_log( 'NovaMira: could not regenerate the theme-builder conditions cache for "' . $slug . '" (#' . $id . '). Elementor Pro theme builder is unavailable, so this template will NOT appear on the front end.' );
+		es_warn( 'could not regenerate the theme-builder conditions cache for "' . $slug . '" (#' . $id . '). Elementor Pro theme builder is unavailable, so this template will NOT appear on the front end.' );
 	} elseif ( ! es_theme_conditions_registered( $id ) ) {
-		error_log( 'NovaMira: "' . $slug . '" (#' . $id . ') is missing from elementor_pro_theme_builder_conditions after regeneration. Check the condition strings: ' . implode( ', ', $conditions ) );
+		es_warn( '"' . $slug . '" (#' . $id . ') is missing from elementor_pro_theme_builder_conditions after regeneration. Check the condition strings: ' . implode( ', ', $conditions ) );
 	}
 
 	return $id;
@@ -209,7 +213,7 @@ function es_build_theme_parts() {
 			)
 		);
 	} else {
-		error_log( 'NovaMira: nav menu "' . $menu_slug . '" does not exist. The header is being built WITHOUT its navigation - create the menu, then rebuild the theme parts.' );
+		es_warn( 'nav menu "' . $menu_slug . '" does not exist. The header is being built WITHOUT its navigation - create the menu, then rebuild the theme parts. This breaks the "navbar is real navigation" house rule on EVERY page.' );
 	}
 
 	$header = array(

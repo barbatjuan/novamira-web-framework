@@ -4,7 +4,7 @@ description: "Trigger: WooCommerce, shop page, product page, side cart, mini car
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.1"
+  version: "1.2"
 ---
 
 # WooCommerce
@@ -33,6 +33,12 @@ On an existing site, confirm every page/template you would overwrite by name fir
 - Product-card grids must be equal height (see `ux-design-system/references/motion.md`).
 - A leftover Theme Builder template can hijack a page and look "broken" — check for and
   disable stale single-product/archive templates before blaming layout.
+- **Fewest containers that do the job** applies here HARDER than anywhere else, because a
+  commerce template is reused on every product / every archive page — one wasted level is paid
+  site-wide, forever. `es_save_theme_part()` audits and prints the count; end the build with
+  `es_audit_summary()` and fix `VEREDICTO A CORREGIR` before deploying. Use `es_split()` for the
+  gallery + buy-box split (the template IS the row) and `es_photo()` over container background
+  images. Full rules: `elementor-core/references/gotchas.md` → "Container hygiene".
 - **Read `references/gotchas.md` before building templates** (Theme Builder conditions are subtle).
 
 ## Execution Steps
@@ -48,9 +54,11 @@ On an existing site, confirm every page/template you would overwrite by name fir
 5. Register + regenerate Theme Builder conditions, then verify server-side.
 
 ## Output Contract
-Report templates built (ids), conditions registered, and the server-side checks (front HTML
-uses `elementor-<id>`, gallery/tabs/related present). Note WC-native limits (e.g. single-product
-add-to-cart is a form submit unless AJAX-add is enabled).
+Report templates built (ids), conditions registered, the container-audit verdict line, and the
+server-side checks (front HTML uses `elementor-<id>`, gallery/tabs/related present). Note
+WC-native limits (e.g. single-product add-to-cart is a form submit unless AJAX-add is enabled).
+A missing conditions registration is reported by `es_warn()` on stdout — if you see it, the
+template exists in the library and renders NOWHERE. That is a failure, not a warning to skim.
 
 ## References
 - `references/knowledge.md` — widget names, template types, cart controls, products CSS.

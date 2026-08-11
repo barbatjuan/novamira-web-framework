@@ -105,8 +105,19 @@ no native build.
   `section → grid|row → widget`; going past three levels needs a stated reason. Every extra level is
   paid three times: a wrapper `<div>` in the DOM, a block of generated CSS, and one more click
   between a human and the widget they opened the editor to change. This is measured, not a matter of
-  taste: `es_container_report()` logs the count and the offenders on every save, and `qa-review`
-  reads `_elementor_data` back to check it.
+  taste. Three named rules cover almost every real offence, each with a helper that makes the
+  flat version the easy one: **the section IS the row** (`es_split()`, never
+  `es_section( es_row(...) )`), **a width does not justify a container** (`es_wide()`), and
+  **a photo is a widget, not a background** (`es_photo()`). `es_container_report()` prints the
+  count and the offenders on every page AND every Theme Builder template; `es_audit_summary()`
+  closes the build with one verdict line; `qa-review` row 11 re-runs the same audit against what
+  actually landed. **Require the verdict in the builder skill's report** — `VEREDICTO A CORREGIR`
+  is not a build you hand off.
+- **A warning nobody reads is not a warning.** Everything this framework needs to say goes to
+  STDOUT (which the sandbox returns), not only to `error_log()` (which nobody fetches). That was
+  a real bug, not a style preference: "this template will NOT appear on the front end" and "the
+  header is being built WITHOUT its navigation" were both log-only. If you add a warning
+  anywhere, route it through `es_warn()`.
 - **Never a form in the hero.** The hero carries headline + value prop + CTA — never a capture
   form. The lead form lives in the closing conversion band, which is fixed DNA, so nothing is lost
   by moving it: a form above the fold reads as a toll gate before the visitor knows what is on

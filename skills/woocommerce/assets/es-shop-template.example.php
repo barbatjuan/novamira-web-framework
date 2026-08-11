@@ -15,7 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 foreach ( array( 'es-builder.php', 'es-theme-parts.php' ) as $es_dep ) {
 	$es_dep_path = WP_CONTENT_DIR . '/novamira-sandbox/' . $es_dep;
 	if ( ! file_exists( $es_dep_path ) ) {
-		error_log( 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first.' );
+		/* Both channels on purpose: es_warn() lives in es-builder.php, which is exactly the
+		   file that may be missing here, and error_log() alone is not "loudly" — the sandbox
+		   returns STDOUT, so a log-only warning is a build that silently does nothing. */
+		$es_msg = 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first. NOTHING WAS BUILT.';
+		error_log( $es_msg );
+		echo $es_msg . "\n";
 		return;
 	}
 	require_once $es_dep_path;

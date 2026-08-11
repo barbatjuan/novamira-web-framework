@@ -4,7 +4,7 @@ description: "Trigger: verify, QA, review before handoff, did it work, check the
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.2"
+  version: "1.3"
 ---
 
 # QA Review

@@ -4,7 +4,7 @@ description: "Trigger: maqueta, mockup, HTML preview, prototipo, visual approval
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.2"
+  version: "1.3"
 ---
 
 # HTML Mockup (approval preview)
@@ -30,6 +30,14 @@ Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-c
   never link them with `target="_top"` — cross-artifact nav is dead in the sandbox. Governing
   detail: `references/mockup-guide.md` § "Multi-page preview".
 - Mobile-first, responsive at the framework breakpoints (`<768 / 768–1024 / >1024`).
+- **The mockup's DOM is a blueprint, not scaffolding.** The native build reproduces this file
+  section by section, so every wrapper `<div>` here becomes an Elementor container there — a
+  mockup nested five levels deep teaches the build to nest five containers. Keep it flat for the
+  same reason the build does: `section > grid|row > element`, no `<div>` whose only job is
+  padding or a width (use the element's own), no decorative photo as a CSS `background-image`
+  where an `<img>` with `object-fit:cover` does the job and carries an `alt`. Mirror
+  `elementor-core/references/gotchas.md` → "Container hygiene"; the three rules are
+  builder-agnostic and this is where they start.
 - Declare the design-system tokens as CSS variables in `:root` ONCE; every section references them.
   Same tokens the native build will use — single source of truth.
 - Self-contained: inline `<style>`, no external CSS/JS/fonts/CDNs, no remote images (Artifact CSP).

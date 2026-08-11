@@ -28,6 +28,30 @@ Only add CONFIRMED findings. "Probably" belongs in a PR discussion, not in gotch
 - Builder-agnostic knowledge goes in `ux-design-system`; builder-specific execution in
   `elementor-core` / `divi-core`.
 
+## 3. Every rule names its verifier, and every warning reaches a human
+
+The "fewest containers" rule survived a whole build cycle being violated even though a correct
+audit was already running. Two causes, both cheap to prevent, both easy to repeat in the next
+skill. Treat these as review questions on any PR that adds a rule:
+
+- **A rule with no verifier is a wish.** When you add a Hard Rule to a `SKILL.md`, say in the
+  same breath WHAT CHECKS IT: a helper that makes the violation hard to express, a check in the
+  write path, or a row in `qa-review/references/house-rules.md` with a server-side method. If the
+  honest answer is "nothing checks it", write that down — an admitted gap gets fixed, a silent
+  one does not. (`wordpress-seo`'s "one H1 per page" sat unenforced this way until it became
+  house-rule row 12.)
+- **A warning only in `error_log()` is a warning nobody reads.** The sandbox returns STDOUT;
+  the server's PHP log is never fetched. Route every warning through `es_warn()` (or echo
+  alongside `error_log()` where the helper library may not be loaded). This is not cosmetic:
+  "this template will NOT appear on the front end" and "the header is being built WITHOUT its
+  navigation" were both log-only, which means both could ship unnoticed.
+- **Don't re-implement a check in prose.** `qa-review` calls `es_container_audit()` rather than
+  describing the walk again. Two implementations of one rule drift, and the hand-rolled one loses.
+- **Prefer a helper over a rule.** `es_section()` hardcoded `flex_direction:column`, so building
+  two columns REQUIRED the extra container the rule forbade. When the library makes the wrong
+  shape the easy one, no amount of documentation wins. Fix the library first (`es_split()`,
+  `es_wide()`, `es_photo()`), then write the rule.
+
 ## Workflow
 ```
 git checkout -b <type>/<short-name>     # gotcha/side-cart-trap, feat/build-home, fix/…
@@ -43,7 +67,16 @@ Bump `metadata.version` in a skill's frontmatter when its contract changes. `div
 stays < 1.0 until its path is validated end-to-end on a real site.
 
 ## Testing a change
-Install locally (`install.ps1` / `install.sh`), then test at the right depth:
+First, the offline suite — no WordPress, no connector, runs in a second:
+
+```bash
+php tests/test-container-hygiene.php
+```
+
+It guards the container audit and the hygiene helpers. Touching `es-builder.php` without running
+it is how the enforcer silently stops enforcing. Add cases there when you add a rule to the audit.
+
+Then install locally (`install.ps1` / `install.sh`) and test at the right depth:
 
 - **Design-phase changes** (`web-templates`, `ux-design-system`, `html-mockup`) need **no
   WordPress at all** — that phase is builder-agnostic by design. Run it greenfield and read the
