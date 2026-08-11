@@ -132,7 +132,7 @@ foreach ( $skill_dirs as $dir ) {
 	}
 
 	/* --- every path it points at must exist --- */
-	preg_match_all( '#`([a-z0-9\-]+/)?(references|assets)/[\w\-./]+\.(md|php|html)`#i', $src, $refs, PREG_SET_ORDER );
+	preg_match_all( '#`([a-z0-9\-]+/)?(references|assets)/[\w\-./]+\.(md|php|html|mjs|js|json)`#i', $src, $refs, PREG_SET_ORDER );
 	$seen = array();
 	foreach ( $refs as $r ) {
 		$raw = trim( $r[0], '`' );

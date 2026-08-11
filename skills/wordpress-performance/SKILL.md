@@ -4,7 +4,7 @@ description: "Trigger: performance, lazy load, image optimization, Core Web Vita
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.1"
+  version: "1.2"
 ---
 
 # WordPress Performance
@@ -30,7 +30,11 @@ On an existing site, confirm every page/template/asset you would overwrite by na
   image-bound on THIS site, say so and fix the actual worst offender instead.
 
 ## Execution Steps
-1. **Measure** the target pages (field data if available). Identify the worst of LCP / CLS / INP.
+1. **Measure with a named tool, not by feel**:
+   `node ../qa-review/assets/lighthouse-audit.mjs <url…>` (mobile; add `--desktop` for a second
+   pass). This step said "measure" for versions without naming anything, which is how it never
+   ran. Record the baseline scores + LCP / CLS / TBT BEFORE touching a lever — without a before,
+   the Output Contract's delta is unprovable. Add CrUX/GSC field data when the site is live.
 2. **Images**: correct sizes (no oversized uploads), WebP/AVIF where supported, `loading="lazy"`
    below the fold, explicit dimensions to kill CLS, a real `srcset`. Hero image = highest priority,
    not lazy.

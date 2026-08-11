@@ -26,6 +26,10 @@ Run every per-page row on EVERY page in scope, not just the home.
 | 11 | Fewest containers that do the job | No container nested "just because": none empty, none wrapping a single widget without carrying its own background/border/shadow, no section whose only child is a flex row (the section IS the row), no photo living as a container `background_image`, and nothing past depth 3 | `require_once` the sandbox's `es-builder.php` and **call `es_container_audit()`** on the `json_decode`d `_elementor_data` of each page AND each Theme Builder template in scope. Do NOT re-implement the walk here in prose or in a throwaway script: two implementations of one rule drift, and the one you hand-roll is the one that will be wrong. This runs against what actually LANDED, not what was sent — that is the whole reason it repeats a check the build already did. Report `containers / widgets / max_depth` per page and list every offender by path. PASS needs zero offenders. `optimizable` entries (a container whose only child is a grid) are reported as a **note**, never a FAIL — that call needs a human | **auto** |
 | 12 | Exactly one H1 per page | Every page in scope has exactly one `<h1>`, and it describes that page | `wordpress-seo` states this as a Hard Rule but writes no checker, so it was unenforced. Fetch each page's front HTML and count `<h1` occurrences. FAIL on 0 (nothing tells a crawler what the page is) and on 2+. Also flag an H1 whose text is the site name on every page instead of the page's own subject — technically one H1, functionally none | **auto** |
 
+| 13 | Accessibility is measured, not eyeballed | Lighthouse accessibility ≥ 90 on every page in scope, mobile | `node ../assets/lighthouse-audit.mjs <url…>` (from `qa-review/assets/`). It names the failing audits, not just the score: contrast, `image-alt`, `link-name`, `button-name`, `heading-order`, `html-has-lang`, `target-size`. Under 50 blocks. This REPLACES eyeballing step 4 — a11y was five rules with no method until this existed. Lighthouse cannot judge whether alt text is *meaningful*, only that it is present: that part stays **eyes** | **auto (+ eyes for alt quality)** |
+| 14 | Best practices + SEO | Lighthouse best-practices ≥ 90 and SEO ≥ 90 | Same run. Catches console errors, mixed content, wrong image aspect ratios, a missing `<title>` or meta description, uncrawlable anchors. Under 50 blocks. Row 12 (one H1) still runs separately — Lighthouse does not check H1 count | **auto** |
+| 15 | Performance is reported, never the sole blocker | Lighthouse performance score + LCP / CLS / TBT recorded for every page in scope | Same run. **Deliberately non-blocking**: mobile Elementor rarely reaches 90, and a gate that always fails is a gate everyone learns to skip. What matters is the before/after delta `wordpress-performance` owns — so record the number here and hand it over. A score from a sandbox host is not a score from the client's production host; say which one you measured | **auto (number) + judgement (verdict)** |
+
 ## Honest limits — do not dress these up
 
 - **Row 1 is a live read, never an assumption.** No skill in this repo sets `woocommerce_currency`
@@ -36,6 +40,25 @@ Run every per-page row on EVERY page in scope, not just the home.
   setting and the CSS rules only prove intent. Report them as such.
 - **Rows that depend on WooCommerce** (1, 2) do not apply to a build without WooCommerce — mark
   them N/A, not PASS.
+- **Rows 13–15 need headless Chrome to REACH the URL.** Whether it reaches a NovaMira sandbox host
+  is UNVERIFIED — the in-app browser is usually policy-blocked there, and headless Chrome is a
+  different path that has not been tried yet. If it cannot connect, the script prints
+  `UNREACHABLE` and runs nothing: report that as a tooling gap, never as a failing audit or a
+  score of zero. Record the answer here the first time you find out.
+- **`UNREACHABLE` is flaky on Windows — re-run before believing it.** Confirmed on the dev machine:
+  the same public URL alternates between a clean run and
+  `EPERM, Permission denied: …\Temp\lighthouse.<n>` with nothing changed in between, and two
+  consecutive runs failed while the next succeeded. The script now uses a unique Chrome profile per
+  attempt and retries three times with a backoff, which reduces it but does not eliminate it
+  (antivirus holding the temp profile is the likely cause). Never report a site as unreachable off
+  a single failed run.
+- **A Lighthouse score is not a visual sign-off.** 100/100 on a page that looks broken is still a
+  broken page. These rows add a floor, they do not replace the user's eyes.
+- **The performance number is NOISY — treat one run as an estimate.** Five runs against the SAME url on the same
+  machine scored 95, 74, 71, 69 and 97 — a 28-point swing from lab variance alone (LCP 2.5-5.0 s). Never report a
+  performance delta from single runs on different machines or networks; take the best of three on
+  the same machine, and say so. Accessibility, best-practices and SEO are near-deterministic —
+  they inspect the DOM instead of timing it, which is why they are the ones that block.
 
 ## Divi
 

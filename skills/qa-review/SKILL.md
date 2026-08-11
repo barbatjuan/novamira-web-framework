@@ -4,7 +4,7 @@ description: "Trigger: verify, QA, review before handoff, did it work, check the
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.3"
+  version: "1.4"
 ---
 
 # QA Review
@@ -36,15 +36,20 @@ work?" / "verify".
    3-zone). One verdict per row, skip none silently.
 3. **Responsive**: the per-device rules exist (mobile centering, 2-col grids, header one row on
    desktop, full-width mobile CTA). Ask the user to eyeball ~430 / 768 / 1280 — you can't see it.
-4. **Accessibility quick pass**: one H1, alt text, contrast on text/buttons (ghost buttons legible
-   in BOTH states), focus states, tap targets ≥ ~44px.
+4. **Measure a11y, best practices, SEO and performance** — do not eyeball them:
+   `node assets/lighthouse-audit.mjs <url…>` (mobile by default, `--desktop` for a second pass).
+   It reports the four category scores plus the failing audits BY NAME, and blocks under 50 on
+   a11y / best-practices / SEO. Performance is recorded, never the sole blocker — house-rule
+   row 15. Then judge what Lighthouse cannot: is the alt text *meaningful*, is a ghost button
+   legible in BOTH states, are tap targets comfortable and not merely ≥ 44px.
 5. **Regression**: nothing adjacent broke (header not wrapping, no leftover template hijack,
    kit/global CSS intact).
 
 ## Output Contract
-Return a short checklist with PASS / FAIL / UNVERIFIED / N/A + the evidence (grep counts) per
-item, house-rule rows included, then what only the user can confirm visually, then follow-ups.
-UNVERIFIED is not a pass. If anything failed, the orchestrator must NOT report done.
+Return a short checklist with PASS / FAIL / UNVERIFIED / N/A + the evidence (grep counts, the four
+Lighthouse scores per page, the container-audit counts) per item, house-rule rows included, then
+what only the user can confirm visually, then follow-ups. UNVERIFIED is not a pass. If anything
+failed, the orchestrator must NOT report done.
 
 ## References
 - `references/house-rules.md` — per house rule: the server-side method, and whether it is
