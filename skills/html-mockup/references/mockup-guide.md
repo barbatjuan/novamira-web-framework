@@ -132,6 +132,30 @@ nav items switch pages; on ecommerce the cart icon switches pages and product ca
 The per-page split survives only as the **handoff spec** — one section inventory per page for the
 native build — never as separate mockup files or URLs.
 
+## Container hygiene — the mockup's DOM is a blueprint
+
+The native build reproduces this file section by section, so every wrapper `<div>` here becomes an
+Elementor container there. A mockup nested five levels deep teaches the build to nest five
+containers, and each level is then paid three times on the live site: a wrapper in the DOM, a block
+of generated CSS, and one more click between a human and the widget they opened the editor to
+change. The three rules below are builder-agnostic, and **this is where they start** — fixing them
+downstream in `elementor-core` means fixing them after the client already approved the shape.
+
+1. **The section IS the row.** A two-column band is `<section>` with `display:flex` and the two
+   halves as direct children — not a section wrapping a row `<div>` wrapping the halves. Stack at
+   `<768` with `flex-direction:column`.
+2. **A width does not justify a `<div>`.** Wrapping an element to make it 58% wide buys a node for
+   nothing; put the width on the element. In the native build this becomes `_element_custom_width`
+   (`es_wide()`), and a wrapper here becomes a whole container there.
+3. **A photo is an `<img>`, not a `background-image`.** Use `<img>` with `object-fit:cover` and a
+   real `alt`. A CSS background needs an otherwise-empty element to live in, is invisible to
+   screen readers and to Google Images, and maps to the exact container `es_photo()` exists to
+   avoid.
+
+Target depth `section > grid|row > element`. Past three levels, have a reason.
+Mirror of `elementor-core/references/gotchas.md` → "Container hygiene", which carries the
+measured before/after from the build where these were found.
+
 ## Handoff
 On approval, list the sections present per page (in order) + the token values used. `elementor-core` /
 `divi-core` reproduce this NATIVELY; `qa-review` compares the native output against this mockup.

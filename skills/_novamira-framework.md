@@ -18,7 +18,9 @@ their `assets/`.
   language: tokens, motion, layout patterns).
 - **Read-only** (inspect and report; never write): `project-context` — "Read-only
   reconnaissance… Modifies nothing" — and `qa-review`, which verifies an already-built page
-  server-side and reports PASS/FAIL with evidence.
+  server-side and reports PASS/FAIL with evidence. `framework-audit` is read-only too, but points
+  the other way: it verifies THIS REPO rather than a site, because everything else here checks a
+  built site and nothing checked the framework. Run it before merging a skill change.
 - **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
   Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
   `wordpress-performance` and `wordpress-seo` write to the live site — each one carries its

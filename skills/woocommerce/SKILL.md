@@ -29,10 +29,13 @@ On an existing site, confirm every page/template you would overwrite by name fir
 
 ## Hard Rules
 - Native commerce widgets only; no custom JS. Style the CTA to the accent color with
-  `!important` (the theme's button color otherwise wins).
-- Product-card grids must be equal height (see `ux-design-system/references/motion.md`).
-- A leftover Theme Builder template can hijack a page and look "broken" — check for and
-  disable stale single-product/archive templates before blaming layout.
+  `!important` (the theme's button color otherwise wins) — verify by grepping the compiled
+  `post-<id>.css` for the accent rule, since a losing specificity war leaves no trace in HTML.
+- Product-card grids must be equal height — do not hand-roll it: `es_products_css()` is the
+  single source of truth (see `ux-design-system/references/motion.md` for the why).
+- A leftover Theme Builder template can hijack a page and look "broken". Before blaming layout,
+  list `elementor_library` templates and their conditions and disable the stale ones; `qa-review`
+  row 7 catches the same class of failure from the other side.
 - **Fewest containers that do the job** applies here HARDER than anywhere else, because a
   commerce template is reused on every product / every archive page — one wasted level is paid
   site-wide, forever. `es_save_theme_part()` audits and prints the count; end the build with

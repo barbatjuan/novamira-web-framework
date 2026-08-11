@@ -23,8 +23,11 @@ On an existing site, confirm every page/template/asset you would overwrite by na
 
 ## Hard Rules
 - Do not add heavy plugins or custom JS to chase a metric. Prefer builder-native + host options.
+  (no verifier: a plugin count is not a quality measure — the before/after in the Output
+  Contract is what proves a lever paid for itself.)
 - Change one lever at a time and re-measure. Keep the design intact — verify visually with the user.
-- Images are almost always the #1 win.
+- Images are almost always the #1 win. Verified per run by step 1's measurement: if LCP is not
+  image-bound on THIS site, say so and fix the actual worst offender instead.
 
 ## Execution Steps
 1. **Measure** the target pages (field data if available). Identify the worst of LCP / CLS / INP.

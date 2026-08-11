@@ -22,10 +22,14 @@ On an existing site, confirm every page/template you would overwrite by name fir
 Sitemap submission (step 5) is an outward action to a third party — confirm it separately.
 
 ## Hard Rules
-- One H1 per page; logical H2/H3 outline that matches the visible structure.
-- Titles/descriptions are unique, human, and describe the page — not keyword stuffing.
-- Every meaningful image has real alt text. Fictional/demo content stays labeled as such.
+- One H1 per page; logical H2/H3 outline that matches the visible structure. Verified by
+  `qa-review` house-rule row 12 (counts `<h1>` in the front HTML of every page in scope).
+- Titles/descriptions are unique, human, and describe the page — not keyword stuffing. Verify
+  server-side across the whole page set: two identical `<title>` tags is a FAIL, not a detail.
+- Every meaningful image has real alt text (`qa-review` step 4 checks it). Fictional/demo
+  content stays labeled as such.
 - Don't invent facts (addresses, reviews, credentials) to fill schema.
+  (no verifier: only the client can confirm a fact is real — ask for it, never fill the gap.)
 
 ## Execution Steps
 1. **Per page**: unique `<title>` (~50–60 chars) and meta description (~150–160), set via the

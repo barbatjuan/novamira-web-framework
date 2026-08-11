@@ -67,14 +67,20 @@ Bump `metadata.version` in a skill's frontmatter when its contract changes. `div
 stays < 1.0 until its path is validated end-to-end on a real site.
 
 ## Testing a change
-First, the offline suite — no WordPress, no connector, runs in a second:
+First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php tests/test-container-hygiene.php
+php tools/framework-audit.php && php tests/test-container-hygiene.php
 ```
 
-It guards the container audit and the hygiene helpers. Touching `es-builder.php` without running
-it is how the enforcer silently stops enforcing. Add cases there when you add a rule to the audit.
+The audit enforces everything on this page that a machine can decide: frontmatter, the word
+budget, broken `references/` and `assets/` pointers, a write-capable skill that lost its build
+gate, `error_log()` with no stdout channel, and Hard Rules in write-capable skills that name no
+verifier. Its `JUDGE` rows are NOT passes — a model has to read them; that half is
+`skills/framework-audit/SKILL.md`. The test suite guards the container audit itself, because the
+code that enforces the rules needs something enforcing it too.
+
+Add checks to `tools/framework-audit.php`, never as prose in a skill.
 
 Then install locally (`install.ps1` / `install.sh`) and test at the right depth:
 

@@ -59,6 +59,7 @@ let it run that dialogue; don't front-run it.
 | Lazy load, image/CSS/JS weight, Core Web Vitals | `wordpress-performance` |
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
+| Audit the FRAMEWORK itself (not a site) before merging a skill change | `framework-audit` |
 
 ## Order that works
 **New site (greenfield) — no WordPress touched until the build gate:**

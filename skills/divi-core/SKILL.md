@@ -27,6 +27,8 @@ On an existing site, confirm every page/template you would overwrite by name fir
 ## Hard Rules
 - Native Divi modules only. No custom JS. Custom CSS via the module's built-in Custom CSS
   fields or the page/section advanced CSS — scoped, never a global stylesheet.
+  (no verifier: Divi's compiled-CSS artifact name is unconfirmed in this repo, so there is
+  nothing to grep yet. Confirm it on the first real build and record it in `references/gotchas.md`.)
 - **Fewest containers that do the job** (house rule). Divi differs from Elementor here and the
   difference matters: `section → row → column → module` is Divi's *mandatory* grammar, not
   padding you can trim. So the rule is not "flatten it" — it is **never nest beyond that
@@ -35,6 +37,7 @@ On an existing site, confirm every page/template you would overwrite by name fir
   equivalent here: `divi-core` has no helper library yet, so the count is a manual read of the
   shortcode tree. Report it as **UNVERIFIED**, never as a measured PASS.
 - Wrap all build logic in named functions; the NovaMira sandbox auto-runs any uploaded `.php`.
+  Self-verifying: top-level logic fatals the site on upload, before `execute-php` is reached.
 - Verify server-side (fetch compiled HTML/CSS, grep). The sandbox domain is usually
   browser-blocked; state that visual confirmation needs the user.
 
