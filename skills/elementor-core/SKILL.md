@@ -4,7 +4,7 @@ description: "Trigger: Elementor via PHP, NovaMira, es-builder, _elementor_data,
 license: Apache-2.0
 metadata:
   author: "juan"
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Elementor Core (execution)
@@ -30,10 +30,17 @@ On an existing site, confirm every page/template you would overwrite by name fir
   groups 2+ children, carries its own background / border / shadow, or changes direction at a
   breakpoint. One that wraps a single widget is not a layout — move its padding to the widget's
   `_padding`. Target depth `section → grid|row → widget`; past 3 levels, state why.
-  `es_save_page()` calls `es_container_report()` before writing, which logs
-  `N contenedores / M widgets, profundidad max D` plus the specific offenders. **Read that line
-  and act on it** — it is the whole point of it existing. `optimizable` entries (a container
-  whose only child is a container) are a judgement call, not an error.
+  Three shapes cover almost every real offence — use the helper, don't hand-roll the nesting:
+  1. **The section IS the row.** Two columns → `es_split()`, never `es_section( es_row(...) )`.
+  2. **A width does not justify a container.** → `es_wide($el, 58)`, not a wrapper.
+  3. **A photo is a widget, not a background.** → `es_photo($slug, $h)`, not `background_image`
+     (which needs a container to live in and has no `alt`).
+- **Read the audit verdict — it is not decoration.** `es_save_page()` calls
+  `es_container_report()` before writing, and it now ECHOES to stdout (the sandbox returns it);
+  it used to only reach `error_log()`, which is exactly how a build shipped with empty
+  containers anyway. End every build function with `es_audit_summary()`. `VEREDICTO A CORREGIR`
+  → fix and rebuild before deploying. `optimizable` (a container whose only child is a grid) is
+  a judgement call, not an error. Detail: `references/gotchas.md` → "Container hygiene".
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
 - Wrap all build logic in named functions — the sandbox auto-runs any uploaded `.php`.
 - **Read `references/gotchas.md` before the first deploy.** Introspect widget/control names;

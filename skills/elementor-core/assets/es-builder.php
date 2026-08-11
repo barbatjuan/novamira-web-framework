@@ -111,6 +111,92 @@ function es_section( array $children, array $opts = array() ) {
 }
 
 /**
+ * Two-column section — THE SECTION IS THE ROW.
+ *
+ * The reflex for a split layout is `es_section( es_row( array( $left, $right ) ) )`, which
+ * costs a whole container level whose only job is "be a flex row". The section can be that
+ * row itself: `flex_direction:row` on the section, `column` at tablet/mobile, and the two
+ * halves as DIRECT children. Same result, one level less, one less click in the editor.
+ *
+ * Confirmed on a live build (de la O Abogados, contacto: 8 containers/depth 4 -> 4/depth 2).
+ *
+ * A boxed container puts its flex on the generated `.e-con-inner`; the NATIVE flex controls
+ * know that and target it correctly. Only hand-written `custom_css` has to say
+ * `selector>.e-con-inner` (see references/gotchas.md).
+ *
+ * $opts: bg, gap, align (flex_align_items), reverse (stack mobile in reverse), settings.
+ */
+function es_split( array $children, array $opts = array() ) {
+	$gap      = isset( $opts['gap'] ) ? (int) $opts['gap'] : 48;
+	$settings = array(
+		'content_width'         => 'boxed',
+		'flex_direction'        => 'row',
+		'flex_direction_tablet' => empty( $opts['reverse'] ) ? 'column' : 'column-reverse',
+		'flex_direction_mobile' => empty( $opts['reverse'] ) ? 'column' : 'column-reverse',
+		'flex_align_items'      => isset( $opts['align'] ) ? $opts['align'] : 'center',
+		'flex_gap'              => array( 'unit' => 'px', 'size' => $gap, 'column' => (string) $gap, 'row' => (string) $gap ),
+		'padding'               => es_box( 88, 24, 88, 24 ),
+		'padding_tablet'        => es_box( 72, 24, 72, 24 ),
+		'padding_mobile'        => es_box( 56, 20, 56, 20 ),
+	);
+	if ( ! empty( $opts['bg'] ) ) {
+		$settings['background_background'] = 'classic';
+		$settings['background_color']      = $opts['bg'];
+	}
+	if ( ! empty( $opts['settings'] ) ) {
+		$settings = array_merge( $settings, $opts['settings'] );
+	}
+	return es_c( $settings, $children );
+}
+
+/**
+ * Give ONE element a width without wrapping it in a container.
+ *
+ * A width is not a layout. Wrapping a widget in a container just to make it 58% wide buys a
+ * <div>, a CSS block and an editor level for something the element itself can carry:
+ * `_element_width:'initial'` unlocks `_element_custom_width`. Works on widgets and on
+ * containers alike — both read the same `_element_*` keys.
+ *
+ * Defaults to full width at mobile, which is what you want ~always; pass $mobile to override.
+ */
+function es_wide( array $el, $pct, $mobile = 100, $unit = '%' ) {
+	$el['settings']['_element_width']        = 'initial';
+	$el['settings']['_element_custom_width'] = es_size( $pct, $unit );
+	if ( null !== $mobile ) {
+		$el['settings']['_element_width_mobile']        = 'initial';
+		$el['settings']['_element_custom_width_mobile'] = es_size( $mobile, '%' );
+	}
+	return $el;
+}
+
+/**
+ * A photo is a WIDGET, not a container background.
+ *
+ * `background_image` on a container costs twice: it needs a container that exists only to hold
+ * the picture (usually an EMPTY one, which the audit flags), and the image ships with no `alt`,
+ * so it is invisible to screen readers and to Google Images. The native image widget with a
+ * fixed height + `object-fit:cover` crops identically AND keeps the alt text.
+ *
+ * Control keys confirmed on the de la O build. If a future Elementor renames them, introspect
+ * (`references/gotchas.md` -> "Verify widget/control names") rather than guessing.
+ * `object-fit` is hyphenated on purpose — that IS the control id — and Elementor only honours
+ * it while `height` has a value.
+ */
+function es_photo( $img_slug, $height = 420, array $extra = array() ) {
+	$settings = array(
+		'image'          => es_img( $img_slug ),
+		'image_size'     => 'large',
+		'width'          => es_size( 100, '%' ),
+		'height'         => es_size( $height ),
+		'height_mobile'  => es_size( (int) round( $height * 0.72 ) ),
+		'object-fit'     => 'cover',
+		'object-position' => 'center center',
+	);
+	$settings = array_merge( $settings, $extra );
+	return es_w( 'image', $settings );
+}
+
+/**
  * Card hover, applied through the container's native Custom CSS field so it
  * does not depend on Elementor's conditionally-enqueued animation assets
  * (which are not registered when the layout is written via the API).
@@ -572,13 +658,22 @@ function es_container_walk( array $els, $depth, $path, array &$out ) {
 			$kids     = ( isset( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : array();
 			$settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : array();
 			if ( ! $kids ) {
-				$out['offenders'][] = $here . ' contenedor vacio';
+				$out['offenders'][] = empty( $settings['background_image']['url'] )
+					? $here . ' contenedor vacio'
+					: $here . ' contenedor vacio que solo sostiene una imagen de fondo: usa es_photo() (widget image + object-fit) y gana el alt';
 			} elseif ( 1 === count( $kids ) && ! es_container_earns_its_place( $settings ) ) {
-				$only = isset( $kids[0]['elType'] ) ? $kids[0]['elType'] : '?';
-				if ( 'container' === $only ) {
-					$out['optimizable'][] = $here . ' contenedor cuyo unico hijo es otro contenedor: candidato a fusionar';
+				$only   = isset( $kids[0]['elType'] ) ? $kids[0]['elType'] : '?';
+				$kidset = isset( $kids[0]['settings'] ) && is_array( $kids[0]['settings'] ) ? $kids[0]['settings'] : array();
+				if ( 'container' !== $only ) {
+					$out['offenders'][] = empty( $settings['width'] )
+						? $here . ' envoltorio de 1 widget sin fondo/borde/sombra: pasa el padding al widget'
+						: $here . ' envoltorio que solo da un ancho: usa es_wide($widget, N) en vez de un contenedor';
+				} elseif ( isset( $kidset['container_type'] ) && 'grid' === $kidset['container_type'] ) {
+					/* section > grid: this repo's own idiom. Mergeable in theory, a human decides. */
+					$out['optimizable'][] = $here . ' contenedor cuyo unico hijo es un grid: candidato a fusionar';
 				} else {
-					$out['offenders'][] = $here . ' envoltorio de 1 widget sin fondo/borde/sombra: pasa el padding al widget';
+					/* section > flex row is the one that IS always collapsible — es_split() does it. */
+					$out['offenders'][] = $here . ' contenedor cuyo unico hijo es una fila flex: la seccion ES la fila, usa es_split()';
 				}
 			}
 			if ( $d > 3 ) {
@@ -593,7 +688,12 @@ function es_container_walk( array $els, $depth, $path, array &$out ) {
 
 /** A container with a single child is only justified if it carries visual weight of its own. */
 function es_container_earns_its_place( array $s ) {
-	foreach ( array( 'background_background', 'background_image', 'border_border', 'border_radius', 'box_shadow_box_shadow_type', 'sticky' ) as $k ) {
+	/* es_img() returns array('url'=>'','id'=>'') when the slug is missing, and a non-empty
+	   array is truthy — so a BROKEN image lookup used to buy the container an alibi. */
+	if ( ! empty( $s['background_image']['url'] ) ) {
+		return true;
+	}
+	foreach ( array( 'background_background', 'border_border', 'border_radius', 'box_shadow_box_shadow_type', 'sticky' ) as $k ) {
 		if ( ! empty( $s[ $k ] ) ) {
 			return true;
 		}
@@ -607,8 +707,37 @@ function es_container_earns_its_place( array $s ) {
 	return false;
 }
 
-/** Log the audit next to the build so the count is visible without opening the editor. */
+/**
+ * Say something out loud, once, through BOTH channels.
+ *
+ * The sandbox returns STDOUT from `execute-php`; `error_log()` goes to the server's PHP log,
+ * which in practice nobody ever fetches. Every warning in this framework used to take only the
+ * second road — including "this template will NOT appear on the front end", which is about the
+ * loudest thing the system can have to say. Route every warning through here so a silent
+ * failure becomes impossible by construction.
+ *
+ * Define ES_AUDIT_SILENT when stdout must stay clean for another consumer.
+ */
+function es_warn( $msg ) {
+	error_log( 'NovaMira: ' . str_replace( "\n", ' | ', $msg ) );
+	if ( ! defined( 'ES_AUDIT_SILENT' ) ) {
+		echo 'NovaMira AVISO: ' . $msg . "\n";
+	}
+}
+
+/**
+ * Report the audit where a human will actually read it.
+ *
+ * This used to only call error_log(), and that is precisely why a build shipped with empty and
+ * redundant containers anyway: the offenders were written to the server's PHP log, which nobody
+ * fetches. The sandbox returns STDOUT from `execute-php`, so echoing is the difference between a
+ * rule that is measured and a rule that is seen. error_log() stays as the durable copy.
+ *
+ * Define ES_AUDIT_SILENT before the build if stdout must stay clean for some other consumer.
+ */
 function es_container_report( array $elements, $label = '' ) {
+	global $es_audit_runs;
+
 	$a   = es_container_audit( $elements );
 	$msg = sprintf(
 		'NovaMira contenedores%s: %d contenedores / %d widgets, profundidad max %d',
@@ -618,13 +747,64 @@ function es_container_report( array $elements, $label = '' ) {
 		$a['max_depth']
 	);
 	if ( $a['offenders'] ) {
-		$msg .= ' | ' . count( $a['offenders'] ) . ' a corregir: ' . implode( ' ; ', array_slice( $a['offenders'], 0, 8 ) );
+		$msg .= "\n  A CORREGIR (" . count( $a['offenders'] ) . "):\n    " . implode( "\n    ", $a['offenders'] );
 	}
 	if ( $a['optimizable'] ) {
-		$msg .= ' | ' . count( $a['optimizable'] ) . ' fusionables';
+		$msg .= "\n  fusionables (" . count( $a['optimizable'] ) . ", decide un humano):\n    " . implode( "\n    ", $a['optimizable'] );
 	}
-	error_log( $msg );
+
+	error_log( str_replace( "\n", ' | ', $msg ) );
+	if ( ! defined( 'ES_AUDIT_SILENT' ) ) {
+		echo $msg . "\n";
+	}
+
+	if ( ! isset( $es_audit_runs ) || ! is_array( $es_audit_runs ) ) {
+		$es_audit_runs = array();
+	}
+	$es_audit_runs[ $label ? $label : count( $es_audit_runs ) ] = $a;
+
 	return $a;
+}
+
+/**
+ * One verdict line for the whole build.
+ *
+ * Call it at the END of the build function. Per-page lines scroll past; this is the line the
+ * deploy step reads to decide whether the layout is shippable. Returns the offender total so a
+ * caller can branch on it.
+ */
+function es_audit_summary() {
+	global $es_audit_runs;
+
+	if ( ! isset( $es_audit_runs ) || ! is_array( $es_audit_runs ) || ! $es_audit_runs ) {
+		echo "NovaMira auditoria: ninguna pagina auditada en esta corrida.\n";
+		return 0;
+	}
+	$off = 0;
+	$opt = 0;
+	$deep = array();
+	foreach ( $es_audit_runs as $page => $a ) {
+		$off += count( $a['offenders'] );
+		$opt += count( $a['optimizable'] );
+		if ( $a['max_depth'] > 3 ) {
+			$deep[] = $page . '(' . $a['max_depth'] . ')';
+		}
+	}
+	$verdict = $off ? 'A CORREGIR' : 'LIMPIO';
+	$line    = sprintf(
+		'NovaMira auditoria VEREDICTO %s: %d paginas, %d a corregir, %d fusionables%s',
+		$verdict,
+		count( $es_audit_runs ),
+		$off,
+		$opt,
+		$deep ? ', profundidad >3 en ' . implode( ', ', $deep ) : ''
+	);
+	error_log( $line );
+	if ( ! defined( 'ES_AUDIT_SILENT' ) ) {
+		echo $line . "\n";
+	}
+
+	return $off;
 }
 
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {

@@ -6,7 +6,9 @@ Every one of these cost real debugging time. Trust them.
 1. **Upload** files via `novamira/create-upload-link` + multipart `curl -F file=@`.
    Raw PUT `--data-binary` is Forbidden by hosting. Token expires (~20 min) and
    the connector intermittently returns "requires additional permissions" — just retry.
-2. `require_once` the builder files, then **call the build function explicitly**.
+2. `require_once` the builder files, then **call the build function explicitly**. End that build
+   function with `es_audit_summary()` and **read the verdict it prints** before moving on
+   (see "Container hygiene" below). `VEREDICTO A CORREGIR` means fix and rebuild, not continue.
 3. For every touched post id: `delete_post_meta(id,'_elementor_css')` +
    `delete_post_meta(id,'_elementor_element_cache')` + `@unlink(uploads/elementor/css/post-<id>.css)` +
    `\Elementor\Core\Files\CSS\Post::create(id)->update()`.
@@ -15,6 +17,47 @@ Every one of these cost real debugging time. Trust them.
 6. **Verify server-side** — fetch `post-<id>.css` / the front HTML and `substr_count` the
    expected selectors. The browser is often policy-blocked from the sandbox domain, so
    this server-side grep is the only verification available. NEVER claim it works from data alone; say it's verified server-side.
+
+## Container hygiene — the three rules that killed the nesting
+
+Found on a real build (de la O Abogados) AFTER the audit had already shipped. The audit was
+right and still changed nothing, for two reasons worth remembering:
+
+- **It reported into `error_log()`**, i.e. the server's PHP log, which nobody fetches. The
+  sandbox returns STDOUT, so `es_container_report()` now echoes as well. A rule that is
+  measured but never seen is a rule that does not exist.
+- **The helper library pushed you into the mistake.** `es_section()` hardcodes
+  `flex_direction:column`, so the only way to build two columns was
+  `es_section( es_row( ... ) )` — the extra level came from the library, not from carelessness.
+
+Each rule now has a helper that makes the flat version the easy one, AND an audit check that
+catches the flat version's absence.
+
+| # | Reflex | Rule | Helper |
+|---|--------|------|--------|
+| 1 | `es_section( es_row( array($izq,$der) ) )` | **The section IS the row.** `flex_direction:row` on the section, `column` at tablet/mobile, halves as direct children | `es_split()` |
+| 2 | A container wrapping one widget to make it 58% wide | **A width does not justify a container.** `_element_width:'initial'` + `_element_custom_width` on the element itself | `es_wide($el, 58)` |
+| 3 | `background_image` on a container | **A photo is a widget, not a background.** The background needs a (usually empty) container to live in and ships with no `alt` | `es_photo($slug, $h)` |
+
+Measured on that build, not estimated:
+
+| Página | Antes | Después |
+|--------|-------|---------|
+| Contacto | 8 contenedores, prof. 4 | 4, prof. 2 |
+| Home | 44 contenedores, prof. 4, 5 offenders | 39, prof. 3, 0 offenders |
+
+The last 3 home offenders were the portraits as container backgrounds; moving them to
+`es_photo()` cleared them without touching anything else.
+
+**Two severities, on purpose.** `offenders` are wrong with no argument. `optimizable` is a
+container whose only child is a GRID — `es_section( es_grid(...) )` is this repo's own dominant
+idiom, and an audit that screams on every normal build is one people learn to ignore. Whether
+that pair collapses into a single boxed grid container is plausible and **not confirmed**;
+verify on a live site before flattening it wholesale. A container whose only child is a flex
+ROW is a different story — that one always collapses, so it IS an offender.
+
+`object-fit` on the image widget is hyphenated (that is the control id) and Elementor only
+honours it while `height` has a value. Both confirmed on that build.
 
 ## Sandbox auto-executes uploaded .php
 Any `.php` dropped in `wp-content/novamira-sandbox/` runs immediately. Top-level build

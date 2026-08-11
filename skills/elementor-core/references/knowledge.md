@@ -4,15 +4,25 @@
 - `es_uid()` / `es_uid_reset($seed)` — deterministic seeded element IDs.
 - `es_c($settings,$children,$inner=true)` — container (elType container). `es_w($type,$settings)` — widget.
 - `es_size($n,$unit='px')` — slider value. `es_box($t,$r,$b,$l)` — dimensions.
-- `es_section($children,$opts)` — boxed section with responsive padding.
+- `es_section($children,$opts)` — boxed section with responsive padding (column direction).
+- `es_split($children,$opts)` — TWO-COLUMN section: the section IS the row. `row` on desktop,
+  `column` at tablet/mobile, children direct. Replaces `es_section( es_row(...) )` and its
+  wasted level. `$opts`: bg, gap, align, reverse, settings.
+- `es_wide($el,$pct,$mobile=100)` — width ON the element (`_element_width:'initial'` +
+  `_element_custom_width`) instead of a wrapper container. Works on widgets and containers.
+- `es_photo($slug,$height,$extra)` — image widget with `object-fit:cover`. Use instead of a
+  container `background_image`: keeps the `alt`, saves a container.
 - `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
 - `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
 - `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
 - `es_img($slug)` — attachment lookup by slug → url+id.
 - `es_container_audit($elements)` → `{containers,widgets,max_depth,offenders[],optimizable[]}`.
-  `es_container_report($elements,$label)` logs a one-liner and returns the same array;
-  `es_save_page()` calls it automatically before writing.
+  `es_container_report($elements,$label)` echoes to stdout AND `error_log()`s, returns the same
+  array; `es_save_page()` calls it automatically before writing.
+  `es_audit_summary()` → one verdict line for the whole run, returns the offender total.
+  **Call it at the end of every build function** — the per-page lines scroll past, the verdict
+  is what the deploy step reads. `ES_AUDIT_SILENT` suppresses stdout if something else needs it.
 
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.
