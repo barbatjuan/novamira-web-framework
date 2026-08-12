@@ -27,8 +27,8 @@ On an existing site, confirm every page/template/asset you would overwrite by na
   Contract is what proves a lever paid for itself.)
 - Change one lever at a time and re-measure. Keep the design intact — verify visually with the user.
   (no verifier: nothing records how many levers moved between two measurements; only the before/after pair in the Output Contract shows it.)
-- Images are almost always the #1 win. Verified per run by step 1's measurement: if LCP is not
-  image-bound on THIS site, say so and fix the actual worst offender instead.
+- Images are almost always the #1 win — but check, never assume: if LCP is not image-bound on
+  THIS site, say so and fix the actual worst offender instead.
   (no verifier: the measurement reports an LCP duration, never which element it is, so whether the win is image-bound on THIS site stays a human read.)
 
 ## Execution Steps

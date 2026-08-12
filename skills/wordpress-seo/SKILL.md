@@ -22,14 +22,14 @@ On an existing site, confirm every page/template you would overwrite by name fir
 Sitemap submission (step 5) is an outward action to a third party — confirm it separately.
 
 ## Hard Rules
-- One H1 per page; logical H2/H3 outline that matches the visible structure. Verified by
-  `qa-review` house-rule row 12 (counts `<h1>` in the front HTML of every page in scope).
+- One H1 per page — counted by `qa-review` house-rule row 12 in the front HTML of every page in
+  scope. The H2/H3 outline must match the visible structure; nothing measures that, so read it.
   (verifier: `qa-review` house-rule row 12 counts the H1 tags in the front HTML of every page in scope.)
 - Titles/descriptions are unique, human, and describe the page — not keyword stuffing. Verify
   server-side across the whole page set: two identical `<title>` tags is a FAIL, not a detail.
-  (verifier: step 6's server-side verification is where this bullet's cross-page title and description comparison is carried out.)
-- Every meaningful image has real alt text (`qa-review` step 4 checks it). Fictional/demo
-  content stays labeled as such.
+  (no verifier: no check in this repo compares per-page SEO metadata across the page set, so a duplicate title is a manual cross-page read.)
+- Every meaningful image has real alt text (`qa-review` step 4 judges whether it is *meaningful*;
+  Lighthouse only proves it is present). Fictional/demo content stays labeled as such.
   (verifier: `qa-review` house-rule row 13 runs Lighthouse, which reports every missing image-alt; whether the text is meaningful stays a human call.)
 - Don't invent facts (addresses, reviews, credentials) to fill schema.
   (no verifier: only the client can confirm a fact is real — ask for it, never fill the gap.)
