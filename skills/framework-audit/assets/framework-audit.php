@@ -265,6 +265,63 @@ if ( file_exists( $hr_file ) ) {
 	add( 'FAIL', 'qa-review', 'references/house-rules.md is missing — the house rules have no gate' );
 }
 
+/* --------------------------------------- ux-design-system personality catalog */
+
+$PERS_IDS = array(
+	'PERS-EDITORIAL', 'PERS-BOLD-STARTUP', 'PERS-MINIMAL-SWISS', 'PERS-WARM-BOUTIQUE',
+	'PERS-CORPORATE-TRUST', 'PERS-FASHION-EDIT', 'PERS-TECH-PRECISION', 'PERS-PERFORMANCE-ENERGY',
+);
+$PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 'Motion intensity', 'Imagery', 'Card recipe' );
+
+$pers_file = $root . '/skills/ux-design-system/references/design-personalities.md';
+if ( ! file_exists( $pers_file ) ) {
+	add( 'FAIL', 'ux-design-system', 'references/design-personalities.md is missing — the personality catalog has no file' );
+} else {
+	$pers_src = slurp( $pers_file );
+	$blocks   = preg_split( '/(?=^### `PERS-[A-Z-]+`)/m', $pers_src );
+	$found    = array();
+	foreach ( $blocks as $block ) {
+		if ( ! preg_match( '/^### `(PERS-[A-Z-]+)`/', $block, $hm ) ) {
+			continue;
+		}
+		$pid           = $hm[1];
+		$found[ $pid ] = true;
+		foreach ( $PERS_FIELDS as $field ) {
+			if ( false === strpos( $block, '**' . $field . ':**' ) ) {
+				add( 'FAIL', 'ux-design-system', 'design-personalities.md: ' . $pid . ' is missing required field "' . $field . '"' );
+			}
+		}
+	}
+	foreach ( $PERS_IDS as $pid ) {
+		if ( ! isset( $found[ $pid ] ) ) {
+			add( 'FAIL', 'ux-design-system', 'design-personalities.md is missing personality "' . $pid . '"' );
+		}
+	}
+}
+
+/* Regression guard: the exact drift that made every build converge on the same look — a single
+   named font example with no alternative anywhere in the skill. */
+$dt_file = $root . '/skills/ux-design-system/references/design-tokens.md';
+if ( file_exists( $dt_file ) ) {
+	$dt_src = slurp( $dt_file );
+	foreach ( array( 'Space Grotesk', 'Manrope' ) as $hardcoded ) {
+		if ( false !== strpos( $dt_src, $hardcoded ) ) {
+			add( 'FAIL', 'ux-design-system', 'design-tokens.md still hardcodes "' . $hardcoded . '" as an example font — move concrete pairings into design-personalities.md' );
+		}
+	}
+}
+
+$uxds_skill = $root . '/skills/ux-design-system/SKILL.md';
+if ( file_exists( $uxds_skill ) ) {
+	$uxds_src = slurp( $uxds_skill );
+	if ( false === strpos( $uxds_src, 'design-personalities.md' ) ) {
+		add( 'FAIL', 'ux-design-system', 'SKILL.md never mentions design-personalities.md — the personality catalog is unreachable from the skill' );
+	}
+	if ( false === strpos( $uxds_src, 'CAPA 2' ) ) {
+		add( 'FAIL', 'ux-design-system', 'SKILL.md has no CAPA 2 recommender step for picking a personality' );
+	}
+}
+
 /* ------------------------------------------------------------- offline suite */
 
 if ( ! glob( $root . '/tests/*.php' ) ) {

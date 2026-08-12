@@ -71,7 +71,7 @@ stays < 1.0 until its path is validated end-to-end on a real site.
 First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php
+php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php
 ```
 
 The audit enforces everything on this page that a machine can decide: frontmatter, the word
