@@ -80,7 +80,6 @@ Objetivo: contacto, áreas, legal, ubicación. Reutilizable: GLOBAL.
 | `TGL-LOGOS` | on | credenciales |
 | `TGL-TEAM` | on | |
 | `TGL-TESTIMONIALS` | on | |
-| `TGL-STYLE` | corporate / sobrio | |
 | `TGL-CTA-STRENGTH` | suave | ADN |
 
 **Fijos:** COMP-HEADER, COMP-HERO, COMP-ABOUT, COMP-STATS, COMP-SERVICES, COMP-CTA, COMP-FOOTER.

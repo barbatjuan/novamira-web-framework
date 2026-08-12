@@ -78,7 +78,6 @@ Objetivo: legal + contacto mínimo. Sin navegación amplia. Reutilizable: GLOBAL
 | `TGL-FEATURES` | on | |
 | `TGL-PRICING` | on | apagar si no hay precio público |
 | `TGL-FAQ` | on | |
-| `TGL-STYLE` | moderno / SaaS | |
 | `TGL-CTA-STRENGTH` | fuerte | ADN |
 
 **Fijos:** COMP-HEADER (minimal), COMP-HERO, COMP-PROBLEM, COMP-SOLUTION, COMP-LOGOS/TESTIMONIAL, COMP-CTA, COMP-FOOTER.

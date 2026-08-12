@@ -80,7 +80,6 @@ Mobile: apilado. Desktop: 3–4 columnas. Reutilizable: GLOBAL.
 | `TGL-CATEGORIES` | on | pocas, curadas |
 | `TGL-CARD-STYLE` | imagen grande | |
 | `TGL-NEWSLETTER` | on | |
-| `TGL-STYLE` | elegante-editorial | |
 | `TGL-TRUST` | on (footer) | |
 
 **Fijos:** COMP-HEADER, COMP-HERO (imagen fija), COMP-BENEFITS (valores), Brand Story,

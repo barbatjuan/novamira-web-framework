@@ -89,7 +89,6 @@ Desktop: 3–4 columnas + link a "términos de la promoción". Reutilizable: GLO
 | `TGL-TRUST` | on | reduce fricción |
 | `TGL-NEWSLETTER` | on | con cupón |
 | `TGL-CTA-STRENGTH` | fuerte | ADN |
-| `TGL-STYLE` | comercial | |
 
 **Fijos:** COMP-ANNOUNCEMENT (urgencia), COMP-HEADER, COMP-HERO (promo+countdown),
 COMP-PRODUCT-GRID (ofertas), COMP-PROMO-BANNER, COMP-FOOTER.
