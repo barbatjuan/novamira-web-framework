@@ -84,6 +84,12 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_NO_OFFLINE_TESTS` | FAIL | no offline test suite under `tests/` |
 | `RT_GATE_LINE_UNREGISTERED` | FAIL | a `tests/test-*.php` file is absent from the testing gate line below |
 | `RT_ROWTYPE_UNDOCUMENTED` | FAIL | a `ROW_TYPES` ID is not listed in this table |
+| `RT_PERS_CATALOG_MISSING` | FAIL | `ux-design-system/references/design-personalities.md` is missing |
+| `RT_PERS_MISSING_FIELD` | FAIL | a personality block in `design-personalities.md` is missing a required field |
+| `RT_PERS_ID_MISSING` | FAIL | a required personality ID is absent from `design-personalities.md` |
+| `RT_TOKENS_HARDCODED_FONT` | FAIL | `design-tokens.md` still hardcodes an example font pairing |
+| `RT_CATALOG_UNMENTIONED` | FAIL | `ux-design-system/SKILL.md` never mentions `design-personalities.md` |
+| `RT_UXDS_NO_CAPA2_STEP` | FAIL | `ux-design-system/SKILL.md` has no CAPA 2 personality-recommender step |
 
 ## Workflow
 ```

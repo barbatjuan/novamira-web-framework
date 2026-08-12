@@ -147,10 +147,52 @@ function fx_row_type_doc() {
 	return "## Row types\n" . $lines;
 }
 
+/* Mirrors framework-audit.php's own $PERS_IDS / $PERS_FIELDS (never imported — the audit is a
+   subprocess, see the file header) so a fixture catalog is built to the exact shape the parser
+   expects: one "### `PERS-ID`" heading per personality, each followed by every required
+   "**Field:**" bullet. */
+$FX_PERS_IDS    = array(
+	'PERS-EDITORIAL', 'PERS-BOLD-STARTUP', 'PERS-MINIMAL-SWISS', 'PERS-WARM-BOUTIQUE',
+	'PERS-CORPORATE-TRUST', 'PERS-FASHION-EDIT', 'PERS-TECH-PRECISION', 'PERS-PERFORMANCE-ENERGY',
+);
+$FX_PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 'Motion intensity', 'Imagery', 'Card recipe' );
+
+/* Builds a design-personalities.md catalog: every $FX_PERS_IDS block, every $FX_PERS_FIELDS
+   bullet filled in. $skip_id omits one whole personality block (for RT_PERS_ID_MISSING);
+   $skip_field_pid + $skip_field omit one bullet from one block (for RT_PERS_MISSING_FIELD) — a
+   caller sets one pair or the other, never both, so each scenario proves exactly one failure
+   mode. */
+function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field = null ) {
+	global $FX_PERS_IDS, $FX_PERS_FIELDS;
+	$out = "# Design personalities fixture\n\n";
+	foreach ( $FX_PERS_IDS as $pid ) {
+		if ( $pid === $skip_id ) {
+			continue;
+		}
+		$out .= "### `$pid`\n";
+		foreach ( $FX_PERS_FIELDS as $field ) {
+			if ( $pid === $skip_field_pid && $field === $skip_field ) {
+				continue;
+			}
+			$out .= '**' . $field . ':** fixture value.' . "\n";
+		}
+		$out .= "\n";
+	}
+	return $out;
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
-   offline test file, and CONTRIBUTING.md documenting every row type. Without this every fixture
-   would carry FAILs that have nothing to do with what it actually tests. */
+   offline test file, a conforming ux-design-system skill carrying a conforming
+   design-personalities.md (RT_PERS_CATALOG_MISSING is checked the same unconditional way as
+   RT_HOUSERULES_MISSING — see framework-audit.php — so it needs the same treatment here), and
+   CONTRIBUTING.md documenting every row type. Without this every fixture would carry FAILs that
+   have nothing to do with what it actually tests.
+   The ux-design-system SKILL.md itself is required too, not just the catalog file underneath it:
+   writing references/design-personalities.md alone creates a skills/ux-design-system/ directory
+   the skill-loop then walks and flags RT_NO_SKILL_MD for, since that loop is glob($root.'/skills/*')
+   filtered by is_dir(), not by "has a SKILL.md" — any references/ or assets/ file dropped under a
+   new skill name silently enrolls that name as a skill. */
 function fx_base( $root ) {
 	fx( $root, 'CONTRIBUTING.md', "# Contributing\nFixture root for framework-audit tests.\n\n" . fx_row_type_doc() );
 	fx( $root, 'tests/dummy.php', "<?php\n// fixture placeholder, never executed by the audit\n" );
@@ -168,6 +210,20 @@ function fx_base( $root ) {
 		"# QA Review Fixture\n\nSee `references/house-rules.md`.\n"
 	);
 	fx( $root, 'skills/qa-review/references/house-rules.md', "# House Rules\n\nNo rows.\n" );
+	fx(
+		$root,
+		'skills/ux-design-system/SKILL.md',
+		"---\n" .
+		"name: ux-design-system\n" .
+		"description: \"Trigger: fixture skill.\"\n" .
+		"license: MIT\n" .
+		"metadata:\n" .
+		"  author: fixture\n" .
+		"  version: \"1.0\"\n" .
+		"---\n\n" .
+		"Recommends a personality via a CAPA 2 step; see design-personalities.md for the catalog.\n"
+	);
+	fx( $root, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
 }
 
 /* Runs the real audit as a subprocess against $root. Returns [exit_code, combined_output,
@@ -670,6 +726,93 @@ ok( 3 === $code25, 'an unregistered row-type ID exits 3, not 0 and not 1', $code
 ok( has( $out25, 'RT_NOT_IN_THE_REGISTRY' ), 'the message names the offending ID', $out25 );
 ok( has( $out25, 'ROW_TYPES' ), 'the message says where to register it', $out25 );
 fx_rrmdir( $r25 );
+
+/* --------------------------------------------- ux-design-system personality catalog fixtures
+ *
+ * The six checks this pairing adds all follow the row-type-registry shape above; each gets the
+ * smallest tree that makes ONE check fire, matching the retrofit fixtures. Two of the six —
+ * catalog-missing and hardcoded-font — also prove the conforming shape produces NO row, because
+ * both call sites sit next to a sibling check (RT_PERS_MISSING_FIELD / RT_PERS_ID_MISSING share
+ * the else-branch; RT_TOKENS_HARDCODED_FONT loops two literals) where an assertion that only ever
+ * fires can never prove the check discriminates rather than always firing. */
+
+echo "--- ux-design-system: missing design-personalities.md is RT_PERS_CATALOG_MISSING, and a conforming catalog clears it ---\n";
+$r26 = fx_tmp_root();
+fx_base( $r26 );
+unlink( $r26 . '/skills/ux-design-system/references/design-personalities.md' );
+list( , $out26a ) = fx_run_ok( $audit, $r26 );
+ok( has( $out26a, 'RT_PERS_CATALOG_MISSING' ), 'a missing design-personalities.md is RT_PERS_CATALOG_MISSING', $out26a );
+
+fx( $r26, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
+list( , $out26b ) = fx_run_ok( $audit, $r26 );
+ok( ! has( $out26b, 'RT_PERS_CATALOG_MISSING' ), 'restoring a conforming catalog clears the row', $out26b );
+fx_rrmdir( $r26 );
+
+echo "--- ux-design-system: a personality block missing a required field is RT_PERS_MISSING_FIELD ---\n";
+$r27 = fx_tmp_root();
+fx_base( $r27 );
+fx( $r27, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( null, 'PERS-EDITORIAL', 'Motion intensity' ) );
+list( , $out27 ) = fx_run_ok( $audit, $r27 );
+ok(
+	has( $out27, 'RT_PERS_MISSING_FIELD' ) && has( $out27, 'PERS-EDITORIAL' ) && has( $out27, 'Motion intensity' ),
+	'PERS-EDITORIAL missing "Motion intensity" is RT_PERS_MISSING_FIELD naming both the personality and the field',
+	$out27
+);
+fx_rrmdir( $r27 );
+
+echo "--- ux-design-system: a declared personality ID absent from the catalog is RT_PERS_ID_MISSING ---\n";
+$r28 = fx_tmp_root();
+fx_base( $r28 );
+fx( $r28, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-TECH-PRECISION' ) );
+list( , $out28 ) = fx_run_ok( $audit, $r28 );
+ok(
+	has( $out28, 'RT_PERS_ID_MISSING' ) && has( $out28, 'PERS-TECH-PRECISION' ),
+	'a catalog missing PERS-TECH-PRECISION entirely is RT_PERS_ID_MISSING naming it',
+	$out28
+);
+fx_rrmdir( $r28 );
+
+echo "--- ux-design-system: design-tokens.md hardcoding an example font pairing is RT_TOKENS_HARDCODED_FONT, and dropping it clears the row ---\n";
+$r29 = fx_tmp_root();
+fx_base( $r29 );
+fx( $r29, 'skills/ux-design-system/references/design-tokens.md', "# Design tokens fixture\n\nHeadings use Space Grotesk; body text uses Manrope.\n" );
+list( , $out29a ) = fx_run_ok( $audit, $r29 );
+ok(
+	has( $out29a, 'RT_TOKENS_HARDCODED_FONT' ) && has( $out29a, 'Space Grotesk' ) && has( $out29a, 'Manrope' ),
+	'design-tokens.md hardcoding both example fonts raises RT_TOKENS_HARDCODED_FONT naming each',
+	$out29a
+);
+
+fx( $r29, 'skills/ux-design-system/references/design-tokens.md', "# Design tokens fixture\n\nThe font pairing comes from the chosen personality; no example is hardcoded here.\n" );
+list( , $out29b ) = fx_run_ok( $audit, $r29 );
+ok( ! has( $out29b, 'RT_TOKENS_HARDCODED_FONT' ), 'a design-tokens.md with no hardcoded example font clears the row', $out29b );
+fx_rrmdir( $r29 );
+
+echo "--- ux-design-system: SKILL.md never mentioning design-personalities.md is RT_CATALOG_UNMENTIONED ---\n";
+$r30 = fx_tmp_root();
+fx_base( $r30 );
+fx(
+	$r30,
+	'skills/ux-design-system/SKILL.md',
+	"---\nname: ux-design-system\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Fixture skill body. Names CAPA 2 here so this scenario isolates the catalog-pointer check alone, but never points at the catalog itself.\n"
+);
+list( , $out30 ) = fx_run_ok( $audit, $r30 );
+ok( has( $out30, 'RT_CATALOG_UNMENTIONED' ), 'a SKILL.md never mentioning design-personalities.md is RT_CATALOG_UNMENTIONED', $out30 );
+fx_rrmdir( $r30 );
+
+echo "--- ux-design-system: SKILL.md with no CAPA 2 recommender step is RT_UXDS_NO_CAPA2_STEP ---\n";
+$r31 = fx_tmp_root();
+fx_base( $r31 );
+fx(
+	$r31,
+	'skills/ux-design-system/SKILL.md',
+	"---\nname: ux-design-system\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Fixture skill body. Recommends a personality by pointing at design-personalities.md, but names no recommender step.\n"
+);
+list( , $out31 ) = fx_run_ok( $audit, $r31 );
+ok( has( $out31, 'RT_UXDS_NO_CAPA2_STEP' ), 'a SKILL.md with no CAPA 2 step is RT_UXDS_NO_CAPA2_STEP', $out31 );
+fx_rrmdir( $r31 );
 
 /* The coverage assertion is the anti-pattern mechanism itself (design D1'.6), closing the exact
    CRITICAL shape that sank both prior slices of this change: a check added with no fixture
