@@ -127,8 +127,6 @@ foreach ( $skill_dirs as $dir ) {
 		if ( ! $gate ) {
 			add( 'FAIL', $name, 'WRITE-CAPABLE SKILL WITH NO BLOCKING BUILD GATE — it can be reached by its own triggers and write unasked' );
 		}
-	} elseif ( ! $gate && preg_match( '/update_post_meta|wp_insert_post|wp_update_post|update_option/', $src ) ) {
-		add( 'FAIL', $name, 'looks write-capable (calls a WordPress write) but carries no build gate, and is not in the known write-capable list' );
 	}
 
 	/* --- every path it points at must exist --- */
@@ -197,28 +195,42 @@ foreach ( $skill_dirs as $dir ) {
 		add( 'WARN', $name, 'no "## Hard Rules" section' );
 	}
 
-	/* --- warnings that reach nobody (CONTRIBUTING §3) --- */
+	/* --- warnings that reach nobody (CONTRIBUTING §3) + write-capability from real code --- */
+	$write_capable_hit = '';
 	foreach ( glob( $dir . '/assets/*.php' ) as $php ) {
 		$code  = slurp( $php );
 		$lines = explode( "\n", $code );
 		foreach ( $lines as $i => $line ) {
-			if ( ! preg_match( '/(?<![\w>])error_log\s*\(/', $line ) ) {
-				continue;
+			/* A comment that only NAMES a token is not a call — shared by both checks below, so a
+			 * note explaining what a function used to do never fires either one. This docblock is
+			 * itself proof: every continuation line opens with " * " precisely so a comment about
+			 * detection logic can never be mistaken for the code it describes. */
+			$is_comment = preg_match( '#^\s*(\*|//|/\*|\#)#', $line );
+
+			if ( ! $is_comment && preg_match( '/(?<![\w>])error_log\s*\(/', $line ) ) {
+				/* Paired with a stdout channel within a few lines either way? */
+				$window = implode( "\n", array_slice( $lines, max( 0, $i - 4 ), 9 ) );
+				if ( ! preg_match( '/\becho\b|es_warn\s*\(/', $window ) ) {
+					add(
+						'FAIL',
+						$name,
+						basename( $php ) . ':' . ( $i + 1 ) . ' error_log() with no stdout channel — the sandbox returns STDOUT, the PHP log is never fetched. Use es_warn()'
+					);
+				}
 			}
-			/* A docblock EXPLAINING why error_log() alone is not enough is not a call. */
-			if ( preg_match( '#^\s*(\*|//|/\*|\#)#', $line ) ) {
-				continue;
-			}
-			/* Paired with a stdout channel within a few lines either way? */
-			$window = implode( "\n", array_slice( $lines, max( 0, $i - 4 ), 9 ) );
-			if ( ! preg_match( '/\becho\b|es_warn\s*\(/', $window ) ) {
-				add(
-					'FAIL',
-					$name,
-					basename( $php ) . ':' . ( $i + 1 ) . ' error_log() with no stdout channel — the sandbox returns STDOUT, the PHP log is never fetched. Use es_warn()'
-				);
+
+			/* Write-capability, from what the code actually DOES, not what SKILL.md says about
+			 * it. `\s*\(` is the load-bearing part: this file's own detection-regex literal below
+			 * contains each token followed by "|" or ")", never "(", so it cannot self-flag. */
+			if ( ! $is_comment && ! $write_capable_hit
+				&& preg_match( '/\b(update_post_meta|wp_insert_post|wp_update_post|update_option|es_save_page|es_save_theme_part)\s*\(/', $line )
+			) {
+				$write_capable_hit = basename( $php ) . ':' . ( $i + 1 );
 			}
 		}
+	}
+	if ( $write_capable_hit && ! in_array( $name, $WRITE_CAPABLE, true ) ) {
+		add( 'FAIL', $name, 'writes to WordPress (' . $write_capable_hit . ') but is not in the write-capable list' );
 	}
 }
 
@@ -232,15 +244,15 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 	if ( preg_match( '/```(php|css|html|js)|<\?php/i', $src ) ) {
 		add( 'FAIL', $name, 'contains a code block — the agent thinks, the skills execute; move it into a skill asset' );
 	}
-	/* Every skill it routes to must exist. */
+	/* Every skill it routes to must exist. Was a tautology: it only FAILed when $maybe was ALSO
+	   in the set of dirs that exist, which the `is_dir()` check right above already guarantees
+	   false for. Inverted so a missing routing target is actually reported. */
 	preg_match_all( '/`([a-z][a-z0-9\-]{2,})`/', $src, $m );
 	foreach ( array_unique( $m[1] ) as $maybe ) {
 		if ( is_dir( $root . '/skills/' . $maybe ) ) {
 			continue;
 		}
-		if ( in_array( $maybe, array_map( 'basename', $skill_dirs ), true ) ) {
-			add( 'FAIL', $name, 'routes to skill "' . $maybe . '" which is missing' );
-		}
+		add( 'FAIL', $name, 'routes to skill "' . $maybe . '" which is missing' );
 	}
 	foreach ( array_map( 'basename', $skill_dirs ) as $sk ) {
 		if ( false === strpos( $src, '`' . $sk . '`' ) ) {
@@ -271,6 +283,22 @@ if ( ! glob( $root . '/tests/*.php' ) ) {
 	add( 'FAIL', 'tests', 'no offline test suite — the code that enforces the rules has nothing enforcing it' );
 }
 
+/* ------------------------------------------------- gate self-registration */
+
+/* CONTRIBUTING.md's testing gate is a static, hand-typed && chain, not a glob — the exact hole
+ * that lets a brand-new tests/test-*.php file silently never run. This turns that discipline
+ * into a verifier: every tests/test-*.php must be named on the gate line, or it FAILs. */
+$contributing_file = $root . '/CONTRIBUTING.md';
+if ( file_exists( $contributing_file ) ) {
+	$contrib_src = slurp( $contributing_file );
+	foreach ( glob( $root . '/tests/test-*.php' ) as $t ) {
+		$base = basename( $t );
+		if ( false === strpos( $contrib_src, 'tests/' . $base ) ) {
+			add( 'FAIL', 'CONTRIBUTING.md', 'gate line never runs "' . $base . '" — a new test file must join the && chain or it silently never runs' );
+		}
+	}
+}
+
 /* -------------------------------------------------------------- report */
 
 $order = array( 'FAIL' => 0, 'WARN' => 1, 'JUDGE' => 2 );
@@ -290,6 +318,10 @@ if ( ! $rows ) {
 	echo "nothing to report\n";
 }
 
+/* Stdout contract, and it has a reader: `fx_counts()` in tests/test-framework-audit.php parses
+   this exact line with /(\d+) FAIL \/ (\d+) WARN \/ (\d+) JUDGE/. Reword the format without
+   updating that regex and every assertion keyed off these counts stops testing anything —
+   quietly, which is the failure this whole file exists to catch. */
 printf(
 	"\n%d FAIL / %d WARN / %d JUDGE across %d skills + %d agent(s)\n",
 	$n['FAIL'],
