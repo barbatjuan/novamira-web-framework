@@ -26,8 +26,10 @@ On an existing site, confirm every page/template/asset you would overwrite by na
   (no verifier: a plugin count is not a quality measure — the before/after in the Output
   Contract is what proves a lever paid for itself.)
 - Change one lever at a time and re-measure. Keep the design intact — verify visually with the user.
+  (no verifier: nothing records how many levers moved between two measurements; only the before/after pair in the Output Contract shows it.)
 - Images are almost always the #1 win. Verified per run by step 1's measurement: if LCP is not
   image-bound on THIS site, say so and fix the actual worst offender instead.
+  (verifier: step 1's measurement names the real LCP element per run, so this is re-tested on every site instead of assumed.)
 
 ## Execution Steps
 1. **Measure with a named tool, not by feel**:

@@ -36,10 +36,13 @@ On an existing site, confirm every page/template you would overwrite by name fir
   only job is padding the module already supports. There is no `es_container_report()`
   equivalent here: `divi-core` has no helper library yet, so the count is a manual read of the
   shortcode tree. Report it as **UNVERIFIED**, never as a measured PASS.
+  (no verifier: divi-core has no helper library yet, so the container count is a manual read of the shortcode tree.)
 - Wrap all build logic in named functions; the NovaMira sandbox auto-runs any uploaded `.php`.
   Self-verifying: top-level logic fatals the site on upload, before `execute-php` is reached.
+  (no verifier: self-verifying at upload — top-level logic fatals the site before the call is ever reached, so a violation cannot ship quietly.)
 - Verify server-side (fetch compiled HTML/CSS, grep). The sandbox domain is usually
   browser-blocked; state that visual confirmation needs the user.
+  (no verifier: nothing proves the model actually fetched and grepped; a skipped verification leaves no artifact behind.)
 
 ## Execution Steps (validate each)
 1. **Detect storage**: Divi layouts live as `[et_pb_*]` shortcodes in `post_content` (meta

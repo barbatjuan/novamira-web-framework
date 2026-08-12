@@ -24,10 +24,13 @@ Sitemap submission (step 5) is an outward action to a third party — confirm it
 ## Hard Rules
 - One H1 per page; logical H2/H3 outline that matches the visible structure. Verified by
   `qa-review` house-rule row 12 (counts `<h1>` in the front HTML of every page in scope).
+  (verifier: `qa-review` house-rule row 12 counts the H1 tags in the front HTML of every page in scope.)
 - Titles/descriptions are unique, human, and describe the page — not keyword stuffing. Verify
   server-side across the whole page set: two identical `<title>` tags is a FAIL, not a detail.
+  (verifier: the step-6 server-side fetch reads every title and meta description across the page set.)
 - Every meaningful image has real alt text (`qa-review` step 4 checks it). Fictional/demo
   content stays labeled as such.
+  (verifier: `qa-review` house-rule row 13 runs Lighthouse, which reports every missing image-alt; whether the text is meaningful stays a human call.)
 - Don't invent facts (addresses, reviews, credentials) to fill schema.
   (no verifier: only the client can confirm a fact is real — ask for it, never fill the gap.)
 
