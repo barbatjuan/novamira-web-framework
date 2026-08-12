@@ -33,14 +33,52 @@ Only add CONFIRMED findings. "Probably" belongs in a PR discussion, not in gotch
 
 The "fewest containers" rule survived a whole build cycle being violated even though a correct
 audit was already running. Two causes, both cheap to prevent, both easy to repeat in the next
-skill. Treat these as review questions on any PR that adds a rule:
+skill. Treat these as review questions on any PR that adds a rule.
 
-- **A rule with no verifier is a wish.** When you add a Hard Rule to a `SKILL.md`, say in the
-  same breath WHAT CHECKS IT: a helper that makes the violation hard to express, a check in the
-  write path, or a row in `qa-review/references/house-rules.md` with a server-side method. If the
-  honest answer is "nothing checks it", write that down — an admitted gap gets fixed, a silent
-  one does not. (`wordpress-seo`'s "one H1 per page" sat unenforced this way until it became
-  house-rule row 12.)
+**Scope**: this section is enforced today for the five write-capable skills only
+(`elementor-core`, `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`). It does
+not yet apply to the orchestrator's House rules — nothing checks agent documents until that
+scanner ships, and asserting an unenforced MUST here would be exactly the wish this section
+exists to prevent.
+
+- **A rule with no verifier is a wish.** Every bullet under a write-capable skill's
+  `## Hard Rules` must carry a **verifier marker**: `(verifier: <what checks it>)` or
+  `(no verifier: <the admitted gap>)`, written as its own line, the LAST thing in the bullet
+  (nothing may follow the closing `)`), using the exact lowercase token. An admitted gap gets
+  fixed later, a silent one does not. (`wordpress-seo`'s "one H1 per page" sat unenforced this way
+  until it became house-rule row 12.) The audit enforces the marker's SHAPE, never its wording —
+  it cannot decide "should this rule exist", only "does this rule admit what checks it".
+  - **FAIL** — the marker is missing its closing paren (`RT_MARKER_UNCLOSED`); two markers sit on
+    one bullet (`RT_MARKER_MULTIPLE`); text follows the closing `)` (`RT_MARKER_TRAILING_TEXT`);
+    the token's case does not match `verifier:`/`no verifier:` exactly (`RT_MARKER_CASE`); the
+    payload is empty (`RT_MARKER_EMPTY`), under 12 characters (`RT_MARKER_TOO_SHORT`), a
+    placeholder like `TODO`/`n/a`/`x` (`RT_MARKER_STOPWORD`), or over 40 words
+    (`RT_MARKER_OVERSIZE`); a `(verifier: …)` names a function, `tests/` path, house-rules row or
+    execution step that does not exist (`RT_MARKER_TARGET_MISSING`).
+  - **JUDGE** — a bullet carries no marker at all (`RT_MARKER_ABSENT`); a `(verifier: …)` names no
+    locatable function/path/row/step at all (`RT_MARKER_PROSE_ONLY`, a documented gap is still
+    valid prose, so this is reported, not blocked); a `(no verifier: …)` names something that DOES
+    exist (`RT_MARKER_MISLABEL` — use `(verifier: …)` instead), **except** when it cites a
+    backticked `tests/…` path: naming a neighbouring test file as context for a gap is not the
+    same as claiming that file checks the rule. A write-capable skill that states no Hard Rules is
+    a FAIL (`RT_HARD_RULES_MISSING_WRITE`), not a JUDGE — a skill that writes to a client's live
+    site and states no rules is objectively wrong. "States no rules" means the section is absent
+    **or** present with no bullets under it; typing the heading and stopping is not a way through.
+  - **Both polarities cost the same.** The stop-word/length/size checks above apply identically to
+    `(verifier: …)` and `(no verifier: …)` — asserting a verifier that does not exist must never
+    be cheaper than admitting the gap.
+  - A marker is resolved against one of four shapes: an `es_[a-z_]+(` helper call, a backticked
+    `tests/…` path, a `` `qa-review` house-rule row N``, or a `step N` (optionally
+    `` `<skill>` step N`` for a different skill's own numbered `## Execution Steps`). Function
+    existence is checked with PHP's tokenizer, not a text search — a name mentioned only in a
+    comment or a string literal does not count as defined.
+  - Marker lines are excluded from the `SKILL.md` word budget below (they are provenance for the
+    audit and the reviewer, not an instruction the model executes), capped at 40 words each so the
+    exclusion cannot become a place to hide prose. The cap is enforced on **every** skill, not only
+    the write-capable ones: a marker over the cap is simply not excluded, so its words count
+    against the ceiling even where no `RT_MARKER_OVERSIZE` row is reported. A marker-shaped line
+    found outside
+    `## Hard Rules` is `RT_MARKER_OUTSIDE_RULES` (WARN) and stays counted.
 - **A warning only in `error_log()` is a warning nobody reads.** The sandbox returns STDOUT;
   the server's PHP log is never fetched. Route every warning through `es_warn()` (or echo
   alongside `error_log()` where the helper library may not be loaded). This is not cosmetic:
@@ -72,8 +110,21 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
 | `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file is never mentioned by `SKILL.md` |
-| `RT_HARD_RULE_NO_VERIFIER` | JUDGE | a Hard Rule names no verifier |
 | `RT_NO_HARD_RULES` | WARN | `SKILL.md` has no `## Hard Rules` section |
+| `RT_HARD_RULES_MISSING_WRITE` | FAIL | a write-capable skill states no Hard Rules — section absent, or present with no bullets |
+| `RT_MARKER_ABSENT` | JUDGE | a Hard Rule bullet names no verifier marker |
+| `RT_MARKER_MULTIPLE` | FAIL | a Hard Rule bullet carries two or more verifier markers |
+| `RT_MARKER_CASE` | FAIL | a verifier marker token is not the exact lowercase literal |
+| `RT_MARKER_UNCLOSED` | FAIL | a verifier marker's opening paren is never closed |
+| `RT_MARKER_TRAILING_TEXT` | FAIL | text follows a verifier marker's closing paren |
+| `RT_MARKER_EMPTY` | FAIL | a verifier marker's payload is empty |
+| `RT_MARKER_STOPWORD` | FAIL | a verifier marker's payload is a stop-word placeholder |
+| `RT_MARKER_TOO_SHORT` | FAIL | a verifier marker's payload is under 12 characters |
+| `RT_MARKER_OVERSIZE` | FAIL | a verifier marker's payload is over the 40-word cap |
+| `RT_MARKER_TARGET_MISSING` | FAIL | a `(verifier: …)` marker names a target that does not exist |
+| `RT_MARKER_MISLABEL` | JUDGE | a `(no verifier: …)` marker names a target that DOES exist (backticked `tests/…` paths exempt) |
+| `RT_MARKER_PROSE_ONLY` | JUDGE | a `(verifier: …)` marker names no locatable target |
+| `RT_MARKER_OUTSIDE_RULES` | WARN | a verifier-marker-shaped line sits outside `## Hard Rules` |
 | `RT_ERRORLOG_NO_STDOUT` | FAIL | an error_log call has no paired stdout channel |
 | `RT_WRITE_NOT_LISTED` | FAIL | code writes to WordPress but the skill is missing from `$WRITE_CAPABLE` |
 | `RT_AGENT_CODE_BLOCK` | FAIL | an agent markdown file contains a code block |

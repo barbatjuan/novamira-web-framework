@@ -25,6 +25,7 @@ $fail = 0;
    --row-types, injected by fx_run_ok() for every scenario). This is the "observed" half of the
    coverage assertion near the end of this file — see fx_track_ids(). */
 $GLOBALS['fx_observed_ids'] = array();
+$GLOBALS['fx_diagnostics']  = array();
 /* Every root fx_tmp_root() creates is swept here too, so a fatal error or interrupt mid-scenario
    never orphans a temp directory — teardown no longer depends on linear fallthrough alone. */
 $GLOBALS['fx_roots'] = array();
@@ -65,6 +66,24 @@ function fx_repr( $v ) {
 function has( $haystack, $needle ) {
 	return false !== strpos( $haystack, $needle );
 }
+/* Every printed line containing every one of $needles -- lets an assertion pin itself to ONE
+   bullet among several that share the same fixture's combined output, instead of asking whether
+   an ID appears ANYWHERE in it (which a different bullet could satisfy by accident). */
+function fx_lines_with( $out, array $needles ) {
+	return array_values(
+		array_filter(
+			explode( "\n", $out ),
+			function ( $l ) use ( $needles ) {
+				foreach ( $needles as $n ) {
+					if ( false === strpos( $l, $n ) ) {
+						return false;
+					}
+				}
+				return true;
+			}
+		)
+	);
+}
 /* Every row-type ID this run of the audit EMITTED, regardless of which scenario caused it.
  *
  * Anchored to the ID COLUMN — line start, then whitespace — and not to the line anywhere. That
@@ -82,6 +101,29 @@ function fx_track_ids( $out ) {
 			$GLOBALS['fx_observed_ids'][ $id ] = true;
 		}
 	}
+}
+/* Every PHP diagnostic any fixture's run printed, accumulated the same way IDs are. A scenario
+   asserts on the substrings it cares about and ok() prints the output only when it FAILS, so a
+   warning riding along in EVERY run is invisible by construction -- the marker grammar's
+   affirmative form emitted "Undefined array key 1" 44 times across a suite reporting 0 FAIL. The
+   audit writes to STDOUT and the gate reads STDOUT: a diagnostic there is corrupt output. */
+function fx_track_diagnostics( $out ) {
+	if ( preg_match_all( '/^(?:PHP )?(?:Warning|Notice|Deprecated|Fatal error|Parse error):.*/m', $out, $m ) ) {
+		foreach ( $m[0] as $d ) {
+			$GLOBALS['fx_diagnostics'][ preg_replace( '/ in .*$/', '', trim( $d ) ) ] = true;
+		}
+	}
+}
+/* The LEVEL of the single row a set of needles pins, from the --row-types layout's second column.
+   Presence says a check FIRED; it says nothing about whether it still BLOCKS. The audit exits 1 on
+   FAIL alone, so one 'FAIL' -> 'WARN' token turns a gate into a comment, and seven of this slice's
+   ten blocking checks were asserted by presence only. A level is behaviour. Assert it. */
+function fx_row_level( $out, array $needles ) {
+	$lines = fx_lines_with( $out, $needles );
+	if ( 1 !== count( $lines ) ) {
+		return '<' . count( $lines ) . ' rows matched, expected exactly 1>';
+	}
+	return preg_match( '/^RT_[A-Z0-9_]+\s+(FAIL|WARN|JUDGE)\s/', $lines[0], $m ) ? $m[1] : '<no level column>';
 }
 
 /* -------------------------------------------------------------- fixture plumbing */
@@ -181,6 +223,20 @@ function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field =
 	return $out;
 }
 
+/* A minimal write-capable SKILL.md: frontmatter + a passing build gate + the given "## Hard
+   Rules" body, plus an optional $extra section (e.g. a custom "## Execution Steps"). $skill MUST
+   be one of framework-audit.php's own hardcoded $WRITE_CAPABLE names -- that list is not
+   fixture-configurable -- or none of the marker-grammar rows below this comment ever fire. */
+function fx_wc_skill( $root, $skill, $hard_rules_body, $extra = '' ) {
+	fx(
+		$root,
+		"skills/$skill/SKILL.md",
+		"---\nname: $skill\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+		. "Build gate: requires explicit **yes** before writing.\n\n"
+		. "## Hard Rules\n" . $hard_rules_body . "\n" . $extra
+	);
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
    offline test file, a conforming ux-design-system skill carrying a conforming
@@ -265,6 +321,7 @@ function fx_run_ok( $audit, $root, array $extra_args = array() ) {
 	ok( $launched, 'the audit subprocess actually launched', $launched ? 'true' : $out );
 	if ( $launched ) {
 		fx_track_ids( $out );
+		fx_track_diagnostics( $out );
 	}
 	return array( $code, $out );
 }
@@ -615,18 +672,12 @@ list( , $out17 ) = fx_run_ok( $audit, $r17 );
 ok( has( $out17, 'RT_BROKEN_REFERENCE' ), 'a SKILL.md pointer to a nonexistent references/ path is RT_BROKEN_REFERENCE', $out17 );
 fx_rrmdir( $r17 );
 
-echo "--- a Hard Rule naming no verifier at all is RT_HARD_RULE_NO_VERIFIER ---\n";
+echo "--- a Hard Rule bullet with no verifier marker at all is RT_MARKER_ABSENT (D1', replaces RT_HARD_RULE_NO_VERIFIER) ---\n";
 $r18 = fx_tmp_root();
 fx_base( $r18 );
-fx(
-	$r18,
-	'skills/elementor-core/SKILL.md',
-	"---\nname: elementor-core\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "Build gate: requires explicit **yes** before writing.\n\n"
-	. "## Hard Rules\n- Keep components small and focused on one job.\n"
-);
+fx_wc_skill( $r18, 'elementor-core', "- Keep components small and focused on one job.\n" );
 list( , $out18 ) = fx_run_ok( $audit, $r18 );
-ok( has( $out18, 'RT_HARD_RULE_NO_VERIFIER' ), 'a Hard Rule bullet naming no verifier keyword is RT_HARD_RULE_NO_VERIFIER', $out18 );
+ok( has( $out18, 'RT_MARKER_ABSENT' ), 'a Hard Rule bullet with no verifier marker at all is RT_MARKER_ABSENT', $out18 );
 fx_rrmdir( $r18 );
 
 echo "--- error_log() with no paired stdout channel is RT_ERRORLOG_NO_STDOUT ---\n";
@@ -814,6 +865,430 @@ list( , $out31 ) = fx_run_ok( $audit, $r31 );
 ok( has( $out31, 'RT_UXDS_NO_CAPA2_STEP' ), 'a SKILL.md with no CAPA 2 step is RT_UXDS_NO_CAPA2_STEP', $out31 );
 fx_rrmdir( $r31 );
 
+/* ------------------------------------------------- marker grammar fixtures (B1, design D1')
+ *
+ * Every scenario below is scoped to a $WRITE_CAPABLE skill name (elementor-core, divi-core,
+ * woocommerce, wordpress-seo, wordpress-performance) because the marker-grammar verdict rows are
+ * scoped that way in framework-audit.php itself -- see fx_wc_skill(). Two mandatory fixtures
+ * (r33, r34) reproduce the exact mutation that defeated the rejected slice's greedy regex: a
+ * marker line followed by trailing prose that itself ends in a parenthetical.
+ */
+
+echo "--- a bullet whose PROSE merely mentions the marker mid-sentence is RT_MARKER_ABSENT, never a false marker match ---\n";
+/* The exact framework-audit/SKILL.md shape this slice exists to prevent forever: the token
+   appears on the bullet's continuation line, but backtick-wrapped and mid-sentence, never as the
+   first character of the line. */
+$r32 = fx_tmp_root();
+fx_base( $r32 );
+fx_wc_skill(
+	$r32,
+	'elementor-core',
+	"- Do the thing properly and double-check the work before it ships.\n"
+	. "  See the `(no verifier: reason)` convention in CONTRIBUTING.md for the escape hatch shape.\n"
+);
+list( , $out32 ) = fx_run_ok( $audit, $r32 );
+ok( has( $out32, 'RT_MARKER_ABSENT' ), 'a bullet whose prose merely mentions the marker mid-sentence is RT_MARKER_ABSENT, not a false marker match', $out32 );
+fx_rrmdir( $r32 );
+
+echo "--- CRITICAL fixture: (no verifier: -) + trailing prose ending in a parenthetical is RT_MARKER_TRAILING_TEXT, not zero rows ---\n";
+/* Reproduces the proven exploit verbatim: under the rejected slice's greedy /s regex this fixture
+   produced ZERO rows because the pattern matched from the marker's "(" all the way to the LAST
+   ")" in the bullet, swallowing the whole trailing sentence into the payload. */
+$r33 = fx_tmp_root();
+fx_base( $r33 );
+fx_wc_skill(
+	$r33,
+	'divi-core',
+	"- A real constraint the rule describes.\n"
+	. "  (no verifier: -)\n"
+	. "  More prose after the marker line, and it happens to end in a parenthetical (like this one).\n"
+);
+list( $code33, $out33 ) = fx_run_ok( $audit, $r33 );
+ok( has( $out33, 'RT_MARKER_TRAILING_TEXT' ), '(no verifier: -) followed by trailing prose ending in a parenthetical is RT_MARKER_TRAILING_TEXT', $out33 );
+ok( 1 === $code33, 'RT_MARKER_TRAILING_TEXT is a FAIL, exit code 1', $code33 );
+fx_rrmdir( $r33 );
+
+echo "--- CRITICAL fixture: (verifier: dunno) + trailing prose naming an unrelated es_*() is RT_MARKER_TRAILING_TEXT, existence never resolves through the prose ---\n";
+$r34 = fx_tmp_root();
+fx_base( $r34 );
+fx_wc_skill(
+	$r34,
+	'woocommerce',
+	"- A real constraint the rule describes.\n"
+	. "  (verifier: dunno)\n"
+	. "  Unrelated trailing prose that happens to name es_container_audit() by accident.\n"
+);
+list( , $out34 ) = fx_run_ok( $audit, $r34 );
+ok( has( $out34, 'RT_MARKER_TRAILING_TEXT' ), '(verifier: dunno) followed by trailing prose naming an unrelated es_*() is RT_MARKER_TRAILING_TEXT', $out34 );
+ok( ! has( $out34, 'RT_MARKER_TARGET_MISSING' ) && ! has( $out34, 'es_container_audit' ), 'the existence check never resolves through the unrelated trailing prose', $out34 );
+fx_rrmdir( $r34 );
+
+echo "--- a payload wrapped across two lines, closing at the absolute end, is accepted ---\n";
+$r35 = fx_tmp_root();
+fx_base( $r35 );
+fx( $r35, 'skills/wordpress-performance/assets/dummy.php', "<?php\nfunction es_multiline_target() {\n\treturn true;\n}\n" );
+fx_wc_skill(
+	$r35,
+	'wordpress-performance',
+	"- A bullet whose verifier payload wraps across two physical lines in the source.\n"
+	. "  (verifier: this explanation deliberately wraps across two lines and finally\n"
+	. "  cites es_multiline_target() to prove multi-line payload capture works)\n"
+);
+list( , $out35 ) = fx_run_ok( $audit, $r35 );
+ok( array() === fx_lines_with( $out35, array( 'wordpress-performance', 'RT_MARKER' ) ), 'a multi-line wrapped payload that closes at the absolute end is accepted -- no marker row', $out35 );
+fx_rrmdir( $r35 );
+
+echo "--- a payload containing the verifier's OWN call parentheses is captured whole, the balancer does not stop at the first \")\" ---\n";
+$r36 = fx_tmp_root();
+fx_base( $r36 );
+fx( $r36, 'skills/elementor-core/assets/dummy.php', "<?php\nfunction es_test_target() {\n\treturn true;\n}\n" );
+fx_wc_skill( $r36, 'elementor-core', "- A bullet citing a helper whose own call parentheses must not confuse the balancer.\n  (verifier: es_test_target())\n" );
+list( , $out36 ) = fx_run_ok( $audit, $r36 );
+ok( array() === fx_lines_with( $out36, array( 'elementor-core', 'RT_MARKER' ) ), '(verifier: es_test_target()) -- the balancer finds the marker\'s OWN closing paren, not the first one, so this resolves with no row', $out36 );
+fx_rrmdir( $r36 );
+
+echo "--- two markers on one bullet is RT_MARKER_MULTIPLE ---\n";
+$r37 = fx_tmp_root();
+fx_base( $r37 );
+fx_wc_skill(
+	$r37,
+	'divi-core',
+	"- A confused bullet carrying two markers.\n"
+	. "  (verifier: first explanation of the check goes here)\n"
+	. "  (verifier: second explanation should never coexist with the first)\n"
+);
+list( , $out37 ) = fx_run_ok( $audit, $r37 );
+ok( 'FAIL' === fx_row_level( $out37, array( 'RT_MARKER_MULTIPLE' ) ), 'a bullet with two verifier markers is RT_MARKER_MULTIPLE, at FAIL level', fx_row_level( $out37, array( 'RT_MARKER_MULTIPLE' ) ) );
+fx_rrmdir( $r37 );
+
+echo "--- an unclosed marker is RT_MARKER_UNCLOSED ---\n";
+$r38 = fx_tmp_root();
+fx_base( $r38 );
+fx_wc_skill( $r38, 'woocommerce', "- A bullet whose marker forgets to close its parenthesis.\n  (verifier: this reason never gets its closing paren\n" );
+list( , $out38 ) = fx_run_ok( $audit, $r38 );
+ok( 'FAIL' === fx_row_level( $out38, array( 'RT_MARKER_UNCLOSED' ) ), 'a marker whose opening paren is never closed is RT_MARKER_UNCLOSED, at FAIL level', fx_row_level( $out38, array( 'RT_MARKER_UNCLOSED' ) ) );
+fx_rrmdir( $r38 );
+
+echo "--- an empty reason on BOTH polarities is RT_MARKER_EMPTY, never RT_MARKER_UNCLOSED ---\n";
+$r39 = fx_tmp_root();
+fx_base( $r39 );
+fx_wc_skill(
+	$r39,
+	'wordpress-seo',
+	"- First bullet with an empty affirmative marker.\n  (verifier:)\n"
+	. "- Second bullet with an empty negated marker.\n  (no verifier:)\n"
+);
+list( , $out39 ) = fx_run_ok( $audit, $r39 );
+ok( 2 === substr_count( $out39, 'RT_MARKER_EMPTY' ), '(verifier:) and (no verifier:) both raise RT_MARKER_EMPTY -- the closing paren IS there, this is not RT_MARKER_UNCLOSED', $out39 );
+ok( ! has( $out39, 'RT_MARKER_UNCLOSED' ), 'an empty-but-closed marker is never misreported as unclosed', $out39 );
+ok( 'FAIL' === fx_row_level( $out39, array( 'RT_MARKER_EMPTY', 'First bullet' ) ), 'an empty marker payload is RT_MARKER_EMPTY, at FAIL level', fx_row_level( $out39, array( 'RT_MARKER_EMPTY', 'First bullet' ) ) );
+fx_rrmdir( $r39 );
+
+echo "--- wrong case ((no) Verifier:/VERIFIER:) is RT_MARKER_CASE, never silently accepted ---\n";
+$r40 = fx_tmp_root();
+fx_base( $r40 );
+fx_wc_skill( $r40, 'elementor-core', "- A bullet using the wrong case for the marker token.\n  (NO VERIFIER: this should be flagged for case, not silently accepted)\n" );
+list( , $out40 ) = fx_run_ok( $audit, $r40 );
+ok( 'FAIL' === fx_row_level( $out40, array( 'RT_MARKER_CASE' ) ), 'a marker token that is not the exact lowercase literal is RT_MARKER_CASE, at FAIL level', fx_row_level( $out40, array( 'RT_MARKER_CASE' ) ) );
+fx_rrmdir( $r40 );
+
+echo "--- D1'.5: a name defined for real resolves; the same name in a docblock or a string literal does not (token_get_all, not a raw regex) ---\n";
+$r41 = fx_tmp_root();
+fx_base( $r41 );
+fx(
+	$r41,
+	'skills/woocommerce/assets/tokens.php',
+	"<?php\n"
+	. "/**\n * Historically this called es_ghost() directly; now it delegates.\n */\n"
+	. "function es_real() {\n\treturn true;\n}\n"
+	. "\$s = 'function es_phantom() { return true; }';\n"
+);
+fx_wc_skill(
+	$r41,
+	'woocommerce',
+	"- Shape A: cites a function really defined in this skill's assets.\n  (verifier: resolved through es_real() which is a genuine function)\n"
+	. "- Shape B: cites a name that only ever appears inside a docblock comment.\n  (verifier: this claims es_ghost() checks it, but that name is only a comment)\n"
+	. "- Shape C: cites a name that only ever appears inside a string literal.\n  (verifier: this claims es_phantom() checks it, but that name is only a string)\n"
+);
+list( , $out41 ) = fx_run_ok( $audit, $r41 );
+ok( array() === fx_lines_with( $out41, array( 'Shape A', 'RT_MARKER' ) ), 'a function genuinely defined (T_FUNCTION + T_STRING) resolves, no marker row', $out41 );
+ok( array() !== fx_lines_with( $out41, array( 'RT_MARKER_TARGET_MISSING', 'es_ghost()' ) ), 'a name that exists only inside a docblock comment is RT_MARKER_TARGET_MISSING, naming es_ghost()', $out41 );
+ok( array() !== fx_lines_with( $out41, array( 'RT_MARKER_TARGET_MISSING', 'es_phantom()' ) ), 'a name that exists only inside a string literal is RT_MARKER_TARGET_MISSING, naming es_phantom()', $out41 );
+fx_rrmdir( $r41 );
+
+echo "--- the mislabel: (no verifier: ...) citing a step that DOES exist is RT_MARKER_MISLABEL, a JUDGE, never silently accepted ---\n";
+$r42 = fx_tmp_root();
+fx_base( $r42 );
+fx_wc_skill(
+	$r42,
+	'divi-core',
+	"- A bullet whose author wrongly believes nothing checks it.\n  (no verifier: covered already by step-1 in this very skill)\n",
+	"## Execution Steps\n1. The first real, numbered step this marker can point at.\n2. A second step, unrelated.\n"
+);
+list( , $out42 ) = fx_run_ok( $audit, $r42 );
+ok( array() !== fx_lines_with( $out42, array( 'RT_MARKER_MISLABEL', 'divi-core step 1' ) ), '(no verifier: ...) citing step-4-shaped text that resolves to a real step is RT_MARKER_MISLABEL, a JUDGE row', $out42 );
+fx_rrmdir( $r42 );
+
+echo "--- pivotal pair: (verifier: TODO) and (no verifier: TODO) raise the IDENTICAL FAIL row type and exit code (D1'.3 symmetry) ---\n";
+/* This is the incentive fix: in the rejected slice, the affirmative marker degraded to a
+   non-blocking JUDGE while the negated one FAILed for the identical placeholder payload, so the
+   cheapest route past the gate was to ASSERT a verifier that does not exist. Both polarities must
+   now cost the same. */
+$r43 = fx_tmp_root();
+fx_base( $r43 );
+fx_wc_skill(
+	$r43,
+	'wordpress-performance',
+	"- Affirmative marker with a placeholder payload.\n  (verifier: TODO)\n"
+	. "- Negated marker with the identical placeholder payload.\n  (no verifier: TODO)\n"
+);
+list( $code43, $out43 ) = fx_run_ok( $audit, $r43 );
+ok( 2 === substr_count( $out43, 'RT_MARKER_STOPWORD' ), '(verifier: TODO) and (no verifier: TODO) both raise RT_MARKER_STOPWORD -- the SAME row type', $out43 );
+ok( 1 === $code43, 'both stopword placeholders FAIL -- exit code 1, never a free pass for either polarity', $code43 );
+fx_rrmdir( $r43 );
+
+echo "--- a payload under 12 characters is RT_MARKER_TOO_SHORT ---\n";
+$r44 = fx_tmp_root();
+fx_base( $r44 );
+fx_wc_skill( $r44, 'elementor-core', "- Affirmative marker whose payload is real but too short to mean much.\n  (verifier: short)\n" );
+list( , $out44 ) = fx_run_ok( $audit, $r44 );
+ok( 'FAIL' === fx_row_level( $out44, array( 'RT_MARKER_TOO_SHORT' ) ), 'a payload under 12 characters is RT_MARKER_TOO_SHORT, at FAIL level', fx_row_level( $out44, array( 'RT_MARKER_TOO_SHORT' ) ) );
+fx_rrmdir( $r44 );
+
+echo "--- a payload over 40 words is RT_MARKER_OVERSIZE ---\n";
+$r45 = fx_tmp_root();
+fx_base( $r45 );
+fx_wc_skill( $r45, 'woocommerce', "- Affirmative marker whose payload blows well past the 40-word cap.\n  (verifier: " . implode( ' ', array_fill( 0, 45, 'word' ) ) . ")\n" );
+list( , $out45 ) = fx_run_ok( $audit, $r45 );
+ok( 'FAIL' === fx_row_level( $out45, array( 'RT_MARKER_OVERSIZE' ) ), 'a payload over 40 words is RT_MARKER_OVERSIZE, at FAIL level', fx_row_level( $out45, array( 'RT_MARKER_OVERSIZE' ) ) );
+fx_rrmdir( $r45 );
+
+echo "--- an affirmative marker citing no locatable shape at all is RT_MARKER_PROSE_ONLY, a JUDGE ---\n";
+$r46 = fx_tmp_root();
+fx_base( $r46 );
+fx_wc_skill( $r46, 'wordpress-seo', "- Affirmative marker whose reason is a real sentence but cites nothing checkable.\n  (verifier: the team eyeballs this manually before every release, no artifact yet)\n" );
+list( , $out46 ) = fx_run_ok( $audit, $r46 );
+ok( has( $out46, 'RT_MARKER_PROSE_ONLY' ), 'an affirmative marker citing no function, tests/ path, house-rule row or step is RT_MARKER_PROSE_ONLY', $out46 );
+fx_rrmdir( $r46 );
+
+echo "--- D1'.4: all four resolver shapes, when the cited target really exists, resolve with no row ---\n";
+$r47 = fx_tmp_root();
+fx_base( $r47 );
+fx( $r47, 'skills/elementor-core/assets/shapes.php', "<?php\nfunction es_shape_ok() {\n\treturn true;\n}\n" );
+fx( $r47, 'tests/shape-ok.php', "<?php\n// fixture, never executed by the audit\n" );
+fx( $r47, 'skills/qa-review/references/house-rules.md', "# House Rules\n\n| 5 | A real rule | Server-side check | **auto** |\n" );
+fx_wc_skill(
+	$r47,
+	'elementor-core',
+	"- Shape 1: cites a function that is really defined.\n  (verifier: es_shape_ok() proves this)\n"
+	. "- Shape 2: cites a tests/ path that really exists.\n  (verifier: see `tests/shape-ok.php` for it)\n"
+	. "- Shape 3: cites a house-rules row that really exists.\n  (verifier: `qa-review` house-rule row 5 covers it)\n"
+	. "- Shape 4: cites an execution step that really exists.\n  (verifier: step 1 of this skill's own Execution Steps)\n",
+	"## Execution Steps\n1. The first real numbered step this marker can point at.\n"
+);
+list( , $out47 ) = fx_run_ok( $audit, $r47 );
+ok( array() === fx_lines_with( $out47, array( 'RT_MARKER_TARGET_MISSING', 'Shape 1' ) ), 'shape 1 (existing function) resolves, no target-missing row', $out47 );
+ok( array() === fx_lines_with( $out47, array( 'RT_MARKER_TARGET_MISSING', 'Shape 2' ) ), 'shape 2 (existing tests/ path) resolves, no target-missing row', $out47 );
+ok( array() === fx_lines_with( $out47, array( 'RT_MARKER_TARGET_MISSING', 'Shape 3' ) ), 'shape 3 (existing house-rules row) resolves, no target-missing row', $out47 );
+ok( array() === fx_lines_with( $out47, array( 'RT_MARKER_TARGET_MISSING', 'Shape 4' ) ), 'shape 4 (existing execution step) resolves, no target-missing row', $out47 );
+fx_rrmdir( $r47 );
+
+echo "--- D1'.4: all four resolver shapes, when the cited target does NOT exist, are RT_MARKER_TARGET_MISSING ---\n";
+$r48 = fx_tmp_root();
+fx_base( $r48 );
+fx_wc_skill(
+	$r48,
+	'woocommerce',
+	"- Shape 1: cites a function that is never defined anywhere.\n  (verifier: es_shape_missing() proves this)\n"
+	. "- Shape 2: cites a tests/ path that never exists.\n  (verifier: see `tests/shape-missing.php` for it)\n"
+	. "- Shape 3: cites a house-rules row that never exists.\n  (verifier: `qa-review` house-rule row 999 covers it)\n"
+	. "- Shape 4: cites an execution step that never exists.\n  (verifier: step 99 of this skill's own Execution Steps)\n",
+	"## Execution Steps\n1. The only real numbered step -- 99 is never one of them.\n"
+);
+list( , $out48 ) = fx_run_ok( $audit, $r48 );
+/* Level, not presence: this is the check that makes asserting a verifier that does not exist cost
+   exactly what admitting the gap costs (D1'.3), and at WARN it costs nothing. */
+foreach ( array( 1, 2, 3, 4 ) as $shape ) {
+	$lvl = fx_row_level( $out48, array( 'RT_MARKER_TARGET_MISSING', "Shape $shape" ) );
+	ok( 'FAIL' === $lvl, "shape $shape (missing target) is RT_MARKER_TARGET_MISSING, at FAIL level", $lvl );
+}
+fx_rrmdir( $r48 );
+
+echo "--- D1'.1 test (i): a valid marker's payload words are excluded from the instruction-word count, both numbers printed ---\n";
+/* Expected numbers are derived by running the SAME transformation framework-audit.php runs
+   (strip the exact span text, then str_word_count), not hand-counted -- markdown asterisks,
+   "## " headings and the boilerplate "Build gate:" line all add real words that a hand count
+   silently forgets, which is exactly how this fixture's first draft mismatched by 12-23 words. */
+$r49 = fx_tmp_root();
+fx_base( $r49 );
+$r49_lead    = 'Marks a real rule about something.';
+$r49_payload = implode( ' ', array_fill( 0, 30, 'reason' ) );
+$r49_span    = '(no verifier: ' . $r49_payload . ')';
+$r49_bullet  = "- $r49_lead\n  $r49_span\n";
+$r49_prose   = "Build gate: requires explicit **yes** before writing.\n\n"
+	. "## Notes\n" . implode( ' ', array_fill( 0, 560, 'filler' ) ) . "\n\n"
+	. "## Hard Rules\n" . $r49_bullet . $r49_bullet;
+$r49_marker_words = str_word_count( $r49_span . ' ' . $r49_span );
+$r49_instr_words   = str_word_count( strip_tags( str_replace( $r49_span, '', $r49_prose ) ) );
+ok( str_word_count( strip_tags( $r49_prose ) ) > 600, 'the fixture is over 600 words BEFORE marker exclusion (proves exclusion is load-bearing)', $r49_prose );
+ok( $r49_instr_words < 600, 'the fixture is under 600 instruction words AFTER marker exclusion', $r49_instr_words );
+fx(
+	$r49,
+	'skills/wordpress-performance/SKILL.md',
+	"---\nname: wordpress-performance\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n" . $r49_prose
+);
+list( , $out49 ) = fx_run_ok( $audit, $r49 );
+ok(
+	has( $out49, $r49_instr_words . ' instruction words' ) && has( $out49, '+' . $r49_marker_words . ' marker' ),
+	"a valid marker's words are excluded from the instruction count; both numbers are printed ($r49_instr_words + $r49_marker_words)",
+	$out49
+);
+ok( ! has( $out49, 'RT_BODY_OVER_600' ), 'the fixture does not FAIL the 600 ceiling once marker words are excluded', $out49 );
+fx_rrmdir( $r49 );
+
+echo "--- D1'.1 test (ii): 601 instruction words with zero markers still FAILs -- the ceiling itself is unmoved ---\n";
+$r50 = fx_tmp_root();
+fx_base( $r50 );
+fx(
+	$r50,
+	'skills/wordpress-performance/SKILL.md',
+	"---\nname: wordpress-performance\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Build gate: requires explicit **yes** before writing.\n\n"
+	. "## Notes\n" . implode( ' ', array_fill( 0, 601, 'filler' ) ) . "\n\n"
+	. "## Hard Rules\n- A normal rule with no marker at all.\n"
+);
+list( , $out50 ) = fx_run_ok( $audit, $r50 );
+ok( has( $out50, 'RT_BODY_OVER_600' ), '601 instruction words with no marker to exclude still FAILs RT_BODY_OVER_600', $out50 );
+fx_rrmdir( $r50 );
+
+echo "--- D1'.1 test (iv): an UNCLOSED marker's words are counted, never stripped ---\n";
+/* Same self-simulation technique as r49: the expected total is str_word_count() applied to the
+   EXACT prose this fixture writes, not a hand sum -- an unclosed marker has no valid span to
+   strip (marker_parse() never even reaches the point of building one when closed=false), so the
+   fixture's own full-body count IS the expected printed number. */
+$r51        = fx_tmp_root();
+$r51_filler = 595;
+$r51_prose  = "Build gate: requires explicit **yes** before writing.\n\n"
+	. "## Notes\n" . implode( ' ', array_fill( 0, $r51_filler, 'filler' ) ) . "\n\n"
+	. "## Hard Rules\n- A rule whose marker never closes its parenthesis.\n  (no verifier: " . implode( ' ', array_fill( 0, 9, 'unclosed' ) ) . "\n";
+$r51_total  = str_word_count( strip_tags( $r51_prose ) );
+fx_base( $r51 );
+fx(
+	$r51,
+	'skills/elementor-core/SKILL.md',
+	"---\nname: elementor-core\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n" . $r51_prose
+);
+list( , $out51 ) = fx_run_ok( $audit, $r51 );
+ok( $r51_total > 600, 'the fixture arithmetic really does cross the 600 ceiling', $r51_total );
+ok( has( $out51, $r51_total . ' instruction words' ), "an unclosed marker's words are counted toward the total, never stripped ($r51_total expected)", $out51 );
+ok( has( $out51, 'RT_BODY_OVER_600' ) && has( $out51, 'RT_MARKER_UNCLOSED' ), 'the unclosed marker both FAILs on its own and inflates the instruction-word count', $out51 );
+fx_rrmdir( $r51 );
+
+echo "--- --word-report prints skill<TAB>instruction_words<TAB>marker_words and exits before the FAIL/WARN/JUDGE summary ---\n";
+$r52 = fx_tmp_root();
+fx_base( $r52 );
+fx_wc_skill( $r52, 'divi-core', "- A rule with a clean marker.\n  (no verifier: " . implode( ' ', array_fill( 0, 10, 'reason' ) ) . ")\n" );
+list( $code52, $out52 ) = fx_run( $audit, $r52, array( '--word-report' ) );
+ok( 0 === $code52, '--word-report exits 0', $code52 );
+ok( 1 === preg_match( '/^divi-core\t\d+\t\d+$/m', $out52 ), '--word-report prints a tab-separated skill/instruction-words/marker-words line', $out52 );
+ok( ! has( $out52, 'FAIL /' ), '--word-report does not also print the FAIL/WARN/JUDGE summary line', $out52 );
+fx_rrmdir( $r52 );
+
+echo "--- D1'.9: a write-capable skill with NO \"## Hard Rules\" section at all is RT_HARD_RULES_MISSING_WRITE, a FAIL, not a WARN ---\n";
+$r53 = fx_tmp_root();
+fx_base( $r53 );
+fx(
+	$r53,
+	'skills/woocommerce/SKILL.md',
+	"---\nname: woocommerce\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Build gate: requires explicit **yes** before writing.\n\nFixture skill body with no Hard Rules section at all.\n"
+);
+list( $code53, $out53 ) = fx_run_ok( $audit, $r53 );
+ok( has( $out53, 'RT_HARD_RULES_MISSING_WRITE' ), 'a write-capable skill with no "## Hard Rules" section is RT_HARD_RULES_MISSING_WRITE', $out53 );
+ok( 1 === $code53, 'RT_HARD_RULES_MISSING_WRITE is a FAIL, exit code 1', $code53 );
+fx_rrmdir( $r53 );
+
+echo "--- D1'.9: a NON-write-capable skill with no Hard Rules stays RT_NO_HARD_RULES (WARN), the write-capable FAIL does not leak onto it ---\n";
+$r54 = fx_tmp_root();
+fx_base( $r54 );
+list( $code54n, $out54 ) = fx_run_ok( $audit, $r54 );
+ok( array() !== fx_lines_with( $out54, array( 'qa-review', 'RT_NO_HARD_RULES' ) ), 'a non-write-capable skill missing "## Hard Rules" stays RT_NO_HARD_RULES', $out54 );
+ok( 0 === $code54n, 'RT_NO_HARD_RULES alone does not fail the build', $code54n );
+fx_rrmdir( $r54 );
+
+echo "--- D1'.1: a marker-shaped opener line OUTSIDE \"## Hard Rules\" is RT_MARKER_OUTSIDE_RULES (WARN), not silently free ---\n";
+$r55 = fx_tmp_root();
+fx_base( $r55 );
+fx(
+	$r55,
+	'skills/elementor-core/SKILL.md',
+	"---\nname: elementor-core\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Build gate: requires explicit **yes** before writing.\n\n"
+	. "A stray marker-shaped line sits here, outside any Hard Rules section:\n"
+	. "(no verifier: this line looks like a marker but is not inside Hard Rules)\n\n"
+	. "## Hard Rules\n- A normal rule with a real marker.\n  (no verifier: this one really is inside the rules section)\n"
+);
+list( , $out55 ) = fx_run_ok( $audit, $r55 );
+ok( has( $out55, 'RT_MARKER_OUTSIDE_RULES' ), 'a marker-shaped opener line outside "## Hard Rules" is RT_MARKER_OUTSIDE_RULES', $out55 );
+fx_rrmdir( $r55 );
+
+echo "--- a shape-2 target that climbs OUT of the audited root never counts as existing ---\n";
+/* The escaping target really exists on disk, one directory above the audited root, so this fails
+   the moment containment is dropped rather than passing because nothing happened to be there. */
+$r56       = fx_tmp_root();
+$r56_inner = $r56 . '/inner';
+fx_base( $r56_inner );
+fx( $r56, 'outside/escaped.php', "<?php\n// really exists, but OUTSIDE the audited root\n" );
+fx( $r56_inner, 'tests/in-root.php', "<?php\n// really exists, inside the audited root\n" );
+fx_wc_skill( $r56_inner, 'woocommerce', "- Escaping bullet: its target climbs out of the audited tree.\n  (verifier: covered by `tests/../../outside/escaped.php` which really is there)\n- Neighbour bullet: the identical shape, staying inside the tree.\n  (verifier: covered by `tests/in-root.php` which really is there)\n" );
+list( , $out56 ) = fx_run_ok( $audit, $r56_inner );
+ok( 'FAIL' === fx_row_level( $out56, array( 'RT_MARKER_TARGET_MISSING', 'Escaping bullet' ) ), 'a shape-2 target that climbs out of the audited root is RT_MARKER_TARGET_MISSING at FAIL level -- existing on the host never counts as existing in the tree', fx_row_level( $out56, array( 'RT_MARKER_TARGET_MISSING', 'Escaping bullet' ) ) );
+ok( array() === fx_lines_with( $out56, array( 'RT_MARKER_TARGET_MISSING', 'Neighbour bullet' ) ), 'the non-traversing twin still resolves, so containment did not break ordinary shape-2 resolution', $out56 );
+fx_rrmdir( $r56 );
+
+echo "--- the 40-word marker cap is enforced on EVERY skill, not only the write-capable ones ---\n";
+/* The strip was uniform while the cap was not, so a knowledge skill got an unmetered region the
+   budget subtracted and no check read. No RT_MARKER_OVERSIZE row is expected here -- the ROW is
+   still write-capable-only -- the ceiling FAIL is what must appear. */
+$r57 = fx_tmp_root();
+fx_base( $r57 );
+$r57_span = '(no verifier: ' . implode( ' ', array_fill( 0, 700, 'hidden' ) ) . ')';
+fx( $r57, 'skills/web-templates/SKILL.md', "---\nname: web-templates\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n## Hard Rules\n- A knowledge-skill rule whose marker tries to swallow the whole budget.\n  $r57_span\n" );
+list( , $out57 ) = fx_run_ok( $audit, $r57 );
+ok( array() !== fx_lines_with( $out57, array( 'RT_BODY_OVER_600', 'web-templates' ) ), 'an over-cap marker in a NON-write-capable skill is not excluded, so its words still FAIL the 600 ceiling', $out57 );
+ok( array() === fx_lines_with( $out57, array( 'RT_MARKER_OVERSIZE', 'web-templates' ) ), 'the OVERSIZE row itself stays scoped to write-capable skills -- the cap is uniform, the row is not', $out57 );
+fx_rrmdir( $r57 );
+
+echo "--- a write-capable skill that states no Hard Rules FAILs however it says nothing ---\n";
+/* Three ways to state no rules, all previously free: the heading alone at EOF, the heading with
+   prose under it, and rules the "- " splitter cannot see. Each was cheaper than the escape this
+   design priced, so each was the route a contributor under pressure would find. */
+foreach ( array(
+	'bare-heading' => '',
+	'prose-only'   => 'We have no rules worth writing down here.',
+	'star-bullets' => "* A rule the splitter cannot see.\n* A second one.",
+) as $shape => $body ) {
+	$r58 = fx_tmp_root();
+	fx_base( $r58 );
+	fx_wc_skill( $r58, 'divi-core', $body );
+	list( $code58, $out58 ) = fx_run_ok( $audit, $r58 );
+	ok( 'FAIL' === fx_row_level( $out58, array( 'RT_HARD_RULES_MISSING_WRITE', 'divi-core' ) ), "a write-capable skill whose Hard Rules section is $shape is RT_HARD_RULES_MISSING_WRITE, at FAIL level", fx_row_level( $out58, array( 'RT_HARD_RULES_MISSING_WRITE', 'divi-core' ) ) );
+	ok( 1 === $code58, "stating no rules as $shape blocks the gate -- exit code 1", $code58 );
+	fx_rrmdir( $r58 );
+}
+
+echo "--- the mislabel carve-out: a negated marker citing an EXISTING tests/ path is not a mislabel ---\n";
+/* The exemption had no fixture, so deleting it left the suite green. The shape-4 twin in the same
+   run proves the branch is still live, so the carve-out cannot widen unnoticed either. */
+$r59 = fx_tmp_root();
+fx_base( $r59 );
+fx( $r59, 'tests/carve-out.php', "<?php\n// fixture, never executed\n" );
+fx_wc_skill( $r59, 'elementor-core', "- Exempt bullet: names a real tests/ path only as context for the gap.\n  (no verifier: nothing runs this yet, closest is `tests/carve-out.php`)\n- Mislabelled bullet: names a step that really exists.\n  (no verifier: covered already by step-1 in this very skill)\n", "## Execution Steps\n1. The first real numbered step this marker can point at.\n" );
+list( , $out59 ) = fx_run_ok( $audit, $r59 );
+ok( array() === fx_lines_with( $out59, array( 'RT_MARKER_MISLABEL', 'Exempt bullet' ) ), 'a (no verifier: ...) citing an existing tests/ path is exempt from RT_MARKER_MISLABEL', $out59 );
+ok( array() !== fx_lines_with( $out59, array( 'RT_MARKER_MISLABEL', 'Mislabelled bullet' ) ), 'the same run still reports the shape-4 mislabel, so the carve-out is narrow and the branch is live', $out59 );
+fx_rrmdir( $r59 );
+
 /* The coverage assertion is the anti-pattern mechanism itself (design D1'.6), closing the exact
    CRITICAL shape that sank both prior slices of this change: a check added with no fixture
    exercising it. "Observed" means the ID appeared SOMEWHERE in some fixture's --row-types output
@@ -830,6 +1305,9 @@ ok(
 	array( 'declared' => count( $declared_row_types ), 'observed' => count( $fx_observed ), 'missing' => array_values( $fx_missing ) )
 );
 ok( count( COVERAGE_EXEMPT ) <= 3, 'the exempt list has not grown past its ratchet ceiling', COVERAGE_EXEMPT );
+
+echo "--- no run of the audit above printed a PHP diagnostic on its own output ---\n";
+ok( array() === $GLOBALS['fx_diagnostics'], 'not one fixture run emitted a PHP warning/notice/deprecation into the audit output the gate reads', array_keys( $GLOBALS['fx_diagnostics'] ) );
 
 /* -------------------------------------------------------------- report */
 
