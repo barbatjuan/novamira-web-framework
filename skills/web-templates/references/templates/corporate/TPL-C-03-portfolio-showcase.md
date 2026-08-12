@@ -69,7 +69,6 @@ Objetivo: contacto + redes (Instagram/Behance importantes). Minimal. Reutilizabl
 | `TGL-HERO-HEIGHT` | 60vh | |
 | `TGL-CARD-STYLE` | imagen grande | ADN visual |
 | `TGL-LOGOS` | on | |
-| `TGL-STYLE` | minimalista / editorial | |
 | `TGL-CTA-STRENGTH` | suave | |
 
 **Fijos:** COMP-HEADER, COMP-HERO, COMP-PORTFOLIO-GRID, COMP-CTA, COMP-FOOTER.

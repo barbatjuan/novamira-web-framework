@@ -83,7 +83,6 @@ Objetivo: contacto, servicios, legal, redes. Incluir email/teléfono. Reutilizab
 | `TGL-PROCESS` | on | |
 | `TGL-CASES` | on | |
 | `TGL-TESTIMONIALS` | on | |
-| `TGL-STYLE` | elegante / corporate | |
 | `TGL-CTA-STRENGTH` | fuerte | ADN |
 
 **Fijos:** COMP-HEADER (con CTA), COMP-HERO, COMP-SERVICES, COMP-CTA+COMP-LEAD-FORM, COMP-FOOTER.

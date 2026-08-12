@@ -83,7 +83,6 @@ Mobile: acordeón. Desktop: 4–5 columnas. Reutilizable: GLOBAL.
 | `TGL-CATEGORIES` | on | |
 | `TGL-BENEFITS` | on | barra fina |
 | `TGL-NEWSLETTER` | on | |
-| `TGL-STYLE` | comercial | |
 | `TGL-TRUST` | on | |
 
 **Fijos:** COMP-HEADER (search-first), COMP-HERO mini, COMP-PRODUCT-GRID, COMP-PRODUCT-CAROUSEL, COMP-FOOTER.
