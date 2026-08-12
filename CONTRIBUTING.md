@@ -53,6 +53,38 @@ skill. Treat these as review questions on any PR that adds a rule:
   shape the easy one, no amount of documentation wins. Fix the library first (`es_split()`,
   `es_wide()`, `es_photo()`), then write the rule.
 
+### Row types
+
+Every row `framework-audit.php` can print is declared in its `ROW_TYPES` registry (run
+`… --emit-row-types` to list them from the source of truth) and mirrored here. An ID missing from
+this table is itself a FAIL (`RT_ROWTYPE_UNDOCUMENTED`), so this table cannot silently drift from
+the code — adding a check without adding its row here fails the audit on itself.
+
+| Row type | Level | What it means |
+|---|---|---|
+| `RT_NO_SKILL_MD` | FAIL | a skill directory has no `SKILL.md` |
+| `RT_NO_FRONTMATTER` | FAIL | `SKILL.md` has no YAML frontmatter block |
+| `RT_FRONTMATTER_MISSING_KEY` | FAIL | frontmatter is missing a required key |
+| `RT_NAME_MISMATCH` | FAIL | frontmatter `name:` does not match its directory |
+| `RT_NO_TRIGGER` | FAIL | description carries no `Trigger:` words |
+| `RT_BODY_OVER_600` | FAIL | `SKILL.md` body is past the ~600-word ceiling |
+| `RT_BODY_OVER_300` | WARN | `SKILL.md` body is past the ~300-word aim |
+| `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
+| `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
+| `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file is never mentioned by `SKILL.md` |
+| `RT_HARD_RULE_NO_VERIFIER` | JUDGE | a Hard Rule names no verifier |
+| `RT_NO_HARD_RULES` | WARN | `SKILL.md` has no `## Hard Rules` section |
+| `RT_ERRORLOG_NO_STDOUT` | FAIL | an error_log call has no paired stdout channel |
+| `RT_WRITE_NOT_LISTED` | FAIL | code writes to WordPress but the skill is missing from `$WRITE_CAPABLE` |
+| `RT_AGENT_CODE_BLOCK` | FAIL | an agent markdown file contains a code block |
+| `RT_AGENT_ROUTE_MISSING` | FAIL | an agent routes to a skill that does not exist |
+| `RT_AGENT_SKILL_UNMENTIONED` | WARN | an agent never mentions an existing skill |
+| `RT_HOUSERULES_NO_VERDICT` | FAIL | a `house-rules.md` row has no verdict source |
+| `RT_HOUSERULES_MISSING` | FAIL | `qa-review/references/house-rules.md` is missing |
+| `RT_NO_OFFLINE_TESTS` | FAIL | no offline test suite under `tests/` |
+| `RT_GATE_LINE_UNREGISTERED` | FAIL | a `tests/test-*.php` file is absent from the testing gate line below |
+| `RT_ROWTYPE_UNDOCUMENTED` | FAIL | a `ROW_TYPES` ID is not listed in this table |
+
 ## Workflow
 ```
 git checkout -b <type>/<short-name>     # gotcha/side-cart-trap, feat/build-home, fix/…

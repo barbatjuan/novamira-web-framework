@@ -30,7 +30,53 @@
  * launders an unknown into a green tick. skills/framework-audit/SKILL.md owns that half.
  */
 
-$strict = in_array( '--strict', $argv, true );
+$strict         = in_array( '--strict', $argv, true );
+$show_row_types = in_array( '--row-types', $argv, true );
+
+/* ---------------------------------------------------------- row-type registry (D1'.6)
+ *
+ * Every add() call site below is named here. Two guarantees this buys, both proven by mutation
+ * in tests/test-framework-audit.php rather than asserted in prose:
+ *   1. add() rejects any ID absent from this list — exit(3), loud, not a silent skip. A call site
+ *      cannot drift from the registry by typo or omission.
+ *   2. The regression harness accumulates every ID it OBSERVES (via --row-types, below) across all
+ *      its fixtures and diffs that set against this registry. A check with no fixture, or a fixture
+ *      whose emitting branch gets deleted, turns the harness red — the exact CRITICAL that sank two
+ *      prior slices of this change, closed by mechanism instead of discipline.
+ */
+const ROW_TYPES = array(
+	'RT_NO_SKILL_MD'             => 'FAIL  — a skill directory has no SKILL.md',
+	'RT_NO_FRONTMATTER'          => 'FAIL  — SKILL.md has no YAML frontmatter block',
+	'RT_FRONTMATTER_MISSING_KEY' => 'FAIL  — frontmatter is missing a required key',
+	'RT_NAME_MISMATCH'           => 'FAIL  — frontmatter name: does not match its directory',
+	'RT_NO_TRIGGER'              => 'FAIL  — description carries no "Trigger:" words',
+	'RT_BODY_OVER_600'           => 'FAIL  — SKILL.md body is past the ~600-word ceiling',
+	'RT_BODY_OVER_300'           => 'WARN  — SKILL.md body is past the ~300-word aim',
+	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
+	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
+	'RT_ORPHAN_FILE'             => 'WARN  — a references/ or assets/ file is never mentioned by SKILL.md',
+	'RT_HARD_RULE_NO_VERIFIER'   => 'JUDGE — a Hard Rule names no verifier',
+	'RT_NO_HARD_RULES'           => 'WARN  — SKILL.md has no "## Hard Rules" section',
+	'RT_ERRORLOG_NO_STDOUT'      => 'FAIL  — an error_log call has no paired stdout channel',
+	'RT_WRITE_NOT_LISTED'        => 'FAIL  — code writes to WordPress but the skill is missing from $WRITE_CAPABLE',
+	'RT_AGENT_CODE_BLOCK'        => 'FAIL  — an agent markdown file contains a code block',
+	'RT_AGENT_ROUTE_MISSING'     => 'FAIL  — an agent routes to a skill that does not exist',
+	'RT_AGENT_SKILL_UNMENTIONED' => 'WARN  — an agent never mentions an existing skill',
+	'RT_HOUSERULES_NO_VERDICT'   => 'FAIL  — a house-rules.md row has no verdict source',
+	'RT_HOUSERULES_MISSING'      => 'FAIL  — qa-review/references/house-rules.md is missing',
+	'RT_NO_OFFLINE_TESTS'        => 'FAIL  — no offline test suite under tests/',
+	'RT_GATE_LINE_UNREGISTERED'  => 'FAIL  — a tests/test-*.php file is absent from the CONTRIBUTING.md gate line',
+	'RT_ROWTYPE_UNDOCUMENTED'    => 'FAIL  — a ROW_TYPES ID is not listed in CONTRIBUTING.md',
+);
+
+/* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
+   --root and no CONTRIBUTING.md guard, so it is handled before either. */
+if ( in_array( '--emit-row-types', $argv, true ) ) {
+	foreach ( ROW_TYPES as $rt_id => $rt_desc ) {
+		echo $rt_id . "\t" . $rt_desc . "\n";
+	}
+	exit( 0 );
+}
 
 /* Root = the tree that holds skills/ and agents/. Walk up rather than hardcoding a depth, so the
    same file works from the repo checkout and from an install. --root wins when given. */
@@ -72,9 +118,16 @@ echo 'framework-audit: ' . $root . "\n\n";
 $WRITE_CAPABLE = array( 'elementor-core', 'divi-core', 'woocommerce', 'wordpress-seo', 'wordpress-performance' );
 
 $rows = array();
-function add( $level, $where, $msg ) {
+/* $id is a row-type ID from ROW_TYPES — see the block above. An ID this registry does not
+   recognise is not a row, not a warning: it is a bug in the audit itself, so it stops the audit,
+   loudly, rather than shipping a row nothing declared. */
+function add( $id, $level, $where, $msg ) {
 	global $rows;
-	$rows[] = array( $level, $where, $msg );
+	if ( ! array_key_exists( $id, ROW_TYPES ) ) {
+		fwrite( STDERR, "framework-audit: add() called with unregistered row-type ID \"$id\" — register it in ROW_TYPES first.\n" );
+		exit( 3 );
+	}
+	$rows[] = array( $id, $level, $where, $msg );
 }
 function slurp( $path ) {
 	return str_replace( "\r\n", "\n", (string) file_get_contents( $path ) );
@@ -89,43 +142,43 @@ foreach ( $skill_dirs as $dir ) {
 	$name = basename( $dir );
 	$file = $dir . '/SKILL.md';
 	if ( ! file_exists( $file ) ) {
-		add( 'FAIL', $name, 'no SKILL.md' );
+		add( 'RT_NO_SKILL_MD', 'FAIL', $name, 'no SKILL.md' );
 		continue;
 	}
 	$src = slurp( $file );
 
 	/* --- frontmatter (CONTRIBUTING §2) --- */
 	if ( ! preg_match( '/\A---\n(.*?)\n---\n(.*)\z/s', $src, $m ) ) {
-		add( 'FAIL', $name, 'SKILL.md has no YAML frontmatter block' );
+		add( 'RT_NO_FRONTMATTER', 'FAIL', $name, 'SKILL.md has no YAML frontmatter block' );
 		continue;
 	}
 	list( , $fm, $body ) = $m;
 
 	foreach ( array( 'name:', 'description:', 'license:', '  author:', '  version:' ) as $key ) {
 		if ( false === strpos( $fm, $key ) ) {
-			add( 'FAIL', $name, 'frontmatter missing "' . trim( $key ) . '"' );
+			add( 'RT_FRONTMATTER_MISSING_KEY', 'FAIL', $name, 'frontmatter missing "' . trim( $key ) . '"' );
 		}
 	}
 	if ( preg_match( '/^name:\s*(\S+)/m', $fm, $nm ) && $nm[1] !== $name ) {
-		add( 'FAIL', $name, 'frontmatter name "' . $nm[1] . '" does not match its directory' );
+		add( 'RT_NAME_MISMATCH', 'FAIL', $name, 'frontmatter name "' . $nm[1] . '" does not match its directory' );
 	}
 	if ( false === strpos( $fm, 'Trigger:' ) ) {
-		add( 'FAIL', $name, 'description carries no "Trigger:" words — the skill will not auto-activate' );
+		add( 'RT_NO_TRIGGER', 'FAIL', $name, 'description carries no "Trigger:" words — the skill will not auto-activate' );
 	}
 
 	/* --- body budget (CONTRIBUTING §2: aim ~300, hard ceiling ~600) --- */
 	$words = str_word_count( strip_tags( $body ) );
 	if ( $words > 600 ) {
-		add( 'FAIL', $name, "SKILL.md body is $words words, past the ~600 ceiling — move detail into references/" );
+		add( 'RT_BODY_OVER_600', 'FAIL', $name, "SKILL.md body is $words words, past the ~600 ceiling — move detail into references/" );
 	} elseif ( $words > 300 ) {
-		add( 'WARN', $name, "SKILL.md body is $words words, past the ~300 aim (ceiling 600)" );
+		add( 'RT_BODY_OVER_300', 'WARN', $name, "SKILL.md body is $words words, past the ~300 aim (ceiling 600)" );
 	}
 
 	/* --- build gate: the single highest-stakes property in the repo --- */
 	$gate = ( false !== strpos( $src, 'Build gate' ) && false !== strpos( $src, 'explicit **yes**' ) );
 	if ( in_array( $name, $WRITE_CAPABLE, true ) ) {
 		if ( ! $gate ) {
-			add( 'FAIL', $name, 'WRITE-CAPABLE SKILL WITH NO BLOCKING BUILD GATE — it can be reached by its own triggers and write unasked' );
+			add( 'RT_NO_BUILD_GATE', 'FAIL', $name, 'WRITE-CAPABLE SKILL WITH NO BLOCKING BUILD GATE — it can be reached by its own triggers and write unasked' );
 		}
 	}
 
@@ -140,7 +193,7 @@ foreach ( $skill_dirs as $dir ) {
 		$seen[ $raw ] = true;
 		$target = $r[1] ? $root . '/skills/' . $raw : $dir . '/' . $raw;
 		if ( ! file_exists( $target ) ) {
-			add( 'FAIL', $name, 'points at "' . $raw . '", which does not exist' );
+			add( 'RT_BROKEN_REFERENCE', 'FAIL', $name, 'points at "' . $raw . '", which does not exist' );
 		}
 	}
 
@@ -152,7 +205,7 @@ foreach ( $skill_dirs as $dir ) {
 			}
 			$base = $sub . '/' . basename( $f );
 			if ( false === strpos( $src, basename( $f ) ) ) {
-				add( 'WARN', $name, $base . ' is not mentioned by SKILL.md — dead weight, or a missing pointer' );
+				add( 'RT_ORPHAN_FILE', 'WARN', $name, $base . ' is not mentioned by SKILL.md — dead weight, or a missing pointer' );
 			}
 		}
 	}
@@ -187,12 +240,12 @@ foreach ( $skill_dirs as $dir ) {
 				);
 				if ( ! $has_verifier ) {
 					$short = preg_replace( '/\s+/', ' ', mb_substr( ltrim( $rule, '- ' ), 0, 84 ) );
-					add( 'JUDGE', $name, 'Hard Rule names no verifier: "' . $short . '…"' );
+					add( 'RT_HARD_RULE_NO_VERIFIER', 'JUDGE', $name, 'Hard Rule names no verifier: "' . $short . '…"' );
 				}
 			}
 		}
 	} else {
-		add( 'WARN', $name, 'no "## Hard Rules" section' );
+		add( 'RT_NO_HARD_RULES', 'WARN', $name, 'no "## Hard Rules" section' );
 	}
 
 	/* --- warnings that reach nobody (CONTRIBUTING §3) + write-capability from real code --- */
@@ -212,6 +265,7 @@ foreach ( $skill_dirs as $dir ) {
 				$window = implode( "\n", array_slice( $lines, max( 0, $i - 4 ), 9 ) );
 				if ( ! preg_match( '/\becho\b|es_warn\s*\(/', $window ) ) {
 					add(
+						'RT_ERRORLOG_NO_STDOUT',
 						'FAIL',
 						$name,
 						basename( $php ) . ':' . ( $i + 1 ) . ' error_log() with no stdout channel — the sandbox returns STDOUT, the PHP log is never fetched. Use es_warn()'
@@ -230,7 +284,7 @@ foreach ( $skill_dirs as $dir ) {
 		}
 	}
 	if ( $write_capable_hit && ! in_array( $name, $WRITE_CAPABLE, true ) ) {
-		add( 'FAIL', $name, 'writes to WordPress (' . $write_capable_hit . ') but is not in the write-capable list' );
+		add( 'RT_WRITE_NOT_LISTED', 'FAIL', $name, 'writes to WordPress (' . $write_capable_hit . ') but is not in the write-capable list' );
 	}
 }
 
@@ -242,7 +296,7 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 
 	/* "The orchestrator never gains CSS/HTML/PHP" (CONTRIBUTING §2). */
 	if ( preg_match( '/```(php|css|html|js)|<\?php/i', $src ) ) {
-		add( 'FAIL', $name, 'contains a code block — the agent thinks, the skills execute; move it into a skill asset' );
+		add( 'RT_AGENT_CODE_BLOCK', 'FAIL', $name, 'contains a code block — the agent thinks, the skills execute; move it into a skill asset' );
 	}
 	/* Every skill it routes to must exist. Was a tautology: it only FAILed when $maybe was ALSO
 	   in the set of dirs that exist, which the `is_dir()` check right above already guarantees
@@ -252,11 +306,11 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 		if ( is_dir( $root . '/skills/' . $maybe ) ) {
 			continue;
 		}
-		add( 'FAIL', $name, 'routes to skill "' . $maybe . '" which is missing' );
+		add( 'RT_AGENT_ROUTE_MISSING', 'FAIL', $name, 'routes to skill "' . $maybe . '" which is missing' );
 	}
 	foreach ( array_map( 'basename', $skill_dirs ) as $sk ) {
 		if ( false === strpos( $src, '`' . $sk . '`' ) ) {
-			add( 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through the orchestrator' );
+			add( 'RT_AGENT_SKILL_UNMENTIONED', 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through the orchestrator' );
 		}
 	}
 }
@@ -270,17 +324,17 @@ if ( file_exists( $hr_file ) ) {
 			continue;
 		}
 		if ( ! preg_match( '/\|\s*\*\*[^|]*(auto|eyes|measured|manual)[^|]*\*\*\s*\|\s*$/i', rtrim( $line ) ) ) {
-			add( 'FAIL', 'qa-review', 'house-rules.md:' . ( $i + 1 ) . ' row has no verdict source in its last column' );
+			add( 'RT_HOUSERULES_NO_VERDICT', 'FAIL', 'qa-review', 'house-rules.md:' . ( $i + 1 ) . ' row has no verdict source in its last column' );
 		}
 	}
 } else {
-	add( 'FAIL', 'qa-review', 'references/house-rules.md is missing — the house rules have no gate' );
+	add( 'RT_HOUSERULES_MISSING', 'FAIL', 'qa-review', 'references/house-rules.md is missing — the house rules have no gate' );
 }
 
 /* ------------------------------------------------------------- offline suite */
 
 if ( ! glob( $root . '/tests/*.php' ) ) {
-	add( 'FAIL', 'tests', 'no offline test suite — the code that enforces the rules has nothing enforcing it' );
+	add( 'RT_NO_OFFLINE_TESTS', 'FAIL', 'tests', 'no offline test suite — the code that enforces the rules has nothing enforcing it' );
 }
 
 /* ------------------------------------------------- gate self-registration */
@@ -294,25 +348,43 @@ if ( file_exists( $contributing_file ) ) {
 	foreach ( glob( $root . '/tests/test-*.php' ) as $t ) {
 		$base = basename( $t );
 		if ( false === strpos( $contrib_src, 'tests/' . $base ) ) {
-			add( 'FAIL', 'CONTRIBUTING.md', 'gate line never runs "' . $base . '" — a new test file must join the && chain or it silently never runs' );
+			add( 'RT_GATE_LINE_UNREGISTERED', 'FAIL', 'CONTRIBUTING.md', 'gate line never runs "' . $base . '" — a new test file must join the && chain or it silently never runs' );
+		}
+	}
+
+	/* ------------------------------------------------ row-type doc-sync (D1'.7)
+	 *
+	 * Mirrors the gate-self-registration check right above: a new FAIL/WARN/JUDGE mode cannot ship
+	 * without a line in CONTRIBUTING.md naming it. Reuses the same ROW_TYPES registry the coverage
+	 * assertion in tests/test-framework-audit.php reads via --emit-row-types, so there is exactly
+	 * one place a row type is declared, never two that can drift apart. */
+	foreach ( ROW_TYPES as $rt_id => $rt_desc ) {
+		if ( false === strpos( $contrib_src, $rt_id ) ) {
+			add( 'RT_ROWTYPE_UNDOCUMENTED', 'FAIL', 'CONTRIBUTING.md', 'row type "' . $rt_id . '" is declared in ROW_TYPES but never documented in CONTRIBUTING.md' );
 		}
 	}
 }
 
 /* -------------------------------------------------------------- report */
 
+/* $r is now [ id, level, where, msg ] — id threaded through for --row-types, ignored otherwise. */
 $order = array( 'FAIL' => 0, 'WARN' => 1, 'JUDGE' => 2 );
 usort(
 	$rows,
 	function ( $a, $b ) use ( $order ) {
-		return $order[ $a[0] ] <=> $order[ $b[0] ] ?: strcmp( $a[1], $b[1] );
+		return $order[ $a[1] ] <=> $order[ $b[1] ] ?: strcmp( $a[2], $b[2] );
 	}
 );
 
 $n = array( 'FAIL' => 0, 'WARN' => 0, 'JUDGE' => 0 );
 foreach ( $rows as $r ) {
-	$n[ $r[0] ]++;
-	printf( "%-5s  %-22s  %s\n", $r[0], $r[1], $r[2] );
+	list( $rt_id, $level, $where, $msg ) = $r;
+	$n[ $level ]++;
+	if ( $show_row_types ) {
+		printf( "%-28s  %-5s  %-22s  %s\n", $rt_id, $level, $where, $msg );
+	} else {
+		printf( "%-5s  %-22s  %s\n", $level, $where, $msg );
+	}
 }
 if ( ! $rows ) {
 	echo "nothing to report\n";
