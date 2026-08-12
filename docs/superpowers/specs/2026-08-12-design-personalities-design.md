@@ -132,11 +132,19 @@ example line; replace with a pointer to `design-personalities.md`'s 8 concrete p
 
 ## Downstream: `html-mockup`, `elementor-core`, `divi-core`
 
-No changes. All three already consume resolved `--*` token values without embedding assumptions
-about which font/palette arrives — confirmed by grep (their only Space-Grotesk/Manrope
-references are inside two illustrative asset mockups, not skill logic). Their handoff contract
-(`ux-design-system` → `html-mockup` → builder-core) is unchanged in shape; only the values
-flowing through it now vary per project.
+No changes to these skills in this branch — confirmed by `git diff --stat` showing zero touched
+files under `skills/elementor-core/`, `skills/divi-core/`, `skills/html-mockup/`.
+
+**Known gap, not fixed here:** `skills/elementor-core/assets/es-builder.php` (the live sandbox
+seed file Execution Step 1 copies, not an illustrative example) hardcodes literal font-family and
+hex-color strings (e.g. `'Manrope'`, `#0FA968`) inside reusable helper functions like
+`es_eyebrow()` and `es_p()`, rather than reading them from resolved personality tokens. A session
+that picks a personality other than the one these hardcoded values happen to resemble can still
+deploy a page carrying the wrong font/color unless it manually edits these helpers per
+`elementor-core/SKILL.md`'s existing prose instruction ("swap its palette/type constants for the
+brand from `ux-design-system`"). Closing this gap — either by parameterizing `es-builder.php`'s
+helpers or adding a framework-audit check against it — is out of scope for this branch and left
+as follow-up work.
 
 ## Component: `framework-audit` verifier
 
