@@ -55,7 +55,10 @@ sits between this skill and any WordPress write.
    recipe, tuned by the personality's motion intensity.
 4. Read `references/layout-patterns.md` for hero, feature grid, banner CTA, testimonial carousel,
    glass header, mega/mobile menu, and responsive rules.
-5. Hand the chosen personality + tokens + pattern list to **`html-mockup`** as the spec to render
+5. Run CAPA 3: ask `TGL-IMAGERY` and `TGL-MOTION-INTENSITY` from `web-templates/references/toggles.md`,
+   precharged with the confirmed personality's Imagery and Motion intensity values as defaults —
+   the client confirms or overrides.
+6. Hand the chosen personality + tokens + pattern list to **`html-mockup`** as the spec to render
    for client approval. builder-core only receives it after the mockup is approved.
 
 ## Output Contract
