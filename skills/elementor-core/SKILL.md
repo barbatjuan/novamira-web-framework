@@ -24,7 +24,7 @@ On an existing site, confirm every page/template you would overwrite by name fir
 
 ## Hard Rules
 - Native Elementor / Elementor Pro widgets only. No third-party widgets. No custom JS.
-  (verifier: caught by the step-4 front-HTML fetch — an unregistered widget renders empty.)
+  (no verifier: an unregistered widget renders empty and shows up, but a third-party widget whose plugin installs cleanly, and custom JS, leave no trace anything greps for.)
 - Custom CSS ONLY via the widget's native `custom_css` field (`selector{}`) — it always
   compiles; conditionally-enqueued assets (hover animations, swiper) do not. Verified by the
   step-4 `post-<id>.css` grep: rules that never compiled are simply absent from it.
@@ -39,7 +39,7 @@ On an existing site, confirm every page/template you would overwrite by name fir
   writing; end every build function with `es_audit_summary()` and fix `VEREDICTO A CORREGIR`
   before deploying. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
   the same audit on what landed. Detail: `references/gotchas.md` → "Container hygiene".
-  (verifier: es_audit_summary() prints the verdict to stdout before the build writes anything.)
+  (verifier: es_container_report() prints the container verdict from inside the save, before that page's data is written.)
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
   (no verifier: nothing re-builds a page twice to diff the generated ids, so a non-deterministic one only surfaces later as a spurious diff.)
 - Wrap all build logic in named functions — the sandbox auto-runs any uploaded `.php`.

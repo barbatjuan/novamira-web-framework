@@ -31,7 +31,7 @@ On an existing site, confirm every page/template you would overwrite by name fir
 - Native commerce widgets only; no custom JS. Style the CTA to the accent color with
   `!important` (the theme's button color otherwise wins) — verify by grepping the compiled
   `post-<id>.css` for the accent rule, since a losing specificity war leaves no trace in HTML.
-  (verifier: the step-5 server-side check greps the compiled CSS for the accent rule.)
+  (verifier: step 5's server-side verification is where this bullet's compiled-CSS grep for the accent rule is carried out.)
 - Product-card grids must be equal height — do not hand-roll it: `es_products_css()` is the
   single source of truth (see `ux-design-system/references/motion.md` for the why).
   (no verifier: nothing greps for a hand-rolled equal-height rule; one source of truth is a convention here, not a gate.)

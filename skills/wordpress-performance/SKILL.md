@@ -29,7 +29,7 @@ On an existing site, confirm every page/template/asset you would overwrite by na
   (no verifier: nothing records how many levers moved between two measurements; only the before/after pair in the Output Contract shows it.)
 - Images are almost always the #1 win. Verified per run by step 1's measurement: if LCP is not
   image-bound on THIS site, say so and fix the actual worst offender instead.
-  (verifier: step 1's measurement names the real LCP element per run, so this is re-tested on every site instead of assumed.)
+  (no verifier: the measurement reports an LCP duration, never which element it is, so whether the win is image-bound on THIS site stays a human read.)
 
 ## Execution Steps
 1. **Measure with a named tool, not by feel**:
