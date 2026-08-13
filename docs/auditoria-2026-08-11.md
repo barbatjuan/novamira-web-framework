@@ -158,12 +158,17 @@ Esta sección importa tanto como las anteriores.
 | 6 | **Cerrado** por `344e5fa`: las `## House rules` del orquestador se analizan por primera vez, con sus 11 marcadores |
 | 3, 10, 11 | **Cerrados** por `5d946e7` + `b0ff90e`: el recorrido entra en los árboles heredados y nombra lo que no supo juzgar; el remedio lee la dirección del hijo antes de proponerlo; `earns_its_place()` reconoce el ancho boxed. `es_audit_summary()` devuelve cuatro valores, así que «no se auditó nada» dejó de parecerse a «limpio» |
 | varios MINOR | **Cerrados** en el mismo programa: cobertura de archivos huérfanos a cualquier profundidad (`9886ef4`), y el acoplamiento de `ES_AUDIT_SILENT` con `es_warn()`, que silenciaba avisos junto con el reporte de rutina (`b0ff90e`) |
-| Resto | Abiertos. El cambio 1 de ocho, `audit-truthfulness`, está cerrado; quedan siete |
+| 1 | **Cerrado** por `1c01901`: `es_img()` avisa al no encontrar el slug y deja una miga `es_missing` que el recorrido convierte en offender, así que el fallo sobrevive hasta `_elementor_data` y la fila 11 de `qa-review` lo vuelve a ver |
+| 14, 15 | **Cerrados** por `c0d88c9`: la rama de fallo de `es_save_page()` avisa nombrando el slug y el motivo de WordPress; el slug real se relee tras crear y una discrepancia avisa nombrando ambos, con `$action` en `created-renamed`. El mismo commit cierra un tercer defecto de la misma clase que salió al escribir la fixture: el retorno de `wp_update_post()` se descartaba, así que la rama de actualización no podía fallar y pisaba el diseño de una página que WordPress se había negado a tocar. `es_save_theme_part()` recibe los mismos dos arreglos |
+| Resto | Abiertos. El cambio 1 de ocho, `audit-truthfulness`, está cerrado; el 2 va por la mitad —quedan el segundo BLOCKER (nadie establece ni comprueba la portada) y los hallazgos 16, 17, 27, 28 y 30 |
 
 Esta tabla llegó tarde y con un error: durante siete commits nadie la actualizó, y su primera
 versión daba el hallazgo 5 por cerrado en `1ac7992` cuando la regex de vocabulario siguió viva
 hasta `048fdf1`. Un registro de cierres que nadie verifica es la misma clase de fallo que este
-informe describe, cometida por el informe.
+informe describe, cometida por el informe. Y volvió a pasar de inmediato: la fila del hallazgo 1
+faltaba, porque la tabla se escribió un commit antes de que se cerrara. Nada obliga a actualizarla
+—no hay verificador para esto, y la única defensa es acordarse—, así que conviene leerla sabiendo
+que puede ir por detrás de la rama.
 
 El commit que cerró esos tres hallazgos encontró uno nuevo durante su propia revisión: la
 comprobación de auto-registro que ese mismo commit añadía era el único verificador nuevo que su
