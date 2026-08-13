@@ -90,6 +90,17 @@ rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.
   navigation" were both log-only, which means both could ship unnoticed.
 - **Don't re-implement a check in prose.** `qa-review` calls `es_container_audit()` rather than
   describing the walk again. Two implementations of one rule drift, and the hand-rolled one loses.
+- **Every file under `references/` or `assets/` must be REACHABLE, at any depth**
+  (`RT_ORPHAN_FILE`). Reachability starts at `SKILL.md` and spreads only through files already
+  reachable, so an index counts as a pointer but an index nobody can reach vouches for nothing.
+  A file is named by its path, by its filename **with the extension**, or by its family prefix
+  (`TPL-C-01` reaches `TPL-C-01-services-leadgen.md`) — never by the bare stem, which is an
+  ordinary English word and would credit `name.md` from any frontmatter. A pointer at a directory
+  reaches that directory's DIRECT children and no deeper — `references/templates/pages/` gets you
+  to the README, and the README is what names the archetypes below it — and the skill's own
+  `references/`/`assets/` roots are not pointers, since that is where the walk starts. A filename
+  that occurs twice in one skill must be cited by its **full path from the skill root**: with two
+  `_README.md` files, both `_README.md` and `pages/_README.md` credit neither.
 - **Prefer a helper over a rule.** `es_section()` hardcoded `flex_direction:column`, so building
   two columns REQUIRED the extra container the rule forbade. When the library makes the wrong
   shape the easy one, no amount of documentation wins. Fix the library first (`es_split()`,
@@ -113,7 +124,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_BODY_OVER_300` | WARN | `SKILL.md` body is past the ~300-word aim |
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
-| `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file is never mentioned by `SKILL.md` |
+| `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file, at any depth, is reachable from nothing |
 | `RT_NO_HARD_RULES` | WARN | `SKILL.md` states no Hard Rules — section absent, or present with no bullets |
 | `RT_HARD_RULES_MISSING_WRITE` | FAIL | a write-capable skill states no Hard Rules — section absent, or present with no bullets |
 | `RT_AGENT_NO_HOUSE_RULES` | FAIL | an agent states no House rules — section absent, or present with no bullets |

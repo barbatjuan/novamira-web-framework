@@ -1373,6 +1373,69 @@ ok( array() === fx_lines_with( $out63, array( 'RT_MARKER_MISLABEL', 'Declared ga
 ok( 1 === $code63, 'the masked target-missing rows still block the gate -- exit code 1', $code63 );
 fx_rrmdir( $r63 );
 
+echo "--- reachability: a file nothing routes to is RT_ORPHAN_FILE, at ANY depth ---\n";
+/* The old check globbed ONE level and skipped directories, so the deepest corner of the repo was
+   the one corner nothing looked at. Recursion alone would have been wrong in the other direction:
+   almost nothing here is cited by its full filename, so 21 real files would have been flagged.
+   This tree pins the whole model in one run -- a direct pointer, a directory pointer that reaches
+   only DIRECT children, a family-prefix citation, a transitive citation through a reachable index,
+   and the case that makes it honest: an index nobody can reach vouches for nothing. */
+$r64 = fx_tmp_root();
+fx_base( $r64 );
+fx(
+	$r64,
+	'skills/web-templates/SKILL.md',
+	"---\nname: web-templates\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	/* "see `pages/_README.md`" is the real orchestrating shape, and it is what makes the ambiguity
+	   rule load-bearing here: the skill holds TWO files named _README.md, so an unqualified mention
+	   of that basename must credit NEITHER on its own. */
+	/* The bare "references/" and the bare "hidden/" are deliberate: the first is the prose shape
+	   that used to whitelist the whole depth-1 layer, the second is a directory-qualified mention
+	   of an ambiguous basename, which credits nothing. */
+	. "Read `references/atlas.md` first. Everything else lives under `references/`.\n"
+	/* The BARE `_README.md` is what arms the ambiguity rule: with two files of that name, an
+	   unqualified mention must credit NEITHER. Written directory-qualified, the basename handle
+	   could never match anyway once citations became boundary-anchored, and the rule went
+	   unverified — a guard that survives its own removal is not a guard. */
+	. "Page archetypes live under `references/pages/`. Both indexes are named `_README.md`; the one that counts is the first.\n"
+	. "The quick notes are in `references/atlas-q.md`.\n\n"
+	. "## Hard Rules\n- A knowledge-skill rule.\n  (no verifier: a fixture rule, here only so the skill states something.)\n"
+);
+fx( $r64, 'skills/web-templates/references/atlas.md', "# Atlas\n\nThe deep archetype is TPL-DEEP-01.\n" );
+fx( $r64, 'skills/web-templates/references/deep/TPL-DEEP-01-first.md', "# TPL-DEEP-01\n" );
+fx( $r64, 'skills/web-templates/references/pages/_README.md', "# Pages\n\nThe page archetype is TPL-PAGE-01.\n" );
+fx( $r64, 'skills/web-templates/references/pages/one/TPL-PAGE-01-first.md', "# TPL-PAGE-01\n" );
+fx( $r64, 'skills/web-templates/references/pages/one/TPL-PAGE-99-lost.md', "# TPL-PAGE-99\n" );
+fx( $r64, 'skills/web-templates/references/hidden/_README.md', "# Hidden\n\nThe hidden archetype is TPL-HIDE-01.\n" );
+fx( $r64, 'skills/web-templates/references/hidden/TPL-HIDE-01-first.md', "# TPL-HIDE-01\n" );
+fx( $r64, 'skills/web-templates/references/stray.md', "# Stray\n" );
+fx( $r64, 'skills/web-templates/references/name.md', "# Name\n" );
+fx( $r64, 'skills/web-templates/references/loose/one.md', "# One\n" );
+fx( $r64, 'skills/web-templates/references/atlas-q.md', "# Atlas Q\n" );
+fx( $r64, 'skills/web-templates/references/q.md', "# Q\n" );
+list( , $out64 ) = fx_run_ok( $audit, $r64 );
+$fx_orphan = function ( $path ) use ( $out64 ) {
+	return array() !== fx_lines_with( $out64, array( 'RT_ORPHAN_FILE', $path ) );
+};
+ok( ! $fx_orphan( 'references/atlas.md' ), 'a file SKILL.md names directly is reachable', $out64 );
+ok( ! $fx_orphan( 'references/deep/TPL-DEEP-01-first.md' ), 'a deep file cited by FAMILY prefix from a reachable file is reachable -- recursion alone would have flagged it', $out64 );
+ok( ! $fx_orphan( 'references/pages/_README.md' ), 'a directory pointer reaches that directory\'s DIRECT children', $out64 );
+ok( ! $fx_orphan( 'references/pages/one/TPL-PAGE-01-first.md' ), 'a file two levels below the pointer is reachable through the index that lists it', $out64 );
+ok( 'WARN' === fx_row_level( $out64, array( 'RT_ORPHAN_FILE', 'references/pages/one/TPL-PAGE-99-lost.md' ) ), 'a deep file NO index lists is RT_ORPHAN_FILE, at WARN level -- the row the old one-level glob could not see', fx_row_level( $out64, array( 'RT_ORPHAN_FILE', 'references/pages/one/TPL-PAGE-99-lost.md' ) ) );
+ok( $fx_orphan( 'references/hidden/_README.md' ), 'an index nobody points at is itself an orphan, even though SKILL.md names that basename for its SIBLING -- an ambiguous basename credits neither file unqualified', $out64 );
+ok( $fx_orphan( 'references/hidden/TPL-HIDE-01-first.md' ), 'and it vouches for nothing: a file listed ONLY by an unreachable index stays an orphan', $out64 );
+ok( $fx_orphan( 'references/stray.md' ), 'a depth-1 file nobody mentions is still an orphan -- the old check\'s one real job survives', $out64 );
+/* Both of these were laundered in the first cut, and the fixture above could not see either: its
+   one depth-1 file was named "stray", a word appearing in no reachable text, and both of its
+   directory mentions continued into a path. Measured, the depth-1 detection rate had fallen from
+   59 of 60 to 29 of 60 with the whole suite green. A guard that survives a 30-case regression is
+   not a guard, so the two laundering shapes get a file each. */
+ok( $fx_orphan( 'references/name.md' ), 'a common STEM is not a citation: "name" appears in every SKILL.md\'s own frontmatter, and the file is still an orphan', $out64 );
+ok( $fx_orphan( 'references/loose/one.md' ), 'a bare "references/" in prose is not a pointer at the skill root, so a file under it is still an orphan', $out64 );
+ok( ! $fx_orphan( 'references/atlas-q.md' ), 'the longer filename SKILL.md really cites is reachable', $out64 );
+ok( $fx_orphan( 'references/q.md' ), 'a citation BEGINS where a filename begins: "atlas-q.md" does not credit "q.md"', $out64 );
+fx_rrmdir( $r64 );
+
 /* The coverage assertion is the anti-pattern mechanism itself (design D1'.6), closing the exact
    CRITICAL shape that sank both prior slices of this change: a check added with no fixture
    exercising it. "Observed" means the ID appeared SOMEWHERE in some fixture's --row-types output

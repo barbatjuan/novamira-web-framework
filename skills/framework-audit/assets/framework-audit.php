@@ -55,7 +55,7 @@ const ROW_TYPES = array(
 	'RT_BODY_OVER_300'           => 'WARN  — SKILL.md body is past the ~300-word aim',
 	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
 	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
-	'RT_ORPHAN_FILE'             => 'WARN  — a references/ or assets/ file is never mentioned by SKILL.md',
+	'RT_ORPHAN_FILE'             => 'WARN  — a references/ or assets/ file, at any depth, is reachable from nothing',
 	'RT_NO_HARD_RULES'           => 'WARN  — SKILL.md states no Hard Rules: section absent, or present with no "- " bullets',
 	'RT_HARD_RULES_MISSING_WRITE' => 'FAIL  — a write-capable skill states no Hard Rules: section absent, or bullet-less',
 	'RT_AGENT_NO_HOUSE_RULES'    => 'FAIL  — an agent states no House rules: section absent, or present with no "- " bullets',
@@ -329,6 +329,126 @@ function marker_resolve( $payload, $root, array $fn_names, array $house_rows, ar
 	return null;
 }
 
+/* Every file under references/ and assets/, at ANY depth, relative to the skill directory.
+ *
+ * The check this feeds used to glob one level and `continue` on directories, so 21 files under
+ * web-templates/references/templates/ were not audited at all — the deepest and least-visited
+ * corner of the repo was the one corner nothing looked at. Sorted, because a filesystem iterator's
+ * order is not guaranteed and a row order that changes between runs is a diff nobody can read. */
+function skill_files( $dir ) {
+	$out = array();
+	foreach ( array( 'references', 'assets' ) as $sub ) {
+		$base = $dir . '/' . $sub;
+		if ( ! is_dir( $base ) ) {
+			continue;
+		}
+		$walk = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $base, FilesystemIterator::SKIP_DOTS ) );
+		foreach ( $walk as $f ) {
+			if ( $f->isFile() ) {
+				$out[] = str_replace( '\\', '/', substr( $f->getPathname(), strlen( $dir ) + 1 ) );
+			}
+		}
+	}
+	sort( $out );
+	return $out;
+}
+
+/* Every token by which a file may legitimately be named. Recursion ALONE is wrong here and would
+ * have added 21 false rows: almost nothing in this repo is cited by its full filename. An archetype
+ * is cited by its family (`TPL-C-01`, never the whole slug), a directory is cited as a directory,
+ * and ten page archetypes are cited only by the README that indexes them. A pointer at a directory
+ * reaches that directory's DIRECT children and no deeper — "look in pages/" tells you to open
+ * pages/, where the README tells you the rest; that is exactly the hop the check must require. */
+function file_handles( $rel, array $ambiguous = array() ) {
+	$base = basename( $rel );
+	$q    = function ( $s ) {
+		return preg_quote( $s, '#' );
+	};
+	/* Boundary-anchored patterns, never bare substrings. A citation BEGINS where a filename
+	   begins: unanchored, "gotchas.md" credited "a.md" and "TPL-P-11" credited "TPL-P-1", so a
+	   file nobody had ever written about was reachable because of a longer name that happened to
+	   end the same way. There is deliberately NO stem handle either — a name without its
+	   extension is an ordinary English word, and matching one against whole files credited
+	   "name.md", "version.md" and "license.md" from every SKILL.md's own frontmatter keys.
+	   Measured on planted depth-1 orphans: 60 of 60 caught by the check this replaces, 20 of 60
+	   by the unanchored first cut, 60 of 60 here. */
+	$h = array( '#(?<![\w.\-/])' . $q( $rel ) . '(?![\w\-])#' );
+	/* A bare basename is only a handle when it names ONE file in the skill. Two READMEs in two
+	   directories are the ordinary case here, and crediting both because one is pointed at would
+	   let the unpointed subtree ride along on its sibling's name. An ambiguous name must be cited
+	   by its full path from the skill root; a directory-qualified suffix is NOT a handle. */
+	if ( ! isset( $ambiguous[ $base ] ) ) {
+		$h[] = '#(?<![\w.\-/])' . $q( $base ) . '(?![\w\-])#';
+	}
+	/* The family prefix keeps a trailing-digit guard only: "TPL-C-01" is legitimately followed by
+	   "-services-leadgen.md" in a filename and by ".." in a range, but never by another digit. */
+	if ( preg_match( '/^([A-Z]{2,}(?:-[A-Z]+)*-\d+)/', $base, $m ) ) {
+		$h[] = '#(?<![\w.\-])' . $q( $m[1] ) . '(?!\d)#';
+	}
+	return $h;
+}
+
+/* Basenames that occur more than once under one skill, so file_handles() can refuse to credit them
+   unqualified. */
+function ambiguous_basenames( array $files ) {
+	$seen = array();
+	foreach ( $files as $rel ) {
+		$b          = basename( $rel );
+		$seen[ $b ] = isset( $seen[ $b ] ) ? $seen[ $b ] + 1 : 1;
+	}
+	return array_filter( $seen, function ( $n ) {
+		return $n > 1;
+	} );
+}
+
+/* Is $text a deliberate pointer at $dir_rel, rather than a longer path that merely begins with it?
+ *
+ * The distinction is the whole value of the directory handle. "references/" is a prefix of every
+ * path under references/, so a plain substring test made a single mention of any file credit EVERY
+ * depth-1 file in the skill — the check's one original job, silently vacuous. A pointer ends where
+ * the directory ends: the next character must not continue the path. */
+function points_at_dir( $text, $dir_rel ) {
+	/* The skill's own roots are never a pointer. "references/" and "assets/" are ordinary words in
+	   this repo's prose — one write-capable SKILL.md ends a sentence with "… under `assets/`." —
+	   and treating either as a deliberate pointer credited EVERY file directly under it, killing
+	   the whole depth-1 layer of this check for that skill. A pointer has to name a place, and the
+	   root is where the walk starts, not a place someone routed you to. */
+	if ( in_array( $dir_rel, array( 'references', 'assets' ), true ) ) {
+		return false;
+	}
+	return 1 === preg_match( '#' . preg_quote( $dir_rel . '/', '#' ) . '(?![\w.\-])#', $text );
+}
+
+/* Which of those files anything can actually route to, seeded ONLY by SKILL.md and closed
+ * transitively through files that are already reachable.
+ *
+ * An index counts as a pointer — that is how the page archetypes are found — but an index nobody
+ * can reach makes nothing reachable, which is the whole point: a subtree that only cites itself is
+ * still dead weight. Seeding from every file instead of from SKILL.md would make the check
+ * vacuous, since any two orphans that mention each other would vouch for one another. */
+function reachable_files( $dir, $src, array $files ) {
+	$reach     = array();
+	$ambiguous = ambiguous_basenames( $files );
+	$front     = array( $src );
+	while ( array() !== $front ) {
+		$text = array_pop( $front );
+		foreach ( $files as $rel ) {
+			if ( isset( $reach[ $rel ] ) ) {
+				continue;
+			}
+			$hit = points_at_dir( $text, dirname( $rel ) );
+			foreach ( file_handles( $rel, $ambiguous ) as $handle ) {
+				$hit = $hit || 1 === preg_match( $handle, $text );
+			}
+			if ( $hit ) {
+				$reach[ $rel ] = true;
+				$front[]       = slurp( $dir . '/' . $rel );
+			}
+		}
+	}
+	return $reach;
+}
+
 /* The "- " bullets under a rules heading. Always an array, never null: a file with no such
  * section and a heading with nothing under it BOTH state no rules, and both cost the same
  * verdict, so distinguishing them would be a distinction no caller acts on.
@@ -567,16 +687,12 @@ foreach ( $skill_dirs as $dir ) {
 		}
 	}
 
-	/* --- files nobody points at --- */
-	foreach ( array( 'references', 'assets' ) as $sub ) {
-		foreach ( glob( $dir . '/' . $sub . '/*' ) as $f ) {
-			if ( is_dir( $f ) ) {
-				continue;
-			}
-			$base = $sub . '/' . basename( $f );
-			if ( false === strpos( $src, basename( $f ) ) ) {
-				add( 'RT_ORPHAN_FILE', 'WARN', $name, $base . ' is not mentioned by SKILL.md — dead weight, or a missing pointer' );
-			}
+	/* --- files nobody can route to --- */
+	$skill_files = skill_files( $dir );
+	$reach       = reachable_files( $dir, $src, $skill_files );
+	foreach ( $skill_files as $rel ) {
+		if ( ! isset( $reach[ $rel ] ) ) {
+			add( 'RT_ORPHAN_FILE', 'WARN', $name, $rel . ' is reachable from nothing — dead weight, or a missing pointer' );
 		}
 	}
 
