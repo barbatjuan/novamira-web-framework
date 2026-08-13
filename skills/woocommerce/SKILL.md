@@ -42,7 +42,7 @@ On an existing site, confirm every page/template you would overwrite by name fir
 - **Fewest containers that do the job** applies here HARDER than anywhere else, because a
   commerce template is reused on every product / every archive page — one wasted level is paid
   site-wide, forever. `es_save_theme_part()` audits and prints the count; end the build with
-  `es_audit_summary()` and fix `VEREDICTO A CORREGIR` before deploying. Use `es_split()` for the
+  `es_audit_summary()` and deploy only on `VEREDICTO LIMPIO`. Use `es_split()` for the
   gallery + buy-box split (the template IS the row) and `es_photo()` over container background
   images. Full rules: `elementor-core/references/gotchas.md` → "Container hygiene".
   (verifier: es_save_theme_part() audits and prints the container count for every template it writes.)

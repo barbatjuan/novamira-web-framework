@@ -8,7 +8,17 @@ Every one of these cost real debugging time. Trust them.
    the connector intermittently returns "requires additional permissions" — just retry.
 2. `require_once` the builder files, then **call the build function explicitly**. End that build
    function with `es_audit_summary()` and **read the verdict it prints** before moving on
-   (see "Container hygiene" below). `VEREDICTO A CORREGIR` means fix and rebuild, not continue.
+   (see "Container hygiene" below). **`LIMPIO` is the only verdict you may deploy on**, and the
+   integer it returns is what to branch on, not the text.
+   The other three each mean stop, for a different reason: `A CORREGIR` — fix and rebuild;
+   `NO AUDITABLE` — part of that tree is elTypes the audit cannot judge, so zero offenders proves
+   nothing; `SIN AUDITAR` — `es_container_report()` never ran at all: either the audit is not wired
+   into the build function, or the summary was called before anything was saved, or every page
+   failed to save. That last one is why this verdict speaks through `es_warn()` and cannot be
+   silenced by `ES_AUDIT_SILENT`. The integer it returns matches: `0` clean, `>0` the offender
+   count, `-2` not judgeable, `-1` never audited. Both failures are NEGATIVE on purpose, so an old
+   `if ( es_audit_summary() )` cannot read them as success, and `-2` beats an offender count
+   because you cannot be asked to fix what was never judged.
 3. For every touched post id: `delete_post_meta(id,'_elementor_css')` +
    `delete_post_meta(id,'_elementor_element_cache')` + `@unlink(uploads/elementor/css/post-<id>.css)` +
    `\Elementor\Core\Files\CSS\Post::create(id)->update()`.
@@ -19,6 +29,8 @@ Every one of these cost real debugging time. Trust them.
    this server-side grep is the only verification available. NEVER claim it works from data alone; say it's verified server-side.
 
 ## Container hygiene — the three rules that killed the nesting
+
+The four verdict lines and the four integers `es_audit_summary()` returns are in step 2 above.
 
 Found on a real build (de la O Abogados) AFTER the audit had already shipped. The audit was
 right and still changed nothing, for two reasons worth remembering:

@@ -822,13 +822,16 @@ function es_container_earns_its_place( array $s, array $ctx = array() ) {
  * loudest thing the system can have to say. Route every warning through here so a silent
  * failure becomes impossible by construction.
  *
- * Define ES_AUDIT_SILENT when stdout must stay clean for another consumer.
+ * ES_AUDIT_SILENT does NOT reach here, and the gate that used to is gone. That constant mutes the
+ * audit REPORT — the routine per-page lines someone silences to keep stdout parseable for another
+ * consumer. A warning is the opposite kind of message: it only exists because something went wrong
+ * and nobody asked. Muting both with one switch meant "this template will NOT appear on the front
+ * end" could be silenced as a side effect of wanting tidy output, leaving it only on the road the
+ * docblock above already explains nobody travels.
  */
 function es_warn( $msg ) {
 	error_log( 'NovaMira: ' . str_replace( "\n", ' | ', $msg ) );
-	if ( ! defined( 'ES_AUDIT_SILENT' ) ) {
-		echo 'NovaMira AVISO: ' . $msg . "\n";
-	}
+	echo 'NovaMira AVISO: ' . $msg . "\n";
 }
 
 /**
@@ -885,41 +888,80 @@ function es_container_report( array $elements, $label = '' ) {
  * One verdict line for the whole build.
  *
  * Call it at the END of the build function. Per-page lines scroll past; this is the line the
- * deploy step reads to decide whether the layout is shippable. Returns the offender total so a
- * caller can branch on it.
+ * deploy step reads to decide whether the layout is shippable.
+ *
+ * THE LINE IS THE PRIMARY ARTIFACT; the integer is a convenience for a caller that wants to
+ * branch. It used to be one integer covering two different worlds:
+ *
+ *    0  — audited, clean.
+ *   >0  — audited, N offenders to fix.
+ *   -1  — NOTHING was audited: es_container_report() never ran. It used to return 0, so a build
+ *         that forgot to call the audit reported what a passing build reports. It speaks through
+ *         es_warn(), not the verdict writer: it warns about the audit, it does not judge a tree.
+ *   -2  — audited, but part of the tree is elTypes this audit cannot judge. Zero offenders over a
+ *         tree nobody judged is not a pass either.
+ *
+ * `0 === clean` is preserved deliberately: callers already branch on it. The two failures get
+ * NEGATIVE sentinels so no existing `if ( es_audit_summary() )` silently starts treating them as
+ * success, and -2 wins over an offender count, because you cannot ask someone to fix what was
+ * never judged.
+ *
+ * The line NAMES its verdict; the INTEGER carries it. Branch on the integer, never on a word found
+ * in the line: the caller's page label is interpolated into the deep-nesting suffix, so a page can
+ * put any text of its own in there — including the word a deploy gate might be looking for.
  */
 function es_audit_summary() {
 	global $es_audit_runs;
 
 	if ( ! isset( $es_audit_runs ) || ! is_array( $es_audit_runs ) || ! $es_audit_runs ) {
-		echo "NovaMira auditoria: ninguna pagina auditada en esta corrida.\n";
-		return 0;
+		/* es_warn(), NO es_audit_verdict(): el escritor lo volvia callable, y era la unica linea
+		   que este archivo SIEMPRE habia impreso. */
+		es_warn( 'auditoria VEREDICTO SIN AUDITAR: ninguna pagina paso por es_container_report(). O falta cablear el audit en la funcion de build, o se llamo al resumen antes de guardar nada, o TODAS las paginas fallaron al guardarse. No hay ningun arbol detras de este numero.' );
+		return -1;
 	}
-	$off = 0;
-	$opt = 0;
+	$off  = 0;
+	$opt  = 0;
+	$un   = 0;
 	$deep = array();
 	foreach ( $es_audit_runs as $page => $a ) {
 		$off += count( $a['offenders'] );
 		$opt += count( $a['optimizable'] );
+		if ( ! empty( $a['unaudited'] ) ) {
+			foreach ( $a['unaudited'] as $u ) {
+				$un += $u['count'];   /* the COUNT, not one per elType: an import is hundreds */
+			}
+		}
 		if ( $a['max_depth'] > 3 ) {
 			$deep[] = $page . '(' . $a['max_depth'] . ')';
 		}
 	}
-	$verdict = $off ? 'A CORREGIR' : 'LIMPIO';
-	$line    = sprintf(
-		'NovaMira auditoria VEREDICTO %s: %d paginas, %d a corregir, %d fusionables%s',
-		$verdict,
+	$tail = sprintf(
+		'%d paginas, %d a corregir, %d fusionables%s',
 		count( $es_audit_runs ),
 		$off,
 		$opt,
 		$deep ? ', profundidad >3 en ' . implode( ', ', $deep ) : ''
 	);
+	if ( $un ) {
+		return es_audit_verdict(
+			'NO AUDITABLE: ' . $tail . ', y ' . $un . ' elementos con un elType que este audit no sabe juzgar (section/column heredados, o un kit importado) — parte de este arbol no fue juzgada',
+			-2
+		);
+	}
+	if ( $off ) {
+		return es_audit_verdict( 'A CORREGIR: ' . $tail, $off );
+	}
+	return es_audit_verdict( 'LIMPIO: ' . $tail, 0 );
+}
+
+/** One writer for the three verdicts ABOUT a tree, so no branch forgets the silence rule or the log. */
+function es_audit_verdict( $rest, $code ) {
+	$line = 'NovaMira auditoria VEREDICTO ' . $rest;
 	error_log( $line );
 	if ( ! defined( 'ES_AUDIT_SILENT' ) ) {
 		echo $line . "\n";
 	}
-
-	return $off;
+	return $code;
 }
 
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {

@@ -27,6 +27,7 @@ function wp_get_attachment_url( $id ) { return 'https://x.test/' . $id . '.jpg';
    channel left — without this, the report could print anything at all and nothing would notice. */
 $GLOBALS['es_log'] = tempnam( sys_get_temp_dir(), 'eslog' );
 ini_set( 'error_log', $GLOBALS['es_log'] );
+register_shutdown_function( function () { @unlink( $GLOBALS['es_log'] ); } );
 function log_since( $offset ) {
 	clearstatcache();
 	return substr( (string) @file_get_contents( $GLOBALS['es_log'] ), $offset );
@@ -219,14 +220,14 @@ $linea = log_since( $mark );
 ok( false !== strpos( $linea, 'NO AUDITABLE' ), 'el reporte nombra la parte no auditada' );
 ok( false !== strpos( $linea, 'elType "section" x1' ), 'con el elType y su conteo' );
 
-echo "--- LIMITE DECLARADO DE ESTE COMMIT ---\n";
-/* El veredicto de corrida todavia dice LIMPIO sobre un arbol que no pudo juzgar. El contrato de
-   senales (-1 sin auditar / -2 no auditable) es el slice siguiente. Esto se afirma aqui a
-   proposito: cuando ese slice llegue, esta assertion se pone ROJA y hay que actualizarla — que
-   es exactamente lo que un comentario "pendiente" no hace. */
+echo "--- y el veredicto de corrida deja de llamarlo limpio ---\n";
+/* Esta assertion nacio afirmando lo CONTRARIO, a proposito: mientras el contrato de senales no
+   existia, decia que el veredicto devolvia 0 sobre un arbol no auditado. Al llegar ese contrato se
+   puso roja sola y hubo que venir a cambiarla, que es justo lo que un comentario "pendiente" nunca
+   hace. El detalle de los cuatro codigos vive en tests/test-audit-signals.php. */
 $GLOBALS['es_audit_runs'] = array();
 es_container_report( $legacy, 'heredada' );
-ok( 0 === es_audit_summary(), 'PENDIENTE (contrato de senales): hoy el veredicto sigue devolviendo 0 sobre un arbol no auditado' );
+ok( -2 === es_audit_summary(), 'un arbol que el audit no pudo juzgar devuelve -2, nunca 0' );
 
 echo "--- veredicto de corrida ---\n";
 $GLOBALS['es_audit_runs'] = array();

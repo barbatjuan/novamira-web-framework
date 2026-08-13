@@ -21,9 +21,17 @@
   `{containers,widgets,max_depth,offenders[],optimizable[],unaudited{elType:{count,first}}}`.
   `es_container_report($elements,$label)` echoes to stdout AND `error_log()`s, returns the same
   array; `es_save_page()` calls it automatically before writing.
-  `es_audit_summary()` → one verdict line for the whole run, returns the offender total.
+  `es_audit_summary()` → one verdict line for the whole run. The LINE is the artifact; the int is
+  for branching: `0` clean, `>0` offender count, `-1` nothing was audited (a wiring bug — it used
+  to return 0, same as a pass), `-2` part of the tree uses elTypes the audit cannot judge. `-2`
+  wins. Branch on the INTEGER, never on a word found in the line: your page label is interpolated
+  into the line's deep-nesting suffix, so a page can put any text of its own there.
+  `-1` speaks through `es_warn()`, so it reaches stdout even under `ES_AUDIT_SILENT`: silencing the
+  routine report must never silence "the report never ran".
   **Call it at the end of every build function** — the per-page lines scroll past, the verdict
-  is what the deploy step reads. `ES_AUDIT_SILENT` suppresses stdout if something else needs it.
+  is what the deploy step reads. `ES_AUDIT_SILENT` mutes the audit REPORT — the per-page lines and
+  the verdict — and nothing else. It does NOT reach `es_warn()`: silencing routine output must
+  never silence a warning.
 
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.

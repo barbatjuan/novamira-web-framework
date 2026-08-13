@@ -119,8 +119,10 @@ no native build.
   **a photo is a widget, not a background** (`es_photo()`). `es_container_report()` prints the
   count and the offenders on every page AND every Theme Builder template; `es_audit_summary()`
   closes the build with one verdict line; `qa-review` row 11 re-runs the same audit against what
-  actually landed. **Require the verdict in the builder skill's report** — `VEREDICTO A CORREGIR`
-  is not a build you hand off.
+  actually landed. **Require the verdict in the builder skill's report** — `VEREDICTO LIMPIO` is
+  the only one you hand off. `A CORREGIR` means fix it; `NO AUDITABLE` means part of that tree is
+  elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
+  never ran, which is a wiring bug reported as a result.
   (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
 - **A warning nobody reads is not a warning.** Everything this framework needs to say goes to
   STDOUT (which the sandbox returns), not only to `error_log()` (which nobody fetches). That was

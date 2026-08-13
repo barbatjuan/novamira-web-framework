@@ -37,8 +37,8 @@ On an existing site, confirm every page/template you would overwrite by name fir
   (a photo is a widget, not a `background_image`). Target depth `section → grid|row → widget`.
   (verifier: es_container_audit() walks the saved tree and names every container that did not earn its place.)
 - **Read the audit verdict.** `es_save_page()` prints `es_container_report()` to stdout before
-  writing; end every build function with `es_audit_summary()` and fix `VEREDICTO A CORREGIR`
-  before deploying. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
+  writing; end every build function with `es_audit_summary()` and deploy only on
+  `VEREDICTO LIMPIO`. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
   the same audit on what landed. Detail: `references/gotchas.md` → "Container hygiene".
   (verifier: es_container_report() prints the container verdict from inside the save, before that page's data is written.)
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.

@@ -176,15 +176,23 @@ stays < 1.0 until its path is validated end-to-end on a real site.
 First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php
+php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php && php tests/test-audit-signals.php
 ```
 
 The audit enforces everything on this page that a machine can decide: frontmatter, the word
 budget, broken `references/` and `assets/` pointers, a write-capable skill that lost its build
 gate, `error_log()` with no stdout channel, and Hard Rules in write-capable skills that name no
 verifier. Its `JUDGE` rows are NOT passes — a model has to read them; that half is
-`skills/framework-audit/SKILL.md`. The test suite guards the container audit itself, because the
-code that enforces the rules needs something enforcing it too.
+`skills/framework-audit/SKILL.md`. The test suites guard the container audit itself, because the
+code that enforces the rules needs something enforcing it too: `test-container-hygiene.php` for
+what the walk decides, `test-audit-signals.php` for what each channel may mute and what each
+return value means. That last one runs itself twice, in a parent and a `--loud` child, because
+`ES_AUDIT_SILENT` is a constant and a single process can only ever observe one of the two worlds.
+
+This chain is a static `&&` list, not a glob, so a new test file that nobody adds here would
+silently never run. There is a check, and it is worth knowing exactly what it proves: the audit
+FAILs on a test file whose path appears **nowhere in this document**. It does not read the chain
+itself, so naming its path in the prose above satisfies it. Add the command, not a mention.
 
 Add checks to `skills/framework-audit/assets/framework-audit.php`, never as prose in a skill.
 
