@@ -176,7 +176,7 @@ stays < 1.0 until its path is validated end-to-end on a real site.
 First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php && php tests/test-audit-signals.php
+php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php && php tests/test-audit-signals.php && php tests/test-write-path.php
 ```
 
 The audit enforces everything on this page that a machine can decide: frontmatter, the word
@@ -186,8 +186,11 @@ verifier. Its `JUDGE` rows are NOT passes — a model has to read them; that hal
 `skills/framework-audit/SKILL.md`. The test suites guard the container audit itself, because the
 code that enforces the rules needs something enforcing it too: `test-container-hygiene.php` for
 what the walk decides, `test-audit-signals.php` for what each channel may mute and what each
-return value means. That last one runs itself twice, in a parent and a `--loud` child, because
-`ES_AUDIT_SILENT` is a constant and a single process can only ever observe one of the two worlds.
+return value means, and `test-write-path.php` for what the save functions report when the write
+did not do what was asked. `test-audit-signals.php` runs itself twice, in a parent and a `--loud`
+child, because `ES_AUDIT_SILENT` is a constant and a single process can only ever observe one of
+the two worlds. `test-write-path.php` drives a WordPress that can be told to fail on demand, which
+is the only way to reach branches a real site reaches only when something has already gone wrong.
 
 This chain is a static `&&` list, not a glob, so a new test file that nobody adds here would
 silently never run. There is a check, and it is worth knowing exactly what it proves: the audit

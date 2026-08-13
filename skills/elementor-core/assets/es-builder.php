@@ -604,29 +604,6 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 }
 
 /**
- * Save an Elementor layout onto a page, creating the page when missing.
- *
- * `$tpl` defaults to `elementor_header_footer` (Elementor Full Width): full-bleed
- * content that KEEPS the theme / Theme Builder header and footer. Do not switch the
- * default to `elementor_canvas` — Canvas renders neither, so every page built with it
- * silently loses the global header, breaking the "header on every page" house rule.
- * Pass `elementor_canvas` explicitly for the rare page that must have no chrome
- * (a standalone landing, a coming-soon splash).
- *
- * Overwriting an existing page is destructive and irreversible on its own: writing
- * `_elementor_data` through the meta API replaces the whole layout and leaves no
- * revision behind. Every overwrite therefore parks the previous layout in a
- * timestamped backup key first (see es_backup_elementor_data).
- *
- * The existing `post_status` is preserved too. Forcing `publish` here used to push a
- * client's draft live as a side effect of rebuilding its layout; only pages this
- * function creates are published.
- *
- * `$action` is an out-parameter reporting 'created' or 'updated' so a caller can
- * confirm each overwrite by name. It is passed by reference rather than returned
- * because callers rely on `es_save_page()` returning the page id.
- */
-/**
  * Audit the container tree before it is written.
  *
  * Every extra container level is paid three times: one more wrapper <div> in the DOM, one
@@ -978,13 +955,48 @@ function es_audit_verdict( $rest, $code ) {
 	return $code;
 }
 
+/**
+ * Save an Elementor layout onto a page, creating the page when missing.
+ *
+ * This docblock used to sit 375 lines up the file, immediately followed by ANOTHER docblock, so it
+ * documented nothing at all while the comment inside this function pointed at it by name.
+ *
+ * `$tpl` defaults to `elementor_header_footer` (Elementor Full Width): full-bleed
+ * content that KEEPS the theme / Theme Builder header and footer. Do not switch the
+ * default to `elementor_canvas` — Canvas renders neither, so every page built with it
+ * silently loses the global header, breaking the "header on every page" house rule.
+ * Pass `elementor_canvas` explicitly for the rare page that must have no chrome
+ * (a standalone landing, a coming-soon splash).
+ *
+ * Overwriting an existing page is destructive and irreversible on its own: writing
+ * `_elementor_data` through the meta API replaces the whole layout and leaves no
+ * revision behind. Every overwrite therefore parks the previous layout in a
+ * timestamped backup key first (see es_backup_elementor_data).
+ *
+ * The existing `post_status` is preserved too. Forcing `publish` here used to push a
+ * client's draft live as a side effect of rebuilding its layout; only pages this
+ * function creates are published.
+ *
+ * `$action` is an out-parameter, passed by reference rather than returned because callers rely on
+ * the return value being the page id. It reports FOUR outcomes, not two:
+ *
+ *   'created'         — the page did not exist and now does, at the slug that was asked for.
+ *   'updated'         — an existing page was rewritten in place.
+ *   'created-renamed' — the page was created, but NOT where you asked. See below.
+ *   'failed'          — nothing was written. The return value is 0.
+ *
+ * Branch on `$action`, and treat anything that is not 'created' or 'updated' as needing a human.
+ */
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
 	$page = get_page_by_path( $slug, OBJECT, 'page' );
 	if ( $page ) {
 		$id     = $page->ID;
 		$action = 'updated';
-		/* post_status intentionally mirrors what is already there - see docblock. */
-		wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => $page->post_status ) );
+		/* post_status intentionally mirrors what is already there - see docblock above.
+		   The return value is KEPT: discarding it made this the one branch that could not fail, so
+		   a post WordPress refused to touch still had its layout overwritten and still reported
+		   'updated' - a write reporting success over work it did not do. */
+		$wrote = wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => $page->post_status ) );
 	} else {
 		$action = 'created';
 		$id     = wp_insert_post(
@@ -996,10 +1008,36 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 				'post_content' => '',
 			)
 		);
+		$wrote  = $id;
 	}
-	if ( is_wp_error( $id ) || ! $id ) {
+	if ( is_wp_error( $wrote ) || ! $wrote ) {
+		/* This branch used to return 0 and say NOTHING, so a page that never got built left no
+		   trace on either channel and the run still ended on a clean audit verdict - the audit only
+		   ever sees the tree it was HANDED, never the write. Fails CLOSED on the update path: if
+		   WordPress would not update the row, nothing authorises rewriting its design. */
+		es_warn(
+			'WordPress rechazo ' . ( 'updated' === $action ? 'actualizar' : 'crear' ) . ' la pagina "' . $slug . '"'
+			. ( is_wp_error( $wrote ) ? ': ' . $wrote->get_error_message() : '' )
+			. '. NO se escribio ningun diseño. Esa pagina no existe o quedo como estaba; el resto del build sigue.'
+		);
 		$action = 'failed';
 		return 0;
+	}
+
+	if ( 'created' === $action ) {
+		/* wp_insert_post() does not promise the slug you asked for. When one is taken - by an
+		   attachment, by a post, by a reserved term - wp_unique_post_slug() appends a suffix and
+		   returns happily, so asking for "contacto" published a page at "contacto-2" while $action
+		   said 'created'. The page the caller believes it just built is somebody else's. */
+		$real = get_post_field( 'post_name', $id );
+		if ( '' !== $real && $real !== $slug ) {
+			es_warn(
+				'se pidio la pagina "' . $slug . '" y WordPress la creo en "' . $real . '" (#' . $id . '), porque ese slug ya estaba ocupado '
+				. '(otra entrada, un adjunto o un termino reservado). La URL que esperabas NO apunta a esta pagina. '
+				. 'Libera el slug y renombrala, o cambia el slug en el build.'
+			);
+			$action = 'created-renamed';
+		}
 	}
 
 	update_post_meta( $id, '_elementor_edit_mode', 'builder' );

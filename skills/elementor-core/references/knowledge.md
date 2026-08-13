@@ -15,7 +15,13 @@
 - `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
 - `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
-- `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
+- `es_save_page($slug,$title,$elements,$tpl,&$action)` + `es_rebuild_css($post_id)`.
+  `$action` reports FOUR outcomes: `created`, `updated`, `created-renamed` (WordPress published the
+  page under a DIFFERENT slug because the one you asked for was taken — the URL you expect is not
+  this page), `failed` (nothing was written; the return value is `0`). Anything other than
+  `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
+  they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
+  proof the page went where you asked. `es_save_theme_part()` reports the same four.
 - `es_img($slug)` — attachment lookup by slug → url+id.
 - `es_container_audit($elements)` →
   `{containers,widgets,max_depth,offenders[],optimizable[],unaudited{elType:{count,first}}}`.

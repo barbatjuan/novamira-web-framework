@@ -24,8 +24,10 @@ require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
  * order to be live, and this same call is writing the conditions that put it on the
  * front end. A part deliberately parked as a draft must not be rebuilt by this function.
  *
- * `$action` is an out-parameter reporting 'created' or 'updated' so a caller can confirm
- * each overwrite by name without breaking the returned template id.
+ * `$action` is an out-parameter reporting the same four outcomes as `es_save_page()` —
+ * 'created', 'updated', 'created-renamed', 'failed' — without breaking the returned template id.
+ * The two functions share a shape, so they share the reporting contract; when they drifted apart,
+ * the one that mattered more was the one nobody could see failing.
  */
 function es_save_theme_part( $slug, $title, $type, array $elements, array $conditions, &$action = null ) {
 	$existing = get_posts(
@@ -39,7 +41,7 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 	if ( $existing ) {
 		$id     = $existing[0]->ID;
 		$action = 'updated';
-		wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => 'publish' ) );
+		$wrote  = wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => 'publish' ) );
 	} else {
 		$action = 'created';
 		$id     = wp_insert_post(
@@ -50,10 +52,32 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 				'post_status' => 'publish',
 			)
 		);
+		$wrote  = $id;
 	}
-	if ( is_wp_error( $id ) || ! $id ) {
+	if ( is_wp_error( $wrote ) || ! $wrote ) {
+		/* A page that fails to save costs you one page. A HEADER that fails to save costs you the
+		   header of every page, and this branch is the one with the fewest eyes on it: this file is
+		   uploaded and executed on the site, far from whoever wrote the build. */
+		es_warn(
+			'WordPress rechazo ' . ( 'updated' === $action ? 'actualizar' : 'crear' ) . ' el theme part "' . $slug . '" (' . $type . ')'
+			. ( is_wp_error( $wrote ) ? ': ' . $wrote->get_error_message() : '' )
+			. '. NO se escribio ningun diseño ni ninguna condicion, asi que esa parte del sitio NO va a aparecer.'
+		);
 		$action = 'failed';
 		return 0;
+	}
+
+	if ( 'created' === $action ) {
+		/* Same trap as es_save_page(): wp_unique_post_slug() hands back a suffixed slug rather than
+		   an error, so the template exists under a name no condition string was written for. */
+		$real = get_post_field( 'post_name', $id );
+		if ( '' !== $real && $real !== $slug ) {
+			es_warn(
+				'se pidio el theme part "' . $slug . '" y WordPress lo creo en "' . $real . '" (#' . $id . '), porque ese slug ya estaba ocupado. '
+				. 'Revisa que las condiciones se hayan escrito sobre la plantilla correcta antes de dar el sitio por bueno.'
+			);
+			$action = 'created-renamed';
+		}
 	}
 
 	wp_set_object_terms( $id, $type, 'elementor_library_type' );
