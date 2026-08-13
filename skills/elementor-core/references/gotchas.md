@@ -49,12 +49,37 @@ Measured on that build, not estimated:
 The last 3 home offenders were the portraits as container backgrounds; moving them to
 `es_photo()` cleared them without touching anything else.
 
-**Two severities, on purpose.** `offenders` are wrong with no argument. `optimizable` is a
+**Three severities, on purpose.** `offenders` are wrong with no argument. `optimizable` is a
 container whose only child is a GRID — `es_section( es_grid(...) )` is this repo's own dominant
 idiom, and an audit that screams on every normal build is one people learn to ignore. Whether
 that pair collapses into a single boxed grid container is plausible and **not confirmed**;
 verify on a live site before flattening it wholesale. A container whose only child is a flex
-ROW is a different story — that one always collapses, so it IS an offender.
+ROW is a different story — that one always collapses, so it IS an offender. A child stacking in
+a COLUMN is not: `es_split()` would change the axis, so the remedy printed there is to merge the
+pair, not to call `es_split()`.
+
+`unaudited` is the third, and it exists because silence is not a verdict. It maps each elType
+the walk has no opinion about — pre-3.6 `section`/`column`, a kit import, a future element — to
+its count and where it first appeared. Those elements used to fall off the walk entirely, so an
+imported page measured 0 containers / 0 widgets / depth 0 and printed `VEREDICTO LIMPIO`. It is
+**not** an offender: you cannot fix an import by rewriting an `es_*()` call.
+
+That rule runs one level deeper than it looks. **Below** an element the audit cannot judge it makes
+no contextual claim either: the depth is still measured into `max_depth`, but it is never charged
+as a `profundidad > 3` offender; a boxed width is not assumed to be inherited; and a container
+whose ONLY child is an unjudgeable element is not judged at all, because "pass the padding to the
+widget" is not something you can do to a legacy `column`. What a container gets wrong on its OWN —
+empty, or wrapping a lone widget for nothing — is still its caller's to fix wherever it sits. The
+line is between a container's own defect, which you wrote, and its context, which an import
+handed it.
+
+**The one exception to "a wrapper around a single widget is an offender."** A container that is
+the only thing constraining a lone widget to the boxed content width earns its place, because
+Elementor gives a widget no way to do that itself — `es_section( es_w('wc-archive-products') )`
+is the shape. All three conditions matter: the child is a WIDGET, `content_width` is explicitly
+`'boxed'` (the runtime default is boxed, so an absent key is not a decision), and no ancestor is
+already boxed. Padding is deliberately NOT part of this and must not be added to it — padding on
+a wrapper is the canonical thing that belongs on the widget.
 
 `object-fit` on the image widget is hyphenated (that is the control id) and Elementor only
 honours it while `height` has a value. Both confirmed on that build.

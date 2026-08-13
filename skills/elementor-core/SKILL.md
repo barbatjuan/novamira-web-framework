@@ -30,7 +30,8 @@ On an existing site, confirm every page/template you would overwrite by name fir
   step-4 `post-<id>.css` grep: rules that never compiled are simply absent from it.
   (verifier: the step-4 compiled-CSS grep — a rule that never compiled is absent from that file.)
 - **Fewest containers that do the job.** One earns its place only by grouping 2+ children,
-  carrying its own background/border/shadow, or changing direction at a breakpoint. Three
+  carrying its own background/border/shadow, changing direction at a breakpoint, or boxing a
+  lone widget no ancestor boxes. Three
   helpers make the flat shape the easy one: `es_split()` (the section IS the row — never
   `es_section( es_row(...) )`), `es_wide($el,58)` (a width is not a container), `es_photo()`
   (a photo is a widget, not a `background_image`). Target depth `section → grid|row → widget`.

@@ -625,69 +625,159 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
  * Elementor editor to reach the widget they actually want. Nesting that buys nothing is the
  * fastest way a generated layout becomes one nobody wants to maintain.
  *
- * Reports, never blocks, and separates two severities on purpose:
+ * Reports, never blocks, and separates three severities on purpose:
  *
  *   offenders   — wrong with no argument. An empty container; a container wrapping a single
- *                 WIDGET while carrying no background/border/shadow of its own (its padding
- *                 belongs on the widget); anything nested past depth 3.
- *   optimizable — a container whose only child is another container. Usually mergeable into
- *                 one, but not always, and the call needs a human. Kept OUT of `offenders`
+ *                 WIDGET while carrying no background/border/shadow/boxed width of its own;
+ *                 anything nested past depth 3.
+ *   optimizable — exactly one shape: a container whose only child is a GRID. A container child
+ *                 is not automatically this — a flex ROW child and a COLUMN child are both
+ *                 offenders, because both collapse. The grid pair is kept OUT of `offenders`
  *                 deliberately: `es_section( es_grid(...) )` is this repo's own dominant idiom,
  *                 and an audit that screams on every normal build is one people learn to
  *                 ignore. Merging that pair into a single boxed grid container is plausible
  *                 but NOT yet confirmed on a live site — verify before doing it wholesale.
+ *   unaudited   — an elType this audit has no opinion about: pre-3.6 `section`/`column`, a kit
+ *                 import, a future element. It used to fall off the walk entirely, so a whole
+ *                 legacy page measured 0 containers / 0 widgets / depth 0 and read as a clean
+ *                 build. Silence about a tree is not a verdict on it.
  *
- * @return array{containers:int,widgets:int,max_depth:int,offenders:string[],optimizable:string[]}
+ * `unaudited` is deliberately a map `elType => {count, first}` rather than the `string[]` the
+ * other two use: an imported kit page carries hundreds of legacy elements and would otherwise
+ * bury the rows a human can act on. It is NOT an offender — the caller cannot fix an import by
+ * rewriting an `es_*()` call — and never blocks, because `es_save_page()` reports mid-write.
+ *
+ * That last sentence is a rule with teeth, and it runs one level further than it looks. BELOW an
+ * element this audit cannot judge, it makes no contextual claim either: depth accumulated above a
+ * legacy wrapper is measured but never charged as an offender, an inherited boxed width is not
+ * assumed, and a container whose ONLY child is an unjudgeable element is not judged at all. What a
+ * container does wrong on its own — empty, or wrapping a lone widget for nothing — is still its
+ * caller's to fix wherever it sits. The line is between a container's own defect, which the caller
+ * wrote, and its context, which an import handed it.
+ *
+ * @return array{containers:int,widgets:int,max_depth:int,offenders:string[],optimizable:string[],unaudited:array<string,array{count:int,first:string}>}
  */
 function es_container_audit( array $elements ) {
-	$out = array( 'containers' => 0, 'widgets' => 0, 'max_depth' => 0, 'offenders' => array(), 'optimizable' => array() );
+	$out = array( 'containers' => 0, 'widgets' => 0, 'max_depth' => 0, 'offenders' => array(), 'optimizable' => array(), 'unaudited' => array() );
 	es_container_walk( $elements, 0, '', $out );
 	return $out;
 }
 
-function es_container_walk( array $els, $depth, $path, array &$out ) {
+/**
+ * `$anc` is what the ancestors say, and both keys exist to stop this audit claiming more than it
+ * knows. `boxed` — an ancestor already constrains the width to the boxed content width, the
+ * context `es_container_earns_its_place()` needs to tell a wrapper that DOES something from one
+ * repeating what its parent already did. `opaque` — an ancestor is an elType this walk cannot
+ * judge, so nothing derived from the path above is trustworthy down here.
+ */
+function es_container_walk( array $els, $depth, $path, array &$out, array $anc = array() ) {
+	$boxed  = ! empty( $anc['boxed'] );
+	$opaque = ! empty( $anc['opaque'] );
 	foreach ( $els as $i => $el ) {
-		$type = isset( $el['elType'] ) ? $el['elType'] : '';
-		$here = $path . '/' . $i;
+		$type     = isset( $el['elType'] ) ? $el['elType'] : '';
+		$here     = $path . '/' . $i;
+		$kids     = ( isset( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : array();
+		$settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : array();
+		$kid_anc  = $anc;
 		if ( 'container' === $type ) {
 			$out['containers']++;
 			$d = $depth + 1;
-			if ( $d > $out['max_depth'] ) {
-				$out['max_depth'] = $d;
-			}
-			$kids     = ( isset( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : array();
-			$settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : array();
 			if ( ! $kids ) {
 				$out['offenders'][] = empty( $settings['background_image']['url'] )
 					? $here . ' contenedor vacio'
 					: $here . ' contenedor vacio que solo sostiene una imagen de fondo: usa es_photo() (widget image + object-fit) y gana el alt';
-			} elseif ( 1 === count( $kids ) && ! es_container_earns_its_place( $settings ) ) {
+			} elseif ( 1 === count( $kids ) ) {
 				$only   = isset( $kids[0]['elType'] ) ? $kids[0]['elType'] : '?';
 				$kidset = isset( $kids[0]['settings'] ) && is_array( $kids[0]['settings'] ) ? $kids[0]['settings'] : array();
-				if ( 'container' !== $only ) {
-					$out['offenders'][] = empty( $settings['width'] )
-						? $here . ' envoltorio de 1 widget sin fondo/borde/sombra: pasa el padding al widget'
-						: $here . ' envoltorio que solo da un ancho: usa es_wide($widget, N) en vez de un contenedor';
-				} elseif ( isset( $kidset['container_type'] ) && 'grid' === $kidset['container_type'] ) {
-					/* section > grid: this repo's own idiom. Mergeable in theory, a human decides. */
-					$out['optimizable'][] = $here . ' contenedor cuyo unico hijo es un grid: candidato a fusionar';
-				} else {
-					/* section > flex row is the one that IS always collapsible — es_split() does it. */
-					$out['offenders'][] = $here . ' contenedor cuyo unico hijo es una fila flex: la seccion ES la fila, usa es_split()';
+				/* The child's elType and the ancestors' width are context the settings alone cannot
+				   carry, and the predicate needs both — hence the read before the call. */
+				$ctx = array( 'only_child' => $only, 'boxed_ancestor' => $boxed );
+				/* Three elType families, and the third one is why this is a whitelist and not
+				   `'container' !== $only`. That negation sent every elType the walk had just filed
+				   under `unaudited` into the lone-WIDGET remedy, so an import shaped
+				   `container > column > widget` was told "usa el widget directo" about a child that
+				   is not a widget — un-followable advice, counted as an offender, printed on the
+				   same line as NO AUDITABLE. An unjudgeable only child means the wrapper cannot be
+				   judged either: it is already recorded where it belongs, and nothing is said here. */
+				if ( ! es_container_earns_its_place( $settings, $ctx ) ) {
+					if ( 'widget' === $only ) {
+						$out['offenders'][] = $here . es_lone_widget_remedy( $settings, $boxed );
+					} elseif ( 'container' === $only ) {
+						if ( isset( $kidset['container_type'] ) && 'grid' === $kidset['container_type'] ) {
+							/* section > grid: this repo's own idiom. Mergeable in theory, a human decides. */
+							$out['optimizable'][] = $here . ' contenedor cuyo unico hijo es un grid: candidato a fusionar';
+						} elseif ( in_array( isset( $kidset['flex_direction'] ) ? $kidset['flex_direction'] : '', array( 'row', 'row-reverse' ), true ) ) {
+							/* A flex ROW child is the one es_split() actually collapses: the section becomes
+							   the row. Naming that remedy for a child stacking in a COLUMN was advice that
+							   could not be followed — es_split() would have changed the layout's axis. Only
+							   the desktop value is read on purpose: es_split() sets the tablet/mobile
+							   variants itself, so no breakpoint value can change WHICH remedy applies. */
+							$out['offenders'][] = $here . ' contenedor cuyo unico hijo es una fila flex: la seccion ES la fila, usa es_split()';
+						} else {
+							$out['offenders'][] = $here . ' contenedor cuyo unico hijo es otro contenedor en columna: fusiona ambos, el hijo no aporta un eje distinto';
+						}
+					}
+					/* Any other elType falls through saying nothing: the child is already recorded
+					   under `unaudited`, and a wrapper around something this walk cannot judge
+					   cannot be judged either. */
 				}
 			}
-			if ( $d > 3 ) {
+			/* Depth is MEASURED across legacy levels below and reported in max_depth either way.
+			   It is only CHARGED here when every level above was one this walk judged — four
+			   imported wrappers are not a nesting decision the caller made. */
+			if ( $d > 3 && ! $opaque ) {
 				$out['offenders'][] = $here . ' anidado a profundidad ' . $d . ' (max recomendado 3)';
 			}
-			es_container_walk( $kids, $d, $here, $out );
+			$kid_anc['boxed'] = $boxed || ( isset( $settings['content_width'] ) && 'boxed' === $settings['content_width'] );
 		} elseif ( 'widget' === $type ) {
 			$out['widgets']++;
+			$d = $depth;                                    /* a widget is content, not a wrapper level */
+		} else {
+			$k = ( '' === $type ) ? '(sin elType)' : $type;
+			if ( ! isset( $out['unaudited'][ $k ] ) ) {
+				$out['unaudited'][ $k ] = array( 'count' => 0, 'first' => $here );
+			}
+			$out['unaudited'][ $k ]['count']++;
+			$d       = $depth + 1;                          /* a legacy wrapper IS a level, judged or not */
+			$kid_anc = array( 'opaque' => true );           /* below it, inherit nothing — not even boxed */
 		}
+		if ( $d > $out['max_depth'] ) {
+			$out['max_depth'] = $d;
+		}
+		/* HOISTED out of the container branch. It used to live inside it, so anything under a
+		   legacy wrapper — or inside a widget that carries its own elements, like a loop
+		   template — was never walked at all. */
+		es_container_walk( $kids, $d, $here, $out, $kid_anc );
 	}
 }
 
-/** A container with a single child is only justified if it carries visual weight of its own. */
-function es_container_earns_its_place( array $s ) {
+/**
+ * Name the remedy for a container whose only child is a widget.
+ *
+ * Every branch has to be something the caller can DO. "pasa el padding al widget" was printed
+ * unconditionally, including for wrappers carrying no padding to pass.
+ */
+function es_lone_widget_remedy( array $s, $boxed_ancestor ) {
+	if ( ! empty( $s['width'] ) ) {
+		return ' envoltorio que solo da un ancho: usa es_wide($widget, N) en vez de un contenedor';
+	}
+	if ( $boxed_ancestor && isset( $s['content_width'] ) && 'boxed' === $s['content_width'] ) {
+		return ' envoltorio boxed dentro de otro boxed: acotar de nuevo no cambia el ancho, borra este';
+	}
+	if ( ! empty( $s['padding'] ) ) {
+		return ' envoltorio de 1 widget sin fondo/borde/sombra: pasa el padding al widget';
+	}
+	return ' envoltorio de 1 widget que no aporta nada: usa el widget directo';
+}
+
+/**
+ * A container with a single child is only justified if it does something nothing else can.
+ *
+ * `$ctx` carries what the settings alone cannot say: `only_child` is that child's elType, and
+ * `boxed_ancestor` is true when some ancestor already constrains the width. Optional, so every
+ * existing caller keeps working and the predicate stays usable on a bare settings array.
+ */
+function es_container_earns_its_place( array $s, array $ctx = array() ) {
 	/* es_img() returns array('url'=>'','id'=>'') when the slug is missing, and a non-empty
 	   array is truthy — so a BROKEN image lookup used to buy the container an alibi. */
 	if ( ! empty( $s['background_image']['url'] ) ) {
@@ -703,6 +793,22 @@ function es_container_earns_its_place( array $s ) {
 		if ( ! empty( $v ) && preg_match( '/^(flex_direction|grid_columns_grid|content_width)_(tablet|mobile)$/', $k ) ) {
 			return true;
 		}
+	}
+	/* Constraining a lone widget to the boxed content width. Elementor gives a widget no way to
+	   do this itself, so here the wrapper IS the mechanism and "use the widget directly" was
+	   advice that would have changed the layout.
+	   All three conditions are load-bearing. The child must be a WIDGET: a container child gets
+	   its own boxed setting, and passing this to `es_section( es_row(...) )` would silence the
+	   offender that names es_split(). No boxed ANCESTOR: a second boxing inside the first
+	   changes nothing. And `content_width` must be present and 'boxed' EXPLICITLY, because
+	   Elementor's runtime default is already boxed, so an absent key is not a decision.
+	   `padding` is deliberately NOT a pass and must not become one: padding on a wrapper is the
+	   canonical thing that belongs on the widget, which is the offender's own remedy. It only
+	   sharpens which message es_lone_widget_remedy() prints. */
+	if ( 'widget' === ( isset( $ctx['only_child'] ) ? $ctx['only_child'] : '' )
+		&& empty( $ctx['boxed_ancestor'] )
+		&& isset( $s['content_width'] ) && 'boxed' === $s['content_width'] ) {
+		return true;
 	}
 	return false;
 }
@@ -751,6 +857,15 @@ function es_container_report( array $elements, $label = '' ) {
 	}
 	if ( $a['optimizable'] ) {
 		$msg .= "\n  fusionables (" . count( $a['optimizable'] ) . ", decide un humano):\n    " . implode( "\n    ", $a['optimizable'] );
+	}
+	if ( $a['unaudited'] ) {
+		$bits  = array();
+		$total = 0;
+		foreach ( $a['unaudited'] as $k => $u ) {
+			$total += $u['count'];
+			$bits[] = 'elType "' . $k . '" x' . $u['count'] . ' (primero en ' . $u['first'] . ')';
+		}
+		$msg .= "\n  NO AUDITABLE (" . $total . ", esta parte del arbol no fue juzgada):\n    " . implode( "\n    ", $bits );
 	}
 
 	error_log( str_replace( "\n", ' | ', $msg ) );

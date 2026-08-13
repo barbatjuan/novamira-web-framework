@@ -107,8 +107,9 @@ no native build.
 - **Reuse header/footer** verbatim across all pages of the site (one global component each).
   (verifier: `qa-review` house-rule row 9 hashes the header and footer fragment of every page and requires all header hashes and all footer hashes to match.)
 - **Fewest containers that do the job.** Never a container inside a container "just because". One
-  earns its place only if it groups 2+ children, carries its own background / border / shadow, or
-  changes direction at a breakpoint — otherwise its padding belongs on the widget. Target depth is
+  earns its place only if it groups 2+ children, carries its own background / border / shadow,
+  changes direction at a breakpoint, or boxes a lone widget no ancestor already boxes — padding
+  alone never earns it, that padding belongs on the widget. Target depth is
   `section → grid|row → widget`; going past three levels needs a stated reason. Every extra level is
   paid three times: a wrapper `<div>` in the DOM, a block of generated CSS, and one more click
   between a human and the widget they opened the editor to change. This is measured, not a matter of

@@ -17,7 +17,8 @@
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
 - `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
 - `es_img($slug)` — attachment lookup by slug → url+id.
-- `es_container_audit($elements)` → `{containers,widgets,max_depth,offenders[],optimizable[]}`.
+- `es_container_audit($elements)` →
+  `{containers,widgets,max_depth,offenders[],optimizable[],unaudited{elType:{count,first}}}`.
   `es_container_report($elements,$label)` echoes to stdout AND `error_log()`s, returns the same
   array; `es_save_page()` calls it automatically before writing.
   `es_audit_summary()` → one verdict line for the whole run, returns the offender total.
@@ -27,9 +28,14 @@
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.
 - **Fewest containers that do the job** (house rule). A container earns its place only by grouping
-  2+ children, carrying its own background/border/shadow, or changing direction at a breakpoint.
+  2+ children, carrying its own background/border/shadow, changing direction at a breakpoint, or
+  boxing a lone widget no ancestor already boxes — Elementor gives a widget no other way to sit at
+  the boxed content width, so there the wrapper IS the mechanism.
   Target depth `section → grid|row → widget`. Padding alone is never a reason to exist — put it on
-  the widget's `_padding`. `es_container_audit()` measures this; read its log line.
+  the widget's `_padding`. `es_container_audit()` measures this; read its log line, and read the
+  `NO AUDITABLE` block too: pre-3.6 `section`/`column` elTypes and kit imports are elements this
+  audit has no opinion about. They are counted and named there rather than skipped, because a page
+  built entirely of them used to measure 0 containers / 0 widgets / depth 0 and read as clean.
 - Open question worth resolving on a real site: `es_section( es_grid(...) )` is this repo's dominant
   idiom and costs one level. A single grid container with `content_width:'boxed'` plus the section
   padding *should* collapse the pair into one. Plausible, NOT confirmed — the audit reports it as
