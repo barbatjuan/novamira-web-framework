@@ -380,7 +380,10 @@ fx_base( $r2 );
 fx(
 	$r2,
 	'agents/orchestrator.md',
-	"---\nname: orchestrator\n---\n\n## House rules\n\nRoutes to `phantom-skill` for commerce.\n"
+	/* The House rule bullet is not decoration: an agent stating no House rules is now its own FAIL,
+	   and this scenario asserts on the FAIL COUNT, so the fixture has to conform on every axis but
+	   the one it tests. */
+	"---\nname: orchestrator\n---\n\n## House rules\n- Routes to `phantom-skill` for commerce.\n  (no verifier: a fixture rule, here only so the agent states something.)\n"
 );
 list( $code2, $out2 ) = fx_run_ok( $audit, $r2 );
 list( $f2, , ) = fx_counts( $out2 );
@@ -1288,6 +1291,87 @@ list( , $out59 ) = fx_run_ok( $audit, $r59 );
 ok( array() === fx_lines_with( $out59, array( 'RT_MARKER_MISLABEL', 'Exempt bullet' ) ), 'a (no verifier: ...) citing an existing tests/ path is exempt from RT_MARKER_MISLABEL', $out59 );
 ok( array() !== fx_lines_with( $out59, array( 'RT_MARKER_MISLABEL', 'Mislabelled bullet' ) ), 'the same run still reports the shape-4 mislabel, so the carve-out is narrow and the branch is live', $out59 );
 fx_rrmdir( $r59 );
+
+echo "--- an agent that states no House rules is RT_AGENT_NO_HOUSE_RULES, however it says nothing ---\n";
+/* The orchestrator's House rules are the defaults every build inherits, so a violation there ships
+   on every site rather than one. They were the last set of rules in the repo nothing read. */
+foreach ( array(
+	'no-section'   => "---\nname: orchestrator\n---\n\nRoutes to `woocommerce` for commerce.\n",
+	'bare-heading' => "---\nname: orchestrator\n---\n\n## House rules\n",
+	'prose-only'   => "---\nname: orchestrator\n---\n\n## House rules\nWe have no defaults; decide per build.\n",
+) as $shape => $agent ) {
+	$r60 = fx_tmp_root();
+	fx_base( $r60 );
+	fx( $r60, 'agents/orchestrator.md', $agent );
+	list( $code60, $out60 ) = fx_run_ok( $audit, $r60 );
+	ok( 'FAIL' === fx_row_level( $out60, array( 'RT_AGENT_NO_HOUSE_RULES', 'orchestrator' ) ), "an agent whose House rules are $shape is RT_AGENT_NO_HOUSE_RULES, at FAIL level", fx_row_level( $out60, array( 'RT_AGENT_NO_HOUSE_RULES', 'orchestrator' ) ) );
+	ok( 1 === $code60, "an agent stating no House rules blocks the gate as $shape -- exit code 1", $code60 );
+	fx_rrmdir( $r60 );
+}
+
+echo "--- the marker grammar really runs on an agent's House rules, not only on skills ---\n";
+/* The heading match is loose after "House rules" on purpose: the real orchestrator's carries a
+   parenthetical, and a rule that only fires on an exact string is one an author retitles their way
+   out of by accident. This fixture proves the loose form is walked, not merely matched. */
+$r61 = fx_tmp_root();
+fx_base( $r61 );
+fx(
+	$r61,
+	'agents/orchestrator.md',
+	"---\nname: orchestrator\n---\n\n## House rules (defaults for every build)\n"
+	. "- Marked bullet, routed to `woocommerce`.\n  (no verifier: a documented gap, stated so it cannot hide.)\n"
+	. "- Unmarked bullet that names no verifier at all.\n"
+);
+list( , $out61 ) = fx_run_ok( $audit, $r61 );
+ok( array() !== fx_lines_with( $out61, array( 'RT_MARKER_ABSENT', 'orchestrator', 'Unmarked bullet' ) ), 'an unmarked House rule in an agent is RT_MARKER_ABSENT, so the grammar reaches agents', $out61 );
+ok( array() === fx_lines_with( $out61, array( 'RT_MARKER_ABSENT', 'Marked bullet' ) ), 'the marked House rule beside it raises nothing, so the walk reads each bullet separately', $out61 );
+ok( array() === fx_lines_with( $out61, array( 'RT_AGENT_NO_HOUSE_RULES' ) ), 'a parenthesised "## House rules (…)" heading is found, not read as a missing section', $out61 );
+fx_rrmdir( $r61 );
+
+echo "--- D1'.4 shape 5: a marker may name one of this audit's own row types ---\n";
+/* The House rule "a warning nobody reads is not a warning" is enforced by RT_ERRORLOG_NO_STDOUT
+   and had no honest affirmative form until this shape existed -- the only alternatives were to
+   name es_warn(), which IMPLEMENTS the rule rather than checking it, or to declare a gap that is
+   not real. A row type the registry does not declare must cost the same as a missing function. */
+$r62 = fx_tmp_root();
+fx_base( $r62 );
+fx_wc_skill(
+	$r62,
+	'woocommerce',
+	"- Real row type: cites a check this audit genuinely declares.\n  (verifier: `RT_ERRORLOG_NO_STDOUT` FAILs an error_log call with no stdout channel beside it.)\n"
+	. "- Phantom row type: cites one the registry never declared.\n  (verifier: `RT_NOT_A_DECLARED_ROW_TYPE` would catch it, if it existed at all.)\n"
+	. "- Unquoted row type: names one only as prose, so it cites no shape at all.\n  (verifier: RT_ERRORLOG_NO_STDOUT is the sort of thing that would catch it one day.)\n"
+);
+list( $code62, $out62 ) = fx_run_ok( $audit, $r62 );
+ok( array() === fx_lines_with( $out62, array( 'RT_MARKER', 'Real row type' ) ), 'a marker naming a declared row type resolves, no marker row', $out62 );
+ok( 'FAIL' === fx_row_level( $out62, array( 'RT_MARKER_TARGET_MISSING', 'Phantom row type' ) ), 'a marker naming an undeclared row type is RT_MARKER_TARGET_MISSING, at FAIL level', fx_row_level( $out62, array( 'RT_MARKER_TARGET_MISSING', 'Phantom row type' ) ) );
+ok( 1 === $code62, 'naming a row type that does not exist blocks the gate -- exit code 1', $code62 );
+ok( array() !== fx_lines_with( $out62, array( 'RT_MARKER_PROSE_ONLY', 'Unquoted row type' ) ), 'an UNQUOTED row type cites no shape: the backticks are what make it a citation rather than prose', $out62 );
+fx_rrmdir( $r62 );
+
+echo "--- a row type MENTIONED in passing never steals resolution from the shape the marker means ---\n";
+/* The row-type shape shipped first and unquoted, and that was a hole big enough to drive the gate
+   through: first-match wins, an ID is legal prose, so a marker naming a verifier that does NOT
+   exist resolved green the moment its sentence also mentioned any row type. The target-missing FAIL
+   was never reached. Both halves are pinned here -- the steal, and the negated shape-2 carve-out
+   inverting into a spurious mislabel -- because a fixture that only tests row-type-alone payloads
+   is exactly what let this ship. */
+$r63 = fx_tmp_root();
+fx_base( $r63 );
+fx( $r63, 'tests/neighbour.php', "<?php\n// fixture, never executed\n" );
+fx_wc_skill(
+	$r63,
+	'woocommerce',
+	"- Missing helper, with a real row type mentioned in passing.\n  (verifier: es_never_defined_at_all() enforces it, reported the way `RT_ORPHAN_FILE` reports strays.)\n"
+	. "- Missing tests path, with a real row type mentioned in passing.\n  (verifier: see `tests/does-not-exist.php`, checked alongside `RT_ORPHAN_FILE` in the same run.)\n"
+	. "- Declared gap citing a neighbour file and a row type.\n  (no verifier: nothing runs this yet, closest is `tests/neighbour.php`, unlike `RT_ORPHAN_FILE`.)\n"
+);
+list( $code63, $out63 ) = fx_run_ok( $audit, $r63 );
+ok( 'FAIL' === fx_row_level( $out63, array( 'RT_MARKER_TARGET_MISSING', 'Missing helper' ) ), 'a passing row-type mention does not rescue a marker whose named helper is missing', fx_row_level( $out63, array( 'RT_MARKER_TARGET_MISSING', 'Missing helper' ) ) );
+ok( 'FAIL' === fx_row_level( $out63, array( 'RT_MARKER_TARGET_MISSING', 'Missing tests path' ) ), 'a passing row-type mention does not rescue a marker whose named tests/ path is missing', fx_row_level( $out63, array( 'RT_MARKER_TARGET_MISSING', 'Missing tests path' ) ) );
+ok( array() === fx_lines_with( $out63, array( 'RT_MARKER_MISLABEL', 'Declared gap' ) ), 'the shape-2 carve-out survives a row type in the same payload -- no spurious mislabel', $out63 );
+ok( 1 === $code63, 'the masked target-missing rows still block the gate -- exit code 1', $code63 );
+fx_rrmdir( $r63 );
 
 /* The coverage assertion is the anti-pattern mechanism itself (design D1'.6), closing the exact
    CRITICAL shape that sank both prior slices of this change: a check added with no fixture

@@ -56,8 +56,9 @@ const ROW_TYPES = array(
 	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
 	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
 	'RT_ORPHAN_FILE'             => 'WARN  — a references/ or assets/ file is never mentioned by SKILL.md',
-	'RT_NO_HARD_RULES'           => 'WARN  — SKILL.md has no "## Hard Rules" section',
-	'RT_HARD_RULES_MISSING_WRITE' => 'FAIL  — a write-capable skill has no "## Hard Rules" section',
+	'RT_NO_HARD_RULES'           => 'WARN  — SKILL.md states no Hard Rules: section absent, or present with no "- " bullets',
+	'RT_HARD_RULES_MISSING_WRITE' => 'FAIL  — a write-capable skill states no Hard Rules: section absent, or bullet-less',
+	'RT_AGENT_NO_HOUSE_RULES'    => 'FAIL  — an agent states no House rules: section absent, or present with no "- " bullets',
 	/* D1' verifier-marker grammar (B1) — replaces the old vocabulary-substring
 	   RT_HARD_RULE_NO_VERIFIER, which prose could satisfy by accident. See marker_parse(). */
 	'RT_MARKER_ABSENT'           => 'JUDGE — a Hard Rule bullet names no verifier marker',
@@ -287,10 +288,10 @@ function collect_skill_steps( array $skill_dirs ) {
 	return $steps;
 }
 
-/* D1'.4: the four resolver shapes, tried in order. Returns null when the payload cites none of
-   them — verdict RT_MARKER_PROSE_ONLY for an affirmative marker, silently accepted for a negated
-   one (a gap explanation is prose by nature). Resolution itself is polarity-blind; the caller
-   decides what a resolved/unresolved/absent result means for each polarity. */
+/* D1'.4: the resolver shapes, tried in order. Returns null when the payload cites none of them —
+   verdict RT_MARKER_PROSE_ONLY for an affirmative marker, silently accepted for a negated one (a
+   gap explanation is prose by nature). Resolution itself is polarity-blind; the caller decides
+   what a resolved/unresolved/absent result means for each polarity. */
 function marker_resolve( $payload, $root, array $fn_names, array $house_rows, array $skill_steps, $own_skill ) {
 	if ( preg_match( '/\bes_[a-z_]+\(/', $payload, $m ) ) {
 		$fn = rtrim( $m[0], '(' );
@@ -312,7 +313,135 @@ function marker_resolve( $payload, $root, array $fn_names, array $house_rows, ar
 		$list  = isset( $skill_steps[ $skill ] ) ? $skill_steps[ $skill ] : array();
 		return array( 'shape' => 4, 'exists' => in_array( (int) $m[2], $list, true ), 'target' => "$skill step " . $m[2] );
 	}
+	/* A row type THIS audit declares is a verifier like any other, and it was the one kind of
+	 * checker the grammar could not name: the House rule "a warning nobody reads is not a warning"
+	 * is enforced by RT_ERRORLOG_NO_STDOUT and had no honest affirmative form.
+	 *
+	 * LAST, and backticked. It was written first and unquoted, and that was a hole big enough to
+	 * drive the whole gate through: an ID is legal prose, so a marker naming a verifier that does
+	 * NOT exist resolved green the moment its sentence also mentioned any row type in passing —
+	 * the target-missing FAIL was never reached, and the negated shape-2 carve-out inverted into a
+	 * spurious mislabel. First-match wins, so the broadest pattern must be tried last, and the
+	 * backticks make citing a row type an act rather than an accident. */
+	if ( preg_match( '/`(RT_[A-Z0-9_]+)`/', $payload, $m ) ) {
+		return array( 'shape' => 5, 'exists' => array_key_exists( $m[1], ROW_TYPES ), 'target' => 'row type ' . $m[1] );
+	}
 	return null;
+}
+
+/* The "- " bullets under a rules heading. Always an array, never null: a file with no such
+ * section and a heading with nothing under it BOTH state no rules, and both cost the same
+ * verdict, so distinguishing them would be a distinction no caller acts on.
+ *
+ * $heading_re must capture the block. Two callers, two headings: skills say "## Hard Rules", the
+ * orchestrator says "## House rules (defaults for every build — …)". */
+function rules_bullets( $body, $heading_re ) {
+	if ( ! preg_match( $heading_re, $body, $m ) ) {
+		return array();
+	}
+	$out = array();
+	foreach ( preg_split( '/\n(?=- )/', trim( $m[1] ) ) as $rule ) {
+		$rule = trim( $rule );
+		if ( '' !== $rule && '-' === $rule[0] ) {
+			$out[] = $rule;
+		}
+	}
+	return $out;
+}
+
+/* The marker grammar over one file's rule bullets. Returns the structurally valid spans, which
+ * the SKILL.md caller subtracts from its word budget and the agent caller ignores (agents carry
+ * no budget).
+ *
+ * Factored out rather than copied because the orchestrator's House rules govern EVERY build and
+ * were, until this slice, the one set of rules in the repo the grammar never read. Two
+ * implementations of one rule drift, and the repo says so in its own house-rules table; the
+ * duplicate is the one that would have been wrong.
+ *
+ * $report is the scope gate: verdict rows fire only where a violation SHIPS — the five
+ * write-capable skills and the orchestrator. The word-budget strip is not gated (see the cap
+ * below), because a marker is provenance wherever it legitimately appears. */
+function marker_walk( $where, array $rules, $report, $noun, $own_skill ) {
+	global $root, $FN_NAMES, $HOUSE_ROWS, $SKILL_STEPS;
+	$valid_spans = array();
+	foreach ( $rules as $rule ) {
+		$mp = marker_parse( $rule );
+		if ( ! empty( $mp['case_mismatch'] ) ) {
+			if ( $report ) {
+				add( 'RT_MARKER_CASE', 'FAIL', $where, marker_short( $rule ) . '… — marker token is not the exact lowercase "(verifier:"/"(no verifier:" literal' );
+			}
+			continue;
+		}
+		if ( 0 === $mp['n'] ) {
+			if ( $report ) {
+				add( 'RT_MARKER_ABSENT', 'JUDGE', $where, $noun . ' names no verifier marker: "' . marker_short( $rule ) . '…"' );
+			}
+			continue;
+		}
+		if ( $mp['n'] >= 2 ) {
+			if ( $report ) {
+				add( 'RT_MARKER_MULTIPLE', 'FAIL', $where, marker_short( $rule ) . '… — carries ' . $mp['n'] . ' verifier markers, exactly one is allowed' );
+			}
+			continue;
+		}
+		if ( ! $mp['closed'] ) {
+			if ( $report ) {
+				add( 'RT_MARKER_UNCLOSED', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker is never closed' );
+			}
+			continue;
+		}
+		if ( ! $mp['terminal'] ) {
+			if ( $report ) {
+				add( 'RT_MARKER_TRAILING_TEXT', 'FAIL', $where, marker_short( $rule ) . '… — text follows the closing ")": the marker must be the last thing in the rule' );
+			}
+			continue;
+		}
+		/* Structurally valid (closed && terminal) regardless of what its payload says below — free
+		   from the word budget either way (D1'.1), but only WITHIN the 40-word cap, which is
+		   evaluated here, ABOVE the scope gate. The strip is what makes a marker free, so a cap
+		   running only where rows are reported is not a cap: it left the unreported files an
+		   unmetered region the budget subtracts and no check reads. The ROW is scoped; the CAP is
+		   not. */
+		$payload   = $mp['payload'];
+		$too_large = str_word_count( $payload ) > 40;
+		if ( ! $too_large ) {
+			$valid_spans[] = $mp['span'];
+		}
+		if ( ! $report ) {
+			continue;
+		}
+		if ( '' === $payload ) {
+			add( 'RT_MARKER_EMPTY', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker payload is empty' );
+			continue;
+		}
+		if ( in_array( mb_strtolower( $payload ), array( 'n/a', 'none', 'todo', 'tbd', 'pendiente', '-', 'x', '?', 'dunno' ), true ) ) {
+			add( 'RT_MARKER_STOPWORD', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker payload "' . $payload . '" is a placeholder, not a reason' );
+			continue;
+		}
+		if ( mb_strlen( $payload ) < 12 ) {
+			add( 'RT_MARKER_TOO_SHORT', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker payload is under 12 characters' );
+			continue;
+		}
+		if ( $too_large ) {
+			add( 'RT_MARKER_OVERSIZE', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker payload is ' . str_word_count( $payload ) . ' words, past the 40-word cap' );
+			continue;
+		}
+		$resolved = marker_resolve( $payload, $root, $FN_NAMES, $HOUSE_ROWS, $SKILL_STEPS, $own_skill );
+		if ( $mp['negated'] ) {
+			/* Shape 2 is exempt on purpose: "(no verifier: nothing runs this yet, closest is
+			   `tests/test-foo.php`)" cites a NEIGHBOURING file as context for the gap — it does
+			   not claim that file checks the rule. The other shapes name the checker itself, so
+			   if the checker exists the marker is simply mislabelled. */
+			if ( $resolved && $resolved['exists'] && 2 !== $resolved['shape'] ) {
+				add( 'RT_MARKER_MISLABEL', 'JUDGE', $where, marker_short( $rule ) . '… — "(no verifier: …)" names "' . $resolved['target'] . '", which DOES exist; use "(verifier: …)" instead' );
+			}
+		} elseif ( ! $resolved ) {
+			add( 'RT_MARKER_PROSE_ONLY', 'JUDGE', $where, marker_short( $rule ) . '… — verifier marker names no locatable row type, function, tests/ path, house-rule row or step' );
+		} elseif ( ! $resolved['exists'] ) {
+			add( 'RT_MARKER_TARGET_MISSING', 'FAIL', $where, marker_short( $rule ) . '… — verifier marker names "' . $resolved['target'] . '", which does not exist' );
+		}
+	}
+	return $valid_spans;
 }
 
 /* ---------------------------------------------------------------- skills */
@@ -372,17 +501,11 @@ foreach ( $skill_dirs as $dir ) {
 		$hard_rules_block = $hr[1];
 	}
 	/* The verdict is driven by the BULLETS actually parsed, never by the heading: the lazy capture
-	   above matches the empty string happily, so testing the block for null let a write-capable
-	   skill past the FAIL by typing "## Hard Rules" and stopping — free, where the escape this
-	   design priced costs a written reason. Rules the splitter cannot see (a "* " bullet) count as
-	   absent for the same reason: fail closed, and say so. */
-	$rules = array();
-	foreach ( preg_split( '/\n(?=- )/', trim( (string) $hard_rules_block ) ) as $rule ) {
-		$rule = trim( $rule );
-		if ( '' !== $rule && '-' === $rule[0] ) {
-			$rules[] = $rule;
-		}
-	}
+	   matches the empty string happily, so testing the block for null let a write-capable skill
+	   past the FAIL by typing "## Hard Rules" and stopping — free, where the escape this design
+	   priced costs a written reason. Rules the splitter cannot see (a "* " bullet) count as absent
+	   for the same reason: fail closed, and say so. */
+	$rules = rules_bullets( $body, '/^## Hard Rules\n(.*?)(?=\n## |\z)/ms' );
 	if ( array() === $rules ) {
 		$how = 'no "## Hard Rules" section, or one with no "- " bullets under it';
 		if ( $is_write_capable ) {
@@ -392,86 +515,7 @@ foreach ( $skill_dirs as $dir ) {
 		}
 	}
 
-	$valid_spans = array();
-	if ( array() !== $rules ) {
-		foreach ( $rules as $rule ) {
-			$mp = marker_parse( $rule );
-			if ( ! empty( $mp['case_mismatch'] ) ) {
-				if ( $is_write_capable ) {
-					add( 'RT_MARKER_CASE', 'FAIL', $name, marker_short( $rule ) . '… — marker token is not the exact lowercase "(verifier:"/"(no verifier:" literal' );
-				}
-				continue;
-			}
-			if ( 0 === $mp['n'] ) {
-				if ( $is_write_capable ) {
-					add( 'RT_MARKER_ABSENT', 'JUDGE', $name, 'Hard Rule names no verifier marker: "' . marker_short( $rule ) . '…"' );
-				}
-				continue;
-			}
-			if ( $mp['n'] >= 2 ) {
-				if ( $is_write_capable ) {
-					add( 'RT_MARKER_MULTIPLE', 'FAIL', $name, marker_short( $rule ) . '… — carries ' . $mp['n'] . ' verifier markers, exactly one is allowed' );
-				}
-				continue;
-			}
-			if ( ! $mp['closed'] ) {
-				if ( $is_write_capable ) {
-					add( 'RT_MARKER_UNCLOSED', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker is never closed' );
-				}
-				continue;
-			}
-			if ( ! $mp['terminal'] ) {
-				if ( $is_write_capable ) {
-					add( 'RT_MARKER_TRAILING_TEXT', 'FAIL', $name, marker_short( $rule ) . '… — text follows the closing ")": the marker must be the last thing in the rule' );
-				}
-				continue;
-			}
-			/* Structurally valid (closed && terminal) regardless of what its payload says below —
-			   free from the word budget either way (D1'.1), but only WITHIN the 40-word cap, which
-			   is evaluated here, ABOVE the write-capable gate. The strip is what makes a marker
-			   free, so a cap running only for write-capable skills is not a cap: it left the
-			   knowledge skills an unmetered region the budget subtracts and no check reads. The
-			   ROW stays scoped; the CAP does not. */
-			$payload   = $mp['payload'];
-			$too_large = str_word_count( $payload ) > 40;
-			if ( ! $too_large ) {
-				$valid_spans[] = $mp['span'];
-			}
-			if ( ! $is_write_capable ) {
-				continue;
-			}
-			if ( '' === $payload ) {
-				add( 'RT_MARKER_EMPTY', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker payload is empty' );
-				continue;
-			}
-			if ( in_array( mb_strtolower( $payload ), array( 'n/a', 'none', 'todo', 'tbd', 'pendiente', '-', 'x', '?', 'dunno' ), true ) ) {
-				add( 'RT_MARKER_STOPWORD', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker payload "' . $payload . '" is a placeholder, not a reason' );
-				continue;
-			}
-			if ( mb_strlen( $payload ) < 12 ) {
-				add( 'RT_MARKER_TOO_SHORT', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker payload is under 12 characters' );
-				continue;
-			}
-			if ( $too_large ) {
-				add( 'RT_MARKER_OVERSIZE', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker payload is ' . str_word_count( $payload ) . ' words, past the 40-word cap' );
-				continue;
-			}
-			$resolved = marker_resolve( $payload, $root, $FN_NAMES, $HOUSE_ROWS, $SKILL_STEPS, $name );
-			if ( $mp['negated'] ) {
-				/* Shape 2 is exempt on purpose: "(no verifier: nothing runs this yet, closest is
-				   `tests/test-foo.php`)" cites a NEIGHBOURING file as context for the gap — it does
-				   not claim that file checks the rule. The other three shapes name the checker
-				   itself, so if the checker exists the marker is simply mislabelled. */
-				if ( $resolved && $resolved['exists'] && 2 !== $resolved['shape'] ) {
-					add( 'RT_MARKER_MISLABEL', 'JUDGE', $name, marker_short( $rule ) . '… — "(no verifier: …)" names "' . $resolved['target'] . '", which DOES exist; use "(verifier: …)" instead' );
-				}
-			} elseif ( ! $resolved ) {
-				add( 'RT_MARKER_PROSE_ONLY', 'JUDGE', $name, marker_short( $rule ) . '… — verifier marker names no locatable function, tests/ path, house-rule row or step' );
-			} elseif ( ! $resolved['exists'] ) {
-				add( 'RT_MARKER_TARGET_MISSING', 'FAIL', $name, marker_short( $rule ) . '… — verifier marker names "' . $resolved['target'] . '", which does not exist' );
-			}
-		}
-	}
+	$valid_spans = marker_walk( $name, $rules, $is_write_capable, 'Hard Rule', $name );
 
 	/* A marker-shaped OPENER line outside "## Hard Rules" is not free: markers are provenance for
 	   the rule they document, not a general licence, so a line shaped like one anywhere else in
@@ -612,6 +656,19 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 		if ( false === strpos( $src, '`' . $sk . '`' ) ) {
 			add( 'RT_AGENT_SKILL_UNMENTIONED', 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through the orchestrator' );
 		}
+	}
+
+	/* The orchestrator's House rules get the SAME grammar as a write-capable skill's Hard Rules,
+	 * and until this slice they were the one set of rules in the repo nothing read. They are not
+	 * softer than a skill's: they are the defaults every build inherits, so a violation ships on
+	 * every site, not one. The heading match is deliberately loose after "House rules" — the
+	 * orchestrator's carries a parenthetical, and a rule that only fires on an exact string is a
+	 * rule an author retitles their way out of by accident. */
+	$house = rules_bullets( $src, '/^## House rules\b[^\n]*\n(.*?)(?=\n## |\z)/mis' );
+	if ( array() === $house ) {
+		add( 'RT_AGENT_NO_HOUSE_RULES', 'FAIL', $name, 'the orchestrator states no House rules — no "## House rules" section, or one with no "- " bullets under it' );
+	} else {
+		marker_walk( $name, $house, true, 'House rule', $name );
 	}
 }
 

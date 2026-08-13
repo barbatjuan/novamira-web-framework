@@ -35,11 +35,11 @@ The "fewest containers" rule survived a whole build cycle being violated even th
 audit was already running. Two causes, both cheap to prevent, both easy to repeat in the next
 skill. Treat these as review questions on any PR that adds a rule.
 
-**Scope**: this section is enforced today for the five write-capable skills only
-(`elementor-core`, `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`). It does
-not yet apply to the orchestrator's House rules — nothing checks agent documents until that
-scanner ships, and asserting an unenforced MUST here would be exactly the wish this section
-exists to prevent.
+**Scope**: this section is enforced for the five write-capable skills (`elementor-core`,
+`divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`) **and for the orchestrator's
+`## House rules`**, which are not softer than a skill's — they are the defaults every build
+inherits, so a violation there ships on every site rather than one. An agent stating no House
+rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.
 
 - **A rule with no verifier is a wish.** Every bullet under a write-capable skill's
   `## Hard Rules` must carry a **verifier marker**: `(verifier: <what checks it>)` or
@@ -53,10 +53,10 @@ exists to prevent.
     the token's case does not match `verifier:`/`no verifier:` exactly (`RT_MARKER_CASE`); the
     payload is empty (`RT_MARKER_EMPTY`), under 12 characters (`RT_MARKER_TOO_SHORT`), a
     placeholder like `TODO`/`n/a`/`x` (`RT_MARKER_STOPWORD`), or over 40 words
-    (`RT_MARKER_OVERSIZE`); a `(verifier: …)` names a function, `tests/` path, house-rules row or
-    execution step that does not exist (`RT_MARKER_TARGET_MISSING`).
+    (`RT_MARKER_OVERSIZE`); a `(verifier: …)` names a row type, function, `tests/` path,
+    house-rules row or execution step that does not exist (`RT_MARKER_TARGET_MISSING`).
   - **JUDGE** — a bullet carries no marker at all (`RT_MARKER_ABSENT`); a `(verifier: …)` names no
-    locatable function/path/row/step at all (`RT_MARKER_PROSE_ONLY`, a documented gap is still
+    locatable row type/function/path/row/step at all (`RT_MARKER_PROSE_ONLY`, a documented gap is still
     valid prose, so this is reported, not blocked); a `(no verifier: …)` names something that DOES
     exist (`RT_MARKER_MISLABEL` — use `(verifier: …)` instead), **except** when it cites a
     backticked `tests/…` path: naming a neighbouring test file as context for a gap is not the
@@ -67,9 +67,13 @@ exists to prevent.
   - **Both polarities cost the same.** The stop-word/length/size checks above apply identically to
     `(verifier: …)` and `(no verifier: …)` — asserting a verifier that does not exist must never
     be cheaper than admitting the gap.
-  - A marker is resolved against one of four shapes: an `es_[a-z_]+(` helper call, a backticked
-    `tests/…` path, a `` `qa-review` house-rule row N``, or a `step N` (optionally
-    `` `<skill>` step N`` for a different skill's own numbered `## Execution Steps`). Function
+  - A marker is resolved against one of five shapes, tried in this order: an `es_[a-z_]+(` helper
+    call, a backticked `tests/…` path, a `` `qa-review` house-rule row N``, a `step N` (optionally
+    `` `<skill>` step N`` for a different skill's own numbered `## Execution Steps`), or a
+    **backticked** `` `RT_…` `` row type this audit declares — its own checks are verifiers too.
+    First match wins, so the row-type shape is tried LAST and must be backticked: an ID is legal
+    prose, and an unquoted one tried first let a passing mention silence the check on the target
+    the marker actually named. Function
     existence is checked with PHP's tokenizer, not a text search — a name mentioned only in a
     comment or a string literal does not count as defined.
   - Marker lines are excluded from the `SKILL.md` word budget below (they are provenance for the
@@ -110,8 +114,9 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
 | `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file is never mentioned by `SKILL.md` |
-| `RT_NO_HARD_RULES` | WARN | `SKILL.md` has no `## Hard Rules` section |
+| `RT_NO_HARD_RULES` | WARN | `SKILL.md` states no Hard Rules — section absent, or present with no bullets |
 | `RT_HARD_RULES_MISSING_WRITE` | FAIL | a write-capable skill states no Hard Rules — section absent, or present with no bullets |
+| `RT_AGENT_NO_HOUSE_RULES` | FAIL | an agent states no House rules — section absent, or present with no bullets |
 | `RT_MARKER_ABSENT` | JUDGE | a Hard Rule bullet names no verifier marker |
 | `RT_MARKER_MULTIPLE` | FAIL | a Hard Rule bullet carries two or more verifier markers |
 | `RT_MARKER_CASE` | FAIL | a verifier marker token is not the exact lowercase literal |
