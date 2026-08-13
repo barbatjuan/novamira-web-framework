@@ -153,8 +153,17 @@ Esta sección importa tanto como las anteriores.
 
 | Hallazgo | Estado |
 |----------|--------|
-| 5, 7, 8 | **Cerrados** por `1ac7992`, con el primer arnés de regresión que `framework-audit.php` ha tenido |
-| Resto | Abiertos, planificados en el programa de ocho cambios que abre `audit-truthfulness` |
+| 7, 8 | **Cerrados** por `1ac7992`, con el primer arnés de regresión que `framework-audit.php` ha tenido |
+| 5 | **Cerrado** por `048fdf1` + `3017d90` + `3bfc649` + `8b72cdb`: la regex de vocabulario borrada, marcador `(verifier: …)` / `(no verifier: …)` exigido en las cinco skills con capacidad de escritura, y las 23 reglas migradas |
+| 6 | **Cerrado** por `344e5fa`: las `## House rules` del orquestador se analizan por primera vez, con sus 11 marcadores |
+| 3, 10, 11 | **Cerrados** por `5d946e7` + `b0ff90e`: el recorrido entra en los árboles heredados y nombra lo que no supo juzgar; el remedio lee la dirección del hijo antes de proponerlo; `earns_its_place()` reconoce el ancho boxed. `es_audit_summary()` devuelve cuatro valores, así que «no se auditó nada» dejó de parecerse a «limpio» |
+| varios MINOR | **Cerrados** en el mismo programa: cobertura de archivos huérfanos a cualquier profundidad (`9886ef4`), y el acoplamiento de `ES_AUDIT_SILENT` con `es_warn()`, que silenciaba avisos junto con el reporte de rutina (`b0ff90e`) |
+| Resto | Abiertos. El cambio 1 de ocho, `audit-truthfulness`, está cerrado; quedan siete |
+
+Esta tabla llegó tarde y con un error: durante siete commits nadie la actualizó, y su primera
+versión daba el hallazgo 5 por cerrado en `1ac7992` cuando la regex de vocabulario siguió viva
+hasta `048fdf1`. Un registro de cierres que nadie verifica es la misma clase de fallo que este
+informe describe, cometida por el informe.
 
 El commit que cerró esos tres hallazgos encontró uno nuevo durante su propia revisión: la
 comprobación de auto-registro que ese mismo commit añadía era el único verificador nuevo que su
