@@ -45,6 +45,11 @@ function ok( $cond, $label ) {
 	if ( $cond ) { $pass++; echo "  OK   $label\n"; }
 	else { $fail++; echo "  FAIL $label\n"; }
 }
+function grab_out( $fn ) {
+	ob_start();
+	$ret = $fn();
+	return array( 'out' => ob_get_clean(), 'ret' => $ret );
+}
 function has( array $list, $needle ) {
 	foreach ( $list as $l ) { if ( false !== strpos( $l, $needle ) ) { return true; } }
 	return false;
@@ -228,6 +233,29 @@ echo "--- y el veredicto de corrida deja de llamarlo limpio ---\n";
 $GLOBALS['es_audit_runs'] = array();
 es_container_report( $legacy, 'heredada' );
 ok( -2 === es_audit_summary(), 'un arbol que el audit no pudo juzgar devuelve -2, nunca 0' );
+
+echo "--- una foto que no existe deja de pasar en silencio ---\n";
+es_uid_reset( 't14' );
+/* es_img() devolvia array('url'=>'','id'=>'') ante un slug inexistente y no decia nada, asi que una
+   foto mal escrita entregaba un widget image SIN <img> y todas las verificaciones seguian verdes.
+   Dos canales, porque el fallo ocurre al CONSTRUIR y se descubre al AUDITAR: el aviso ahora, y el
+   offender cuando se recorre el arbol que se va a guardar. */
+$r = grab_out( function () { return es_img( 'jamas-pedida' ); } );
+ok( '' === $r['ret']['url'] && '' === $r['ret']['id'], 'sigue devolviendo url e id vacios a quien la pidio' );
+ok( false !== strpos( $r['out'], 'jamas-pedida' ), 'pero AVISA, nombrando el slug que no encontro' );
+ok( '' === grab_out( function () { return es_img( 'jamas-pedida' ); } )['out'], 'y avisa una sola vez por slug, no una por uso' );
+ok( false !== strpos( grab_out( function () { return es_img( 'otro-que-falta' ); } )['out'], 'otro-que-falta' ), 'cada slug distinto si avisa' );
+
+$rota = es_photo( 'jamas-pedida', 400 );
+$a    = es_container_audit( array( es_split( array( $rota, es_p( 'copy' ) ) ) ) );
+ok( has( $a['offenders'], 'sin imagen' ), 'y el arbol guardado la reporta como offender, no como limpio' );
+ok( has( $a['offenders'], 'jamas-pedida' ), 'nombrando el slug para poder arreglarlo' );
+$buena = es_photo( 'foto', 400 );
+ok( ! es_container_audit( array( es_split( array( $buena, es_p( 'copy' ) ) ) ) )['offenders'], 'una foto real no dispara nada' );
+/* El unico background_image lo pone un CONTENEDOR: en la rama de widgets no podia ejecutarse. */
+$bgroto = es_c( array( 'background_background' => 'classic', 'background_image' => es_img( 'fondo-fantasma' ) ), array( es_h( 'a' ), es_h( 'b' ) ) );
+ok( has( es_container_audit( array( $bgroto ) )['offenders'], 'fondo-fantasma' ), 'un fondo de CONTENEDOR que no existe tambien es offender' );
+ok( has( es_container_audit( array( es_split( array( es_photo( '', 400 ), es_p( 'c' ) ) ) ) )['offenders'], 'sin imagen' ), 'un slug VACIO tambien, no solo uno falsy-distinto-de-vacio' );
 
 echo "--- veredicto de corrida ---\n";
 $GLOBALS['es_audit_runs'] = array();

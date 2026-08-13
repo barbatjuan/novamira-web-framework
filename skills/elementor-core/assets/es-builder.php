@@ -79,7 +79,16 @@ function es_img( $slug ) {
 		)
 	);
 	if ( empty( $posts ) ) {
-		return array( 'url' => '', 'id' => '' );
+		/* This used to return the empty shape and say NOTHING, which is how a mistyped slug shipped
+		   an image widget with no <img> in it while every check stayed green. Two channels, because
+		   the mistake happens HERE and is discovered LATER: es_warn() now, and `es_missing`, which
+		   rides along in the settings so es_container_walk() can name the slug when it audits the
+		   tree — including the re-audit qa-review runs against what actually landed. Elementor
+		   reads only `url` and `id`, so the extra key is inert to it and legible to us.
+		   Cached like a hit so a slug used in ten places warns once, not ten times. */
+		$cache[ $slug ] = array( 'url' => '', 'id' => '', 'es_missing' => $slug );
+		es_warn( 'no existe ninguna imagen con el slug "' . $slug . '". El widget se va a construir SIN imagen. Sube el archivo o corrige el slug antes de desplegar.' );
+		return $cache[ $slug ];
 	}
 	$cache[ $slug ] = array(
 		'url' => wp_get_attachment_url( $posts[0]->ID ),
@@ -679,6 +688,11 @@ function es_container_walk( array $els, $depth, $path, array &$out, array $anc =
 		$kids     = ( isset( $el['elements'] ) && is_array( $el['elements'] ) ) ? $el['elements'] : array();
 		$settings = ( isset( $el['settings'] ) && is_array( $el['settings'] ) ) ? $el['settings'] : array();
 		$kid_anc  = $anc;
+		/* ABOVE the dispatch: the only background_image here sits on a CONTAINER, so checking it in
+		   the widget branch was dead on arrival. isset(), not !empty(): the payload IS the slug. */
+		foreach ( array( 'image', 'background_image' ) as $k ) {
+			if ( isset( $settings[ $k ]['es_missing'] ) ) { $out['offenders'][] = $here . ' ' . ( '' === $type ? '(sin elType)' : $type ) . ' sin imagen: el slug "' . $settings[ $k ]['es_missing'] . '" no existe, va a renderizar vacio'; }
+		}
 		if ( 'container' === $type ) {
 			$out['containers']++;
 			$d = $depth + 1;
