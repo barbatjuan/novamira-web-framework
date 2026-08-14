@@ -320,7 +320,7 @@ register_shutdown_function(
 	}
 );
 define( 'WP_CONTENT_DIR', $GLOBALS['es_sandbox'] );
-require_once dirname( __DIR__ ) . '/skills/elementor-core/assets/es-theme-parts.example.php';
+require_once dirname( __DIR__ ) . '/skills/elementor-theme-parts/assets/es-theme-parts.example.php';
 
 /* A stand-in for Elementor Pro, in its own file because a namespace declaration cannot share a
    file with non-namespaced code. Without it es_rebuild_theme_conditions() returns false at its
@@ -929,7 +929,7 @@ if ( ! function_exists( 'exec' ) ) {
 		'<?php' . "\n"
 		. "define( 'ABSPATH', __DIR__ );\n"
 		. 'define( ' . var_export( 'WP_CONTENT_DIR', true ) . ', ' . var_export( $vacio, true ) . " );\n"
-		. 'require ' . var_export( dirname( __DIR__ ) . '/skills/elementor-core/assets/es-theme-parts.example.php', true ) . ";\n"
+		. 'require ' . var_export( dirname( __DIR__ ) . '/skills/elementor-theme-parts/assets/es-theme-parts.example.php', true ) . ";\n"
 		. "echo \"SOBREVIVIO\\n\";\n"
 	);
 	$out  = array();

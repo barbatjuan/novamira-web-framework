@@ -20,6 +20,7 @@ skills/
   html-mockup/                        # static HTML preview for client approval before the native build
   elementor-core/                     # Elementor execution — battle-tested (+ es-builder.php)
   divi-core/                          # Divi execution — scaffold, unvalidated, no assets yet
+  elementor-theme-parts/              # header, footer, Theme Builder parts (Elementor Pro)
   woocommerce/                        # shop / product / side cart / templates (Elementor path only)
   wordpress-forms/                    # contact/lead forms + a PROVEN delivery, not a rendered form
   wordpress-legal/                    # legal pages from the client's real data + a banner that blocks

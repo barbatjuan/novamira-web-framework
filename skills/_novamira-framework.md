@@ -23,8 +23,8 @@ their `assets/`.
   built site and nothing checked the framework. Run it before merging a skill change.
 - **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
   Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
-  `wordpress-performance`, `wordpress-seo`, `wordpress-forms` and `wordpress-legal` write to the
-  live site — each one carries its own blocking build gate. `wordpress-forms` additionally SENDS a real message
+  `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` and
+  `elementor-theme-parts` write to the live site — each one carries its own blocking build gate. `wordpress-forms` additionally SENDS a real message
   during its delivery test, which is an outward action and is confirmed separately.
 
 Copywriting is owned by a SUBAGENT, not a skill: `agents/novamira-copywriter.md`. Long-output
