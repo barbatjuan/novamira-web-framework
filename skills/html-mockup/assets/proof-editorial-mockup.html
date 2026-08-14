@@ -1,0 +1,329 @@
+<!--
+  NovaMira · AXIS PROOF A — PERS-EDITORIAL
+  ========================================
+  Half of a two-file experiment. Its twin is `proof-direct-mockup.html` (PERS-DIRECT).
+  Both render the SAME strings, in the SAME section order, with the SAME number of cards —
+  the copy lives once in `_axis-proof-content.md`. The ONLY thing that differs between the two
+  files is the five perceptual axes. If the two pages do not read as unmistakably different
+  pages side by side, the axis system has failed its own falsifiable test.
+
+  Axes (PERS-EDITORIAL, per ux-design-system/references/design-personalities.md):
+    scale editorial · ground paper · density generous · composition asymmetric · elevation none
+
+  Every axis value below is COPIED from web-templates/references/design-system.md
+  § "Perceptual axes — token values". Nothing here is a hand-chosen number, and no heading
+  size is hardcoded in px — the three clamp() formulas are transcribed verbatim, which is the
+  exact defect the axes replaced (a 56px h1 cap on every client site).
+
+  This file is deliberately NOT theme-aware: it pins the `paper` ground on purpose. Swapping it
+  under a dark scheme would erase the ground axis, which is one of the five things being proved.
+
+  Fonts are NAMED first with honest fallbacks and NEVER @font-face'd at a URL: the Artifact CSP
+  blocks external requests, so a blocked font is worse than a declared fallback. Embedding
+  Fraunces / Inter Tight as data: URIs is a documented human step, not a generated one.
+-->
+<style>
+  :root{
+    /* ══ AXIS TOKENS — copied verbatim from design-system.md § Perceptual axes ══ */
+    --type-ratio: 1.500;  --display-lh: 0.95;  --fs-h1-max: 88px;   /* scale: editorial */
+    --sp-scale: 1.35;                                               /* density: generous */
+    --c-bg: #FFFFFF; --c-bg-alt: #F6F7F8; --c-text: #15181A;        /* ground: paper (17.8:1) */
+    --elev-rest: none; --elev-hover: none;                          /* elevation: none */
+    /* composition: LP-ASYMMETRIC */
+
+    /* ── Typefaces: design-personalities.md names them; this file only spells the stack.
+          Real families FIRST, then honest system fallbacks. No webfont request is made. ── */
+    --font-primary: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-secondary: 'Inter Tight', system-ui, sans-serif;
+
+    /* ── Type scale — the three clamp() formulas transcribed VERBATIM from design-system.md.
+          Every step hangs off --type-ratio and --fs-h1-max; not one px is written by hand. ── */
+    --fs-body: clamp(1rem, 1.2vw, 1.25rem);
+    --fs-h1: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)),
+                   calc(3.3vw + 1rem),
+                   var(--fs-h1-max));
+    --fs-h2: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)),
+                   calc(2.2vw + 1rem),
+                   calc(var(--fs-h1-max) / var(--type-ratio)));
+    --fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)),
+                   calc(1.1vw + 1rem),
+                   calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)));
+    --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
+
+    /* ── Spacing — one scale, multiplied whole by the density position. Verbatim. ── */
+    --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
+    --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
+    --sp-xl: calc(5rem   * var(--sp-scale));  --sp-xxl:calc(7.5rem * var(--sp-scale));
+
+    /* ── Colours design-system.md does NOT pin per ground position.
+          The ground table gives --c-bg / --c-bg-alt / --c-text only, so accent, muted and
+          border are DERIVED here rather than copied, and each one is stated with its measured
+          ratio. Reported as a gap in the task report, not silently invented.
+
+          --c-accent #8C3A1F on #FFFFFF ......... 7.66:1  (AA large + normal, and AAA)
+          --c-accent #8C3A1F on #F6F7F8 ......... 7.15:1  (holds on the alt ground too)
+          #FFFFFF text on #8C3A1F fill .......... 7.66:1  (the primary button is legible)
+          --c-text-muted (#6E7071 resolved) ..... 4.98:1 on #FFFFFF, 4.64:1 on #F6F7F8 ── */
+    --c-accent: #8C3A1F;
+    --c-primary: var(--c-text);
+    --c-text-muted: color-mix(in srgb, var(--c-text) 62%, var(--c-bg));
+    --c-border:     color-mix(in srgb, var(--c-text) 14%, var(--c-bg));
+
+    /* ── Containers / radius / buttons / motion — shared chrome, unchanged by the axes ── */
+    --container-max:1280px; --content-width:1140px;
+    --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
+    --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
+    --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
+    --btn-border-width:1.5px;
+    --ease:cubic-bezier(.22,1,.36,1);
+    /* PERS-EDITORIAL motion: the SLOWEST documented durations (motion.md: .5s lift, .7s zoom),
+       lift capped at -4px. Nothing on this page is allowed to feel quick. */
+    --btn-transition:all .5s var(--ease);
+
+    /* One column of the 12-col grid, sized so wide-start→wide-end is exactly --content-width
+       once the 11 inner gaps are accounted for. */
+    --col: calc((var(--content-width) - 11 * var(--sp-m)) / 12);
+  }
+
+  /* ── base ── */
+  *{box-sizing:border-box}
+  body,figure,blockquote,h1,h2,h3,p,ul,ol,li{margin:0;padding:0}
+  body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text);
+       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:-.015em}
+  /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25, body 1.6 (design-system.md) */
+  h1,h2{line-height:var(--display-lh)}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3);line-height:1.25}
+  a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:none}
+  :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* Section padding: the fluid formula from design-system.md, verbatim. No breakpoint by hand. */
+  section{padding-block:clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))}
+  .bg-alt{background:var(--c-bg-alt)}
+  .eyebrow{display:block;font-family:var(--font-secondary);font-size:var(--fs-eyebrow);font-weight:600;
+           letter-spacing:.24em;text-transform:uppercase;color:var(--c-accent)}
+  .muted{color:var(--c-text-muted)} .small{font-size:var(--fs-small)}
+  .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
+
+  /* Placeholder recipe, same as corporate-mockup.html — no remote image is ever requested. */
+  .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,
+        color-mix(in srgb,var(--c-border) 65%,transparent) 11px,
+        color-mix(in srgb,var(--c-border) 65%,transparent) 12px),var(--c-bg-alt);
+      border:1px solid var(--c-border);display:grid;place-items:center;text-align:center;padding:.5rem;
+      color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.14em;text-transform:uppercase;
+      /* width MUST be pinned: with `aspect-ratio` plus a `min-height`, an auto width is computed
+         FROM the ratio, which measured 660px inside a 390px column at 430 — a 250px page
+         overflow. Pinning width makes the ratio drive height only. */
+      width:100%;max-width:100%}
+
+  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
+       line-height:1.2;text-align:center;border-radius:0;border:var(--btn-border-width) solid transparent;
+       cursor:pointer;transition:var(--btn-transition);box-shadow:var(--elev-rest)}
+  /* elevation: none — the hover is colour and a -4px lift at most, never a shadow. */
+  .btn-primary{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent)}
+  .btn-primary:hover{background:var(--c-text);border-color:var(--c-text);transform:translateY(-4px);box-shadow:var(--elev-hover)}
+  .btn-outline{background:transparent;color:var(--c-text);border-color:var(--c-text)}
+  .btn-outline:hover{transform:translateY(-4px)}
+  .btn-sm{padding:.55rem 1.05rem;font-size:var(--fs-nav)}
+
+  /* ══════ LP-ASYMMETRIC ══════
+     12 columns. Text blocks live on columns 1–7 (~58%); the remaining 5 are air or image.
+     Two-column grids run 7/5 or 5/7, ALTERNATING section to section, never 50/50.
+     Exactly one image bleeds per section, and always on the SAME edge — the right one.
+     Mobile is a single stacked column; the spans switch on at 900px.
+
+     THE BLEED, and why it is NOT `margin-right: calc(50% - 50vw)`.
+     That is the technique layout-patterns.md names, and it is correct for a block child of a
+     centred container — but it is WRONG for a grid item, which is what the bleeding image is
+     here. Percentage margins on a grid item resolve against the item's own GRID AREA, not
+     against the container, so `50%` was half of the 5-column area (201px) instead of half of
+     the 1140px container (570px). Measured at 1280×900: the image's right edge landed at
+     x=1577.5 in a 1265px layout viewport — a 312px overshoot, invisible only because
+     `overflow-x:clip` was hiding it. Named grid lines do the same job exactly: `full-end` IS
+     the viewport's right edge, so the bleed needs no vw arithmetic, no clip, and no half-a-
+     scrollbar fudge (`vw` includes the scrollbar; the layout viewport does not). */
+  .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
+  .g12{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-l) var(--sp-m)}
+  @media(min-width:900px){
+    .wrap.g12{
+      max-width:none;padding-inline:0;
+      grid-template-columns:
+        [full-start] minmax(var(--pad-x-mobile),1fr)
+        [wide-start] repeat(12,[c] minmax(0,var(--col)))
+        [wide-end c] minmax(var(--pad-x-mobile),1fr)
+        [full-end];
+    }
+    .g12 > *{grid-column:wide-start/wide-end;min-width:0}
+    .c1-7{grid-column:c 1/c 8} .c8-12{grid-column:c 8/c 13}
+    .c1-5{grid-column:c 1/c 6} .c6-12{grid-column:c 6/c 13} .c1-12{grid-column:c 1/c 13}
+    /* the one bleed per section, always the right edge, all the way down the page */
+    .c8-12.bleed{grid-column:c 8/full-end}
+    .c6-12.bleed{grid-column:c 6/full-end}
+  }
+
+  /* ── chrome: header + footer are SHARED structure across both proof files, on purpose.
+        If the header differed, part of the "unmistakably different" verdict would come from
+        the chrome rather than from the axes. ── */
+  header.site{border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+  .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:var(--sp-s);flex-wrap:wrap;min-width:0}
+  .logo{font-family:var(--font-primary);font-weight:700;font-size:1.15rem;letter-spacing:.16em;flex:none}
+  /* flex-basis 220px, not 0: a zero basis lets the nav shrink to a few pixels before the row
+     would wrap. A basis forces the wrap and gives it a full row of its own. */
+  .mainnav{flex:1 1 220px;min-width:0;display:flex;gap:var(--sp-s);overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
+  .mainnav::-webkit-scrollbar{display:none}
+  .mainnav a{white-space:nowrap;color:var(--c-text-muted);padding-block:.2rem;border-bottom:1px solid transparent;transition:color .5s var(--ease)}
+  .mainnav a:hover{color:var(--c-text);border-color:var(--c-accent)}
+
+  /* ── 1 · hero — copy on columns 1–7, ONE image bleeding the right viewport edge ── */
+  .hero .stack{gap:var(--sp-m)}
+  .hero h1{max-width:14ch}
+  .hero .lede{max-width:46ch;font-size:calc(var(--fs-body) * 1.15)}
+  .ctas{display:flex;flex-wrap:wrap;gap:var(--sp-s)}
+  .heroimg{aspect-ratio:4/5;min-height:min(62vh,520px)}
+
+  /* ── 2 · valores — 5/7. Section headings LEFT-aligned, eyebrow above and left. ── */
+  .list{display:flex;flex-direction:column}
+  .item{padding-block:var(--sp-m);border-top:1px solid var(--c-border)}  /* hairline rule = the card */
+  .item:last-child{border-bottom:1px solid var(--c-border)}
+  .item p{max-width:52ch;margin-top:var(--sp-xs)}
+
+  /* ── 3 · trabajos — 7/5, four cards, card recipe: image, hairline rule, text. No fills. ── */
+  .work{display:flex;flex-direction:column;gap:var(--sp-s)}
+  .work .ph{aspect-ratio:16/11;border:none}
+  .work .rule{height:1px;background:var(--c-border)}
+  .work h3{font-size:calc(var(--fs-h3) * .8)}
+
+  /* ── 4 · proceso — 5/7, image on the wider right column, bleeding right ── */
+  .steps{display:flex;flex-direction:column;gap:var(--sp-m);margin-top:var(--sp-m);counter-reset:s}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:var(--sp-s);align-items:start}
+  .step b{font-family:var(--font-primary);font-size:1.5rem;line-height:1;color:var(--c-accent);font-weight:700}
+  .step h3{font-size:calc(var(--fs-h3) * .72)}
+  .procimg{aspect-ratio:3/2;min-height:min(52vh,440px)}
+
+  /* ── 5 · testimonio — 7/5 ── */
+  .quote{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.28;text-wrap:balance}
+  .quote::before{content:"«";color:var(--c-accent)} .quote::after{content:"»";color:var(--c-accent)}
+  .attrib{display:flex;flex-direction:column;gap:var(--sp-xs);padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+  .attrib b{font-family:var(--font-primary)}
+
+  /* ── 6 · banda de cierre — still columns 1–7. Left, always left. ── */
+  .band h2{max-width:16ch}
+  .band p{max-width:48ch}
+
+  /* ── 7 · footer ── */
+  footer.site{border-top:1px solid var(--c-border);padding-block:var(--sp-l)}
+  .fnav{display:flex;flex-direction:column;gap:var(--sp-xs);font-size:var(--fs-nav)}
+  .fnav a{color:var(--c-text-muted)} .fnav a:hover{color:var(--c-accent)}
+  .legal{padding-top:var(--sp-m);border-top:1px solid var(--c-border);color:var(--c-text-muted)}
+
+  /* Below the 900px switch the container is a plain padded block; above it, the horizontal
+     padding is the grid's own side track, which is what keeps the bleed exact. */
+  @media(min-width:768px){.wrap{padding-inline:var(--pad-x-tablet)}}
+</style>
+
+<header class="site">
+  <div class="wrap g12"><div class="nav c1-12">
+    <span class="logo">PIEDRA VALDÉS</span>
+    <nav class="mainnav" aria-label="Principal">
+      <a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a>
+  </div></div>
+</header>
+
+<main>
+  <!-- 1 · HERO — LP-ASYMMETRIC: copy cols 1–7 (7/5), one image bleeding the RIGHT edge -->
+  <section class="hero" aria-label="Propuesta de valor">
+    <div class="wrap g12">
+      <div class="c1-7 stack">
+        <span class="eyebrow">Taller de piedra natural · desde 1978</span>
+        <h1>Cortamos piedra que dura más que el edificio</h1>
+        <p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#">Pedir presupuesto</a>
+          <a class="btn btn-outline" href="#">Ver el taller</a>
+        </div>
+      </div>
+      <div class="c8-12 bleed"><div class="ph heroimg">Bloque en el patio de corte</div></div>
+    </div>
+  </section>
+
+  <!-- 2 · VALORES — 5/7 (alternating away from the hero's 7/5). No image, so no bleed. -->
+  <section class="bg-alt" aria-label="Por qué nosotros">
+    <div class="wrap g12">
+      <div class="c1-5 stack">
+        <span class="eyebrow">Por qué nosotros</span>
+        <h2>Tres cosas que no subcontratamos</h2>
+      </div>
+      <div class="c6-12 list">
+        <article class="item"><h3>Medición propia</h3><p class="muted">Vamos a obra con láser antes de cortar. Lo que entra encaja a la primera.</p></article>
+        <article class="item"><h3>Bloque trazable</h3><p class="muted">Cada pieza lleva el número del bloque del que salió y la cantera que lo extrajo.</p></article>
+        <article class="item"><h3>Colocación sin terceros</h3><p class="muted">El equipo que corta es el que instala. Una sola responsabilidad de principio a fin.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · TRABAJOS — back to 7/5. Four cards on an uneven two-column grid, never 50/50. -->
+  <section aria-label="Obra terminada">
+    <div class="wrap g12">
+      <div class="c1-7 stack">
+        <span class="eyebrow">Obra terminada</span>
+        <h2>Trabajos recientes</h2>
+      </div>
+      <article class="work c1-7"><div class="ph">Cocina en Chamberí</div><div class="rule"></div><h3>Cocina en Chamberí</h3><p class="muted small">Mármol Macael</p></article>
+      <article class="work c8-12"><div class="ph">Escalera de tres tramos</div><div class="rule"></div><h3>Escalera de tres tramos</h3><p class="muted small">Granito Rosa Porriño</p></article>
+      <article class="work c1-7"><div class="ph">Fachada ventilada</div><div class="rule"></div><h3>Fachada ventilada</h3><p class="muted small">Caliza Capri</p></article>
+      <article class="work c8-12"><div class="ph">Baño principal</div><div class="rule"></div><h3>Baño principal</h3><p class="muted small">Travertino Navona</p></article>
+    </div>
+  </section>
+
+  <!-- 4 · PROCESO — 5/7, and the page's second (and last) bleed, on the same right edge. -->
+  <section class="bg-alt" aria-label="Cómo trabajamos">
+    <div class="wrap g12">
+      <div class="c1-5">
+        <span class="eyebrow">Cómo trabajamos</span>
+        <h2>Del plano a la junta sellada</h2>
+        <ol class="steps">
+          <li class="step"><b>01</b><div><h3>Visita y medición</h3><p class="muted small">Un técnico toma medidas reales en obra y levanta el despiece antes de tocar el bloque.</p></div></li>
+          <li class="step"><b>02</b><div><h3>Corte en taller</h3><p class="muted small">Control numérico para el despiece y mano para el canto. La pieza sale ya rematada.</p></div></li>
+          <li class="step"><b>03</b><div><h3>Colocación y sellado</h3><p class="muted small">Montamos, sellamos las juntas y dejamos la obra limpia el mismo día.</p></div></li>
+        </ol>
+      </div>
+      <div class="c6-12 bleed"><div class="ph procimg">Sierra de puente en el taller</div></div>
+    </div>
+  </section>
+
+  <!-- 5 · TESTIMONIO — 7/5 -->
+  <section aria-label="Testimonio">
+    <div class="wrap g12">
+      <blockquote class="c1-7 quote">Pedimos tres presupuestos. Fueron los únicos que vinieron a medir antes de dar un precio, y el precio no se movió.</blockquote>
+      <div class="c8-12 attrib"><b>Marta Iribarren</b><span class="muted small">Estudio Iribarren Arquitectura</span></div>
+    </div>
+  </section>
+
+  <!-- 6 · BANDA DE CIERRE — columns 1–7, left-aligned like every other heading on the page -->
+  <section class="bg-alt band" aria-label="Presupuesto cerrado">
+    <div class="wrap g12">
+      <div class="c1-7 stack">
+        <span class="eyebrow">Presupuesto cerrado</span>
+        <h2>¿Tiene los planos? Le damos el despiece.</h2>
+        <p class="muted">Envíe el plano o las medidas y recibe el precio cerrado en 48 horas laborables.</p>
+        <a class="btn btn-primary" href="#">Pedir presupuesto</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap g12">
+    <div class="c1-7 stack">
+      <span class="logo">PIEDRA VALDÉS</span>
+      <p class="muted small">Taller de piedra natural · Madrid</p>
+    </div>
+    <nav class="c8-12 fnav" aria-label="Pie">
+      <a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a>
+    </nav>
+    <p class="c1-12 legal small">© 2026 Piedra Valdés S.L. · Aviso legal · Privacidad</p>
+  </div>
+</footer>
