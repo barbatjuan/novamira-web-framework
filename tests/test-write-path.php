@@ -155,8 +155,23 @@ function wp_update_post( array $args ) {
 		return $w['update_ret'];
 	}
 	$id = $args['ID'];
-	if ( isset( $w['posts'][ $id ] ) && isset( $args['post_title'] ) ) {
-		$w['posts'][ $id ]->post_title = $args['post_title'];
+	if ( isset( $w['posts'][ $id ] ) ) {
+		if ( isset( $args['post_title'] ) ) {
+			$w['posts'][ $id ]->post_title = $args['post_title'];
+		}
+		/* post_name has to MOVE, in the object and in the slug index. Without this the fake would
+		   accept a rename and keep answering with the old slug, so es_migrate_slug()'s read-back
+		   check could never be exercised — the branch would be untestable rather than untested. */
+		if ( isset( $args['post_name'] ) && $args['post_name'] !== $w['posts'][ $id ]->post_name ) {
+			/* `rename_to` applies here too: wp_unique_post_slug() runs on UPDATE as well as on
+			   insert, and the slug space includes attachments and posts, which get_page_by_path()
+			   never sees. So a destination no PAGE holds can still come back suffixed, and the
+			   update reports success either way. */
+			$name = ( null === $w['rename_to'] ) ? $args['post_name'] : $w['rename_to'];
+			unset( $w['by_slug'][ $w['posts'][ $id ]->post_name ] );
+			$w['posts'][ $id ]->post_name = $name;
+			$w['by_slug'][ $name ]        = $w['posts'][ $id ];
+		}
 	}
 
 	return $id;   /* WordPress returns the post id on success. */
@@ -704,6 +719,89 @@ $r = grab(
 );
 ok( 0 === $r['ret']['overwrites'], 'un sitio vacio no pisa nada' );
 ok( '' !== $r['out'], 'y aun asi informa: "no se pisa nada" tambien es una respuesta que hay que ver' );
+
+/* ---------------------------------------------------------------------------
+ * 16. Higiene de slugs: mover, no duplicar; y decir que la redireccion no existe.
+ * ------------------------------------------------------------------------- */
+echo "--- un slug que cambia mueve la pagina, y la URL vieja queda anotada ---\n";
+
+wp_fake_reset();
+$pid = wp_fake_page( 'servicios-web', 'publish', 'Servicios' );
+$r   = grab(
+	function () {
+		return es_migrate_slug( 'servicios-web', 'servicios' );
+	}
+);
+ok( $pid === $r['ret'], 'mueve la MISMA pagina, no crea una segunda' );
+ok( 'servicios' === get_post_field( 'post_name', $pid ), 'y el slug quedo cambiado de verdad' );
+$mapa = get_option( 'es_slug_redirects' );
+ok( is_array( $mapa ) && isset( $mapa['servicios-web'] ) && 'servicios' === $mapa['servicios-web'], 'anotando de donde a donde' );
+/* La parte incomoda, y la que hace que esto no sea una mentira: nada sirve ese mapa. */
+ok( has( $r['out'], '404' ), 'y AVISA de que la URL vieja sigue devolviendo 404' );
+ok( has( $r['out'], 'es_slug_redirects' ), 'nombrando la opcion donde quedo el registro' );
+
+wp_fake_reset();
+$r = grab(
+	function () {
+		return es_migrate_slug( 'no-existe', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'], 'mover algo que no existe no mueve nada' );
+ok( has( $r['out'], 'no-existe' ), 'y avisa, porque un slug de origen mal escrito no falla: no hace nada' );
+
+/* Mover encima de una pagina ocupada dejaria dos peleando por la misma URL y WordPress renombrando
+   una a lo que le pareciera — la colision del hallazgo 15 otra vez, por la puerta de atras. */
+wp_fake_reset();
+$viejo = wp_fake_page( 'servicios-web' );
+$otro  = wp_fake_page( 'servicios' );
+$r     = grab(
+	function () {
+		return es_migrate_slug( 'servicios-web', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'], 'mover a un slug ocupado no mueve nada' );
+ok( 'servicios-web' === get_post_field( 'post_name', $viejo ), 'la pagina se queda donde estaba' );
+ok( has( $r['out'], '#' . $otro ), 'y el aviso nombra a quien ocupa el destino' );
+ok( ! is_array( get_option( 'es_slug_redirects' ) ), 'sin anotar una redireccion que no ocurrio' );
+
+wp_fake_reset();
+wp_fake_page( 'servicios' );
+$r = grab(
+	function () {
+		return es_migrate_slug( 'servicios', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'] && '' === $r['out'], 'mover un slug a si mismo no hace nada y no dice nada' );
+
+/* Igual que en es_save_page: escribir no es haber escrito. */
+wp_fake_reset();
+$pid                         = wp_fake_page( 'servicios-web' );
+$GLOBALS['wp']['update_ret'] = new WP_Error( 'db', 'la fila no se pudo tocar' );
+$r                           = grab(
+	function () {
+		return es_migrate_slug( 'servicios-web', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'], 'un movimiento rechazado devuelve 0' );
+ok( has( $r['out'], 'la fila no se pudo tocar' ), 'con el motivo de WordPress' );
+ok( ! is_array( get_option( 'es_slug_redirects' ) ), 'y no anota una redireccion hacia una pagina que no se movio' );
+
+/* Este bloque lo destapo una mutacion: quitar la relectura del slug SOBREVIVIA a la suite entera.
+   El caso que faltaba es el hallazgo 15 por la puerta de atras — wp_unique_post_slug() corre
+   tambien al ACTUALIZAR, y el espacio de slugs incluye adjuntos y entradas, que get_page_by_path()
+   no ve. Asi que un destino que ninguna PAGINA ocupa puede volver sufijado, y la actualizacion
+   reporta exito igual. Anotar la redireccion ahi apuntaria a una URL que no existe. */
+wp_fake_reset();
+$pid                        = wp_fake_page( 'servicios-web' );
+$GLOBALS['wp']['rename_to'] = 'servicios-2';
+$r                          = grab(
+	function () {
+		return es_migrate_slug( 'servicios-web', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'], 'si WordPress sufija el destino, el movimiento NO cuenta como hecho' );
+ok( has( $r['out'], 'servicios-2' ), 'y el aviso nombra el slug que quedo de verdad' );
+ok( ! is_array( get_option( 'es_slug_redirects' ) ), 'sin anotar una redireccion hacia una URL que no existe' );
 
 /* ---------------------------------------------------------------------------
  * 27. Registrado no es lo mismo que visible.

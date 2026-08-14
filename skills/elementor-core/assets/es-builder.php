@@ -1211,6 +1211,95 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
 }
 
 /**
+ * Move a page from one slug to another, and record where the old URL went.
+ *
+ * A rebuild that "renames" a page did neither of the two things a rename needs. Building the new
+ * page at the new slug leaves the OLD page published and indexed: Google now has both, they
+ * compete, and the stale one often wins because it has the history. Changing the slug in place
+ * instead makes every existing inbound link — search results, the client's own printed material,
+ * another site's link — 404 with nothing to follow.
+ *
+ * So this moves the page rather than duplicating it, VERIFIES the slug actually moved, and stores
+ * the old→new pair in the `es_slug_redirects` option.
+ *
+ * Read this next part before trusting it: **nothing in this framework serves that option.** There
+ * is no mu-plugin, no `template_redirect` hook, no rewrite rule — a grep for every redirect helper
+ * across this repo returns nothing, which is exactly why the audit called slug hygiene missing.
+ * The map is the record a redirect plugin or a snippet can be pointed at, and `qa-review` row 17
+ * checks the old URLs against it. Until something reads it, the old URL still 404s, and this
+ * function says so out loud on every successful move rather than letting a stored map read as a
+ * working redirect. A half-measure that announces itself is worth having; one that does not is
+ * the failure this whole branch exists to remove.
+ *
+ * Returns the page id on a completed move, 0 otherwise.
+ */
+function es_migrate_slug( $from, $to ) {
+	if ( $from === $to ) {
+		return 0;
+	}
+	$page = get_page_by_path( $from, OBJECT, 'page' );
+	if ( ! $page ) {
+		/* Not an error, but not silence either: a migration that finds nothing is almost always a
+		   typo in the OLD slug, and a quiet no-op passes for a completed move. */
+		es_warn(
+			'no hay ninguna pagina en "' . $from . '", asi que no se movio nada. Si esperabas moverla, revisa el slug de origen: '
+			. 'un slug mal escrito aqui no falla, simplemente no hace nada.'
+		);
+		return 0;
+	}
+	$taken = get_page_by_path( $to, OBJECT, 'page' );
+	if ( $taken && (int) $taken->ID !== (int) $page->ID ) {
+		es_warn(
+			'"' . $to . '" ya lo ocupa la pagina #' . $taken->ID . ', asi que "' . $from . '" (#' . $page->ID . ') NO se movio. '
+			. 'Mover encima habria dejado dos paginas peleando por la misma URL y WordPress renombrando una de ellas a lo que le pareciera. '
+			. 'Decide cual sobrevive y borra o mueve la otra a mano.'
+		);
+		return 0;
+	}
+	$wrote = wp_update_post(
+		array(
+			'ID'        => $page->ID,
+			'post_name' => $to,
+		)
+	);
+	$real = get_post_field( 'post_name', $page->ID );
+	if ( is_wp_error( $wrote ) || ! $wrote || $real !== $to ) {
+		es_warn(
+			'no se pudo mover "' . $from . '" (#' . $page->ID . ') a "' . $to . '"'
+			. ( is_wp_error( $wrote ) ? ': ' . $wrote->get_error_message() : '' )
+			. '. El slug sigue siendo "' . $real . '". No se registro ninguna redireccion.'
+		);
+		return 0;
+	}
+
+	$map = get_option( 'es_slug_redirects' );
+	if ( ! is_array( $map ) ) {
+		$map = array();
+	}
+	$map[ $from ] = $to;
+	update_option( 'es_slug_redirects', $map );
+
+	$check = get_option( 'es_slug_redirects' );
+	if ( ! is_array( $check ) || ! isset( $check[ $from ] ) || $check[ $from ] !== $to ) {
+		es_warn(
+			'la pagina se movio a "' . $to . '" pero el mapa de redirecciones no quedo escrito, asi que ni siquiera hay registro de '
+			. 'que "' . $from . '" existio. Apuntalo a mano antes de que se pierda.'
+		);
+		return (int) $page->ID;
+	}
+
+	/* On every successful move, without exception. The day something serves the map, this is the
+	   line that has to change, and it is easier to find than a silence. */
+	es_warn(
+		'"' . $from . '" se movio a "' . $to . '" y quedo anotado en la opcion es_slug_redirects. AVISO: nada en este framework '
+		. 'SIRVE ese mapa todavia, asi que /' . $from . '/ sigue devolviendo 404 para quien llegue desde Google o desde un enlace viejo. '
+		. 'Configura la redireccion 301 en un plugin de redirecciones o en el servidor, y comprobalo con la fila 17 de qa-review.'
+	);
+
+	return (int) $page->ID;
+}
+
+/**
  * Cross the slugs a build is about to write against what is already on the site.
  *
  * Nothing did this. The build discovered an existing page by trying to overwrite it, which means

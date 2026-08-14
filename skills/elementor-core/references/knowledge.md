@@ -22,6 +22,12 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_migrate_slug($from,$to)` — MOVES the page instead of building a second one at the new slug
+  (two pages competing, and the stale one usually wins because it has the history), verifies the
+  slug actually moved, and records the pair in the `es_slug_redirects` option. **Nothing in this
+  framework serves that option**, so the old URL still 404s: the function warns that on every
+  successful move, and `qa-review` row 17 is what confirms a human or a plugin closed it. Refuses
+  to move onto an occupied slug — that is finding 15's collision through the back door.
 - `es_theme_conditions_registered($id)` answers "is my template in the conditions cache" and
   **nothing more**. Registered is NOT rendering: Elementor resolves ONE template per location, so
   ask `es_theme_location_rivals($id)` → `{location: [other_ids]}` before reading a `true` as "the
