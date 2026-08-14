@@ -93,7 +93,7 @@ const ROW_TYPES = array(
 	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
-	'RT_UXDS_NO_CAPA2_STEP'      => 'FAIL  — ux-design-system/SKILL.md has no CAPA 2 personality-recommender step',
+	'RT_UXDS_NO_CAPA2_STEP'      => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
 	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position has no token value in design-system.md',
 );
 
@@ -1063,8 +1063,8 @@ if ( file_exists( $uxds_skill ) ) {
 	if ( false === strpos( $uxds_src, 'design-personalities.md' ) ) {
 		add( 'RT_CATALOG_UNMENTIONED', 'FAIL', 'ux-design-system', 'SKILL.md never mentions design-personalities.md — the personality catalog is unreachable from the skill' );
 	}
-	if ( false === strpos( $uxds_src, 'CAPA 2' ) ) {
-		add( 'RT_UXDS_NO_CAPA2_STEP', 'FAIL', 'ux-design-system', 'SKILL.md has no CAPA 2 recommender step for picking a personality' );
+	if ( false === strpos( $uxds_src, 'axis' ) && false === strpos( $uxds_src, 'Axes' ) ) {
+		add( 'RT_UXDS_NO_CAPA2_STEP', 'FAIL', 'ux-design-system', 'SKILL.md never mentions the axes — the personality dialogue is unreachable from the skill' );
 	}
 }
 

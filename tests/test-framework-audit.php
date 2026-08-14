@@ -335,7 +335,7 @@ function fx_base( $root ) {
 		"  author: fixture\n" .
 		"  version: \"1.0\"\n" .
 		"---\n\n" .
-		"Recommends a personality via a CAPA 2 step; see design-personalities.md for the catalog.\n"
+		"Resolves every perceptual axis via a dialogue step; see design-personalities.md for the anchor catalog.\n"
 	);
 	fx( $root, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
 	fx(
@@ -1014,6 +1014,16 @@ fx(
 list( , $out31 ) = fx_run_ok( $audit, $r31 );
 ok( has( $out31, 'RT_UXDS_NO_CAPA2_STEP' ), 'a SKILL.md with no CAPA 2 step is RT_UXDS_NO_CAPA2_STEP', $out31 );
 fx_rrmdir( $r31 );
+
+echo "--- una skill de diseno que no nombra los ejes no puede resolverlos ---\n";
+$r85 = fx_tmp_root();
+fx_base( $r85 );
+fx( $r85, 'skills/ux-design-system/SKILL.md',
+	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "## Execution Steps\n1. Pick something.\n\n## References\n- `references/design-personalities.md`\n" );
+list( , $out85 ) = fx_run_ok( $audit, $r85 );
+ok( 'FAIL' === fx_row_level( $out85, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out85, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
+fx_rrmdir( $r85 );
 
 /* ------------------------------------------------- marker grammar fixtures (B1, design D1')
  *
