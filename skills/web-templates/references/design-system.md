@@ -35,19 +35,23 @@ Se escribe el CSS base para mobile y se sube con `min-width`. Nunca al revés.
 ## Tipografía
 
 Dos familias máximo. Escala fluida con `clamp()`, **derivada de `--type-ratio`**: ningún paso de
-heading se escribe a mano. La fórmula completa, paso por paso, está en "Scale" al final; aquí van
-los tokens ya resueltos.
+heading se escribe a mano. El término preferido de cada `clamp()` interpola el SUELO de ese paso
+hasta su PROPIO tope entre 430px y 1280px — no es un `vw` suelto, porque un `vw` suelto es igual en
+las cuatro posiciones y aplana el eje. La fórmula completa está en "Scale" al final; aquí van los
+tokens ya resueltos.
 
 | Rol | Token | Valor | Peso | Uso |
 |-----|-------|-------|------|-----|
 | Font principal | `--font-primary` | — | — | Headings + UI |
 | Font secundaria | `--font-secondary` | — | — | Body (opcional; puede = principal) |
+| Base en px | `--fs-base` | `16` **sin unidad** | — | el puente entre `1rem` y los tramos fluidos |
+| Progreso fluido | `--fluid` | `clamp(0px, calc((100vw - 430px) / 850), 1px)` | — | 0 en 430, 1px en 1280 |
 | Ratio de escala | `--type-ratio` | según posición del eje Scale | — | genera todos los pasos |
 | Leading display | `--display-lh` | según posición del eje Scale | — | `line-height` de h1/h2 |
-| Tope de h1 | `--fs-h1-max` | según posición del eje Scale | — | cota superior del `clamp()` de h1 |
-| H1 | `--fs-h1` | `clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)), calc(3.3vw + 1rem), var(--fs-h1-max))` | 700 | 1 solo por página |
-| H2 | `--fs-h2` | `clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)), calc(2.2vw + 1rem), calc(var(--fs-h1-max) / var(--type-ratio)))` | 700 | título de sección |
-| H3 | `--fs-h3` | `clamp(calc(var(--fs-body) * var(--type-ratio)), calc(1.1vw + 1rem), calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)))` | 600 | subtítulos |
+| Tope de h1 | `--fs-h1-max` | según posición del eje Scale, **sin unidad** | — | fija toda la cadena de topes |
+| H1 | `--fs-h1` | ver "Scale": suelo `--fs-base × ratio³` → tope `--fs-h1-max` | 700 | 1 solo por página |
+| H2 | `--fs-h2` | ver "Scale": suelo `--fs-base × ratio²` → tope `--fs-h1-max ÷ ratio` | 700 | título de sección |
+| H3 | `--fs-h3` | ver "Scale": suelo `--fs-base × ratio` → tope `--fs-h1-max ÷ ratio²` | 600 | subtítulos |
 | Body | `--fs-body` | `clamp(1rem, 1.2vw, 1.25rem)` | 400 | párrafos |
 | Small | `--fs-small` | `0.875rem` | 400 | notas, meta |
 | Eyebrow/label | `--fs-eyebrow` | `0.75rem` | 600 uppercase, tracking | etiqueta sobre título |
@@ -117,8 +121,9 @@ archivo declaraba antes de que la densidad fuera un eje. La multiplicación va s
 entera, nunca sobre un token suelto: así el ritmo sobrevive por construcción y lo único que cambia
 es la sensación de aire.
 
-Padding vertical de sección: fluido, sin breakpoint a mano —
-`padding-block: clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`.
+Padding vertical de sección: `padding-block: var(--sp-section)`, fluido y sin breakpoint a mano.
+Interpola su propio suelo hasta su propio tope entre 430 y 1280, los dos multiplicados por
+`--sp-scale`, así que las cuatro densidades se separan a TODOS los anchos. Fórmula en "Density".
 
 ## Contenedores
 
@@ -159,34 +164,65 @@ clave de la reutilización, y hace que maqueta HTML y build nativo compartan el 
 ### Scale (`--type-ratio`, `--display-lh`, `--fs-h1-max`)
 | Position | `--type-ratio` | `--display-lh` | `--fs-h1-max` |
 |---|---|---|---|
-| `contained` | 1.200 | 1.25 | 48px |
-| `classic` | 1.333 | 1.10 | 64px |
-| `editorial` | 1.500 | 0.95 | 88px |
-| `monumental` | 1.618 | 0.82 | 120px |
+| `contained` | 1.200 | 1.25 | 48 |
+| `classic` | 1.333 | 1.10 | 64 |
+| `editorial` | 1.500 | 0.95 | 88 |
+| `monumental` | 1.618 | 0.82 | 120 |
+
+`--fs-h1-max` is a **unitless px count**, not a length, and that is load-bearing rather than
+cosmetic. The preferred term below has to multiply a token difference against `100vw`, and
+`calc()` cannot divide a length by a length — so the coefficient must arrive without a unit.
+`--fs-base: 16`, the px count `1rem` resolves to, is the single bridge back to a length.
 
 Every heading step derives from the ratio by exponentiation, never by hand. `n` is the step
-(h3 = 1, h2 = 2, h1 = 3): the floor is `--fs-body × ratio^n`, the preferred value is
-`n × 1.1vw + 1rem`, and the whole cap chain hangs off `--fs-h1-max`, so one number per position
-pins all three. Written out in full, with no step left to the reader:
+(h3 = 1, h2 = 2, h1 = 3): the floor is `--fs-base × ratio^n`, the cap is `--fs-h1-max ÷ ratio^(3−n)`,
+and the preferred value interpolates that step's OWN floor into that step's OWN cap across
+430 → 1280. One number per position still pins all three. Written out in full:
 
 ```css
---fs-h1: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)),
-               calc(3.3vw + 1rem),
-               var(--fs-h1-max));
---fs-h2: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)),
-               calc(2.2vw + 1rem),
-               calc(var(--fs-h1-max) / var(--type-ratio)));
---fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)),
-               calc(1.1vw + 1rem),
-               calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)));
+--fs-base: 16;                                            /* unitless: the px count of 1rem */
+--fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);    /* 0 at 430px, 1px at 1280px */
+
+--n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
+--n-h2: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio));
+--n-h3: calc(var(--fs-base) * var(--type-ratio));
+--n-h1-cap: var(--fs-h1-max);
+--n-h2-cap: calc(var(--fs-h1-max) / var(--type-ratio));
+--n-h3-cap: calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio));
+
+--fs-h1: clamp(calc(var(--n-h1) / var(--fs-base) * 1rem),
+               calc(var(--n-h1) / var(--fs-base) * 1rem + (var(--n-h1-cap) - var(--n-h1)) * var(--fluid)),
+               calc(var(--n-h1-cap) * 1px));
+--fs-h2: clamp(calc(var(--n-h2) / var(--fs-base) * 1rem),
+               calc(var(--n-h2) / var(--fs-base) * 1rem + (var(--n-h2-cap) - var(--n-h2)) * var(--fluid)),
+               calc(var(--n-h2-cap) * 1px));
+--fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
+               calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
+               calc(var(--n-h3-cap) * 1px));
 ```
 
-h1 and h2 take `line-height: var(--display-lh)`; h3 stays `1.25` and body `1.6`. Body itself stays
-`1rem`–`1.25rem` at every position: what changes is the RANGE, not the reading size.
+`--n-h? ÷ --fs-base × 1rem` is exactly `ratio^n × 1rem`, so the floors stay rem-relative and a
+reader's default font size still moves the small end. The fluid segment and the cap are px, as
+every viewport-driven step necessarily is.
 
-At `monumental` and a 16px body that is a 68px floor and a 120px cap for h1 (`1.618³ × 16 ≈ 68`);
-at `contained`, a 28px floor and a 48px cap (`1.2³ × 16 ≈ 28`). The defect this replaces was a
-hardcoded `clamp(2rem, 5vw, 3.5rem)` — a 56px cap on every client site, below even `contained`.
+h1 and h2 take `line-height: var(--display-lh)`; h3 stays `1.25` and body `1.6`. `--fs-body` keeps
+a plain `1.2vw` preferred term on purpose: body is NOT an axis — it reads the same at every
+position — so there is no axis for a viewport-only term to flatten there.
+
+MEASURED in a browser at a 16px root, not reasoned about:
+
+| Position | 430 | 768 | 1280 | 1920 |
+|---|---|---|---|---|
+| `editorial` h1 | 54.00px | 67.52px | **88.00px** | 88.00px |
+| `monumental` h1 | 67.77px | 88.54px | **120.00px** | 120.00px |
+
+The cap engages at 1280 — a laptop — which is the entire point. The version this replaces used
+`calc(3.3vw + 1rem)` as its preferred term: no `--type-ratio` in it and no `--fs-h1-max` in it, so
+it was byte-identical at all four positions. Its 88px cap engaged only above ~2181px and its 120px
+cap above ~3151px; on a 1280px laptop the two positions actually rendered **58.24px and 67.77px**,
+a 16% gap where this table promised 88 against 120. The paragraph that used to sit here claimed
+"a 68px floor and a 120px cap" as if both were reachable — the floor was, the cap was not. Before
+that it was a hardcoded `clamp(2rem, 5vw, 3.5rem)`: a 56px cap on every client site.
 
 ### Density (`--sp-scale`)
 | Position | `--sp-scale` |
@@ -197,7 +233,29 @@ hardcoded `clamp(2rem, 5vw, 3.5rem)` — a 56px cap on every client site, below 
 | `monumental` | 1.7 |
 
 One multiplier over the whole `--sp-*` scale, so rhythm consistency survives by construction.
-Section padding becomes fluid: `padding-block: clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`.
+Section padding interpolates its own floor into its own cap over the same 430 → 1280 range, with
+`--sp-scale` on BOTH ends — which is what makes the axis visible at every width:
+
+```css
+--n-sec:     calc(2 * var(--fs-base) * var(--sp-scale));   /* unitless: 2rem worth, scaled */
+--n-sec-cap: calc(7 * var(--fs-base) * var(--sp-scale));   /* unitless: 7rem worth, scaled */
+--sp-section: clamp(calc(var(--n-sec) / var(--fs-base) * 1rem),
+                    calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
+                    calc(var(--n-sec-cap) * 1px));
+```
+
+`section { padding-block: var(--sp-section) }`. MEASURED at a 16px root:
+
+| Position | 430 | 768 | 1280 | 1920 |
+|---|---|---|---|---|
+| `generous` (1.35) | 43.20px | 86.14px | 151.20px | 151.20px |
+| `compact` (0.8) | 25.60px | 51.05px | 89.60px | 89.60px |
+
+Every width separates, by the constant `1.35 ÷ 0.8`. The rule this replaces was
+`clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`, whose middle term had no
+`--sp-scale` in it at all: between 720px and 1493px `generous` and `compact` produced the SAME
+padding — measured at **46.08px at 768 and 76.80px at 1280 on both**. A density axis that is
+invisible at the two widths clients actually review on is not a density axis.
 
 ### Ground (`--c-bg`, `--c-bg-alt`, `--c-text`)
 Every cell is a literal. `--c-text` is derived exactly as `design-tokens.md` step 3 specifies — the

@@ -25,7 +25,7 @@
 <style>
   :root{
     /* ══ AXIS TOKENS — copied verbatim from design-system.md § Perceptual axes ══ */
-    --type-ratio: 1.618;  --display-lh: 0.82;  --fs-h1-max: 120px;  /* scale: monumental */
+    --type-ratio: 1.618;  --display-lh: 0.82;  --fs-h1-max: 120;    /* scale: monumental */
     --sp-scale: 0.8;                                                /* density: compact */
     --c-bg: #0E1113; --c-bg-alt: #171B1E; --c-text: #F4F6F7;        /* ground: ink (17.5:1) */
     --elev-rest: 0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent);
@@ -60,24 +60,43 @@
     --font-primary: 'Archivo Expanded', 'Arial Black', system-ui, sans-serif;
     --font-secondary: 'Archivo', system-ui, sans-serif;
 
-    /* ── Type scale — the three clamp() formulas transcribed VERBATIM from design-system.md.
-          Same formulas as the editorial twin; only --type-ratio and --fs-h1-max differ. ── */
-    --fs-body: clamp(1rem, 1.2vw, 1.25rem);
-    --fs-h1: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)),
-                   calc(3.3vw + 1rem),
-                   var(--fs-h1-max));
-    --fs-h2: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)),
-                   calc(2.2vw + 1rem),
-                   calc(var(--fs-h1-max) / var(--type-ratio)));
-    --fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)),
-                   calc(1.1vw + 1rem),
-                   calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)));
+    /* ── Type scale — the clamp() formulas transcribed VERBATIM from design-system.md § Scale.
+          Byte-identical to the editorial twin; only --type-ratio and --fs-h1-max differ, which
+          is the whole claim. The preferred term interpolates THIS step's floor into THIS step's
+          cap across 430 → 1280, so the 120px cap engages on a laptop rather than at 3151px.
+          `--fs-h1-max` carries no unit on purpose: calc() cannot divide a length by a length, so
+          the coefficient that multiplies --fluid has to arrive unitless. --fs-base bridges back. ── */
+    --fs-base: 16;
+    --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
+    --fs-body: clamp(1rem, 1.2vw, 1.25rem);   /* body is not an axis — plain vw is correct here */
+    --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
+    --n-h2: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio));
+    --n-h3: calc(var(--fs-base) * var(--type-ratio));
+    --n-h1-cap: var(--fs-h1-max);
+    --n-h2-cap: calc(var(--fs-h1-max) / var(--type-ratio));
+    --n-h3-cap: calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio));
+    --fs-h1: clamp(calc(var(--n-h1) / var(--fs-base) * 1rem),
+                   calc(var(--n-h1) / var(--fs-base) * 1rem + (var(--n-h1-cap) - var(--n-h1)) * var(--fluid)),
+                   calc(var(--n-h1-cap) * 1px));
+    --fs-h2: clamp(calc(var(--n-h2) / var(--fs-base) * 1rem),
+                   calc(var(--n-h2) / var(--fs-base) * 1rem + (var(--n-h2-cap) - var(--n-h2)) * var(--fluid)),
+                   calc(var(--n-h2-cap) * 1px));
+    --fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
+                   calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
+                   calc(var(--n-h3-cap) * 1px));
     --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
 
-    /* ── Spacing — one scale, multiplied whole by the density position. Verbatim. ── */
+    /* ── Spacing — one scale, multiplied whole by the density position. Verbatim.
+          --sp-section carries --sp-scale on BOTH ends of the interpolation, which is what makes
+          the density axis visible at 430, 768 AND 1280 instead of only at the extremes. ── */
     --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
     --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
     --sp-xl: calc(5rem   * var(--sp-scale));  --sp-xxl:calc(7.5rem * var(--sp-scale));
+    --n-sec:     calc(2 * var(--fs-base) * var(--sp-scale));
+    --n-sec-cap: calc(7 * var(--fs-base) * var(--sp-scale));
+    --sp-section: clamp(calc(var(--n-sec) / var(--fs-base) * 1rem),
+                        calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
+                        calc(var(--n-sec-cap) * 1px));
 
     /* ── Muted + border: design-system.md's ground table pins bg / bg-alt / text only, so these
           two are DERIVED from tokens that ARE authoritative rather than invented as hexes.
@@ -115,8 +134,8 @@
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-  /* Section padding: the fluid formula from design-system.md, verbatim. No breakpoint by hand. */
-  section{padding-block:clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))}
+  /* Section padding: --sp-section from design-system.md § Density. No breakpoint by hand. */
+  section{padding-block:var(--sp-section)}
   .bg-alt{background:var(--c-bg-alt)}
   .eyebrow{display:block;font-size:var(--fs-eyebrow);font-weight:600;letter-spacing:.24em;
            text-transform:uppercase;color:var(--c-accent)}
