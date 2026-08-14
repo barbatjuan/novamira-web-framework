@@ -76,6 +76,7 @@ const ROW_TYPES = array(
 	'RT_MARKER_PROSE_ONLY'       => 'JUDGE — a "(verifier: …)" marker names no locatable target',
 	'RT_MARKER_OUTSIDE_RULES'    => 'WARN  — a verifier-marker-shaped line sits outside "## Hard Rules"',
 	'RT_ERRORLOG_NO_STDOUT'      => 'FAIL  — an error_log call has no paired stdout channel',
+	'RT_HELPER_UNROUTABLE'       => 'WARN  — an asset function no asset calls is named by no markdown either',
 	'RT_WRITE_NOT_LISTED'        => 'FAIL  — code writes to WordPress but the skill is missing from $WRITE_CAPABLE',
 	'RT_AGENT_CODE_BLOCK'        => 'FAIL  — an agent markdown file contains a code block',
 	'RT_AGENT_ROUTE_MISSING'     => 'FAIL  — an agent routes to a skill that does not exist',
@@ -813,6 +814,85 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 	} else {
 		marker_walk( $name, $house, true, 'House rule', $name );
 	}
+}
+
+/* ------------------------------------------- helpers nothing can invoke */
+
+/**
+ * A function no asset calls is an ENTRY POINT: the only thing left that can invoke it is an
+ * instruction file telling a model to. So one that no markdown in the repo names at all is
+ * unreachable — dead weight, or a helper somebody wrote, tested and forgot to wire. That second
+ * case is this repo's own recurring bug one level down: `es_set_front_page()` was written,
+ * measured against a live site, documented in a house rule, and called from nothing, so a build
+ * could finish green with the client's front page untouched.
+ *
+ * Derived, never listed. A hardcoded roster of "the helpers that matter" would go stale the first
+ * time somebody added one, and going stale unnoticed is the failure being checked.
+ *
+ * WARN, matching RT_ORPHAN_FILE: this is the same finding one level finer, and the honest reading
+ * is "dead weight, or a missing pointer" — which of the two is a judgement no grep can make.
+ *
+ * `*.example.php` defines nothing here on purpose. An example is a file you COPY and rewrite, so
+ * its top-level build function is meant to be REPLACED rather than called; demanding a pointer to
+ * it would be demanding a pointer to scaffolding.
+ */
+$asset_defs  = array();
+$asset_calls = array();
+foreach ( $skill_dirs as $sdir ) {
+	foreach ( glob( $sdir . '/assets/*.php' ) as $php ) {
+		$lines      = explode( "\n", slurp( $php ) );
+		$is_example = false !== strpos( basename( $php ), '.example.' );
+		foreach ( $lines as $line ) {
+			/* One `continue` for definitions, not two guards: a definition line is not a call in
+			   ANY file, and counting it would make every function its own caller — the check would
+			   then report nothing, ever, while looking exactly as healthy as it does now. Written
+			   as two conditions first, and mutation proved the second unreachable for library
+			   files and untested for examples. Whether the name is RECORDED is the only thing the
+			   example carve-out decides. */
+			if ( preg_match( '/^function\s+([a-z_][a-z0-9_]*)\s*\(/i', $line, $m ) ) {
+				if ( ! $is_example ) {
+					$asset_defs[ $m[1] ] = basename( $sdir );
+				}
+				continue;
+			}
+			/* Same rule as the two checks above: a comment that only NAMES a token is not a call,
+			   so a docblock explaining what a helper used to do cannot mark it as still wired. */
+			if ( preg_match( '#^\s*(\*|//|/\*|\#)#', $line ) ) {
+				continue;
+			}
+			if ( preg_match_all( '/(?<![\w>$])([a-z_][a-z0-9_]*)\s*\(/i', $line, $mm ) ) {
+				foreach ( $mm[1] as $fn ) {
+					$asset_calls[ $fn ] = true;
+				}
+			}
+		}
+	}
+}
+
+$prose = '';
+$walk  = new RecursiveIteratorIterator(
+	new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
+	RecursiveIteratorIterator::SELF_FIRST
+);
+foreach ( $walk as $f ) {
+	if ( $f->isFile() && 'md' === strtolower( $f->getExtension() ) ) {
+		$prose .= "\n" . slurp( $f->getPathname() );
+	}
+}
+
+foreach ( $asset_defs as $fn => $owner ) {
+	if ( isset( $asset_calls[ $fn ] ) ) {
+		continue;
+	}
+	if ( preg_match( '/(?<![\w])' . preg_quote( $fn, '/' ) . '(?![\w])/', $prose ) ) {
+		continue;
+	}
+	add(
+		'RT_HELPER_UNROUTABLE',
+		'WARN',
+		$owner,
+		$fn . '() is called by no asset and named by no .md — nothing can reach it: dead weight, or a helper that was never wired'
+	);
 }
 
 /* ------------------------------------------------- qa-review house rules */

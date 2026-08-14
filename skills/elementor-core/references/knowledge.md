@@ -15,6 +15,10 @@
 - `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
 - `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
+- `es_cta_banner($img_slug,$title,$text,$btn_text,$btn_link,$bg)` — rounded closing-CTA band:
+  full-bleed photo, dark scrim, copy and button on the left, wrapped in a normal section so it
+  keeps the page's boxed width. It was in this file for months named by nothing at all, which is
+  what `RT_HELPER_UNROUTABLE` now catches: a helper nobody can find gets rebuilt by hand.
 - `es_save_page($slug,$title,$elements,$tpl,&$action)` + `es_rebuild_css($post_id)`.
   `$action` reports FOUR outcomes: `created`, `updated`, `created-renamed` (WordPress published the
   page under a DIFFERENT slug because the one you asked for was taken — the URL you expect is not
@@ -77,6 +81,19 @@
   approves — never gated on `ES_AUDIT_SILENT`, an approval artifact is not routine output. Run it
   **before the first write**. Each row: `slug`, `id`, `action`, `status`, `is_elementor`,
   `is_front_page`, `converts`. The last two cost the most and show up the least.
+  It also RECORDS the slugs it printed, and `es_save_page()` reads that record through
+  `es_approval_check($slug)`: writing a slug the block never covered warns, naming it. Per slug,
+  not once per run — a single flag goes quiet after the first warning, and the write it would then
+  hide is the unapproved one. It warns and does not block: an interrupted build has to be
+  resumable without re-approving the pages that already landed. `es_approval_check()` returns the
+  verdict, so it is readable without parsing stdout.
+- `es_front_page_check()` → `'nothing-built'` | `'page'` | `'posts'`. Called from
+  `es_audit_summary()`, so a run that saved pages while `/` still serves the blog says so on the
+  one line the operator is told to read before deploying. It does NOT judge which page is the
+  front page on a site that already has one: the options say which, never whether it is right, and
+  an audit that complains about every correct site is one people scroll past. `$es_saved_pages`
+  (slug → id, keyed by where the page LANDED, not what was asked for) is what it counts, and the
+  honest source for `es_manifest_record('pages', …)`.
 - `es_backup_page_state($id,$keys)` — parks the WHOLE displaced set (layout, page template, edit
   mode, template type, version, post fields, and `post_content`) in `_es_page_backup_<Ymd-His>`.
   **Call it before the first write**: it cannot tell an old value from a new one, and it used to

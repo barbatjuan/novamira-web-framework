@@ -105,6 +105,16 @@ rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.
   `references/`/`assets/` roots are not pointers, since that is where the walk starts. A filename
   that occurs twice in one skill must be cited by its **full path from the skill root**: with two
   `_README.md` files, both `_README.md` and `pages/_README.md` credit neither.
+- **A helper nothing calls has to be named by something** (`RT_HELPER_UNROUTABLE`). A function no
+  asset calls is an ENTRY POINT: the only thing left that can invoke it is an instruction file
+  telling a model to. So one that no markdown names at all is unreachable, and the two ways that
+  happens are worth telling apart — dead weight, or a helper that was written, tested and never
+  wired. The second is this repo's own recurring bug: `es_set_front_page()` was measured against a
+  live site, documented in a house rule and called from nothing, so a build could finish green
+  with the client's front page untouched. The list is DERIVED, never enumerated; a roster of "the
+  helpers that matter" goes stale the first time somebody adds one, which is the thing being
+  checked. `*.example.php` defines nothing here: an example is a file you copy and rewrite, so its
+  build function is meant to be replaced rather than called.
 - **Prefer a helper over a rule.** `es_section()` hardcoded `flex_direction:column`, so building
   two columns REQUIRED the extra container the rule forbade. When the library makes the wrong
   shape the easy one, no amount of documentation wins. Fix the library first (`es_split()`,
@@ -147,6 +157,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_MARKER_PROSE_ONLY` | JUDGE | a `(verifier: …)` marker names no locatable target |
 | `RT_MARKER_OUTSIDE_RULES` | WARN | a verifier-marker-shaped line sits outside `## Hard Rules` |
 | `RT_ERRORLOG_NO_STDOUT` | FAIL | an error_log call has no paired stdout channel |
+| `RT_HELPER_UNROUTABLE` | WARN | an asset function no asset calls is named by no markdown either |
 | `RT_WRITE_NOT_LISTED` | FAIL | code writes to WordPress but the skill is missing from `$WRITE_CAPABLE` |
 | `RT_AGENT_CODE_BLOCK` | FAIL | an agent markdown file contains a code block |
 | `RT_AGENT_ROUTE_MISSING` | FAIL | an agent routes to a skill that does not exist |

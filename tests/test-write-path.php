@@ -91,6 +91,25 @@ function wp_fake_reset() {
 		'option_ro'  => array(),   /* names update_option() accepts and silently does not write */
 		'meta_ro'    => array(),   /* meta keys update/delete_post_meta accept and do not touch */
 	);
+	/* The builder's own per-run state lives in globals, so a fixture that forgot these would
+	   inherit the previous fixture's approvals and its list of saved pages — and the assertions
+	   that depend on them would pass for the wrong reason, which is the failure this whole suite
+	   is about. Reset with the site, not beside it. */
+	$GLOBALS['es_preflight_slugs'] = array();
+	$GLOBALS['es_saved_pages']     = array();
+}
+
+/**
+ * Approve slugs the way a real build does — through the preflight, whose printed block IS the
+ * approval. `grab()` only keeps that block out of the output an assertion is about to read.
+ */
+function approve() {
+	$slugs = func_get_args();
+	grab(
+		function () use ( $slugs ) {
+			return es_overwrite_preflight( $slugs );
+		}
+	);
 }
 
 function wp_fake_page( $slug, $status = 'publish', $title = 'existente', $content = '', array $meta = array(), $type = 'page' ) {
@@ -398,6 +417,7 @@ echo "--- una pagina que WordPress se niega a crear deja de irse en silencio ---
 
 wp_fake_reset();
 $GLOBALS['wp']['insert_ret'] = 0;
+approve( 'contacto' );
 $action                      = null;
 $r                           = grab(
 	function () use ( $els, &$action ) {
@@ -413,6 +433,7 @@ ok( ! any_layout_written(), 'y no escribio ningun layout' );
 
 wp_fake_reset();
 $GLOBALS['wp']['insert_ret'] = new WP_Error( 'invalid_page_template', 'plantilla desconocida' );
+approve( 'servicios' );
 $action                      = null;
 $mark                        = log_mark();
 $r                           = grab(
@@ -438,6 +459,7 @@ echo "--- una actualizacion rechazada deja de pisar el diseño igual ---\n";
 wp_fake_reset();
 wp_fake_page( 'inicio' );
 $GLOBALS['wp']['update_ret'] = new WP_Error( 'db_update_error', 'no se pudo actualizar la fila' );
+approve( 'inicio' );
 $action                      = null;
 $r                           = grab(
 	function () use ( $els, &$action ) {
@@ -461,6 +483,7 @@ echo "--- una colision de slug deja de reportarse como si nada ---\n";
 
 wp_fake_reset();
 $GLOBALS['wp']['rename_to'] = 'contacto-2';
+approve( 'contacto' );
 $action                     = null;
 $r                          = grab(
 	function () use ( $els, &$action ) {
@@ -473,6 +496,7 @@ ok( has( $r['out'], '"contacto"' ), 'y el que se habia pedido, porque la diferen
 ok( 'created-renamed' === $action, "y \$action deja de decir 'created' a secas: la pagina pedida no existe" );
 
 wp_fake_reset();
+approve( 'contacto' );
 $action = null;
 $r      = grab(
 	function () use ( $els, &$action ) {
@@ -484,6 +508,7 @@ ok( '' === $r['out'], 'y no avisa de nada: el aviso tiene que doler solo cuando 
 
 wp_fake_reset();
 wp_fake_page( 'inicio', 'draft' );
+approve( 'inicio' );
 $action = null;
 $r      = grab(
 	function () use ( $els, &$action ) {
@@ -693,6 +718,7 @@ ok( 'elementor_header_footer' === get_post_meta( $pid, '_wp_page_template' ), 'l
    en silencio, mientras el post_content que ERA la pagina dejaba de renderizarse para siempre. */
 wp_fake_reset();
 $pid = wp_fake_page( 'quienes-somos', 'publish', 'Quienes somos', '<p>Texto que lleva ahi ocho anios.</p>' );
+approve( 'quienes-somos' );
 $r   = grab(
 	function () use ( $els ) {
 		$a = null;
@@ -708,6 +734,7 @@ ok( isset( $bk['post_content'] ) && has( $bk['post_content'], 'ocho anios' ), 'c
 /* Una pagina nueva y vacia no tiene nada que perder: respaldarla es ruido, y un respaldo por
    reconstruccion en una pagina que nunca tuvo nada llena la tabla de meta sin motivo. */
 wp_fake_reset();
+approve( 'nueva' );
 $r = grab(
 	function () use ( $els ) {
 		$a = null;
@@ -1304,6 +1331,7 @@ ok( has( $r['out'], 'no se pudieron borrar' ), 'y avisa' );
 echo "--- restaurar informa de lo VERIFICADO, no de lo intentado ---\n";
 wp_fake_reset();
 $pid = wp_fake_page( 'v', 'publish', 'Titulo VIEJO', '', array( '_wp_page_template' => 'vieja.php', '_elementor_data' => '[{"a":"b"}]' ) );
+approve( 'v' );
 $a   = null;
 grab(
 	function () use ( $els, &$a ) {
@@ -1338,6 +1366,126 @@ $r = grab(
 	}
 );
 ok( in_array( '_elementor_data', $r['ret']['restored'], true ), 'un layout con comillas se restaura deslizado y la relectura cuadra' );
+
+/* ---------------------------------------------------------------------------
+ * The two rules that had a helper and no runtime.
+ *
+ * Both existed as prose: "nobody approves a write they have not been shown" was a house rule with
+ * an explicit `(no verifier: …)` marker, and `es_set_front_page()` was a tested, documented
+ * function nothing in the repo ever called. Prose is enforced on the builds that read it. These
+ * assertions are about the build that does not.
+ * ------------------------------------------------------------------------- */
+
+echo "--- aprobacion y portada: las dos reglas que solo vivian en la prosa ---\n";
+
+wp_fake_reset();
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'sin-preflight', 'Sin preflight', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( $r['ret'] > 0, 'escribir sin preflight NO bloquea: un build interrumpido tiene que poder reanudarse' );
+ok( has( $r['out'], 'es_overwrite_preflight' ), 'pero avisa, nombrando la funcion que faltaba' );
+ok( has( $r['out'], 'sin-preflight' ), 'y el slug que se escribio sin que nadie lo viera' );
+
+wp_fake_reset();
+$r = grab(
+	function () {
+		return es_approval_check( 'nadie' );
+	}
+);
+ok( false === $r['ret'], 'es_approval_check() devuelve el veredicto, no solo lo imprime' );
+approve( 'aprobado' );
+ok( true === es_approval_check( 'aprobado' ), 'y un slug que paso por el bloque impreso da true' );
+
+/* El caso que un flag por peticion no ve: se aprueban cinco y se escriben seis. */
+wp_fake_reset();
+approve( 'uno', 'dos', 'tres', 'cuatro', 'cinco' );
+$out_aprobadas = '';
+foreach ( array( 'uno', 'dos', 'tres', 'cuatro', 'cinco' ) as $slug_ok ) {
+	$r              = grab(
+		function () use ( $els, $slug_ok ) {
+			$a = null;
+			return es_save_page( $slug_ok, 'P', $els, 'elementor_header_footer', $a );
+		}
+	);
+	$out_aprobadas .= $r['out'];
+}
+ok( '' === $out_aprobadas, 'las cinco aprobadas se escriben en silencio' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'seis', 'La sexta', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( has( $r['out'], 'seis' ), 'y la sexta, que nadie aprobo, avisa nombrandose — un flag por peticion ya estaria callado' );
+
+/* La portada. */
+wp_fake_reset();
+ok( 'nothing-built' === es_front_page_check(), 'sin paginas guardadas no hay veredicto: "/" no es asunto de este build' );
+$r = grab( 'es_front_page_check' );
+ok( '' === $r['out'], 'y no dice nada, porque no hay nada que reclamar' );
+
+wp_fake_reset();
+approve( 'inicio' );
+grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'inicio', 'Inicio', $els, 'elementor_header_footer', $a );
+	}
+);
+$r = grab( 'es_front_page_check' );
+ok( 'posts' === $r['ret'], 'con paginas guardadas y el blog en "/", el veredicto es posts' );
+ok( has( $r['out'], 'es_set_front_page' ), 'y avisa nombrando la funcion que cierra el hueco' );
+ok( has( $r['out'], 'BLOG' ), 'diciendo lo que el visitante ve de verdad al entrar por la raiz' );
+
+grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+$r = grab( 'es_front_page_check' );
+ok( 'page' === $r['ret'], 'puesta la portada, el veredicto pasa a page' );
+ok( '' === $r['out'], 'y se calla: un sitio correcto no tiene que oir nada' );
+
+/* Que la comprobacion este CABLEADA, que es el hallazgo entero. Con ES_AUDIT_SILENT el veredicto
+   de contenedores no imprime, asi que lo unico que puede quedar en stdout es este aviso. */
+wp_fake_reset();
+approve( 'servicios' );
+grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'servicios', 'Servicios', $els, 'elementor_header_footer', $a );
+	}
+);
+$r = grab( 'es_audit_summary' );
+ok( has( $r['out'], 'BLOG' ), 'es_audit_summary() lo dice: la linea que el operador tiene orden de leer antes de desplegar' );
+ok( 0 === $r['ret'], 'y su entero no cambia — los llamadores ya ramifican sobre el, un quinto significado romperia uno' );
+
+/* Lo que se guarda se anota por el slug donde ATERRIZO, no por el que se pidio. */
+wp_fake_reset();
+$GLOBALS['wp']['rename_to'] = 'contacto-2';
+approve( 'contacto' );
+grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'contacto', 'Contacto', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( isset( $GLOBALS['es_saved_pages']['contacto-2'] ), 'una pagina renombrada se anota en su slug real' );
+ok( ! isset( $GLOBALS['es_saved_pages']['contacto'] ), 'y NO en el que se pidio: ahi contesta otra cosa' );
+
+wp_fake_reset();
+$GLOBALS['wp']['insert_ret'] = 0;
+approve( 'fantasma' );
+grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'fantasma', 'Fantasma', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( array() === $GLOBALS['es_saved_pages'], 'una escritura rechazada no anota nada: la lista es lo que sobrevivio, no lo que se intento' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );
