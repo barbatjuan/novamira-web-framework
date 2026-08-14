@@ -23,8 +23,8 @@ their `assets/`.
   built site and nothing checked the framework. Run it before merging a skill change.
 - **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
   Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
-  `wordpress-performance`, `wordpress-seo` and `wordpress-forms` write to the live site — each
-  one carries its own blocking build gate. `wordpress-forms` additionally SENDS a real message
+  `wordpress-performance`, `wordpress-seo`, `wordpress-forms` and `wordpress-legal` write to the
+  live site — each one carries its own blocking build gate. `wordpress-forms` additionally SENDS a real message
   during its delivery test, which is an outward action and is confirmed separately.
 
 Copywriting is owned by a SUBAGENT, not a skill: `agents/novamira-copywriter.md`. Long-output
@@ -66,7 +66,7 @@ the result against it.
 - **Agnostic, no WordPress at all**: `web-templates`, `ux-design-system`, `html-mockup`.
 - **Agnostic, WordPress-aware**: `project-context` (reports `elementor` | `divi` | `unknown`
   and never guesses), `wordpress-performance`, `wordpress-seo`, `wordpress-forms` (it routes on
-  the form plugin, not the page builder).
+  the form plugin, not the page builder) and `wordpress-legal` (on the consent plugin).
 - **Builder-aware, validated on Elementor only**: `qa-review` — its evidence checks look for
   Elementor build artefacts; the Divi equivalents are not validated. Also `woocommerce`: the
   commerce structure is generic, but every execution step and asset targets the Elementor
@@ -93,7 +93,7 @@ have reached it:
 | `ux-design-system` | `design-tokens.md`, `layout-patterns.md`, `motion.md` |
 | `web-templates` | `design-system.md`, `recommender.md`, `toggles.md`, `templates/` |
 | `html-mockup` | `mockup-guide.md` |
-| `project-context`, `qa-review`, `wordpress-performance`, `wordpress-seo`, `wordpress-forms` | none |
+| `project-context`, `qa-review`, `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` | none |
 
 Gotchas are the gold — grow them every time something surprises you. Shape and rules:
 `CONTRIBUTING.md`.
