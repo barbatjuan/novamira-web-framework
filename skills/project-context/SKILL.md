@@ -43,11 +43,18 @@ Re-run if the target site changes.
    (phone/email/address), language.
 7. **Connector**: confirm the NovaMira connector UUID and that `create-upload-link` +
    `execute-php` respond (retry on transient "requires additional permissions").
+8. **Sandbox state — check this before promising any build.** The Novamira loader `require_once`s
+   every `*.php` in `wp-content/novamira-sandbox/` on EVERY request, but returns early when a
+   `.crashed` file exists, disabling ALL of them. One file's fatal switches the whole sandbox off,
+   and the only notice is a wp-admin banner an agent never sees. Report: whether `.crashed`
+   exists, what it records, and how many `.php` are sitting there. In safe mode nothing you
+   upload will run and every `es_*` call dies as an undefined function. Never delete `.crashed`
+   to "fix" it — that reloads the file that crashed the site.
 
 ## Output Contract
 Return a compact block: `builder`, `builder_version`, `woocommerce` (y/n + version),
 `theme`, `pages` (id · slug · builder?), `front_page_id` (+ its slug, or `0` = blog),
-`theme_templates`, `constraints`, `open_questions`.
+`theme_templates`, `sandbox` (safe-mode y/n + file count), `constraints`, `open_questions`.
 The orchestrator uses this to route and to decide what to ask the user.
 
 ## References

@@ -44,6 +44,13 @@
   returns drift lines: page gone, slug moved by hand, same slug answered by a different post id
   (the worst, because everything looks fine), front page repointed. It reports and never repairs
   — repairing means guessing which truth was intended, and only a human knows.
+- **Sandbox liveness**: `es_sandbox_state()` -> `{safe_mode, reason, files}`. Read from the
+  Novamira loader's source: it `require_once`s every `*.php` there on EVERY request (NOT "on
+  upload"), but returns early when `.crashed` exists — one file's fatal disables all of them,
+  announced only by a wp-admin banner no agent sees. Measured on two live sites: the one carrying
+  `.crashed` had NO `es_*` function defined at all. Catch: in safe mode this function is not
+  loaded either, so `project-context` step 8 reads the file directly, before this library exists.
+  Never delete `.crashed` without fixing the file named in it.
 - **Delivery**: `es_sandbox_report()` lists what is still in `wp-content/novamira-sandbox/`;
   `es_sandbox_purge()` deletes the build scripts and then RE-READS, returning what SURVIVED —
   the proof is the re-read, because a purge blocked by permissions and one that worked look

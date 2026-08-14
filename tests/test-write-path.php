@@ -1127,5 +1127,44 @@ $r   = grab(
 ok( 0 === $r['ret'], 'un adjunto en el destino tambien bloquea el movimiento' );
 ok( has( $r['out'], 'attachment' ), 'y el aviso dice QUE lo ocupa, no lo llama pagina' );
 
+/* ---------------------------------------------------------------------------
+ * Modo seguro del sandbox. Leido del cargador de Novamira, no supuesto.
+ * ------------------------------------------------------------------------- */
+echo "--- un .crashed apaga el sandbox entero, y eso deja de ser invisible ---\n";
+
+$sb = es_sandbox_dir();
+
+$st = es_sandbox_state();
+ok( false === $st['safe_mode'], 'sin .crashed, el sandbox esta operativo' );
+ok( null === $st['reason'], 'y no hay causa que reportar' );
+
+/* El cargador hace `if (file_exists($crashed_file)) { return; }` ANTES de recorrer los ficheros:
+   uno solo apaga los diez. El unico aviso es un banner de wp-admin, que un agente por conector no
+   ve nunca. Medido en un sitio vivo que llevaba en modo seguro desde un fatal: ni una sola funcion
+   es_* estaba definida, asi que cualquier build habria muerto con "undefined function". */
+file_put_contents( $sb . '/.crashed', json_encode( array( 'sandbox_file' => '/ruta/es-theme-parts.php', 'message' => 'Uncaught Error: Call to undefined function is_user_logged_in()' ) ) );
+$r  = grab( 'es_sandbox_state' );
+$st = $r['ret'];
+ok( true === $st['safe_mode'], 'con .crashed, se reporta MODO SEGURO' );
+ok( has( $st['reason'], 'es-theme-parts.php' ), 'nombrando el fichero que lo provoco' );
+ok( has( $st['reason'], 'is_user_logged_in' ), 'y el error registrado' );
+ok( '' !== $r['out'], 'y AVISA: nada de lo que subas se va a ejecutar' );
+ok( has( $r['out'], 'MODO SEGURO' ), 'diciendo que es modo seguro' );
+/* El aviso tiene que desaconsejar el atajo evidente, que vuelve a tumbar el sitio. */
+ok( has( $r['out'], 'ANTES de borrar' ), 'y avisa de no borrar .crashed sin arreglar la causa' );
+
+/* Un .crashed ilegible sigue siendo modo seguro: el cargador solo mira que EXISTA. */
+file_put_contents( $sb . '/.crashed', 'no es json' );
+$st = grab( 'es_sandbox_state' )['ret'];
+ok( true === $st['safe_mode'], 'un .crashed que no es json sigue siendo modo seguro' );
+ok( has( $st['reason'], 'no es json' ), 'y se reporta su contenido crudo' );
+
+file_put_contents( $sb . '/.crashed', '' );
+$st = grab( 'es_sandbox_state' )['ret'];
+ok( true === $st['safe_mode'], 'y uno VACIO tambien: el cargador solo comprueba que exista' );
+
+unlink( $sb . '/.crashed' );
+ok( false === es_sandbox_state()['safe_mode'], 'borrado el fichero, vuelve a estar operativo' );
+
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );
