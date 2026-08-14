@@ -183,6 +183,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_UXDS_NO_AXIS_STEP` | FAIL | `ux-design-system/SKILL.md` has no axis-resolving dialogue step |
 | `RT_AXIS_VALUE_MISSING` | FAIL | an axis position's own table row in `design-system.md` carries no token-shaped value cell — a backticked name with an empty or prose cell beside it is a name, not a value |
 | `RT_AXIS_BLUEPRINT_MISSING` | FAIL | an axis position is valued as a backticked blueprint id that `layout-patterns.md` defines no heading for |
+| `RT_PROOF_NOT_DISTINCT` | FAIL | the two proof mockups' `:root` blocks differ on fewer than four of the five axes, or one of the two files is missing — the message names which axes match |
 
 ## Workflow
 ```

@@ -97,6 +97,7 @@ const ROW_TYPES = array(
 	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
 	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position\'s own table row in design-system.md carries no token-shaped value',
 	'RT_AXIS_BLUEPRINT_MISSING'  => 'FAIL  — an axis position names a blueprint layout-patterns.md never defines',
+	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1172,6 +1173,97 @@ foreach ( $PERS_AXES as $axis => $positions ) {
 				add( 'RT_AXIS_BLUEPRINT_MISSING', 'FAIL', 'ux-design-system', 'design-system.md values axis "' . $axis . '" position "' . $pos . '" as blueprint `' . $bp . '`, but layout-patterns.md defines no heading by that name — the position points at nothing' );
 			}
 		}
+	}
+}
+
+/**
+ * The five axis signatures a proof mockup's `:root` block carries, normalised for comparison.
+ *
+ * Only the `:root` block is read. Every one of these custom properties is REFERENCED dozens of
+ * times further down each file (`box-shadow: var(--elev-rest)` and friends), so a whole-file scan
+ * would match a use and call it a declaration — and the axis whose value the page merely consumes
+ * would then look declared no matter what `:root` says.
+ *
+ * Composition is the one axis with no custom property, because its value is a layout rule rather
+ * than a number. It travels as a CSS comment carrying "composition:" and an LP- blueprint id, the
+ * marker design-system.md names, so that is what is parsed here.
+ *
+ * Values are lowercased and whitespace-collapsed before comparison: `#FFFFFF` against `#ffffff`
+ * is a case change, not a ground, and a gate that called it an axis difference would let a
+ * rename pass for a redesign. An axis absent from a `:root` yields '' — which compares EQUAL to
+ * the other file's absent axis, so two files that both forgot to declare density are correctly
+ * counted as matching on it rather than as differing.
+ */
+function proof_axis_signature( $src ) {
+	$sig  = array( 'scale' => '', 'ground' => '', 'density' => '', 'elevation' => '', 'composition' => '' );
+	$root_block = '';
+	if ( preg_match( '/:root\s*\{(.*?)\}/s', $src, $rm ) ) {
+		$root_block = $rm[1];
+	}
+	if ( '' === $root_block ) {
+		return $sig;
+	}
+	$props = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest' );
+	foreach ( $props as $axis => $prop ) {
+		/* (?![\w-]) so `--c-bg` never swallows the `--c-bg-alt` declaration that sits beside it on
+		   the same line: the ground axis is --c-bg, and matching its longer neighbour would report
+		   the alternate surface as the page's ground. */
+		if ( preg_match( '/' . preg_quote( $prop, '/' ) . '(?![\w-])\s*:\s*([^;}]+)/', $root_block, $m ) ) {
+			$sig[ $axis ] = strtolower( trim( preg_replace( '/\s+/', ' ', $m[1] ) ) );
+		}
+	}
+	if ( preg_match( '#/\*\s*composition\s*:\s*(LP-[A-Z0-9-]+)#i', $root_block, $cm ) ) {
+		$sig['composition'] = strtolower( $cm[1] );
+	}
+
+	return $sig;
+}
+
+/* The falsifiable claim the whole axis system rests on: ONE content set under TWO anchors has to
+   render as two unmistakably different pages. Phase A proved the anchors are far apart on paper —
+   that is what RT_PERS_TOO_SIMILAR guards. This row guards the other half: that the two files
+   which actually RENDER that claim still put their money on the table. Without it the proof is a
+   claim again, and a claim is what the eight adjectival personalities were.
+   Hardcoded paths, like house-rules.md and design-personalities.md above, and for the same
+   reason: a missing proof file must FAIL rather than silently skip the check. "The gate passes
+   because the evidence is gone" is the failure mode this row exists to make impossible. */
+$PROOF_MOCKUPS = array(
+	'PERS-EDITORIAL' => 'skills/html-mockup/assets/proof-editorial-mockup.html',
+	'PERS-DIRECT'    => 'skills/html-mockup/assets/proof-direct-mockup.html',
+);
+$proof_sigs    = array();
+$proof_all_here = true;
+foreach ( $PROOF_MOCKUPS as $anchor => $rel ) {
+	if ( ! file_exists( $root . '/' . $rel ) ) {
+		add( 'RT_PROOF_NOT_DISTINCT', 'FAIL', 'html-mockup', $rel . ' is missing — the ' . $anchor . ' half of the axis proof cannot be compared, so the claim that two anchors render differently is unverifiable' );
+		$proof_all_here = false;
+		continue;
+	}
+	$proof_sigs[ $anchor ] = proof_axis_signature( slurp( $root . '/' . $rel ) );
+}
+if ( $proof_all_here && 2 === count( $proof_sigs ) ) {
+	$anchors = array_keys( $proof_sigs );
+	$a       = $proof_sigs[ $anchors[0] ];
+	$b       = $proof_sigs[ $anchors[1] ];
+	$same    = array();
+	$labels  = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest', 'composition' => 'composition marker' );
+	foreach ( $labels as $axis => $label ) {
+		if ( $a[ $axis ] === $b[ $axis ] ) {
+			$shown  = ( '' === $a[ $axis ] ) ? 'neither declares it' : 'both `' . $a[ $axis ] . '`';
+			$same[] = $axis . ' (' . $label . ': ' . $shown . ')';
+		}
+	}
+	$differ = 5 - count( $same );
+	if ( $differ < 4 ) {
+		/* Naming the matching axes is the whole point of the message. "not different enough" sends
+		   the reader back to diff two 300-line files; "both use --sp-scale: 1.0" is a one-line fix. */
+		add(
+			'RT_PROOF_NOT_DISTINCT',
+			'FAIL',
+			'html-mockup',
+			$anchors[0] . ' and ' . $anchors[1] . ' differ on only ' . $differ . ' of 5 axes — they match on '
+				. implode( ', ', $same ) . '. Same content under two anchors has to render as two different pages, or the anchors are one anchor'
+		);
 	}
 }
 

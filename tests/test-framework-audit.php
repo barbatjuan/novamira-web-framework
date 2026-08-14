@@ -299,6 +299,42 @@ function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
 		. "**Imagery:** fixture.\n\n**Card recipe:** fixture.\n\n";
 }
 
+/**
+ * One proof mockup, reduced to the only thing RT_PROOF_NOT_DISTINCT reads: a `:root` block
+ * carrying the five axis signatures. Everything a real proof file also has — the copy, the
+ * layout, the placeholder recipe — is deliberately absent, so a fixture that fails fails on the
+ * axis VALUES and on nothing else.
+ *
+ * $axes is array( scale, ground, density, elevation, composition ). Passing null for one omits
+ * that declaration entirely, which is how the "neither declares it" branch gets a fixture.
+ * The trailing `--c-bg-alt` is not decoration: it sits beside `--c-bg` exactly as it does in the
+ * real files, so the fixture exercises the (?![\w-]) boundary that stops the ground axis from
+ * reading its neighbour.
+ */
+function fx_proof( array $axes ) {
+	list( $scale, $ground, $density, $elevation, $composition ) = $axes;
+	$decl = '';
+	if ( null !== $scale ) {
+		$decl .= "  --type-ratio: $scale; --display-lh: 0.95; --fs-h1-max: 88;\n";
+	}
+	if ( null !== $ground ) {
+		$decl .= "  --c-bg: $ground; --c-bg-alt: #F6F7F8; --c-text: #15181A;\n";
+	}
+	if ( null !== $density ) {
+		$decl .= "  --sp-scale: $density;\n";
+	}
+	if ( null !== $elevation ) {
+		$decl .= "  --elev-rest: $elevation; --elev-hover: none;\n";
+	}
+	if ( null !== $composition ) {
+		$decl .= "  /* composition: $composition */\n";
+	}
+
+	return "<!-- proof mockup fixture -->\n<style>\n:root{\n" . $decl . "}\n"
+		. "  .card{box-shadow:var(--elev-rest)}\n"     /* a USE of the property, outside :root */
+		. "</style>\n<h1>Fixture</h1>\n";
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
    offline test file, a conforming ux-design-system skill carrying a conforming
@@ -358,6 +394,27 @@ function fx_base( $root ) {
 		"Token names and values live in design-system.md.\n"
 	);
 	fx( $root, 'skills/web-templates/references/design-system.md', fx_ds_conforming() );
+	/* RT_PROOF_NOT_DISTINCT is checked at TOP LEVEL against hardcoded paths, exactly like
+	   RT_HOUSERULES_MISSING and RT_PERS_CATALOG_MISSING, so a fixture without these two files
+	   would carry a FAIL that has nothing to do with what it tests. The SKILL.md is required for
+	   the same reason the other catalog skills' are: writing an assets/ file alone enrols
+	   html-mockup as a skill for the skill loop to flag RT_NO_SKILL_MD and RT_ORPHAN_FILE on.
+	   These two differ on all five axes — the conforming case. */
+	fx(
+		$root,
+		'skills/html-mockup/SKILL.md',
+		"---\n" .
+		"name: html-mockup\n" .
+		"description: \"Trigger: fixture skill.\"\n" .
+		"license: MIT\n" .
+		"metadata:\n" .
+		"  author: fixture\n" .
+		"  version: \"1.0\"\n" .
+		"---\n\n" .
+		"The axis proof lives in `assets/proof-editorial-mockup.html` and `assets/proof-direct-mockup.html`.\n"
+	);
+	fx( $root, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
+	fx( $root, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ) ) );
 }
 
 /* Runs the real audit as a subprocess against $root. Returns [exit_code, combined_output,
@@ -1932,6 +1989,74 @@ ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITOR
 ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_PERS_TOO_SIMILAR: manda el PRIMER bloque', fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ) );
 ok( array() === fx_lines_with( $out92, array( 'RT_PERS_ID_MISSING' ) ), 'y el duplicado no se cuenta como ausencia del ID', $out92 );
 fx_rrmdir( $r92 );
+
+/* ---------------------------------------------------------------------------
+   RT_PROOF_NOT_DISTINCT — the axis proof is a gate, not a claim.
+   fx_base() already writes a conforming pair (all five axes apart); each scenario below
+   overwrites one or both files, so the only variable is the axis values.
+   --------------------------------------------------------------------------- */
+
+echo "--- dos proof mockups que solo se separan en TRES ejes FALLAN, nombrando los que coinciden ---\n";
+$r93 = fx_tmp_root();
+fx_base( $r93 );
+/* scale, ground and composition differ; density and elevation are identical in both files. */
+fx( $r93, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC' ) ) );
+fx( $r93, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID' ) ) );
+list( , $out93 ) = fx_run_ok( $audit, $r93 );
+ok( 'FAIL' === fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'tres ejes distintos de cinco FALLA', fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'only 3 of 5' ) ), 'y dice CUANTOS ejes se separan', $out93 );
+/* The two assertions that make the message actionable. Without them "not different enough" would
+   send the reader to diff two 300-line files by eye, which is what the row exists to replace. */
+ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'density (--sp-scale: both `1.0`)' ) ), 'y nombra el eje density con su valor compartido', $out93 );
+ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'elevation (--elev-rest: both `none`)' ) ), 'y nombra tambien el eje elevation', $out93 );
+fx_rrmdir( $r93 );
+
+echo "--- cuatro ejes separados YA basta: no hay fila ---\n";
+$r94 = fx_tmp_root();
+fx_base( $r94 );
+/* scale, ground, density and composition differ; only elevation matches. Four is the threshold,
+   and this scenario is also what proves the `--c-bg` match does not swallow the `--c-bg-alt`
+   declaration sitting beside it: fx_proof() writes the SAME --c-bg-alt into both files, so a
+   greedy ground match would read both grounds as #F6F7F8, drop the count to three, and fail here. */
+fx( $r94, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
+fx( $r94, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID' ) ) );
+list( $code94, $out94 ) = fx_run_ok( $audit, $r94 );
+ok( array() === fx_lines_with( $out94, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'cuatro ejes distintos no producen fila', $out94 );
+ok( 0 === $code94, 'y el arbol conforme sale con codigo 0', $code94 );
+fx_rrmdir( $r94 );
+
+echo "--- un proof mockup ausente FALLA: la prueba no puede volverse opcional ---\n";
+$r95 = fx_tmp_root();
+fx_base( $r95 );
+unlink( $r95 . '/skills/html-mockup/assets/proof-direct-mockup.html' );
+list( , $out95 ) = fx_run_ok( $audit, $r95 );
+ok( 'FAIL' === fx_row_level( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'proof-direct-mockup.html' ) ), 'borrar un proof mockup FALLA, nombrando el fichero', fx_row_level( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'proof-direct-mockup.html' ) ) );
+ok( array() !== fx_lines_with( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'PERS-DIRECT' ) ), 'y dice de que ancla era la mitad que falta', $out95 );
+fx_rrmdir( $r95 );
+
+echo "--- un eje que NINGUNO declara cuenta como coincidencia, no como diferencia ---\n";
+$r96 = fx_tmp_root();
+fx_base( $r96 );
+/* Neither file declares --sp-scale and both share elevation: three axes apart, so this FAILs.
+   The trap it closes is treating "absent" as "different" — under that reading, deleting the
+   density token from both files would have made the proof look MORE distinct, not less. */
+fx( $r96, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', null, 'none', 'LP-ASYMMETRIC' ) ) );
+fx( $r96, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', null, 'none', 'LP-BROKEN-GRID' ) ) );
+list( , $out96 ) = fx_run_ok( $audit, $r96 );
+ok( 'FAIL' === fx_row_level( $out96, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'un eje ausente en ambos no cuenta como separacion', fx_row_level( $out96, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out96, array( 'RT_PROOF_NOT_DISTINCT', 'density (--sp-scale: neither declares it)' ) ), 'y lo reporta como "neither declares it", no como un valor', $out96 );
+fx_rrmdir( $r96 );
+
+echo "--- cambiar la CAJA de un hex no es un eje ---\n";
+$r97 = fx_tmp_root();
+fx_base( $r97 );
+/* Same ground written two ways. If case counted, a find-and-replace would pass for a redesign. */
+fx( $r97, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
+fx( $r97, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#ffffff', '0.8', 'none', 'LP-BROKEN-GRID' ) ) );
+list( , $out97 ) = fx_run_ok( $audit, $r97 );
+ok( 'FAIL' === fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ), '#FFFFFF y #ffffff son el mismo ground', fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out97, array( 'RT_PROOF_NOT_DISTINCT', 'ground (--c-bg: both `#ffffff`)' ) ), 'y lo nombra normalizado en minusculas', $out97 );
+fx_rrmdir( $r97 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
