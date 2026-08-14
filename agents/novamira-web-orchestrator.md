@@ -122,8 +122,12 @@ delivered, and each one is a read, never a claim:
 1. **The sandbox is empty.** Call `es_sandbox_purge()`, then show what `es_sandbox_report()`
    returns. Every `.php` in `wp-content/novamira-sandbox/` executes on upload and stays executable
    and reachable by URL on the client's site forever, including whatever got pasted in to debug
-   something once. The purge deliberately refuses to touch subdirectories and unknown extensions —
-   those still block, they just need a human.
+   something once. The purge deliberately refuses to touch subdirectories, unknown extensions, and
+   **any file that registers a WordPress hook** — those still block, they just need a human. That
+   last one was found cleaning a real client's sandbox: a file hooking `template_redirect` was
+   wrapping every page in the `<main>` landmark the theme does not print, so it was the site's
+   accessibility rather than build scaffolding, and hand-off day would have deleted it in silence.
+   Move a hooking file into the child theme, then delete it here — never the other way round.
 2. **The backup keys are handed over.** `es_backup_keys($ids)` returns the restore keys per page,
    newest last. "There is a backup" is not a deliverable; the key and the restore call are.
 3. **The indexing state is declared out loud.** `es_indexing_state()` reads `blog_public`. Zero is

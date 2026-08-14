@@ -1770,19 +1770,77 @@ function es_sandbox_purge() {
 		if ( ! in_array( $ext, array( 'php', 'log', 'txt', 'json' ), true ) ) {
 			continue;
 		}
+		if ( es_sandbox_runtime_hooks( $rp ) ) {
+			continue;   /* not scaffolding: it runs on every visit. See below. */
+		}
 		@unlink( $rp );
 	}
 	clearstatcache();
 	$left = es_sandbox_report();
 	if ( $left ) {
+		$live = array();
+		foreach ( $left as $entry ) {
+			$hooks = es_sandbox_runtime_hooks( $real . DIRECTORY_SEPARATOR . $entry );
+			if ( $hooks ) {
+				$live[] = $entry . ' (' . implode( ', ', $hooks ) . ')';
+			}
+		}
 		es_warn(
 			'el sandbox NO quedo vacio: siguen ahi ' . implode( ', ', $left ) . '. Todo .php que quede en '
 			. 'wp-content/novamira-sandbox/ se ejecuta y es alcanzable por URL en el sitio del cliente. '
 			. 'Borralos a mano antes de entregar.'
+			. ( $live
+				? ' OJO, esto NO se borro a proposito porque registra hooks de WordPress y por tanto corre en cada '
+					. 'visita, no es andamio de build: ' . implode( '; ', $live ) . '. Borrarlo cambia el sitio. '
+					. 'Muevelo al tema hijo y borralo de aqui despues, nunca antes.'
+				: '' )
 		);
 	}
 
 	return $left;
+}
+
+/**
+ * Does this sandbox file register WordPress hooks — that is, does it RUN on every visit?
+ *
+ * The purge deletes what this framework uploads, and until now "what this framework uploads" was
+ * assumed to be build scaffolding: helper libraries and page builders, all of them useless once
+ * the pages exist. Found on a real client site while cleaning one: `es-dlo-a11y.php` registered
+ * `template_redirect` and wrapped every page in a `<main>` landmark, because the theme prints
+ * none. It is not scaffolding, it is the site's accessibility, living in the one directory whose
+ * job is to empty itself — and the delivery phase would have deleted it on hand-off day, silently,
+ * with every check green. That is this branch's thesis with a screen reader attached.
+ *
+ * So a file that hooks joins the list the purge already refuses to touch, next to subdirectories
+ * and unknown extensions: it still BLOCKS delivery, it just needs a human. The right fix is always
+ * to move it into the child theme — this framework may not write PHP outside the sandbox — and
+ * delete it here afterwards, never before.
+ *
+ * Detected by reading the source, not by loading it: loading is what the sandbox already does on
+ * every request and re-running it here would be a side effect inside a report. Comment lines are
+ * skipped, the same rule the audit uses, so a docblock explaining a hook that was removed does not
+ * keep a dead file alive forever.
+ *
+ * Returns the hook names found, so the warning can NAME them; an empty array means safe to delete.
+ */
+function es_sandbox_runtime_hooks( $path ) {
+	$src = is_file( $path ) ? (string) @file_get_contents( $path ) : '';
+	if ( '' === $src ) {
+		return array();
+	}
+	$found = array();
+	foreach ( explode( "\n", str_replace( "\r\n", "\n", $src ) ) as $line ) {
+		if ( preg_match( '#^\s*(\*|//|/\*|\#)#', $line ) ) {
+			continue;
+		}
+		if ( preg_match_all( '/(?<![\w>$])(add_action|add_filter|register_activation_hook|register_shutdown_function)\s*\(\s*[\'"]([^\'"]+)/', $line, $m ) ) {
+			foreach ( $m[2] as $hook ) {
+				$found[ $hook ] = true;
+			}
+		}
+	}
+
+	return array_keys( $found );
 }
 
 /**

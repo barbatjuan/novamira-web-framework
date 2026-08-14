@@ -1034,6 +1034,28 @@ unlink( $sb . '/subdir/dentro.php' );
 rmdir( $sb . '/subdir' );
 unlink( $sb . '/imagen.png' );
 
+/* Encontrado limpiando el sandbox de un cliente REAL: `es-dlo-a11y.php` registraba
+   template_redirect y envolvia cada pagina en un landmark <main> porque el tema no imprime
+   ninguno. No es andamio: es la accesibilidad del sitio, viviendo en el unico directorio cuyo
+   trabajo es vaciarse. La entrega lo habria borrado el dia de la entrega, en silencio y con todos
+   los checks en verde. */
+file_put_contents( $sb . '/es-page-otra.php', "<?php\nfunction es_build_otra() { return 1; }\n" );
+/* Un hook citado SOLO en un comentario no mantiene vivo un fichero muerto: fichero aparte, para
+   que la asercion pueda fallar. La primera version metia el comentario dentro del fichero que SI
+   engancha, asi que decia "no se borro" por el motivo equivocado y no podia distinguir nada. */
+file_put_contents( $sb . '/es-muerto.php', "<?php\n/* add_action( 'init', 'viejo' ); ya no se usa */\nfunction viejo() { return 1; }\n" );
+file_put_contents( $sb . '/es-a11y.php', "<?php\nfunction wrap( \$h ) { return \$h; }\nadd_action( 'template_redirect', 'wrap', 1 );\n" );
+$r    = grab( 'es_sandbox_purge' );
+$left = $r['ret'];
+ok( ! in_array( 'es-page-otra.php', $left, true ), 'un script de build se borra como siempre' );
+ok( ! in_array( 'es-muerto.php', $left, true ), 'un hook citado solo en un COMENTARIO no mantiene vivo un fichero muerto' );
+ok( in_array( 'es-a11y.php', $left, true ), 'pero uno que registra hooks NO se borra: corre en cada visita, no es andamio' );
+ok( has( $r['out'], 'template_redirect' ), 'y el aviso NOMBRA el hook, que es lo que lo delata' );
+ok( has( $r['out'], 'tema hijo' ), 'diciendo adonde tiene que mudarse' );
+ok( array( 'template_redirect' ) === es_sandbox_runtime_hooks( $sb . '/es-a11y.php' ), 'el detector devuelve el hook, no un booleano: por eso el aviso puede nombrarlo' );
+ok( array() === es_sandbox_runtime_hooks( $sb . '/no-existe.php' ), 'y un fichero que no existe no tiene hooks, no revienta' );
+unlink( $sb . '/es-a11y.php' );
+
 echo "--- las claves de respaldo se entregan, no se prometen ---\n";
 wp_fake_reset();
 $p1 = wp_fake_page( 'inicio' );
