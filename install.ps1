@@ -21,5 +21,9 @@ Write-Host ("Agents ({0}): {1}" -f $agents.Count, ($agents -join ', '))
 Write-Host ("Skills ({0}): {1}" -f $skills.Count, ($skills -join ', '))
 Write-Host ""
 Write-Host "NOTE: this is an overwrite-in-place install. Files with the same name are replaced," -ForegroundColor Yellow
-Write-Host "but files deleted upstream are NOT removed from $dest — a skill or reference dropped" -ForegroundColor Yellow
+# ASCII only, deliberately. Windows PowerShell 5.1 reads a BOM-less .ps1 as the system ANSI
+# codepage, so a UTF-8 em-dash arrives as three bytes whose last one PowerShell treats as a closing
+# quote -- the string terminates early and the whole script fails to parse. Measured: this file
+# refused to run under 5.1 while working under 7. Keep every character in this file ASCII.
+Write-Host "but files deleted upstream are NOT removed from $dest -- a skill or reference dropped" -ForegroundColor Yellow
 Write-Host "from the repo keeps living there until you delete it by hand." -ForegroundColor Yellow

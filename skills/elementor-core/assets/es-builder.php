@@ -1212,6 +1212,179 @@ function es_set_front_page( $slug ) {
  *
  * Returns the key written, or '' when there was genuinely nothing to preserve.
  */
+/**
+ * Put a page back the way a backup found it — and prove each piece landed.
+ *
+ * The backups were handed over as a list of keys and a sentence telling a human to restore them by
+ * hand, key by key, remembering that `_elementor_data` needs `wp_slash()` and that the CSS has to
+ * be regenerated afterwards. That is a recovery procedure nobody executes correctly at the moment
+ * they need it, which is the moment something already went wrong. A backup nobody can restore is
+ * not a backup.
+ *
+ * Restoring is itself destructive, so it BACKS UP FIRST: the state it is about to overwrite gets
+ * its own timestamped key, and a restore aimed at the wrong page or the wrong moment is recoverable
+ * exactly like the write that caused it. Yes, that means restoring twice returns you to where you
+ * started rather than stranding you.
+ *
+ * Every piece is READ BACK. `update_post_meta()` and `update_option()` share the same useless
+ * boolean — false on failure and false on an unchanged value — and `wp_update_post()` can be
+ * filtered out from under you. So this reports what it VERIFIED, never what it attempted, and a
+ * partial restore says which parts are missing instead of returning a cheerful true.
+ *
+ * `$key` empty picks the NEWEST backup, which is the one a human means when they say "undo that".
+ *
+ * Returns `array( 'key' => string, 'restored' => array, 'failed' => array, 'safety' => string )`,
+ * or an empty `restored` with a warning when there is nothing to restore.
+ */
+function es_restore_page_state( $post_id, $key = '' ) {
+	$post_id = (int) $post_id;
+	$all     = es_backup_keys( array( $post_id ) );
+	$keys    = isset( $all[ $post_id ] ) ? $all[ $post_id ] : array();
+
+	if ( ! $keys ) {
+		es_warn( 'la pagina #' . $post_id . ' no tiene ningun respaldo guardado, asi que no hay nada que restaurar.' );
+		return array(
+			'key'      => '',
+			'restored' => array(),
+			'failed'   => array(),
+			'safety'   => '',
+		);
+	}
+	if ( '' === $key ) {
+		$key = end( $keys );   /* es_backup_keys() sorts, so the last one is the newest */
+	}
+	if ( ! in_array( $key, $keys, true ) ) {
+		es_warn(
+			'la pagina #' . $post_id . ' no tiene ningun respaldo llamado "' . $key . '". Los que tiene son: '
+			. implode( ', ', $keys ) . '. No se restauro nada.'
+		);
+		return array(
+			'key'      => '',
+			'restored' => array(),
+			'failed'   => array(),
+			'safety'   => '',
+		);
+	}
+
+	$state = get_post_meta( $post_id, $key, true );
+	if ( ! is_array( $state ) || ! $state ) {
+		es_warn( 'el respaldo "' . $key . '" de la pagina #' . $post_id . ' esta vacio o no tiene la forma esperada. No se restauro nada.' );
+		return array(
+			'key'      => '',
+			'restored' => array(),
+			'failed'   => array(),
+			'safety'   => '',
+		);
+	}
+
+	/* Restoring overwrites. Park the CURRENT state first, using the same key list this backup
+	   holds, so undoing an undo is possible. */
+	$meta_keys = array();
+	foreach ( array_keys( $state ) as $k ) {
+		if ( 0 === strpos( (string) $k, '_' ) ) {
+			$meta_keys[] = $k;
+		}
+	}
+	$safety = es_backup_page_state( $post_id, $meta_keys );
+
+	$restored = array();
+	$failed   = array();
+	$fields   = array();
+
+	foreach ( $state as $k => $value ) {
+		if ( 0 === strpos( (string) $k, '_' ) ) {
+			/* `_elementor_data` is stored slashed; everything else round-trips as it is. */
+			update_post_meta( $post_id, $k, '_elementor_data' === $k ? wp_slash( $value ) : $value );
+			continue;
+		}
+		$fields[ $k ] = $value;
+	}
+	if ( $fields ) {
+		$fields['ID'] = $post_id;
+		wp_update_post( $fields );
+	}
+
+	/* The read-back. Nothing above is trusted. */
+	foreach ( $state as $k => $value ) {
+		$now = ( 0 === strpos( (string) $k, '_' ) )
+			? get_post_meta( $post_id, $k, true )
+			: get_post_field( $k, $post_id );
+		if ( (string) $now === (string) $value ) {
+			$restored[] = $k;
+		} else {
+			$failed[] = $k;
+		}
+	}
+
+	es_rebuild_css( $post_id );
+
+	if ( $failed ) {
+		es_warn(
+			'la restauracion de la pagina #' . $post_id . ' desde "' . $key . '" quedo A MEDIAS: '
+			. implode( ', ', $failed ) . ' no coincide al releerlo. La pagina esta ahora en un estado mezclado, '
+			. ( '' !== $safety ? 'y el estado previo quedo en "' . $safety . '".' : 'y no se pudo guardar el estado previo.' )
+		);
+	}
+
+	return array(
+		'key'      => $key,
+		'restored' => $restored,
+		'failed'   => $failed,
+		'safety'   => $safety,
+	);
+}
+
+/**
+ * Keep the newest N backups of a page and delete the rest.
+ *
+ * Backups are never pruned by design — a long-lived page accumulates one per rebuild, and each one
+ * now holds the whole displaced state rather than a single blob, so they are bigger than they used
+ * to be. That is the right default (losing the one you needed costs more than the rows), but it
+ * cannot be the ONLY option or the meta table becomes the thing that breaks.
+ *
+ * Deletes oldest-first and READS BACK: `delete_post_meta()` returns false both when it failed and
+ * when there was nothing there, so the proof is the re-read, exactly as with the sandbox purge.
+ *
+ * Returns `array( 'kept' => array, 'deleted' => array, 'still_there' => array )`.
+ */
+function es_prune_backups( $post_id, $keep = 5 ) {
+	$post_id = (int) $post_id;
+	$keep    = max( 1, (int) $keep );   /* keeping zero is not pruning, it is deleting the backups */
+	$all     = es_backup_keys( array( $post_id ) );
+	$keys    = isset( $all[ $post_id ] ) ? $all[ $post_id ] : array();
+
+	if ( count( $keys ) <= $keep ) {
+		return array(
+			'kept'        => $keys,
+			'deleted'     => array(),
+			'still_there' => array(),
+		);
+	}
+	$drop = array_slice( $keys, 0, count( $keys ) - $keep );   /* sorted: oldest first */
+	$kept = array_slice( $keys, count( $keys ) - $keep );
+
+	foreach ( $drop as $k ) {
+		delete_post_meta( $post_id, $k );
+	}
+
+	$after = es_backup_keys( array( $post_id ) );
+	$now   = isset( $after[ $post_id ] ) ? $after[ $post_id ] : array();
+	$stuck = array_values( array_intersect( $drop, $now ) );
+
+	if ( $stuck ) {
+		es_warn(
+			'no se pudieron borrar ' . count( $stuck ) . ' respaldos de la pagina #' . $post_id . ': '
+			. implode( ', ', $stuck ) . '. Siguen ocupando sitio en la tabla de meta.'
+		);
+	}
+
+	return array(
+		'kept'        => $kept,
+		'deleted'     => array_values( array_diff( $drop, $now ) ),
+		'still_there' => $stuck,
+	);
+}
+
 function es_backup_page_state( $post_id, array $meta_keys ) {
 	$state = array();
 	foreach ( $meta_keys as $key ) {

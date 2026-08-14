@@ -89,6 +89,7 @@ function wp_fake_reset() {
 		'rename_to'  => null,
 		'options'    => array(),
 		'option_ro'  => array(),   /* names update_option() accepts and silently does not write */
+		'meta_ro'    => array(),   /* meta keys update/delete_post_meta accept and do not touch */
 	);
 }
 
@@ -197,8 +198,23 @@ function get_post_field( $field, $post ) {
 	return $w['posts'][ $id ]->$field;
 }
 
+/**
+ * `meta_ro` reproduces a meta write that is ACCEPTED and does not land.
+ *
+ * Without it, three mutations survived the whole suite: a restore that reports what it attempted
+ * instead of what it verified, a prune that assumes its deletes worked, and a restore that forgets
+ * to slash `_elementor_data`. All three read-back branches were UNREACHABLE because the fake could
+ * not fail. That is the fourth time in this branch a surviving mutant turned out to be the test
+ * double's fault rather than the assertion's.
+ */
 function update_post_meta( $id, $key, $value ) {
-	$GLOBALS['wp']['meta'][ $id ][ $key ] = $value;
+	if ( in_array( $key, $GLOBALS['wp']['meta_ro'], true ) ) {
+		return false;
+	}
+	/* The real one runs wp_unslash() on its input, which is the ONLY reason wp_slash() exists at the
+	   call site: without it, the backslashes inside encoded JSON are stripped and the value lands
+	   corrupted. Modelling only one half of that pair made the missing-slash mutation invisible. */
+	$GLOBALS['wp']['meta'][ $id ][ $key ] = is_string( $value ) ? stripslashes( $value ) : $value;
 	return true;
 }
 /**
@@ -215,6 +231,9 @@ function get_post_meta( $id, $key = null, $single = false ) {
 	return isset( $all[ $key ] ) ? $all[ $key ] : '';
 }
 function delete_post_meta( $id, $key ) {
+	if ( in_array( $key, $GLOBALS['wp']['meta_ro'], true ) ) {
+		return false;
+	}
 	unset( $GLOBALS['wp']['meta'][ $id ][ $key ] );
 	return true;
 }
@@ -222,8 +241,13 @@ function wp_set_object_terms( $id, $terms, $taxonomy ) {
 	$GLOBALS['wp']['terms'][ $id ][ $taxonomy ] = $terms;
 	return array();
 }
+/**
+ * The real one ADDS SLASHES, which is the whole reason `_elementor_data` needs it: the value goes
+ * through `wp_unslash()` on the way into the database. A stub returning the value untouched made
+ * "did the caller slash it?" unanswerable, so forgetting the slash was undetectable.
+ */
 function wp_slash( $v ) {
-	return $v;
+	return is_string( $v ) ? addslashes( $v ) : $v;
 }
 function wp_json_encode( $v ) {
 	return json_encode( $v );
@@ -1171,6 +1195,149 @@ ok( true === $st['safe_mode'], 'y uno VACIO tambien: el cargador solo comprueba 
 
 unlink( $sb . '/.crashed' );
 ok( false === es_sandbox_state()['safe_mode'], 'borrado el fichero, vuelve a estar operativo' );
+
+/* ---------------------------------------------------------------------------
+ * Restaurar y podar. Un respaldo que nadie puede restaurar no es un respaldo.
+ * ------------------------------------------------------------------------- */
+echo "--- un respaldo se puede DESHACER, y cada pieza se comprueba ---\n";
+
+wp_fake_reset();
+$pid = wp_fake_page(
+	'servicios',
+	'publish',
+	'Titulo VIEJO',
+	'',
+	array(
+		'_elementor_data'   => '[{"viejo":1}]',
+		'_wp_page_template' => 'plantilla-vieja.php',
+	)
+);
+$a = null;
+grab(
+	function () use ( $els, &$a ) {
+		return es_save_page( 'servicios', 'Titulo NUEVO', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( 'Titulo NUEVO' === get_post_field( 'post_title', $pid ), 'tras reconstruir, la pagina lleva el titulo nuevo' );
+ok( 'elementor_header_footer' === get_post_meta( $pid, '_wp_page_template' ), 'y la plantilla nueva' );
+
+$r   = grab(
+	function () use ( $pid ) {
+		return es_restore_page_state( $pid );
+	}
+);
+$res = $r['ret'];
+ok( '' !== $res['key'], 'restaurar sin nombrar clave coge la mas reciente' );
+ok( array() === $res['failed'], 'y no falla ninguna pieza' );
+ok( 'Titulo VIEJO' === get_post_field( 'post_title', $pid ), 'el titulo vuelve al viejo' );
+ok( 'plantilla-vieja.php' === get_post_meta( $pid, '_wp_page_template' ), 'la plantilla tambien' );
+ok( has( (string) get_post_meta( $pid, '_elementor_data' ), 'viejo' ), 'y el layout anterior' );
+ok( '' === $r['out'], 'sin avisos cuando todo cuadra' );
+
+/* Restaurar tambien pisa: tiene que dejar su propia red antes. */
+ok( '' !== $res['safety'], 'la restauracion guarda el estado que ella misma va a pisar' );
+$r2 = grab(
+	function () use ( $pid, $res ) {
+		return es_restore_page_state( $pid, $res['safety'] );
+	}
+);
+ok( 'Titulo NUEVO' === get_post_field( 'post_title', $pid ), 'asi que deshacer el deshacer devuelve al estado nuevo' );
+
+/* Una clave que no existe no restaura nada a medias. */
+wp_fake_reset();
+$pid = wp_fake_page( 'x', 'publish', 'T', '', array( '_es_page_backup_20260101-000000' => array( 'post_title' => 'V' ) ) );
+$r   = grab(
+	function () use ( $pid ) {
+		return es_restore_page_state( $pid, '_es_page_backup_NO_EXISTE' );
+	}
+);
+ok( array() === $r['ret']['restored'], 'una clave inexistente no restaura nada' );
+ok( has( $r['out'], '_es_page_backup_20260101-000000' ), 'y el aviso lista las que SI existen' );
+ok( 'T' === get_post_field( 'post_title', $pid ), 'la pagina se queda como estaba' );
+
+wp_fake_reset();
+$pid = wp_fake_page( 'y' );
+$r   = grab(
+	function () use ( $pid ) {
+		return es_restore_page_state( $pid );
+	}
+);
+ok( array() === $r['ret']['restored'] && has( $r['out'], 'no tiene ningun respaldo' ), 'sin respaldos, se dice y no se toca nada' );
+
+echo "--- y no se acumulan para siempre ---\n";
+wp_fake_reset();
+$pid = wp_fake_page( 'z' );
+foreach ( array( '20260101-000001', '20260102-000002', '20260103-000003', '20260104-000004' ) as $s ) {
+	$GLOBALS['wp']['meta'][ $pid ][ '_es_page_backup_' . $s ] = array( 'post_title' => $s );
+}
+$p = es_prune_backups( $pid, 2 );
+ok( 2 === count( $p['kept'] ), 'podar a 2 deja 2' );
+ok( 2 === count( $p['deleted'] ), 'y borra los otros 2' );
+ok( has( $p['kept'][1], '20260104' ), 'los que quedan son los MAS RECIENTES' );
+ok( has( $p['deleted'][0], '20260101' ), 'y los borrados los mas viejos' );
+ok( array() === $p['still_there'], 'sin restos' );
+ok( 2 === count( es_backup_keys( array( $pid ) )[ $pid ] ), 'y al releer, quedan 2 de verdad' );
+
+$p = es_prune_backups( $pid, 5 );
+ok( array() === $p['deleted'], 'podar por encima de lo que hay no borra nada' );
+$p = es_prune_backups( $pid, 0 );
+ok( 1 === count( $p['kept'] ), 'y podar a 0 conserva 1: eso no seria podar, seria borrar los respaldos' );
+
+/* Un borrado ACEPTADO que no aterriza. delete_post_meta() devuelve false al fallar Y cuando no
+   habia nada, asi que la prueba es la relectura, igual que en la purga del sandbox. */
+wp_fake_reset();
+$pid = wp_fake_page( 'w' );
+foreach ( array( '20260101-000001', '20260102-000002', '20260103-000003' ) as $s ) {
+	$GLOBALS['wp']['meta'][ $pid ][ '_es_page_backup_' . $s ] = array( 'post_title' => $s );
+}
+$GLOBALS['wp']['meta_ro'] = array( '_es_page_backup_20260101-000001' );
+$r = grab(
+	function () use ( $pid ) {
+		return es_prune_backups( $pid, 1 );
+	}
+);
+ok( array( '_es_page_backup_20260101-000001' ) === $r['ret']['still_there'], 'un borrado que no aterriza se reporta como SIGUE AHI' );
+ok( ! in_array( '_es_page_backup_20260101-000001', $r['ret']['deleted'], true ), 'y NO se cuenta como borrado' );
+ok( in_array( '_es_page_backup_20260102-000002', $r['ret']['deleted'], true ), 'mientras el que si se borro cuenta' );
+ok( has( $r['out'], 'no se pudieron borrar' ), 'y avisa' );
+
+echo "--- restaurar informa de lo VERIFICADO, no de lo intentado ---\n";
+wp_fake_reset();
+$pid = wp_fake_page( 'v', 'publish', 'Titulo VIEJO', '', array( '_wp_page_template' => 'vieja.php', '_elementor_data' => '[{"a":"b"}]' ) );
+$a   = null;
+grab(
+	function () use ( $els, &$a ) {
+		return es_save_page( 'v', 'Titulo NUEVO', $els, 'elementor_header_footer', $a );
+	}
+);
+/* La plantilla se niega a aceptar la restauracion: la pagina queda MEZCLADA y hay que decirlo. */
+$GLOBALS['wp']['meta_ro'] = array( '_wp_page_template' );
+$r = grab(
+	function () use ( $pid ) {
+		return es_restore_page_state( $pid );
+	}
+);
+ok( in_array( '_wp_page_template', $r['ret']['failed'], true ), 'una pieza que no aterriza sale en failed' );
+ok( in_array( 'post_title', $r['ret']['restored'], true ), 'y la que si aterrizo, en restored' );
+ok( has( $r['out'], 'A MEDIAS' ), 'con un aviso de restauracion parcial' );
+ok( has( $r['out'], '_wp_page_template' ), 'nombrando la pieza que falta' );
+
+/* `_elementor_data` se guarda deslizado: sin wp_slash() la relectura no coincide. */
+$GLOBALS['wp']['meta_ro'] = array();
+wp_fake_reset();
+$pid = wp_fake_page( 'u', 'publish', 'T', '', array( '_elementor_data' => '[{"txt":"con \\\\\"comillas\\\\\""}]' ) );
+$a   = null;
+grab(
+	function () use ( $els, &$a ) {
+		return es_save_page( 'u', 'T2', $els, 'elementor_header_footer', $a );
+	}
+);
+$r = grab(
+	function () use ( $pid ) {
+		return es_restore_page_state( $pid );
+	}
+);
+ok( in_array( '_elementor_data', $r['ret']['restored'], true ), 'un layout con comillas se restaura deslizado y la relectura cuadra' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );
