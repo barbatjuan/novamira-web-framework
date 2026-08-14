@@ -29,8 +29,9 @@ yourself and stop until you get it.
 
 ## Hard Rules
 - **Registered is not rendering.** Elementor resolves ONE template per location, so a rival already
-  claiming `header` means yours can be saved, conditioned, cached and never appear.
-  (verifier: `es_theme_location_rivals()` names every other template registered at the same location, and `es_save_theme_part()` warns when the list is non-empty.)
+  claiming `header` means yours can be saved, conditioned, cached and never appear. A rival you
+  looked at and chose to keep goes in `$known_rivals` — by ID, so one appearing later still warns.
+  (verifier: `es_theme_location_rivals()` names every other template registered at the same location, and `es_save_theme_part()` warns for each one the caller has not acknowledged.)
 - **ONE header and ONE footer, byte-identical on every page.** A per-page copy is how they drift.
   (verifier: `qa-review` house-rule row 9 hashes the header and footer fragment of every page and requires all hashes to match.)
 - **The header is real navigation**: exactly one menu, the logo links home, no dead links, present

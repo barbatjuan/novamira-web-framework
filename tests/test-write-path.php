@@ -924,6 +924,29 @@ ok( has( $r['out'], 'NO es la unica' ), 'y el guardado avisa: registrado no es v
 ok( has( $r['out'], '#777' ), 'nombrando la rival por id, que es con lo que se la busca' );
 ok( has( $r['out'], 'header' ), 'y la ubicacion en disputa' );
 
+/* Un sitio puede tener dos plantillas en una ubicacion a proposito, con condiciones distintas.
+   Sin forma de decirlo, este aviso saltaba en cada build de un sitio CORRECTO, que es como un
+   aviso se convierte en paisaje — el mismo argumento que el umbral de palabras que nadie cumplia. */
+$r = grab(
+	function () use ( $els, $ajena ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a, array( $ajena ) );
+	}
+);
+ok( ! has( $r['out'], 'NO es la unica' ), 'una rival RECONOCIDA por quien llama no vuelve a avisar' );
+
+/* Pero reconocer es por ID, nunca por ubicacion: la que aparece DESPUES es un hecho nuevo. */
+$GLOBALS['wp']['options']['elementor_pro_theme_builder_conditions']['header'][999] = array( 'include/general' );
+$r = grab(
+	function () use ( $els, $ajena ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a, array( $ajena ) );
+	}
+);
+ok( has( $r['out'], '#999' ), 'una rival NUEVA sigue avisando aunque otra este reconocida' );
+ok( ! has( $r['out'], '#777' ), 'y no vuelve a nombrar la que ya se miro' );
+ok( has( $r['out'], '1 rival' ), 'pero dice cuantas hay silenciadas: reconocida no es invisible' );
+
 /* Una plantilla en OTRA ubicacion no compite: avisar de ella seria ruido, y un aviso que salta
    siempre es un aviso que se aprende a ignorar. */
 wp_fake_reset();
@@ -968,7 +991,7 @@ if ( ! function_exists( 'exec' ) ) {
 	ok( false !== $ran && -1 !== $code, 'el proceso de prueba se pudo lanzar' );
 	ok( '' !== trim( $txt ), 'falta la dependencia y la salida NO esta vacia' );
 	ok( has( $txt, 'es-builder.php' ), 'nombra el fichero que falta' );
-	ok( has( $txt, 'NOTHING WAS BUILT' ), 'y dice explicitamente que no se construyo nada' );
+	ok( has( $txt, 'NO SE CONSTRUYO NADA' ), 'y dice explicitamente que no se construyo nada' );
 	ok( has( $txt, 'SOBREVIVIO' ), 'y devuelve el control en vez de fatalar, que es lo que tumbaba el sitio al subirlo' );
 	ok( ! has( $txt, 'Fatal error' ), 'sin fatal' );
 }
