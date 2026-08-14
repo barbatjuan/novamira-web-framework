@@ -644,17 +644,23 @@ $pid = wp_fake_page(
 		'_wp_page_template'    => 'plantilla-del-tema.php',
 	)
 );
+/* El titulo NUEVO es distinto del viejo A PROPOSITO. La version anterior de esta assertion usaba el
+   mismo en los dos lados, asi que no podia fallar: el respaldo guardaba el titulo YA PISADO por
+   wp_update_post() y la comprobacion pasaba igual. Lo destapo una corrida end-to-end contra un sitio
+   real, donde el titulo si cambiaba. Un test que no puede distinguir el arreglo de su propio bug es
+   exactamente lo que esta rama existe para eliminar. */
 $r = grab(
 	function () use ( $els ) {
 		$a = null;
-		return es_save_page( 'servicios', 'Servicios', $els, 'elementor_header_footer', $a );
+		return es_save_page( 'servicios', 'Servicios v2', $els, 'elementor_header_footer', $a );
 	}
 );
 $bk = backup_of( $pid );
 ok( is_array( $bk ), 'el respaldo es un conjunto, no un unico blob' );
 ok( isset( $bk['_elementor_data'] ) && has( $bk['_elementor_data'], 'viejo' ), 'con el layout anterior' );
 ok( isset( $bk['_wp_page_template'] ) && 'plantilla-del-tema.php' === $bk['_wp_page_template'], 'Y la plantilla anterior, que la escritura tambien pisa' );
-ok( isset( $bk['post_title'] ) && 'Servicios' === $bk['post_title'], 'y el titulo, que wp_update_post reescribe' );
+ok( isset( $bk['post_title'] ) && 'Servicios' === $bk['post_title'], 'y el titulo VIEJO, no el que wp_update_post acaba de escribir' );
+ok( 'Servicios v2' === get_post_field( 'post_title', $pid ), 'mientras la pagina si lleva el nuevo' );
 ok( isset( $bk['post_status'] ) && 'publish' === $bk['post_status'], 'y el estado' );
 ok( 'elementor_header_footer' === get_post_meta( $pid, '_wp_page_template' ), 'la escritura si cambio la plantilla, que es lo que hace falta respaldar' );
 

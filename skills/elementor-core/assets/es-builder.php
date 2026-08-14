@@ -1000,6 +1000,28 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 	if ( $page ) {
 		$id     = $page->ID;
 		$action = 'updated';
+		/* BEFORE wp_update_post(), not after. The backup used to sit further down, past this call,
+		   so `post_title` and `post_status` were saved as the values this very call had just
+		   written -- the meta half of that same bug was fixed earlier and this half survived it,
+		   because a page rebuilt under its own name displaces a title identical to the new one and
+		   nothing looks wrong. Caught by an end-to-end run on a live site where the title DID
+		   change: the backup recorded the new one. Meta keys are still untouched at this point, so
+		   moving the whole block up keeps them correct too. */
+		es_backup_page_state(
+			$id,
+			array( '_elementor_data', '_wp_page_template', '_elementor_edit_mode', '_elementor_template_type', '_elementor_version' )
+		);
+		/* The most destructive overwrite in the repertoire, and the one the old backup covered
+		   LEAST: with no `_elementor_data` to copy it returned '' and said nothing, while the
+		   post_content that WAS the page stopped rendering for good. */
+		$body = trim( (string) get_post_field( 'post_content', $id ) );
+		if ( 'builder' !== get_post_meta( $id, '_elementor_edit_mode', true ) && '' !== $body ) {
+			es_warn(
+				'"' . $slug . '" (#' . $id . ') no era una pagina de Elementor y va a serlo. Su contenido actual ('
+				. strlen( $body ) . ' caracteres del editor clasico o de bloques) deja de renderizarse: sigue en la base de '
+				. 'datos y en el respaldo, pero el visitante ya no lo ve. Si no era la intencion, para aqui.'
+			);
+		}
 		/* post_status intentionally mirrors what is already there - see docblock above.
 		   The return value is KEPT: discarding it made this the one branch that could not fail, so
 		   a post WordPress refused to touch still had its layout overwritten and still reported
@@ -1045,32 +1067,6 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 				. 'Libera el slug y renombrala, o cambia el slug en el build.'
 			);
 			$action = 'created-renamed';
-		}
-	}
-
-	if ( 'updated' === $action ) {
-		/* FIRST, before a single update_post_meta(). The backup used to sit four lines below this
-		   point, after `_wp_page_template`, `_elementor_edit_mode`, `_elementor_template_type` and
-		   `_elementor_version` had ALREADY been overwritten -- so it preserved the values this call
-		   had just written and labelled them as the previous state. It looked correct only because
-		   the one key it named, `_elementor_data`, happens to be written last.
-
-		   Only on the update path: a page this call just created has nothing to displace, and a
-		   backup of an empty page is meta-table noise on every rebuild. */
-		es_backup_page_state(
-			$id,
-			array( '_elementor_data', '_wp_page_template', '_elementor_edit_mode', '_elementor_template_type', '_elementor_version' )
-		);
-		/* The most destructive overwrite in the repertoire, and the one the old backup covered
-		   LEAST: with no `_elementor_data` to copy it returned '' and said nothing, while the
-		   post_content that WAS the page stopped rendering for good. */
-		$body = trim( (string) get_post_field( 'post_content', $id ) );
-		if ( 'builder' !== get_post_meta( $id, '_elementor_edit_mode', true ) && '' !== $body ) {
-			es_warn(
-				'"' . $slug . '" (#' . $id . ') no era una pagina de Elementor y va a serlo. Su contenido actual ('
-				. strlen( $body ) . ' caracteres del editor clasico o de bloques) deja de renderizarse: sigue en la base de '
-				. 'datos y en el respaldo, pero el visitante ya no lo ve. Si no era la intencion, para aqui.'
-			);
 		}
 	}
 
