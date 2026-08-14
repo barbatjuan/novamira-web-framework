@@ -1424,6 +1424,60 @@ function es_sandbox_dir() {
 }
 
 /**
+ * Is the sandbox actually RUNNING, or has it switched itself off?
+ *
+ * Read from the Novamira loader's own source, not guessed. It globs `*.php` in the sandbox and
+ * `require_once`s every one of them on EVERY request — not "on upload", which is what this repo's
+ * gotchas used to say. But before that it does:
+ *
+ *     $is_safe_mode = file_exists( $crashed_file );
+ *     if ( $is_safe_mode ) { return; }
+ *
+ * So a single `.crashed` file disables the WHOLE sandbox, silently. The only notice is an
+ * admin_notices banner, which needs a logged-in manager looking at wp-admin — an agent working
+ * through the connector never sees it.
+ *
+ * Measured on two live sites: one carrying `.crashed` since a fatal, where NO `es_*` function was
+ * defined at all, and one without it, where the library loaded normally. On the first, every build
+ * this framework performs would die on "undefined function" with nothing explaining why.
+ *
+ * The catch worth stating: when the sandbox IS in safe mode, this function is not loaded either, so
+ * it cannot be the thing that warns you. `project-context` reads the same file directly, before any
+ * of this library exists. This one covers the case where the library is running and the crash
+ * happened afterwards — and the delivery phase, which must not hand over a site whose sandbox is
+ * quietly off.
+ *
+ * Returns `array( 'safe_mode' => bool, 'reason' => string|null, 'files' => array )`.
+ */
+function es_sandbox_state() {
+	$dir     = es_sandbox_dir();
+	$crashed = $dir . '/.crashed';
+	$reason  = null;
+
+	if ( file_exists( $crashed ) ) {
+		$raw = (string) @file_get_contents( $crashed );
+		$rec = json_decode( $raw, true );
+		if ( is_array( $rec ) ) {
+			$reason = ( isset( $rec['sandbox_file'] ) ? basename( (string) $rec['sandbox_file'] ) . ': ' : '' )
+				. ( isset( $rec['message'] ) ? substr( (string) $rec['message'], 0, 200 ) : 'sin mensaje' );
+		} else {
+			$reason = '' !== $raw ? substr( $raw, 0, 200 ) : 'el fichero .crashed esta vacio';
+		}
+		es_warn(
+			'el sandbox esta en MODO SEGURO: existe ' . $dir . '/.crashed, asi que el cargador de Novamira NO carga '
+			. 'NINGUN fichero del sandbox. Causa registrada: ' . $reason . '. Nada de lo que subas se va a ejecutar. '
+			. 'Arregla o borra el fichero culpable ANTES de borrar .crashed — borrarlo sin mas vuelve a cargarlo y a tumbar el sitio otra vez.'
+		);
+	}
+
+	return array(
+		'safe_mode' => null !== $reason,
+		'reason'    => $reason,
+		'files'     => es_sandbox_report(),
+	);
+}
+
+/**
  * What is still sitting in the sandbox?
  *
  * Returns a sorted list of filenames, `array()` when empty or absent. This is the READ that makes

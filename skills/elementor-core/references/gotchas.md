@@ -96,10 +96,26 @@ a wrapper is the canonical thing that belongs on the widget.
 `object-fit` on the image widget is hyphenated (that is the control id) and Elementor only
 honours it while `height` has a value. Both confirmed on that build.
 
-## Sandbox auto-executes uploaded .php
-Any `.php` dropped in `wp-content/novamira-sandbox/` runs immediately. Top-level build
-logic there crashes the site ("error crítico"). FIX: wrap ALL logic in named functions
-(`es_build_home()`…), upload defines-only, then `require_once` + call the function via `execute-php`.
+## Sandbox executes every .php on EVERY request — and one fatal switches them all off
+Symptom: top-level build logic in the sandbox crashes the site ("error crítico"); later, uploads
+appear to do nothing at all and every `es_*` call is an undefined function.
+
+Cause: read from `wp-content/plugins/novamira/includes/sandbox-loader.php`, not inferred. The loader
+globs `*.php` in the sandbox and `require_once`s each one on **every request** — not "on upload",
+which is what this entry used to say. Top-level code therefore runs during `index.php`, before
+WordPress finishes loading: a live site's `.crashed` recorded `wp_insert_post()` there dying on an
+undefined `is_user_logged_in()`. And before that loop the loader does
+`$is_safe_mode = file_exists( $crashed_file ); if ( $is_safe_mode ) { return; }` — so **one file's
+fatal disables the WHOLE sandbox, silently**. The only notice is a wp-admin banner, which an agent
+working through the connector never sees. Measured on two live sites: the one carrying `.crashed`
+had no `es_*` function defined at all, the one without loaded normally.
+
+Fix: wrap ALL logic in named functions (`es_build_home()`…), upload defines-only, then `require_once`
++ call the function via `execute-php`. Check `.crashed` BEFORE promising a build — `project-context`
+step 8 and `es_sandbox_state()` both report it.
+
+Do NOT: delete `.crashed` to "resume". That reloads the file that crashed the site and crashes it
+again. Fix or delete the file it names first, then remove it.
 
 ## Deterministic element IDs (critical)
 Random IDs desync the compiled CSS from the cached HTML → styles silently don't apply.
