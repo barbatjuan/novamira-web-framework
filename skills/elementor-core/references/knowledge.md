@@ -38,6 +38,17 @@
   `es_container_walk()` calls it, so these reach the verdict through the existing offender channel.
   The key list is deliberately SHORT: `width` is excluded because it is both a container layout key
   and a real widget control, and an invented offender costs more than a missed one.
+  **Re-measured by introspection** on Elementor 4.2.2 + Pro 4.2.1, walking all 128 widget types
+  that expose controls and asking each one. Two results, one confirming and one correcting:
+  - The five container-only keys are a real control on **zero** widgets, in either spelling —
+    and `width` is a real one on **ten**, so the hand-made exclusion was right for the right reason.
+  - `padding` is a real `dimensions` control on **three** widgets (`nested-tabs`,
+    `call-to-action`, `table-of-contents`) and `background_background` a real `choose` control on
+    **seven** (`button`, `archive-posts`, `loop-grid`, `off-canvas`, `posts`, `paypal-button`,
+    `stripe-button`). The checker was inventing an offender on all ten and telling their authors to
+    break working code. `es_owns_control($widget_type,$key)` now asks Elementor directly when it is
+    there, and falls back to that measured list offline. Re-run the introspection when Elementor
+    moves: a hardcoded roster goes stale silently, which is why the live question comes first.
 - **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
   `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
   false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so

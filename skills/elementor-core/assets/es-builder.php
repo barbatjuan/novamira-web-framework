@@ -672,7 +672,7 @@ function es_container_walk( array $els, $depth, $path, array &$out, array $anc =
 		}
 		/* Also above the dispatch: a setting written on the wrong element type saves fine and never
 		   applies — visible in the source, absent on screen, so it gets re-added and re-wondered-at. */
-		foreach ( es_key_offenders( $type, $settings ) as $why ) {
+		foreach ( es_key_offenders( $type, $settings, isset( $el['widgetType'] ) ? $el['widgetType'] : '' ) as $why ) {
 			$out['offenders'][] = $here . ' ' . ( '' === $type ? '(sin elType)' : $type ) . ' ' . $why;
 		}
 		if ( 'container' === $type ) {
@@ -1455,9 +1455,17 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
  * key stays off the list and the gap is real rather than papered over.
  *
  * Reports, never blocks, through the same offender channel as everything else in the walk.
+ *
+ * `$widget_type` is the widget's own name, and it exists because the first version of this check
+ * invented offenders on TEN widget types. Introspecting all 128 that expose controls showed
+ * `padding` is a real dimensions control on three of them and `background_background` a real choose
+ * control on seven — so the rule "on a widget it must carry the underscore" was telling their
+ * authors to break working code. See es_owns_control().
  */
-function es_key_offenders( $type, array $settings ) {
-	/* Container-only layout keys: a widget has no flex box of its own to configure. */
+function es_key_offenders( $type, array $settings, $widget_type = '' ) {
+	/* Container-only layout keys: a widget has no flex box of its own to configure. Re-measured
+	   across all 128 widget types that expose controls on Elementor 4.2.2 + Pro 4.2.1: not one of
+	   these five is a real control on any of them, in either spelling. */
 	$container_only = array( 'content_width', 'flex_direction', 'flex_gap', 'flex_justify_content', 'flex_align_items' );
 	/* Wrapper controls, spelled bare on a container and underscored on a widget. */
 	$wrapper = array( 'padding', 'margin', 'background_background' );
@@ -1470,7 +1478,7 @@ function es_key_offenders( $type, array $settings ) {
 			}
 		}
 		foreach ( $wrapper as $key ) {
-			if ( isset( $settings[ $key ] ) && ! isset( $settings[ '_' . $key ] ) ) {
+			if ( isset( $settings[ $key ] ) && ! isset( $settings[ '_' . $key ] ) && ! es_owns_control( $widget_type, $key ) ) {
 				$out[] = 'lleva "' . $key . '" sin guion bajo: en un widget esa clave es "_' . $key . '" y sin el no hace nada';
 			}
 		}
@@ -1483,6 +1491,50 @@ function es_key_offenders( $type, array $settings ) {
 	}
 
 	return $out;
+}
+
+/**
+ * Does this widget type own `$key` as a control of its own?
+ *
+ * The wrapper rule — "a container takes `padding`, a widget takes `_padding`" — is true of the
+ * wrapper controls every widget inherits, and FALSE wherever a widget defines a control of its own
+ * under the bare name. Measured by walking all 128 widget types that expose controls on Elementor
+ * 4.2.2 + Pro 4.2.1 and asking each one, not by reading documentation: `padding` is a real
+ * dimensions control on three, `background_background` a real choose control on seven. Without this
+ * the checker invented an offender on ten widget types and told the author to "fix" code that was
+ * already right, and an invented offender costs more than a missed one — the same reasoning that
+ * keeps `width` off the list entirely, since ten widgets own that one for real.
+ *
+ * Asks ELEMENTOR when Elementor is there, because a hardcoded roster goes stale on the next release
+ * and goes stale silently. The measured list below is the fallback for the offline suite, where
+ * there is no Elementor to ask; it is short, dated and derived, never guessed.
+ *
+ * A type Elementor does not recognise returns no controls, and that is treated as "does not own it"
+ * — failing towards reporting. An unregistered widget renders empty anyway, and the walk already
+ * has its own row for that. An element with no `widgetType` reaches here as `''` and takes the same
+ * path: MEASURED on 4.2.2, `get_widget_types('')` returns NULL and `get_widget_types(null)` returns
+ * all 130, so the empty string is safe and only a null argument would be dangerous — the call site
+ * passes `''`, never null. An early return for `''` was written first and removed: it changed no
+ * outcome, so it was a branch nothing could test, which is how a check quietly stops checking.
+ */
+function es_owns_control( $widget_type, $key ) {
+	static $live = array();
+	if ( class_exists( '\Elementor\Plugin' ) ) {
+		if ( ! isset( $live[ $widget_type ] ) ) {
+			$w                      = \Elementor\Plugin::instance()->widgets_manager->get_widget_types( $widget_type );
+			$live[ $widget_type ] = ( $w && method_exists( $w, 'get_controls' ) ) ? (array) $w->get_controls() : array();
+		}
+		if ( $live[ $widget_type ] ) {
+			return isset( $live[ $widget_type ][ $key ] );
+		}
+	}
+	/* MEASURED on Elementor 4.2.2 / Pro 4.2.1. Re-run the introspection when either moves. */
+	$measured = array(
+		'padding'               => array( 'nested-tabs', 'call-to-action', 'table-of-contents' ),
+		'background_background' => array( 'button', 'archive-posts', 'loop-grid', 'off-canvas', 'posts', 'paypal-button', 'stripe-button' ),
+	);
+
+	return isset( $measured[ $key ] ) && in_array( $widget_type, $measured[ $key ], true );
 }
 
 /**
