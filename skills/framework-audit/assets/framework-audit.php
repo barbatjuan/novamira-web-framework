@@ -89,6 +89,8 @@ const ROW_TYPES = array(
 	'RT_PERS_CATALOG_MISSING'    => 'FAIL  — ux-design-system/references/design-personalities.md is missing',
 	'RT_PERS_MISSING_FIELD'      => 'FAIL  — a personality block in design-personalities.md is missing a required field',
 	'RT_PERS_ID_MISSING'         => 'FAIL  — a required personality ID is absent from design-personalities.md',
+	'RT_PERS_TOO_SIMILAR'        => 'FAIL  — two personality anchors share more than one axis position',
+	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
 	'RT_UXDS_NO_CAPA2_STEP'      => 'FAIL  — ux-design-system/SKILL.md has no CAPA 2 personality-recommender step',
@@ -929,11 +931,41 @@ if ( file_exists( $hr_file ) ) {
 
 /* --------------------------------------- ux-design-system personality catalog */
 
-$PERS_IDS = array(
-	'PERS-EDITORIAL', 'PERS-BOLD-STARTUP', 'PERS-MINIMAL-SWISS', 'PERS-WARM-BOUTIQUE',
-	'PERS-CORPORATE-TRUST', 'PERS-FASHION-EDIT', 'PERS-TECH-PRECISION', 'PERS-PERFORMANCE-ENERGY',
+$PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL' );
+/* Color mood and "Radius & shadow" are gone as prose fields: ground and elevation are AXES now,
+   and a field that repeats an axis in adjectives is how the old catalog drifted from its own
+   values. Motion stays prose on purpose — the distance rule below is about what a still frame
+   shows, and motion.md already pins the curve and the ranges. */
+$PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
+$PERS_AXES   = array(
+	'scale'       => array( 'contained', 'classic', 'editorial', 'monumental' ),
+	'ground'      => array( 'paper', 'warm', 'cool', 'ink' ),
+	'density'     => array( 'compact', 'standard', 'generous', 'monumental' ),
+	'composition' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
+	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
 );
-$PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 'Motion intensity', 'Imagery', 'Card recipe' );
+
+/**
+ * The axis positions one anchor block declares.
+ *
+ * Parsed from a single `**Axes:**` line so the contract is one line a human can read and a
+ * machine can compare. Returns `axis => position`, omitting anything the line does not name —
+ * a missing axis surfaces as RT_PERS_MISSING_FIELD or as an unnamed axis, never as a silent
+ * default, because an axis nobody sets is exactly how every project lands on the same value.
+ */
+function pers_axes( $block ) {
+	if ( ! preg_match( '/^\*\*Axes:\*\*(.+)$/m', $block, $m ) ) {
+		return array();
+	}
+	$out = array();
+	if ( preg_match_all( '/([a-z]+)\s+`([a-z-]+)`/', $m[1], $mm, PREG_SET_ORDER ) ) {
+		foreach ( $mm as $pair ) {
+			$out[ $pair[1] ] = $pair[2];
+		}
+	}
+
+	return $out;
+}
 
 $pers_file = $root . '/skills/ux-design-system/references/design-personalities.md';
 if ( ! file_exists( $pers_file ) ) {
@@ -942,6 +974,7 @@ if ( ! file_exists( $pers_file ) ) {
 	$pers_src = slurp( $pers_file );
 	$blocks   = preg_split( '/(?=^### `PERS-[A-Z-]+`)/m', $pers_src );
 	$found    = array();
+	$axes_of  = array();
 	foreach ( $blocks as $block ) {
 		if ( ! preg_match( '/^### `(PERS-[A-Z-]+)`/', $block, $hm ) ) {
 			continue;
@@ -951,6 +984,42 @@ if ( ! file_exists( $pers_file ) ) {
 		foreach ( $PERS_FIELDS as $field ) {
 			if ( false === strpos( $block, '**' . $field . ':**' ) ) {
 				add( 'RT_PERS_MISSING_FIELD', 'FAIL', 'ux-design-system', 'design-personalities.md: ' . $pid . ' is missing required field "' . $field . '"' );
+			}
+		}
+		$axes = pers_axes( $block );
+		$ok   = true;
+		foreach ( $PERS_AXES as $axis => $positions ) {
+			if ( ! isset( $axes[ $axis ] ) ) {
+				add( 'RT_PERS_BAD_AXIS', 'FAIL', 'ux-design-system', $pid . ' names no position for axis "' . $axis . '"' );
+				$ok = false;
+			} elseif ( ! in_array( $axes[ $axis ], $positions, true ) ) {
+				add( 'RT_PERS_BAD_AXIS', 'FAIL', 'ux-design-system', $pid . ' places axis "' . $axis . '" at "' . $axes[ $axis ] . '", which that axis does not define' );
+				$ok = false;
+			}
+		}
+		/* Only fully valid anchors enter the comparison. An invalid position is not a coincidence,
+		   and counting it would report two anchors as "too similar" over a typo. */
+		if ( $ok ) {
+			$axes_of[ $pid ] = $axes;
+		}
+	}
+	$ids = array_keys( $axes_of );
+	foreach ( $ids as $i => $a ) {
+		foreach ( array_slice( $ids, $i + 1 ) as $b ) {
+			$shared = array();
+			foreach ( $PERS_AXES as $axis => $_ ) {
+				if ( $axes_of[ $a ][ $axis ] === $axes_of[ $b ][ $axis ] ) {
+					$shared[] = $axis . ' `' . $axes_of[ $a ][ $axis ] . '`';
+				}
+			}
+			if ( count( $shared ) > 1 ) {
+				add(
+					'RT_PERS_TOO_SIMILAR',
+					'FAIL',
+					'ux-design-system',
+					$a . ' and ' . $b . ' share ' . count( $shared ) . ' axes (' . implode( ', ', $shared )
+						. ') — two anchors may share at most one, or they ship as the same site with a different accent'
+				);
 			}
 		}
 	}

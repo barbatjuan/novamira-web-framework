@@ -194,10 +194,19 @@ function fx_row_type_doc() {
    expects: one "### `PERS-ID`" heading per personality, each followed by every required
    "**Field:**" bullet. */
 $FX_PERS_IDS    = array(
-	'PERS-EDITORIAL', 'PERS-BOLD-STARTUP', 'PERS-MINIMAL-SWISS', 'PERS-WARM-BOUTIQUE',
-	'PERS-CORPORATE-TRUST', 'PERS-FASHION-EDIT', 'PERS-TECH-PRECISION', 'PERS-PERFORMANCE-ENERGY',
+	'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL',
 );
-$FX_PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 'Motion intensity', 'Imagery', 'Card recipe' );
+$FX_PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
+/* One well-separated axis position per fixture ID, mirroring the real catalog's own anchors (see
+   design-personalities.md) so a "conforming" fixture catalog is actually conforming under
+   RT_PERS_TOO_SIMILAR too -- a fixture catalog that shared axes wholesale would fail every
+   fx_base()-rooted scenario on a check that scenario has nothing to do with. */
+$FX_PERS_AXES = array(
+	'PERS-EDITORIAL'     => array( 'editorial', 'paper', 'generous', 'asymmetric', 'none' ),
+	'PERS-MATTER'        => array( 'classic', 'warm', 'standard', 'strict-grid', 'hairline' ),
+	'PERS-DIRECT'        => array( 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' ),
+	'PERS-INSTITUTIONAL' => array( 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ),
+);
 
 /* Builds a design-personalities.md catalog: every $FX_PERS_IDS block, every $FX_PERS_FIELDS
    bullet filled in. $skip_id omits one whole personality block (for RT_PERS_ID_MISSING);
@@ -205,7 +214,7 @@ $FX_PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 
    caller sets one pair or the other, never both, so each scenario proves exactly one failure
    mode. */
 function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field = null ) {
-	global $FX_PERS_IDS, $FX_PERS_FIELDS;
+	global $FX_PERS_IDS, $FX_PERS_FIELDS, $FX_PERS_AXES;
 	$out = "# Design personalities fixture\n\n";
 	foreach ( $FX_PERS_IDS as $pid ) {
 		if ( $pid === $skip_id ) {
@@ -216,7 +225,13 @@ function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field =
 			if ( $pid === $skip_field_pid && $field === $skip_field ) {
 				continue;
 			}
-			$out .= '**' . $field . ':** fixture value.' . "\n";
+			if ( 'Axes' === $field ) {
+				list( $scale, $ground, $density, $composition, $elevation ) = $FX_PERS_AXES[ $pid ];
+				$out .= '**Axes:** scale `' . $scale . '` · ground `' . $ground . '` · density `' . $density
+					. '` · composition `' . $composition . '` · elevation `' . $elevation . "`\n";
+			} else {
+				$out .= '**' . $field . ':** fixture value.' . "\n";
+			}
 		}
 		$out .= "\n";
 	}
@@ -235,6 +250,14 @@ function fx_wc_skill( $root, $skill, $hard_rules_body, $extra = '' ) {
 		. "Build gate: requires explicit **yes** before writing.\n\n"
 		. "## Hard Rules\n" . $hard_rules_body . "\n" . $extra
 	);
+}
+
+/** One anchor block in the exact shape the audit parses. */
+function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
+	return "### `$id` — Fixture\n\n"
+		. "**Axes:** scale `$scale` · ground `$ground` · density `$density` · composition `$composition` · elevation `$elevation`\n\n"
+		. "**Fits:** fixture.\n\n**Typography:** fixture.\n\n**Motion intensity:** fixture.\n\n"
+		. "**Imagery:** fixture.\n\n**Card recipe:** fixture.\n\n";
 }
 
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
@@ -892,11 +915,11 @@ fx_rrmdir( $r27 );
 echo "--- ux-design-system: a declared personality ID absent from the catalog is RT_PERS_ID_MISSING ---\n";
 $r28 = fx_tmp_root();
 fx_base( $r28 );
-fx( $r28, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-TECH-PRECISION' ) );
+fx( $r28, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-DIRECT' ) );
 list( , $out28 ) = fx_run_ok( $audit, $r28 );
 ok(
-	has( $out28, 'RT_PERS_ID_MISSING' ) && has( $out28, 'PERS-TECH-PRECISION' ),
-	'a catalog missing PERS-TECH-PRECISION entirely is RT_PERS_ID_MISSING naming it',
+	has( $out28, 'RT_PERS_ID_MISSING' ) && has( $out28, 'PERS-DIRECT' ),
+	'a catalog missing PERS-DIRECT entirely is RT_PERS_ID_MISSING naming it',
 	$out28
 );
 fx_rrmdir( $r28 );
@@ -1556,6 +1579,59 @@ fx( $r70, '.worktrees/otra/skills/woocommerce/references/api.md', "# API de otra
 list( , $out71 ) = fx_run_ok( $audit, $r70 );
 ok( array() !== fx_lines_with( $out71, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'markdown under a hidden directory (.worktrees) does not make a helper reachable', $out71 );
 fx_rrmdir( $r70 );
+
+echo "--- las anclas de personalidad no pueden parecerse entre si ---\n";
+$r80 = fx_tmp_root();
+fx_base( $r80 );
+/* Un ancla que comparte CUATRO ejes con otra: comparten 4 > 1, tiene que FALLAR. */
+fx(
+	$r80,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# Personalities\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+);
+list( , $out80 ) = fx_run_ok( $audit, $r80 );
+ok( 'FAIL' === fx_row_level( $out80, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ), 'dos anclas que comparten mas de un eje FALLAN', fx_row_level( $out80, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ) );
+ok( array() !== fx_lines_with( $out80, array( 'RT_PERS_TOO_SIMILAR', '4' ) ), 'y la fila dice CUANTOS ejes comparten, que es lo accionable', $out80 );
+fx_rrmdir( $r80 );
+
+echo "--- una posicion de eje inventada no pasa en silencio ---\n";
+$r81 = fx_tmp_root();
+fx_base( $r81 );
+fx(
+	$r81,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# Personalities\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
+	/* "medium" no existe en el eje de densidad: un typo crea una quinta posicion en silencio. */
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'medium', 'centered', 'soft-shadow' )
+);
+list( , $out81 ) = fx_run_ok( $audit, $r81 );
+ok( 'FAIL' === fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ), 'una posicion que ningun eje define FALLA, nombrandola', fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ) );
+ok( array() === fx_lines_with( $out81, array( 'RT_PERS_TOO_SIMILAR' ) ), 'y no se cuenta como parecido: una posicion invalida no es una coincidencia', $out81 );
+fx_rrmdir( $r81 );
+
+echo "--- cuatro anclas bien separadas no levantan nada ---\n";
+$r82 = fx_tmp_root();
+fx_base( $r82 );
+fx(
+	$r82,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# Personalities\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+);
+list( , $out82 ) = fx_run_ok( $audit, $r82 );
+ok( array() === fx_lines_with( $out82, array( 'RT_PERS_TOO_SIMILAR' ) ), 'compartir UN eje (densidad) es legal: el limite es mas de uno', $out82 );
+ok( array() === fx_lines_with( $out82, array( 'RT_PERS_BAD_AXIS' ) ), 'y todas las posiciones son validas', $out82 );
+fx_rrmdir( $r82 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

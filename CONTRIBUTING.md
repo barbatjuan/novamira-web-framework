@@ -175,6 +175,8 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_PERS_CATALOG_MISSING` | FAIL | `ux-design-system/references/design-personalities.md` is missing |
 | `RT_PERS_MISSING_FIELD` | FAIL | a personality block in `design-personalities.md` is missing a required field |
 | `RT_PERS_ID_MISSING` | FAIL | a required personality ID is absent from `design-personalities.md` |
+| `RT_PERS_TOO_SIMILAR` | FAIL | two personality anchors share more than one axis position |
+| `RT_PERS_BAD_AXIS` | FAIL | a personality names an axis position no axis defines |
 | `RT_TOKENS_HARDCODED_FONT` | FAIL | `design-tokens.md` still hardcodes an example font pairing |
 | `RT_CATALOG_UNMENTIONED` | FAIL | `ux-design-system/SKILL.md` never mentions `design-personalities.md` |
 | `RT_UXDS_NO_CAPA2_STEP` | FAIL | `ux-design-system/SKILL.md` has no CAPA 2 personality-recommender step |
