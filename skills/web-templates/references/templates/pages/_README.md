@@ -15,10 +15,25 @@ Precios siempre en **€** (regla de casa del orquestador).
 | Servicio / Área | `TPL-SERVICE-01` (detalle de UN servicio) | corporate |
 | About / Nosotros | `TPL-ABOUT-01` | ecommerce + corporate |
 | Contacto | `TPL-CONTACT-01` | ecommerce + corporate |
+| Proyecto / caso | `TPL-PROJECT-01` (detalle de UN trabajo) | corporate |
+| Gracias | `TPL-THANKS-01` | ecommerce + corporate |
+| 404 | `TPL-404-01` | ecommerce + corporate |
+| Legales | `TPL-LEGAL-01` (los cuatro documentos) | ecommerce + corporate |
+| Blog (listado) | `TPL-BLOG-01` | ecommerce + corporate |
+| Entrada | `TPL-POST-01` | ecommerce + corporate |
 
 ## Resolución del set de páginas (recomendador)
 - **Ecommerce** → Home + Shop + PDP + About + Contacto (Cart/Checkout los arma `woocommerce`).
 - **Corporate** → Home + **una `TPL-SERVICE-01` por servicio/área** + About + Contacto.
+- **Siempre, los dos tipos** → `TPL-LEGAL-01` ×4 (las escribe `wordpress-legal`), `TPL-404-01` y
+  `TPL-THANKS-01` si hay formulario. No son opcionales y no se preguntan: un sitio sin legales no
+  se entrega, uno sin 404 propio devuelve la página desnuda del tema, y un formulario sin página
+  de gracias no se puede medir como conversión.
+- **`TPL-PROJECT-01`** es obligatorio en cuanto la home lleve `TPL-C-03` Portfolio Showcase: ese
+  grid enlaza a algún sitio. Sin él el portfolio es una galería, que se ve bien y no demuestra
+  nada.
+- **`TPL-BLOG-01` + `TPL-POST-01`** solo si hay alguien que publique, y se pregunta antes de
+  montarlos: tres entradas de hace dos años restan confianza en vez de sumarla.
 
 En corporate, las páginas de servicio no son opcionales cuando la home lleva `COMP-SERVICES`: el
 grid de la home enlaza a algún sitio, y ese sitio es una `TPL-SERVICE-01`. Sin ellas el sitio pierde
