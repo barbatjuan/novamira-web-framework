@@ -1421,6 +1421,62 @@ ok( in_array( '_elementor_data', $r['ret']['restored'], true ), 'un layout con c
  * assertions are about the build that does not.
  * ------------------------------------------------------------------------- */
 
+echo "--- un build con el sandbox APAGADO deja de irse en silencio ---\n";
+
+/* `.crashed` apaga el sandbox entero, pero `execute-php` requiere el builder a mano y un require
+   explicito no pasa por el cargador: el build corre igual, escribe todas las paginas y reporta
+   exito sobre un sitio que sigue degradado. project-context REPORTABA el modo seguro y nada
+   actuaba: reportar un bloqueante que el paso siguiente se salta es la forma que esta rama borra. */
+$sb = es_sandbox_dir();
+@unlink( $sb . '/.crashed' );
+wp_fake_reset();
+approve( 'con-sandbox-ok' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'con-sandbox-ok', 'P', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( '' === $r['out'], 'sin .crashed no dice nada: el aviso tiene que doler solo cuando hay algo que mirar' );
+ok( '' === es_safe_mode_check(), 'y el veredicto viene vacio' );
+
+file_put_contents( $sb . '/.crashed', '{"sandbox_file":"/ruta/es-roto.php","message":"undefined function"}' );
+wp_fake_reset();
+approve( 'con-sandbox-roto' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'con-sandbox-roto', 'P', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( $r['ret'] > 0, 'el modo seguro NO bloquea la escritura: la salida de un sandbox tumbado es ejecutar algo' );
+ok( has( $r['out'], 'SANDBOX APAGADO' ), 'pero avisa, y fuerte' );
+ok( has( $r['out'], 'es-roto.php' ), 'nombrando el fichero culpable, que es lo unico accionable' );
+ok( 'es-roto.php' === es_safe_mode_check(), 'y devuelve el motivo, no un booleano' );
+
+/* Una vez por peticion, al reves que la aprobacion: un aviso sin aprobar es un hecho sobre UNA
+   pagina y callarse esconderia las demas; el modo seguro es un hecho sobre el SITIO, y repetirlo
+   por pagina enterraria las paginas debajo. */
+$out2 = '';
+foreach ( array( 'a', 'b', 'c' ) as $s ) {
+	approve( $s );
+	$rr    = grab(
+		function () use ( $els, $s ) {
+			$a = null;
+			return es_save_page( $s, 'P', $els, 'elementor_header_footer', $a );
+		}
+	);
+	$out2 .= $rr['out'];
+}
+ok( '' === $out2, 'y no lo repite en cada pagina: es un hecho del sitio, no de la pagina' );
+
+/* Un .crashed que no es JSON tampoco se ignora: fallar cerrado es no llamar sano a lo que no se
+   pudo leer. */
+@unlink( $sb . '/.crashed' );
+file_put_contents( $sb . '/.crashed', 'algo se rompio y nadie escribio json' );
+ok( '' !== es_safe_mode_check(), 'un .crashed ilegible sigue siendo modo seguro' );
+@unlink( $sb . '/.crashed' );
+
 echo "--- aprobacion y portada: las dos reglas que solo vivian en la prosa ---\n";
 
 wp_fake_reset();

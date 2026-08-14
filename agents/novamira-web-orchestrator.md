@@ -259,6 +259,11 @@ A native build is NOT atomic, and partial failure is expected — the connector 
 (`elementor-core/references/gotchas.md`). Assume you will be interrupted.
 - **Stop; do not retry blindly.** Re-running a half-finished sequence overwrites pages that already
   landed. Establish what actually got written before touching anything again.
+- **A crashed sandbox does not stop a build, and that is the trap.** `.crashed` disables the
+  loader, not an explicit `require_once`, so the next run writes every page and reports success
+  over a site nobody repaired. `project-context` step 8 reports it and `es_save_page()` now warns
+  on the first write of any run that starts this way, naming the file that crashed. Fix or delete
+  that file BEFORE removing `.crashed`; removing it alone reloads the file and crashes the site again.
 - **Report the partial state by name** — which pages/templates were written, which were not, what
   the last successful step was. A half-built site the user does not know about is worse than a
   failed build they do.

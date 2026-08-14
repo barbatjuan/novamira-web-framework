@@ -1002,6 +1002,7 @@ function es_audit_verdict( $rest, $code ) {
  * Branch on `$action`, and treat anything that is not 'created' or 'updated' as needing a human.
  */
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
+	es_safe_mode_check();
 	es_approval_check( $slug );
 	$page = es_page_by_slug( $slug );
 	if ( $page ) {
@@ -2085,6 +2086,52 @@ function es_overwrite_preflight( array $slugs ) {
 		'overwrites' => $over,
 		'creates'    => $make,
 	);
+}
+
+/**
+ * Is this build writing into a site whose sandbox is switched off?
+ *
+ * `.crashed` disables the WHOLE sandbox: the loader returns before its `require_once` loop, so not
+ * one file in that directory runs on its own. A build survives that anyway, because `execute-php`
+ * requires the builder explicitly and an explicit require does not go through the loader — so
+ * every page can be written, audited and reported as done while the site sits in a degraded state
+ * nobody resolved. `project-context` step 8 REPORTED safe mode and nothing acted on it; reporting a
+ * blocker that the next step walks straight past is the shape this branch keeps removing.
+ *
+ * Once per request here, unlike the per-slug approval check, and the difference is the point: an
+ * unapproved write is a fact about ONE page, so silence after the first would hide the rest. Safe
+ * mode is one fact about the SITE, and repeating it per page would bury the pages under it.
+ *
+ * Warns rather than refuses, for the same reason nothing else in this file refuses: the way out of
+ * a crashed sandbox is to run something, and a guard that blocks writes blocks the repair too.
+ * What it must never do is stay quiet — `.crashed` is invisible from the connector, its only other
+ * notice is a wp-admin banner, and an agent working through MCP never sees one.
+ *
+ * Returns the reason when safe mode is on, `''` otherwise, so a caller can read the verdict without
+ * parsing stdout.
+ */
+function es_safe_mode_check() {
+	static $said = false;
+	$crashed = es_sandbox_dir() . '/.crashed';
+	if ( ! file_exists( $crashed ) ) {
+		return '';
+	}
+	$raw    = trim( (string) @file_get_contents( $crashed ) );
+	$rec    = json_decode( $raw, true );
+	$reason = is_array( $rec )
+		? ( isset( $rec['sandbox_file'] ) ? basename( (string) $rec['sandbox_file'] ) : 'fichero sin nombrar' )
+		: ( '' !== $raw ? substr( $raw, 0, 120 ) : 'el fichero .crashed esta vacio' );
+	if ( ! $said ) {
+		$said = true;
+		es_warn(
+			'ESTE BUILD ESTA ESCRIBIENDO CON EL SANDBOX APAGADO. Existe .crashed (' . $reason . '), asi que el cargador '
+			. 'de Novamira no ejecuta NINGUN fichero del sandbox por su cuenta: lo que se construya hoy depende de que '
+			. 'alguien vuelva a requerir estos ficheros a mano, y el fallo que dejo el sitio asi sigue sin arreglarse. '
+			. 'Arregla o borra el fichero culpable ANTES de quitar .crashed — quitarlo sin mas vuelve a cargarlo y a tumbar el sitio.'
+		);
+	}
+
+	return $reason;
 }
 
 /**
