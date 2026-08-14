@@ -1522,14 +1522,21 @@ function es_owns_control( $widget_type, $key ) {
 	static $live = array();
 	if ( class_exists( '\Elementor\Plugin' ) ) {
 		if ( ! isset( $live[ $widget_type ] ) ) {
-			$w                      = \Elementor\Plugin::instance()->widgets_manager->get_widget_types( $widget_type );
+			$w                    = \Elementor\Plugin::instance()->widgets_manager->get_widget_types( $widget_type );
 			$live[ $widget_type ] = ( $w && method_exists( $w, 'get_controls' ) ) ? (array) $w->get_controls() : array();
 		}
-		if ( $live[ $widget_type ] ) {
-			return isset( $live[ $widget_type ][ $key ] );
-		}
+
+		/* Elementor is HERE, so Elementor is the answer — including when it answers "no such widget",
+		   which used to fall through to the list below. That fall-through was the only path on which
+		   a version-pinned roster could still decide anything on a live site, and a roster whose
+		   staleness is guarded by a sentence in a docblock is the exact failure this file spent the
+		   day removing. An unregistered type owns no controls; it renders empty, and the walk has
+		   its own row for that. */
+		return isset( $live[ $widget_type ][ $key ] );
 	}
-	/* MEASURED on Elementor 4.2.2 / Pro 4.2.1. Re-run the introspection when either moves. */
+	/* Reached ONLY when Elementor is absent entirely — the offline suite, or a tree audited outside
+	   WordPress. MEASURED on Elementor 4.2.2 / Pro 4.2.1; re-run the introspection when either
+	   moves. It can no longer go stale behind a live site's back, because a live site never asks it. */
 	$measured = array(
 		'padding'               => array( 'nested-tabs', 'call-to-action', 'table-of-contents' ),
 		'background_background' => array( 'button', 'archive-posts', 'loop-grid', 'off-canvas', 'posts', 'paypal-button', 'stripe-button' ),

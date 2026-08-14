@@ -34,7 +34,7 @@ Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-c
   `references/mockup-guide.md` § "Container hygiene".
 - Declare the tokens as CSS variables in `:root` ONCE — the same tokens the native build uses.
 - Self-contained: inline `<style>`, no external CSS/JS/fonts/CDNs, no remote images (Artifact
-  CSP). Placeholder blocks only, no client photos or final copy. Label it a STRUCTURAL preview.
+  CSP). Placeholder blocks only, no client photos or final copy.
 - Mirror `ux-design-system` so the native build matches: one accent for CTAs, calm motion
   (`cubic-bezier(.22,1,.36,1)`, ~.35–.7s), two button families, one card recipe.
 - Theme-aware and horizontally scroll-free; wide blocks scroll inside their own container.
@@ -54,12 +54,10 @@ Run after `ux-design-system` (tokens + patterns decided) and BEFORE `elementor-c
    `elementor-core` / `divi-core`; the native build must match it.
 
 ## Output Contract
-Return the Artifact URL, the section inventory per page, the toggle states baked in, and the note
-that `qa-review` diffs the native build against it. On iteration, report what changed.
+Return the Artifact URL, the section inventory per page and the toggle states baked in. On
+iteration, report what changed.
 
 ## References
-Copy the asset matching the site type, swap `:root` tokens + brand + copy + placeholders, keep
-only the pages/sections the archetypes resolved.
 - `assets/ecommerce-mockup.html` — 7 pages wired (home · shop · pdp · cart · checkout · about ·
   contact), prices in €, cart icon + badge.
 - `assets/corporate-mockup.html` — no commerce; 6 pages (home · services · service detail
