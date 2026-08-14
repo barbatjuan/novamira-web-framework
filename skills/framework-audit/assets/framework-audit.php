@@ -52,7 +52,7 @@ const ROW_TYPES = array(
 	'RT_NAME_MISMATCH'           => 'FAIL  — frontmatter name: does not match its directory',
 	'RT_NO_TRIGGER'              => 'FAIL  — description carries no "Trigger:" words',
 	'RT_BODY_OVER_600'           => 'FAIL  — SKILL.md body is past the ~600-word ceiling',
-	'RT_BODY_OVER_300'           => 'WARN  — SKILL.md body is past the ~300-word aim',
+	'RT_BODY_OVER_500'           => 'WARN  — SKILL.md body is past the ~500-word aim',
 	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
 	'RT_GATE_NOT_LISTED'         => 'FAIL  — a skill declares a blocking build gate but is not in $WRITE_CAPABLE',
 	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
@@ -649,7 +649,7 @@ foreach ( $skill_dirs as $dir ) {
 		}
 	}
 
-	/* --- body budget (CONTRIBUTING §2: aim ~300, hard ceiling ~600) ---
+	/* --- body budget (CONTRIBUTING §2: aim ~500, hard ceiling ~600) ---
 	   Structurally valid marker spans are excluded (D1'.1): a marker documents what CHECKS a
 	   rule, it is provenance for the audit and the reviewer, not an instruction the model
 	   executes, so excluding it makes the measurement more accurate, not more lenient. */
@@ -659,11 +659,12 @@ foreach ( $skill_dirs as $dir ) {
 	}
 	$marker_words         = str_word_count( implode( ' ', $valid_spans ) );
 	$words                = str_word_count( strip_tags( $budget_body ) );
+	$left                 = 600 - $words;
 	$word_report[ $name ] = array( $words, $marker_words );
 	if ( $words > 600 ) {
 		add( 'RT_BODY_OVER_600', 'FAIL', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~600 ceiling — move detail into references/" );
-	} elseif ( $words > 300 ) {
-		add( 'RT_BODY_OVER_300', 'WARN', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~300 aim (ceiling 600)" );
+	} elseif ( $words > 500 ) {
+		add( 'RT_BODY_OVER_500', 'WARN', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~500 aim — $left from the 600 ceiling" );
 	}
 
 	/* --- build gate: the single highest-stakes property in the repo --- */

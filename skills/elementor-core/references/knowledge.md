@@ -69,6 +69,53 @@
   framework serves that option**, so the old URL still 404s: the function warns that on every
   successful move, and `qa-review` row 17 is what confirms a human or a plugin closed it. Refuses
   to move onto an occupied slug — that is finding 15's collision through the back door.
+
+### Servir `es_slug_redirects`
+
+This framework **cannot close this one itself**, and that is a rule rather than an omission: it is
+not allowed to write `.php` outside the sandbox, and the sandbox is emptied at hand-off — so
+anything it could install would be deleted by its own delivery phase. A person closes it, either
+with a redirect plugin, or by saving this as `wp-content/mu-plugins/nvm-slug-redirects.php`. It is
+a mu-plugin on purpose: those load before the theme and cannot be deactivated by accident.
+
+```php
+<?php
+/* Plugin Name: NovaMira slug redirects
+ * Serves the map es_migrate_slug() records. Reads it, never writes it. */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! is_404() ) {
+			return;   // only a URL WordPress could not resolve; never shadow a live page
+		}
+		$map = get_option( 'es_slug_redirects' );
+		if ( ! is_array( $map ) || ! $map ) {
+			return;
+		}
+		$slug = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ), '/' );
+		$slug = substr( $slug, strrpos( $slug, '/' ) === false ? 0 : strrpos( $slug, '/' ) + 1 );
+		if ( ! isset( $map[ $slug ] ) ) {
+			return;
+		}
+		$target = get_page_by_path( $map[ $slug ], OBJECT, 'page' );
+		if ( ! $target || 'page' !== $target->post_type ) {
+			return;   // the destination moved again or was deleted: a 404 beats a redirect loop
+		}
+		wp_safe_redirect( get_permalink( $target->ID ), 301 );
+		exit;
+	}
+);
+```
+
+Three decisions worth keeping. It runs **only on a 404**, so it can never shadow a page that
+resolves. It **re-resolves the destination** instead of trusting the map, because the map records
+what was true at migration time and the destination can move again — and a redirect to a slug that
+no longer exists is a loop, which is worse than the 404 it replaced. And it uses `es_page_by_slug`'s
+own type check inline, because the slug space includes attachments.
+
+`qa-review` row 17 requests `/<old>/` without following redirects and reads the status: `301` PASS,
+`404` and `200` both FAIL. **Expect the FAIL until a human installs this** — that is what the row
+is for.
 - `es_theme_conditions_registered($id)` answers "is my template in the conditions cache" and
   **nothing more**. Registered is NOT rendering: Elementor resolves ONE template per location, so
   ask `es_theme_location_rivals($id)` → `{location: [other_ids]}` before reading a `true` as "the

@@ -17,15 +17,20 @@ Do NOT: <the trap>
 Only add CONFIRMED findings. "Probably" belongs in a PR discussion, not in gotchas.
 
 ## 2. Keep the shape
-- `SKILL.md` body stays concise: **aim ~300 words, hard ceiling ~600**. Detail → `references/`.
+- `SKILL.md` body stays concise: **aim ~500 words, hard ceiling ~600**. Detail → `references/`.
   Code → `assets/`. The body is what loads on activation, so every word is a tax on every run.
-  (The old "~180–450 tokens" was aspirational and never held. Don't measure by eye — the audit
-  counts for you and FAILs past the ceiling. Be honest about the ~300 aim too: **0 of 13 skills
-  meet it**, the lowest being 328 and one sitting exactly on the 600 ceiling, so it is currently a
-  wish, not a budget. Either trim them or move the number; a threshold nothing ever meets teaches
-  people to skip the whole report. `php skills/framework-audit/assets/framework-audit.php
-  --word-report` prints the current numbers — read them before quoting this sentence, because it
-  goes stale every time a skill is added.)
+  Don't measure by eye — the audit counts for you and FAILs past the ceiling.
+  (The aim was ~300 for a long time and **0 of 14 skills ever met it**, the lowest being 328 and
+  one sitting exactly on the 600 ceiling. That is not a strict budget, it is a broken instrument:
+  a threshold every single subject crosses separates nothing, so its WARN column carried no
+  information and the honest reading of the report was "skip those 14 lines" — which is how a real
+  row gets skipped with them. Moving it is the option this file already named, and it is the
+  opposite of weakening a check: at ~500 the WARN goes back to distinguishing the five skills that
+  are genuinely close to the ceiling from the nine that are not. The **600 FAIL is untouched**, and
+  it is the load-bearing one. Watch `elementor-core` in particular: it sits at 598, so the next
+  sentence anybody adds there breaks the gate.
+  `php skills/framework-audit/assets/framework-audit.php --word-report` prints the current numbers
+  — read them before quoting this paragraph, because it goes stale every time a skill is added.)
 - Frontmatter needs `name`, `description` (with trigger words first), `license`,
   `metadata.author`, `metadata.version`.
 - The orchestrator never gains CSS/HTML/PHP. Execution lives in skills.
@@ -135,7 +140,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_NAME_MISMATCH` | FAIL | frontmatter `name:` does not match its directory |
 | `RT_NO_TRIGGER` | FAIL | description carries no `Trigger:` words |
 | `RT_BODY_OVER_600` | FAIL | `SKILL.md` body is past the ~600-word ceiling |
-| `RT_BODY_OVER_300` | WARN | `SKILL.md` body is past the ~300-word aim |
+| `RT_BODY_OVER_500` | WARN | `SKILL.md` body is past the ~500-word aim |
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
 | `RT_GATE_NOT_LISTED` | FAIL | a skill declares a blocking build gate but is missing from `$WRITE_CAPABLE` — that list is what makes the gate, marker and write checks apply, so being off it disables all three at once |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |

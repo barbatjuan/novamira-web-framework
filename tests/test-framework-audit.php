@@ -704,7 +704,7 @@ list( , $out15 ) = fx_run_ok( $audit, $r15 );
 ok( has( $out15, 'RT_NO_TRIGGER' ), 'a description with no "Trigger:" words is RT_NO_TRIGGER', $out15 );
 fx_rrmdir( $r15 );
 
-echo "--- SKILL.md body word counts past 600 and past 300 are RT_BODY_OVER_600 / RT_BODY_OVER_300 ---\n";
+echo "--- SKILL.md body word counts past 600 and past 500 are RT_BODY_OVER_600 / RT_BODY_OVER_500 ---\n";
 $r16 = fx_tmp_root();
 fx_base( $r16 );
 fx(
@@ -715,13 +715,27 @@ fx(
 );
 fx(
 	$r16,
-	'skills/sample-bodyover300/SKILL.md',
-	"---\nname: sample-bodyover300\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. implode( ' ', array_fill( 0, 350, 'word' ) ) . "\n"
+	'skills/sample-bodyover500/SKILL.md',
+	"---\nname: sample-bodyover500\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. implode( ' ', array_fill( 0, 550, 'word' ) ) . "\n"
+);
+fx(
+	$r16,
+	'skills/sample-bodyunder500/SKILL.md',
+	"---\nname: sample-bodyunder500\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. implode( ' ', array_fill( 0, 450, 'word' ) ) . "\n"
 );
 list( , $out16 ) = fx_run_ok( $audit, $r16 );
-ok( has( $out16, 'RT_BODY_OVER_600' ), 'a 650-word SKILL.md body is RT_BODY_OVER_600', $out16 );
-ok( has( $out16, 'RT_BODY_OVER_300' ), 'a 350-word SKILL.md body is RT_BODY_OVER_300', $out16 );
+/* Row type AND skill name together, never the bare row type: three fixture skills are in this run
+   and a substring hit on the ID alone would credit any of them. That is the same anchoring bug the
+   coverage ratchet had. */
+ok( array() !== fx_lines_with( $out16, array( 'RT_BODY_OVER_600', 'sample-bodyover600' ) ), 'a 650-word SKILL.md body is RT_BODY_OVER_600', $out16 );
+ok( array() !== fx_lines_with( $out16, array( 'RT_BODY_OVER_500', 'sample-bodyover500' ) ), 'a 550-word SKILL.md body is RT_BODY_OVER_500', $out16 );
+/* 450 sits between the old aim and the new one, so this is what makes moving the number a change
+   something MEASURED: revert the threshold to 300 and this row appears. Scoped to the budget rows
+   because a bare skeleton fixture legitimately raises other ones (no Hard Rules, and so on) — the
+   first version asserted the name was absent from the whole report and failed for that reason. */
+ok( array() === fx_lines_with( $out16, array( 'RT_BODY_OVER', 'sample-bodyunder500' ) ), 'a 450-word body is under the new aim and raises no budget row', $out16 );
 fx_rrmdir( $r16 );
 
 echo "--- a SKILL.md pointer to a nonexistent references/ path is RT_BROKEN_REFERENCE ---\n";
