@@ -87,6 +87,8 @@ function wp_fake_reset() {
 		'insert_ret' => null,
 		'update_ret' => null,
 		'rename_to'  => null,
+		'options'    => array(),
+		'option_ro'  => array(),   /* names update_option() accepts and silently does not write */
 	);
 }
 
@@ -172,7 +174,26 @@ function wp_json_encode( $v ) {
 	return json_encode( $v );
 }
 function get_option( $name, $default = false ) {
-	return $default;
+	$w = &$GLOBALS['wp'];
+	return array_key_exists( $name, $w['options'] ) ? $w['options'][ $name ] : $default;
+}
+
+/**
+ * `option_ro` reproduces a write that is accepted and does not land.
+ *
+ * The return value is deliberately NOT a reliable success signal even in real WordPress:
+ * update_option() also returns false when the new value equals the old one. A caller that trusts
+ * the boolean either misses a failure or invents one, which is why the only honest check is to
+ * read the option back.
+ */
+function update_option( $name, $value ) {
+	$w = &$GLOBALS['wp'];
+	if ( in_array( $name, $w['option_ro'], true ) ) {
+		return false;
+	}
+	$w['options'][ $name ] = $value;
+
+	return true;
 }
 /**
  * Two callers, two meanings.
@@ -435,6 +456,99 @@ $r      = grab(
 );
 ok( 'updated' === $action, 'y una actualizacion normal de theme part sigue diciendo updated' );
 ok( any_layout_written(), 'habiendo escrito el layout de verdad' );
+
+/* ---------------------------------------------------------------------------
+ * 2 (BLOCKER). La portada.
+ * ------------------------------------------------------------------------- */
+echo "--- la portada se establece, y se comprueba que quedo establecida ---\n";
+
+/* Nada en el arbol tocaba `show_on_front` ni `page_on_front` — cero coincidencias en todo el repo.
+   Una home construida, guardada y auditada limpia seguia sin ser la portada del sitio: WordPress
+   mostraba el blog en `/`, el build reportaba exito, y quien lo descubria era el cliente. */
+
+wp_fake_reset();
+ok( 'posts' === es_front_page()['mode'], 'un sitio recien instalado muestra entradas, no una pagina' );
+ok( 0 === es_front_page()['id'], 'y no hay ningun id de portada' );
+
+/* La mitad de la opcion puesta NO es una portada: WordPress cae de vuelta al blog. Un lector que
+   solo mirara `page_on_front` daria por buena una portada que nadie ve. */
+wp_fake_reset();
+$hid                                     = wp_fake_page( 'inicio' );
+$GLOBALS['wp']['options']['page_on_front'] = $hid;
+ok( 'posts' === es_front_page()['mode'], "page_on_front solo, sin show_on_front='page', sigue siendo el blog" );
+
+wp_fake_reset();
+$hid                                       = wp_fake_page( 'inicio' );
+$GLOBALS['wp']['options']['show_on_front']  = 'page';
+$GLOBALS['wp']['options']['page_on_front']  = $hid;
+$fp                                        = es_front_page();
+ok( 'page' === $fp['mode'] && $hid === $fp['id'], 'con las dos opciones puestas, resuelve la pagina' );
+ok( 'inicio' === $fp['slug'], 'y da su slug, que es como se resuelve la home sin adivinarla' );
+
+wp_fake_reset();
+$hid    = wp_fake_page( 'inicio' );
+$action = null;
+$r      = grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+ok( $hid === $r['ret'], 'establecer la portada devuelve el id de la pagina' );
+ok( 'page' === get_option( 'show_on_front' ), "y escribe show_on_front='page'" );
+ok( $hid === (int) get_option( 'page_on_front' ), 'y page_on_front' );
+ok( '' === $r['out'], 'sin avisos: en un sitio que mostraba el blog no hay nada que reclamar' );
+
+wp_fake_reset();
+$r = grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+ok( 0 === $r['ret'], 'pedir de portada una pagina que no existe devuelve 0' );
+ok( has( $r['out'], 'inicio' ), 'avisando y nombrando el slug' );
+ok( ! array_key_exists( 'show_on_front', $GLOBALS['wp']['options'] ), 'y NO deja el sitio a medio configurar' );
+
+/* El corazon del hallazgo: escribir no es haber escrito. update_option() devuelve false tambien
+   cuando el valor no cambio, asi que su booleano no sirve de prueba en ninguna direccion. */
+wp_fake_reset();
+$hid                          = wp_fake_page( 'inicio' );
+$GLOBALS['wp']['option_ro']   = array( 'page_on_front' );
+$r                            = grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+ok( 0 === $r['ret'], 'una escritura aceptada que no aterrizo devuelve 0, no el id' );
+ok( '' !== $r['out'], 'y avisa: escribir la opcion no es haberla escrito' );
+ok( has( $r['out'], 'inicio' ), 'nombrando la pagina que se pidio' );
+
+/* Repuntar la portada de un sitio existente es destructivo y silencioso por naturaleza: la home
+   anterior sigue publicada, solo deja de ser la que se ve al entrar. */
+wp_fake_reset();
+$vieja                                     = wp_fake_page( 'home-antigua' );
+$nueva                                     = wp_fake_page( 'inicio' );
+$GLOBALS['wp']['options']['show_on_front'] = 'page';
+$GLOBALS['wp']['options']['page_on_front'] = $vieja;
+$r                                         = grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+ok( $nueva === $r['ret'], 'repuntar la portada funciona' );
+ok( has( $r['out'], 'home-antigua' ), 'pero avisa nombrando la portada que se deja de mostrar' );
+ok( has( $r['out'], 'inicio' ), 'y la que pasa a mostrarse' );
+
+wp_fake_reset();
+$hid                                       = wp_fake_page( 'inicio' );
+$GLOBALS['wp']['options']['show_on_front'] = 'page';
+$GLOBALS['wp']['options']['page_on_front'] = $hid;
+$r                                         = grab(
+	function () {
+		return es_set_front_page( 'inicio' );
+	}
+);
+ok( $hid === $r['ret'], 'reestablecer la MISMA portada sigue devolviendo el id' );
+ok( '' === $r['out'], 'y no avisa de nada: no se dejo de mostrar ninguna pagina' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

@@ -22,6 +22,15 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_front_page()` → `{mode:'posts'|'page', id, slug}` — the ONE resolver for "what does `/` serve".
+  Never guess the home from a slug: on an install whose front page is `/`, `/inicio/` is dead.
+  `page_on_front` alone is NOT a front page; without `show_on_front='page'` WordPress renders
+  the blog. `es_set_front_page($slug)` points it at a page and READS THE OPTIONS BACK, returning
+  `0` and warning if they did not land — `update_option()` returns false both on failure and on an
+  unchanged value, so its boolean proves nothing either way. Repointing an existing front page
+  warns naming the page that stops being shown; that page stays published, it just stops being
+  the one anybody lands on. **Call it once the home is saved**, and hand the id to `qa-review`
+  row 16 — the options say WHICH page is the front page, never whether it is the right one.
 - `es_img($slug)` — attachment lookup by slug → url+id.
 - `es_container_audit($elements)` →
   `{containers,widgets,max_depth,offenders[],optimizable[],unaudited{elType:{count,first}}}`.

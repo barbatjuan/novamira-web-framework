@@ -124,6 +124,16 @@ no native build.
   elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
   never ran, which is a wiring bug reported as a result.
   (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
+- **The home page is not the front page until you say so.** Building a page called "Inicio" does
+  nothing to what WordPress serves at `/`: a fresh install shows the blog, and an existing site
+  shows whatever it showed before. Nothing in this framework touched `show_on_front` or
+  `page_on_front` until `es_set_front_page($slug)` existed, so a build could finish with every
+  check green and the client's front page unchanged. Call it once the home page is saved, read what
+  it returns, and hand the page id to `qa-review` — the options say WHICH page is the front page,
+  never whether it is the right one. On an existing site this is destructive and quiet: the old
+  home stays published and simply stops being the one anybody lands on, which is why repointing
+  warns and names it.
+  (verifier: `qa-review` house-rule row 16 reads the two live options and then fetches `/` to confirm the response is that page's, not the blog's.)
 - **A warning nobody reads is not a warning.** Everything this framework needs to say goes to
   STDOUT (which the sandbox returns), not only to `error_log()` (which nobody fetches). That was
   a real bug, not a style preference: "this template will NOT appear on the front end" and "the

@@ -35,14 +35,19 @@ Re-run if the target site changes.
 4. **Existing structure**: pages (`post_type=page`), which use the builder
    (`_elementor_edit_mode=builder` / Divi `_et_pb_use_builder`), Theme Builder templates
    (`elementor_library` types + `_elementor_conditions`), the active kit/global styles.
-5. **Constraints**: menu (`menu-principal` etc), brand palette/logo if present, NAP
+5. **Front page**: `show_on_front` and `page_on_front`. Report `front_page_id` (0 when the site
+   serves the blog at `/`) and the slug it resolves to. BOTH options — `page_on_front` alone is not
+   a front page. Never infer the home from a slug: on an install whose front page is `/`, a link to
+   `/inicio/` is dead. This is what a build must not silently repoint.
+6. **Constraints**: menu (`menu-principal` etc), brand palette/logo if present, NAP
    (phone/email/address), language.
-6. **Connector**: confirm the NovaMira connector UUID and that `create-upload-link` +
+7. **Connector**: confirm the NovaMira connector UUID and that `create-upload-link` +
    `execute-php` respond (retry on transient "requires additional permissions").
 
 ## Output Contract
 Return a compact block: `builder`, `builder_version`, `woocommerce` (y/n + version),
-`theme`, `pages` (id · slug · builder?), `theme_templates`, `constraints`, `open_questions`.
+`theme`, `pages` (id · slug · builder?), `front_page_id` (+ its slug, or `0` = blog),
+`theme_templates`, `constraints`, `open_questions`.
 The orchestrator uses this to route and to decide what to ask the user.
 
 ## References

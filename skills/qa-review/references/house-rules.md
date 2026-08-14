@@ -29,6 +29,7 @@ Run every per-page row on EVERY page in scope, not just the home.
 | 13 | Accessibility is measured, not eyeballed | Lighthouse accessibility ≥ 90 on every page in scope, mobile | `node ../assets/lighthouse-audit.mjs <url…>` (from `qa-review/assets/`). It names the failing audits, not just the score: contrast, `image-alt`, `link-name`, `button-name`, `heading-order`, `html-has-lang`, `target-size`. Under 50 blocks. This REPLACES eyeballing step 4 — a11y was five rules with no method until this existed. Lighthouse cannot judge whether alt text is *meaningful*, only that it is present: that part stays **eyes** | **auto (+ eyes for alt quality)** |
 | 14 | Best practices + SEO | Lighthouse best-practices ≥ 90 and SEO ≥ 90 | Same run. Catches console errors, mixed content, wrong image aspect ratios, a missing `<title>` or meta description, uncrawlable anchors. Under 50 blocks. Row 12 (one H1) still runs separately — Lighthouse does not check H1 count | **auto** |
 | 15 | Performance is reported, never the sole blocker | Lighthouse performance score + LCP / CLS / TBT recorded for every page in scope | Same run. **Deliberately non-blocking**: mobile Elementor rarely reaches 90, and a gate that always fails is a gate everyone learns to skip. What matters is the before/after delta `wordpress-performance` owns — so record the number here and hand it over. A score from a sandbox host is not a score from the client's production host; say which one you measured | **auto (number) + judgement (verdict)** |
+| 16 | The site's front page is the page that was built | `/` serves the home page this build made — not the blog archive, not somebody else's page | Two layers, because an option is intent and a response is proof. (a) Read `show_on_front` and `page_on_front` live, or call `es_front_page()` from the sandbox's `es-builder.php`, which is the one resolver. FAIL when `show_on_front` is `posts` — the site serves the blog at `/` regardless of what was built — when `page_on_front` is `0`, or when it resolves to a missing/trashed post. Half the setting is the same as none of it: `page_on_front` alone does nothing. Then compare that id against the home page the build reported; a different id means the built home is published but is not the front page. (b) Fetch `/` and confirm the HTML is that page's — match the `elementor-<id>`/`page-id-<id>` body class and the `<h1>` against the page — because a plugin, an options cache or a Theme Builder condition can serve something else over a correctly written option. Options read but `/` never fetched = UNVERIFIED, not PASS | **auto** |
 
 ## Honest limits — do not dress these up
 
@@ -38,6 +39,11 @@ Run every per-page row on EVERY page in scope, not just the home.
   euros from the fact that the design used `€`.
 - **Row 8 behaviour, and row 10 geometry, are not provable from HTML/CSS text.** The stored
   setting and the CSS rules only prove intent. Report them as such.
+- **Row 16 needs the build to tell you WHICH page is the home.** The options say which page is the
+  front page; they cannot say whether it is the right one. Without the id the build reported, this
+  row degrades to "some page is the front page", which passes happily on a site whose front page
+  still belongs to the previous agency. Ask for the id — never assume the slug is `inicio`, `home`
+  or `portada`.
 - **Rows that depend on WooCommerce** (1, 2) do not apply to a build without WooCommerce — mark
   them N/A, not PASS.
 - **Rows 13–15 need headless Chrome to REACH the URL.** Whether it reaches a NovaMira sandbox host
@@ -63,7 +69,9 @@ Run every per-page row on EVERY page in scope, not just the home.
 ## Divi
 
 Rows 1, 3, 4, 6, 7, 9 read WordPress options or plain front HTML and are builder-agnostic —
-they run unchanged on Divi.
+they run unchanged on Divi. Row 16 is builder-agnostic in layer (a), which is pure WordPress
+options; its layer (b) body-class check is Elementor-specific, so on Divi match the `page-id-<id>`
+class alone and say that is what you matched.
 
 Row 11 is builder-agnostic as a RULE but not as a METHOD: `es_container_audit()` reads
 `_elementor_data`, which Divi does not have. On a Divi build, count nesting depth in the rendered

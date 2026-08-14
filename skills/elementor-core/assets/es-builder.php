@@ -1053,6 +1053,88 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 }
 
 /**
+ * What is the site's front page RIGHT NOW?
+ *
+ * The ONE resolver. Nothing in this library may guess the home from a slug: on an install whose
+ * front page is `/`, `/inicio/` is a dead link, and on an install still showing the blog there is
+ * no home page at all. Both facts are only knowable from these two options.
+ *
+ * Two options, not one. `page_on_front` alone is NOT a front page: WordPress renders the blog
+ * unless `show_on_front` is also `'page'`, so a reader that checked only the id would report a
+ * front page nobody sees. Half the setting is the same as none of it.
+ *
+ * Returns `array( 'mode' => 'posts'|'page', 'id' => int, 'slug' => string )`.
+ */
+function es_front_page() {
+	$mode = get_option( 'show_on_front' );
+	$id   = (int) get_option( 'page_on_front' );
+	if ( 'page' !== $mode || ! $id ) {
+		return array(
+			'mode' => 'posts',
+			'id'   => 0,
+			'slug' => '',
+		);
+	}
+
+	return array(
+		'mode' => 'page',
+		'id'   => $id,
+		'slug' => (string) get_post_field( 'post_name', $id ),
+	);
+}
+
+/**
+ * Point the site's front page at a page this build made, and PROVE it landed.
+ *
+ * Nothing in this framework used to touch `show_on_front` or `page_on_front` — zero occurrences
+ * across the whole repository. So a home page could be built, saved, audited clean and handed over
+ * while WordPress went on serving the blog at `/`: every automated check green, and the person who
+ * found out was the client. That is this branch's thesis with a URL attached.
+ *
+ * The options are READ BACK rather than trusted. `update_option()` returns false both when the
+ * write fails and when the value simply did not change, so its boolean cannot distinguish success
+ * from failure in either direction; the only honest proof is asking the site what it now believes.
+ *
+ * Repointing an existing front page warns on purpose, naming the page that stops being shown. It
+ * is not an error — it is the destructive part of the operation, and it is invisible otherwise:
+ * the old home stays published, it just stops being the one anybody lands on.
+ *
+ * Returns the page id, or 0 when the front page is not what was asked for.
+ */
+function es_set_front_page( $slug ) {
+	$page = get_page_by_path( $slug, OBJECT, 'page' );
+	if ( ! $page ) {
+		es_warn(
+			'no existe ninguna pagina con el slug "' . $slug . '", asi que la portada NO se cambio. '
+			. 'El sitio sigue mostrando lo que mostraba. Construye y guarda esa pagina antes de fijarla como portada.'
+		);
+		return 0;
+	}
+	$before = es_front_page();
+
+	update_option( 'show_on_front', 'page' );
+	update_option( 'page_on_front', $page->ID );
+
+	$after = es_front_page();
+	if ( 'page' !== $after['mode'] || (int) $page->ID !== $after['id'] ) {
+		es_warn(
+			'se pidio poner "' . $slug . '" (#' . $page->ID . ') como portada, pero al releer las opciones el sitio '
+			. ( 'posts' === $after['mode'] ? 'sigue mostrando las entradas' : 'muestra la pagina #' . $after['id'] ) . '. '
+			. 'La escritura se acepto y no quedo: revisa permisos, un plugin que filtre la opcion, o una cache de opciones.'
+		);
+		return 0;
+	}
+	if ( $before['id'] && $before['id'] !== (int) $page->ID ) {
+		es_warn(
+			'la portada del sitio era "' . ( '' !== $before['slug'] ? $before['slug'] : '#' . $before['id'] ) . '" y ahora es "' . $slug . '". '
+			. 'La anterior sigue publicada, solo deja de ser la que se ve al entrar. Si no era la intencion, esto es lo que hay que revertir.'
+		);
+	}
+
+	return (int) $page->ID;
+}
+
+/**
  * Park a post's current `_elementor_data` in a timestamped backup meta key.
  *
  * Elementor stores a layout as one blob of post meta, so rewriting it through the API
