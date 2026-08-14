@@ -17,15 +17,20 @@ Do NOT: <the trap>
 Only add CONFIRMED findings. "Probably" belongs in a PR discussion, not in gotchas.
 
 ## 2. Keep the shape
-- `SKILL.md` body stays concise: **aim ~300 words, hard ceiling ~600**. Detail → `references/`.
+- `SKILL.md` body stays concise: **aim ~500 words, hard ceiling ~600**. Detail → `references/`.
   Code → `assets/`. The body is what loads on activation, so every word is a tax on every run.
-  (The old "~180–450 tokens" was aspirational and never held. Don't measure by eye — the audit
-  counts for you and FAILs past the ceiling. Be honest about the ~300 aim too: **0 of 13 skills
-  meet it**, the lowest being 328 and one sitting exactly on the 600 ceiling, so it is currently a
-  wish, not a budget. Either trim them or move the number; a threshold nothing ever meets teaches
-  people to skip the whole report. `php skills/framework-audit/assets/framework-audit.php
-  --word-report` prints the current numbers — read them before quoting this sentence, because it
-  goes stale every time a skill is added.)
+  Don't measure by eye — the audit counts for you and FAILs past the ceiling.
+  (The aim was ~300 for a long time and **0 of 14 skills ever met it**, the lowest being 328 and
+  one sitting exactly on the 600 ceiling. That is not a strict budget, it is a broken instrument:
+  a threshold every single subject crosses separates nothing, so its WARN column carried no
+  information and the honest reading of the report was "skip those 14 lines" — which is how a real
+  row gets skipped with them. Moving it is the option this file already named, and it is the
+  opposite of weakening a check: at ~500 the WARN goes back to distinguishing the five skills that
+  are genuinely close to the ceiling from the nine that are not. The **600 FAIL is untouched**, and
+  it is the load-bearing one. Watch `elementor-core` in particular: it sits at 598, so the next
+  sentence anybody adds there breaks the gate.
+  `php skills/framework-audit/assets/framework-audit.php --word-report` prints the current numbers
+  — read them before quoting this paragraph, because it goes stale every time a skill is added.)
 - Frontmatter needs `name`, `description` (with trigger words first), `license`,
   `metadata.author`, `metadata.version`.
 - The orchestrator never gains CSS/HTML/PHP. Execution lives in skills.
@@ -105,6 +110,16 @@ rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.
   `references/`/`assets/` roots are not pointers, since that is where the walk starts. A filename
   that occurs twice in one skill must be cited by its **full path from the skill root**: with two
   `_README.md` files, both `_README.md` and `pages/_README.md` credit neither.
+- **A helper nothing calls has to be named by something** (`RT_HELPER_UNROUTABLE`). A function no
+  asset calls is an ENTRY POINT: the only thing left that can invoke it is an instruction file
+  telling a model to. So one that no markdown names at all is unreachable, and the two ways that
+  happens are worth telling apart — dead weight, or a helper that was written, tested and never
+  wired. The second is this repo's own recurring bug: `es_set_front_page()` was measured against a
+  live site, documented in a house rule and called from nothing, so a build could finish green
+  with the client's front page untouched. The list is DERIVED, never enumerated; a roster of "the
+  helpers that matter" goes stale the first time somebody adds one, which is the thing being
+  checked. `*.example.php` defines nothing here: an example is a file you copy and rewrite, so its
+  build function is meant to be replaced rather than called.
 - **Prefer a helper over a rule.** `es_section()` hardcoded `flex_direction:column`, so building
   two columns REQUIRED the extra container the rule forbade. When the library makes the wrong
   shape the easy one, no amount of documentation wins. Fix the library first (`es_split()`,
@@ -125,7 +140,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_NAME_MISMATCH` | FAIL | frontmatter `name:` does not match its directory |
 | `RT_NO_TRIGGER` | FAIL | description carries no `Trigger:` words |
 | `RT_BODY_OVER_600` | FAIL | `SKILL.md` body is past the ~600-word ceiling |
-| `RT_BODY_OVER_300` | WARN | `SKILL.md` body is past the ~300-word aim |
+| `RT_BODY_OVER_500` | WARN | `SKILL.md` body is past the ~500-word aim |
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
 | `RT_GATE_NOT_LISTED` | FAIL | a skill declares a blocking build gate but is missing from `$WRITE_CAPABLE` — that list is what makes the gate, marker and write checks apply, so being off it disables all three at once |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
@@ -147,6 +162,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_MARKER_PROSE_ONLY` | JUDGE | a `(verifier: …)` marker names no locatable target |
 | `RT_MARKER_OUTSIDE_RULES` | WARN | a verifier-marker-shaped line sits outside `## Hard Rules` |
 | `RT_ERRORLOG_NO_STDOUT` | FAIL | an error_log call has no paired stdout channel |
+| `RT_HELPER_UNROUTABLE` | WARN | an asset function no asset calls is named by no markdown either |
 | `RT_WRITE_NOT_LISTED` | FAIL | code writes to WordPress but the skill is missing from `$WRITE_CAPABLE` |
 | `RT_AGENT_CODE_BLOCK` | FAIL | an agent markdown file contains a code block |
 | `RT_AGENT_ROUTE_MISSING` | FAIL | an agent routes to a skill that does not exist |

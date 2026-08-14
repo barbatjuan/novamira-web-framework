@@ -274,6 +274,23 @@ ok( ! es_container_audit( array( es_split( array( $bien, es_p( 'y' ) ) ) ) )['of
 $cmal = es_c( array( '_padding' => es_box( 10, 10, 10, 10 ) ), array( es_h( 'a' ), es_h( 'b' ) ) );
 ok( has( es_container_audit( array( $cmal ) )['offenders'], 'con guion bajo' ), 'un contenedor con _padding tambien es offender' );
 
+/* La regla del envoltorio es cierta de los controles que TODO widget hereda, y falsa alli donde un
+   widget define un control propio con el nombre pelado. Medido preguntandole a los 128 tipos que
+   exponen controles en Elementor 4.2.2 + Pro 4.2.1, no leyendo documentacion: `padding` es un
+   control real de tres widgets y `background_background` de siete. Sin esto el checker inventaba un
+   offender en DIEZ tipos y le decia al autor que arreglara codigo que ya estaba bien, que cuesta
+   mas que perderse uno — el mismo motivo por el que `width` no esta en la lista. */
+$suyo = es_w( 'call-to-action', array( 'title' => 'x', 'padding' => es_box( 10, 10, 10, 10 ) ) );
+ok( ! es_container_audit( array( es_split( array( $suyo, es_p( 'y' ) ) ) ) )['offenders'], 'un widget que posee "padding" de verdad no es offender' );
+$suyo2 = es_w( 'button', array( 'text' => 'x', 'background_background' => 'classic' ) );
+ok( ! es_container_audit( array( es_split( array( $suyo2, es_p( 'y' ) ) ) ) )['offenders'], 'ni uno que posee "background_background"' );
+/* La excepcion es por TIPO, no por clave: heading no posee ninguna de las dos. */
+$nosuyo = es_w( 'heading', array( 'title' => 'x', 'background_background' => 'classic' ) );
+ok( has( es_container_audit( array( es_split( array( $nosuyo, es_p( 'y' ) ) ) ) )['offenders'], 'sin guion bajo' ), 'y el mismo ajuste en un widget que NO lo posee sigue siendo offender' );
+/* Sin widgetType no hay a quien preguntar: se falla hacia REPORTAR, nunca hacia el silencio. */
+$anon = array( 'elType' => 'widget', 'settings' => array( 'padding' => es_box( 10, 10, 10, 10 ) ) );
+ok( has( es_container_audit( array( es_split( array( $anon, es_p( 'y' ) ) ) ) )['offenders'], 'sin guion bajo' ), 'un widget sin widgetType no compra la exencion: se falla hacia reportar' );
+
 /* Una clave de layout de contenedor en un widget: no hay caja flex que configurar ahi. */
 $flex = es_w( 'heading', array( 'title' => 'x', 'flex_direction' => 'row' ) );
 ok( has( es_container_audit( array( es_split( array( $flex, es_p( 'y' ) ) ) ) )['offenders'], 'clave de CONTENEDOR' ), 'flex_direction en un widget es offender' );

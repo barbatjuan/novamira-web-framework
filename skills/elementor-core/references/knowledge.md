@@ -15,6 +15,10 @@
 - `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
 - `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
+- `es_cta_banner($img_slug,$title,$text,$btn_text,$btn_link,$bg)` — rounded closing-CTA band:
+  full-bleed photo, dark scrim, copy and button on the left, wrapped in a normal section so it
+  keeps the page's boxed width. It was in this file for months named by nothing at all, which is
+  what `RT_HELPER_UNROUTABLE` now catches: a helper nobody can find gets rebuilt by hand.
 - `es_save_page($slug,$title,$elements,$tpl,&$action)` + `es_rebuild_css($post_id)`.
   `$action` reports FOUR outcomes: `created`, `updated`, `created-renamed` (WordPress published the
   page under a DIFFERENT slug because the one you asked for was taken — the URL you expect is not
@@ -34,6 +38,17 @@
   `es_container_walk()` calls it, so these reach the verdict through the existing offender channel.
   The key list is deliberately SHORT: `width` is excluded because it is both a container layout key
   and a real widget control, and an invented offender costs more than a missed one.
+  **Re-measured by introspection** on Elementor 4.2.2 + Pro 4.2.1, walking all 128 widget types
+  that expose controls and asking each one. Two results, one confirming and one correcting:
+  - The five container-only keys are a real control on **zero** widgets, in either spelling —
+    and `width` is a real one on **ten**, so the hand-made exclusion was right for the right reason.
+  - `padding` is a real `dimensions` control on **three** widgets (`nested-tabs`,
+    `call-to-action`, `table-of-contents`) and `background_background` a real `choose` control on
+    **seven** (`button`, `archive-posts`, `loop-grid`, `off-canvas`, `posts`, `paypal-button`,
+    `stripe-button`). The checker was inventing an offender on all ten and telling their authors to
+    break working code. `es_owns_control($widget_type,$key)` now asks Elementor directly when it is
+    there, and falls back to that measured list offline. Re-run the introspection when Elementor
+    moves: a hardcoded roster goes stale silently, which is why the live question comes first.
 - **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
   `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
   false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so
@@ -65,6 +80,53 @@
   framework serves that option**, so the old URL still 404s: the function warns that on every
   successful move, and `qa-review` row 17 is what confirms a human or a plugin closed it. Refuses
   to move onto an occupied slug — that is finding 15's collision through the back door.
+
+### Servir `es_slug_redirects`
+
+This framework **cannot close this one itself**, and that is a rule rather than an omission: it is
+not allowed to write `.php` outside the sandbox, and the sandbox is emptied at hand-off — so
+anything it could install would be deleted by its own delivery phase. A person closes it, either
+with a redirect plugin, or by saving this as `wp-content/mu-plugins/nvm-slug-redirects.php`. It is
+a mu-plugin on purpose: those load before the theme and cannot be deactivated by accident.
+
+```php
+<?php
+/* Plugin Name: NovaMira slug redirects
+ * Serves the map es_migrate_slug() records. Reads it, never writes it. */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! is_404() ) {
+			return;   // only a URL WordPress could not resolve; never shadow a live page
+		}
+		$map = get_option( 'es_slug_redirects' );
+		if ( ! is_array( $map ) || ! $map ) {
+			return;
+		}
+		$slug = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ), '/' );
+		$slug = substr( $slug, strrpos( $slug, '/' ) === false ? 0 : strrpos( $slug, '/' ) + 1 );
+		if ( ! isset( $map[ $slug ] ) ) {
+			return;
+		}
+		$target = get_page_by_path( $map[ $slug ], OBJECT, 'page' );
+		if ( ! $target || 'page' !== $target->post_type ) {
+			return;   // the destination moved again or was deleted: a 404 beats a redirect loop
+		}
+		wp_safe_redirect( get_permalink( $target->ID ), 301 );
+		exit;
+	}
+);
+```
+
+Three decisions worth keeping. It runs **only on a 404**, so it can never shadow a page that
+resolves. It **re-resolves the destination** instead of trusting the map, because the map records
+what was true at migration time and the destination can move again — and a redirect to a slug that
+no longer exists is a loop, which is worse than the 404 it replaced. And it uses `es_page_by_slug`'s
+own type check inline, because the slug space includes attachments.
+
+`qa-review` row 17 requests `/<old>/` without following redirects and reads the status: `301` PASS,
+`404` and `200` both FAIL. **Expect the FAIL until a human installs this** — that is what the row
+is for.
 - `es_theme_conditions_registered($id)` answers "is my template in the conditions cache" and
   **nothing more**. Registered is NOT rendering: Elementor resolves ONE template per location, so
   ask `es_theme_location_rivals($id)` → `{location: [other_ids]}` before reading a `true` as "the
@@ -77,6 +139,19 @@
   approves — never gated on `ES_AUDIT_SILENT`, an approval artifact is not routine output. Run it
   **before the first write**. Each row: `slug`, `id`, `action`, `status`, `is_elementor`,
   `is_front_page`, `converts`. The last two cost the most and show up the least.
+  It also RECORDS the slugs it printed, and `es_save_page()` reads that record through
+  `es_approval_check($slug)`: writing a slug the block never covered warns, naming it. Per slug,
+  not once per run — a single flag goes quiet after the first warning, and the write it would then
+  hide is the unapproved one. It warns and does not block: an interrupted build has to be
+  resumable without re-approving the pages that already landed. `es_approval_check()` returns the
+  verdict, so it is readable without parsing stdout.
+- `es_front_page_check()` → `'nothing-built'` | `'page'` | `'posts'`. Called from
+  `es_audit_summary()`, so a run that saved pages while `/` still serves the blog says so on the
+  one line the operator is told to read before deploying. It does NOT judge which page is the
+  front page on a site that already has one: the options say which, never whether it is right, and
+  an audit that complains about every correct site is one people scroll past. `$es_saved_pages`
+  (slug → id, keyed by where the page LANDED, not what was asked for) is what it counts, and the
+  honest source for `es_manifest_record('pages', …)`.
 - `es_backup_page_state($id,$keys)` — parks the WHOLE displaced set (layout, page template, edit
   mode, template type, version, post fields, and `post_content`) in `_es_page_backup_<Ymd-His>`.
   **Call it before the first write**: it cannot tell an old value from a new one, and it used to

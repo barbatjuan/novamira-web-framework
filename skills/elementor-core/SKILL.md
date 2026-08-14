@@ -9,26 +9,24 @@ metadata:
 
 # Elementor Core (execution)
 
-Build Elementor pages by writing raw PHP that emits `_elementor_data` JSON, deployed
-through the NovaMira connector. Owns the helper library, the deploy pipeline, and the
-Elementor failure modes. Takes its visual spec from `ux-design-system`.
+Build Elementor pages as raw PHP emitting `_elementor_data` JSON, deployed through the NovaMira
+connector. Owns the helper library, the deploy pipeline and the Elementor failure modes; the
+visual spec comes from `ux-design-system`.
 
 ## Activation Contract
 Use when `project-context` reports builder = `elementor` and work runs through NovaMira
 `execute-php` (not the Elementor UI).
 
 **Build gate — blocking.** This skill writes to a live WordPress site. Do not run until the user
-has given an explicit **yes** for THIS build. Reached directly instead of routed by the
-orchestrator? Ask for that yes yourself before the first write and stop until you get it.
-On an existing site, confirm every page/template you would overwrite by name first.
+has given an explicit **yes** for THIS build; reached directly rather than routed, ask for that
+yes yourself and stop until you get it.
 
 ## Hard Rules
 - Native Elementor / Elementor Pro widgets only. No third-party widgets. No custom JS.
   (no verifier: an unregistered widget renders empty and shows up, but a third-party widget whose plugin installs cleanly, and custom JS, leave no trace anything greps for.)
 - Custom CSS ONLY via the widget's native `custom_css` field (`selector{}`) — it always
-  compiles; conditionally-enqueued assets (hover animations, swiper) do not. Verified by the
-  step-4 `post-<id>.css` grep: rules that never compiled are simply absent from it.
-  (verifier: the step-4 compiled-CSS grep — a rule that never compiled is absent from that file.)
+  compiles; conditionally-enqueued assets (hover animations, swiper) do not.
+  (verifier: the step-7 compiled-CSS grep — a rule that never compiled is absent from that file.)
 - **Fewest containers that do the job.** One earns its place only by grouping 2+ children,
   carrying its own background/border/shadow, changing direction at a breakpoint, or boxing a
   lone widget no ancestor boxes. Three
@@ -43,25 +41,31 @@ On an existing site, confirm every page/template you would overwrite by name fir
   (verifier: es_container_report() prints the container verdict from inside the save, before that page's data is written.)
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
   (no verifier: nothing re-builds a page twice to diff the generated ids, so a non-deterministic one only surfaces later as a spurious diff.)
-- Wrap all build logic in named functions — the sandbox auto-runs any uploaded `.php`.
-  Self-verifying: top-level logic fatals the site on upload, before `execute-php` is reached.
-  (no verifier: self-verifying at upload — top-level logic fatals the site before the call is ever reached, so a violation cannot ship quietly.)
+- Wrap all build logic in named functions — the sandbox `require_once`s every `.php` it holds on
+  EVERY request, not on upload, and one fatal switches the whole directory off.
+  (no verifier: self-verifying — top-level logic fatals the site before `execute-php` is ever reached, so a violation cannot ship quietly.)
 - **Read `references/gotchas.md` before the first deploy.** Introspect widget/control names;
   never guess them (`references/knowledge.md` lists the ones that bit us).
   (no verifier: nothing can tell a guessed control name from a researched one until the build silently renders nothing.)
 
 ## Execution Steps
-1. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; swap its palette/type
+1. `es_manifest_read()`, then `es_manifest_verify()`. Any drift stops here: a recorded id the site
+   disagrees with is how this session overwrites what the last one agreed to leave alone.
+2. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; swap its palette/type
    constants for the brand from `ux-design-system`. Upload dependencies FIRST: sandbox `.php`
    runs on every request, so a missing one stops the run.
-2. Write one `es_build_<page>()` per page → `es_save_page(...)`, which defaults to the
+3. `es_overwrite_preflight()` with EVERY slug this run writes; show the block, get the yes.
+   Moving an existing page is `es_migrate_slug()`, never a second page at the new slug.
+4. Write one `es_build_<page>()` per page → `es_save_page(...)`, which defaults to the
    `elementor_header_footer` template so the global header/footer survive. Header, footer and
    Theme Builder templates belong to `elementor-theme-parts`; commerce to `woocommerce`.
-3. Deploy with the pipeline in `references/gotchas.md` (upload multipart → require+call → clear
-   `_elementor_css` + `_elementor_element_cache` + the post CSS file → regenerate kit CSS and the
-   conditions cache → verify).
-4. Verify server-side: fetch compiled `post-<id>.css` / front HTML, `substr_count` the expected
+5. Deploy with the pipeline in `references/gotchas.md`, in that exact order.
+6. `es_set_front_page()` once the home is saved: building a page called Inicio does nothing to
+   what `/` serves. Read what it returns.
+7. Verify server-side: fetch compiled `post-<id>.css` / front HTML, `substr_count` the expected
    selectors. State that visual confirmation needs the user.
+8. `es_manifest_record('pages', …)` — slug → id, and the front page. A `false` there means the
+   next session starts blind.
 
 ## Output Contract
 Report pages/templates built (ids), the audit verdict line, and the server-side grep counts that
@@ -70,4 +74,3 @@ prove the styles landed. Capture new failure modes into `references/gotchas.md`.
 ## References
 - `references/gotchas.md` — deploy order, cache metas, sandbox auto-exec, name corrections.
 - `references/knowledge.md` — helper API, containers/flex/grid, breakpoints, global kit, control keys.
-- Assets: see step 1.

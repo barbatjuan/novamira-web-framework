@@ -52,7 +52,7 @@ const ROW_TYPES = array(
 	'RT_NAME_MISMATCH'           => 'FAIL  — frontmatter name: does not match its directory',
 	'RT_NO_TRIGGER'              => 'FAIL  — description carries no "Trigger:" words',
 	'RT_BODY_OVER_600'           => 'FAIL  — SKILL.md body is past the ~600-word ceiling',
-	'RT_BODY_OVER_300'           => 'WARN  — SKILL.md body is past the ~300-word aim',
+	'RT_BODY_OVER_500'           => 'WARN  — SKILL.md body is past the ~500-word aim',
 	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
 	'RT_GATE_NOT_LISTED'         => 'FAIL  — a skill declares a blocking build gate but is not in $WRITE_CAPABLE',
 	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
@@ -76,6 +76,7 @@ const ROW_TYPES = array(
 	'RT_MARKER_PROSE_ONLY'       => 'JUDGE — a "(verifier: …)" marker names no locatable target',
 	'RT_MARKER_OUTSIDE_RULES'    => 'WARN  — a verifier-marker-shaped line sits outside "## Hard Rules"',
 	'RT_ERRORLOG_NO_STDOUT'      => 'FAIL  — an error_log call has no paired stdout channel',
+	'RT_HELPER_UNROUTABLE'       => 'WARN  — an asset function no asset calls is named by no markdown either',
 	'RT_WRITE_NOT_LISTED'        => 'FAIL  — code writes to WordPress but the skill is missing from $WRITE_CAPABLE',
 	'RT_AGENT_CODE_BLOCK'        => 'FAIL  — an agent markdown file contains a code block',
 	'RT_AGENT_ROUTE_MISSING'     => 'FAIL  — an agent routes to a skill that does not exist',
@@ -648,7 +649,7 @@ foreach ( $skill_dirs as $dir ) {
 		}
 	}
 
-	/* --- body budget (CONTRIBUTING §2: aim ~300, hard ceiling ~600) ---
+	/* --- body budget (CONTRIBUTING §2: aim ~500, hard ceiling ~600) ---
 	   Structurally valid marker spans are excluded (D1'.1): a marker documents what CHECKS a
 	   rule, it is provenance for the audit and the reviewer, not an instruction the model
 	   executes, so excluding it makes the measurement more accurate, not more lenient. */
@@ -658,11 +659,12 @@ foreach ( $skill_dirs as $dir ) {
 	}
 	$marker_words         = str_word_count( implode( ' ', $valid_spans ) );
 	$words                = str_word_count( strip_tags( $budget_body ) );
+	$left                 = 600 - $words;
 	$word_report[ $name ] = array( $words, $marker_words );
 	if ( $words > 600 ) {
 		add( 'RT_BODY_OVER_600', 'FAIL', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~600 ceiling — move detail into references/" );
-	} elseif ( $words > 300 ) {
-		add( 'RT_BODY_OVER_300', 'WARN', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~300 aim (ceiling 600)" );
+	} elseif ( $words > 500 ) {
+		add( 'RT_BODY_OVER_500', 'WARN', $name, "SKILL.md body is $words instruction words (+$marker_words marker), past the ~500 aim — $left from the 600 ceiling" );
 	}
 
 	/* --- build gate: the single highest-stakes property in the repo --- */
@@ -813,6 +815,100 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 	} else {
 		marker_walk( $name, $house, true, 'House rule', $name );
 	}
+}
+
+/* ------------------------------------------- helpers nothing can invoke */
+
+/**
+ * A function no asset calls is an ENTRY POINT: the only thing left that can invoke it is an
+ * instruction file telling a model to. So one that no markdown in the repo names at all is
+ * unreachable — dead weight, or a helper somebody wrote, tested and forgot to wire. That second
+ * case is this repo's own recurring bug one level down: `es_set_front_page()` was written,
+ * measured against a live site, documented in a house rule, and called from nothing, so a build
+ * could finish green with the client's front page untouched.
+ *
+ * Derived, never listed. A hardcoded roster of "the helpers that matter" would go stale the first
+ * time somebody added one, and going stale unnoticed is the failure being checked.
+ *
+ * WARN, matching RT_ORPHAN_FILE: this is the same finding one level finer, and the honest reading
+ * is "dead weight, or a missing pointer" — which of the two is a judgement no grep can make.
+ *
+ * `*.example.php` defines nothing here on purpose. An example is a file you COPY and rewrite, so
+ * its top-level build function is meant to be REPLACED rather than called; demanding a pointer to
+ * it would be demanding a pointer to scaffolding.
+ */
+$asset_defs  = array();
+$asset_calls = array();
+foreach ( $skill_dirs as $sdir ) {
+	foreach ( glob( $sdir . '/assets/*.php' ) as $php ) {
+		$lines      = explode( "\n", slurp( $php ) );
+		$is_example = false !== strpos( basename( $php ), '.example.' );
+		foreach ( $lines as $line ) {
+			/* One `continue` for definitions, not two guards: a definition line is not a call in
+			   ANY file, and counting it would make every function its own caller — the check would
+			   then report nothing, ever, while looking exactly as healthy as it does now. Written
+			   as two conditions first, and mutation proved the second unreachable for library
+			   files and untested for examples. Whether the name is RECORDED is the only thing the
+			   example carve-out decides. */
+			if ( preg_match( '/^function\s+([a-z_][a-z0-9_]*)\s*\(/i', $line, $m ) ) {
+				if ( ! $is_example ) {
+					$asset_defs[ $m[1] ] = basename( $sdir );
+				}
+				continue;
+			}
+			/* Same rule as the two checks above: a comment that only NAMES a token is not a call,
+			   so a docblock explaining what a helper used to do cannot mark it as still wired. */
+			if ( preg_match( '#^\s*(\*|//|/\*|\#)#', $line ) ) {
+				continue;
+			}
+			if ( preg_match_all( '/(?<![\w>$])([a-z_][a-z0-9_]*)\s*\(/i', $line, $mm ) ) {
+				foreach ( $mm[1] as $fn ) {
+					$asset_calls[ $fn ] = true;
+				}
+			}
+		}
+	}
+}
+
+/* Only markdown that is PART OF THIS TREE. `SKIP_DOTS` drops `.` and `..` and nothing else, so the
+   first version walked `.git` and — the one that matters — `.worktrees/`, where a full checkout of
+   another branch lives. A helper deleted here but still named by that copy's SKILL.md would have
+   read as reachable, so the check would go quiet exactly when a helper was being removed. Hidden
+   directories and dependency trees are skipped by name, not by luck. */
+$prose = '';
+$dirs  = new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS );
+$walk  = new RecursiveIteratorIterator(
+	new RecursiveCallbackFilterIterator(
+		$dirs,
+		function ( $cur ) {
+			$name = $cur->getFilename();
+			if ( $cur->isDir() ) {
+				return '.' !== substr( $name, 0, 1 ) && ! in_array( $name, array( 'node_modules', 'vendor' ), true );
+			}
+			return true;
+		}
+	),
+	RecursiveIteratorIterator::SELF_FIRST
+);
+foreach ( $walk as $f ) {
+	if ( $f->isFile() && 'md' === strtolower( $f->getExtension() ) ) {
+		$prose .= "\n" . slurp( $f->getPathname() );
+	}
+}
+
+foreach ( $asset_defs as $fn => $owner ) {
+	if ( isset( $asset_calls[ $fn ] ) ) {
+		continue;
+	}
+	if ( preg_match( '/(?<![\w])' . preg_quote( $fn, '/' ) . '(?![\w])/', $prose ) ) {
+		continue;
+	}
+	add(
+		'RT_HELPER_UNROUTABLE',
+		'WARN',
+		$owner,
+		$fn . '() is called by no asset and named by no .md — nothing can reach it: dead weight, or a helper that was never wired'
+	);
 }
 
 /* ------------------------------------------------- qa-review house rules */

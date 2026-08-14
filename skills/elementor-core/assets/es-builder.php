@@ -672,7 +672,7 @@ function es_container_walk( array $els, $depth, $path, array &$out, array $anc =
 		}
 		/* Also above the dispatch: a setting written on the wrong element type saves fine and never
 		   applies — visible in the source, absent on screen, so it gets re-added and re-wondered-at. */
-		foreach ( es_key_offenders( $type, $settings ) as $why ) {
+		foreach ( es_key_offenders( $type, $settings, isset( $el['widgetType'] ) ? $el['widgetType'] : '' ) as $why ) {
 			$out['offenders'][] = $here . ' ' . ( '' === $type ? '(sin elType)' : $type ) . ' ' . $why;
 		}
 		if ( 'container' === $type ) {
@@ -909,6 +909,12 @@ function es_container_report( array $elements, $label = '' ) {
 function es_audit_summary() {
 	global $es_audit_runs;
 
+	/* Before the verdict, and outside all four of its branches: whether `/` serves the blog is a
+	   fact about the SITE, not about the tree, so it is true of a clean build and of SIN AUDITAR
+	   alike. It stays out of the return value on purpose — callers already branch on that integer,
+	   and a fifth meaning would change what an existing `if ( es_audit_summary() )` decides. */
+	es_front_page_check();
+
 	if ( ! isset( $es_audit_runs ) || ! is_array( $es_audit_runs ) || ! $es_audit_runs ) {
 		/* es_warn(), NO es_audit_verdict(): el escritor lo volvia callable, y era la unica linea
 		   que este archivo SIEMPRE habia impreso. */
@@ -996,6 +1002,7 @@ function es_audit_verdict( $rest, $code ) {
  * Branch on `$action`, and treat anything that is not 'created' or 'updated' as needing a human.
  */
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
+	es_approval_check( $slug );
 	$page = es_page_by_slug( $slug );
 	if ( $page ) {
 		$id     = $page->ID;
@@ -1077,6 +1084,17 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 	es_container_report( $elements, $slug );
 	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
 	es_rebuild_css( $id );
+
+	/* What this run actually WROTE, keyed by the slug it actually landed on — not the one that was
+	   asked for. `created-renamed` is the whole reason for the distinction: recording the requested
+	   slug would put a page in the manifest at a URL that answers with somebody else's. Read by
+	   es_front_page_check(), and the honest source for es_manifest_record( 'pages', … ). */
+	global $es_saved_pages;
+	if ( ! isset( $es_saved_pages ) || ! is_array( $es_saved_pages ) ) {
+		$es_saved_pages = array();
+	}
+	$landed = (string) get_post_field( 'post_name', $id );
+	$es_saved_pages[ '' !== $landed ? $landed : $slug ] = (int) $id;
 
 	return $id;
 }
@@ -1437,9 +1455,17 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
  * key stays off the list and the gap is real rather than papered over.
  *
  * Reports, never blocks, through the same offender channel as everything else in the walk.
+ *
+ * `$widget_type` is the widget's own name, and it exists because the first version of this check
+ * invented offenders on TEN widget types. Introspecting all 128 that expose controls showed
+ * `padding` is a real dimensions control on three of them and `background_background` a real choose
+ * control on seven — so the rule "on a widget it must carry the underscore" was telling their
+ * authors to break working code. See es_owns_control().
  */
-function es_key_offenders( $type, array $settings ) {
-	/* Container-only layout keys: a widget has no flex box of its own to configure. */
+function es_key_offenders( $type, array $settings, $widget_type = '' ) {
+	/* Container-only layout keys: a widget has no flex box of its own to configure. Re-measured
+	   across all 128 widget types that expose controls on Elementor 4.2.2 + Pro 4.2.1: not one of
+	   these five is a real control on any of them, in either spelling. */
 	$container_only = array( 'content_width', 'flex_direction', 'flex_gap', 'flex_justify_content', 'flex_align_items' );
 	/* Wrapper controls, spelled bare on a container and underscored on a widget. */
 	$wrapper = array( 'padding', 'margin', 'background_background' );
@@ -1452,7 +1478,7 @@ function es_key_offenders( $type, array $settings ) {
 			}
 		}
 		foreach ( $wrapper as $key ) {
-			if ( isset( $settings[ $key ] ) && ! isset( $settings[ '_' . $key ] ) ) {
+			if ( isset( $settings[ $key ] ) && ! isset( $settings[ '_' . $key ] ) && ! es_owns_control( $widget_type, $key ) ) {
 				$out[] = 'lleva "' . $key . '" sin guion bajo: en un widget esa clave es "_' . $key . '" y sin el no hace nada';
 			}
 		}
@@ -1465,6 +1491,50 @@ function es_key_offenders( $type, array $settings ) {
 	}
 
 	return $out;
+}
+
+/**
+ * Does this widget type own `$key` as a control of its own?
+ *
+ * The wrapper rule — "a container takes `padding`, a widget takes `_padding`" — is true of the
+ * wrapper controls every widget inherits, and FALSE wherever a widget defines a control of its own
+ * under the bare name. Measured by walking all 128 widget types that expose controls on Elementor
+ * 4.2.2 + Pro 4.2.1 and asking each one, not by reading documentation: `padding` is a real
+ * dimensions control on three, `background_background` a real choose control on seven. Without this
+ * the checker invented an offender on ten widget types and told the author to "fix" code that was
+ * already right, and an invented offender costs more than a missed one — the same reasoning that
+ * keeps `width` off the list entirely, since ten widgets own that one for real.
+ *
+ * Asks ELEMENTOR when Elementor is there, because a hardcoded roster goes stale on the next release
+ * and goes stale silently. The measured list below is the fallback for the offline suite, where
+ * there is no Elementor to ask; it is short, dated and derived, never guessed.
+ *
+ * A type Elementor does not recognise returns no controls, and that is treated as "does not own it"
+ * — failing towards reporting. An unregistered widget renders empty anyway, and the walk already
+ * has its own row for that. An element with no `widgetType` reaches here as `''` and takes the same
+ * path: MEASURED on 4.2.2, `get_widget_types('')` returns NULL and `get_widget_types(null)` returns
+ * all 130, so the empty string is safe and only a null argument would be dangerous — the call site
+ * passes `''`, never null. An early return for `''` was written first and removed: it changed no
+ * outcome, so it was a branch nothing could test, which is how a check quietly stops checking.
+ */
+function es_owns_control( $widget_type, $key ) {
+	static $live = array();
+	if ( class_exists( '\Elementor\Plugin' ) ) {
+		if ( ! isset( $live[ $widget_type ] ) ) {
+			$w                      = \Elementor\Plugin::instance()->widgets_manager->get_widget_types( $widget_type );
+			$live[ $widget_type ] = ( $w && method_exists( $w, 'get_controls' ) ) ? (array) $w->get_controls() : array();
+		}
+		if ( $live[ $widget_type ] ) {
+			return isset( $live[ $widget_type ][ $key ] );
+		}
+	}
+	/* MEASURED on Elementor 4.2.2 / Pro 4.2.1. Re-run the introspection when either moves. */
+	$measured = array(
+		'padding'               => array( 'nested-tabs', 'call-to-action', 'table-of-contents' ),
+		'background_background' => array( 'button', 'archive-posts', 'loop-grid', 'off-canvas', 'posts', 'paypal-button', 'stripe-button' ),
+	);
+
+	return isset( $measured[ $key ] ) && in_array( $widget_type, $measured[ $key ], true );
 }
 
 /**
@@ -1864,7 +1934,10 @@ function es_migrate_slug( $from, $to ) {
 	es_warn(
 		'"' . $from . '" se movio a "' . $to . '" y quedo anotado en la opcion es_slug_redirects. AVISO: nada en este framework '
 		. 'SIRVE ese mapa todavia, asi que /' . $from . '/ sigue devolviendo 404 para quien llegue desde Google o desde un enlace viejo. '
-		. 'Configura la redireccion 301 en un plugin de redirecciones o en el servidor, y comprobalo con la fila 17 de qa-review.'
+		. 'Este framework NO PUEDE cerrarlo solo: no le esta permitido escribir .php fuera del sandbox, y el sandbox se vacia al '
+		. 'entregar. Lo cierra una persona, de dos maneras: un plugin de redirecciones, o el mu-plugin de 15 lineas que lee esta '
+		. 'misma opcion, copiado tal cual de elementor-core/references/knowledge.md ("Servir es_slug_redirects"). '
+		. 'Comprobalo despues con la fila 17 de qa-review, que hasta entonces FALLA a proposito.'
 	);
 
 	return (int) $page->ID;
@@ -1938,11 +2011,92 @@ function es_overwrite_preflight( array $slugs ) {
 	error_log( str_replace( "\n", ' | ', $out ) );
 	echo $out . "\n";
 
+	/* Recorded AFTER the block is printed, never before. The approval artifact is the text a human
+	   read, so a preflight that dies partway through approves nothing — the same reason every write
+	   in this file is read back instead of trusted to its return value. */
+	global $es_preflight_slugs;
+	if ( ! isset( $es_preflight_slugs ) || ! is_array( $es_preflight_slugs ) ) {
+		$es_preflight_slugs = array();
+	}
+	foreach ( $rows as $row ) {
+		$es_preflight_slugs[] = $row['slug'];
+	}
+
 	return array(
 		'rows'       => $rows,
 		'overwrites' => $over,
 		'creates'    => $make,
 	);
+}
+
+/**
+ * Was THIS slug in a block somebody was shown?
+ *
+ * `es_overwrite_preflight()` prints the approval artifact, and until now printing it was the whole
+ * mechanism. A build that never called it wrote exactly as before, and a build that preflighted
+ * five slugs and then wrote six left the sixth one invisible — the page nobody approved is
+ * precisely the page nobody knew about. The house rule existed; the runtime did not. That is the
+ * same shape as the front page nothing set, and the reason this branch exists.
+ *
+ * Per slug, not once per request, deliberately: a per-request flag falls silent after the first
+ * warning, and the write it would then hide is the unapproved one. Each unapproved write is its
+ * own fact and says its own name.
+ *
+ * It WARNS and does not block. A build interrupted mid-flight — which the connector's ~20-minute
+ * token makes routine — has to be resumable without re-approving the pages that already landed,
+ * and refusing the write here would make the recovery path the one that cannot run. The backup
+ * still happens either way; what is missing is the approval, and approval comes before the write
+ * or it is not approval.
+ *
+ * Returns the verdict so a caller — and a test — can read it without parsing stdout.
+ */
+function es_approval_check( $slug ) {
+	global $es_preflight_slugs;
+
+	if ( isset( $es_preflight_slugs ) && is_array( $es_preflight_slugs ) && in_array( $slug, $es_preflight_slugs, true ) ) {
+		return true;
+	}
+	es_warn(
+		'se va a escribir "' . $slug . '" sin haberlo pasado por es_overwrite_preflight(). Nadie ha visto el bloque que '
+		. 'dice si esa pagina ya existe, si es la portada, o si su contenido actual deja de renderizarse. El respaldo se '
+		. 'hace igual, pero la aprobacion va ANTES de la escritura: despues ya no es una aprobacion, es un aviso.'
+	);
+
+	return false;
+}
+
+/**
+ * Did a build that made pages leave WordPress serving the blog at `/`?
+ *
+ * `es_set_front_page()` was written, tested and documented, and nothing called it — so a build
+ * could still finish with every check green and the client's front page untouched. A helper
+ * nothing invokes is the same failure as a check that inspects nothing, one level up. This is
+ * where it becomes visible, because `es_audit_summary()` is the one line the operator is told to
+ * read before deploying.
+ *
+ * Fires only when this run SAVED pages and `/` still serves the blog. It deliberately does not
+ * judge WHICH page is the front page on a site that already has one: the options say which, never
+ * whether it is the right one, and an audit that complains about every correct existing site is an
+ * audit people learn to scroll past.
+ *
+ * Returns `'nothing-built'`, `'page'` or `'posts'` — the verdict, not the fact that it ran.
+ */
+function es_front_page_check() {
+	global $es_saved_pages;
+
+	if ( ! isset( $es_saved_pages ) || ! is_array( $es_saved_pages ) || ! $es_saved_pages ) {
+		return 'nothing-built';
+	}
+	if ( 'page' === es_front_page()['mode'] ) {
+		return 'page';
+	}
+	es_warn(
+		'este build guardo ' . count( $es_saved_pages ) . ' pagina(s) y WordPress sigue sirviendo el BLOG en "/". Ninguna '
+		. 'de ellas es la portada, asi que quien entre por la raiz no vera nada de lo que se acaba de construir. Llama a '
+		. 'es_set_front_page("<slug>") con la home y relee lo que devuelve.'
+	);
+
+	return 'posts';
 }
 
 /**

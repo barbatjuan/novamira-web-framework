@@ -133,11 +133,33 @@ consentimiento y entrega real de formularios.
 
 Esta sección importa tanto como las anteriores.
 
-- **Nada se ejecutó contra un WordPress vivo.** Toda afirmación sobre el comportamiento de
-  Elementor procede de las notas del propio repositorio y de conocimiento general, no de medición.
-  El PHP que sí se ejecutó corrió contra sustitutos escritos a mano, no contra WordPress.
-- **El canal del sandbox no se probó.** Nadie verificó que un `.php` depositado en
-  `wp-content/novamira-sandbox/` se ejecute solo, ni qué devuelve realmente por salida estándar.
+**Lo que decía esta lista, y ya no es cierto.** Sus dos primeras entradas —«nada se ejecutó contra
+un WordPress vivo» y «el canal del sandbox no se probó»— encabezaron el informe hasta que se
+midieron, y las medidas contradijeron cosas que el repositorio afirmaba por escrito. Un informe
+que se deja sin actualizar es la misma clase de fallo que describe, así que se registran aquí con
+lo que dieron:
+
+- **El canal del sandbox, medido en dos sitios vivos.** El loader hace `require_once` de CADA
+  `.php` del directorio en **cada petición** —no «al subirlo», que es lo que este repositorio
+  decía— y un solo fichero con `.crashed` deja TODO el sandbox en modo seguro, en silencio: el
+  sitio que lo llevaba no tenía ni una función `es_*` definida, el que no, cargaba normal. Vaciado
+  el directorio y borrado el `.crashed`, un contador subía en cada petición que arranca WordPress.
+- **Las claves de control de Elementor, medidas en 4.2.2** construyendo una página y leyendo el
+  `post-<id>.css` regenerado: un widget con `_padding:33px` emite la regla y uno con `padding:44px`
+  no emite nada. La forma equivocada no llega nunca a la hoja de estilos.
+- **`get_page_by_path( $slug, OBJECT, 'page' )` devuelve ADJUNTOS**, medido en una instalación
+  real. Contradecía un comentario escrito en este mismo repositorio.
+- **`update_option()` devuelve `false` tanto al fallar como al no cambiar nada**, medido. Por eso
+  cada escritura de este framework se relee en vez de creerse su valor de retorno.
+- **La purga del sandbox, corrida contra un sandbox sucio de verdad**: se niega a tocar lo que no
+  es suyo y bloquea la entrega en vez de declararla limpia.
+- **El ciclo completo, de punta a punta, en un sitio vivo** — y encontró un fallo que ninguna
+  suite veía: el respaldo guardaba el título que `wp_update_post()` acababa de escribir. El test
+  no podía cazarlo porque su fixture usaba el mismo título antes y después, es decir, **un test
+  que no podía fallar**.
+
+**Lo que sigue sin comprobarse:**
+
 - **El alcance de Chrome sin interfaz al dominio del sandbox sigue sin verificar.**
 - **Los hechos de almacenamiento de `divi-core` siguen sin confirmar.**
 - **La activación real de las skills por palabra clave nunca se observó.** Es la mayor suposición
@@ -165,7 +187,8 @@ Esta sección importa tanto como las anteriores.
 | 27, 28 | **Cerrados** por `ddaf475`: `es_theme_location_rivals()` nombra las otras plantillas registradas en la misma ubicación —registrado no es lo mismo que renderizado, y el secuestro de plantilla era verde en todos los checks—, y `es-theme-parts.example.php` copia la guarda de dependencia de los assets de comercio en vez de fatalar con cero salida |
 | 16 | **Cerrado** por `419d432`: `es_migrate_slug()` MUEVE la página en vez de dejar dos peleando por la URL, relee el slug (WordPress sufija también al actualizar, y el espacio de slugs incluye adjuntos), y anota el par en `es_slug_redirects`. **Nada en este framework sirve ese mapa**, así que la URL vieja sigue devolviendo 404: la función lo avisa en cada movimiento con éxito, y la fila 17 de `qa-review` comprueba huérfanas vivas y el 301 |
 | 3–8 | **Cerrados.** `80f9986` skill `wordpress-forms` (+ filas 18 y 19: entrega real y consentimiento) · `33730e7` subagente `novamira-copywriter` · `52f687d` skill `wordpress-legal` (+ filas 20 y 21) · `699a314` fase de entrega bloqueante: `es_sandbox_purge()` borra y **RELEE**, `es_backup_keys()`, `es_indexing_state()` (+ filas 22 y 23) · `be58406` manifiesto de proyecto con `es_manifest_verify()`, que **contrasta contra el sitio y no repara** (+ fila 24) · `f93034f` checker de claves de widget (+ filas 25–28) · `49c914d` los seis arquetipos que faltaban |
-| Resto | **EL PROGRAMA DE OCHO CAMBIOS ESTÁ COMPLETO.** Lo que queda son los follow-ups abiertos que cada commit registró en vez de absorber, y la sección «Qué NO se comprobó» de este mismo informe, que sigue siendo cierta entera: nada de esto se ha ejecutado contra un WordPress vivo |
+| Resto | **EL PROGRAMA DE OCHO CAMBIOS ESTÁ COMPLETO**, y después se ejecutó contra WordPress vivo: la sección «Qué NO se comprobó» ya no es cierta entera y registra qué se midió y qué contradijo. Quedan los follow-ups abiertos que cada commit registró en vez de absorber |
+| Cableado | **Cerrado** por `1b4f845`, un hallazgo que el programa no tenía en su lista: seis helpers escritos, medidos contra un sitio vivo y documentados mientras NADA los invocaba, y `elementor-core` —la skill que ejecuta el build, alcanzable por su propio trigger sin pasar por el orquestador— no llamaba a ninguno. Un helper que nadie llama es el mismo fallo que un check que no inspecciona nada, un nivel más arriba. Los Execution Steps pasan de 4 a 8, y dos guardas lo hacen cumplir en RUNTIME en vez de en prosa: `es_approval_check()` avisa desde dentro de `es_save_page()` con cualquier slug que el bloque del preflight no cubrió (por slug, porque un flag por corrida se calla en la sexta página de una aprobación de cinco), y `es_front_page_check()` lo dice desde `es_audit_summary()` cuando un build guardó páginas y `/` sigue sirviendo el blog. `RT_HELPER_UNROUTABLE` impide que vuelva a pudrirse, derivando la lista en vez de enumerarla, y encontró `es_cta_banner()` a la primera |
 
 Esta tabla llegó tarde y con un error: durante siete commits nadie la actualizó, y su primera
 versión daba el hallazgo 5 por cerrado en `1ac7992` cuando la regex de vocabulario siguió viva

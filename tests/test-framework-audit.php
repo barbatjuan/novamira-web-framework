@@ -704,7 +704,7 @@ list( , $out15 ) = fx_run_ok( $audit, $r15 );
 ok( has( $out15, 'RT_NO_TRIGGER' ), 'a description with no "Trigger:" words is RT_NO_TRIGGER', $out15 );
 fx_rrmdir( $r15 );
 
-echo "--- SKILL.md body word counts past 600 and past 300 are RT_BODY_OVER_600 / RT_BODY_OVER_300 ---\n";
+echo "--- SKILL.md body word counts past 600 and past 500 are RT_BODY_OVER_600 / RT_BODY_OVER_500 ---\n";
 $r16 = fx_tmp_root();
 fx_base( $r16 );
 fx(
@@ -715,13 +715,27 @@ fx(
 );
 fx(
 	$r16,
-	'skills/sample-bodyover300/SKILL.md',
-	"---\nname: sample-bodyover300\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. implode( ' ', array_fill( 0, 350, 'word' ) ) . "\n"
+	'skills/sample-bodyover500/SKILL.md',
+	"---\nname: sample-bodyover500\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. implode( ' ', array_fill( 0, 550, 'word' ) ) . "\n"
+);
+fx(
+	$r16,
+	'skills/sample-bodyunder500/SKILL.md',
+	"---\nname: sample-bodyunder500\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. implode( ' ', array_fill( 0, 450, 'word' ) ) . "\n"
 );
 list( , $out16 ) = fx_run_ok( $audit, $r16 );
-ok( has( $out16, 'RT_BODY_OVER_600' ), 'a 650-word SKILL.md body is RT_BODY_OVER_600', $out16 );
-ok( has( $out16, 'RT_BODY_OVER_300' ), 'a 350-word SKILL.md body is RT_BODY_OVER_300', $out16 );
+/* Row type AND skill name together, never the bare row type: three fixture skills are in this run
+   and a substring hit on the ID alone would credit any of them. That is the same anchoring bug the
+   coverage ratchet had. */
+ok( array() !== fx_lines_with( $out16, array( 'RT_BODY_OVER_600', 'sample-bodyover600' ) ), 'a 650-word SKILL.md body is RT_BODY_OVER_600', $out16 );
+ok( array() !== fx_lines_with( $out16, array( 'RT_BODY_OVER_500', 'sample-bodyover500' ) ), 'a 550-word SKILL.md body is RT_BODY_OVER_500', $out16 );
+/* 450 sits between the old aim and the new one, so this is what makes moving the number a change
+   something MEASURED: revert the threshold to 300 and this row appears. Scoped to the budget rows
+   because a bare skeleton fixture legitimately raises other ones (no Hard Rules, and so on) — the
+   first version asserted the name was absent from the whole report and failed for that reason. */
+ok( array() === fx_lines_with( $out16, array( 'RT_BODY_OVER', 'sample-bodyunder500' ) ), 'a 450-word body is under the new aim and raises no budget row', $out16 );
 fx_rrmdir( $r16 );
 
 echo "--- a SKILL.md pointer to a nonexistent references/ path is RT_BROKEN_REFERENCE ---\n";
@@ -1503,6 +1517,46 @@ fx_rrmdir( $r64 );
    above — fx_track_ids() harvests every scenario's run, so a row type firing only incidentally
    (never behind its own dedicated assertion) still counts, deliberately: RT_ORPHAN_FILE is real
    coverage even though no scenario above asserts on it directly. */
+/* RT_HELPER_UNROUTABLE was OBSERVED by other fixtures the moment it shipped — several of them drop
+   a .php under assets/ with a function no markdown names — so the coverage ratchet went green
+   without anyone pinning what the check actually decides. Incidental coverage proves a row can
+   fire; it proves nothing about the three things that must NOT fire it, and those carve-outs are
+   where a check like this rots into either noise or silence. */
+echo "--- a helper nothing can invoke is RT_HELPER_UNROUTABLE, and three things are not ---\n";
+$r70 = fx_tmp_root();
+fx_base( $r70 );
+fx_wc_skill( $r70, 'woocommerce', "- A rule.\n  (verifier: `tests/test-write-path.php` covers it.)\n", "\n## References\n- `assets/lib.php`\n- `assets/demo.example.php`\n- `references/api.md`\n" );
+fx(
+	$r70,
+	'skills/woocommerce/assets/lib.php',
+	"<?php\n"
+	. "function fx_orphan_helper( \$a ) {\n\treturn \$a;\n}\n"
+	. "function fx_called_helper( \$a ) {\n\treturn \$a;\n}\n"
+	. "function fx_documented_helper( \$a ) {\n\treturn \$a;\n}\n"
+	. "function fx_entry() {\n\treturn fx_called_helper( 1 );\n}\n"
+	. "/* fx_orphan_helper() used to be called from here. */\n"
+);
+fx( $r70, 'skills/woocommerce/assets/demo.example.php', "<?php\nfunction fx_example_build() {\n\treturn 1;\n}\n" );
+fx( $r70, 'skills/woocommerce/references/api.md', "# API\n\nCall `fx_documented_helper()` from the build. `fx_entry()` starts it.\n" );
+list( , $out70 ) = fx_run_ok( $audit, $r70 );
+$fx_unroutable   = function ( $fn ) use ( $out70 ) {
+	return array() !== fx_lines_with( $out70, array( 'RT_HELPER_UNROUTABLE', $fn . '()' ) );
+};
+ok( 'WARN' === fx_row_level( $out70, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'a function no asset calls and no .md names is RT_HELPER_UNROUTABLE at WARN', fx_row_level( $out70, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ) );
+ok( ! $fx_unroutable( 'fx_called_helper' ), 'a function another asset CALLS is routable — it needs no pointer', $out70 );
+ok( ! $fx_unroutable( 'fx_documented_helper' ), 'a function only a .md names is routable: naming it IS the wiring', $out70 );
+ok( ! $fx_unroutable( 'fx_example_build' ), 'a *.example.php build function is exempt — an example is copied and rewritten, not called', $out70 );
+/* The comment on the last line of lib.php names fx_orphan_helper() with parens. If a comment
+   counted as a call the row above would vanish, and every forgotten helper with a docblock
+   mentioning it would read as wired. */
+ok( $fx_unroutable( 'fx_orphan_helper' ), 'a COMMENT naming the function is not a call — the row survives it', $out70 );
+/* A checkout of another branch under .worktrees/ is not this tree. Crediting it would make the row
+   go quiet exactly when a helper is being removed here and only the old copy still names it. */
+fx( $r70, '.worktrees/otra/skills/woocommerce/references/api.md', "# API de otra rama\n\n`fx_orphan_helper()` sigue documentada aqui.\n" );
+list( , $out71 ) = fx_run_ok( $audit, $r70 );
+ok( array() !== fx_lines_with( $out71, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'markdown under a hidden directory (.worktrees) does not make a helper reachable', $out71 );
+fx_rrmdir( $r70 );
+
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
 sort( $fx_observed );
