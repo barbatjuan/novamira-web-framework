@@ -977,5 +977,87 @@ $st = es_indexing_state();
 ok( false === $st['indexable'], 'sin la opcion puesta se falla CERRADO: no se declara indexable lo que no se leyo' );
 ok( null === $st['robots_file'], 'y sin robots.txt fisico se dice null, no se inventa un permiso' );
 
+/* ---------------------------------------------------------------------------
+ * Manifiesto: estado entre sesiones que se puede CONTRASTAR.
+ * ------------------------------------------------------------------------- */
+echo "--- el manifiesto guarda por secciones, y se relee ---\n";
+
+wp_fake_reset();
+ok( array() === es_manifest_read()['sections'], 'sin manifiesto, se devuelve la forma vacia y no null' );
+
+ok( true === es_manifest_record( 'site', array( 'builder' => 'elementor' ) ), 'guardar una seccion devuelve true' );
+ok( true === es_manifest_record( 'design', array( 'personality' => 'PERS-EDITORIAL' ) ), 'y otra tambien' );
+$m = es_manifest_read();
+ok( 'elementor' === $m['sections']['site']['data']['builder'], 'la primera seccion sigue ahi' );
+ok( 'PERS-EDITORIAL' === $m['sections']['design']['data']['personality'], 'y la segunda no la piso' );
+ok( '' !== $m['sections']['site']['at'], 'cada seccion lleva su propia marca de tiempo' );
+
+/* Escribir no es haber escrito, igual que en la portada y en el camino de escritura. */
+wp_fake_reset();
+$GLOBALS['wp']['option_ro'] = array( 'es_novamira_manifest' );
+$r                          = grab(
+	function () {
+		return es_manifest_record( 'site', array( 'builder' => 'divi' ) );
+	}
+);
+ok( false === $r['ret'], 'una escritura aceptada que no aterriza devuelve false' );
+ok( has( $r['out'], 'manifiesto' ), 'y avisa' );
+ok( has( $r['out'], 'sin saber nada' ), 'diciendo lo que se pierde: la proxima sesion empieza a ciegas' );
+
+echo "--- y se puede contrastar contra el sitio que dice describir ---\n";
+
+wp_fake_reset();
+$h = wp_fake_page( 'inicio' );
+$c = wp_fake_page( 'contacto' );
+$GLOBALS['wp']['options']['show_on_front'] = 'page';
+$GLOBALS['wp']['options']['page_on_front'] = $h;
+es_manifest_record( 'pages', array( 'inicio' => $h, 'contacto' => $c ) );
+es_manifest_record( 'site', array( 'front_page_id' => $h ) );
+$r = grab( 'es_manifest_verify' );
+ok( array() === $r['ret'], 'un manifiesto que coincide no reporta nada' );
+ok( '' === $r['out'], 'ni avisa' );
+
+/* Una pagina borrada a mano entre sesiones. */
+wp_fake_reset();
+$h = wp_fake_page( 'inicio' );
+es_manifest_record( 'pages', array( 'inicio' => $h, 'contacto' => 999 ) );
+$r = grab( 'es_manifest_verify' );
+ok( 1 === count( $r['ret'] ), 'una pagina que ya no existe es una desviacion' );
+ok( has( $r['ret'][0], 'ya no existe' ), 'nombrada como tal' );
+ok( has( $r['ret'][0], 'contacto' ), 'con su slug' );
+ok( has( $r['out'], 'solo un humano' ), 'y el aviso dice por que NO se corrige solo' );
+
+/* Renombrada fuera del framework: el id sigue vivo, el slug ya no es el que era. */
+wp_fake_reset();
+$c = wp_fake_page( 'contacto-nuevo' );
+es_manifest_record( 'pages', array( 'contacto' => $c ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ) && has( $d[0], 'contacto-nuevo' ), 'una pagina movida a mano se detecta por el slug real' );
+ok( has( $d[0], 'fuera de este framework' ), 'y se dice que el movimiento vino de fuera' );
+
+/* Borrada y recreada: mismo slug, otro id. Es la peor, porque todo "parece" bien. */
+wp_fake_reset();
+$otro = wp_fake_page( 'inicio' );
+es_manifest_record( 'pages', array( 'inicio' => 555 ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ) && has( $d[0], '#' . $otro ), 'mismo slug con otro id tambien es desviacion' );
+ok( has( $d[0], '#555' ), 'nombrando el id que el manifiesto creia' );
+
+/* La portada repuntada entre sesiones. */
+wp_fake_reset();
+$h = wp_fake_page( 'inicio' );
+$o = wp_fake_page( 'otra' );
+$GLOBALS['wp']['options']['show_on_front'] = 'page';
+$GLOBALS['wp']['options']['page_on_front'] = $o;
+es_manifest_record( 'site', array( 'front_page_id' => $h ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ) && has( $d[0], 'portada' ), 'una portada repuntada se detecta' );
+
+wp_fake_reset();
+$h = wp_fake_page( 'inicio' );
+es_manifest_record( 'site', array( 'front_page_id' => $h ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ) && has( $d[0], 'el blog' ), 'y volver a mostrar el blog tambien, que es lo que nadie mira' );
+
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

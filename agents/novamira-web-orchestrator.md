@@ -11,6 +11,21 @@ You hold no CSS, HTML, or PHP snippets — those live in skills and their `asset
 Your only job: decide which skill to invoke, in what order, with what context, then
 integrate the results and report.
 
+## Before the first question: is there a manifest?
+If a NovaMira target is already connected, read `es_manifest_read()` before asking anything.
+It records what previous sessions established — builder, site type, chosen archetype and
+toggles, the design personality, the page map of slug to post id, the front page, what was
+approved. Then run `es_manifest_verify()` and read the DRIFT before trusting a single id: a page
+can be deleted, renamed by hand or replaced between sessions, and the worst case looks the most
+normal — the same slug answered by a different post. Drift is reported, never repaired
+automatically: only the user knows which of the two truths was intended, so bring it to them.
+No manifest means a genuinely first session — say so rather than assuming it.
+
+Record back with `es_manifest_record($section, $data)` at the end of each phase, one section per
+concern (**site**, **design**, **pages**, **delivery**), so two skills never overwrite each other's. It
+reads back and returns false when the write did not land; a false there means the next session
+starts blind, which is worth stopping for.
+
 ## First move: new site or existing site?
 Ask THIS before anything else — it decides whether to inspect WordPress at all. Don't waste the
 connector round-trip inspecting a site that doesn't exist yet.
@@ -156,6 +171,11 @@ nothing to notice.
   elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
   never ran, which is a wiring bug reported as a result.
   (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
+- **State that only exists in this conversation is state that dies.** Read the manifest before
+  asking, verify it before trusting an id, and record each phase into its own section. A second
+  session that re-derives everything is how one page gets built twice and how it overwrites what
+  the first session agreed to leave alone.
+  (verifier: `qa-review` house-rule row 24 runs es_manifest_verify() and requires an empty drift list before any recorded id is reused.)
 - **Delivery is a phase, not a sentence.** The sandbox is emptied and RE-READ, the backup keys
   are handed over, and the indexing state is stated. See the delivery phase above; it blocks.
   (verifier: `qa-review` house-rule row 22 requires an empty sandbox listing, and row 23 requires the backup keys and the indexing value in the hand-off.)

@@ -1211,6 +1211,120 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
 }
 
 /**
+ * The project manifest: what this framework knows about THIS site, between sessions.
+ *
+ * Nothing persisted anything. Every session re-derived the builder, the page ids, the slugs and
+ * what had already been approved by asking again or by guessing, which is how the same page gets
+ * rebuilt twice and how a second session overwrites what a first one agreed not to touch.
+ *
+ * It lives in a WordPress option and NOT in a file next to this library, for one reason: the
+ * library is uploaded to a sandbox that the delivery phase deletes. State that dies with the
+ * sandbox is not state. The option travels with the site, which is the only thing both sessions
+ * are looking at.
+ *
+ * Shape: `array( 'schema' => 1, 'updated' => 'Ymd-His', 'sections' => array( name => array(
+ * 'at' => 'Ymd-His', 'data' => array( … ) ) ) )`. Sections are namespaced per concern (`site`,
+ * `design`, `pages`, `delivery`) so two skills writing different things never overwrite each
+ * other's, which a flat map guarantees they eventually will.
+ */
+function es_manifest_read() {
+	$raw = get_option( 'es_novamira_manifest' );
+	if ( ! is_array( $raw ) || ! isset( $raw['sections'] ) || ! is_array( $raw['sections'] ) ) {
+		return array(
+			'schema'   => 1,
+			'updated'  => '',
+			'sections' => array(),
+		);
+	}
+
+	return $raw;
+}
+
+/**
+ * Record one section, stamped, and READ IT BACK.
+ *
+ * Merges into the named section only — never the whole manifest — and returns false when the
+ * write did not land. `update_option()` returns false both on failure and on an unchanged value,
+ * so its boolean is not evidence in either direction; the re-read is.
+ */
+function es_manifest_record( $section, array $data ) {
+	$manifest = es_manifest_read();
+	$stamp    = gmdate( 'Ymd-His' );
+
+	$manifest['schema']               = 1;
+	$manifest['updated']              = $stamp;
+	$manifest['sections'][ $section ] = array(
+		'at'   => $stamp,
+		'data' => $data,
+	);
+	update_option( 'es_novamira_manifest', $manifest );
+
+	$back = es_manifest_read();
+	if ( ! isset( $back['sections'][ $section ]['data'] ) || $back['sections'][ $section ]['data'] !== $data ) {
+		es_warn(
+			'el manifiesto NO se guardo: la seccion "' . $section . '" no esta o no coincide al releerla. '
+			. 'La proxima sesion va a empezar sin saber nada de esta. Revisa permisos o una cache de opciones.'
+		);
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check the manifest against the site it claims to describe.
+ *
+ * A manifest nobody checks is a memory that lies. Between two sessions a page can be deleted,
+ * renamed by hand, replaced by a plugin import, or repointed as the front page — and a second
+ * session trusting the recorded ids would write into whatever now sits there.
+ *
+ * Reads the `pages` section (`slug => post_id`) and the `front_page` id, and reports DRIFT rather
+ * than repairing it: repairing would mean guessing which of the two truths is the intended one,
+ * and the whole point is that only a human knows.
+ *
+ * Returns a list of human-readable drift lines, empty when the manifest still matches.
+ */
+function es_manifest_verify() {
+	$manifest = es_manifest_read();
+	$pages    = isset( $manifest['sections']['pages']['data'] ) ? (array) $manifest['sections']['pages']['data'] : array();
+	$drift    = array();
+
+	foreach ( $pages as $slug => $id ) {
+		$id   = (int) $id;
+		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		if ( ! $page ) {
+			$real = (string) get_post_field( 'post_name', $id );
+			$drift[] = '' !== $real
+				? 'la pagina #' . $id . ' que el manifiesto llama "' . $slug . '" ahora esta en "' . $real . '": alguien la movio fuera de este framework'
+				: 'la pagina "' . $slug . '" (#' . $id . ') ya no existe: borrada o en la papelera desde la ultima sesion';
+			continue;
+		}
+		if ( (int) $page->ID !== $id ) {
+			$drift[] = '"' . $slug . '" ahora es la pagina #' . $page->ID . ', no la #' . $id . ' que dice el manifiesto: la de antes se borro y se creo otra en su lugar';
+		}
+	}
+
+	$recorded_front = isset( $manifest['sections']['site']['data']['front_page_id'] )
+		? (int) $manifest['sections']['site']['data']['front_page_id']
+		: null;
+	if ( null !== $recorded_front ) {
+		$live = es_front_page();
+		if ( $live['id'] !== $recorded_front ) {
+			$drift[] = 'la portada era la #' . $recorded_front . ' y ahora ' . ( $live['id'] ? 'es la #' . $live['id'] : 'el sitio muestra el blog' );
+		}
+	}
+
+	if ( $drift ) {
+		es_warn(
+			'el manifiesto ya no describe este sitio (' . count( $drift ) . '): ' . implode( ' | ', $drift )
+			. '. NO se corrige solo a proposito: solo un humano sabe cual de las dos versiones es la buena.'
+		);
+	}
+
+	return $drift;
+}
+
+/**
  * Where the sandbox lives. One definition, so nothing hand-builds this path.
  *
  * Every `.php` dropped in here EXECUTES on upload — that is how this framework runs at all, and

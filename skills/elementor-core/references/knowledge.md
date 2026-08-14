@@ -22,6 +22,16 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
+  `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
+  false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so
+  two skills never overwrite each other's, which a flat map guarantees they eventually will. It
+  lives in a WordPress option and NOT beside this library, because the library sits in a sandbox
+  the delivery phase deletes — state that dies with the sandbox is not state.
+  `es_manifest_verify()` contrasts the recorded page map and front page against the LIVE site and
+  returns drift lines: page gone, slug moved by hand, same slug answered by a different post id
+  (the worst, because everything looks fine), front page repointed. It reports and never repairs
+  — repairing means guessing which truth was intended, and only a human knows.
 - **Delivery**: `es_sandbox_report()` lists what is still in `wp-content/novamira-sandbox/`;
   `es_sandbox_purge()` deletes the build scripts and then RE-READS, returning what SURVIVED —
   the proof is the re-read, because a purge blocked by permissions and one that worked look
