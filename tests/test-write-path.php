@@ -255,12 +255,31 @@ file_put_contents(
 register_shutdown_function(
 	function () {
 		@unlink( $GLOBALS['es_sandbox'] . '/novamira-sandbox/es-builder.php' );
+		@unlink( $GLOBALS['es_sandbox'] . '/pro-stub.php' );
 		@rmdir( $GLOBALS['es_sandbox'] . '/novamira-sandbox' );
 		@rmdir( $GLOBALS['es_sandbox'] );
 	}
 );
 define( 'WP_CONTENT_DIR', $GLOBALS['es_sandbox'] );
 require_once dirname( __DIR__ ) . '/skills/elementor-core/assets/es-theme-parts.example.php';
+
+/* A stand-in for Elementor Pro, in its own file because a namespace declaration cannot share a
+   file with non-namespaced code. Without it es_rebuild_theme_conditions() returns false at its
+   first guard and the registration/rival branches are UNREACHABLE — which is how a check that
+   reports green on a template hijack went untested. instance() returns null until $es_pro is set,
+   so every assertion written before this existed keeps the world it was written against. */
+file_put_contents(
+	$GLOBALS['es_sandbox'] . '/pro-stub.php',
+	'<?php' . "\n"
+	. 'namespace ElementorPro\Modules\ThemeBuilder;' . "\n"
+	. 'class Cache { public function regenerate() { $GLOBALS["wp"]["regenerated"] = true; } }' . "\n"
+	. 'class ConditionsManager { public function get_cache() { return new Cache(); } }' . "\n"
+	. 'class Module {' . "\n"
+	. '  public static function instance() { return empty( $GLOBALS["es_pro"] ) ? null : new self(); }' . "\n"
+	. '  public function get_conditions_manager() { return new ConditionsManager(); }' . "\n"
+	. '}' . "\n"
+);
+require_once $GLOBALS['es_sandbox'] . '/pro-stub.php';
 
 /* ---------------------------------------------------------------------------
  * Harness.
@@ -685,6 +704,99 @@ $r = grab(
 );
 ok( 0 === $r['ret']['overwrites'], 'un sitio vacio no pisa nada' );
 ok( '' !== $r['out'], 'y aun asi informa: "no se pisa nada" tambien es una respuesta que hay que ver' );
+
+/* ---------------------------------------------------------------------------
+ * 27. Registrado no es lo mismo que visible.
+ * ------------------------------------------------------------------------- */
+echo "--- una plantilla registrada que compite por su ubicacion deja de dar verde ---\n";
+
+$GLOBALS['es_pro'] = true;   /* a partir de aqui existe Elementor Pro: la rama es alcanzable */
+
+wp_fake_reset();
+$mio = wp_fake_page( 'site-header' );
+$GLOBALS['wp']['options']['elementor_pro_theme_builder_conditions'] = array( 'header' => array( $mio => array( 'include/general' ) ) );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a );
+	}
+);
+ok( array() === es_theme_location_rivals( $mio ), 'sin rivales, la lista viene vacia' );
+ok( ! has( $r['out'], 'NO es la unica' ), 'y no avisa de nada' );
+
+/* Lo que el informe llama secuestro de plantilla: una plantilla ajena —de la agencia anterior, del
+   tema, o del build de ayer— ya reclamaba `header`. La nuestra se guarda, se condiciona, se
+   cachea, la comprobacion de registro dice que si, y el sitio sigue enseñando la otra. */
+wp_fake_reset();
+$mio   = wp_fake_page( 'site-header' );
+$ajena = 777;
+$GLOBALS['wp']['options']['elementor_pro_theme_builder_conditions'] = array(
+	'header' => array(
+		$ajena => array( 'include/general' ),
+		$mio   => array( 'include/general' ),
+	),
+);
+ok( true === es_theme_conditions_registered( $mio ), 'la comprobacion de registro sigue diciendo que si, y tiene razon' );
+$riv = es_theme_location_rivals( $mio );
+ok( isset( $riv['header'] ) && array( 777 ) === $riv['header'], 'pero ahora se puede preguntar quien mas esta en esa ubicacion' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a );
+	}
+);
+ok( has( $r['out'], 'NO es la unica' ), 'y el guardado avisa: registrado no es visible' );
+ok( has( $r['out'], '#777' ), 'nombrando la rival por id, que es con lo que se la busca' );
+ok( has( $r['out'], 'header' ), 'y la ubicacion en disputa' );
+
+/* Una plantilla en OTRA ubicacion no compite: avisar de ella seria ruido, y un aviso que salta
+   siempre es un aviso que se aprende a ignorar. */
+wp_fake_reset();
+$mio = wp_fake_page( 'site-header' );
+$GLOBALS['wp']['options']['elementor_pro_theme_builder_conditions'] = array(
+	'header' => array( $mio => array( 'include/general' ) ),
+	'footer' => array( 888 => array( 'include/general' ) ),
+);
+ok( array() === es_theme_location_rivals( $mio ), 'una plantilla en otra ubicacion no es rival' );
+
+$GLOBALS['es_pro'] = false;
+
+/* ---------------------------------------------------------------------------
+ * 28. El fichero abortaba con CERO salida.
+ * ------------------------------------------------------------------------- */
+echo "--- si falta la dependencia, se dice; no se muere en silencio ---\n";
+
+/* No se puede probar dentro de este proceso: el fichero ya esta cargado y su guarda corre al
+   cargarse. Se prueba en uno nuevo, con un WP_CONTENT_DIR vacio, que es exactamente el caso real
+   —subir los theme parts antes que el builder—. Antes de esta guarda eso era un fatal con la
+   salida vacia, indistinguible de un build que corrio y no hizo nada. */
+if ( ! function_exists( 'exec' ) ) {
+	ok( false, 'ENTORNO, no el cambio: exec() esta deshabilitado, la guarda no se pudo verificar aqui' );
+} else {
+	$vacio = sys_get_temp_dir() . '/es-nodep-' . getmypid();
+	@mkdir( $vacio, 0777, true );
+	$probe = $vacio . '/probe.php';
+	file_put_contents(
+		$probe,
+		'<?php' . "\n"
+		. "define( 'ABSPATH', __DIR__ );\n"
+		. 'define( ' . var_export( 'WP_CONTENT_DIR', true ) . ', ' . var_export( $vacio, true ) . " );\n"
+		. 'require ' . var_export( dirname( __DIR__ ) . '/skills/elementor-core/assets/es-theme-parts.example.php', true ) . ";\n"
+		. "echo \"SOBREVIVIO\\n\";\n"
+	);
+	$out  = array();
+	$code = -1;
+	$ran  = exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $probe ) . ' 2>&1', $out, $code );
+	$txt  = implode( "\n", $out );
+	@unlink( $probe );
+	@rmdir( $vacio );
+	ok( false !== $ran && -1 !== $code, 'el proceso de prueba se pudo lanzar' );
+	ok( '' !== trim( $txt ), 'falta la dependencia y la salida NO esta vacia' );
+	ok( has( $txt, 'es-builder.php' ), 'nombra el fichero que falta' );
+	ok( has( $txt, 'NOTHING WAS BUILT' ), 'y dice explicitamente que no se construyo nada' );
+	ok( has( $txt, 'SOBREVIVIO' ), 'y devuelve el control en vez de fatalar, que es lo que tumbaba el sitio al subirlo' );
+	ok( ! has( $txt, 'Fatal error' ), 'sin fatal' );
+}
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

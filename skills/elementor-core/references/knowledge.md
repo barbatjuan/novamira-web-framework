@@ -22,6 +22,14 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_theme_conditions_registered($id)` answers "is my template in the conditions cache" and
+  **nothing more**. Registered is NOT rendering: Elementor resolves ONE template per location, so
+  ask `es_theme_location_rivals($id)` → `{location: [other_ids]}` before reading a `true` as "the
+  header is on the site". A rival — the previous agency's, the theme's, yesterday's build — means
+  the template can be saved, conditioned, cached and still never appear, with every check green
+  and the site looking untouched. `es_save_theme_part()` warns when the list is non-empty; it
+  names rivals and never picks a winner, because the resolution order is not knowable from that
+  option.
 - `es_overwrite_preflight($slugs)` → `{rows[], overwrites, creates}` and PRINTS the block a human
   approves — never gated on `ES_AUDIT_SILENT`, an approval artifact is not routine output. Run it
   **before the first write**. Each row: `slug`, `id`, `action`, `status`, `is_elementor`,

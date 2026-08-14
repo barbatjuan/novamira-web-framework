@@ -1344,11 +1344,16 @@ function es_rebuild_theme_conditions() {
 }
 
 /**
- * Is a template actually present in the Theme Builder conditions cache?
+ * Is a template present in the Theme Builder conditions cache?
  *
  * Regenerating is not proof: the gotcha is explicit that you must VERIFY the option
  * contains your template afterwards, because a condition string the runtime does not
  * recognise is dropped silently and the template stays invisible.
+ *
+ * Present is not the same as RENDERING, and this function cannot tell you the difference.
+ * Elementor resolves one template per location; when two are registered there, one of them
+ * loses, and this returns true for the loser exactly as it does for the winner. Ask
+ * es_theme_location_rivals() before reading a `true` here as "the header is on the site".
  */
 function es_theme_conditions_registered( $post_id ) {
 	$cache = get_option( 'elementor_pro_theme_builder_conditions' );
@@ -1365,4 +1370,41 @@ function es_theme_conditions_registered( $post_id ) {
 	}
 
 	return false;
+}
+
+/**
+ * Which OTHER templates are registered at the same locations as this one?
+ *
+ * The registration check answers "is my template in the cache" and stops there, which reports
+ * green on the one failure an operator cannot see: another published template already claiming
+ * `header`. Elementor picks one per location, so a header that is correctly saved, correctly
+ * conditioned and correctly cached can still never render — and every automated check said yes.
+ * That is a leftover from a previous agency, a theme's bundled template, or the last build of
+ * this very site, and the site looks unchanged while the report says it worked.
+ *
+ * Returns `array( location => array( other_template_id, … ) )`, empty when nothing competes.
+ * It names rivals, it does not pick a winner: the resolution order is Elementor Pro's and is not
+ * knowable from this option, so the honest output is "these compete, go look".
+ */
+function es_theme_location_rivals( $post_id ) {
+	$cache = get_option( 'elementor_pro_theme_builder_conditions' );
+	if ( ! is_array( $cache ) ) {
+		return array();
+	}
+	$rivals = array();
+	foreach ( $cache as $location => $templates ) {
+		if ( ! is_array( $templates ) ) {
+			continue;
+		}
+		if ( ! array_key_exists( (int) $post_id, $templates ) && ! array_key_exists( (string) $post_id, $templates ) ) {
+			continue;
+		}
+		foreach ( array_keys( $templates ) as $other ) {
+			if ( (int) $other !== (int) $post_id ) {
+				$rivals[ $location ][] = (int) $other;
+			}
+		}
+	}
+
+	return $rivals;
 }

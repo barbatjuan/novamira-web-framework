@@ -5,7 +5,28 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
+/*
+ * Dependencies. Any .php dropped in novamira-sandbox/ executes on upload, so a bare
+ * require_once on a missing file fatals before execute-php is ever called — taking the
+ * site down. This file used to do exactly that: a bare require_once, and an operator who
+ * uploaded the theme parts before the builder got a white screen and ZERO output, with no
+ * way to tell a missing dependency from a build that ran and did nothing. The two commerce
+ * assets already carried this guard; the file that creates the site's header and footer,
+ * the one whose absence is most visible, did not.
+ */
+foreach ( array( 'es-builder.php' ) as $es_dep ) {
+	$es_dep_path = WP_CONTENT_DIR . '/novamira-sandbox/' . $es_dep;
+	if ( ! file_exists( $es_dep_path ) ) {
+		/* Both channels on purpose: es_warn() lives in es-builder.php, which is exactly the
+		   file that may be missing here, and error_log() alone is not "loudly" — the sandbox
+		   returns STDOUT, so a log-only warning is a build that silently does nothing. */
+		$es_msg = 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first. NOTHING WAS BUILT.';
+		error_log( $es_msg );
+		echo $es_msg . "\n";
+		return;
+	}
+	require_once $es_dep_path;
+}
 
 /**
  * Create or update a theme template and apply a global display condition.
@@ -108,6 +129,22 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 		es_warn( 'could not regenerate the theme-builder conditions cache for "' . $slug . '" (#' . $id . '). Elementor Pro theme builder is unavailable, so this template will NOT appear on the front end.' );
 	} elseif ( ! es_theme_conditions_registered( $id ) ) {
 		es_warn( '"' . $slug . '" (#' . $id . ') is missing from elementor_pro_theme_builder_conditions after regeneration. Check the condition strings: ' . implode( ', ', $conditions ) );
+	} else {
+		/* Registered is not rendering. Elementor resolves ONE template per location, so a rival
+		   already claiming this one means this template can be saved, conditioned and cached and
+		   still never appear — with every check green and the site looking untouched. */
+		$rivals = es_theme_location_rivals( $id );
+		if ( $rivals ) {
+			$where = array();
+			foreach ( $rivals as $location => $ids ) {
+				$where[] = $location . ' (#' . implode( ', #', $ids ) . ')';
+			}
+			es_warn(
+				'"' . $slug . '" (#' . $id . ') quedo registrado, pero NO es la unica plantilla en su ubicacion: ' . implode( '; ', $where ) . '. '
+				. 'Elementor resuelve una sola por ubicacion, asi que puede que la que se vea siga siendo la otra. '
+				. 'Borra o reacondiciona las rivales y vuelve a mirar el front — registrado no es lo mismo que visible.'
+			);
+		}
 	}
 
 	return $id;
