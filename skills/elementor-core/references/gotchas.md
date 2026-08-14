@@ -110,6 +110,15 @@ fatal disables the WHOLE sandbox, silently**. The only notice is a wp-admin bann
 working through the connector never sees. Measured on two live sites: the one carrying `.crashed`
 had no `es_*` function defined at all, the one without loaded normally.
 
+Confirmed end to end on a live site: with `.crashed` present a counter file uploaded to the sandbox
+never ran at all; once the sandbox was emptied and `.crashed` removed, the same file's counter
+climbed on every request that boots WordPress — REST/MCP calls and front-end hits alike, with no
+caching plugin involved.
+
+Trap when measuring this: `get_option()` is cached per request, so reading the counter INSIDE the
+same request that triggered the other hits returns a stale value. It looked like front-end requests
+were not executing the loader; they were. Read the counter from a fresh request.
+
 Fix: wrap ALL logic in named functions (`es_build_home()`…), upload defines-only, then `require_once`
 + call the function via `execute-php`. Check `.crashed` BEFORE promising a build — `project-context`
 step 8 and `es_sandbox_state()` both report it.
