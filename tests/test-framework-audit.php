@@ -1608,8 +1608,13 @@ fx(
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	/* "medium" no existe en el eje de densidad: un typo crea una quinta posicion en silencio. */
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'medium', 'centered', 'soft-shadow' )
+	/* "medium" no existe en el eje de densidad: un typo crea una quinta posicion en silencio.
+	   ground y composition copian a PERS-MATTER a proposito -- si el guard `if ( $ok )` que
+	   excluye anclas invalidas de la comparacion se cayera, esta ancla SI compartiria mas de un
+	   eje con PERS-MATTER y RT_PERS_TOO_SIMILAR dispararia donde no debe. Sin esas dos posiciones
+	   repetidas, un typo en un solo eje nunca reproduce una colision real y el guard queda sin
+	   cobertura de mutacion. */
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'warm', 'medium', 'strict-grid', 'soft-shadow' )
 );
 list( , $out81 ) = fx_run_ok( $audit, $r81 );
 ok( 'FAIL' === fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ), 'una posicion que ningun eje define FALLA, nombrandola', fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ) );

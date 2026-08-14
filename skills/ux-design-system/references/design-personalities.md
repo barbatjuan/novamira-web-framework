@@ -1,14 +1,19 @@
 # Design Personalities (CAPA 1)
 
-8 curated visual languages. Orthogonal to the structural archetype `web-templates` resolves —
-the SAME `TPL-*` can ship under any of these. `ux-design-system` CAPA 2 picks one per project
-from brand signals + the client's own references (never re-asked here). Roles and the shared
-spacing/breakpoint SCALE come from `web-templates/references/design-system.md` and
-`references/design-tokens.md`; this file supplies the concrete VALUES within those roles.
+Four anchors, each a position on five perceptual axes — scale, ground, density, composition,
+elevation. Orthogonal to the structural archetype `web-templates` resolves — the SAME `TPL-*`
+can ship under any of these. `ux-design-system` CAPA 2 picks one per project from brand signals +
+the client's own references (never re-asked here). Roles and the shared spacing/breakpoint SCALE
+come from `web-templates/references/design-system.md` and `references/design-tokens.md`; this
+file supplies the concrete VALUES within those roles.
 
-Radius/motion ranges below stay inside the scale and curve those two files already define
-(`cubic-bezier(.22,1,.36,1)`, the documented duration/lift ranges, the existing radius steps) —
-a personality tunes which point on that scale it lands on, never invents new physics.
+No two anchors may share more than one axis position: the audit's `RT_PERS_TOO_SIMILAR` check
+FAILS the build on it, but the rule belongs here too — two anchors that agree on two or more axes
+are the same site with a different accent color, not two personalities.
+
+Motion ranges below stay inside the curve those two files already define
+(`cubic-bezier(.22,1,.36,1)`, the documented duration/lift ranges) — a personality tunes where on
+that curve it lands, never invents new physics.
 
 ### `PERS-EDITORIAL` — Editorial
 
