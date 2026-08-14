@@ -56,6 +56,7 @@ let it run that dialogue; don't front-run it.
 | Build/deploy on Elementor (raw PHP → `_elementor_data`) | `elementor-core` |
 | Build/deploy on Divi (builder data / shortcodes) — **scaffold, not proven; see below** | `divi-core` |
 | Shop, product page, side cart, checkout, my-account | `woocommerce` |
+| Contact/lead forms: plugin detection, recipient, consent, PROVING one message arrives | `wordpress-forms` |
 | Lazy load, image/CSS/JS weight, Core Web Vitals | `wordpress-performance` |
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
@@ -66,13 +67,14 @@ let it run that dialogue; don't front-run it.
 `new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
 `ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
 `project-context` (now, to confirm the connected WP: connector, builder, theme) → builder-core
-(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-performance` /
-`wordpress-seo` → `qa-review`.
+(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-forms` if the site takes
+enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review`.
 
 **Existing site:**
 `new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
 `html-mockup` (approve) → **build gate** → builder-core → `woocommerce` if commerce →
-`wordpress-performance` / `wordpress-seo` → `qa-review`.
+`wordpress-forms` if the site takes enquiries → `wordpress-performance` / `wordpress-seo` →
+`qa-review`.
 
 Either way, the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
 builder-agnostic and needs no WordPress; WordPress is only touched after the build gate.
@@ -183,7 +185,7 @@ no native build.
   user that this build is the one that validates it. Flag every unverified step as such and capture
   what you learn into `divi-core/references/gotchas.md`.
 - The build gate is also enforced skill-side: every write-capable skill (`elementor-core`,
-  `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`) re-checks for an explicit
+  `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`, `wordpress-forms`) re-checks for an explicit
   yes before its first write. That is deliberate redundancy — those skills are reachable by their
   own triggers without passing through here, so the gate cannot live only in this file.
 

@@ -510,6 +510,31 @@ $gate_missing_rows = array_filter(
 ok( count( $gate_missing_rows ) > 0, 'a $WRITE_CAPABLE skill with no assets/*.php and no gate text still FAILs', $out6 );
 fx_rrmdir( $r6 );
 
+echo "--- and the mirror: a skill that DECLARES a gate but is not on the list ---\n";
+/* $WRITE_CAPABLE is what makes the gate requirement, the marker requirement and the write checks
+   apply at all, so a name dropped from it disables all three at once -- and for a skill that writes
+   through the connector rather than through PHP in this repo, the content detector cannot notice.
+   This was found by mutating the list and watching nothing fail. */
+$r6b = fx_tmp_root();
+fx_base( $r6b );
+fx(
+	$r6b,
+	'skills/html-mockup/SKILL.md',
+	"---\nname: html-mockup\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "Fixture: a skill NOT in \$WRITE_CAPABLE that nevertheless declares a blocking gate.\n\n"
+	. "**Build gate — blocking.** Do not run until the user has given an explicit **yes**.\n\n"
+	. "## Hard Rules\n- Something.\n  (no verifier: fixture bullet, nothing checks this.)\n"
+);
+list( $code6b, $out6b ) = fx_run_ok( $audit, $r6b );
+$unlisted_rows = array_filter(
+	explode( "\n", $out6b ),
+	function ( $l ) {
+		return has( $l, 'html-mockup' ) && has( $l, 'missing from $WRITE_CAPABLE' );
+	}
+);
+ok( count( $unlisted_rows ) > 0, 'a skill declaring a build gate while off $WRITE_CAPABLE FAILs', $out6b );
+fx_rrmdir( $r6b );
+
 $r7 = fx_tmp_root();
 fx_base( $r7 );
 fx(

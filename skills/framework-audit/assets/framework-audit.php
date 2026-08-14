@@ -54,6 +54,7 @@ const ROW_TYPES = array(
 	'RT_BODY_OVER_600'           => 'FAIL  — SKILL.md body is past the ~600-word ceiling',
 	'RT_BODY_OVER_300'           => 'WARN  — SKILL.md body is past the ~300-word aim',
 	'RT_NO_BUILD_GATE'           => 'FAIL  — a write-capable skill has no blocking build gate',
+	'RT_GATE_NOT_LISTED'         => 'FAIL  — a skill declares a blocking build gate but is not in $WRITE_CAPABLE',
 	'RT_BROKEN_REFERENCE'        => 'FAIL  — SKILL.md points at a references/assets path that does not exist',
 	'RT_ORPHAN_FILE'             => 'WARN  — a references/ or assets/ file, at any depth, is reachable from nothing',
 	'RT_NO_HARD_RULES'           => 'WARN  — SKILL.md states no Hard Rules: section absent, or present with no "- " bullets',
@@ -138,7 +139,7 @@ echo 'framework-audit: ' . $root . "\n\n";
 /* Skills that write to a live WordPress site. The canonical list is the orchestrator's
    "the build gate is also enforced skill-side" paragraph; it is repeated here so the script
    can check it, and cross-checked below so a NEW write-capable skill cannot slip past. */
-$WRITE_CAPABLE = array( 'elementor-core', 'divi-core', 'woocommerce', 'wordpress-seo', 'wordpress-performance' );
+$WRITE_CAPABLE = array( 'elementor-core', 'divi-core', 'woocommerce', 'wordpress-seo', 'wordpress-performance', 'wordpress-forms' );
 
 $rows = array();
 /* $id is a row-type ID from ROW_TYPES — see the block above. An ID this registry does not
@@ -670,6 +671,15 @@ foreach ( $skill_dirs as $dir ) {
 		if ( ! $gate ) {
 			add( 'RT_NO_BUILD_GATE', 'FAIL', $name, 'WRITE-CAPABLE SKILL WITH NO BLOCKING BUILD GATE — it can be reached by its own triggers and write unasked' );
 		}
+	} elseif ( $gate ) {
+		/* The mirror image, and the one that stayed open longest. $WRITE_CAPABLE is what makes the
+		   gate requirement, the Hard-Rules marker requirement and the write checks apply AT ALL, so
+		   a name silently dropped from it disables every one of them at once — and the content
+		   detector below cannot catch a skill whose writing happens through the connector rather
+		   than through PHP in this repo. A skill that declares a blocking build gate has declared
+		   it writes; if it is not on the list, the list is wrong. Found by mutating the list and
+		   watching nothing notice. */
+		add( 'RT_GATE_NOT_LISTED', 'FAIL', $name, 'declares a blocking build gate but is missing from $WRITE_CAPABLE — the list is what makes the gate, marker and write checks apply, so being off it silently disables all three' );
 	}
 
 	/* --- every path it points at must exist --- */

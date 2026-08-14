@@ -35,8 +35,8 @@ The "fewest containers" rule survived a whole build cycle being violated even th
 audit was already running. Two causes, both cheap to prevent, both easy to repeat in the next
 skill. Treat these as review questions on any PR that adds a rule.
 
-**Scope**: this section is enforced for the five write-capable skills (`elementor-core`,
-`divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`) **and for the orchestrator's
+**Scope**: this section is enforced for the six write-capable skills (`elementor-core`,
+`divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`, `wordpress-forms`) **and for the orchestrator's
 `## House rules`**, which are not softer than a skill's — they are the defaults every build
 inherits, so a violation there ships on every site rather than one. An agent stating no House
 rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.
@@ -123,6 +123,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_BODY_OVER_600` | FAIL | `SKILL.md` body is past the ~600-word ceiling |
 | `RT_BODY_OVER_300` | WARN | `SKILL.md` body is past the ~300-word aim |
 | `RT_NO_BUILD_GATE` | FAIL | a write-capable skill has no blocking build gate |
+| `RT_GATE_NOT_LISTED` | FAIL | a skill declares a blocking build gate but is missing from `$WRITE_CAPABLE` — that list is what makes the gate, marker and write checks apply, so being off it disables all three at once |
 | `RT_BROKEN_REFERENCE` | FAIL | `SKILL.md` points at a `references/`/`assets/` path that does not exist |
 | `RT_ORPHAN_FILE` | WARN | a `references/`/`assets/` file, at any depth, is reachable from nothing |
 | `RT_NO_HARD_RULES` | WARN | `SKILL.md` states no Hard Rules — section absent, or present with no bullets |
