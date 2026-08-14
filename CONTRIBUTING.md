@@ -38,9 +38,9 @@ The "fewest containers" rule survived a whole build cycle being violated even th
 audit was already running. Two causes, both cheap to prevent, both easy to repeat in the next
 skill. Treat these as review questions on any PR that adds a rule.
 
-**Scope**: this section is enforced for the seven write-capable skills (`elementor-core`,
+**Scope**: this section is enforced for the eight write-capable skills (`elementor-core`,
 `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`, `wordpress-forms`,
-`wordpress-legal`) **and for the orchestrator's
+`wordpress-legal`, `elementor-theme-parts`) **and for the orchestrator's
 `## House rules`**, which are not softer than a skill's — they are the defaults every build
 inherits, so a violation there ships on every site rather than one. An agent stating no House
 rules is `RT_AGENT_NO_HOUSE_RULES`, a FAIL.

@@ -52,15 +52,11 @@ On an existing site, confirm every page/template you would overwrite by name fir
 
 ## Execution Steps
 1. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; swap its palette/type
-   constants for the brand from `ux-design-system`. For header/footer, Theme Builder parts or ANY
-   commerce template also copy `assets/es-theme-parts.example.php` as `es-theme-parts.php` — it
-   defines `es_save_theme_part()`. Upload dependencies FIRST: sandbox `.php` runs on upload, so a
-   missing one stops the run.
+   constants for the brand from `ux-design-system`. Upload dependencies FIRST: sandbox `.php`
+   runs on every request, so a missing one stops the run.
 2. Write one `es_build_<page>()` per page → `es_save_page(...)`, which defaults to the
-   `elementor_header_footer` template so the global header/footer survive. Header/footer +
-   Theme Builder templates: model on `assets/es-theme-parts.example.php`, and read the
-   "Mobile 3-zone header" recipe in `references/gotchas.md` before building a header.
-   Commerce templates: see `woocommerce`.
+   `elementor_header_footer` template so the global header/footer survive. Header, footer and
+   Theme Builder templates belong to `elementor-theme-parts`; commerce to `woocommerce`.
 3. Deploy with the pipeline in `references/gotchas.md` (upload multipart → require+call → clear
    `_elementor_css` + `_elementor_element_cache` + the post CSS file → regenerate kit CSS and the
    conditions cache → verify).
