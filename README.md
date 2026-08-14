@@ -25,6 +25,10 @@ skills/
   wordpress-performance/  wordpress-seo/  qa-review/
 ```
 
+Alongside the orchestrator, `agents/novamira-copywriter.md` is a subagent that writes the real
+copy in its own context window. It is reached by explicit delegation only and never touches
+WordPress.
+
 ## Build flow
 The agent's **first question is "new site or existing site?"** — it decides whether
 WordPress is inspected at all.

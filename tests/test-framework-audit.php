@@ -390,6 +390,12 @@ list( $f2, , ) = fx_counts( $out2 );
 ok( 1 === $code2, 'exit code 1 when a routed skill is missing', $code2 );
 ok( 1 === $f2, 'exactly one FAIL row reported', $f2 );
 ok( has( $out2, 'routes to skill "phantom-skill" which is missing' ), 'the FAIL names the missing skill', $out2 );
+/* Only an agent carrying a ROUTING MAP owes every skill a mention. This fixture has none, so the
+   "unroutable" rows must stay silent: the loop runs over every agents/*.md, and while there was
+   exactly one agent it silently equated "an agent" with "the router". A second agent that routes
+   to nothing by design (a copywriter) collected one WARN per skill saying it was unroutable
+   through the orchestrator, which it is not supposed to be. */
+ok( ! has( $out2, 'unroutable through this agent' ), 'an agent with NO routing map is never told it fails to mention a skill', $out2 );
 fx_rrmdir( $r2 );
 
 echo "--- write-capability is detected from assets/*.php content, not SKILL.md prose ---\n";
@@ -509,6 +515,36 @@ $gate_missing_rows = array_filter(
 );
 ok( count( $gate_missing_rows ) > 0, 'a $WRITE_CAPABLE skill with no assets/*.php and no gate text still FAILs', $out6 );
 fx_rrmdir( $r6 );
+
+echo "--- but an agent that DOES carry a routing map still owes every skill a mention ---\n";
+$r2b = fx_tmp_root();
+fx_base( $r2b );
+fx(
+	$r2b,
+	'agents/orchestrator.md',
+	"---\nname: orchestrator\n---\n\n## Routing map\n| Need | Skill |\n|------|-------|\n| Build | `elementor-core` |\n\n"
+	. "## House rules\n- Routes commerce work.\n  (no verifier: a fixture rule, here only so the agent states something.)\n"
+);
+list( $code2b, $out2b ) = fx_run_ok( $audit, $r2b );
+ok( has( $out2b, 'unroutable through this agent' ), 'a routing-map agent that omits a skill still WARNs', $out2b );
+ok( ! has( $out2b, '"elementor-core" — unroutable' ), 'and says nothing about the one it does mention', $out2b );
+fx_rrmdir( $r2b );
+
+echo "--- an agent may name a sibling AGENT without it reading as a missing skill ---\n";
+/* Delegation requires naming the delegate. Before this, backticking a second agent's name was a
+   FAIL for routing to a skill that does not exist -- a FAIL for doing the thing delegation needs. */
+$r2c = fx_tmp_root();
+fx_base( $r2c );
+fx( $r2c, 'agents/sidekick.md', "---\nname: sidekick\n---\n\n## House rules\n- Does one thing.\n  (no verifier: a fixture rule, here only so the agent states something.)\n" );
+fx(
+	$r2c,
+	'agents/orchestrator.md',
+	"---\nname: orchestrator\n---\n\n## House rules\n- Delegates writing to `sidekick`, and never to `ghost-agent`.\n  (no verifier: a fixture rule, here only so the agent states something.)\n"
+);
+list( $code2c, $out2c ) = fx_run_ok( $audit, $r2c );
+ok( ! has( $out2c, 'routes to skill "sidekick"' ), 'naming a real sibling agent is not a missing route', $out2c );
+ok( has( $out2c, 'routes to skill "ghost-agent" which is missing' ), 'but a name that is neither skill nor agent still FAILs', $out2c );
+fx_rrmdir( $r2c );
 
 echo "--- and the mirror: a skill that DECLARES a gate but is not on the list ---\n";
 /* $WRITE_CAPABLE is what makes the gate requirement, the marker requirement and the write checks

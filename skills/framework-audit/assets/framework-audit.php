@@ -776,11 +776,26 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 		if ( is_dir( $root . '/skills/' . $maybe ) ) {
 			continue;
 		}
+		/* An agent may name a SIBLING AGENT, and the orchestrator has to in order to delegate to
+		   one. Without this, backticking a second agent's name reads as routing to a skill that
+		   does not exist — a FAIL for doing the thing delegation requires. Only real files count:
+		   this widens what an agent may name, never what may be missing. */
+		if ( file_exists( $root . '/agents/' . $maybe . '.md' ) ) {
+			continue;
+		}
 		add( 'RT_AGENT_ROUTE_MISSING', 'FAIL', $name, 'routes to skill "' . $maybe . '" which is missing' );
 	}
-	foreach ( array_map( 'basename', $skill_dirs ) as $sk ) {
-		if ( false === strpos( $src, '`' . $sk . '`' ) ) {
-			add( 'RT_AGENT_SKILL_UNMENTIONED', 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through the orchestrator' );
+	/* Only a ROUTER owes every skill a mention, and what makes an agent a router is carrying a
+	   routing map — not being the only agent in the directory, which is what this loop silently
+	   assumed while there was exactly one. The second agent (a copywriter, which routes to nothing
+	   by design) produced eight WARN rows saying it was "unroutable through the orchestrator",
+	   which it is not supposed to be. Rows nobody can act on are how a report gets ignored. */
+	$is_router = (bool) preg_match( '/^## Routing map\b/mi', $src );
+	if ( $is_router ) {
+		foreach ( array_map( 'basename', $skill_dirs ) as $sk ) {
+			if ( false === strpos( $src, '`' . $sk . '`' ) ) {
+				add( 'RT_AGENT_SKILL_UNMENTIONED', 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through this agent, which carries a routing map' );
+			}
 		}
 	}
 
@@ -792,7 +807,9 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 	 * rule an author retitles their way out of by accident. */
 	$house = rules_bullets( $src, '/^## House rules\b[^\n]*\n(.*?)(?=\n## |\z)/mis' );
 	if ( array() === $house ) {
-		add( 'RT_AGENT_NO_HOUSE_RULES', 'FAIL', $name, 'the orchestrator states no House rules — no "## House rules" section, or one with no "- " bullets under it' );
+		/* "this agent", not "the orchestrator": the row fires for every agents/*.md, and with a
+		   second agent in the directory the old wording named the wrong file to whoever read it. */
+		add( 'RT_AGENT_NO_HOUSE_RULES', 'FAIL', $name, 'this agent states no House rules — no "## House rules" section, or one with no "- " bullets under it' );
 	} else {
 		marker_walk( $name, $house, true, 'House rule', $name );
 	}

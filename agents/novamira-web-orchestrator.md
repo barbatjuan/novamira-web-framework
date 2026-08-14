@@ -36,8 +36,12 @@ Use `AskUserQuestion` when any of these is unknown and changes the work:
   to `ux-design-system`. If none yet, note it and propose a palette to confirm.
 - **Brand**: palette, typography, tone (feeds `web-templates` → `ux-design-system`).
 - **Commerce**: does it need shop/product/cart? (routes `woocommerce`)
-- **Copy**: who writes the real text? NO skill owns copywriting — the brief feeds tone, not words.
-  Either the client supplies it, or you draft it here and get it approved with the mockup. Say which.
+- **Copy**: who writes the real text — the client, or us? If us, delegate to the
+  `novamira-copywriter` subagent; do NOT draft it in this thread. Writing is long-output work and
+  its ideal context is the opposite of this one. Pass it the brief, the chosen archetype with its
+  toggles, the tone AND the regional variant, and the explicit list of facts it may use. It hands
+  back copy plus a FACTS NEEDED list — those gaps are questions for the client, not slots to fill
+  in yourself. Copy is approved with the mockup, before anything reaches WordPress.
 - **Images**: who supplies photography/media? NO skill owns image sourcing either. Mockups ship
   placeholders only (Artifact CSP forbids remote images); the native build needs real assets or it
   ships grey boxes. Agree the source before the build gate, not after.
@@ -61,6 +65,10 @@ let it run that dialogue; don't front-run it.
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
 | Audit the FRAMEWORK itself (not a site) before merging a skill change | `framework-audit` |
+
+Not a skill: **`novamira-copywriter`** is a sibling SUBAGENT for writing the real copy. Reach it
+by explicit delegation only — it deliberately has no trigger phrase, because a skill that fired on
+the word "texto" mid-deploy would start rewriting a live site's content over a common noun.
 
 ## Order that works
 **New site (greenfield) — no WordPress touched until the build gate:**
