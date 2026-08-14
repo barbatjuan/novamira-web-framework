@@ -1550,6 +1550,11 @@ ok( ! $fx_unroutable( 'fx_example_build' ), 'a *.example.php build function is e
    counted as a call the row above would vanish, and every forgotten helper with a docblock
    mentioning it would read as wired. */
 ok( $fx_unroutable( 'fx_orphan_helper' ), 'a COMMENT naming the function is not a call — the row survives it', $out70 );
+/* A checkout of another branch under .worktrees/ is not this tree. Crediting it would make the row
+   go quiet exactly when a helper is being removed here and only the old copy still names it. */
+fx( $r70, '.worktrees/otra/skills/woocommerce/references/api.md', "# API de otra rama\n\n`fx_orphan_helper()` sigue documentada aqui.\n" );
+list( , $out71 ) = fx_run_ok( $audit, $r70 );
+ok( array() !== fx_lines_with( $out71, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'markdown under a hidden directory (.worktrees) does not make a helper reachable', $out71 );
 fx_rrmdir( $r70 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";

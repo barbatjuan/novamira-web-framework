@@ -870,9 +870,24 @@ foreach ( $skill_dirs as $sdir ) {
 	}
 }
 
+/* Only markdown that is PART OF THIS TREE. `SKIP_DOTS` drops `.` and `..` and nothing else, so the
+   first version walked `.git` and — the one that matters — `.worktrees/`, where a full checkout of
+   another branch lives. A helper deleted here but still named by that copy's SKILL.md would have
+   read as reachable, so the check would go quiet exactly when a helper was being removed. Hidden
+   directories and dependency trees are skipped by name, not by luck. */
 $prose = '';
+$dirs  = new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS );
 $walk  = new RecursiveIteratorIterator(
-	new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
+	new RecursiveCallbackFilterIterator(
+		$dirs,
+		function ( $cur ) {
+			$name = $cur->getFilename();
+			if ( $cur->isDir() ) {
+				return '.' !== substr( $name, 0, 1 ) && ! in_array( $name, array( 'node_modules', 'vendor' ), true );
+			}
+			return true;
+		}
+	),
 	RecursiveIteratorIterator::SELF_FIRST
 );
 foreach ( $walk as $f ) {
