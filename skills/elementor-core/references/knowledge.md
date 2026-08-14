@@ -83,6 +83,19 @@
   run after four of the five keys had already been overwritten, preserving what had just been
   written. Restore key by key. `es_save_page()` calls it only when updating — a page it just
   created has nothing to displace.
+- `es_restore_page_state($id,$key='')` — puts a page back the way a backup found it, and **reads
+  every piece back**, returning `{key, restored[], failed[], safety}`. Empty `$key` picks the NEWEST
+  backup, which is what a human means by "undo that". It BACKS UP FIRST, because restoring is
+  itself destructive: the state it overwrites gets its own key, so restoring twice returns you to
+  where you started instead of stranding you. A partial restore says WHICH pieces are missing
+  rather than returning a cheerful true — the page is then in a mixed state and the warning says
+  so. Handing over a key with no way to use it was the gap this closes: a backup nobody can restore
+  is not a backup.
+- `es_prune_backups($id,$keep=5)` → `{kept[], deleted[], still_there[]}`. Backups are never pruned
+  by default — losing the one you needed costs more than the rows — but each now holds the whole
+  displaced state, so unbounded is not an option either. Deletes oldest-first and re-reads, because
+  `delete_post_meta()` returns false both on failure and on nothing-to-delete. `$keep` is floored at
+  1: keeping zero is not pruning, it is deleting the backups.
 - `es_front_page()` → `{mode:'posts'|'page', id, slug}` — the ONE resolver for "what does `/` serve".
   Never guess the home from a slug: on an install whose front page is `/`, `/inicio/` is dead.
   `page_on_front` alone is NOT a front page; without `show_on_front='page'` WordPress renders
