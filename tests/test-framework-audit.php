@@ -223,8 +223,14 @@ $FX_AXIS_POSITIONS = array(
 	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
 );
 
-/* A conforming design-system.md: every position $FX_AXIS_POSITIONS names, backticked, once
-   (`monumental` covers both scale and density, so it is de-duplicated rather than repeated). */
+/* A conforming design-system.md: every position $FX_AXIS_POSITIONS names gets its OWN table row,
+   backticked, once (`monumental` covers both scale and density, so it is de-duplicated rather than
+   repeated), with a token-shaped value beside it.
+   The value is `1` and not the old `x`: RT_AXIS_VALUE_MISSING no longer asks whether the position
+   NAME appears somewhere in the file, it reads the value cell on the position's own row and
+   requires something a builder could actually apply. `x` is an adjective with one letter. A bare
+   number is axis-agnostic on purpose -- this skeleton must stay neutral, so the blueprint-valued
+   form gets its own scenario instead of riding along in every fixture. */
 function fx_ds_conforming() {
 	global $FX_AXIS_POSITIONS;
 	$seen = array();
@@ -235,7 +241,7 @@ function fx_ds_conforming() {
 				continue;
 			}
 			$seen[ $pos ] = true;
-			$out         .= '| `' . $pos . '` | x |' . "\n";
+			$out         .= '| `' . $pos . '` | 1 |' . "\n";
 		}
 	}
 	return $out;
@@ -996,23 +1002,23 @@ fx(
 	$r30,
 	'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "Fixture skill body. Names CAPA 2 here so this scenario isolates the catalog-pointer check alone, but never points at the catalog itself.\n"
+	. "## Execution Steps\n1. Resolve every axis with the client before anything else.\n\nFixture skill body. Its Execution Steps DO resolve the axes, so this scenario isolates the catalog-pointer check alone; it simply never points at the catalog itself.\n"
 );
 list( , $out30 ) = fx_run_ok( $audit, $r30 );
 ok( has( $out30, 'RT_CATALOG_UNMENTIONED' ), 'a SKILL.md never mentioning design-personalities.md is RT_CATALOG_UNMENTIONED', $out30 );
 fx_rrmdir( $r30 );
 
-echo "--- ux-design-system: SKILL.md with no CAPA 2 recommender step is RT_UXDS_NO_CAPA2_STEP ---\n";
+echo "--- ux-design-system: SKILL.md with no axis-resolving step at all is RT_UXDS_NO_AXIS_STEP ---\n";
 $r31 = fx_tmp_root();
 fx_base( $r31 );
 fx(
 	$r31,
 	'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "Fixture skill body. Recommends a personality by pointing at design-personalities.md, but names no recommender step.\n"
+	. "Fixture skill body. Points at design-personalities.md, but carries no \"## Execution Steps\" section at all.\n"
 );
 list( , $out31 ) = fx_run_ok( $audit, $r31 );
-ok( has( $out31, 'RT_UXDS_NO_CAPA2_STEP' ), 'a SKILL.md with no CAPA 2 step is RT_UXDS_NO_CAPA2_STEP', $out31 );
+ok( has( $out31, 'RT_UXDS_NO_AXIS_STEP' ), 'a SKILL.md with no Execution Steps section is RT_UXDS_NO_AXIS_STEP', $out31 );
 fx_rrmdir( $r31 );
 
 echo "--- una skill de diseno que no nombra los ejes no puede resolverlos ---\n";
@@ -1022,7 +1028,7 @@ fx( $r86, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
 	. "## Execution Steps\n1. Pick something.\n\n## References\n- `references/design-personalities.md`\n" );
 list( , $out86 ) = fx_run_ok( $audit, $r86 );
-ok( 'FAIL' === fx_row_level( $out86, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out86, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
+ok( 'FAIL' === fx_row_level( $out86, array( 'RT_UXDS_NO_AXIS_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out86, array( 'RT_UXDS_NO_AXIS_STEP' ) ) );
 fx_rrmdir( $r86 );
 
 /* Mutant (a): "axis" appears ONLY outside "## Execution Steps" -- in the frontmatter description
@@ -1037,7 +1043,7 @@ fx( $r87, 'skills/ux-design-system/SKILL.md',
 	. "## Hard Rules\n- Praxis over theory: ship something real. See `references/design-personalities.md`.\n\n"
 	. "## Execution Steps\n1. Pick something and hand it off.\n" );
 list( , $out87 ) = fx_run_ok( $audit, $r87 );
-ok( 'FAIL' === fx_row_level( $out87, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), '"axis" solo fuera de Execution Steps sigue FALLANDO', fx_row_level( $out87, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
+ok( 'FAIL' === fx_row_level( $out87, array( 'RT_UXDS_NO_AXIS_STEP' ) ), '"axis" solo fuera de Execution Steps sigue FALLANDO', fx_row_level( $out87, array( 'RT_UXDS_NO_AXIS_STEP' ) ) );
 fx_rrmdir( $r87 );
 
 /* Mutant (b): "## Execution Steps" itself uses only the natural plural "axes" (never the
@@ -1050,7 +1056,7 @@ fx( $r88, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
 	. "## Execution Steps\n1. Resolve the five axes with the client, then land on an anchor from `references/design-personalities.md`.\n" );
 list( , $out88 ) = fx_run_ok( $audit, $r88 );
-ok( ! has( $out88, 'RT_UXDS_NO_CAPA2_STEP' ), 'Execution Steps con solo "axes" (plural) limpia el check', $out88 );
+ok( ! has( $out88, 'RT_UXDS_NO_AXIS_STEP' ), 'Execution Steps con solo "axes" (plural) limpia el check', $out88 );
 fx_rrmdir( $r88 );
 
 /* ------------------------------------------------- marker grammar fixtures (B1, design D1')
@@ -1734,22 +1740,24 @@ fx( $r83, 'skills/ux-design-system/references/design-personalities.md',
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
-/* design-system.md define TODAS menos `monumental` en densidad. */
+/* NEGATIVE CONTROL. design-system.md aqui define TODAS las posiciones -- las 19, contando que
+   `monumental` cubre a la vez el eje de escala y el de densidad y por eso aparece una sola vez --
+   y cada una con un valor token-shaped en su propia fila. Nada tiene que sonar: esta es la mitad
+   silenciosa del par, y prueba que el check no dispara sobre un archivo correcto. La fila que SI
+   dispara es $r84, diez lineas mas abajo. */
 fx( $r83, 'skills/web-templates/references/design-system.md',
 	"# Tokens\n\n| position | value |\n|---|---|\n"
-	. "| `contained` | x |\n| `classic` | x |\n| `editorial` | x |\n| `monumental` | x |\n"
-	. "| `paper` | x |\n| `warm` | x |\n| `cool` | x |\n| `ink` | x |\n"
-	. "| `compact` | x |\n| `standard` | x |\n| `generous` | x |\n"
-	. "| `centered` | x |\n| `asymmetric` | x |\n| `strict-grid` | x |\n| `broken-grid` | x |\n"
-	. "| `none` | x |\n| `hairline` | x |\n| `soft-shadow` | x |\n| `accent-glow` | x |\n" );
+	. "| `contained` | 1 |\n| `classic` | 1 |\n| `editorial` | 1 |\n| `monumental` | 1 |\n"
+	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+	. "| `compact` | 1 |\n| `standard` | 1 |\n| `generous` | 1 |\n"
+	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
+	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n" );
 list( , $out83 ) = fx_run_ok( $audit, $r83 );
-ok( array() === fx_lines_with( $out83, array( 'RT_AXIS_VALUE_MISSING' ) ), 'una posicion citada por design-system.md tiene valor', $out83 );
+ok( array() === fx_lines_with( $out83, array( 'RT_AXIS_VALUE_MISSING' ) ), 'una posicion con valor en su propia fila no levanta nada', $out83 );
 fx_rrmdir( $r83 );
 
-/* Note: `monumental` appears once above and covers both the scale axis and the density axis, so
-   $r83 passes as written -- it is a deliberate NEGATIVE CONTROL, proving the check stays quiet
-   when every position has a value. To make the row actually FIRE, this second fixture drops
-   `| `broken-grid` | x |`. */
+/* La mitad ruidosa del par: design-system.md solo define `contained`, asi que las otras 18
+   posiciones se quedan sin fila y RT_AXIS_VALUE_MISSING tiene que nombrarlas. */
 $r84 = fx_tmp_root();
 fx_base( $r84 );
 fx( $r84, 'skills/ux-design-system/references/design-personalities.md',
@@ -1758,22 +1766,19 @@ fx( $r84, 'skills/ux-design-system/references/design-personalities.md',
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
-fx( $r84, 'skills/web-templates/references/design-system.md', "# Tokens\n\n| `contained` | x |\n" );
+fx( $r84, 'skills/web-templates/references/design-system.md', "# Tokens\n\n| `contained` | 1.200 |\n" );
 list( , $out84 ) = fx_run_ok( $audit, $r84 );
 ok( 'FAIL' === fx_row_level( $out84, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'una posicion sin valor en design-system.md FALLA, nombrandola', fx_row_level( $out84, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
 fx_rrmdir( $r84 );
 
-/* Mutant 1 (backticks dropped from strpos()) survived on the fixtures above alone: `broken-grid`
-   never appears as bare prose anywhere in $r83's or $r84's design-system.md fixture, so a check
-   that matched the position WITHOUT its backticks behaves identically to one that requires them --
-   neither fixture ever puts the string in play unbackticked. This fixture is the one that tells
-   them apart: `broken-grid` is named in a prose sentence but never wrapped in backticks, and is
-   otherwise absent from the table, so a check ignoring backticks would wrongly credit it with a
-   value while the correct, backtick-anchored check keeps failing it. `broken-grid` (not
-   `monumental`) on purpose: it belongs to exactly one axis (composition), so exactly one
-   RT_AXIS_VALUE_MISSING row can name it -- fx_row_level() below requires exactly one match, and
-   `monumental` names TWO axes (scale and density), which would make this assertion fail even
-   against the correct implementation. */
+/* A prose MENTION is not a row. `broken-grid` is named in a sentence -- once bare, once even
+   backticked -- but owns no table row of its own, so it still has no value. The backtick-anchored
+   substring scan this replaced was satisfied by the backticked mention alone; a row-anchored check
+   is not, and that difference is what this fixture pins.
+   `broken-grid` (not `monumental`) on purpose: it belongs to exactly one axis (composition), so
+   exactly one RT_AXIS_VALUE_MISSING row can name it -- fx_row_level() requires exactly one match,
+   and `monumental` names TWO axes (scale and density), which would make the assertion fail even
+   against a correct implementation. */
 $r85 = fx_tmp_root();
 fx_base( $r85 );
 fx( $r85, 'skills/ux-design-system/references/design-personalities.md',
@@ -1783,16 +1788,150 @@ fx( $r85, 'skills/ux-design-system/references/design-personalities.md',
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
 fx( $r85, 'skills/web-templates/references/design-system.md',
-	"# Tokens\n\nThe broken-grid composition scatters elements across the grid on purpose, named here only in prose, never backticked.\n\n"
+	"# Tokens\n\nThe broken-grid composition scatters elements across the grid on purpose; we write it `broken-grid` in prose here, and give it no row of its own anywhere.\n\n"
 	. "| position | value |\n|---|---|\n"
-	. "| `contained` | x |\n| `classic` | x |\n| `editorial` | x |\n| `monumental` | x |\n"
-	. "| `paper` | x |\n| `warm` | x |\n| `cool` | x |\n| `ink` | x |\n"
-	. "| `compact` | x |\n| `standard` | x |\n| `generous` | x |\n"
-	. "| `centered` | x |\n| `asymmetric` | x |\n| `strict-grid` | x |\n"
-	. "| `none` | x |\n| `hairline` | x |\n| `soft-shadow` | x |\n| `accent-glow` | x |\n" );
+	. "| `contained` | 1 |\n| `classic` | 1 |\n| `editorial` | 1 |\n| `monumental` | 1 |\n"
+	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+	. "| `compact` | 1 |\n| `standard` | 1 |\n| `generous` | 1 |\n"
+	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n"
+	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n" );
 list( , $out85 ) = fx_run_ok( $audit, $r85 );
-ok( 'FAIL' === fx_row_level( $out85, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'una posicion mencionada solo en prosa, nunca entre backticks, sigue SIN valor -- las backticks importan', fx_row_level( $out85, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
+ok( 'FAIL' === fx_row_level( $out85, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'una posicion nombrada en prosa (incluso entre backticks) pero sin fila propia sigue SIN valor', fx_row_level( $out85, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
 fx_rrmdir( $r85 );
+
+/* ---- C1: la fila de la posicion tiene que llevar un VALOR, no repetir el nombre ----
+ *
+ * El incidente, reproducido en el checkout real antes de arreglarlo: RT_AXIS_VALUE_MISSING solo
+ * preguntaba si el NOMBRE de la posicion aparecia entre backticks en algun sitio de
+ * design-system.md. Sustituir toda la seccion de valores por una tabla pelada de nombres con las
+ * celdas de valor VACIAS dejaba la puerta en `0 FAIL`, y con ese check ground `cool`, ground `ink`
+ * y las cuatro posiciones de composicion llegaron a produccion sin ningun valor. */
+echo "--- una tabla de NOMBRES con la celda de valor vacia no es un valor ---\n";
+$r89 = fx_tmp_root();
+fx_base( $r89 );
+fx( $r89, 'skills/web-templates/references/design-system.md',
+	"# Tokens\n\n| Position | Value |\n|---|---|\n"
+	. "| `contained` |  |\n| `classic` |  |\n| `editorial` |  |\n| `monumental` |  |\n"
+	. "| `paper` |  |\n| `warm` |  |\n| `cool` |  |\n| `ink` |  |\n"
+	. "| `compact` |  |\n| `standard` |  |\n| `generous` |  |\n"
+	. "| `centered` |  |\n| `asymmetric` |  |\n| `strict-grid` |  |\n| `broken-grid` |  |\n"
+	. "| `none` |  |\n| `hairline` |  |\n| `soft-shadow` |  |\n| `accent-glow` |  |\n" );
+list( , $out89 ) = fx_run_ok( $audit, $r89 );
+ok( 'FAIL' === fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'la celda de valor vacia FALLA: el nombre entre backticks no es el valor', fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
+/* 20 = 5 ejes x 4 posiciones. `monumental` aparece dos veces a proposito: es posicion del eje de
+   escala Y del de densidad, y cada eje reclama su valor por separado. */
+ok( 20 === count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y FALLA para las 20 parejas eje/posicion, no solo para una', count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ) );
+fx_rrmdir( $r89 );
+
+/* Una frase en la celda tampoco es un valor. Es EXACTAMENTE lo que shippeaba la tabla de
+   composicion ("at least one element per section crossing the grid...") y lo que ground `cool`
+   shippeaba como "very light blue-grey": prosa donde tiene que ir algo que un builder pueda
+   aplicar. La celda se juzga por su PRIMER token, asi que un hex citado a mitad de frase no la
+   salva -- es un ejemplo, no el valor de la celda. */
+echo "--- una frase en la celda de valor sigue sin ser un valor ---\n";
+$r90 = fx_tmp_root();
+fx_base( $r90 );
+fx( $r90, 'skills/web-templates/references/design-system.md',
+	"# Tokens\n\n| Position | Value |\n|---|---|\n"
+	. "| `contained` | 1.200 |\n| `classic` | 1.333 |\n| `editorial` | 1.500 |\n| `monumental` | 1.618 |\n"
+	. "| `paper` | `#FFFFFF` |\n| `warm` | cream/ivory, e.g. `#FFF3E3` |\n| `cool` | very light blue-grey |\n| `ink` | `#0E1113` |\n"
+	. "| `compact` | 0.8 |\n| `standard` | 1.0 |\n| `generous` | 1.35 |\n"
+	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n"
+	. "| `broken-grid` | at least one element per section crossing the grid |\n"
+	. "| `none` | none |\n| `hairline` | `0 0 0 1px var(--c-border)` |\n| `soft-shadow` | `0 1px 2px rgba(0,0,0,.04)` |\n| `accent-glow` | `color-mix(in srgb,var(--c-accent) 22%,transparent)` |\n" );
+list( , $out90 ) = fx_run_ok( $audit, $r90 );
+ok( 'FAIL' === fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'una frase en la celda de valor FALLA', fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
+ok( 'FAIL' === fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', '"cool"' ) ), 'y un adjetivo ("very light blue-grey") tambien', fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', '"cool"' ) ) );
+ok( 'FAIL' === fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', '"warm"' ) ), 'y una celda que ABRE en prosa no se salva por citar un hex a mitad de frase', fx_row_level( $out90, array( 'RT_AXIS_VALUE_MISSING', '"warm"' ) ) );
+/* El control positivo del mismo fixture: hex, numero, `none`, una funcion CSS entre backticks y
+   una lista de longitudes son TODOS valores, y ninguno levanta fila. Sin esto, un check que
+   rechazara todo pasaria las tres aserciones de arriba. */
+ok( array() === fx_lines_with( $out90, array( 'RT_AXIS_VALUE_MISSING', '"paper"' ) ), 'un hex SI es valor', $out90 );
+ok( array() === fx_lines_with( $out90, array( 'RT_AXIS_VALUE_MISSING', '"hairline"' ) ), 'una lista de longitudes con var() SI es valor', $out90 );
+ok( array() === fx_lines_with( $out90, array( 'RT_AXIS_VALUE_MISSING', '"accent-glow"' ) ), 'una funcion CSS (color-mix) SI es valor', $out90 );
+ok( array() === fx_lines_with( $out90, array( 'RT_AXIS_VALUE_MISSING', '"none"' ) ), 'la palabra none SI es valor: "sin sombra" es una decision, no un hueco', $out90 );
+fx_rrmdir( $r90 );
+
+/* La composicion es el unico eje cuyo valor es una regla de layout y no un numero, asi que su
+   celda nombra un blueprint. Un blueprint que nadie escribio es un adjetivo con numero de serie:
+   el nombre tiene que resolver a un heading real en layout-patterns.md. */
+echo "--- un blueprint que layout-patterns.md no define no vale como valor ---\n";
+$r91 = fx_tmp_root();
+fx_base( $r91 );
+$fx_ds_bp = function ( $bp ) {
+	return "# Tokens\n\n| Position | Value |\n|---|---|\n"
+		. "| `contained` | 1 |\n| `classic` | 1 |\n| `editorial` | 1 |\n| `monumental` | 1 |\n"
+		. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+		. "| `compact` | 1 |\n| `standard` | 1 |\n| `generous` | 1 |\n"
+		. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n"
+		. '| `broken-grid` | `' . $bp . "` |\n"
+		. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n";
+};
+fx( $r91, 'skills/web-templates/references/design-system.md', $fx_ds_bp( 'LP-BROKEN-GRID' ) );
+fx( $r91, 'skills/ux-design-system/references/layout-patterns.md', "# Layout patterns fixture\n\n### `LP-CENTERED`\n- Nothing bleeds.\n" );
+list( , $out91a ) = fx_run_ok( $audit, $r91 );
+ok( 'FAIL' === fx_row_level( $out91a, array( 'RT_AXIS_BLUEPRINT_MISSING', 'LP-BROKEN-GRID' ) ), 'un blueprint sin heading en layout-patterns.md FALLA, nombrandolo', fx_row_level( $out91a, array( 'RT_AXIS_BLUEPRINT_MISSING', 'LP-BROKEN-GRID' ) ) );
+ok( array() === fx_lines_with( $out91a, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'y NO se reporta como "sin valor": el problema es a donde apunta, no que apunte', $out91a );
+/* Escrito el blueprint, la fila se calla. Sin esta mitad, un check que fallara siempre pasaria. */
+fx( $r91, 'skills/ux-design-system/references/layout-patterns.md', "# Layout patterns fixture\n\n### `LP-CENTERED`\n- Nothing bleeds.\n\n### `LP-BROKEN-GRID`\n- One element per section crosses a column line.\n" );
+list( , $out91b ) = fx_run_ok( $audit, $r91 );
+ok( array() === fx_lines_with( $out91b, array( 'RT_AXIS_BLUEPRINT_MISSING' ) ), 'escrito el blueprint, la fila se calla', $out91b );
+/* Las backticks son lo unico que distingue un identificador de blueprint de una palabra suelta en
+   mayusculas. Sin ellas la celda es prosa, y prosa no es valor -- si no, "TODO" o "TBD" pasarian
+   como valor de un eje. */
+fx( $r91, 'skills/web-templates/references/design-system.md', str_replace( '`LP-BROKEN-GRID`', 'LP-BROKEN-GRID', $fx_ds_bp( 'LP-BROKEN-GRID' ) ) );
+list( , $out91c ) = fx_run_ok( $audit, $r91 );
+ok( 'FAIL' === fx_row_level( $out91c, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'un id de blueprint SIN backticks no es valor: es una palabra en mayusculas', fx_row_level( $out91c, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
+fx_rrmdir( $r91 );
+
+/* `monumental` es posicion del eje de escala Y del de densidad, asi que le tocan DOS filas, una
+   por tabla. Cada una tiene que llevar su propio valor: si bastara con que UNA cualquiera lo
+   llevara, vaciar la tabla de densidad quedaria tapado por la fila de la tabla de escala -- el
+   mismo agujero de "existe algo con pinta de valor en otro sitio del archivo" un nivel mas abajo,
+   y justo sobre la posicion de densidad que esta rama existe para poder expresar. */
+echo "--- una posicion con dos filas necesita valor en LAS DOS ---\n";
+$r93 = fx_tmp_root();
+fx_base( $r93 );
+fx( $r93, 'skills/web-templates/references/design-system.md',
+	"# Tokens\n\n### Scale\n| Position | `--type-ratio` |\n|---|---|\n"
+	. "| `contained` | 1.200 |\n| `classic` | 1.333 |\n| `editorial` | 1.500 |\n| `monumental` | 1.618 |\n\n"
+	. "### Density\n| Position | `--sp-scale` |\n|---|---|\n"
+	. "| `compact` | 0.8 |\n| `standard` | 1.0 |\n| `generous` | 1.35 |\n| `monumental` |  |\n\n"
+	. "### Rest\n| Position | Value |\n|---|---|\n"
+	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
+	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n" );
+list( , $out93 ) = fx_run_ok( $audit, $r93 );
+ok( 'FAIL' === fx_row_level( $out93, array( 'RT_AXIS_VALUE_MISSING', '"density"' ) ), 'la fila vacia de la tabla de densidad FALLA aunque la de escala tenga valor', fx_row_level( $out93, array( 'RT_AXIS_VALUE_MISSING', '"density"' ) ) );
+/* El check indexa por POSICION, no por tabla: no sabe bajo que heading cae cada fila, asi que
+   atribuye la fila vacia a los DOS ejes que reclaman `monumental`. Ruidoso a proposito -- elegir
+   uno en silencio seria adivinar. Lo que importa es que la fila con valor NO tapa a la vacia. */
+ok( 2 === count( fx_lines_with( $out93, array( 'RT_AXIS_VALUE_MISSING', 'monumental' ) ) ), 'y se reporta bajo los dos ejes que reclaman esa posicion, sin elegir uno a dedo', count( fx_lines_with( $out93, array( 'RT_AXIS_VALUE_MISSING', 'monumental' ) ) ) );
+ok( 2 === count( fx_lines_with( $out93, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y ninguna otra posicion se contagia: el resto de la tabla esta bien', $out93 );
+fx_rrmdir( $r93 );
+
+/* ---- I1: un heading de ancla duplicado apagaba el check estrella ----
+ *
+ * Reproducido en el checkout real: $found y $axes_of van indexados por ID y la ultima escritura
+ * ganaba, asi que un SEGUNDO bloque `### `PERS-EDITORIAL`` con un juego de ejes lejano borraba el
+ * ancla de verdad antes de comparar, y RT_PERS_TOO_SIMILAR dejaba de disparar (1 FAIL -> 0 FAIL).
+ * Aqui PERS-EDITORIAL comparte CUATRO ejes con PERS-MATTER, y el duplicado es deliberadamente
+ * lejano: si el ancla que entra a la comparacion fuera la copia, la segunda asercion se cae. */
+echo "--- un ID de personalidad declarado dos veces no puede tapar al primero ---\n";
+$r92 = fx_tmp_root();
+fx_base( $r92 );
+fx( $r92, 'skills/ux-design-system/references/design-personalities.md',
+	"# P\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline' ) );
+list( , $out92 ) = fx_run_ok( $audit, $r92 );
+ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ), 'un ID declarado dos veces FALLA, nombrandolo', fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ) );
+ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_PERS_TOO_SIMILAR: manda el PRIMER bloque', fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ) );
+ok( array() === fx_lines_with( $out92, array( 'RT_PERS_ID_MISSING' ) ), 'y el duplicado no se cuenta como ausencia del ID', $out92 );
+fx_rrmdir( $r92 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

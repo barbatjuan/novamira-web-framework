@@ -1,11 +1,12 @@
-# Design Personalities (CAPA 1)
+# Design Personalities
 
 Four anchors, each a position on five perceptual axes — scale, ground, density, composition,
 elevation. Orthogonal to the structural archetype `web-templates` resolves — the SAME `TPL-*`
-can ship under any of these. `ux-design-system` CAPA 2 picks one per project from brand signals +
-the client's own references (never re-asked here). Roles and the shared spacing/breakpoint SCALE
-come from `web-templates/references/design-system.md` and `references/design-tokens.md`; this
-file supplies the concrete VALUES within those roles.
+can ship under any of these. `ux-design-system`'s Execution Steps resolve every axis with the
+client and land on one of these anchors, or between two. This file is the authority on WHICH
+POSITION each anchor takes and on the concrete typeface names; the VALUE behind each position
+lives in `web-templates/references/design-system.md`, and `references/design-tokens.md` explains
+what each axis is FOR without naming a number.
 
 No two anchors may share more than one axis position: the audit's `RT_PERS_TOO_SIMILAR` check
 FAILS the build on it, but the rule belongs here too — two anchors that agree on two or more axes

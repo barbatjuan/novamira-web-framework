@@ -1,22 +1,26 @@
 # Sistema Global de Diseño
 
 La ESTRUCTURA de tokens (roles, pasos de escala, breakpoints) es compartida por TODAS las
-plantillas (ecommerce y corporate) y se define **una vez**. Los VALORES concretos (tipografía,
-paleta, radios/sombras, motion) vienen de la personalidad visual (`PERS-*`) elegida en
-`ux-design-system` CAPA 2 — independiente de qué `TPL-*` se haya elegido. Diseñado mobile-first.
-Compatible con Elementor (Global Settings) y Divi (Theme Options + Global Presets), y con la
-skill `html-mockup` (variables `--*` en `:root`).
+plantillas (ecommerce y corporate) y se define **una vez**. Lo que cambia entre proyectos es la
+POSICIÓN en los cinco ejes perceptuales — escala, ground, densidad, composición, elevación — que
+`ux-design-system` resuelve con el cliente, independiente de qué `TPL-*` se haya elegido. Diseñado
+mobile-first. Compatible con Elementor (Global Settings) y Divi (Theme Options + Global Presets),
+y con la skill `html-mockup` (variables `--*` en `:root`).
 
-Los valores de esta página son el fallback estructural (spacing, breakpoints, contenedores) que
-toda personalidad hereda sin tocar. Para tipografía, paleta, radios y motion CONCRETOS, ver
-`ux-design-system/references/design-personalities.md` — CAPA 2 ajusta esos valores por marca;
-los ROLES no cambian nunca.
+Este archivo es la **autoridad sobre NOMBRES y VALORES de token**, incluidos los valores de cada
+posición de eje (`--type-ratio`, `--display-lh`, `--fs-h1-max`, `--sp-scale`, `--c-bg`,
+`--c-bg-alt`, `--c-text`, `--elev-rest`, `--elev-hover`): ver "Perceptual axes — token values" al
+final. `design-personalities.md` es la autoridad sobre QUÉ POSICIÓN toma cada ancla en cada eje y
+sobre los nombres concretos de tipografía; no define valores de token.
+`ux-design-system/references/motion.md` manda sobre la curva y los rangos de duración/lift.
+`ux-design-system/references/design-tokens.md` explica los ROLES (para qué sirve cada token, cómo
+derivar la paleta de un logo) y no define ni valores ni nombres de fuente. Ante cualquier
+diferencia, manda el archivo correspondiente a lo consultado.
 
-Este archivo es la **única autoridad** sobre NOMBRES y VALORES ESTRUCTURALES de token (spacing,
-breakpoints, contenedores). `design-personalities.md` es la única autoridad sobre los valores de
-tipografía/paleta/radios/motion por personalidad. `ux-design-system/references/design-tokens.md`
-explica los ROLES (para qué sirve cada token, cómo derivar la paleta de un logo) y no define
-valores. Ante cualquier diferencia, manda el archivo correspondiente a lo consultado.
+Los pasos de tipografía y de spacing de abajo **no son números elegidos a mano**: derivan de
+`--type-ratio` y `--sp-scale`, que fija la posición de eje. Cambiar la posición mueve la escala
+entera de una vez — que es exactamente lo que antes no pasaba, cuando `--fs-h1` estaba clavado en
+un tope de 56px y todos los clientes recibían la misma tipografía.
 
 ## Breakpoints (mobile-first)
 
@@ -30,16 +34,21 @@ Se escribe el CSS base para mobile y se sube con `min-width`. Nunca al revés.
 
 ## Tipografía
 
-Dos familias máximo. Escala fluida con `clamp()`.
+Dos familias máximo. Escala fluida con `clamp()`, **derivada de `--type-ratio`**: ningún paso de
+heading se escribe a mano. La fórmula completa, paso por paso, está en "Scale" al final; aquí van
+los tokens ya resueltos.
 
 | Rol | Token | Valor | Peso | Uso |
 |-----|-------|-------|------|-----|
 | Font principal | `--font-primary` | — | — | Headings + UI |
 | Font secundaria | `--font-secondary` | — | — | Body (opcional; puede = principal) |
-| H1 | `--fs-h1` | `clamp(2rem, 5vw, 3.5rem)` | 700 | 1 solo por página |
-| H2 | `--fs-h2` | `clamp(1.6rem, 3.5vw, 2.5rem)` | 700 | título de sección |
-| H3 | `--fs-h3` | `clamp(1.25rem, 2.5vw, 1.75rem)` | 600 | subtítulos |
-| Body | `--fs-body` | `clamp(1rem, 1.2vw, 1.125rem)` | 400 | párrafos |
+| Ratio de escala | `--type-ratio` | según posición del eje Scale | — | genera todos los pasos |
+| Leading display | `--display-lh` | según posición del eje Scale | — | `line-height` de h1/h2 |
+| Tope de h1 | `--fs-h1-max` | según posición del eje Scale | — | cota superior del `clamp()` de h1 |
+| H1 | `--fs-h1` | `clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)), calc(3.3vw + 1rem), var(--fs-h1-max))` | 700 | 1 solo por página |
+| H2 | `--fs-h2` | `clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)), calc(2.2vw + 1rem), calc(var(--fs-h1-max) / var(--type-ratio)))` | 700 | título de sección |
+| H3 | `--fs-h3` | `clamp(calc(var(--fs-body) * var(--type-ratio)), calc(1.1vw + 1rem), calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)))` | 600 | subtítulos |
+| Body | `--fs-body` | `clamp(1rem, 1.2vw, 1.25rem)` | 400 | párrafos |
 | Small | `--fs-small` | `0.875rem` | 400 | notas, meta |
 | Eyebrow/label | `--fs-eyebrow` | `0.75rem` | 600 uppercase, tracking | etiqueta sobre título |
 | Precio | `--fs-price` | `clamp(1.1rem, 1.6vw, 1.35rem)` | 700 | precio actual (ecommerce) |
@@ -47,7 +56,9 @@ Dos familias máximo. Escala fluida con `clamp()`.
 | Botón | `--fs-button` | `1rem` | 600 | CTAs |
 | Navegación | `--fs-nav` | `0.95rem` | 500 | menú |
 
-`line-height`: headings `1.15`, body `1.6`.
+`line-height`: h1/h2 usan `var(--display-lh)` (lo fija la posición del eje Scale), h3 `1.25`, body
+`1.6`. Un `1.15` fijo para todos los headings era la otra mitad del defecto: el leading del display
+es lo que separa un titular contenido de uno monumental, y no puede ser una constante.
 
 ## Colores
 
@@ -89,18 +100,25 @@ ambos con hover legible en los dos estados.
 
 ## Spacing
 
-Escala única. Prohibido inventar márgenes sueltos.
+Escala única, multiplicada entera por `--sp-scale` (la posición del eje de densidad). Prohibido
+inventar márgenes sueltos.
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--sp-xs` | `0.5rem` (8px) | gaps internos |
-| `--sp-s` | `1rem` (16px) | entre elementos |
-| `--sp-m` | `1.5rem` (24px) | entre bloques |
-| `--sp-l` | `3rem` (48px) | padding sección mobile |
-| `--sp-xl` | `5rem` (80px) | padding sección desktop |
-| `--sp-xxl` | `7.5rem` (120px) | separaciones grandes desktop |
+| `--sp-xs` | `calc(0.5rem * var(--sp-scale))` | gaps internos |
+| `--sp-s` | `calc(1rem * var(--sp-scale))` | entre elementos |
+| `--sp-m` | `calc(1.5rem * var(--sp-scale))` | entre bloques |
+| `--sp-l` | `calc(3rem * var(--sp-scale))` | padding sección mobile |
+| `--sp-xl` | `calc(5rem * var(--sp-scale))` | padding sección desktop |
+| `--sp-xxl` | `calc(7.5rem * var(--sp-scale))` | separaciones grandes desktop |
 
-Padding vertical de sección: `--sp-l` mobile → `--sp-xl`/`--sp-xxl` desktop.
+Con `--sp-scale: 1` los pasos valen 8 / 16 / 24 / 48 / 80 / 120px — los mismos rems fijos que este
+archivo declaraba antes de que la densidad fuera un eje. La multiplicación va sobre la escala
+entera, nunca sobre un token suelto: así el ritmo sobrevive por construcción y lo único que cambia
+es la sensación de aire.
+
+Padding vertical de sección: fluido, sin breakpoint a mano —
+`padding-block: clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`.
 
 ## Contenedores
 
@@ -122,8 +140,9 @@ Padding vertical de sección: `--sp-l` mobile → `--sp-xl`/`--sp-xxl` desktop.
 | Inputs | `--radius-input` | `8px` |
 | Containers | `--radius-container` | `16px` |
 
-Ajustable por marca vía la personalidad visual elegida en `ux-design-system` CAPA 2 (Minimal
-Swiss / Tech Precision → 0–4px; Warm Boutique → 12–20px). Ver `design-personalities.md`.
+Estos son los defaults. El ancla resuelta puede moverlos cuando su **Card recipe** en
+`design-personalities.md` lo pide (p. ej. `PERS-MATTER` pone la imagen al radio del contenedor);
+donde la receta calla, manda la tabla. Los NOMBRES de token no cambian nunca.
 
 ## Notas de implementación
 
@@ -145,9 +164,29 @@ clave de la reutilización, y hace que maqueta HTML y build nativo compartan el 
 | `editorial` | 1.500 | 0.95 | 88px |
 | `monumental` | 1.618 | 0.82 | 120px |
 
-Every heading token derives from the ratio, never by hand:
-`--fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)), 2.2vw + .6rem, …)`, h2 at the square,
-h1 at the cube with `--fs-h1-max` as the hard cap. Body stays `1rem`–`1.25rem` at every position.
+Every heading step derives from the ratio by exponentiation, never by hand. `n` is the step
+(h3 = 1, h2 = 2, h1 = 3): the floor is `--fs-body × ratio^n`, the preferred value is
+`n × 1.1vw + 1rem`, and the whole cap chain hangs off `--fs-h1-max`, so one number per position
+pins all three. Written out in full, with no step left to the reader:
+
+```css
+--fs-h1: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio)),
+               calc(3.3vw + 1rem),
+               var(--fs-h1-max));
+--fs-h2: clamp(calc(var(--fs-body) * var(--type-ratio) * var(--type-ratio)),
+               calc(2.2vw + 1rem),
+               calc(var(--fs-h1-max) / var(--type-ratio)));
+--fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)),
+               calc(1.1vw + 1rem),
+               calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio)));
+```
+
+h1 and h2 take `line-height: var(--display-lh)`; h3 stays `1.25` and body `1.6`. Body itself stays
+`1rem`–`1.25rem` at every position: what changes is the RANGE, not the reading size.
+
+At `monumental` and a 16px body that is a 68px floor and a 120px cap for h1 (`1.618³ × 16 ≈ 68`);
+at `contained`, a 28px floor and a 48px cap (`1.2³ × 16 ≈ 28`). The defect this replaces was a
+hardcoded `clamp(2rem, 5vw, 3.5rem)` — a 56px cap on every client site, below even `contained`.
 
 ### Density (`--sp-scale`)
 | Position | `--sp-scale` |
@@ -160,13 +199,21 @@ h1 at the cube with `--fs-h1-max` as the hard cap. Body stays `1rem`–`1.25rem`
 One multiplier over the whole `--sp-*` scale, so rhythm consistency survives by construction.
 Section padding becomes fluid: `padding-block: clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`.
 
-### Ground (`--c-bg`, `--c-bg-alt`, contrast derivation)
-| Position | `--c-bg` | Contrast is derived toward |
-|---|---|---|
-| `paper` | `#FFFFFF` | neutral near-black |
-| `warm` | cream/ivory, e.g. `#FFF3E3` | warm near-black (brown-black) |
-| `cool` | very light blue-grey | deep blue-grey |
-| `ink` | near-black | near-white text; re-derive the accent for contrast on dark |
+### Ground (`--c-bg`, `--c-bg-alt`, `--c-text`)
+Every cell is a literal. `--c-text` is derived exactly as `design-tokens.md` step 3 specifies — the
+darkest brand neutral pushed toward near-black, or toward near-white on a dark ground — and each
+pair was contrast-checked against its OWN `--c-bg`, not against white. "very light blue-grey" and
+"near-black" were the two positions that shipped as adjectives; a builder cannot paint an adjective.
+
+| Position | `--c-bg` | `--c-bg-alt` | `--c-text` | Measured contrast |
+|---|---|---|---|---|
+| `paper` | `#FFFFFF` | `#F6F7F8` | `#15181A` | 17.8:1 |
+| `warm` | `#FFF3E3` | `#F7E8D4` | `#241C14` | 15.3:1 |
+| `cool` | `#F2F5F8` | `#E8EDF3` | `#141C24` | 15.7:1 |
+| `ink` | `#0E1113` | `#171B1E` | `#F4F6F7` | 17.5:1 |
+
+`ink` inverts the derivation, and that is the one that bites: the accent has to be re-derived to
+clear 4.5:1 against `#0E1113`, because an accent that passed on `paper` will usually fail here.
 
 ### Elevation (`--elev-rest`, `--elev-hover`)
 | Position | `--elev-rest` | `--elev-hover` |
@@ -176,10 +223,16 @@ Section padding becomes fluid: `padding-block: clamp(calc(2rem * var(--sp-scale)
 | `soft-shadow` | `0 1px 2px rgba(0,0,0,.04)` | `0 18px 40px -12px rgba(21,24,26,.16)` |
 | `accent-glow` | `0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent)` | `0 14px 34px -10px color-mix(in srgb,var(--c-accent) 40%,transparent)` |
 
-### Composition
-| Position | Blueprint set |
-|---|---|
-| `centered` | hero centred, symmetric grids, section headings centred |
-| `asymmetric` | content off-centre at ~58%, one image bleeding an edge |
-| `strict-grid` | everything on a 12-col grid, no bleeds, equal gutters |
-| `broken-grid` | at least one element per section crossing the grid or overlapping a neighbour |
+### Composition (one blueprint per position)
+The only axis whose value is a layout rule rather than a number, so each position names a blueprint
+instead. The blueprints are defined in `ux-design-system/references/layout-patterns.md`, where each
+one fixes column count, where the content sits, and what an image may do — enough specificity that
+two anchors over identical content render as visibly different pages. Four prose sentences, which
+is what this table held before, were not: nothing downstream could act on them.
+
+| Position | Blueprint | In one line |
+|---|---|---|
+| `centered` | `LP-CENTERED` | one symmetric axis, nothing bleeds |
+| `asymmetric` | `LP-ASYMMETRIC` | copy on 7 of 12 columns, one image bleeding a viewport edge |
+| `strict-grid` | `LP-STRICT-GRID` | every element starts and ends on a column line |
+| `broken-grid` | `LP-BROKEN-GRID` | one element per section crosses the grid or overlaps a neighbour |
