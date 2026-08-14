@@ -191,8 +191,18 @@ function update_post_meta( $id, $key, $value ) {
 	$GLOBALS['wp']['meta'][ $id ][ $key ] = $value;
 	return true;
 }
-function get_post_meta( $id, $key, $single = false ) {
-	return isset( $GLOBALS['wp']['meta'][ $id ][ $key ] ) ? $GLOBALS['wp']['meta'][ $id ][ $key ] : '';
+/**
+ * Real get_post_meta() returns the WHOLE meta map when called with no key, which is how
+ * es_backup_keys() enumerates backup keys it cannot guess the timestamps of. A stub that required
+ * a key would have made that function unreachable rather than untested.
+ */
+function get_post_meta( $id, $key = null, $single = false ) {
+	$all = isset( $GLOBALS['wp']['meta'][ $id ] ) ? $GLOBALS['wp']['meta'][ $id ] : array();
+	if ( null === $key ) {
+		return $all;
+	}
+
+	return isset( $all[ $key ] ) ? $all[ $key ] : '';
 }
 function delete_post_meta( $id, $key ) {
 	unset( $GLOBALS['wp']['meta'][ $id ][ $key ] );
@@ -895,6 +905,77 @@ if ( ! function_exists( 'exec' ) ) {
 	ok( has( $txt, 'SOBREVIVIO' ), 'y devuelve el control en vez de fatalar, que es lo que tumbaba el sitio al subirlo' );
 	ok( ! has( $txt, 'Fatal error' ), 'sin fatal' );
 }
+
+/* ---------------------------------------------------------------------------
+ * Entrega: el sandbox se vacia, y "vacio" se comprueba leyendo.
+ * ------------------------------------------------------------------------- */
+echo "--- la entrega borra el sandbox y RELEE para saber si quedo vacio ---\n";
+
+/* El unico hallazgo de seguridad del informe: este directorio no se limpia nunca. Todo .php que
+   queda ahi sigue siendo ejecutable y alcanzable por URL en el sitio del cliente, para siempre. */
+$sb = es_sandbox_dir();
+foreach ( array( 'es-page-home.php', 'debug.log', 'notas.txt' ) as $f ) {
+	file_put_contents( $sb . '/' . $f, 'x' );
+}
+$antes = es_sandbox_report();
+ok( in_array( 'es-page-home.php', $antes, true ), 'el informe ve lo que hay antes de borrar' );
+ok( count( $antes ) >= 4, 'incluyendo el shim que este propio test dejo ahi' );
+
+$r    = grab( 'es_sandbox_purge' );
+$left = $r['ret'];
+ok( array() === $left, 'tras purgar, la lista de lo que queda viene vacia' );
+ok( array() === es_sandbox_report(), 'y releer el directorio lo confirma' );
+ok( '' === $r['out'], 'sin avisos, porque no quedo nada' );
+
+/* Un borrado que falla en silencio y uno que funciona son indistinguibles por el retorno de
+   unlink(). Por eso lo que se devuelve es lo que SIGUE ahi, no lo que se borro. */
+mkdir( $sb . '/subdir' );
+file_put_contents( $sb . '/subdir/dentro.php', 'x' );
+file_put_contents( $sb . '/imagen.png', 'x' );
+$r    = grab( 'es_sandbox_purge' );
+$left = $r['ret'];
+ok( in_array( 'imagen.png', $left, true ), 'una extension que este framework no sube no se toca' );
+ok( in_array( 'subdir', $left, true ), 'ni se entra en subdirectorios' );
+ok( file_exists( $sb . '/subdir/dentro.php' ), 'asi que un .php dentro de un subdirectorio sobrevive' );
+ok( '' !== $r['out'], 'y AVISA de que el sandbox no quedo vacio' );
+ok( has( $r['out'], 'imagen.png' ), 'nombrando lo que queda' );
+
+unlink( $sb . '/subdir/dentro.php' );
+rmdir( $sb . '/subdir' );
+unlink( $sb . '/imagen.png' );
+
+echo "--- las claves de respaldo se entregan, no se prometen ---\n";
+wp_fake_reset();
+$p1 = wp_fake_page( 'inicio' );
+$p2 = wp_fake_page( 'contacto' );
+$p3 = wp_fake_page( 'nueva' );
+$GLOBALS['wp']['meta'][ $p1 ]['_es_page_backup_20260101-101010'] = array( 'post_title' => 'a' );
+$GLOBALS['wp']['meta'][ $p1 ]['_es_page_backup_20260102-101010'] = array( 'post_title' => 'b' );
+$GLOBALS['wp']['meta'][ $p1 ]['_elementor_data']                 = '[]';
+$GLOBALS['wp']['meta'][ $p2 ]['_es_page_backup_20260103-101010'] = array( 'post_title' => 'c' );
+
+$k = es_backup_keys( array( $p1, $p2, $p3 ) );
+ok( isset( $k[ $p1 ] ) && 2 === count( $k[ $p1 ] ), 'una pagina reconstruida dos veces entrega sus dos claves' );
+ok( $k[ $p1 ][0] < $k[ $p1 ][1], 'ordenadas, asi que la ultima es la mas reciente' );
+ok( isset( $k[ $p2 ] ) && 1 === count( $k[ $p2 ] ), 'y cada pagina las suyas' );
+ok( ! isset( $k[ $p3 ] ), 'una pagina sin respaldos no aparece: una lista vacia no es una entrega' );
+ok( ! in_array( '_elementor_data', $k[ $p1 ], true ), 'y no cuela meta que no es un respaldo' );
+
+echo "--- el estado de indexacion se declara, no se supone ---\n";
+wp_fake_reset();
+$GLOBALS['wp']['options']['blog_public'] = '0';
+$st                                      = es_indexing_state();
+ok( false === $st['indexable'], "blog_public=0 es 'disuadir a los buscadores': el sitio NO es indexable" );
+ok( '0' === $st['blog_public'], 'y se devuelve el valor crudo, no solo el veredicto' );
+
+wp_fake_reset();
+$GLOBALS['wp']['options']['blog_public'] = '1';
+ok( true === es_indexing_state()['indexable'], 'blog_public=1 si lo es' );
+
+wp_fake_reset();
+$st = es_indexing_state();
+ok( false === $st['indexable'], 'sin la opcion puesta se falla CERRADO: no se declara indexable lo que no se leyo' );
+ok( null === $st['robots_file'], 'y sin robots.txt fisico se dice null, no se inventa un permiso' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

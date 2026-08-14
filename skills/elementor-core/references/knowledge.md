@@ -22,6 +22,14 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- **Delivery**: `es_sandbox_report()` lists what is still in `wp-content/novamira-sandbox/`;
+  `es_sandbox_purge()` deletes the build scripts and then RE-READS, returning what SURVIVED —
+  the proof is the re-read, because a purge blocked by permissions and one that worked look
+  identical from `unlink()`. It never recurses and never touches unknown extensions; those still
+  block delivery, they just need a human. `es_backup_keys($ids)` returns the restore keys per
+  page, newest last. `es_indexing_state()` reads `blog_public` only — `0` is "discourage search
+  engines" — and deliberately does NOT parse robots.txt, because a half-parser is a confident
+  wrong answer and a virtual robots.txt is invisible from disk anyway.
 - `es_migrate_slug($from,$to)` — MOVES the page instead of building a second one at the new slug
   (two pages competing, and the stale one usually wins because it has the history), verifies the
   slug actually moved, and records the pair in the `es_slug_redirects` option. **Nothing in this

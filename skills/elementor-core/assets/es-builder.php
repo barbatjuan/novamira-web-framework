@@ -1211,6 +1211,144 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
 }
 
 /**
+ * Where the sandbox lives. One definition, so nothing hand-builds this path.
+ *
+ * Every `.php` dropped in here EXECUTES on upload — that is how this framework runs at all, and
+ * it is also why leaving files behind matters: they stay executable on the client's site forever,
+ * reachable by anyone who guesses the URL, long after anybody remembers writing them.
+ */
+function es_sandbox_dir() {
+	return ( defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR : '' ) . '/novamira-sandbox';
+}
+
+/**
+ * What is still sitting in the sandbox?
+ *
+ * Returns a sorted list of filenames, `array()` when empty or absent. This is the READ that makes
+ * "I cleaned up" checkable: the delivery phase must show what remains, not assert it is nothing.
+ */
+function es_sandbox_report() {
+	$dir = es_sandbox_dir();
+	if ( ! is_dir( $dir ) ) {
+		return array();
+	}
+	$left = array();
+	foreach ( (array) scandir( $dir ) as $entry ) {
+		if ( '.' === $entry || '..' === $entry ) {
+			continue;
+		}
+		$left[] = $entry;
+	}
+	sort( $left );
+
+	return $left;
+}
+
+/**
+ * Delete the build scripts from the sandbox, then READ IT BACK and report what survived.
+ *
+ * The audit's one security finding was that this directory is never cleaned. Everything this
+ * framework uploads is executable PHP on a live site: helper libraries, page builders, whatever
+ * was pasted in to debug something at 2am. None of it is needed once the pages exist.
+ *
+ * The return value is what is STILL THERE after the attempt, never what was deleted, because a
+ * delete that silently failed on a permissions error and a delete that worked look identical from
+ * the return of unlink() alone. An empty array is the only proof of an empty sandbox.
+ *
+ * Scoped hard on purpose: only regular files DIRECTLY inside the sandbox, only when realpath()
+ * still resolves inside it, and only the extensions this framework uploads. It never recurses,
+ * never follows a link out, and never removes the directory itself.
+ */
+function es_sandbox_purge() {
+	$dir  = es_sandbox_dir();
+	$real = realpath( $dir );
+	if ( ! $real || ! is_dir( $real ) ) {
+		return array();
+	}
+	foreach ( es_sandbox_report() as $entry ) {
+		$path = $real . DIRECTORY_SEPARATOR . $entry;
+		$rp   = realpath( $path );
+		if ( ! $rp || 0 !== strpos( $rp, $real . DIRECTORY_SEPARATOR ) || ! is_file( $rp ) ) {
+			continue;   /* a link pointing out, or a subdirectory: not ours to touch */
+		}
+		$ext = strtolower( pathinfo( $rp, PATHINFO_EXTENSION ) );
+		if ( ! in_array( $ext, array( 'php', 'log', 'txt', 'json' ), true ) ) {
+			continue;
+		}
+		@unlink( $rp );
+	}
+	clearstatcache();
+	$left = es_sandbox_report();
+	if ( $left ) {
+		es_warn(
+			'el sandbox NO quedo vacio: siguen ahi ' . implode( ', ', $left ) . '. Todo .php que quede en '
+			. 'wp-content/novamira-sandbox/ se ejecuta y es alcanzable por URL en el sitio del cliente. '
+			. 'Borralos a mano antes de entregar.'
+		);
+	}
+
+	return $left;
+}
+
+/**
+ * Every backup key this framework has parked on a set of posts.
+ *
+ * Handing these over is the difference between "there is a backup" and "here is how to restore
+ * it". They are never pruned, so a long-lived page has one per rebuild, newest last.
+ *
+ * Returns `array( post_id => array( key, … ) )`, omitting posts with none.
+ */
+function es_backup_keys( array $post_ids ) {
+	$out = array();
+	foreach ( $post_ids as $id ) {
+		$keys = array();
+		foreach ( (array) get_post_meta( $id ) as $key => $value ) {
+			if ( 0 === strpos( (string) $key, '_es_page_backup_' ) ) {
+				$keys[] = $key;
+			}
+		}
+		if ( $keys ) {
+			sort( $keys );
+			$out[ (int) $id ] = $keys;
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * Does WordPress currently allow this site to be indexed?
+ *
+ * `blog_public` = 0 is the "discourage search engines" switch. Staging sites are built with it on
+ * and nobody remembers to turn it off, so the site is delivered looking perfect and stays invisible
+ * for weeks. It is one option and it decides whether any of the SEO work matters.
+ *
+ * Scope, stated rather than implied: this reads THAT OPTION and nothing else. It reports whether a
+ * PHYSICAL robots.txt exists next to WordPress, because that file overrides the virtual one, but it
+ * does NOT parse it — deciding what a robots file permits means honouring user-agent groups,
+ * wildcards and Allow precedence, and a half-parser here would be a confident wrong answer. A
+ * virtual robots.txt (WordPress's own, or a plugin's) is invisible from disk entirely. Fetching
+ * `/robots.txt` over HTTP and reading it is `qa-review`'s job, not this function's.
+ *
+ * Returns `array( 'indexable' => bool, 'blog_public' => mixed, 'robots_file' => string|null )`,
+ * where `robots_file` is the file's contents when one exists on disk.
+ */
+function es_indexing_state() {
+	$blog_public = get_option( 'blog_public' );
+	$robots      = null;
+	$path        = ( defined( 'ABSPATH' ) ? ABSPATH : '' ) . 'robots.txt';
+	if ( '' !== $path && file_exists( $path ) ) {
+		$robots = (string) file_get_contents( $path );
+	}
+
+	return array(
+		'indexable'   => ( '0' !== (string) $blog_public && '' !== (string) $blog_public ),
+		'blog_public' => $blog_public,
+		'robots_file' => $robots,
+	);
+}
+
+/**
  * Move a page from one slug to another, and record where the old URL went.
  *
  * A rebuild that "renames" a page did neither of the two things a rename needs. Building the new

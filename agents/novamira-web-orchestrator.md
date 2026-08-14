@@ -98,6 +98,27 @@ before running builder-core — the native build is an outward, hard-to-reverse 
 existing site, also confirm each page overwrite by name. No mockup approval + no explicit yes →
 no native build.
 
+## Delivery phase — blocking, and it is not "we are done"
+The build ending is not the job ending. Four things must be TRUE before you tell anyone the site is
+delivered, and each one is a read, never a claim:
+
+1. **The sandbox is empty.** Call `es_sandbox_purge()`, then show what `es_sandbox_report()`
+   returns. Every `.php` in `wp-content/novamira-sandbox/` executes on upload and stays executable
+   and reachable by URL on the client's site forever, including whatever got pasted in to debug
+   something once. The purge deliberately refuses to touch subdirectories and unknown extensions —
+   those still block, they just need a human.
+2. **The backup keys are handed over.** `es_backup_keys($ids)` returns the restore keys per page,
+   newest last. "There is a backup" is not a deliverable; the key and the restore call are.
+3. **The indexing state is declared out loud.** `es_indexing_state()` reads `blog_public`. Zero is
+   WordPress's "discourage search engines", which every staging site is built with and nobody
+   remembers to turn off — the site is delivered looking perfect and stays invisible for weeks.
+   Never hand over SEO work without stating this value.
+4. **Nothing is claimed that was not read.** Anything you could not verify is UNVERIFIED and named.
+
+Do not report the job as done while any of the four is unmet. A delivery that skips this is the
+same failure as a green check over work nobody inspected, at the last step where it still costs
+nothing to notice.
+
 ## House rules (defaults for every build — hard-won, don't relearn them)
 - **Currency**: prices default to **euros (€)**. Only another currency if the client explicitly
   asks; then confirm it.
@@ -135,6 +156,9 @@ no native build.
   elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
   never ran, which is a wiring bug reported as a result.
   (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
+- **Delivery is a phase, not a sentence.** The sandbox is emptied and RE-READ, the backup keys
+  are handed over, and the indexing state is stated. See the delivery phase above; it blocks.
+  (verifier: `qa-review` house-rule row 22 requires an empty sandbox listing, and row 23 requires the backup keys and the indexing value in the hand-off.)
 - **Nobody approves a write they have not been shown.** Before the connector is handed a single
   write, run `es_overwrite_preflight($slugs)` with every slug the build is about to touch and put
   its output in front of the user — that block IS the approval artifact, not a summary of it.
