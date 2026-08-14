@@ -1617,6 +1617,14 @@ function es_manifest_record( $section, array $data ) {
  * than repairing it: repairing would mean guessing which of the two truths is the intended one,
  * and the whole point is that only a human knows.
  *
+ * The lines state what was OBSERVED and never why. An earlier version of the first one said
+ * "somebody moved it outside this framework", which is a cause, and a live test proved it wrong the
+ * first time it fired: the manifest had a key that was not a slug at all (`front` written into the
+ * `pages` map, where the front page does not belong), and nobody had moved anything. A report whose
+ * whole rule is "never claim what you did not read" cannot afford a confident wrong diagnosis in
+ * its own rows — the reader who believes it goes hunting for an edit that never happened. So the
+ * row gives the two facts side by side and leaves the inference where it belongs.
+ *
  * Returns a list of human-readable drift lines, empty when the manifest still matches.
  */
 function es_manifest_verify() {
@@ -1630,7 +1638,8 @@ function es_manifest_verify() {
 		if ( ! $page ) {
 			$real = (string) get_post_field( 'post_name', $id );
 			$drift[] = '' !== $real
-				? 'la pagina #' . $id . ' que el manifiesto llama "' . $slug . '" ahora esta en "' . $real . '": alguien la movio fuera de este framework'
+				? 'el manifiesto llama "' . $slug . '" a la pagina #' . $id . ', y el slug vivo de esa pagina es "' . $real
+					. '". Los dos hechos, sin conclusion: puede que la renombraran fuera de este framework, o que lo anotado nunca fuera un slug'
 				: 'la pagina "' . $slug . '" (#' . $id . ') ya no existe: borrada o en la papelera desde la ultima sesion';
 			continue;
 		}

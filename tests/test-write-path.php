@@ -1145,7 +1145,20 @@ $c = wp_fake_page( 'contacto-nuevo' );
 es_manifest_record( 'pages', array( 'contacto' => $c ) );
 $d = grab( 'es_manifest_verify' )['ret'];
 ok( 1 === count( $d ) && has( $d[0], 'contacto-nuevo' ), 'una pagina movida a mano se detecta por el slug real' );
-ok( has( $d[0], 'fuera de este framework' ), 'y se dice que el movimiento vino de fuera' );
+ok( has( $d[0], 'contacto' ) && has( $d[0], '#' . $c ), 'la fila da los DOS hechos: lo que el manifiesto llama y lo que el sitio dice' );
+ok( ! has( $d[0], 'alguien la movio' ), 'y NO afirma quien lo hizo: eso es una causa, y esta fila solo puede observar' );
+
+/* La misma fila, otra causa entera. Encontrado probando contra WordPress de verdad: se anoto
+   `front => 2` DENTRO del mapa `pages`, que es slug->id, asi que la clave no era un slug y nadie
+   habia movido nada. La version anterior de esta fila diagnosticaba "alguien la movio fuera de este
+   framework" con total seguridad, y mandaba al lector a buscar una edicion que nunca existio. Un
+   informe cuya regla es no afirmar lo que no leyo no puede permitirse un porque inventado. */
+wp_fake_reset();
+$h = wp_fake_page( 'inicio' );
+es_manifest_record( 'pages', array( 'front' => $h ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ) && has( $d[0], 'inicio' ), 'una clave que no es un slug produce la misma fila' );
+ok( has( $d[0], 'nunca fuera un slug' ), 'y la fila admite ESA lectura tambien, en vez de elegir una' );
 
 /* Borrada y recreada: mismo slug, otro id. Es la peor, porque todo "parece" bien. */
 wp_fake_reset();
