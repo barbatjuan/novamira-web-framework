@@ -37,7 +37,7 @@ variant instead of adding a second color.
   family itself comes from the chosen personality (`design-personalities.md`) — never copy an
   illustrative example verbatim as a default.
 - `--font-secondary` — body. Normal weight, open line-height. May equal `--font-primary`. Never
-  a third family. See `design-personalities.md` for the 8 concrete pairings.
+  a third family. See `design-personalities.md` for the four concrete pairings — one per anchor.
 - Hierarchy per section: eyebrow (`--fs-eyebrow`, uppercase, letter-spaced) → heading → paragraph.
   One `--fs-h1` per page.
 - The scale is fluid (`clamp()`), so sizes come from the token, never from a per-section override.
@@ -48,10 +48,24 @@ variant instead of adding a second color.
 - Grid gaps use one step of the `--sp-*` scale; tight mobile gaps use the step below. Nothing
   outside the scale.
 - Radii carry meaning: containers are the softest, then cards; buttons, inputs and images share
-  the smallest step. Separate tokens are what let a personality go sharp (Minimal Swiss, Tech
-  Precision) or soft (Warm Boutique) without touching a single module.
+  the smallest step. Separate tokens are what let one anchor go sharp and another soft without
+  touching a single module — each anchor's Card recipe in `design-personalities.md` says which.
 - Audit margins as a dedicated pass — inconsistent spacing is the #1 tell of a cheap template.
 
 ## Imagery
 - Real, high-quality photography (stock via a licensed source). Cover-fit with subtle dark
   gradient scrims over hero/CTA photos so white text stays legible.
+
+## Perceptual axes
+Five axes carry what makes two sites feel different; the accent colour is NOT one of them, it
+derives from the brand. Values live in `web-templates/references/design-system.md`.
+- **Scale** — the RANGE between body and display, and how tight the display leads. The single
+  largest perceptual difference between two sites, and the one the framework never varied.
+- **Ground** — what the page is made of. Choosing white is a decision and is recorded as one;
+  white-by-default is how a site reads as a template.
+- **Density** — one multiplier over the whole spacing scale, so the rhythm stays consistent while
+  the airiness changes completely.
+- **Composition** — which section blueprint is on offer, not free improvisation. Each position
+  names one blueprint in `references/layout-patterns.md`; that blueprint, not a sentence, is the
+  value. Apply it to every section.
+- **Elevation** — how separation is expressed: air, a hairline, a shadow, or an accent glow.

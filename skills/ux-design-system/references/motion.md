@@ -9,6 +9,13 @@ native custom-CSS field, scoped to the element, never a global stylesheet).
 - Shadow on hover: `0 18px 40px -12px rgba(21,24,26,.16)` (soft, not a hard border swap).
 - `will-change:transform`. Avoid `translateY(-6px)`+`scale(1.06)`+`.35s` → feels snappy/cheap.
 
+## Elevation tokens (`--elev-rest`, `--elev-hover`)
+The hardcoded shadow above is one elevation position's value, not the only one — a site can also
+sit on a hairline, an accent glow, or nothing at all. `--elev-rest` / `--elev-hover` replace that
+hardcoded shadow per the position chosen on the elevation axis; see
+`web-templates/references/design-system.md` for the four positions' values. The hover curve and
+durations above are unchanged regardless of which elevation position is in play.
+
 ## Premium feature card (reuse everywhere)
 White card, 1px neutral border, radius 16, padding ~34/30. Accent circular icon chip
 (icon widget `view:stacked`, `shape:circle`, accent fill, white glyph). On hover:

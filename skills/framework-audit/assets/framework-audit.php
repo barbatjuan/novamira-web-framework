@@ -89,9 +89,14 @@ const ROW_TYPES = array(
 	'RT_PERS_CATALOG_MISSING'    => 'FAIL  — ux-design-system/references/design-personalities.md is missing',
 	'RT_PERS_MISSING_FIELD'      => 'FAIL  — a personality block in design-personalities.md is missing a required field',
 	'RT_PERS_ID_MISSING'         => 'FAIL  — a required personality ID is absent from design-personalities.md',
+	'RT_PERS_DUPLICATE_ID'       => 'FAIL  — design-personalities.md declares the same personality ID twice',
+	'RT_PERS_TOO_SIMILAR'        => 'FAIL  — two personality anchors share more than one axis position',
+	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
-	'RT_UXDS_NO_CAPA2_STEP'      => 'FAIL  — ux-design-system/SKILL.md has no CAPA 2 personality-recommender step',
+	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
+	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position\'s own table row in design-system.md carries no token-shaped value',
+	'RT_AXIS_BLUEPRINT_MISSING'  => 'FAIL  — an axis position names a blueprint layout-patterns.md never defines',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -929,11 +934,41 @@ if ( file_exists( $hr_file ) ) {
 
 /* --------------------------------------- ux-design-system personality catalog */
 
-$PERS_IDS = array(
-	'PERS-EDITORIAL', 'PERS-BOLD-STARTUP', 'PERS-MINIMAL-SWISS', 'PERS-WARM-BOUTIQUE',
-	'PERS-CORPORATE-TRUST', 'PERS-FASHION-EDIT', 'PERS-TECH-PRECISION', 'PERS-PERFORMANCE-ENERGY',
+$PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL' );
+/* Color mood and "Radius & shadow" are gone as prose fields: ground and elevation are AXES now,
+   and a field that repeats an axis in adjectives is how the old catalog drifted from its own
+   values. Motion stays prose on purpose — the distance rule below is about what a still frame
+   shows, and motion.md already pins the curve and the ranges. */
+$PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
+$PERS_AXES   = array(
+	'scale'       => array( 'contained', 'classic', 'editorial', 'monumental' ),
+	'ground'      => array( 'paper', 'warm', 'cool', 'ink' ),
+	'density'     => array( 'compact', 'standard', 'generous', 'monumental' ),
+	'composition' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
+	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
 );
-$PERS_FIELDS = array( 'Fits', 'Typography', 'Color mood', 'Radius & shadow', 'Motion intensity', 'Imagery', 'Card recipe' );
+
+/**
+ * The axis positions one anchor block declares.
+ *
+ * Parsed from a single `**Axes:**` line so the contract is one line a human can read and a
+ * machine can compare. Returns `axis => position`, omitting anything the line does not name —
+ * a missing axis surfaces as RT_PERS_MISSING_FIELD or as an unnamed axis, never as a silent
+ * default, because an axis nobody sets is exactly how every project lands on the same value.
+ */
+function pers_axes( $block ) {
+	if ( ! preg_match( '/^\*\*Axes:\*\*(.+)$/m', $block, $m ) ) {
+		return array();
+	}
+	$out = array();
+	if ( preg_match_all( '/([a-z]+)\s+`([a-z-]+)`/', $m[1], $mm, PREG_SET_ORDER ) ) {
+		foreach ( $mm as $pair ) {
+			$out[ $pair[1] ] = $pair[2];
+		}
+	}
+
+	return $out;
+}
 
 $pers_file = $root . '/skills/ux-design-system/references/design-personalities.md';
 if ( ! file_exists( $pers_file ) ) {
@@ -942,21 +977,200 @@ if ( ! file_exists( $pers_file ) ) {
 	$pers_src = slurp( $pers_file );
 	$blocks   = preg_split( '/(?=^### `PERS-[A-Z-]+`)/m', $pers_src );
 	$found    = array();
+	$axes_of  = array();
 	foreach ( $blocks as $block ) {
 		if ( ! preg_match( '/^### `(PERS-[A-Z-]+)`/', $block, $hm ) ) {
 			continue;
 		}
-		$pid           = $hm[1];
+		$pid = $hm[1];
+		/* Both $found and $axes_of are keyed by ID, so a SECOND `### `PERS-X`` heading used to
+		   overwrite the first with no complaint. Proven on this checkout: make PERS-MATTER share
+		   four axes with PERS-EDITORIAL (RT_PERS_TOO_SIMILAR FAILs, 1 FAIL), then append one more
+		   `### `PERS-EDITORIAL`` block carrying a distant axis set — the audit returns to 0 FAIL,
+		   because the real anchor's positions were replaced by the copy's before the comparison ran.
+		   A stray duplicate heading was a silent off switch for the flagship check.
+		   The FIRST block stays authoritative and the copy is reported, never merged: keeping the
+		   last one would preserve exactly the shadowing this row exists to make impossible. */
+		if ( isset( $found[ $pid ] ) ) {
+			add( 'RT_PERS_DUPLICATE_ID', 'FAIL', 'ux-design-system', 'design-personalities.md declares "' . $pid . '" more than once — the later block silently replaced the first, which is enough to switch RT_PERS_TOO_SIMILAR off for the real anchor' );
+			continue;
+		}
 		$found[ $pid ] = true;
 		foreach ( $PERS_FIELDS as $field ) {
 			if ( false === strpos( $block, '**' . $field . ':**' ) ) {
 				add( 'RT_PERS_MISSING_FIELD', 'FAIL', 'ux-design-system', 'design-personalities.md: ' . $pid . ' is missing required field "' . $field . '"' );
 			}
 		}
+		$axes = pers_axes( $block );
+		$ok   = true;
+		foreach ( $PERS_AXES as $axis => $positions ) {
+			if ( ! isset( $axes[ $axis ] ) ) {
+				add( 'RT_PERS_BAD_AXIS', 'FAIL', 'ux-design-system', $pid . ' names no position for axis "' . $axis . '"' );
+				$ok = false;
+			} elseif ( ! in_array( $axes[ $axis ], $positions, true ) ) {
+				add( 'RT_PERS_BAD_AXIS', 'FAIL', 'ux-design-system', $pid . ' places axis "' . $axis . '" at "' . $axes[ $axis ] . '", which that axis does not define' );
+				$ok = false;
+			}
+		}
+		/* Only fully valid anchors enter the comparison. An invalid position is not a coincidence,
+		   and counting it would report two anchors as "too similar" over a typo. */
+		if ( $ok ) {
+			$axes_of[ $pid ] = $axes;
+		}
+	}
+	$ids = array_keys( $axes_of );
+	foreach ( $ids as $i => $a ) {
+		foreach ( array_slice( $ids, $i + 1 ) as $b ) {
+			$shared = array();
+			foreach ( $PERS_AXES as $axis => $_ ) {
+				if ( $axes_of[ $a ][ $axis ] === $axes_of[ $b ][ $axis ] ) {
+					$shared[] = $axis . ' `' . $axes_of[ $a ][ $axis ] . '`';
+				}
+			}
+			if ( count( $shared ) > 1 ) {
+				add(
+					'RT_PERS_TOO_SIMILAR',
+					'FAIL',
+					'ux-design-system',
+					$a . ' and ' . $b . ' share ' . count( $shared ) . ' axes (' . implode( ', ', $shared )
+						. ') — two anchors may share at most one, or they ship as the same site with a different accent'
+				);
+			}
+		}
 	}
 	foreach ( $PERS_IDS as $pid ) {
 		if ( ! isset( $found[ $pid ] ) ) {
 			add( 'RT_PERS_ID_MISSING', 'FAIL', 'ux-design-system', 'design-personalities.md is missing personality "' . $pid . '"' );
+		}
+	}
+}
+
+/**
+ * Every markdown table row that DEFINES one axis position, as its list of candidate value cells.
+ *
+ * "Defines" is narrow on purpose: a row one of whose cells is EXACTLY `<position>` — backticked,
+ * nothing else in the cell. Everything to the RIGHT of that cell is a candidate value; everything
+ * to its left is the table's own labelling. A prose paragraph that merely names the position is
+ * not a row and contributes nothing, and neither does a heading. A separator row (|---|:--:|) can
+ * never match, because no cell of one is ever exactly a backticked position.
+ *
+ * Rows come back one by one, not merged, because one position can legitimately own two rows —
+ * `monumental` is a position on BOTH the scale axis and the density axis — and each of those rows
+ * has to carry its own value. Merging them would let a filled scale row cover for an emptied
+ * density row, which is the same "some value-looking string exists elsewhere" hole one level down.
+ */
+function axis_rows_for( $src, $pos ) {
+	$want = '`' . $pos . '`';
+	$out  = array();
+	foreach ( explode( "\n", $src ) as $line ) {
+		$line = trim( $line );
+		if ( '' === $line || '|' !== $line[0] ) {
+			continue;
+		}
+		$cells = array_map( 'trim', explode( '|', trim( $line, '|' ) ) );
+		$at    = array_search( $want, $cells, true );
+		if ( false === $at ) {
+			continue;
+		}
+		$out[] = array_slice( $cells, $at + 1 );
+	}
+
+	return $out;
+}
+
+/**
+ * What ONE markdown table cell offers as a token value: array( kind, payload ).
+ *
+ *   array( 'literal',   <token> ) — a hex colour, a bare number, a CSS length/time, `none`, or a
+ *                                   CSS function call (var/calc/clamp/rgba/color-mix/…).
+ *   array( 'blueprint', <id> )    — a BACKTICKED screaming-case identifier, e.g. `LP-BROKEN-GRID`.
+ *   array( '', '' )               — an empty cell, a bare adjective, or a prose sentence.
+ *
+ * Only the cell's LEADING token decides, and a cell that opens with a backticked run is judged on
+ * what is inside those backticks. `0 0 0 1px var(--c-border)` is a value whose first token is a
+ * number; "cream/ivory, e.g. `#FFF3E3`" opens with prose, so the hex it mentions later is an
+ * illustration and not the cell's value. Requiring the blueprint form to be SCREAMING-CASE is what
+ * stops the laziest non-answer of all: repeating the position's own lowercase name as its value.
+ *
+ * The incident this replaces: RT_AXIS_VALUE_MISSING used to ask only whether the position NAME
+ * appeared between backticks ANYWHERE in design-system.md. Replacing the whole value section with a
+ * bare table of backticked names and empty value cells kept the gate at 0 FAIL — verified on this
+ * checkout — and under that check ground `cool`, ground `ink` and all four composition positions
+ * shipped with no value at all, which is the exact "a position with no value is an adjective"
+ * failure the row was written to prevent.
+ */
+function axis_value_kind( $cell ) {
+	$cand       = trim( $cell );
+	$backticked = false;
+	if ( preg_match( '/^`([^`]+)`/', $cand, $m ) ) {
+		$cand       = trim( $m[1] );
+		$backticked = true;
+	}
+	/* No early return for an empty cell: every branch below needs at least one character to match,
+	   so '' falls through to array( '', '' ) on its own. A guard here would be a branch no fixture
+	   can reach, which is the shape this suite treats as a defect rather than as caution.
+	   A CSS function is one value even though its first whitespace-delimited token carries a paren
+	   and usually a comma, so it is recognised before the token split rather than after it. */
+	if ( preg_match( '/^(?:var|calc|clamp|min|max|rgba?|hsla?|color-mix|linear-gradient)\s*\(/i', $cand ) ) {
+		return array( 'literal', $cand );
+	}
+	$parts = preg_split( '/\s+/', $cand );
+	$tok   = $parts[0];
+	if ( preg_match( '/^(?:#[0-9A-Fa-f]{3,8}|-?(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em|ch|ex|vw|vh|vmin|vmax|%|fr|deg|ms|s)?|none)$/i', $tok ) ) {
+		return array( 'literal', $tok );
+	}
+	if ( $backticked && preg_match( '/^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$/', $tok ) ) {
+		return array( 'blueprint', $tok );
+	}
+
+	return array( '', '' );
+}
+
+/* Top level, not inside the `else` above: the axes $PERS_AXES declares exist whether or not the
+   catalog file does, so a missing catalog must not also silence this check.
+   A position with no value is an adjective. The old catalog was entirely adjectives, which is
+   why it produced one look: nothing downstream could act on "softest step of the scale". */
+$ds_file = $root . '/skills/web-templates/references/design-system.md';
+$ds_src  = file_exists( $ds_file ) ? slurp( $ds_file ) : '';
+/* Composition is the one axis whose value is a layout rule rather than a number, so its positions
+   point at named blueprints. A blueprint nobody wrote is an adjective with a code number on it —
+   the same failure in a smarter disguise — so the name has to resolve to a real heading. */
+$lp_file = $root . '/skills/ux-design-system/references/layout-patterns.md';
+$lp_src  = file_exists( $lp_file ) ? slurp( $lp_file ) : '';
+foreach ( $PERS_AXES as $axis => $positions ) {
+	foreach ( $positions as $pos ) {
+		/* $pos_rows, not $rows: $rows is this script's global findings accumulator, and the first
+		   draft of this loop shadowed it — the report section then read axis cells as findings and
+		   printed "0 FAIL" over a tree with WARNs in it. The suite's diagnostics tracker caught it;
+		   the counts line alone would not have. */
+		$pos_rows   = axis_rows_for( $ds_src, $pos );
+		$blank      = 0;
+		$blueprints = array();
+		foreach ( $pos_rows as $pos_cells ) {
+			$row_has = false;
+			foreach ( $pos_cells as $cell ) {
+				list( $kind, $payload ) = axis_value_kind( $cell );
+				if ( '' === $kind ) {
+					continue;
+				}
+				$row_has = true;
+				if ( 'blueprint' === $kind ) {
+					$blueprints[ $payload ] = true;
+				}
+			}
+			if ( ! $row_has ) {
+				++$blank;
+			}
+		}
+		if ( array() === $pos_rows ) {
+			add( 'RT_AXIS_VALUE_MISSING', 'FAIL', 'web-templates', 'design-system.md gives no value for axis "' . $axis . '" position "' . $pos . '" — no table row of its own anywhere in the file (a prose mention, backticked or not, is not a row)' );
+		} elseif ( $blank > 0 ) {
+			add( 'RT_AXIS_VALUE_MISSING', 'FAIL', 'web-templates', 'design-system.md gives no value for axis "' . $axis . '" position "' . $pos . '" — ' . $blank . ' of its ' . count( $pos_rows ) . ' table row(s) carry no token-shaped value cell (hex, number, CSS length, var()/calc()/clamp(), none, or a backticked blueprint id)' );
+		}
+		foreach ( array_keys( $blueprints ) as $bp ) {
+			if ( ! preg_match( '/^#{2,6}\s+`' . preg_quote( $bp, '/' ) . '`/m', $lp_src ) ) {
+				add( 'RT_AXIS_BLUEPRINT_MISSING', 'FAIL', 'ux-design-system', 'design-system.md values axis "' . $axis . '" position "' . $pos . '" as blueprint `' . $bp . '`, but layout-patterns.md defines no heading by that name — the position points at nothing' );
+			}
 		}
 	}
 }
@@ -979,8 +1193,17 @@ if ( file_exists( $uxds_skill ) ) {
 	if ( false === strpos( $uxds_src, 'design-personalities.md' ) ) {
 		add( 'RT_CATALOG_UNMENTIONED', 'FAIL', 'ux-design-system', 'SKILL.md never mentions design-personalities.md — the personality catalog is unreachable from the skill' );
 	}
-	if ( false === strpos( $uxds_src, 'CAPA 2' ) ) {
-		add( 'RT_UXDS_NO_CAPA2_STEP', 'FAIL', 'ux-design-system', 'SKILL.md has no CAPA 2 recommender step for picking a personality' );
+	/* Scoped to "## Execution Steps" alone (same slicing shape collect_skill_steps() already uses
+	   above for the same heading), and matched case-insensitively for BOTH "axis" and "axes": a
+	   whole-file scan for the bare word "axis" is too easy to satisfy by accident (CSS "main
+	   axis"/"cross axis", "x-axis", or a hit inside "praxis") without the STEPS actually routing
+	   the reader to resolving them, which is the property this row exists to guarantee. */
+	$uxds_steps = null;
+	if ( preg_match( '/^## Execution Steps\b[^\n]*\n(.*?)(?=\n## |\z)/ms', $uxds_src, $sm ) ) {
+		$uxds_steps = $sm[1];
+	}
+	if ( null === $uxds_steps || ( false === stripos( $uxds_steps, 'axis' ) && false === stripos( $uxds_steps, 'axes' ) ) ) {
+		add( 'RT_UXDS_NO_AXIS_STEP', 'FAIL', 'ux-design-system', 'SKILL.md Execution Steps never mention the axes — the personality dialogue is unreachable from the skill' );
 	}
 }
 
