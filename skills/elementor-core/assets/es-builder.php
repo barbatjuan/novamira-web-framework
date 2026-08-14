@@ -670,6 +670,11 @@ function es_container_walk( array $els, $depth, $path, array &$out, array $anc =
 		foreach ( array( 'image', 'background_image' ) as $k ) {
 			if ( isset( $settings[ $k ]['es_missing'] ) ) { $out['offenders'][] = $here . ' ' . ( '' === $type ? '(sin elType)' : $type ) . ' sin imagen: el slug "' . $settings[ $k ]['es_missing'] . '" no existe, va a renderizar vacio'; }
 		}
+		/* Also above the dispatch: a setting written on the wrong element type saves fine and never
+		   applies — visible in the source, absent on screen, so it gets re-added and re-wondered-at. */
+		foreach ( es_key_offenders( $type, $settings ) as $why ) {
+			$out['offenders'][] = $here . ' ' . ( '' === $type ? '(sin elType)' : $type ) . ' ' . $why;
+		}
 		if ( 'container' === $type ) {
 			$out['containers']++;
 			$d = $depth + 1;
@@ -1208,6 +1213,53 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
 	update_post_meta( $post_id, $key, $state );
 
 	return $key;
+}
+
+/**
+ * Settings written on the wrong element type, which Elementor accepts and then ignores.
+ *
+ * Elementor names the same visual control differently depending on where it lives: a CONTAINER
+ * takes `padding`, a WIDGET takes `_padding`, because on a widget those are wrapper ("advanced")
+ * controls and carry an underscore. Write the container form on a widget and the JSON saves, the
+ * editor opens, the page renders — and the padding is simply not there. Nothing errors. It is the
+ * quietest failure in the whole library: the setting is visible in the source and absent on screen,
+ * so it gets re-added, re-saved and re-wondered-at.
+ *
+ * The key list is deliberately SHORT and derived from this library's own usage, not from memory of
+ * Elementor's control catalogue. `width` is the reason for that caution: it is a container layout
+ * key AND a genuine control on several widgets, so flagging it would invent offenders. A check that
+ * cries wolf is one people learn to skip, which is the failure this repo exists to remove — so when
+ * in doubt, a key stays off the list and the gap is real rather than papered over.
+ *
+ * Reports, never blocks, through the same offender channel as everything else in the walk.
+ */
+function es_key_offenders( $type, array $settings ) {
+	/* Container-only layout keys: a widget has no flex box of its own to configure. */
+	$container_only = array( 'content_width', 'flex_direction', 'flex_gap', 'flex_justify_content', 'flex_align_items' );
+	/* Wrapper controls, spelled bare on a container and underscored on a widget. */
+	$wrapper = array( 'padding', 'margin', 'background_background' );
+
+	$out = array();
+	if ( 'widget' === $type ) {
+		foreach ( $container_only as $key ) {
+			if ( isset( $settings[ $key ] ) ) {
+				$out[] = 'lleva "' . $key . '", que es una clave de CONTENEDOR: Elementor la guarda y no la aplica. Ponla en el contenedor padre';
+			}
+		}
+		foreach ( $wrapper as $key ) {
+			if ( isset( $settings[ $key ] ) && ! isset( $settings[ '_' . $key ] ) ) {
+				$out[] = 'lleva "' . $key . '" sin guion bajo: en un widget esa clave es "_' . $key . '" y sin el no hace nada';
+			}
+		}
+	} elseif ( 'container' === $type ) {
+		foreach ( $wrapper as $key ) {
+			if ( isset( $settings[ '_' . $key ] ) && ! isset( $settings[ $key ] ) ) {
+				$out[] = 'lleva "_' . $key . '" con guion bajo: en un contenedor esa clave es "' . $key . '" y con el no hace nada';
+			}
+		}
+	}
+
+	return $out;
 }
 
 /**

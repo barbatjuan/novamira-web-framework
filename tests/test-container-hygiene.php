@@ -257,6 +257,36 @@ $bgroto = es_c( array( 'background_background' => 'classic', 'background_image' 
 ok( has( es_container_audit( array( $bgroto ) )['offenders'], 'fondo-fantasma' ), 'un fondo de CONTENEDOR que no existe tambien es offender' );
 ok( has( es_container_audit( array( es_split( array( es_photo( '', 400 ), es_p( 'c' ) ) ) ) )['offenders'], 'sin imagen' ), 'un slug VACIO tambien, no solo uno falsy-distinto-de-vacio' );
 
+echo "--- una clave en el elemento equivocado se guarda y no se aplica ---\n";
+/* Elementor llama al mismo control distinto segun donde viva: un CONTENEDOR toma `padding`, un
+   WIDGET toma `_padding`, porque ahi es un control de envoltorio. Escribir la forma de contenedor
+   en un widget guarda bien, abre bien y no aplica nada. Es el fallo mas silencioso de la libreria:
+   se ve en el codigo y no en la pantalla, asi que se vuelve a poner y a mirar con cara rara. */
+$mal = es_w( 'heading', array( 'title' => 'x', 'padding' => es_box( 10, 10, 10, 10 ) ) );
+$off = es_container_audit( array( es_split( array( $mal, es_p( 'y' ) ) ) ) )['offenders'];
+ok( has( $off, 'sin guion bajo' ), 'padding sin guion bajo en un widget es offender' );
+ok( has( $off, '_padding' ), 'y el aviso dice cual es la clave correcta' );
+
+$bien = es_w( 'heading', array( 'title' => 'x', '_padding' => es_box( 10, 10, 10, 10 ) ) );
+ok( ! es_container_audit( array( es_split( array( $bien, es_p( 'y' ) ) ) ) )['offenders'], 'con guion bajo no dispara nada' );
+
+/* Y al reves: la forma de widget en un contenedor tampoco aplica. */
+$cmal = es_c( array( '_padding' => es_box( 10, 10, 10, 10 ) ), array( es_h( 'a' ), es_h( 'b' ) ) );
+ok( has( es_container_audit( array( $cmal ) )['offenders'], 'con guion bajo' ), 'un contenedor con _padding tambien es offender' );
+
+/* Una clave de layout de contenedor en un widget: no hay caja flex que configurar ahi. */
+$flex = es_w( 'heading', array( 'title' => 'x', 'flex_direction' => 'row' ) );
+ok( has( es_container_audit( array( es_split( array( $flex, es_p( 'y' ) ) ) ) )['offenders'], 'clave de CONTENEDOR' ), 'flex_direction en un widget es offender' );
+
+/* El control de falsos positivos, que es lo que decide si este check sirve o estorba: `width` es
+   clave de layout de contenedor Y control propio de varios widgets, asi que NO esta en la lista. */
+$w = es_w( 'image', array( 'width' => es_size( 50, '%' ) ) );
+ok( ! es_container_audit( array( es_split( array( $w, es_p( 'y' ) ) ) ) )['offenders'], 'width en un widget NO se marca: seria un offender inventado' );
+
+/* Un widget que lleva las DOS formas ya tiene la buena puesta: avisar seria ruido. */
+$dos = es_w( 'heading', array( 'title' => 'x', 'padding' => es_box( 1, 1, 1, 1 ), '_padding' => es_box( 2, 2, 2, 2 ) ) );
+ok( ! es_container_audit( array( es_split( array( $dos, es_p( 'y' ) ) ) ) )['offenders'], 'llevando ambas, no se avisa: la correcta ya esta' );
+
 echo "--- veredicto de corrida ---\n";
 $GLOBALS['es_audit_runs'] = array();
 es_container_report( array( es_split( array( es_h( 'a' ), es_h( 'b' ) ) ) ), 'limpia' );

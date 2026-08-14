@@ -22,6 +22,13 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_key_offenders($type,$settings)` — a setting on the WRONG element type. Elementor names the
+  same control differently by location: a container takes `padding`, a widget takes `_padding`
+  (wrapper controls carry the underscore). The wrong form saves, opens and renders and simply does
+  not apply — visible in the source, absent on screen. `es_container_walk()` calls it, so these
+  reach the verdict through the existing offender channel. The key list is deliberately SHORT and
+  taken from this library'''s own usage: `width` is excluded because it is both a container layout
+  key and a real widget control, and an invented offender costs more than a missed one.
 - **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
   `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
   false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so
