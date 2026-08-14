@@ -25,10 +25,15 @@
 - `es_key_offenders($type,$settings)` — a setting on the WRONG element type. Elementor names the
   same control differently by location: a container takes `padding`, a widget takes `_padding`
   (wrapper controls carry the underscore). The wrong form saves, opens and renders and simply does
-  not apply — visible in the source, absent on screen. `es_container_walk()` calls it, so these
-  reach the verdict through the existing offender channel. The key list is deliberately SHORT and
-  taken from this library'''s own usage: `width` is excluded because it is both a container layout
-  key and a real widget control, and an invented offender costs more than a missed one.
+  not apply. **MEASURED on Elementor 4.2.2**, by building a page and reading the regenerated
+  `post-<id>.css`: a widget with `_padding:33px` produced `.elementor-element-…{padding:33px 33px
+  33px 33px;}`, while a widget with `padding:44px` produced NO rule and `44px` appeared nowhere in
+  the file. Both directions and the layout keys behave the same — a container with `padding:55px`
+  emitted `--padding-top:55px`, one with `_padding:66px` emitted nothing, and `flex_direction` on a
+  widget emitted nothing. The wrong form never reaches the stylesheet at all.
+  `es_container_walk()` calls it, so these reach the verdict through the existing offender channel.
+  The key list is deliberately SHORT: `width` is excluded because it is both a container layout key
+  and a real widget control, and an invented offender costs more than a missed one.
 - **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
   `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
   false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so

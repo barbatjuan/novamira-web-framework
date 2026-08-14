@@ -1249,11 +1249,23 @@ function es_backup_page_state( $post_id, array $meta_keys ) {
  * quietest failure in the whole library: the setting is visible in the source and absent on screen,
  * so it gets re-added, re-saved and re-wondered-at.
  *
- * The key list is deliberately SHORT and derived from this library's own usage, not from memory of
- * Elementor's control catalogue. `width` is the reason for that caution: it is a container layout
- * key AND a genuine control on several widgets, so flagging it would invent offenders. A check that
- * cries wolf is one people learn to skip, which is the failure this repo exists to remove — so when
- * in doubt, a key stays off the list and the gap is real rather than papered over.
+ * MEASURED on Elementor 4.2.2, not reasoned. A page was built with paired elements and its CSS
+ * regenerated through `\Elementor\Core\Files\CSS\Post`, then read back:
+ *
+ *   widget with `_padding: 33px`     -> `.elementor-element-wbajo001{padding:33px 33px 33px 33px;}`
+ *   widget with `padding: 44px`      -> NO rule at all; "44px" appears nowhere in the file
+ *   container with `padding: 55px`   -> `--padding-top:55px; …`
+ *   container with `_padding: 66px`  -> NO rule; "66px" appears nowhere
+ *   widget with `flex_direction:row` -> NO rule at all
+ *
+ * So the wrong form is not merely ignored at render time: it never reaches the stylesheet. Nothing
+ * warns, nothing errors, and the JSON keeps the setting forever.
+ *
+ * The key list is deliberately SHORT. `width` is the reason for that caution: it is a container
+ * layout key AND a genuine control on several widgets, so flagging it would invent offenders on
+ * correct code — mutation proves it, by breaking three existing assertions. A check that cries wolf
+ * is one people learn to skip, which is the failure this repo exists to remove, so when in doubt a
+ * key stays off the list and the gap is real rather than papered over.
  *
  * Reports, never blocks, through the same offender channel as everything else in the walk.
  */
