@@ -94,6 +94,7 @@ const ROW_TYPES = array(
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
 	'RT_UXDS_NO_CAPA2_STEP'      => 'FAIL  — ux-design-system/SKILL.md has no CAPA 2 personality-recommender step',
+	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position has no token value in design-system.md',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1026,6 +1027,20 @@ if ( ! file_exists( $pers_file ) ) {
 	foreach ( $PERS_IDS as $pid ) {
 		if ( ! isset( $found[ $pid ] ) ) {
 			add( 'RT_PERS_ID_MISSING', 'FAIL', 'ux-design-system', 'design-personalities.md is missing personality "' . $pid . '"' );
+		}
+	}
+}
+
+/* Top level, not inside the `else` above: the axes $PERS_AXES declares exist whether or not the
+   catalog file does, so a missing catalog must not also silence this check.
+   A position with no value is an adjective. The old catalog was entirely adjectives, which is
+   why it produced one look: nothing downstream could act on "softest step of the scale". */
+$ds_file = $root . '/skills/web-templates/references/design-system.md';
+$ds_src  = file_exists( $ds_file ) ? slurp( $ds_file ) : '';
+foreach ( $PERS_AXES as $axis => $positions ) {
+	foreach ( $positions as $pos ) {
+		if ( false === strpos( $ds_src, '`' . $pos . '`' ) ) {
+			add( 'RT_AXIS_VALUE_MISSING', 'FAIL', 'web-templates', 'design-system.md gives no value for axis "' . $axis . '" position "' . $pos . '"' );
 		}
 	}
 }

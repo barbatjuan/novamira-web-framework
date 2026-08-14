@@ -134,3 +134,52 @@ CSS con las `--*` en `:root`. **Divi:** colores/fuentes → Theme Customizer + G
 
 Definir las variables `--*` en `:root` una sola vez = cambiar branding sin tocar módulos. Es la
 clave de la reutilización, y hace que maqueta HTML y build nativo compartan el mismo origen.
+
+## Perceptual axes — token values
+
+### Scale (`--type-ratio`, `--display-lh`, `--fs-h1-max`)
+| Position | `--type-ratio` | `--display-lh` | `--fs-h1-max` |
+|---|---|---|---|
+| `contained` | 1.200 | 1.25 | 48px |
+| `classic` | 1.333 | 1.10 | 64px |
+| `editorial` | 1.500 | 0.95 | 88px |
+| `monumental` | 1.618 | 0.82 | 120px |
+
+Every heading token derives from the ratio, never by hand:
+`--fs-h3: clamp(calc(var(--fs-body) * var(--type-ratio)), 2.2vw + .6rem, …)`, h2 at the square,
+h1 at the cube with `--fs-h1-max` as the hard cap. Body stays `1rem`–`1.25rem` at every position.
+
+### Density (`--sp-scale`)
+| Position | `--sp-scale` |
+|---|---|
+| `compact` | 0.8 |
+| `standard` | 1.0 |
+| `generous` | 1.35 |
+| `monumental` | 1.7 |
+
+One multiplier over the whole `--sp-*` scale, so rhythm consistency survives by construction.
+Section padding becomes fluid: `padding-block: clamp(calc(2rem * var(--sp-scale)), 6vw, calc(7rem * var(--sp-scale)))`.
+
+### Ground (`--c-bg`, `--c-bg-alt`, contrast derivation)
+| Position | `--c-bg` | Contrast is derived toward |
+|---|---|---|
+| `paper` | `#FFFFFF` | neutral near-black |
+| `warm` | cream/ivory, e.g. `#FFF3E3` | warm near-black (brown-black) |
+| `cool` | very light blue-grey | deep blue-grey |
+| `ink` | near-black | near-white text; re-derive the accent for contrast on dark |
+
+### Elevation (`--elev-rest`, `--elev-hover`)
+| Position | `--elev-rest` | `--elev-hover` |
+|---|---|---|
+| `none` | `none` | `none` — separation is whitespace |
+| `hairline` | `0 0 0 1px var(--c-border)` | `0 0 0 1px var(--c-text)` |
+| `soft-shadow` | `0 1px 2px rgba(0,0,0,.04)` | `0 18px 40px -12px rgba(21,24,26,.16)` |
+| `accent-glow` | `0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent)` | `0 14px 34px -10px color-mix(in srgb,var(--c-accent) 40%,transparent)` |
+
+### Composition
+| Position | Blueprint set |
+|---|---|
+| `centered` | hero centred, symmetric grids, section headings centred |
+| `asymmetric` | content off-centre at ~58%, one image bleeding an edge |
+| `strict-grid` | everything on a 12-col grid, no bleeds, equal gutters |
+| `broken-grid` | at least one element per section crossing the grid or overlapping a neighbour |

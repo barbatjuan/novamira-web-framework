@@ -55,3 +55,15 @@ variant instead of adding a second color.
 ## Imagery
 - Real, high-quality photography (stock via a licensed source). Cover-fit with subtle dark
   gradient scrims over hero/CTA photos so white text stays legible.
+
+## Perceptual axes
+Five axes carry what makes two sites feel different; the accent colour is NOT one of them, it
+derives from the brand. Values live in `web-templates/references/design-system.md`.
+- **Scale** — the RANGE between body and display, and how tight the display leads. The single
+  largest perceptual difference between two sites, and the one the framework never varied.
+- **Ground** — what the page is made of. Choosing white is a decision and is recorded as one;
+  white-by-default is how a site reads as a template.
+- **Density** — one multiplier over the whole spacing scale, so the rhythm stays consistent while
+  the airiness changes completely.
+- **Composition** — which section blueprints are on offer, not free improvisation.
+- **Elevation** — how separation is expressed: air, a hairline, a shadow, or an accent glow.

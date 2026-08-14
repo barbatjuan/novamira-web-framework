@@ -180,6 +180,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_TOKENS_HARDCODED_FONT` | FAIL | `design-tokens.md` still hardcodes an example font pairing |
 | `RT_CATALOG_UNMENTIONED` | FAIL | `ux-design-system/SKILL.md` never mentions `design-personalities.md` |
 | `RT_UXDS_NO_CAPA2_STEP` | FAIL | `ux-design-system/SKILL.md` has no CAPA 2 personality-recommender step |
+| `RT_AXIS_VALUE_MISSING` | FAIL | an axis position has no token value in `design-system.md` |
 
 ## Workflow
 ```
