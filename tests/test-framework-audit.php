@@ -335,7 +335,7 @@ function fx_base( $root ) {
 		"  author: fixture\n" .
 		"  version: \"1.0\"\n" .
 		"---\n\n" .
-		"Resolves every perceptual axis via a dialogue step; see design-personalities.md for the anchor catalog.\n"
+		"## Execution Steps\n1. Resolves every perceptual axis via a dialogue step; see design-personalities.md for the anchor catalog.\n"
 	);
 	fx( $root, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
 	fx(
@@ -1016,14 +1016,42 @@ ok( has( $out31, 'RT_UXDS_NO_CAPA2_STEP' ), 'a SKILL.md with no CAPA 2 step is R
 fx_rrmdir( $r31 );
 
 echo "--- una skill de diseno que no nombra los ejes no puede resolverlos ---\n";
-$r85 = fx_tmp_root();
-fx_base( $r85 );
-fx( $r85, 'skills/ux-design-system/SKILL.md',
+$r86 = fx_tmp_root();
+fx_base( $r86 );
+fx( $r86, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
 	. "## Execution Steps\n1. Pick something.\n\n## References\n- `references/design-personalities.md`\n" );
-list( , $out85 ) = fx_run_ok( $audit, $r85 );
-ok( 'FAIL' === fx_row_level( $out85, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out85, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
-fx_rrmdir( $r85 );
+list( , $out86 ) = fx_run_ok( $audit, $r86 );
+ok( 'FAIL' === fx_row_level( $out86, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out86, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
+fx_rrmdir( $r86 );
+
+/* Mutant (a): "axis" appears ONLY outside "## Execution Steps" -- in the frontmatter description
+   (CSS's own "main axis" / "cross axis" / "x-axis" vocabulary) and in "## Hard Rules" (a hit
+   inside the unrelated word "praxis"). The check is scoped to the Execution Steps section alone,
+   so none of these accidental hits may satisfy it -- the row must still FAIL. */
+echo "--- 'axis' fuera de Execution Steps (main/cross/x-axis, praxis) NO salva el check ---\n";
+$r87 = fx_tmp_root();
+fx_base( $r87 );
+fx( $r87, 'skills/ux-design-system/SKILL.md',
+	"---\nname: ux-design-system\ndescription: \"Trigger: fixture. Flexbox has a main axis and a cross axis; CSS also calls it the x-axis.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "## Hard Rules\n- Praxis over theory: ship something real. See `references/design-personalities.md`.\n\n"
+	. "## Execution Steps\n1. Pick something and hand it off.\n" );
+list( , $out87 ) = fx_run_ok( $audit, $r87 );
+ok( 'FAIL' === fx_row_level( $out87, array( 'RT_UXDS_NO_CAPA2_STEP' ) ), '"axis" solo fuera de Execution Steps sigue FALLANDO', fx_row_level( $out87, array( 'RT_UXDS_NO_CAPA2_STEP' ) ) );
+fx_rrmdir( $r87 );
+
+/* Mutant (b): "## Execution Steps" itself uses only the natural plural "axes" (never the
+   singular "axis"). The check must match case-insensitively for BOTH forms, so this is a
+   conforming skill and the row must NOT fire. */
+echo "--- Execution Steps con solo el plural 'axes' SI resuelve el check ---\n";
+$r88 = fx_tmp_root();
+fx_base( $r88 );
+fx( $r88, 'skills/ux-design-system/SKILL.md',
+	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+	. "## Execution Steps\n1. Resolve the five axes with the client, then land on an anchor from `references/design-personalities.md`.\n" );
+list( , $out88 ) = fx_run_ok( $audit, $r88 );
+ok( ! has( $out88, 'RT_UXDS_NO_CAPA2_STEP' ), 'Execution Steps con solo "axes" (plural) limpia el check', $out88 );
+fx_rrmdir( $r88 );
 
 /* ------------------------------------------------- marker grammar fixtures (B1, design D1')
  *

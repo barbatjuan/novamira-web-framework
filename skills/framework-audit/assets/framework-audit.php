@@ -1063,8 +1063,17 @@ if ( file_exists( $uxds_skill ) ) {
 	if ( false === strpos( $uxds_src, 'design-personalities.md' ) ) {
 		add( 'RT_CATALOG_UNMENTIONED', 'FAIL', 'ux-design-system', 'SKILL.md never mentions design-personalities.md — the personality catalog is unreachable from the skill' );
 	}
-	if ( false === strpos( $uxds_src, 'axis' ) && false === strpos( $uxds_src, 'Axes' ) ) {
-		add( 'RT_UXDS_NO_CAPA2_STEP', 'FAIL', 'ux-design-system', 'SKILL.md never mentions the axes — the personality dialogue is unreachable from the skill' );
+	/* Scoped to "## Execution Steps" alone (same slicing shape collect_skill_steps() already uses
+	   above for the same heading), and matched case-insensitively for BOTH "axis" and "axes": a
+	   whole-file scan for the bare word "axis" is too easy to satisfy by accident (CSS "main
+	   axis"/"cross axis", "x-axis", or a hit inside "praxis") without the STEPS actually routing
+	   the reader to resolving them, which is the property this row exists to guarantee. */
+	$uxds_steps = null;
+	if ( preg_match( '/^## Execution Steps\b[^\n]*\n(.*?)(?=\n## |\z)/ms', $uxds_src, $sm ) ) {
+		$uxds_steps = $sm[1];
+	}
+	if ( null === $uxds_steps || ( false === stripos( $uxds_steps, 'axis' ) && false === stripos( $uxds_steps, 'axes' ) ) ) {
+		add( 'RT_UXDS_NO_CAPA2_STEP', 'FAIL', 'ux-design-system', 'SKILL.md Execution Steps never mention the axes — the personality dialogue is unreachable from the skill' );
 	}
 }
 

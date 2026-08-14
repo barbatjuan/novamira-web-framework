@@ -10,24 +10,23 @@ metadata:
 # UX Design System
 
 The visual language, independent of the page builder: HOW it looks and feels.
-`elementor-core` / `divi-core` translate these decisions into builder data.
+`elementor-core` / `divi-core` translate these into builder data.
 
 ## Activation Contract
 Run after `web-templates`, before `html-mockup`. Use for layout, spacing, color, hover/motion,
-card style, or responsive behavior — Elementor and Divi alike. Never hand straight to
-builder-core: the mockup approval gate sits between this skill and any WordPress write.
+card style, or responsive behavior — Elementor and Divi. Never hand straight to builder-core:
+the mockup approval gate sits between this skill and any WordPress write.
 
 ## The Design Space
 - **Five axes** (`references/design-tokens.md`): scale, ground, density, composition,
   elevation — a spectrum of values, never an adjective.
 - **Four anchors** (`references/design-personalities.md`): `PERS-EDITORIAL`, `PERS-MATTER`,
-  `PERS-DIRECT`, `PERS-INSTITUTIONAL` — positions on all five axes at once. Land on one, or
-  between two.
+  `PERS-DIRECT`, `PERS-INSTITUTIONAL` — positions on all five axes. Land on one, or between two.
 
 ## Hard Rules
 - Act like a senior designer, not a filler: every typography/color/motion choice traces to a
   brand signal, client reference, or resolved axis — never "the docs example." Unjustified,
-  ask one more question instead of guessing.
+  ask one more question.
 - One accent color — ONLY CTAs, action icons, important links; neutrals carry the rest.
 - Motion is calm: hovers use `cubic-bezier(.22,1,.36,1)`, ~.35–.7s, small moves
   (`translateY(-4…-6px)`, `scale(1.045)`), soft shadow, never a hard snap — the anchor tunes
@@ -46,18 +45,20 @@ builder-core: the mockup approval gate sits between this skill and any WordPress
    axis must end resolved**: ask explicitly for any the answers did not reach, because an axis
    nobody sets falls to the same value on every project, which is how sites end up identical.
    Land on an anchor from `references/design-personalities.md`, or between two — both are valid.
-2. Read `references/design-tokens.md`: fix palette, type pair, spacing scale, radii from the
+2. Ask `TGL-IMAGERY` and `TGL-MOTION-INTENSITY` (`web-templates/references/toggles.md`),
+   precharged from the anchor's Imagery/Motion intensity; the client confirms or overrides.
+3. Read `references/design-tokens.md`: fix palette, type pair, spacing scale, radii from the
    resolved axes.
-3. Read `references/motion.md` for hover timings and the premium card recipe, tuned by the
-   resolved elevation and density.
-4. Read `references/layout-patterns.md` for hero, feature grid, banner CTA, testimonial carousel,
-   glass header, mega/mobile menu, and responsive rules.
-5. Hand the resolved axes + tokens + pattern list to **`html-mockup`** for client approval;
-   builder-core receives it only after the mockup is approved.
+4. Read `references/motion.md`: hover timings and premium card recipe, tuned by elevation and
+   density.
+5. Read `references/layout-patterns.md` for hero, feature grid, banner CTA, testimonial carousel,
+   glass header, mega/mobile menu, responsive rules.
+6. Hand the resolved axes + tokens + pattern list to **`html-mockup`** for approval — builder-core
+   receives it only afterward.
 
 ## Output Contract
-Return a short spec: the resolved axis positions, palette + roles, type pair, spacing/radii,
-motion timings, sections/patterns to build, per-breakpoint notes — no builder-specific code.
+Return a short spec: resolved axis positions, palette + roles, type pair, spacing/radii, motion
+timings, sections/patterns, per-breakpoint notes — no builder-specific code.
 
 ## References
 - `references/design-personalities.md` — four anchors, positions on all five axes.
