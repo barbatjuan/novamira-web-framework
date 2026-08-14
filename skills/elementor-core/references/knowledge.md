@@ -15,21 +15,99 @@
 - `es_grid($cols,$children,$gap,$extra)` — grid container (rows forced to `auto`, see gotchas).
 - `es_row`, `es_eyebrow`, `es_h`, `es_p`, `es_btn($text,$link,$style,$extra)`
   (styles: primary / dark / outline / outline-light), `es_card`, `es_feature_card`, `es_iconbox`.
-- `es_save_page($slug,$title,$elements,$tpl)` + `es_rebuild_css($post_id)`.
+- `es_save_page($slug,$title,$elements,$tpl,&$action)` + `es_rebuild_css($post_id)`.
+  `$action` reports FOUR outcomes: `created`, `updated`, `created-renamed` (WordPress published the
+  page under a DIFFERENT slug because the one you asked for was taken — the URL you expect is not
+  this page), `failed` (nothing was written; the return value is `0`). Anything other than
+  `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
+  they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
+  proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_key_offenders($type,$settings)` — a setting on the WRONG element type. Elementor names the
+  same control differently by location: a container takes `padding`, a widget takes `_padding`
+  (wrapper controls carry the underscore). The wrong form saves, opens and renders and simply does
+  not apply — visible in the source, absent on screen. `es_container_walk()` calls it, so these
+  reach the verdict through the existing offender channel. The key list is deliberately SHORT and
+  taken from this library'''s own usage: `width` is excluded because it is both a container layout
+  key and a real widget control, and an invented offender costs more than a missed one.
+- **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
+  `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
+  false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so
+  two skills never overwrite each other's, which a flat map guarantees they eventually will. It
+  lives in a WordPress option and NOT beside this library, because the library sits in a sandbox
+  the delivery phase deletes — state that dies with the sandbox is not state.
+  `es_manifest_verify()` contrasts the recorded page map and front page against the LIVE site and
+  returns drift lines: page gone, slug moved by hand, same slug answered by a different post id
+  (the worst, because everything looks fine), front page repointed. It reports and never repairs
+  — repairing means guessing which truth was intended, and only a human knows.
+- **Delivery**: `es_sandbox_report()` lists what is still in `wp-content/novamira-sandbox/`;
+  `es_sandbox_purge()` deletes the build scripts and then RE-READS, returning what SURVIVED —
+  the proof is the re-read, because a purge blocked by permissions and one that worked look
+  identical from `unlink()`. It never recurses and never touches unknown extensions; those still
+  block delivery, they just need a human. `es_backup_keys($ids)` returns the restore keys per
+  page, newest last. `es_indexing_state()` reads `blog_public` only — `0` is "discourage search
+  engines" — and deliberately does NOT parse robots.txt, because a half-parser is a confident
+  wrong answer and a virtual robots.txt is invisible from disk anyway.
+- `es_migrate_slug($from,$to)` — MOVES the page instead of building a second one at the new slug
+  (two pages competing, and the stale one usually wins because it has the history), verifies the
+  slug actually moved, and records the pair in the `es_slug_redirects` option. **Nothing in this
+  framework serves that option**, so the old URL still 404s: the function warns that on every
+  successful move, and `qa-review` row 17 is what confirms a human or a plugin closed it. Refuses
+  to move onto an occupied slug — that is finding 15's collision through the back door.
+- `es_theme_conditions_registered($id)` answers "is my template in the conditions cache" and
+  **nothing more**. Registered is NOT rendering: Elementor resolves ONE template per location, so
+  ask `es_theme_location_rivals($id)` → `{location: [other_ids]}` before reading a `true` as "the
+  header is on the site". A rival — the previous agency's, the theme's, yesterday's build — means
+  the template can be saved, conditioned, cached and still never appear, with every check green
+  and the site looking untouched. `es_save_theme_part()` warns when the list is non-empty; it
+  names rivals and never picks a winner, because the resolution order is not knowable from that
+  option.
+- `es_overwrite_preflight($slugs)` → `{rows[], overwrites, creates}` and PRINTS the block a human
+  approves — never gated on `ES_AUDIT_SILENT`, an approval artifact is not routine output. Run it
+  **before the first write**. Each row: `slug`, `id`, `action`, `status`, `is_elementor`,
+  `is_front_page`, `converts`. The last two cost the most and show up the least.
+- `es_backup_page_state($id,$keys)` — parks the WHOLE displaced set (layout, page template, edit
+  mode, template type, version, post fields, and `post_content`) in `_es_page_backup_<Ymd-His>`.
+  **Call it before the first write**: it cannot tell an old value from a new one, and it used to
+  run after four of the five keys had already been overwritten, preserving what had just been
+  written. Restore key by key. `es_save_page()` calls it only when updating — a page it just
+  created has nothing to displace.
+- `es_front_page()` → `{mode:'posts'|'page', id, slug}` — the ONE resolver for "what does `/` serve".
+  Never guess the home from a slug: on an install whose front page is `/`, `/inicio/` is dead.
+  `page_on_front` alone is NOT a front page; without `show_on_front='page'` WordPress renders
+  the blog. `es_set_front_page($slug)` points it at a page and READS THE OPTIONS BACK, returning
+  `0` and warning if they did not land — `update_option()` returns false both on failure and on an
+  unchanged value, so its boolean proves nothing either way. Repointing an existing front page
+  warns naming the page that stops being shown; that page stays published, it just stops being
+  the one anybody lands on. **Call it once the home is saved**, and hand the id to `qa-review`
+  row 16 — the options say WHICH page is the front page, never whether it is the right one.
 - `es_img($slug)` — attachment lookup by slug → url+id.
-- `es_container_audit($elements)` → `{containers,widgets,max_depth,offenders[],optimizable[]}`.
+- `es_container_audit($elements)` →
+  `{containers,widgets,max_depth,offenders[],optimizable[],unaudited{elType:{count,first}}}`.
   `es_container_report($elements,$label)` echoes to stdout AND `error_log()`s, returns the same
   array; `es_save_page()` calls it automatically before writing.
-  `es_audit_summary()` → one verdict line for the whole run, returns the offender total.
+  `es_audit_summary()` → one verdict line for the whole run. The LINE is the artifact; the int is
+  for branching: `0` clean, `>0` offender count, `-1` nothing was audited (a wiring bug — it used
+  to return 0, same as a pass), `-2` part of the tree uses elTypes the audit cannot judge. `-2`
+  wins. Branch on the INTEGER, never on a word found in the line: your page label is interpolated
+  into the line's deep-nesting suffix, so a page can put any text of its own there.
+  `-1` speaks through `es_warn()`, so it reaches stdout even under `ES_AUDIT_SILENT`: silencing the
+  routine report must never silence "the report never ran".
   **Call it at the end of every build function** — the per-page lines scroll past, the verdict
-  is what the deploy step reads. `ES_AUDIT_SILENT` suppresses stdout if something else needs it.
+  is what the deploy step reads. `ES_AUDIT_SILENT` mutes the audit REPORT — the per-page lines and
+  the verdict — and nothing else. It does NOT reach `es_warn()`: silencing routine output must
+  never silence a warning.
 
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.
 - **Fewest containers that do the job** (house rule). A container earns its place only by grouping
-  2+ children, carrying its own background/border/shadow, or changing direction at a breakpoint.
+  2+ children, carrying its own background/border/shadow, changing direction at a breakpoint, or
+  boxing a lone widget no ancestor already boxes — Elementor gives a widget no other way to sit at
+  the boxed content width, so there the wrapper IS the mechanism.
   Target depth `section → grid|row → widget`. Padding alone is never a reason to exist — put it on
-  the widget's `_padding`. `es_container_audit()` measures this; read its log line.
+  the widget's `_padding`. `es_container_audit()` measures this; read its log line, and read the
+  `NO AUDITABLE` block too: pre-3.6 `section`/`column` elTypes and kit imports are elements this
+  audit has no opinion about. They are counted and named there rather than skipped, because a page
+  built entirely of them used to measure 0 containers / 0 widgets / depth 0 and read as clean.
 - Open question worth resolving on a real site: `es_section( es_grid(...) )` is this repo's dominant
   idiom and costs one level. A single grid container with `content_width:'boxed'` plus the section
   padding *should* collapse the pair into one. Plausible, NOT confirmed — the audit reports it as

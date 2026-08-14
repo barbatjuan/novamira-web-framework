@@ -44,7 +44,6 @@ Social proof + cierre (ir a tienda / contacto). Reutilizables: GLOBAL.
 | `TGL-ABOUT-STATS` | on | |
 | `TGL-ABOUT-TEAM` | on | apagar si no hay equipo público |
 | `TGL-TESTIMONIALS` | off | opcional |
-| `TGL-STYLE` | hereda de la home | |
 
 **Fijos:** HEADER, HERO, Historia, VALUES, CTA, FOOTER.
 

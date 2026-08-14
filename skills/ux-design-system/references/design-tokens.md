@@ -33,10 +33,11 @@ Reject an accent that fails 4.5:1 with both white and near-black label text — 
 variant instead of adding a second color.
 
 ## Typography roles
-- `--font-primary` — headings + UI. A distinctive geometric (e.g. Space Grotesk) reads premium:
-  heavy weight, tight line-height.
-- `--font-secondary` — body. A clean humanist sans (e.g. Manrope), normal weight, open
-  line-height. May equal `--font-primary`. Never a third family.
+- `--font-primary` — headings + UI. Heavy weight and tight line-height read premium, but the
+  family itself comes from the chosen personality (`design-personalities.md`) — never copy an
+  illustrative example verbatim as a default.
+- `--font-secondary` — body. Normal weight, open line-height. May equal `--font-primary`. Never
+  a third family. See `design-personalities.md` for the 8 concrete pairings.
 - Hierarchy per section: eyebrow (`--fs-eyebrow`, uppercase, letter-spaced) → heading → paragraph.
   One `--fs-h1` per page.
 - The scale is fluid (`clamp()`), so sizes come from the token, never from a per-section override.
@@ -47,8 +48,8 @@ variant instead of adding a second color.
 - Grid gaps use one step of the `--sp-*` scale; tight mobile gaps use the step below. Nothing
   outside the scale.
 - Radii carry meaning: containers are the softest, then cards; buttons, inputs and images share
-  the smallest step. Separate tokens are what let a brand go sharp (`TGL-STYLE` minimalista) or
-  soft without touching a single module.
+  the smallest step. Separate tokens are what let a personality go sharp (Minimal Swiss, Tech
+  Precision) or soft (Warm Boutique) without touching a single module.
 - Audit margins as a dedicated pass — inconsistent spacing is the #1 tell of a cheap template.
 
 ## Imagery

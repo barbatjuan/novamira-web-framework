@@ -1,17 +1,22 @@
 # Sistema Global de Diseño
 
-Tokens compartidos por TODAS las plantillas (ecommerce y corporate). Se definen **una vez**
-y se cambian globalmente al migrar a un cliente nuevo. Diseñado mobile-first. Compatible con
-Elementor (Global Settings) y Divi (Theme Options + Global Presets), y con la skill
-`html-mockup` (variables `--*` en `:root`).
+La ESTRUCTURA de tokens (roles, pasos de escala, breakpoints) es compartida por TODAS las
+plantillas (ecommerce y corporate) y se define **una vez**. Los VALORES concretos (tipografía,
+paleta, radios/sombras, motion) vienen de la personalidad visual (`PERS-*`) elegida en
+`ux-design-system` CAPA 2 — independiente de qué `TPL-*` se haya elegido. Diseñado mobile-first.
+Compatible con Elementor (Global Settings) y Divi (Theme Options + Global Presets), y con la
+skill `html-mockup` (variables `--*` en `:root`).
 
-Los valores son **defaults**. El recomendador puede ajustarlos por marca vía toggles
-(`TGL-STYLE`). Los ROLES no cambian; los valores sí.
+Los valores de esta página son el fallback estructural (spacing, breakpoints, contenedores) que
+toda personalidad hereda sin tocar. Para tipografía, paleta, radios y motion CONCRETOS, ver
+`ux-design-system/references/design-personalities.md` — CAPA 2 ajusta esos valores por marca;
+los ROLES no cambian nunca.
 
-Este archivo es la **única autoridad** sobre NOMBRES y VALORES de token.
-`ux-design-system/references/design-tokens.md` explica los ROLES (para qué sirve cada token,
-cómo derivar la paleta de un logo) y no define valores. Ante cualquier diferencia, manda este
-archivo.
+Este archivo es la **única autoridad** sobre NOMBRES y VALORES ESTRUCTURALES de token (spacing,
+breakpoints, contenedores). `design-personalities.md` es la única autoridad sobre los valores de
+tipografía/paleta/radios/motion por personalidad. `ux-design-system/references/design-tokens.md`
+explica los ROLES (para qué sirve cada token, cómo derivar la paleta de un logo) y no define
+valores. Ante cualquier diferencia, manda el archivo correspondiente a lo consultado.
 
 ## Breakpoints (mobile-first)
 
@@ -117,7 +122,8 @@ Padding vertical de sección: `--sp-l` mobile → `--sp-xl`/`--sp-xxl` desktop.
 | Inputs | `--radius-input` | `8px` |
 | Containers | `--radius-container` | `16px` |
 
-Ajustable por marca vía `TGL-STYLE` (minimalista → 0–4px; soft → 12–20px).
+Ajustable por marca vía la personalidad visual elegida en `ux-design-system` CAPA 2 (Minimal
+Swiss / Tech Precision → 0–4px; Warm Boutique → 12–20px). Ver `design-personalities.md`.
 
 ## Notas de implementación
 

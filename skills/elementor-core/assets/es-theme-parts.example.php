@@ -5,7 +5,28 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
+/*
+ * Dependencies. Any .php dropped in novamira-sandbox/ executes on upload, so a bare
+ * require_once on a missing file fatals before execute-php is ever called — taking the
+ * site down. This file used to do exactly that: a bare require_once, and an operator who
+ * uploaded the theme parts before the builder got a white screen and ZERO output, with no
+ * way to tell a missing dependency from a build that ran and did nothing. The two commerce
+ * assets already carried this guard; the file that creates the site's header and footer,
+ * the one whose absence is most visible, did not.
+ */
+foreach ( array( 'es-builder.php' ) as $es_dep ) {
+	$es_dep_path = WP_CONTENT_DIR . '/novamira-sandbox/' . $es_dep;
+	if ( ! file_exists( $es_dep_path ) ) {
+		/* Both channels on purpose: es_warn() lives in es-builder.php, which is exactly the
+		   file that may be missing here, and error_log() alone is not "loudly" — the sandbox
+		   returns STDOUT, so a log-only warning is a build that silently does nothing. */
+		$es_msg = 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first. NOTHING WAS BUILT.';
+		error_log( $es_msg );
+		echo $es_msg . "\n";
+		return;
+	}
+	require_once $es_dep_path;
+}
 
 /**
  * Create or update a theme template and apply a global display condition.
@@ -16,16 +37,19 @@ require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
  * never renders. Regeneration is therefore part of saving a theme part, not something
  * a caller has to remember, and the result is verified before we call it done.
  *
- * Overwriting also replaces `_elementor_data` outright with no revision behind it, so
- * the previous layout is parked in a timestamped backup key first
- * (see es_backup_elementor_data in es-builder.php).
+ * Overwriting also replaces `_elementor_data` outright with no revision behind it, so the
+ * displaced state is parked in a timestamped backup key first (see es_backup_page_state in
+ * es-builder.php) — including `_elementor_conditions`, the key that decides WHERE a template
+ * renders and the one the old narrower backup never covered.
  *
  * Unlike es_save_page(), a theme part IS forced to `publish`: it is only ever saved in
  * order to be live, and this same call is writing the conditions that put it on the
  * front end. A part deliberately parked as a draft must not be rebuilt by this function.
  *
- * `$action` is an out-parameter reporting 'created' or 'updated' so a caller can confirm
- * each overwrite by name without breaking the returned template id.
+ * `$action` is an out-parameter reporting the same four outcomes as `es_save_page()` —
+ * 'created', 'updated', 'created-renamed', 'failed' — without breaking the returned template id.
+ * The two functions share a shape, so they share the reporting contract; when they drifted apart,
+ * the one that mattered more was the one nobody could see failing.
  */
 function es_save_theme_part( $slug, $title, $type, array $elements, array $conditions, &$action = null ) {
 	$existing = get_posts(
@@ -39,7 +63,7 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 	if ( $existing ) {
 		$id     = $existing[0]->ID;
 		$action = 'updated';
-		wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => 'publish' ) );
+		$wrote  = wp_update_post( array( 'ID' => $id, 'post_title' => $title, 'post_status' => 'publish' ) );
 	} else {
 		$action = 'created';
 		$id     = wp_insert_post(
@@ -50,17 +74,49 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 				'post_status' => 'publish',
 			)
 		);
+		$wrote  = $id;
 	}
-	if ( is_wp_error( $id ) || ! $id ) {
+	if ( is_wp_error( $wrote ) || ! $wrote ) {
+		/* A page that fails to save costs you one page. A HEADER that fails to save costs you the
+		   header of every page, and this branch is the one with the fewest eyes on it: this file is
+		   uploaded and executed on the site, far from whoever wrote the build. */
+		es_warn(
+			'WordPress rechazo ' . ( 'updated' === $action ? 'actualizar' : 'crear' ) . ' el theme part "' . $slug . '" (' . $type . ')'
+			. ( is_wp_error( $wrote ) ? ': ' . $wrote->get_error_message() : '' )
+			. '. NO se escribio ningun diseño ni ninguna condicion, asi que esa parte del sitio NO va a aparecer.'
+		);
 		$action = 'failed';
 		return 0;
+	}
+
+	if ( 'created' === $action ) {
+		/* Same trap as es_save_page(): wp_unique_post_slug() hands back a suffixed slug rather than
+		   an error, so the template exists under a name no condition string was written for. */
+		$real = get_post_field( 'post_name', $id );
+		if ( '' !== $real && $real !== $slug ) {
+			es_warn(
+				'se pidio el theme part "' . $slug . '" y WordPress lo creo en "' . $real . '" (#' . $id . '), porque ese slug ya estaba ocupado. '
+				. 'Revisa que las condiciones se hayan escrito sobre la plantilla correcta antes de dar el sitio por bueno.'
+			);
+			$action = 'created-renamed';
+		}
+	}
+
+	if ( 'updated' === $action ) {
+		/* BEFORE the writes, and it did not use to be: the backup sat below three update_post_meta()
+		   calls, so it preserved what this call had just written. `_elementor_conditions` was never
+		   covered at all, and that is the key that decides WHERE a template renders -- overwriting
+		   it can un-hijack the whole site or hijack it, with nothing to restore from. */
+		es_backup_page_state(
+			$id,
+			array( '_elementor_data', '_elementor_conditions', '_elementor_template_type', '_elementor_edit_mode', '_elementor_version' )
+		);
 	}
 
 	wp_set_object_terms( $id, $type, 'elementor_library_type' );
 	update_post_meta( $id, '_elementor_template_type', $type );
 	update_post_meta( $id, '_elementor_edit_mode', 'builder' );
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
-	es_backup_elementor_data( $id );
 	/* Theme parts used to skip the audit entirely, which is backwards: headers, footers and
 	   commerce templates are the MOST nested artifacts in the system (see the mobile 3-zone
 	   header recipe) and they are reused on every page, so a wasted level here is paid site-wide. */
@@ -73,6 +129,22 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 		es_warn( 'could not regenerate the theme-builder conditions cache for "' . $slug . '" (#' . $id . '). Elementor Pro theme builder is unavailable, so this template will NOT appear on the front end.' );
 	} elseif ( ! es_theme_conditions_registered( $id ) ) {
 		es_warn( '"' . $slug . '" (#' . $id . ') is missing from elementor_pro_theme_builder_conditions after regeneration. Check the condition strings: ' . implode( ', ', $conditions ) );
+	} else {
+		/* Registered is not rendering. Elementor resolves ONE template per location, so a rival
+		   already claiming this one means this template can be saved, conditioned and cached and
+		   still never appear — with every check green and the site looking untouched. */
+		$rivals = es_theme_location_rivals( $id );
+		if ( $rivals ) {
+			$where = array();
+			foreach ( $rivals as $location => $ids ) {
+				$where[] = $location . ' (#' . implode( ', #', $ids ) . ')';
+			}
+			es_warn(
+				'"' . $slug . '" (#' . $id . ') quedo registrado, pero NO es la unica plantilla en su ubicacion: ' . implode( '; ', $where ) . '. '
+				. 'Elementor resuelve una sola por ubicacion, asi que puede que la que se vea siga siendo la otra. '
+				. 'Borra o reacondiciona las rivales y vuelve a mirar el front — registrado no es lo mismo que visible.'
+			);
+		}
 	}
 
 	return $id;

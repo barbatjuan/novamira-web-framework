@@ -21,8 +21,14 @@ skills/
   elementor-core/                     # Elementor execution — battle-tested (+ es-builder.php)
   divi-core/                          # Divi execution — scaffold, unvalidated, no assets yet
   woocommerce/                        # shop / product / side cart / templates (Elementor path only)
+  wordpress-forms/                    # contact/lead forms + a PROVEN delivery, not a rendered form
+  wordpress-legal/                    # legal pages from the client's real data + a banner that blocks
   wordpress-performance/  wordpress-seo/  qa-review/
 ```
+
+Alongside the orchestrator, `agents/novamira-copywriter.md` is a subagent that writes the real
+copy in its own context window. It is reached by explicit delegation only and never touches
+WordPress.
 
 ## Build flow
 The agent's **first question is "new site or existing site?"** — it decides whether
@@ -54,7 +60,8 @@ nothing), **read-only** (`project-context`, `qa-review` — inspect and report, 
 and **operative** (`html-mockup` produces an Artifact; the rest write to the live site behind
 the gate). Only `elementor-core` and `woocommerce` currently have both a
 `references/knowledge.md` and a `references/gotchas.md`; `divi-core` has gotchas only, and
-`project-context` / `qa-review` / `wordpress-performance` / `wordpress-seo` have no
+`project-context` / `qa-review` / `wordpress-performance` / `wordpress-seo` / `wordpress-forms` /
+`wordpress-legal` have no
 `references/` yet. See `skills/_novamira-framework.md` for the full map.
 
 ## Install

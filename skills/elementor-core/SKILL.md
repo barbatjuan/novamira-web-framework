@@ -24,24 +24,31 @@ On an existing site, confirm every page/template you would overwrite by name fir
 
 ## Hard Rules
 - Native Elementor / Elementor Pro widgets only. No third-party widgets. No custom JS.
-  (no verifier: caught by the step-4 front-HTML fetch — an unregistered widget renders empty.)
+  (no verifier: an unregistered widget renders empty and shows up, but a third-party widget whose plugin installs cleanly, and custom JS, leave no trace anything greps for.)
 - Custom CSS ONLY via the widget's native `custom_css` field (`selector{}`) — it always
   compiles; conditionally-enqueued assets (hover animations, swiper) do not. Verified by the
   step-4 `post-<id>.css` grep: rules that never compiled are simply absent from it.
+  (verifier: the step-4 compiled-CSS grep — a rule that never compiled is absent from that file.)
 - **Fewest containers that do the job.** One earns its place only by grouping 2+ children,
-  carrying its own background/border/shadow, or changing direction at a breakpoint. Three
+  carrying its own background/border/shadow, changing direction at a breakpoint, or boxing a
+  lone widget no ancestor boxes. Three
   helpers make the flat shape the easy one: `es_split()` (the section IS the row — never
   `es_section( es_row(...) )`), `es_wide($el,58)` (a width is not a container), `es_photo()`
   (a photo is a widget, not a `background_image`). Target depth `section → grid|row → widget`.
+  (verifier: es_container_audit() walks the saved tree and names every container that did not earn its place.)
 - **Read the audit verdict.** `es_save_page()` prints `es_container_report()` to stdout before
-  writing; end every build function with `es_audit_summary()` and fix `VEREDICTO A CORREGIR`
-  before deploying. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
+  writing; end every build function with `es_audit_summary()` and deploy only on
+  `VEREDICTO LIMPIO`. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
   the same audit on what landed. Detail: `references/gotchas.md` → "Container hygiene".
+  (verifier: es_container_report() prints the container verdict from inside the save, before that page's data is written.)
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
+  (no verifier: nothing re-builds a page twice to diff the generated ids, so a non-deterministic one only surfaces later as a spurious diff.)
 - Wrap all build logic in named functions — the sandbox auto-runs any uploaded `.php`.
   Self-verifying: top-level logic fatals the site on upload, before `execute-php` is reached.
+  (no verifier: self-verifying at upload — top-level logic fatals the site before the call is ever reached, so a violation cannot ship quietly.)
 - **Read `references/gotchas.md` before the first deploy.** Introspect widget/control names;
   never guess them (`references/knowledge.md` lists the ones that bit us).
+  (no verifier: nothing can tell a guessed control name from a researched one until the build silently renders nothing.)
 
 ## Execution Steps
 1. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; swap its palette/type

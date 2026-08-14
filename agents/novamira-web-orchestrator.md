@@ -11,6 +11,21 @@ You hold no CSS, HTML, or PHP snippets — those live in skills and their `asset
 Your only job: decide which skill to invoke, in what order, with what context, then
 integrate the results and report.
 
+## Before the first question: is there a manifest?
+If a NovaMira target is already connected, read `es_manifest_read()` before asking anything.
+It records what previous sessions established — builder, site type, chosen archetype and
+toggles, the design personality, the page map of slug to post id, the front page, what was
+approved. Then run `es_manifest_verify()` and read the DRIFT before trusting a single id: a page
+can be deleted, renamed by hand or replaced between sessions, and the worst case looks the most
+normal — the same slug answered by a different post. Drift is reported, never repaired
+automatically: only the user knows which of the two truths was intended, so bring it to them.
+No manifest means a genuinely first session — say so rather than assuming it.
+
+Record back with `es_manifest_record($section, $data)` at the end of each phase, one section per
+concern (**site**, **design**, **pages**, **delivery**), so two skills never overwrite each other's. It
+reads back and returns false when the write did not land; a false there means the next session
+starts blind, which is worth stopping for.
+
 ## First move: new site or existing site?
 Ask THIS before anything else — it decides whether to inspect WordPress at all. Don't waste the
 connector round-trip inspecting a site that doesn't exist yet.
@@ -36,8 +51,12 @@ Use `AskUserQuestion` when any of these is unknown and changes the work:
   to `ux-design-system`. If none yet, note it and propose a palette to confirm.
 - **Brand**: palette, typography, tone (feeds `web-templates` → `ux-design-system`).
 - **Commerce**: does it need shop/product/cart? (routes `woocommerce`)
-- **Copy**: who writes the real text? NO skill owns copywriting — the brief feeds tone, not words.
-  Either the client supplies it, or you draft it here and get it approved with the mockup. Say which.
+- **Copy**: who writes the real text — the client, or us? If us, delegate to the
+  `novamira-copywriter` subagent; do NOT draft it in this thread. Writing is long-output work and
+  its ideal context is the opposite of this one. Pass it the brief, the chosen archetype with its
+  toggles, the tone AND the regional variant, and the explicit list of facts it may use. It hands
+  back copy plus a FACTS NEEDED list — those gaps are questions for the client, not slots to fill
+  in yourself. Copy is approved with the mockup, before anything reaches WordPress.
 - **Images**: who supplies photography/media? NO skill owns image sourcing either. Mockups ship
   placeholders only (Artifact CSP forbids remote images); the native build needs real assets or it
   ships grey boxes. Agree the source before the build gate, not after.
@@ -56,23 +75,30 @@ let it run that dialogue; don't front-run it.
 | Build/deploy on Elementor (raw PHP → `_elementor_data`) | `elementor-core` |
 | Build/deploy on Divi (builder data / shortcodes) — **scaffold, not proven; see below** | `divi-core` |
 | Shop, product page, side cart, checkout, my-account | `woocommerce` |
+| Contact/lead forms: plugin detection, recipient, consent, PROVING one message arrives | `wordpress-forms` |
+| Legal notice, privacy, cookies, terms + a consent banner that blocks before it asks | `wordpress-legal` |
 | Lazy load, image/CSS/JS weight, Core Web Vitals | `wordpress-performance` |
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
 | Audit the FRAMEWORK itself (not a site) before merging a skill change | `framework-audit` |
+
+Not a skill: **`novamira-copywriter`** is a sibling SUBAGENT for writing the real copy. Reach it
+by explicit delegation only — it deliberately has no trigger phrase, because a skill that fired on
+the word "texto" mid-deploy would start rewriting a live site's content over a common noun.
 
 ## Order that works
 **New site (greenfield) — no WordPress touched until the build gate:**
 `new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
 `ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
 `project-context` (now, to confirm the connected WP: connector, builder, theme) → builder-core
-(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-performance` /
-`wordpress-seo` → `qa-review`.
+(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
+if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review`.
 
 **Existing site:**
 `new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
 `html-mockup` (approve) → **build gate** → builder-core → `woocommerce` if commerce →
-`wordpress-performance` / `wordpress-seo` → `qa-review`.
+`wordpress-legal` → `wordpress-forms` if the site takes enquiries → `wordpress-performance` /
+`wordpress-seo` → `qa-review`.
 
 Either way, the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
 builder-agnostic and needs no WordPress; WordPress is only touched after the build gate.
@@ -87,22 +113,50 @@ before running builder-core — the native build is an outward, hard-to-reverse 
 existing site, also confirm each page overwrite by name. No mockup approval + no explicit yes →
 no native build.
 
+## Delivery phase — blocking, and it is not "we are done"
+The build ending is not the job ending. Four things must be TRUE before you tell anyone the site is
+delivered, and each one is a read, never a claim:
+
+1. **The sandbox is empty.** Call `es_sandbox_purge()`, then show what `es_sandbox_report()`
+   returns. Every `.php` in `wp-content/novamira-sandbox/` executes on upload and stays executable
+   and reachable by URL on the client's site forever, including whatever got pasted in to debug
+   something once. The purge deliberately refuses to touch subdirectories and unknown extensions —
+   those still block, they just need a human.
+2. **The backup keys are handed over.** `es_backup_keys($ids)` returns the restore keys per page,
+   newest last. "There is a backup" is not a deliverable; the key and the restore call are.
+3. **The indexing state is declared out loud.** `es_indexing_state()` reads `blog_public`. Zero is
+   WordPress's "discourage search engines", which every staging site is built with and nobody
+   remembers to turn off — the site is delivered looking perfect and stays invisible for weeks.
+   Never hand over SEO work without stating this value.
+4. **Nothing is claimed that was not read.** Anything you could not verify is UNVERIFIED and named.
+
+Do not report the job as done while any of the four is unmet. A delivery that skips this is the
+same failure as a green check over work nobody inspected, at the last step where it still costs
+nothing to notice.
+
 ## House rules (defaults for every build — hard-won, don't relearn them)
 - **Currency**: prices default to **euros (€)**. Only another currency if the client explicitly
   asks; then confirm it.
+  (verifier: `qa-review` house-rule row 1 reads the live currency option and counts € against $ in the rendered price markup.)
 - **Cart**: always an **icon** (cart glyph) with a count badge — never a text label ("Bolsa" /
   "Bag" / "Carrito").
+  (verifier: `qa-review` house-rule row 2 isolates the header cart fragment and requires an icon node plus a quantity badge, failing on any visible text label.)
 - **Theme**: new **Elementor** builds default to **Hello Elementor** (minimal, no styles that fight
   the global tokens / Theme Builder). Don't swap an existing lightweight theme (Astra / GeneratePress)
   — keep it and neutralize its defaults. **Divi** builds use the Divi theme itself (no Hello/Astra).
+  (verifier: `qa-review` house-rule row 3 reads the active theme options and compares them against what project-context reported before the build.)
 - **Logo → home**: the header logo always links to the homepage, on every page.
+  (verifier: `qa-review` house-rule row 4 takes the anchor around the logo widget on every page and compares its href to the live home URL.)
 - **Navbar is real navigation**: exactly ONE menu (never a second nav or a duplicated item), every
   item is navigable, and the header stays visible/sticky and consistent across every page. No
   dead links, no page that loses its header.
+  (verifier: `qa-review` house-rule row 5 counts nav-menu widget instances; rows 6, 7 and 8 cover dead links, header presence and the sticky setting.)
 - **Reuse header/footer** verbatim across all pages of the site (one global component each).
+  (verifier: `qa-review` house-rule row 9 hashes the header and footer fragment of every page and requires all header hashes and all footer hashes to match.)
 - **Fewest containers that do the job.** Never a container inside a container "just because". One
-  earns its place only if it groups 2+ children, carries its own background / border / shadow, or
-  changes direction at a breakpoint — otherwise its padding belongs on the widget. Target depth is
+  earns its place only if it groups 2+ children, carries its own background / border / shadow,
+  changes direction at a breakpoint, or boxes a lone widget no ancestor already boxes — padding
+  alone never earns it, that padding belongs on the widget. Target depth is
   `section → grid|row → widget`; going past three levels needs a stated reason. Every extra level is
   paid three times: a wrapper `<div>` in the DOM, a block of generated CSS, and one more click
   between a human and the widget they opened the editor to change. This is measured, not a matter of
@@ -112,26 +166,63 @@ no native build.
   **a photo is a widget, not a background** (`es_photo()`). `es_container_report()` prints the
   count and the offenders on every page AND every Theme Builder template; `es_audit_summary()`
   closes the build with one verdict line; `qa-review` row 11 re-runs the same audit against what
-  actually landed. **Require the verdict in the builder skill's report** — `VEREDICTO A CORREGIR`
-  is not a build you hand off.
+  actually landed. **Require the verdict in the builder skill's report** — `VEREDICTO LIMPIO` is
+  the only one you hand off. `A CORREGIR` means fix it; `NO AUDITABLE` means part of that tree is
+  elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
+  never ran, which is a wiring bug reported as a result.
+  (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
+- **State that only exists in this conversation is state that dies.** Read the manifest before
+  asking, verify it before trusting an id, and record each phase into its own section. A second
+  session that re-derives everything is how one page gets built twice and how it overwrites what
+  the first session agreed to leave alone.
+  (verifier: `qa-review` house-rule row 24 runs es_manifest_verify() and requires an empty drift list before any recorded id is reused.)
+- **Delivery is a phase, not a sentence.** The sandbox is emptied and RE-READ, the backup keys
+  are handed over, and the indexing state is stated. See the delivery phase above; it blocks.
+  (verifier: `qa-review` house-rule row 22 requires an empty sandbox listing, and row 23 requires the backup keys and the indexing value in the hand-off.)
+- **Nobody approves a write they have not been shown.** Before the connector is handed a single
+  write, run `es_overwrite_preflight($slugs)` with every slug the build is about to touch and put
+  its output in front of the user — that block IS the approval artifact, not a summary of it.
+  Until it existed, the build discovered an existing page by overwriting it, so the first time
+  anybody learned that `/inicio` already belonged to somebody was after it had stopped belonging
+  to them. Three rows cost far more than the rest and show up the least: the **front page**
+  (pisarla cambia lo primero que ve un visitante), a **conversion** (a page not built with
+  Elementor keeps its `post_content` in the database and in the backup, but stops rendering it),
+  and a **draft** (rebuilding it must not publish it). Every overwrite is recoverable —
+  `es_backup_page_state()` parks the whole displaced set — but recovery is manual, so the
+  approval comes first.
+  (no verifier: nothing can prove a human was shown the block before the writes; the preflight prints it and the honesty is the operator's.)
+- **The home page is not the front page until you say so.** Building a page called "Inicio" does
+  nothing to what WordPress serves at `/`: a fresh install shows the blog, and an existing site
+  shows whatever it showed before. Nothing in this framework touched `show_on_front` or
+  `page_on_front` until `es_set_front_page($slug)` existed, so a build could finish with every
+  check green and the client's front page unchanged. Call it once the home page is saved, read what
+  it returns, and hand the page id to `qa-review` — the options say WHICH page is the front page,
+  never whether it is the right one. On an existing site this is destructive and quiet: the old
+  home stays published and simply stops being the one anybody lands on, which is why repointing
+  warns and names it.
+  (verifier: `qa-review` house-rule row 16 reads the two live options and then fetches `/` to confirm the response is that page's, not the blog's.)
 - **A warning nobody reads is not a warning.** Everything this framework needs to say goes to
   STDOUT (which the sandbox returns), not only to `error_log()` (which nobody fetches). That was
   a real bug, not a style preference: "this template will NOT appear on the front end" and "the
   header is being built WITHOUT its navigation" were both log-only. If you add a warning
   anywhere, route it through `es_warn()`.
+  (verifier: `RT_ERRORLOG_NO_STDOUT` FAILs any error_log call in a skill asset that has no stdout channel beside it.)
 - **Never a form in the hero.** The hero carries headline + value prop + CTA — never a capture
   form. The lead form lives in the closing conversion band, which is fixed DNA, so nothing is lost
   by moving it: a form above the fold reads as a toll gate before the visitor knows what is on
   offer. `TGL-LEAD-FORM` defaults to `solo CTA` in `TPL-C-01` for this reason; a project may still
   flip it, but only deliberately and never as the starting point.
+  (no verifier: nothing inspects a built hero for a capture form; the template default is a starting point, not a gate.)
 - **Mobile header** (burger · logo · cart 3-zone) is a known-hard pattern on Elementor — builder-core
   must read `elementor-core/references/gotchas.md` ("Mobile 3-zone header") before building headers.
+  (verifier: `qa-review` house-rule row 10 checks the mobile rules are present in the compiled CSS and then measures the three zones.)
 - **Mockups** (`html-mockup`): one Artifact with in-page navigation, header/announcement/footer as
   global elements OUTSIDE the page containers; never split pages across Artifacts with `target="_top"`
   links. Start from the asset matching the SITE TYPE — `html-mockup/assets/ecommerce-mockup.html`
   for commerce, `html-mockup/assets/corporate-mockup.html` for corporate. Never start a corporate
   site from the ecommerce asset: it carries cart, prices and shop pages a corporate site must not
   inherit. Detail: `html-mockup/references/mockup-guide.md`.
+  (no verifier: nothing checks which asset a mockup started from; a corporate site built on the commerce one only shows up when a human opens it.)
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.
@@ -147,7 +238,8 @@ no native build.
   user that this build is the one that validates it. Flag every unverified step as such and capture
   what you learn into `divi-core/references/gotchas.md`.
 - The build gate is also enforced skill-side: every write-capable skill (`elementor-core`,
-  `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`) re-checks for an explicit
+  `divi-core`, `woocommerce`, `wordpress-seo`, `wordpress-performance`, `wordpress-forms`,
+  `wordpress-legal`) re-checks for an explicit
   yes before its first write. That is deliberate redundancy — those skills are reachable by their
   own triggers without passing through here, so the gate cannot live only in this file.
 

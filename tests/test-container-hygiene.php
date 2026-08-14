@@ -22,7 +22,20 @@ function get_posts( $a ) {
 	return array();
 }
 function wp_get_attachment_url( $id ) { return 'https://x.test/' . $id . '.jpg'; }
-ini_set( 'error_log', tempnam( sys_get_temp_dir(), 'eslog' ) );
+/* Kept in a global so the report's TEXT is assertable. This file defines ES_AUDIT_SILENT for the
+   whole process, so es_container_report()'s stdout copy is muted and error_log() is the only
+   channel left — without this, the report could print anything at all and nothing would notice. */
+$GLOBALS['es_log'] = tempnam( sys_get_temp_dir(), 'eslog' );
+ini_set( 'error_log', $GLOBALS['es_log'] );
+register_shutdown_function( function () { @unlink( $GLOBALS['es_log'] ); } );
+function log_since( $offset ) {
+	clearstatcache();
+	return substr( (string) @file_get_contents( $GLOBALS['es_log'] ), $offset );
+}
+function log_mark() {
+	clearstatcache();
+	return strlen( (string) @file_get_contents( $GLOBALS['es_log'] ) );
+}
 
 require_once dirname( __DIR__ ) . '/skills/elementor-core/assets/es-builder.php';
 
@@ -31,6 +44,11 @@ function ok( $cond, $label ) {
 	global $pass, $fail;
 	if ( $cond ) { $pass++; echo "  OK   $label\n"; }
 	else { $fail++; echo "  FAIL $label\n"; }
+}
+function grab_out( $fn ) {
+	ob_start();
+	$ret = $fn();
+	return array( 'out' => ob_get_clean(), 'ret' => $ret );
 }
 function has( array $list, $needle ) {
 	foreach ( $list as $l ) { if ( false !== strpos( $l, $needle ) ) { return true; } }
@@ -104,6 +122,170 @@ $deep = es_c( array(), array( es_c( array(), array( es_c( array(), array( es_c( 
 $a = es_container_audit( array( $deep ) );
 ok( 4 === $a['max_depth'], 'profundidad 4 medida' );
 ok( has( $a['offenders'], 'profundidad 4' ), 'profundidad excesiva reportada' );
+
+echo "--- arbol legacy section>column>widget: no auditable, nunca invisible ---\n";
+es_uid_reset( 't9' );
+function legacy_el( $type, array $children ) {
+	return array( 'elType' => $type, 'settings' => array(), 'elements' => $children );
+}
+$legacy = array( legacy_el( 'section', array( legacy_el( 'column', array( es_h( 'titulo' ) ) ) ) ) );
+$a      = es_container_audit( $legacy );
+ok( 0 === $a['containers'], 'no hay Containers que contar' );
+ok( 1 === $a['widgets'], 'el widget bajo dos envoltorios legacy SI se cuenta' );
+ok( isset( $a['unaudited']['section'] ) && 1 === $a['unaudited']['section']['count'], 'section queda registrado como no auditable' );
+ok( isset( $a['unaudited']['column'] ) && 1 === $a['unaudited']['column']['count'], 'column queda registrado como no auditable' );
+ok( '/0' === $a['unaudited']['section']['first'], 'guarda donde aparecio el primero' );
+ok( 2 === $a['max_depth'], 'cada envoltorio legacy cuenta como un nivel' );
+ok( ! $a['offenders'], 'un arbol importado no es culpa de quien llama: no es offender' );
+
+echo "--- un Container culpable escondido bajo un envoltorio legacy ---\n";
+es_uid_reset( 't10' );
+$mixto = array( legacy_el( 'section', array( es_c( array(), array( es_p( 'solo' ) ) ) ) ) );
+$a     = es_container_audit( $mixto );
+ok( 1 === $a['containers'], 'el Container bajo el envoltorio legacy se ve' );
+ok( has( $a['offenders'], 'no aporta nada' ), 'y su falta se reporta igual que en la superficie' );
+
+echo "--- contenido dentro de un widget tampoco es invisible ---\n";
+es_uid_reset( 't11' );
+$loop             = es_w( 'loop-grid', array() );
+$loop['elements'] = array( es_c( array(), array( es_p( 'dentro' ) ) ) );
+$a                = es_container_audit( array( $loop ) );
+ok( 1 === $a['containers'] && 2 === $a['widgets'], 'el arbol que cuelga de un widget se recorre' );
+ok( has( $a['offenders'], 'no aporta nada' ), 'y sus offenders cuentan' );
+
+echo "--- debajo de lo que no se puede juzgar, el audit no afirma nada ---\n";
+es_uid_reset( 't10b' );
+/* Un Container cuyo UNICO hijo es un elType que el walk no sabe juzgar. El remedio de "envoltorio
+   de 1 widget" no se puede seguir aqui: el hijo no es un widget. */
+$opaco = array( legacy_el( 'section', array( es_c( array(), array( legacy_el( 'column', array( es_h( 'a' ), es_h( 'b' ) ) ) ) ) ) ) );
+$a     = es_container_audit( $opaco );
+ok( ! $a['offenders'], 'un envoltorio cuyo unico hijo no es juzgable no recibe un remedio imposible' );
+ok( 2 === $a['widgets'], 'y el arbol de abajo se sigue recorriendo entero' );
+/* La profundidad se MIDE igual; lo que no se hace es cobrarsela a quien no la escribio. */
+$hibrido = array( legacy_el( 'section', array( legacy_el( 'column', array( legacy_el( 'section', array( legacy_el( 'column', array( es_c( array(), array( es_h( 'a' ), es_h( 'b' ) ) ) ) ) ) ) ) ) ) ) );
+$a       = es_container_audit( $hibrido );
+ok( 5 === $a['max_depth'], 'la profundidad heredada se mide' );
+ok( ! has( $a['offenders'], 'profundidad' ), 'pero no se cobra: 4 envoltorios importados no son una decision de anidado' );
+$propio = es_c( array(), array( es_c( array(), array( es_c( array(), array( es_c( array(), array( es_h( 'x' ) ) ) ) ) ) ) ) );
+ok( has( es_container_audit( array( $propio ) )['offenders'], 'profundidad 4' ), 'la profundidad que SI escribio quien llama se sigue cobrando' );
+/* La seccion SI es boxed; el column de por medio no lo es nadie sabe. Si el ancho se heredara a
+   traves de el, el contenedor de adentro seria un "boxed dentro de boxed" que nadie verifico. */
+$boxeado = array( es_section( array( legacy_el( 'column', array( es_c( array( 'content_width' => 'boxed' ), array( es_p( 'x' ) ) ) ) ) ) ) );
+ok( ! es_container_audit( $boxeado )['offenders'], 'debajo de un envoltorio opaco no se hereda un ancho boxed que nadie verifico' );
+
+echo "--- unaudited agrega de verdad: cuenta y recuerda el PRIMERO ---\n";
+$dos = array( legacy_el( 'section', array( legacy_el( 'column', array( legacy_el( 'section', array( es_h( 'x' ) ) ) ) ) ) ) );
+$a   = es_container_audit( $dos );
+ok( 2 === $a['unaudited']['section']['count'], 'dos section del mismo tipo suman, no se pisan' );
+ok( '/0' === $a['unaudited']['section']['first'], 'y "first" guarda el mas superficial, no el ultimo visto' );
+
+echo "--- un elemento sin elType se nombra, no se ignora ---\n";
+$a = es_container_audit( array( array( 'settings' => array(), 'elements' => array() ) ) );
+ok( isset( $a['unaudited']['(sin elType)'] ), 'sin elType tiene su propia entrada' );
+
+echo "--- el remedio nombrado depende de la direccion del hijo ---\n";
+es_uid_reset( 't12' );
+$col = es_c( array(), array( es_c( array( 'flex_direction' => 'column' ), array( es_h( 'a' ), es_h( 'b' ) ) ) ) );
+$a   = es_container_audit( array( $col ) );
+ok( has( $a['offenders'], 'fusiona ambos' ), 'hijo en columna: fusionar los dos' );
+ok( ! has( $a['offenders'], 'es_split()' ), 'es_split() NO se propone para un hijo en columna: cambiaria el eje' );
+$rev = es_c( array(), array( es_c( array( 'flex_direction' => 'row-reverse' ), array( es_h( 'a' ), es_h( 'b' ) ) ) ) );
+$a   = es_container_audit( array( $rev ) );
+ok( has( $a['offenders'], 'es_split()' ), 'row-reverse sigue siendo una fila' );
+
+echo "--- acotar un widget suelto al ancho boxed SI es un motivo ---\n";
+es_uid_reset( 't13' );
+$boxed = es_section( array( es_w( 'wc-archive-products', array() ) ) );
+$a     = es_container_audit( array( $boxed ) );
+ok( ! $a['offenders'], 'el unico modo de acotar un widget al ancho boxed no es un offender' );
+$anidado = es_section( array( es_c( array( 'content_width' => 'boxed' ), array( es_p( 'x' ) ) ) ) );
+$a       = es_container_audit( array( $anidado ) );
+ok( has( $a['offenders'], 'acotar de nuevo no cambia el ancho' ), 'boxed dentro de boxed no aporta un segundo acotado' );
+/* Un widget SI es un elemento que este walk juzga, asi que el contexto lo atraviesa: lo que cuelga
+   de una plantilla de loop sigue estando dentro del ancho que acoto el contenedor de arriba. */
+$enWidget             = es_w( 'loop-grid', array() );
+$enWidget['elements'] = array( es_c( array( 'content_width' => 'boxed' ), array( es_p( 'x' ) ) ) );
+$a                    = es_container_audit( array( es_section( array( $enWidget ) ) ) );
+ok( has( $a['offenders'], 'acotar de nuevo no cambia el ancho' ), 'el ancho boxed se hereda a traves de un widget' );
+ok( true === es_container_earns_its_place( array( 'content_width' => 'boxed' ), array( 'only_child' => 'widget' ) ), 'boxed + hijo widget + sin ancestro boxed: se gana el lugar' );
+ok( false === es_container_earns_its_place( array( 'content_width' => 'boxed' ), array( 'only_child' => 'container' ) ), 'boxed no salva a un contenedor cuyo hijo es otro contenedor' );
+ok( false === es_container_earns_its_place( array( 'content_width' => 'boxed' ), array( 'only_child' => 'widget', 'boxed_ancestor' => true ) ), 'con un ancestro boxed ya no aporta' );
+ok( false === es_container_earns_its_place( array( 'content_width' => 'boxed' ) ), 'sin contexto no se regala el permiso' );
+
+echo "--- cada remedio para un widget suelto tiene que poder hacerse ---\n";
+$pad = es_container_audit( array( es_c( array( 'padding' => es_box( 40, 0, 40, 0 ) ), array( es_p( 'x' ) ) ) ) );
+ok( has( $pad['offenders'], 'pasa el padding al widget' ), 'con padding, el remedio es pasarlo' );
+$sin = es_container_audit( array( es_c( array(), array( es_p( 'x' ) ) ) ) );
+ok( ! has( $sin['offenders'], 'padding' ), 'sin padding el mensaje ya no manda mover un padding que no existe' );
+
+echo "--- el reporte por pagina dice lo que no pudo juzgar ---\n";
+$mark = log_mark();
+es_container_report( $legacy, 'heredada' );
+$linea = log_since( $mark );
+ok( false !== strpos( $linea, 'NO AUDITABLE' ), 'el reporte nombra la parte no auditada' );
+ok( false !== strpos( $linea, 'elType "section" x1' ), 'con el elType y su conteo' );
+
+echo "--- y el veredicto de corrida deja de llamarlo limpio ---\n";
+/* Esta assertion nacio afirmando lo CONTRARIO, a proposito: mientras el contrato de senales no
+   existia, decia que el veredicto devolvia 0 sobre un arbol no auditado. Al llegar ese contrato se
+   puso roja sola y hubo que venir a cambiarla, que es justo lo que un comentario "pendiente" nunca
+   hace. El detalle de los cuatro codigos vive en tests/test-audit-signals.php. */
+$GLOBALS['es_audit_runs'] = array();
+es_container_report( $legacy, 'heredada' );
+ok( -2 === es_audit_summary(), 'un arbol que el audit no pudo juzgar devuelve -2, nunca 0' );
+
+echo "--- una foto que no existe deja de pasar en silencio ---\n";
+es_uid_reset( 't14' );
+/* es_img() devolvia array('url'=>'','id'=>'') ante un slug inexistente y no decia nada, asi que una
+   foto mal escrita entregaba un widget image SIN <img> y todas las verificaciones seguian verdes.
+   Dos canales, porque el fallo ocurre al CONSTRUIR y se descubre al AUDITAR: el aviso ahora, y el
+   offender cuando se recorre el arbol que se va a guardar. */
+$r = grab_out( function () { return es_img( 'jamas-pedida' ); } );
+ok( '' === $r['ret']['url'] && '' === $r['ret']['id'], 'sigue devolviendo url e id vacios a quien la pidio' );
+ok( false !== strpos( $r['out'], 'jamas-pedida' ), 'pero AVISA, nombrando el slug que no encontro' );
+ok( '' === grab_out( function () { return es_img( 'jamas-pedida' ); } )['out'], 'y avisa una sola vez por slug, no una por uso' );
+ok( false !== strpos( grab_out( function () { return es_img( 'otro-que-falta' ); } )['out'], 'otro-que-falta' ), 'cada slug distinto si avisa' );
+
+$rota = es_photo( 'jamas-pedida', 400 );
+$a    = es_container_audit( array( es_split( array( $rota, es_p( 'copy' ) ) ) ) );
+ok( has( $a['offenders'], 'sin imagen' ), 'y el arbol guardado la reporta como offender, no como limpio' );
+ok( has( $a['offenders'], 'jamas-pedida' ), 'nombrando el slug para poder arreglarlo' );
+$buena = es_photo( 'foto', 400 );
+ok( ! es_container_audit( array( es_split( array( $buena, es_p( 'copy' ) ) ) ) )['offenders'], 'una foto real no dispara nada' );
+/* El unico background_image lo pone un CONTENEDOR: en la rama de widgets no podia ejecutarse. */
+$bgroto = es_c( array( 'background_background' => 'classic', 'background_image' => es_img( 'fondo-fantasma' ) ), array( es_h( 'a' ), es_h( 'b' ) ) );
+ok( has( es_container_audit( array( $bgroto ) )['offenders'], 'fondo-fantasma' ), 'un fondo de CONTENEDOR que no existe tambien es offender' );
+ok( has( es_container_audit( array( es_split( array( es_photo( '', 400 ), es_p( 'c' ) ) ) ) )['offenders'], 'sin imagen' ), 'un slug VACIO tambien, no solo uno falsy-distinto-de-vacio' );
+
+echo "--- una clave en el elemento equivocado se guarda y no se aplica ---\n";
+/* Elementor llama al mismo control distinto segun donde viva: un CONTENEDOR toma `padding`, un
+   WIDGET toma `_padding`, porque ahi es un control de envoltorio. Escribir la forma de contenedor
+   en un widget guarda bien, abre bien y no aplica nada. Es el fallo mas silencioso de la libreria:
+   se ve en el codigo y no en la pantalla, asi que se vuelve a poner y a mirar con cara rara. */
+$mal = es_w( 'heading', array( 'title' => 'x', 'padding' => es_box( 10, 10, 10, 10 ) ) );
+$off = es_container_audit( array( es_split( array( $mal, es_p( 'y' ) ) ) ) )['offenders'];
+ok( has( $off, 'sin guion bajo' ), 'padding sin guion bajo en un widget es offender' );
+ok( has( $off, '_padding' ), 'y el aviso dice cual es la clave correcta' );
+
+$bien = es_w( 'heading', array( 'title' => 'x', '_padding' => es_box( 10, 10, 10, 10 ) ) );
+ok( ! es_container_audit( array( es_split( array( $bien, es_p( 'y' ) ) ) ) )['offenders'], 'con guion bajo no dispara nada' );
+
+/* Y al reves: la forma de widget en un contenedor tampoco aplica. */
+$cmal = es_c( array( '_padding' => es_box( 10, 10, 10, 10 ) ), array( es_h( 'a' ), es_h( 'b' ) ) );
+ok( has( es_container_audit( array( $cmal ) )['offenders'], 'con guion bajo' ), 'un contenedor con _padding tambien es offender' );
+
+/* Una clave de layout de contenedor en un widget: no hay caja flex que configurar ahi. */
+$flex = es_w( 'heading', array( 'title' => 'x', 'flex_direction' => 'row' ) );
+ok( has( es_container_audit( array( es_split( array( $flex, es_p( 'y' ) ) ) ) )['offenders'], 'clave de CONTENEDOR' ), 'flex_direction en un widget es offender' );
+
+/* El control de falsos positivos, que es lo que decide si este check sirve o estorba: `width` es
+   clave de layout de contenedor Y control propio de varios widgets, asi que NO esta en la lista. */
+$w = es_w( 'image', array( 'width' => es_size( 50, '%' ) ) );
+ok( ! es_container_audit( array( es_split( array( $w, es_p( 'y' ) ) ) ) )['offenders'], 'width en un widget NO se marca: seria un offender inventado' );
+
+/* Un widget que lleva las DOS formas ya tiene la buena puesta: avisar seria ruido. */
+$dos = es_w( 'heading', array( 'title' => 'x', 'padding' => es_box( 1, 1, 1, 1 ), '_padding' => es_box( 2, 2, 2, 2 ) ) );
+ok( ! es_container_audit( array( es_split( array( $dos, es_p( 'y' ) ) ) ) )['offenders'], 'llevando ambas, no se avisa: la correcta ya esta' );
 
 echo "--- veredicto de corrida ---\n";
 $GLOBALS['es_audit_runs'] = array();

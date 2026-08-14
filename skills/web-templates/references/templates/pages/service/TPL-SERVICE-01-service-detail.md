@@ -92,7 +92,6 @@ ESTE servicio. **Nunca en el hero** (regla de casa del orquestador). Reutilizabl
 | `TGL-FAQ` | **on** | al revés que en `TPL-CONTACT-01`; aquí es ADN de SEO |
 | `TGL-TESTIMONIALS` | off | |
 | `TGL-PRICING` | off | on sólo si el servicio es paquetizable |
-| `TGL-STYLE` | hereda de la home | |
 | `TGL-CTA-STRENGTH` | hereda de la home | |
 
 **Fijos:** COMP-HEADER, COMP-BREADCRUMB, encabezado, Qué resolvemos, COMP-FEATURES,

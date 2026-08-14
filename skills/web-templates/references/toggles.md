@@ -13,7 +13,8 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-HERO-HEIGHT` | ¿Qué tan alto el hero? | full 60vh / medio 45vh / bajo 35vh | COMP-HERO | TPL-E-01, TPL-E-04, TPL-E-05 |
 | `TGL-CARD-STYLE` | ¿Cards con imagen grande o compactas? | imagen grande / compacta con datos | COMP-PRODUCT-CARD | todas ecommerce |
 | `TGL-CARD-IMG` | ¿Las cards muestran imagen? | sí / no (solo texto+precio) | COMP-PRODUCT-CARD | todas ecommerce |
-| `TGL-STYLE` | ¿Estilo general? | minimalista / elegante-editorial / comercial | tokens (radius, spacing, densidad) | todas |
+| `TGL-IMAGERY` | ¿Fotografía, ilustración o tratamiento gráfico? | foto / ilustración / gráfico | imagery treatment | todas |
+| `TGL-MOTION-INTENSITY` | ¿Qué tan marcado el motion? | sutil / default (personalidad) / audaz | hover/motion deltas | todas |
 | `TGL-FOCUS` | ¿Foco de la home? | venta directa / CTA-branding | orden + protagonismo de bloques | TPL-E-01, TPL-E-03, TPL-E-04 |
 | `TGL-CATEGORIES` | ¿Mostrar bloque de categorías? | sí / no | COMP-CATEGORY-CARD | TPL-E-01, TPL-E-02, TPL-E-05 |
 | `TGL-BENEFITS` | ¿Bloque de beneficios (envíos, pagos, garantía)? | sí / no | COMP-BENEFITS | todas |
@@ -53,7 +54,7 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 | `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 |
 
 `TPL-SERVICE-01` (página de servicio/área) no estrena toggles: reutiliza `TGL-PROCESS`, `TGL-CASES`,
-`TGL-FAQ`, `TGL-TESTIMONIALS`, `TGL-PRICING`, `TGL-STYLE` y `TGL-CTA-STRENGTH`. Ojo con dos
+`TGL-FAQ`, `TGL-TESTIMONIALS`, `TGL-PRICING` y `TGL-CTA-STRENGTH`. Ojo con dos
 defaults propios: `TGL-FAQ` va **on** (al revés que en `TPL-CONTACT-01`, porque ahí es ADN de SEO) y
 `TGL-PRICING` va **off**. Su bloque de cross-link a las áreas hermanas es FIJO y no tiene toggle.
 | `TGL-CART-VIEW` | ¿Carrito como drawer, página o ambos? | drawer / page / both | side-cart / cart page | TPL-CART-01 |
@@ -63,9 +64,9 @@ defaults propios: `TGL-FAQ` va **on** (al revés que en `TPL-CONTACT-01`, porque
 | `TGL-CHECKOUT-STEPS` | ¿Checkout en 1 paso o 2 pasos? | 1-step / 2-step | form checkout | TPL-CHECKOUT-01 |
 | `TGL-CHECKOUT-HEADER` | ¿Header de checkout minimal o completo? | minimal / full | COMP-HEADER | TPL-CHECKOUT-01 |
 
-Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TGL-STYLE`,
-`TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`, `TGL-TRUST`, `TGL-FAQ`, `TGL-CARD-STYLE`,
-`TGL-CARD-IMG`.
+Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TGL-IMAGERY`,
+`TGL-MOTION-INTENSITY`, `TGL-CTA-STRENGTH`, `TGL-NEWSLETTER`, `TGL-TESTIMONIALS`, `TGL-TRUST`,
+`TGL-FAQ`, `TGL-CARD-STYLE`, `TGL-CARD-IMG`.
 
 ## Notas
 

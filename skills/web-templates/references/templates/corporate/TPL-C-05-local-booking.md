@@ -73,7 +73,6 @@ Objetivo: NAP completo, horarios, redes, legal. Repite dirección/teléfono/hora
 | `TGL-BOOKING` | form/embed | o WhatsApp/teléfono si no hay plugin |
 | `TGL-MAP` | on | ADN |
 | `TGL-TESTIMONIALS` | on | reseñas |
-| `TGL-STYLE` | según rubro | |
 | `TGL-CTA-STRENGTH` | medio | |
 
 **Fijos:** COMP-HEADER (teléfono+CTA), COMP-HERO, COMP-SERVICES, COMP-BOOKING, COMP-MAP-NAP, COMP-FOOTER.

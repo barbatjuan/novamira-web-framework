@@ -10,3 +10,7 @@ Thumbs.db
 .env*
 *connector*token*
 secrets.*
+
+# Auto-generated local tool state from `gentle-ai skill-registry refresh`; embeds absolute
+# developer paths, so it is machine-local, not repo content.
+.atl/

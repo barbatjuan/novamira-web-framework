@@ -41,7 +41,6 @@ Objetivo: resolver dudas frecuentes (info). Acordeón. Reutilizable: GLOBAL (`CO
 |--------|---------|------|
 | `TGL-CONTACT-MAP` | on | apagar si es solo online sin local |
 | `TGL-FAQ` | off | opcional |
-| `TGL-STYLE` | hereda de la home | |
 
 **Fijos:** HEADER, encabezado, form + datos, FOOTER.
 

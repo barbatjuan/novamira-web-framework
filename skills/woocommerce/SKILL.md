@@ -31,18 +31,23 @@ On an existing site, confirm every page/template you would overwrite by name fir
 - Native commerce widgets only; no custom JS. Style the CTA to the accent color with
   `!important` (the theme's button color otherwise wins) — verify by grepping the compiled
   `post-<id>.css` for the accent rule, since a losing specificity war leaves no trace in HTML.
+  (verifier: step 5's server-side verification is where this bullet's compiled-CSS grep for the accent rule is carried out.)
 - Product-card grids must be equal height — do not hand-roll it: `es_products_css()` is the
   single source of truth (see `ux-design-system/references/motion.md` for the why).
+  (no verifier: nothing greps for a hand-rolled equal-height rule; one source of truth is a convention here, not a gate.)
 - A leftover Theme Builder template can hijack a page and look "broken". Before blaming layout,
   list `elementor_library` templates and their conditions and disable the stale ones; `qa-review`
   row 7 catches the same class of failure from the other side.
+  (verifier: `qa-review` house-rule row 7 catches the same class of failure from the other side.)
 - **Fewest containers that do the job** applies here HARDER than anywhere else, because a
   commerce template is reused on every product / every archive page — one wasted level is paid
   site-wide, forever. `es_save_theme_part()` audits and prints the count; end the build with
-  `es_audit_summary()` and fix `VEREDICTO A CORREGIR` before deploying. Use `es_split()` for the
+  `es_audit_summary()` and deploy only on `VEREDICTO LIMPIO`. Use `es_split()` for the
   gallery + buy-box split (the template IS the row) and `es_photo()` over container background
   images. Full rules: `elementor-core/references/gotchas.md` → "Container hygiene".
+  (verifier: es_save_theme_part() audits and prints the container count for every template it writes.)
 - **Read `references/gotchas.md` before building templates** (Theme Builder conditions are subtle).
+  (no verifier: nothing can prove a reference file was read; only a subtle condition bug surfaces it later.)
 
 ## Execution Steps
 1. **Shop archive**: a `product-archive` Theme Builder template using the archive-products

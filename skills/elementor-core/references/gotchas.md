@@ -8,7 +8,17 @@ Every one of these cost real debugging time. Trust them.
    the connector intermittently returns "requires additional permissions" — just retry.
 2. `require_once` the builder files, then **call the build function explicitly**. End that build
    function with `es_audit_summary()` and **read the verdict it prints** before moving on
-   (see "Container hygiene" below). `VEREDICTO A CORREGIR` means fix and rebuild, not continue.
+   (see "Container hygiene" below). **`LIMPIO` is the only verdict you may deploy on**, and the
+   integer it returns is what to branch on, not the text.
+   The other three each mean stop, for a different reason: `A CORREGIR` — fix and rebuild;
+   `NO AUDITABLE` — part of that tree is elTypes the audit cannot judge, so zero offenders proves
+   nothing; `SIN AUDITAR` — `es_container_report()` never ran at all: either the audit is not wired
+   into the build function, or the summary was called before anything was saved, or every page
+   failed to save. That last one is why this verdict speaks through `es_warn()` and cannot be
+   silenced by `ES_AUDIT_SILENT`. The integer it returns matches: `0` clean, `>0` the offender
+   count, `-2` not judgeable, `-1` never audited. Both failures are NEGATIVE on purpose, so an old
+   `if ( es_audit_summary() )` cannot read them as success, and `-2` beats an offender count
+   because you cannot be asked to fix what was never judged.
 3. For every touched post id: `delete_post_meta(id,'_elementor_css')` +
    `delete_post_meta(id,'_elementor_element_cache')` + `@unlink(uploads/elementor/css/post-<id>.css)` +
    `\Elementor\Core\Files\CSS\Post::create(id)->update()`.
@@ -19,6 +29,8 @@ Every one of these cost real debugging time. Trust them.
    this server-side grep is the only verification available. NEVER claim it works from data alone; say it's verified server-side.
 
 ## Container hygiene — the three rules that killed the nesting
+
+The four verdict lines and the four integers `es_audit_summary()` returns are in step 2 above.
 
 Found on a real build (de la O Abogados) AFTER the audit had already shipped. The audit was
 right and still changed nothing, for two reasons worth remembering:
@@ -49,12 +61,37 @@ Measured on that build, not estimated:
 The last 3 home offenders were the portraits as container backgrounds; moving them to
 `es_photo()` cleared them without touching anything else.
 
-**Two severities, on purpose.** `offenders` are wrong with no argument. `optimizable` is a
+**Three severities, on purpose.** `offenders` are wrong with no argument. `optimizable` is a
 container whose only child is a GRID — `es_section( es_grid(...) )` is this repo's own dominant
 idiom, and an audit that screams on every normal build is one people learn to ignore. Whether
 that pair collapses into a single boxed grid container is plausible and **not confirmed**;
 verify on a live site before flattening it wholesale. A container whose only child is a flex
-ROW is a different story — that one always collapses, so it IS an offender.
+ROW is a different story — that one always collapses, so it IS an offender. A child stacking in
+a COLUMN is not: `es_split()` would change the axis, so the remedy printed there is to merge the
+pair, not to call `es_split()`.
+
+`unaudited` is the third, and it exists because silence is not a verdict. It maps each elType
+the walk has no opinion about — pre-3.6 `section`/`column`, a kit import, a future element — to
+its count and where it first appeared. Those elements used to fall off the walk entirely, so an
+imported page measured 0 containers / 0 widgets / depth 0 and printed `VEREDICTO LIMPIO`. It is
+**not** an offender: you cannot fix an import by rewriting an `es_*()` call.
+
+That rule runs one level deeper than it looks. **Below** an element the audit cannot judge it makes
+no contextual claim either: the depth is still measured into `max_depth`, but it is never charged
+as a `profundidad > 3` offender; a boxed width is not assumed to be inherited; and a container
+whose ONLY child is an unjudgeable element is not judged at all, because "pass the padding to the
+widget" is not something you can do to a legacy `column`. What a container gets wrong on its OWN —
+empty, or wrapping a lone widget for nothing — is still its caller's to fix wherever it sits. The
+line is between a container's own defect, which you wrote, and its context, which an import
+handed it.
+
+**The one exception to "a wrapper around a single widget is an offender."** A container that is
+the only thing constraining a lone widget to the boxed content width earns its place, because
+Elementor gives a widget no way to do that itself — `es_section( es_w('wc-archive-products') )`
+is the shape. All three conditions matter: the child is a WIDGET, `content_width` is explicitly
+`'boxed'` (the runtime default is boxed, so an absent key is not a decision), and no ancestor is
+already boxed. Padding is deliberately NOT part of this and must not be added to it — padding on
+a wrapper is the canonical thing that belongs on the widget.
 
 `object-fit` on the image widget is hyphenated (that is the control id) and Elementor only
 honours it while `height` has a value. Both confirmed on that build.

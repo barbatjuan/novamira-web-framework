@@ -94,7 +94,6 @@ Mobile: acordeón/apilado. Desktop: 3–4 columnas. Reutilizable: GLOBAL. Theme 
 | `TGL-BENEFITS` | on | |
 | `TGL-TESTIMONIALS` | on | |
 | `TGL-NEWSLETTER` | on | |
-| `TGL-STYLE` | elegante-editorial | |
 | `TGL-TRUST` | on (footer) | |
 
 **Fijos:** COMP-HEADER, COMP-HERO, COMP-CATEGORY-CARD, COMP-PRODUCT-CAROUSEL, COMP-FOOTER.
