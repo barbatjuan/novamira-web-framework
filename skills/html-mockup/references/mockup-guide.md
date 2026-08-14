@@ -12,17 +12,68 @@ one inline `<style>`. No external anything.
 ```html
 <style>
   :root{
-    /* ── tokens: paste the resolved values from design-system.md ── */
+    /* ══ AXIS POSITIONS — the only lines you replace per project ══
+       Copy the row for each RESOLVED position out of
+       web-templates/references/design-system.md § "Perceptual axes — token values". Never type a
+       number here and never re-derive one: these five lines are the whole visual identity, and a
+       hand-picked value is how every site ends up looking the same. The values below are that
+       file's `classic` scale row and `standard` density row, present only so the chain underneath
+       is runnable as written. */
+    --type-ratio: 1.333;  --display-lh: 1.10;  --fs-h1-max: 64;      /* scale: classic */
+    --sp-scale: 1.0;                                                 /* density: standard */
+    --c-bg:#ffffff; --c-bg-alt:#f4f2ee; --c-text:#1a1a1a;            /* ground */
+    --elev-rest:none; --elev-hover:none;                             /* elevation: none */
+    /* composition: LP-CENTERED */
+
     --font-primary: system-ui, sans-serif;
     --font-secondary: var(--font-primary);
-    --fs-h1: clamp(2rem,5vw,3.5rem); --fs-h2: clamp(1.6rem,3.5vw,2.5rem);
-    --fs-h3: clamp(1.25rem,2.5vw,1.75rem); --fs-body: clamp(1rem,1.2vw,1.125rem);
+
+    /* ── Type scale, transcribed VERBATIM from design-system.md § Scale. Every heading step hangs
+          off --type-ratio and --fs-h1-max; not one heading size is written by hand, and each
+          step's preferred term interpolates ITS OWN floor into ITS OWN cap across 430 → 1280 so
+          the cap engages on a laptop. What used to sit on this line — `clamp(2rem,5vw,3.5rem)` —
+          IS the defect the axes replaced: a 56px h1 cap on every client site, byte-identical at
+          all four scale positions. --fs-h1-max is UNITLESS on purpose: calc() cannot divide a
+          length by a length, so the coefficient multiplying --fluid must arrive without a unit,
+          and --fs-base is the single bridge back to a length. ── */
+    --fs-base: 16;
+    --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
+    --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
+    --n-h2: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio));
+    --n-h3: calc(var(--fs-base) * var(--type-ratio));
+    --n-h1-cap: var(--fs-h1-max);
+    --n-h2-cap: calc(var(--fs-h1-max) / var(--type-ratio));
+    --n-h3-cap: calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio));
+    --fs-h1: clamp(calc(var(--n-h1) / var(--fs-base) * 1rem),
+                   calc(var(--n-h1) / var(--fs-base) * 1rem + (var(--n-h1-cap) - var(--n-h1)) * var(--fluid)),
+                   calc(var(--n-h1-cap) * 1px));
+    --fs-h2: clamp(calc(var(--n-h2) / var(--fs-base) * 1rem),
+                   calc(var(--n-h2) / var(--fs-base) * 1rem + (var(--n-h2-cap) - var(--n-h2)) * var(--fluid)),
+                   calc(var(--n-h2-cap) * 1px));
+    --fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
+                   calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
+                   calc(var(--n-h3-cap) * 1px));
+    --fs-body: clamp(1rem,1.2vw,1.25rem);   /* body is NOT an axis — a plain vw term is correct */
     --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-price: clamp(1.1rem,1.6vw,1.35rem);
     --fs-price-old:.95rem; --fs-button:1rem; --fs-nav:.95rem;
+
     --c-primary:#1a1a1a; --c-secondary:#444; --c-accent:#c8642d;
-    --c-bg:#ffffff; --c-bg-alt:#f4f2ee; --c-text:#1a1a1a; --c-text-muted:#6b6b6b;
-    --c-border:#e5e1d8; --c-success:#2e7d32; --c-error:#c62828; --c-sale:#c8322d;
-    --sp-xs:.5rem; --sp-s:1rem; --sp-m:1.5rem; --sp-l:3rem; --sp-xl:5rem; --sp-xxl:7.5rem;
+    --c-text-muted:#6b6b6b; --c-border:#e5e1d8;
+    --c-success:#2e7d32; --c-error:#c62828; --c-sale:#c8322d;
+
+    /* ── Spacing, verbatim from design-system.md § Density: ONE scale multiplied whole by the
+          density position, and --sp-section carrying --sp-scale on BOTH ends of the
+          interpolation — which is what makes the density axis visible at 430, 768 AND 1280
+          instead of only at the extremes. Fixed rems here (`--sp-l:3rem`) flatten it. ── */
+    --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
+    --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
+    --sp-xl: calc(5rem   * var(--sp-scale));  --sp-xxl:calc(7.5rem * var(--sp-scale));
+    --n-sec:     calc(2 * var(--fs-base) * var(--sp-scale));
+    --n-sec-cap: calc(7 * var(--fs-base) * var(--sp-scale));
+    --sp-section: clamp(calc(var(--n-sec) / var(--fs-base) * 1rem),
+                        calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
+                        calc(var(--n-sec-cap) * 1px));
+
     --container-max:1280px; --content-width:1140px;
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
@@ -32,20 +83,34 @@ one inline `<style>`. No external anything.
     :root{ --c-bg:#141414; --c-bg-alt:#1e1e1e; --c-text:#f2f2f2; --c-text-muted:#a8a8a8; --c-border:#333; }
   }
   *{box-sizing:border-box} body,figure,h1,h2,h3,p{margin:0}
-  body{font-family:var(--font-secondary);color:var(--c-text);background:var(--c-bg);line-height:1.6}
-  h1,h2,h3{font-family:var(--font-primary);line-height:1.15}
-  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3)}
+  /* `overflow-wrap:anywhere`, not `break-word`: only `anywhere` shrinks a box's intrinsic
+     min-content size, so a heading sized `fit-content` actually breaks its longest word instead of
+     staying wider than its column. Measured on a proof mockup, `break-word` left 58px of
+     horizontal scroll at the 320px reflow width (WCAG 1.4.10) untouched. */
+  body{font-family:var(--font-secondary);color:var(--c-text);background:var(--c-bg);
+       font-size:var(--fs-body);line-height:1.6;overflow-wrap:anywhere}
+  /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25 and body 1.6. A fixed 1.15
+     for every heading was the other half of the defect above. Weights per design-system.md. */
+  h1,h2,h3{font-family:var(--font-primary);text-wrap:balance}
+  h1,h2{line-height:var(--display-lh);font-weight:700}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)}
+  h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
   .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
-  section{padding-block:var(--sp-l)}
+  /* Fluid, density-scaled, and no breakpoint by hand — that is the point of --sp-section. */
+  section{padding-block:var(--sp-section)}
   .btn{display:inline-block;padding:.875rem 1.75rem;border-radius:var(--radius-button);
        font-size:var(--fs-button);font-weight:600;text-decoration:none;transition:transform .35s var(--ease),background .2s}
   .btn-primary{background:var(--c-primary);color:#fff;border:1.5px solid var(--c-primary)}
   .btn-outline{background:transparent;color:var(--c-text);border:1.5px solid var(--c-primary)}
   .btn:hover{transform:translateY(-3px)}
+  /* `width` MUST be pinned alongside `aspect-ratio`. With a ratio and no width, an auto width is
+     computed FROM the ratio and the available height — measured at 660px inside a 390px column,
+     a 250px page overflow. Pinning width makes the ratio drive height only. */
   .ph{background:var(--c-bg-alt);border:1px dashed var(--c-border);border-radius:var(--radius-image);
-      display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);aspect-ratio:4/3}
+      display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);
+      width:100%;max-width:100%;aspect-ratio:4/3}
   .grid{display:grid;gap:var(--sp-m)}
-  @media(min-width:768px){ section{padding-block:var(--sp-xl)} .wrap{padding-inline:var(--pad-x-tablet)} }
+  @media(min-width:768px){ .wrap{padding-inline:var(--pad-x-tablet)} }
   @media(min-width:1024px){ .wrap{padding-inline:var(--pad-x-desktop)} }
 </style>
 ```

@@ -2,17 +2,49 @@
   NovaMira · AXIS PROOF B — PERS-DIRECT
   =====================================
   Half of a two-file experiment. Its twin is `proof-editorial-mockup.html` (PERS-EDITORIAL).
-  Both render the SAME strings, in the SAME section order, with the SAME number of cards —
-  the copy lives once in `_axis-proof-content.md`. The ONLY thing that differs between the two
-  files is the five perceptual axes. If the two pages do not read as unmistakably different
-  pages side by side, the axis system has failed its own falsifiable test.
 
-  Axes (PERS-DIRECT, per ux-design-system/references/design-personalities.md):
+  WHAT IS CONSTANT — the copy. Both files render the SAME strings, the same number of times, in
+  the SAME section order, with the SAME number of cards; the copy lives once in
+  `_axis-proof-content.md`. That is not a promise, it is a gate: `RT_PROOF_COPY_DIFFERS` extracts
+  the human-visible strings from both files and FAILS the audit the moment the two multisets stop
+  matching, so editing one headline here can no longer contaminate the experiment quietly.
+
+  WHAT VARIES — the ANCHOR, and nothing else. Every difference between these two files is a
+  PERS-DIRECT choice, but they are not all the same KIND of choice, and the earlier version of
+  this comment claimed they were ("the ONLY thing that differs is the five perceptual axes").
+  That sentence was false when it was written: weight, tracking, radius, footer direction and the
+  composition breakpoint all differed too. A file that overstates its own rigour is the exact
+  failure this whole effort exists to remove, so the two tiers are spelled out instead.
+
+  TIER 1 — the five perceptual axes. Load-bearing, gated by `RT_PROOF_NOT_DISTINCT`, every value
+  COPIED from web-templates/references/design-system.md § "Perceptual axes — token values":
     scale monumental · ground ink · density compact · composition broken-grid · elevation accent-glow
+  No heading size is hardcoded in px — the three clamp() formulas are transcribed verbatim, which
+  is the exact defect the axes replaced.
 
-  Every axis value below is COPIED from web-templates/references/design-system.md
-  § "Perceptual axes — token values". No heading size is hardcoded in px — the three clamp()
-  formulas are transcribed verbatim, which is the exact defect the axes replaced.
+  TIER 2 — the anchor's typography and detail choices. NOT axes, gated by nothing, listed here in
+  full so the next reader can see the boundary rather than trust a sentence:
+    · typefaces ........... Archivo Expanded / Archivo      (design-personalities.md § Typography)
+    · tracking ............ -0.025em on h1-h3, .1em wordmark    (§ Typography — the one of the six
+                            below that earned a per-anchor value instead of being unified)
+    · motion .............. .35s, glow instead of lift      (design-personalities.md § Motion intensity)
+    · card recipe ......... dark surface + glow; .attrib an accent slab   (§ Card recipe)
+    · imagery ratios ...... 4/3 hero, 16/10 card            (§ Imagery)
+    · --c-accent .......... #FF6A1A, re-derived for `ink`   (derivation below)
+    · --c-border / .ph ink  16% / 90% of --c-text           (the twin: 14% / 65%, tuned per ground)
+    · .hero .lede ......... 1x body                         (the twin: 1.15x)
+    · .quote .............. .95x --fs-h3, line-height 1.12  (the twin: 1x, 1.28)
+    · .work h3 / .step h3 . .74x / .62x --fs-h3             (the twin: .8x / .72x)
+    · .step b ............. 1.6rem                          (the twin: 1.5rem)
+    · valores body copy ... --fs-small                      (the twin: full body size)
+    · measure caps ........ 44 / - / 46 / 18ch              (the twin: 46 / 52 / 48 / 16ch)
+    · .mainnav a hover .... accent colour                   (the twin: a border-bottom rule)
+  Six properties that used to sit in this tier are gone from it — heading and button WEIGHT,
+  `text-wrap`, button RADIUS, the footer nav direction and the composition breakpoint were
+  measured as differing with no axis and no anchor behind them, and are now identical in both
+  files (weights, button radius and the breakpoint taken from design-system.md and SKILL.md, not
+  chosen here). Tracking was the one of the six worth keeping per anchor, so it was written down
+  in design-personalities.md rather than left implicit.
 
   This file is deliberately NOT theme-aware: it pins the `ink` ground on purpose. Making it
   follow the reader's colour scheme would erase the ground axis, which is one of the five
@@ -103,7 +135,6 @@
           --c-text-muted resolves to #9D9FA0 .... 7.13:1 on #0E1113, 6.52:1 on #171B1E ── */
     --c-text-muted: color-mix(in srgb, var(--c-text) 62%, var(--c-bg));
     --c-border:     color-mix(in srgb, var(--c-text) 16%, var(--c-bg));
-    --c-primary: var(--c-accent);
 
     /* ── Containers / radius / buttons / motion ── */
     --container-max:1280px; --content-width:1140px;
@@ -124,12 +155,31 @@
   /* ── base ── */
   *{box-sizing:border-box}
   body,figure,blockquote,h1,h2,h3,p,ul,ol,li{margin:0;padding:0}
+  /* `overflow-wrap: ANYWHERE` sits on body so it INHERITS to every text box, and it is `anywhere`
+     rather than `break-word`, and both halves of that are the fix.
+     `anywhere` vs `break-word`: identical for line breaking, different in one thing — `anywhere`
+     shrinks a box's intrinsic min-content size and `break-word` does not. Headings here are flex
+     items sized `fit-content`, which is clamped at min-content, so under `break-word` the box just
+     stays as wide as its longest word and the word never has to break. MEASURED with `break-word`
+     on the headings: at a 320px viewport (WCAG 1.4.10's reflow width) "subcontratamos" at the
+     monumental 41.89px floor made that H2 357.6px inside a 280px column — 58px of horizontal
+     scroll, unchanged; and at 1280 the same clamp made it 633px inside its 367px grid area,
+     pushing ten of its fourteen glyphs under `.vals .i2`, an opaque z-index 2 card.
+     On body rather than on `h1,h2,h3`: the same 320px viewport at a 32px root (200% text, WCAG
+     1.4.4) put 106px of scroll on this page through `.quote`, not a heading. A reflow guard that
+     only covers headings is a guard for the text that happened to break first.
+     Nothing on either page changes at a 16px root: a word that already fits is never broken. */
   body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text);
-       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased}
-  h1,h2,h3{font-family:var(--font-primary);font-weight:800;letter-spacing:-.025em}
+       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased;
+       overflow-wrap:anywhere}
+  /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice — 800
+     was a number no table gives. `text-wrap:balance` is a legibility default, identical in both
+     files. Only `letter-spacing` is anchor-scoped here — design-personalities.md § Typography.
+     The reflow guard these headings used to carry now lives on `body`; see the comment there. */
+  h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:-.025em}
   /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25, body 1.6 (design-system.md) */
   h1,h2{line-height:var(--display-lh)}
-  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3);line-height:1.25}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
   a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:none}
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -151,7 +201,10 @@
          FROM the ratio, which overflows narrow columns. Pinning it makes the ratio drive height only. */
       width:100%;max-width:100%}
 
-  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:700;
+  /* Button weight 600 and radius --btn-radius (8px) both come from design-system.md — the type
+     table's "Botón" row and the radius table. Neither is an axis, so neither may differ from the
+     twin. */
+  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
        line-height:1.2;text-align:center;border-radius:var(--btn-radius);
        border:var(--btn-border-width) solid transparent;cursor:pointer;transition:var(--btn-transition)}
   .btn-primary{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent)}   /* 6.61:1 */
@@ -166,9 +219,13 @@
      `wide-start`/`wide-end` the container edges, so an element can cross the container or bleed
      two edges by naming a line — never by a negative margin that collapses at 430px.
      Overlaps stack with z-index, in shared grid rows.
-     Mobile is a single stacked column with no overlaps; the broken layout switches on at 1000px.
-     Below that the canvas is a plain padded single-column container: a 14-track grid whose
-     13 gaps alone would eat a 430px viewport is not a layout, it is an overflow. */
+     Mobile is a single stacked column with no overlaps; the broken layout switches on at 1024px —
+     the framework's own desktop breakpoint (`<768 / 768-1024 / >1024`, SKILL.md and
+     mockup-guide.md), NOT a number chosen here. It used to be 1000 against the twin's 900, two
+     invented widths dressed as a personality difference; layout-patterns.md pins no switch width
+     per blueprint, so there was nothing to back either. Below it the canvas is a plain padded
+     single-column container: a 14-track grid whose 13 gaps alone would eat a 430px viewport is not
+     a layout, it is an overflow. */
   .canvas{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-m);
           max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
   @media(min-width:768px){.canvas{padding-inline:var(--pad-x-tablet)}}
@@ -178,7 +235,12 @@
         the chrome rather than from the axes. ── */
   header.site{border-bottom:1px solid var(--c-border);background:var(--c-bg)}
   .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:var(--sp-s);flex-wrap:wrap;min-width:0}
-  .logo{font-family:var(--font-primary);font-weight:800;font-size:1.15rem;letter-spacing:.1em;flex:none}
+  /* `flex:0 1 auto` + `min-width:0`, not `flex:none`. A wordmark that refuses to shrink is a
+     WCAG 1.4.4 failure waiting for the first reader who scales text: MEASURED at a 320px viewport,
+     both proof files overflowed by 4px at a 24px root, 54px at 28px and 105px at 200% text (32px),
+     entirely because this rem-sized span could not give up a pixel. It wraps at its own space
+     instead now. This is shared chrome — the twin carries the identical rule. */
+  .logo{font-family:var(--font-primary);font-weight:700;font-size:1.15rem;letter-spacing:.1em;flex:0 1 auto;min-width:0}
   /* flex-basis 220px, not 0: with `flex:1` the nav shrank to a 12px scroll window at 430 before
      the row would wrap. A basis forces the wrap and gives it a full row of its own. */
   .mainnav{flex:1 1 220px;min-width:0;display:flex;gap:var(--sp-s);overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
@@ -214,7 +276,9 @@
   .step h3{font-size:calc(var(--fs-h3) * .62)}
 
   /* ── 5 · testimonio ── */
-  .quote{font-family:var(--font-primary);font-weight:800;font-size:calc(var(--fs-h3) * .95);
+  /* `text-wrap:balance` here for the same reason it is on the headings: a legibility default, not
+     an anchor signature, so it may not differ from the twin. */
+  .quote{font-family:var(--font-primary);font-size:calc(var(--fs-h3) * .95);text-wrap:balance;
          line-height:1.12;letter-spacing:-.02em;background:var(--c-bg-alt);padding:var(--sp-m);
          box-shadow:var(--elev-rest)}
   .attrib{background:var(--c-accent);color:var(--c-bg);padding:var(--sp-s) var(--sp-m);
@@ -232,14 +296,18 @@
 
   /* ── 7 · footer ── */
   footer.site{border-top:1px solid var(--c-border);padding-block:var(--sp-l)}
-  .fnav{display:flex;flex-wrap:wrap;gap:var(--sp-s);font-size:var(--fs-nav)}
+  /* The footer nav recipe is byte-identical to the twin's on purpose: both files declare header
+     and footer SHARED chrome, and a stacked-vs-wrapped-row difference fed the "unmistakably
+     different" verdict from something that is not an axis. Only the grid COLUMNS it lands on
+     differ, and those are the composition axis doing its job. */
+  .fnav{display:flex;flex-direction:column;gap:var(--sp-xs);font-size:var(--fs-nav)}
   .fnav a{color:var(--c-text-muted)} .fnav a:hover{color:var(--c-accent)}
   .legal{padding-top:var(--sp-m);border-top:1px solid var(--c-border);color:var(--c-text-muted)}
   .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
 
-  /* ══ the broken layout — desktop only. Below 1000px every rule here is off and the page is
+  /* ══ the broken layout — desktop only. Below 1024px every rule here is off and the page is
         one stacked column, because a broken grid at 430px is just broken. ══ */
-  @media(min-width:1000px){
+  @media(min-width:1024px){
     /* The reference grid the page violates. `full-*` are the viewport edges, `wide-*` the
        container edges, so crossing and bleeding are a matter of naming a line — never a
        negative margin. `full-end` is the layout viewport's right edge exactly, which `50vw`
@@ -264,9 +332,19 @@
     .hero .shot  {grid-column:c 7/full-end; grid-row:2/5;z-index:0;align-self:stretch;
                   display:grid;padding-top:var(--sp-xl)}
 
-    /* 2 · VALORES — 4/8, and item 2 crosses the heading's column line */
-    .vals .head {grid-column:c 1/c 5;  grid-row:1/4}
-    .vals .i1   {grid-column:c 5/c 13; grid-row:1}
+    /* 2 · VALORES — 4/8, and item 2 crosses the heading's column line.
+       The heading holds grid-row 1 ALONE; it used to span 1/4. Spanning three rows put the H2's
+       own text inside row 2's band, and row 2 is where item 2 crosses back over the heading's
+       column — an opaque, z-index 2 card landing on live heading glyphs. MEASURED at 1280 before
+       this change: ten of the fourteen glyphs of "subcontratamos" hit-tested to `.i2` instead of
+       to the H2, i.e. were not on screen at all. Same rule as the testimonial below and as the
+       band H2: an overlap you cannot read is not a composition, it is a bug. Confining the heading
+       to row 1 keeps the crossing exactly as the blueprint asks — item 2 still reaches two columns
+       back under the heading's column line — and lands it on the whitespace beneath the heading
+       instead of on the heading. `align-self:start` on item 1 stops it stretching to the heading's
+       height, which would have given the section three cards of two different heights. */
+    .vals .head {grid-column:c 1/c 5;  grid-row:1}
+    .vals .i1   {grid-column:c 5/c 13; grid-row:1;align-self:start}
     .vals .i2   {grid-column:c 3/c 12; grid-row:2;position:relative;z-index:2}
     .vals .i3   {grid-column:c 5/c 13; grid-row:3}
 
@@ -277,19 +355,43 @@
     .jobs .w3   {grid-column:c 1/c 9;  grid-row:3}
     .jobs .w4   {grid-column:c 9/c 13; grid-row:3}
 
-    /* 4 · PROCESO — the page's two-edge bleed; the steps panel overlaps it by z-index */
+    /* 4 · PROCESO — the page's two-edge bleed; the steps panel overlaps it by z-index.
+       The placeholder's own caption is pushed to the top-right corner of the bleed. Centred — the
+       `.ph` default — it sat squarely under the steps panel, which is opaque: measured at 1280,
+       every glyph of "Sierra de puente en el taller" hit-tested to `.stepspanel`. The panel covers
+       columns 1–8 of row 3 only, so the top-right corner is the one part of the image no z-index
+       ever reaches. On a real build this block is a photograph and the question does not arise;
+       here the caption is the only thing standing in for it, so it has to be readable. */
     .proc .canvas{grid-template-rows:auto var(--sp-xl) auto}
     .proc .head      {grid-column:c 1/c 9; grid-row:1;position:relative;z-index:2}
     .proc .shot      {grid-column:full-start/full-end; grid-row:2/4;z-index:0}
+    .proc .shot .ph  {place-items:start end;padding:var(--sp-m)}
     .proc .stepspanel{grid-column:c 1/c 8; grid-row:3;position:relative;z-index:2}
 
     /* 5 · TESTIMONIO — the accent attribution block overlaps the quote by two columns and runs
-       off the right edge. Both live in ONE grid row and are stacked with z-index; the offset is
-       `align-self:end`, not a negative margin, so at 430 they simply stack. The two files carry
-       the SAME six placeholders — a portrait here would have been a seventh image on one side
-       of the experiment and a difference that is not an axis. */
-    .test .quote {grid-column:c 1/c 10; grid-row:1;position:relative;z-index:1}
-    .test .attrib{grid-column:c 8/full-end; grid-row:1;align-self:end;position:relative;z-index:2}
+       off the right edge. The two files carry the SAME six placeholders — a portrait here would
+       have been a seventh image on one side of the experiment and a difference that is not an axis.
+
+       THE OVERLAP, and why it is no longer `grid-row:1` + `align-self:end`.
+       That version put an OPAQUE accent block (z-index 2) on top of live text: measured at 1280,
+       the block covered the quote by 174x73.6px, and line 3 ended `...precio, y el` underneath it —
+       the comma and the `y`'s descender lost ~7 of their 10px of ink. This file states the rule
+       ninety lines below and applies it to the band H2: an overlap you cannot read is not a
+       composition, it is a bug. It was true there and false here.
+
+       The fix keeps the overlap and moves it off the text. The attribution now sits in its OWN
+       grid row and is lifted back up by `--sp-xl + --sp-m` (the row gap), so it crosses exactly
+       `--sp-xl` into the quote's box; the quote reserves the same `--sp-xl` plus one `--sp-m`
+       gutter as bottom padding, so the whole crossing lands in padding the text can never reach.
+       Both numbers are the SAME spacing tokens, so the reserve cannot drift from the overlap, and
+       neither depends on how tall the attribution renders or on how many lines the quote takes —
+       which a reserve computed from the block's own type would have. Below 1024px no rule here
+       applies and the two simply stack. */
+    .test .canvas{grid-template-rows:auto auto}
+    .test .quote {grid-column:c 1/c 10; grid-row:1;position:relative;z-index:1;
+                  padding-bottom:calc(var(--sp-m) + var(--sp-xl))}
+    .test .attrib{grid-column:c 8/full-end; grid-row:2;position:relative;z-index:2;
+                  margin-top:calc((var(--sp-xl) + var(--sp-m)) * -1)}
 
     /* 6 · BANDA — the H2 crosses onto an accent slab that bleeds the right edge */
     .band .canvas{grid-template-rows:auto auto auto}
@@ -301,7 +403,7 @@
 
     /* 7 · FOOTER */
     footer .brand{grid-column:c 1/c 6}
-    footer .fnav {grid-column:c 7/c 13;justify-content:flex-end}
+    footer .fnav {grid-column:c 7/c 13}
     footer .legal{grid-column:c 1/c 13}
   }
 </style>

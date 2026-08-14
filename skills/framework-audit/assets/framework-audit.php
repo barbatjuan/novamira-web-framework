@@ -98,6 +98,7 @@ const ROW_TYPES = array(
 	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position\'s own table row in design-system.md carries no token-shaped value',
 	'RT_AXIS_BLUEPRINT_MISSING'  => 'FAIL  — an axis position names a blueprint layout-patterns.md never defines',
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
+	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1219,19 +1220,65 @@ function proof_axis_signature( $src ) {
 	return $sig;
 }
 
+/**
+ * Every human-visible string a proof mockup renders, in document order, as a MULTISET.
+ *
+ * Comments, `<style>`/`<script>` bodies and every tag — attribute values with them — are replaced
+ * by a separator before anything is read, so what survives is only what a reader would see. The
+ * separator matters: stripping tags without one would weld `<h3>A</h3><p>B</p>` into "AB", and two
+ * files that nest the same copy differently (one wraps its card text in an extra div) would then
+ * differ on a string neither of them changed.
+ *
+ * A multiset, not a set: `Pedir presupuesto` appears three times on each page, and a set would let
+ * one of the three be deleted without a word going missing from the comparison.
+ *
+ * What it CANNOT see, and the limit is worth stating rather than discovering: characters painted
+ * by CSS `content:`. A `.quote::before{content:"«"}` on one file and not the other is a visible
+ * difference this returns nothing for. That is why the editorial proof no longer has one.
+ */
+function proof_visible_strings( $src ) {
+	$src = preg_replace( '/<!--.*?-->/s', "\x00", $src );
+	$src = preg_replace( '#<(style|script)\b[^>]*>.*?</\1\s*>#is', "\x00", $src );
+	$src = preg_replace( '/<[^>]*>/', "\x00", $src );
+	$src = html_entity_decode( $src, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$out = array();
+	foreach ( explode( "\x00", $src ) as $chunk ) {
+		/* \s collapses the newlines a wrapped text run carries, so a run reflowed across source
+		   lines is the same string as the run written on one line. Formatting is not copy. */
+		$chunk = trim( preg_replace( '/\s+/u', ' ', $chunk ) );
+		if ( '' !== $chunk ) {
+			$out[] = $chunk;
+		}
+	}
+
+	return $out;
+}
+
 /* The falsifiable claim the whole axis system rests on: ONE content set under TWO anchors has to
    render as two unmistakably different pages. Phase A proved the anchors are far apart on paper —
-   that is what RT_PERS_TOO_SIMILAR guards. This row guards the other half: that the two files
-   which actually RENDER that claim still put their money on the table. Without it the proof is a
-   claim again, and a claim is what the eight adjectival personalities were.
+   that is what RT_PERS_TOO_SIMILAR guards. The two rows below guard the two halves of the
+   criterion the proof files are supposed to demonstrate: SAME content (RT_PROOF_COPY_DIFFERS),
+   UNMISTAKABLY DIFFERENT rendering (RT_PROOF_NOT_DISTINCT). Without the first, editing one
+   headline contaminates the experiment with every other gate still green.
+
+   What RT_PROOF_NOT_DISTINCT actually checks, stated plainly because the shape of it invites a
+   stronger reading: it compares five DECLARED TOKEN VALUES in each file's first `:root` block. It
+   does not render anything, does not look at a pixel, and does not know whether a declared token
+   is used. Four of the nine axis-carrying custom properties both files declare — --display-lh,
+   --fs-h1-max, --elev-hover and --c-bg-alt — are read by neither check, so a file could ship a
+   88px cap against a 120px one and this row would be satisfied by --type-ratio alone. It is a
+   guard against the two files quietly converging on the same tokens, not evidence that they
+   render differently; that evidence is a human looking at them side by side.
+
    Hardcoded paths, like house-rules.md and design-personalities.md above, and for the same
    reason: a missing proof file must FAIL rather than silently skip the check. "The gate passes
-   because the evidence is gone" is the failure mode this row exists to make impossible. */
+   because the evidence is gone" is the failure mode these rows exist to make impossible. */
 $PROOF_MOCKUPS = array(
 	'PERS-EDITORIAL' => 'skills/html-mockup/assets/proof-editorial-mockup.html',
 	'PERS-DIRECT'    => 'skills/html-mockup/assets/proof-direct-mockup.html',
 );
 $proof_sigs    = array();
+$proof_copy    = array();
 $proof_all_here = true;
 foreach ( $PROOF_MOCKUPS as $anchor => $rel ) {
 	if ( ! file_exists( $root . '/' . $rel ) ) {
@@ -1239,7 +1286,9 @@ foreach ( $PROOF_MOCKUPS as $anchor => $rel ) {
 		$proof_all_here = false;
 		continue;
 	}
-	$proof_sigs[ $anchor ] = proof_axis_signature( slurp( $root . '/' . $rel ) );
+	$proof_src             = slurp( $root . '/' . $rel );
+	$proof_sigs[ $anchor ] = proof_axis_signature( $proof_src );
+	$proof_copy[ $anchor ] = proof_visible_strings( $proof_src );
 }
 if ( $proof_all_here && 2 === count( $proof_sigs ) ) {
 	$anchors = array_keys( $proof_sigs );
@@ -1263,6 +1312,48 @@ if ( $proof_all_here && 2 === count( $proof_sigs ) ) {
 			'html-mockup',
 			$anchors[0] . ' and ' . $anchors[1] . ' differ on only ' . $differ . ' of 5 axes — they match on '
 				. implode( ', ', $same ) . '. Same content under two anchors has to render as two different pages, or the anchors are one anchor'
+		);
+	}
+}
+
+/* The OTHER half of the criterion. RT_PROOF_NOT_DISTINCT above gates "unmistakably different";
+   this gates "same content", and until it existed only one of the two was a gate. Edit one
+   headline in one proof file and the experiment is contaminated with every row green: the reader
+   comparing the two pages then cannot tell whether what they see is the axes or the copy, which is
+   the exact confound `_axis-proof-content.md` exists to remove.
+
+   Multisets, compared by COUNT per string, not by presence. A set comparison would pass a file
+   that renders `Pedir presupuesto` twice against one that renders it three times — a whole CTA
+   deleted, with the string still "present" on both sides. */
+if ( $proof_all_here && 2 === count( $proof_copy ) ) {
+	$anchors = array_keys( $proof_copy );
+	$ca      = array_count_values( $proof_copy[ $anchors[0] ] );
+	$cb      = array_count_values( $proof_copy[ $anchors[1] ] );
+	$diffs   = array();
+	/* A's strings first, in document order, then B's that A never had — so the string the message
+	   names is deterministic rather than whatever the hash order happened to be. */
+	foreach ( array_merge( array_keys( $ca ), array_keys( $cb ) ) as $s ) {
+		if ( isset( $diffs[ $s ] ) ) {
+			continue;
+		}
+		$na = isset( $ca[ $s ] ) ? $ca[ $s ] : 0;
+		$nb = isset( $cb[ $s ] ) ? $cb[ $s ] : 0;
+		if ( $na !== $nb ) {
+			$diffs[ $s ] = array( $na, $nb );
+		}
+	}
+	if ( array() !== $diffs ) {
+		$first = array_key_first( $diffs );
+		list( $na, $nb ) = $diffs[ $first ];
+		add(
+			'RT_PROOF_COPY_DIFFERS',
+			'FAIL',
+			'html-mockup',
+			$anchors[0] . ' and ' . $anchors[1] . ' do not render the same copy — ' . count( $diffs )
+				. ' visible string(s) differ. `' . $first . '` is rendered ' . $na . 'x by '
+				. basename( $PROOF_MOCKUPS[ $anchors[0] ] ) . ' and ' . $nb . 'x by '
+				. basename( $PROOF_MOCKUPS[ $anchors[1] ] )
+				. '. Same content is the other half of the criterion: two pages that differ in a word prove nothing about the axes'
 		);
 	}
 }

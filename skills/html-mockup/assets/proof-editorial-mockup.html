@@ -2,18 +2,53 @@
   NovaMira · AXIS PROOF A — PERS-EDITORIAL
   ========================================
   Half of a two-file experiment. Its twin is `proof-direct-mockup.html` (PERS-DIRECT).
-  Both render the SAME strings, in the SAME section order, with the SAME number of cards —
-  the copy lives once in `_axis-proof-content.md`. The ONLY thing that differs between the two
-  files is the five perceptual axes. If the two pages do not read as unmistakably different
-  pages side by side, the axis system has failed its own falsifiable test.
 
-  Axes (PERS-EDITORIAL, per ux-design-system/references/design-personalities.md):
+  WHAT IS CONSTANT — the copy. Both files render the SAME strings, the same number of times, in
+  the SAME section order, with the SAME number of cards; the copy lives once in
+  `_axis-proof-content.md`. That is not a promise, it is a gate: `RT_PROOF_COPY_DIFFERS` extracts
+  the human-visible strings from both files and FAILS the audit the moment the two multisets stop
+  matching, so editing one headline here can no longer contaminate the experiment quietly.
+
+  WHAT VARIES — the ANCHOR, and nothing else. Every difference between these two files is a
+  PERS-EDITORIAL choice, but they are not all the same KIND of choice, and the earlier version of
+  this comment claimed they were ("the ONLY thing that differs is the five perceptual axes").
+  That sentence was false when it was written: weight, tracking, radius, footer direction and the
+  composition breakpoint all differed too. A file that overstates its own rigour is the exact
+  failure this whole effort exists to remove, so the two tiers are spelled out instead.
+
+  TIER 1 — the five perceptual axes. Load-bearing, gated by `RT_PROOF_NOT_DISTINCT`, every value
+  COPIED from web-templates/references/design-system.md § "Perceptual axes — token values":
     scale editorial · ground paper · density generous · composition asymmetric · elevation none
+  No heading size is hardcoded in px — the three clamp() formulas are transcribed verbatim, which
+  is the exact defect the axes replaced (a 56px h1 cap on every client site).
 
-  Every axis value below is COPIED from web-templates/references/design-system.md
-  § "Perceptual axes — token values". Nothing here is a hand-chosen number, and no heading
-  size is hardcoded in px — the three clamp() formulas are transcribed verbatim, which is the
-  exact defect the axes replaced (a 56px h1 cap on every client site).
+  TIER 2 — the anchor's typography and detail choices. NOT axes, gated by nothing, listed here in
+  full so the next reader can see the boundary rather than trust a sentence:
+    · typefaces ........... Fraunces / Inter Tight          (design-personalities.md § Typography)
+    · tracking ............ -0.015em on h1-h3, .16em wordmark   (§ Typography — the one of the six
+                            below that earned a per-anchor value instead of being unified)
+    · motion .............. .5s / .7s, lift capped at -4px  (design-personalities.md § Motion intensity)
+    · card recipe ......... hairline rule, no fill; .attrib the same   (§ Card recipe)
+    · imagery ratios ...... 4/5 hero, 3/2 proceso, 16/11 card    (§ Imagery)
+    · --c-accent .......... #8C3A1F, derived for `paper`    (ratios below)
+    · --c-border / .ph ink  14% / 65% of --c-text           (the twin: 16% / 90%, tuned per ground)
+    · .hero .lede ......... 1.15x body                      (the twin: 1x)
+    · .quote .............. 1x --fs-h3, line-height 1.28    (the twin: .95x, 1.12)
+    · .work h3 / .step h3 . .8x / .72x --fs-h3              (the twin: .74x / .62x)
+    · .step b ............. 1.5rem                          (the twin: 1.6rem)
+    · valores body copy ... full body size                  (the twin: --fs-small)
+    · measure caps ........ 46 / 52 / 48 / 16ch             (the twin: 44 / - / 46 / 18ch)
+    · .mainnav a hover .... a border-bottom rule            (the twin: accent colour)
+  Six properties that used to sit in this tier are gone from it — heading and button WEIGHT,
+  `text-wrap`, button RADIUS, the footer nav direction and the composition breakpoint were
+  measured as differing with no axis and no anchor behind them, and are now identical in both
+  files (weights, button radius and the breakpoint taken from design-system.md and SKILL.md, not
+  chosen here). Tracking was the one of the six worth keeping per anchor, so it was written down
+  in design-personalities.md rather than left implicit. The `«»` this file used to paint through
+  `.quote::before/::after` went with them: `_axis-proof-content.md` is the authority on every
+  rendered string and its Cita row carries no guillemets, so a CSS `content:` that puts glyphs on
+  one page and not the other is a copy difference wearing a stylesheet's clothes — and it is the
+  one kind `RT_PROOF_COPY_DIFFERS` cannot see, which is exactly why it must not exist.
 
   This file is deliberately NOT theme-aware: it pins the `paper` ground on purpose. Swapping it
   under a dark scheme would erase the ground axis, which is one of the five things being proved.
@@ -84,7 +119,6 @@
           #FFFFFF text on #8C3A1F fill .......... 7.66:1  (the primary button is legible)
           --c-text-muted (#6E7071 resolved) ..... 4.98:1 on #FFFFFF, 4.64:1 on #F6F7F8 ── */
     --c-accent: #8C3A1F;
-    --c-primary: var(--c-text);
     --c-text-muted: color-mix(in srgb, var(--c-text) 62%, var(--c-bg));
     --c-border:     color-mix(in srgb, var(--c-text) 14%, var(--c-bg));
 
@@ -107,12 +141,25 @@
   /* ── base ── */
   *{box-sizing:border-box}
   body,figure,blockquote,h1,h2,h3,p,ul,ol,li{margin:0;padding:0}
+  /* `overflow-wrap: ANYWHERE` on body, inherited by every text box — byte-identical to the twin's
+     rule, because a reflow guard is not an anchor choice. It changes nothing visible on THIS page
+     at a 16px root (no word here outgrows its column at any width measured), but `break-word`
+     would not have been the guard it looks like: it leaves a box's min-content size alone, so a
+     heading sized `fit-content` stays as wide as its longest word and never breaks it. The twin
+     measures that difference at 58px of horizontal scroll at 320px, and a further 106px at a 32px
+     root (200% text, WCAG 1.4.4) through its `.quote` rather than a heading — which is why the
+     rule sits on body rather than on `h1,h2,h3`. */
   body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text);
-       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased;
+       overflow-wrap:anywhere}
+  /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice.
+     `text-wrap:balance` is a legibility default, identical in both files.
+     Only `letter-spacing` is anchor-scoped here — see design-personalities.md § Typography.
+     The reflow guard lives on `body`; see the comment there. */
   h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:-.015em}
   /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25, body 1.6 (design-system.md) */
   h1,h2{line-height:var(--display-lh)}
-  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3);line-height:1.25}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
   a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:none}
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -136,8 +183,12 @@
          overflow. Pinning width makes the ratio drive height only. */
       width:100%;max-width:100%}
 
+  /* Button weight 600 and radius --btn-radius (8px) both come from design-system.md — the type
+     table's "Botón" row and the radius table. Neither is an axis, so neither may differ from the
+     twin; the square `border-radius:0` this rule used to hardcode contradicted the token this
+     file's own :root declares and the comment beside it calling radius shared chrome. */
   .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
-       line-height:1.2;text-align:center;border-radius:0;border:var(--btn-border-width) solid transparent;
+       line-height:1.2;text-align:center;border-radius:var(--btn-radius);border:var(--btn-border-width) solid transparent;
        cursor:pointer;transition:var(--btn-transition);box-shadow:var(--elev-rest)}
   /* elevation: none — the hover is colour and a -4px lift at most, never a shadow. */
   .btn-primary{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent)}
@@ -150,7 +201,10 @@
      12 columns. Text blocks live on columns 1–7 (~58%); the remaining 5 are air or image.
      Two-column grids run 7/5 or 5/7, ALTERNATING section to section, never 50/50.
      Exactly one image bleeds per section, and always on the SAME edge — the right one.
-     Mobile is a single stacked column; the spans switch on at 900px.
+     Mobile is a single stacked column; the spans switch on at 1024px — the framework's own desktop
+     breakpoint (`<768 / 768-1024 / >1024`, SKILL.md and mockup-guide.md), NOT a number chosen here.
+     It used to be 900 against the twin's 1000, two invented widths dressed as a personality
+     difference; layout-patterns.md pins no switch width per blueprint, so nothing backed either.
 
      THE BLEED, and why it is NOT `margin-right: calc(50% - 50vw)`.
      That is the technique layout-patterns.md names, and it is correct for a block child of a
@@ -164,7 +218,7 @@
      scrollbar fudge (`vw` includes the scrollbar; the layout viewport does not). */
   .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
   .g12{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-l) var(--sp-m)}
-  @media(min-width:900px){
+  @media(min-width:1024px){
     .wrap.g12{
       max-width:none;padding-inline:0;
       grid-template-columns:
@@ -186,7 +240,12 @@
         the chrome rather than from the axes. ── */
   header.site{border-bottom:1px solid var(--c-border);background:var(--c-bg)}
   .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:var(--sp-s);flex-wrap:wrap;min-width:0}
-  .logo{font-family:var(--font-primary);font-weight:700;font-size:1.15rem;letter-spacing:.16em;flex:none}
+  /* `flex:0 1 auto` + `min-width:0`, not `flex:none`. A wordmark that refuses to shrink is a
+     WCAG 1.4.4 failure waiting for the first reader who scales text: MEASURED at a 320px viewport,
+     both proof files overflowed by 4px at a 24px root, 54px at 28px and 105px at 200% text (32px),
+     entirely because this rem-sized span could not give up a pixel. It wraps at its own space
+     instead now. This is shared chrome — the twin carries the identical rule. */
+  .logo{font-family:var(--font-primary);font-weight:700;font-size:1.15rem;letter-spacing:.16em;flex:0 1 auto;min-width:0}
   /* flex-basis 220px, not 0: a zero basis lets the nav shrink to a few pixels before the row
      would wrap. A basis forces the wrap and gives it a full row of its own. */
   .mainnav{flex:1 1 220px;min-width:0;display:flex;gap:var(--sp-s);overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
@@ -221,8 +280,10 @@
   .procimg{aspect-ratio:3/2;min-height:min(52vh,440px)}
 
   /* ── 5 · testimonio — 7/5 ── */
+  /* No `::before`/`::after` guillemets: see the header comment. A CSS `content:` that paints
+     characters on this page and not on the twin is a copy difference the copy file never
+     authorised, and the one kind RT_PROOF_COPY_DIFFERS cannot catch. */
   .quote{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.28;text-wrap:balance}
-  .quote::before{content:"«";color:var(--c-accent)} .quote::after{content:"»";color:var(--c-accent)}
   .attrib{display:flex;flex-direction:column;gap:var(--sp-xs);padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
   .attrib b{font-family:var(--font-primary)}
 
@@ -236,7 +297,7 @@
   .fnav a{color:var(--c-text-muted)} .fnav a:hover{color:var(--c-accent)}
   .legal{padding-top:var(--sp-m);border-top:1px solid var(--c-border);color:var(--c-text-muted)}
 
-  /* Below the 900px switch the container is a plain padded block; above it, the horizontal
+  /* Below the 1024px switch the container is a plain padded block; above it, the horizontal
      padding is the grid's own side track, which is what keeps the bleed exact. */
   @media(min-width:768px){.wrap{padding-inline:var(--pad-x-tablet)}}
 </style>

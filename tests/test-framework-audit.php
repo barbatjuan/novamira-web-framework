@@ -310,8 +310,18 @@ function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
  * The trailing `--c-bg-alt` is not decoration: it sits beside `--c-bg` exactly as it does in the
  * real files, so the fixture exercises the (?![\w-]) boundary that stops the ground axis from
  * reading its neighbour.
+ *
+ * $copy is the human-visible strings the file renders, in order, for RT_PROOF_COPY_DIFFERS —
+ * first entry as the h1, the rest as paragraphs. Repeat an entry to render it twice; the row
+ * compares MULTISETS, so a repeat is a real difference and the fixtures have to be able to make
+ * one. Default is the single string every axis scenario above was already written against.
+ *
+ * $noise is everything the copy comparison must IGNORE, moved by one fixture and not the other:
+ * the HTML comment, two attribute values, and — when it is set — a newline plus indentation
+ * injected into the middle of the first text run. A copy check that compared raw source, or kept
+ * attribute values, or compared whitespace, would fail the "same copy" scenario on this alone.
  */
-function fx_proof( array $axes ) {
+function fx_proof( array $axes, $copy = null, $noise = '' ) {
 	list( $scale, $ground, $density, $elevation, $composition ) = $axes;
 	$decl = '';
 	if ( null !== $scale ) {
@@ -330,9 +340,24 @@ function fx_proof( array $axes ) {
 		$decl .= "  /* composition: $composition */\n";
 	}
 
-	return "<!-- proof mockup fixture -->\n<style>\n:root{\n" . $decl . "}\n"
+	$copy = ( null === $copy ) ? array( 'Fixture' ) : $copy;
+	$body = '';
+	foreach ( $copy as $i => $line ) {
+		$tag = ( 0 === $i ) ? 'h1' : 'p';
+		/* The reflow only happens on the noisy side, so one fixture writes a run on one source
+		   line and its twin writes the SAME run across two. */
+		$text  = ( '' === $noise ) ? $line : preg_replace( '/ /', "\n      ", $line, 1 );
+		$body .= '<' . $tag . ' class="row' . $i . ' ' . $noise . '" aria-label="' . $noise . '">' . $text . '</' . $tag . ">\n";
+	}
+
+	/* The comment carries ANGLE BRACKETS on purpose — the real proof headers quote the framework
+	   breakpoints exactly like this. Without them a comment is stripped either by the comment rule
+	   or, incidentally, by the tag rule, and deleting the comment rule changes nothing; with them
+	   the tag rule stops at the first `>` inside and leaves the tail of the comment behind as
+	   "copy". $noise sits AFTER the brackets so that leaked tail differs between the two files. */
+	return '<!-- proof mockup fixture; breakpoints <768 / 768-1024 / >1024 · noise: ' . $noise . " -->\n<style>\n:root{\n" . $decl . "}\n"
 		. "  .card{box-shadow:var(--elev-rest)}\n"     /* a USE of the property, outside :root */
-		. "</style>\n<h1>Fixture</h1>\n";
+		. "</style>\n" . $body;
 }
 
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
@@ -2057,6 +2082,54 @@ list( , $out97 ) = fx_run_ok( $audit, $r97 );
 ok( 'FAIL' === fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ), '#FFFFFF y #ffffff son el mismo ground', fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
 ok( array() !== fx_lines_with( $out97, array( 'RT_PROOF_NOT_DISTINCT', 'ground (--c-bg: both `#ffffff`)' ) ), 'y lo nombra normalizado en minusculas', $out97 );
 fx_rrmdir( $r97 );
+
+/* ---------------------------------------------------------------------------
+   RT_PROOF_COPY_DIFFERS — the OTHER half of the criterion. RT_PROOF_NOT_DISTINCT above gates
+   "unmistakably different"; this gates "same content". Until it existed, editing one headline in
+   one proof file contaminated the experiment with every row still green.
+   --------------------------------------------------------------------------- */
+
+echo "--- la MISMA copia no produce fila, aunque difieran CSS, atributos, comentarios y saltos de linea ---\n";
+$r98    = fx_tmp_root();
+fx_base( $r98 );
+/* Four strings, one of them REPEATED — the repeat is what makes the next two scenarios able to
+   tell a multiset from a set. The direct half also carries $noise: a different HTML comment,
+   different attribute values on every element, and the first text run reflowed across two source
+   lines. None of that is copy, and none of it may produce a row. */
+$fx_copy98 = array( 'Cortamos piedra que dura', 'Pedir presupuesto', 'Marta Iribarren', 'Pedir presupuesto' );
+fx( $r98, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), $fx_copy98 ) );
+fx( $r98, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), $fx_copy98, 'ruido-solo-en-b' ) );
+list( $code98, $out98 ) = fx_run_ok( $audit, $r98 );
+ok( array() === fx_lines_with( $out98, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'copia identica no produce fila', $out98 );
+ok( 0 === $code98, 'y el arbol conforme sale con codigo 0', $code98 );
+fx_rrmdir( $r98 );
+
+echo "--- editar UNA cadena en un solo fichero FALLA, nombrandola y contando AMBAS direcciones ---\n";
+$r99 = fx_tmp_root();
+fx_base( $r99 );
+/* One headline edited: the old string vanishes from A and a new one appears in B. Two differences
+   from one edit, and the count is the assertion that kills a check written in one direction
+   only — such a check still fires here, but reports 1. */
+fx( $r99, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), array( 'Cortamos piedra que dura', 'Marta Iribarren' ) ) );
+fx( $r99, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), array( 'Cortamos piedra que DURA', 'Marta Iribarren' ) ) );
+list( , $out99 ) = fx_run_ok( $audit, $r99 );
+ok( 'FAIL' === fx_row_level( $out99, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'una cadena editada FALLA', fx_row_level( $out99, array( 'RT_PROOF_COPY_DIFFERS' ) ) );
+ok( array() !== fx_lines_with( $out99, array( 'RT_PROOF_COPY_DIFFERS', '2 visible string(s) differ' ) ), 'y cuenta las DOS diferencias que produce un solo cambio', $out99 );
+ok( array() !== fx_lines_with( $out99, array( 'RT_PROOF_COPY_DIFFERS', '`Cortamos piedra que dura` is rendered 1x by proof-editorial-mockup.html and 0x by proof-direct-mockup.html' ) ), 'y nombra la cadena y el fichero que ya no la tiene', $out99 );
+fx_rrmdir( $r99 );
+
+echo "--- anadir una cadena que YA existe tambien FALLA: cuenta el numero de veces, no la presencia ---\n";
+$r100 = fx_tmp_root();
+fx_base( $r100 );
+/* The added string is a DUPLICATE of one already on both pages, so it is present on both sides and
+   a set comparison would see nothing. On a real page that is a whole extra CTA. */
+fx( $r100, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto' ) ) );
+fx( $r100, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto', 'Pedir presupuesto' ) ) );
+list( , $out100 ) = fx_run_ok( $audit, $r100 );
+ok( 'FAIL' === fx_row_level( $out100, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'una cadena de mas FALLA aunque exista en los dos', fx_row_level( $out100, array( 'RT_PROOF_COPY_DIFFERS' ) ) );
+ok( array() !== fx_lines_with( $out100, array( 'RT_PROOF_COPY_DIFFERS', '1 visible string(s) differ' ) ), 'y es UNA diferencia, no dos', $out100 );
+ok( array() !== fx_lines_with( $out100, array( 'RT_PROOF_COPY_DIFFERS', '`Pedir presupuesto` is rendered 1x by proof-editorial-mockup.html and 2x by proof-direct-mockup.html' ) ), 'y dice cuantas veces la pinta cada fichero', $out100 );
+fx_rrmdir( $r100 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

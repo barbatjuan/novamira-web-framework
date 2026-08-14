@@ -68,5 +68,5 @@ iteration, report what changed.
 - `assets/proof-editorial-mockup.html` — `PERS-EDITORIAL` over that copy: paper ground, editorial
   scale, `LP-ASYMMETRIC`, no elevation.
 - `assets/proof-direct-mockup.html` — `PERS-DIRECT` over the SAME copy: ink ground, monumental
-  scale, `LP-BROKEN-GRID`, accent glow. Same strings, same sections — every visible difference is
-  an axis.
+  scale, `LP-BROKEN-GRID`, accent glow. Same strings (`RT_PROOF_COPY_DIFFERS` gates it); every
+  difference is the anchor — five axes plus the typography and detail each file lists in its head.

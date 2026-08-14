@@ -184,6 +184,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_AXIS_VALUE_MISSING` | FAIL | an axis position's own table row in `design-system.md` carries no token-shaped value cell — a backticked name with an empty or prose cell beside it is a name, not a value |
 | `RT_AXIS_BLUEPRINT_MISSING` | FAIL | an axis position is valued as a backticked blueprint id that `layout-patterns.md` defines no heading for |
 | `RT_PROOF_NOT_DISTINCT` | FAIL | the two proof mockups' `:root` blocks differ on fewer than four of the five axes, or one of the two files is missing — the message names which axes match |
+| `RT_PROOF_COPY_DIFFERS` | FAIL | the two proof mockups do not render the same human-visible strings as multisets — the message names one string and how many times each file renders it. The other half of *same content → unmistakably different*; without it, editing one headline contaminates the experiment with every row green |
 
 ## Workflow
 ```
