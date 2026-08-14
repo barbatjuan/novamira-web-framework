@@ -996,7 +996,7 @@ function es_audit_verdict( $rest, $code ) {
  * Branch on `$action`, and treat anything that is not 'created' or 'updated' as needing a human.
  */
 function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_footer', &$action = null ) {
-	$page = get_page_by_path( $slug, OBJECT, 'page' );
+	$page = es_page_by_slug( $slug );
 	if ( $page ) {
 		$id     = $page->ID;
 		$action = 'updated';
@@ -1086,6 +1086,30 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 }
 
 /**
+ * Find a PAGE by slug — and only a page.
+ *
+ * `get_page_by_path( $slug, OBJECT, 'page' )` does not do what its third argument says. WordPress
+ * folds attachments into that lookup, so a slug held by a media item comes back as a normal
+ * result, with `post_type` = `attachment`. MEASURED on a live install, not reasoned: an attachment
+ * at `nvm-solo-adjunto` was returned for a `'page'` lookup, and a page created for that same slug
+ * was silently renamed `nvm-solo-adjunto-2`.
+ *
+ * Left unfiltered, every caller here treated that attachment as an existing page: es_save_page()
+ * would take the UPDATE branch, rename the media item, write `_elementor_data` onto it and report
+ * `updated` — no page created, a broken attachment, and every check green. The preflight would
+ * list it as a page about to be overwritten, and the manifest would verify against it.
+ *
+ * So: one lookup, one type check, one place to be wrong. Callers that need "is ANYTHING holding
+ * this slug" — which is a different question, because WordPress suffixes against the whole slug
+ * space — must ask get_page_by_path() directly and say what they found.
+ */
+function es_page_by_slug( $slug ) {
+	$found = get_page_by_path( $slug, OBJECT, 'page' );
+
+	return ( $found && isset( $found->post_type ) && 'page' === $found->post_type ) ? $found : null;
+}
+
+/**
  * What is the site's front page RIGHT NOW?
  *
  * The ONE resolver. Nothing in this library may guess the home from a slug: on an install whose
@@ -1135,7 +1159,7 @@ function es_front_page() {
  * Returns the page id, or 0 when the front page is not what was asked for.
  */
 function es_set_front_page( $slug ) {
-	$page = get_page_by_path( $slug, OBJECT, 'page' );
+	$page = es_page_by_slug( $slug );
 	if ( ! $page ) {
 		es_warn(
 			'no existe ninguna pagina con el slug "' . $slug . '", asi que la portada NO se cambio. '
@@ -1343,7 +1367,7 @@ function es_manifest_verify() {
 
 	foreach ( $pages as $slug => $id ) {
 		$id   = (int) $id;
-		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		$page = es_page_by_slug( $slug );
 		if ( ! $page ) {
 			$real = (string) get_post_field( 'post_name', $id );
 			$drift[] = '' !== $real
@@ -1541,7 +1565,7 @@ function es_migrate_slug( $from, $to ) {
 	if ( $from === $to ) {
 		return 0;
 	}
-	$page = get_page_by_path( $from, OBJECT, 'page' );
+	$page = es_page_by_slug( $from );
 	if ( ! $page ) {
 		/* Not an error, but not silence either: a migration that finds nothing is almost always a
 		   typo in the OLD slug, and a quiet no-op passes for a completed move. */
@@ -1551,11 +1575,19 @@ function es_migrate_slug( $from, $to ) {
 		);
 		return 0;
 	}
+	/* Deliberately NOT es_page_by_slug(): the question here is "is ANYTHING holding this slug",
+	   which is a different one. WordPress makes a slug unique against the whole space, so an
+	   attachment is as much of a blocker as a page — measured on a live install, where a page
+	   asking for a slug an attachment held came back renamed with a "-2" suffix. The type is named
+	   in the warning because "la pagina #732" for a media item sends the reader hunting in the
+	   wrong list. */
 	$taken = get_page_by_path( $to, OBJECT, 'page' );
 	if ( $taken && (int) $taken->ID !== (int) $page->ID ) {
+		$que = isset( $taken->post_type ) && 'page' !== $taken->post_type ? $taken->post_type : 'pagina';
 		es_warn(
-			'"' . $to . '" ya lo ocupa la pagina #' . $taken->ID . ', asi que "' . $from . '" (#' . $page->ID . ') NO se movio. '
-			. 'Mover encima habria dejado dos paginas peleando por la misma URL y WordPress renombrando una de ellas a lo que le pareciera. '
+			'"' . $to . '" ya lo ocupa ' . ( 'pagina' === $que ? 'la pagina' : 'un elemento de tipo "' . $que . '"' ) . ' #' . $taken->ID
+			. ', asi que "' . $from . '" (#' . $page->ID . ') NO se movio. '
+			. 'Mover encima habria dejado dos cosas peleando por la misma URL y WordPress renombrando una de ellas a lo que le pareciera. '
 			. 'Decide cual sobrevive y borra o mueve la otra a mano.'
 		);
 		return 0;
@@ -1625,7 +1657,7 @@ function es_overwrite_preflight( array $slugs ) {
 	$make  = 0;
 
 	foreach ( $slugs as $slug ) {
-		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		$page = es_page_by_slug( $slug );
 		if ( ! $page ) {
 			$rows[] = array(
 				'slug'          => $slug,

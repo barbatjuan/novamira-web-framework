@@ -92,7 +92,7 @@ function wp_fake_reset() {
 	);
 }
 
-function wp_fake_page( $slug, $status = 'publish', $title = 'existente', $content = '', array $meta = array() ) {
+function wp_fake_page( $slug, $status = 'publish', $title = 'existente', $content = '', array $meta = array(), $type = 'page' ) {
 	$w   = &$GLOBALS['wp'];
 	$id  = $w['next_id']++;
 	$obj = (object) array(
@@ -101,6 +101,7 @@ function wp_fake_page( $slug, $status = 'publish', $title = 'existente', $conten
 		'post_name'    => $slug,
 		'post_title'   => $title,
 		'post_content' => $content,
+		'post_type'    => $type,
 	);
 
 	$w['posts'][ $id ]     = $obj;
@@ -123,6 +124,14 @@ function backup_of( $id ) {
 	return '';
 }
 
+/**
+ * The real one IGNORES its post_type argument for attachments.
+ *
+ * MEASURED on a live install: an attachment at a given slug is returned for a `'page'` lookup,
+ * with `post_type` = `attachment`. The fake used to return only what tests put in `by_slug` with
+ * no type at all, which made the whole defect class unreachable — every caller here treated the
+ * result as a page, and no assertion could tell the difference.
+ */
 function get_page_by_path( $slug, $output = OBJECT, $post_type = 'page' ) {
 	$w = &$GLOBALS['wp'];
 	return isset( $w['by_slug'][ $slug ] ) ? $w['by_slug'][ $slug ] : null;
@@ -141,6 +150,7 @@ function wp_insert_post( array $args ) {
 		'post_status' => isset( $args['post_status'] ) ? $args['post_status'] : 'publish',
 		'post_name'   => $name,
 		'post_title'  => isset( $args['post_title'] ) ? $args['post_title'] : '',
+		'post_type'   => isset( $args['post_type'] ) ? $args['post_type'] : 'page',
 	);
 
 	$w['posts'][ $id ]    = $obj;
@@ -1058,6 +1068,64 @@ $h = wp_fake_page( 'inicio' );
 es_manifest_record( 'site', array( 'front_page_id' => $h ) );
 $d = grab( 'es_manifest_verify' )['ret'];
 ok( 1 === count( $d ) && has( $d[0], 'el blog' ), 'y volver a mostrar el blog tambien, que es lo que nadie mira' );
+
+/* ---------------------------------------------------------------------------
+ * Un ADJUNTO ocupando el slug. Encontrado probando contra WordPress de verdad.
+ * ------------------------------------------------------------------------- */
+echo "--- un adjunto con el slug de una pagina deja de pasar por pagina ---\n";
+
+/* `get_page_by_path($slug, OBJECT, 'page')` NO hace lo que dice su tercer argumento: WordPress mete
+   los adjuntos en esa busqueda. Medido en una instalacion viva — un adjunto en "nvm-solo-adjunto"
+   volvio de una consulta de tipo 'page', y una pagina pidiendo ese mismo slug quedo renombrada
+   "-2". Sin filtrar, es_save_page() entraba en la rama de ACTUALIZAR, renombraba el adjunto, le
+   escribia _elementor_data encima y reportaba 'updated': ninguna pagina creada, un adjunto roto, y
+   todos los checks en verde. */
+wp_fake_reset();
+$adj = wp_fake_page( 'contacto', 'inherit', 'foto.jpg', '', array(), 'attachment' );
+ok( null === es_page_by_slug( 'contacto' ), 'un adjunto NO es una pagina, aunque get_page_by_path lo devuelva' );
+ok( null !== get_page_by_path( 'contacto', OBJECT, 'page' ), 'y el doble reproduce que la funcion de WordPress SI lo devuelve' );
+
+$action = null;
+$r      = grab(
+	function () use ( $els, &$action ) {
+		return es_save_page( 'contacto', 'Contacto', $els, 'elementor_header_footer', $action );
+	}
+);
+ok( 'updated' !== $action, "no se ACTUALIZA un adjunto creyendo que es una pagina" );
+ok( 'created' === $action || 'created-renamed' === $action, 'se crea una pagina de verdad' );
+ok( $r['ret'] !== $adj, 'y el id devuelto no es el del adjunto' );
+ok( ! isset( $GLOBALS['wp']['meta'][ $adj ]['_elementor_data'] ), 'el adjunto NO recibio un layout encima' );
+
+/* El preflight lo listaba como una pagina a punto de ser pisada. */
+wp_fake_reset();
+wp_fake_page( 'contacto', 'inherit', 'foto.jpg', '', array(), 'attachment' );
+$p = grab(
+	function () {
+		return es_overwrite_preflight( array( 'contacto' ) );
+	}
+)['ret'];
+ok( 0 === $p['overwrites'] && 1 === $p['creates'], 'el preflight no cuenta un adjunto como pagina a sobrescribir' );
+
+/* Y el manifiesto verificaba contra el. */
+wp_fake_reset();
+$adj = wp_fake_page( 'contacto', 'inherit', 'foto.jpg', '', array(), 'attachment' );
+es_manifest_record( 'pages', array( 'contacto' => 999 ) );
+$d = grab( 'es_manifest_verify' )['ret'];
+ok( 1 === count( $d ), 'el manifiesto reporta desviacion: la pagina no existe' );
+ok( ! has( $d[0], '#' . $adj ), 'sin confundirla con el adjunto que ocupa ese slug' );
+
+/* Mover a un slug que ocupa un adjunto SI se bloquea: WordPress sufija contra todo el espacio de
+   slugs, asi que un adjunto estorba igual que una pagina. Lo que cambia es como se nombra. */
+wp_fake_reset();
+wp_fake_page( 'servicios-web' );
+$adj = wp_fake_page( 'servicios', 'inherit', 'foto.jpg', '', array(), 'attachment' );
+$r   = grab(
+	function () {
+		return es_migrate_slug( 'servicios-web', 'servicios' );
+	}
+);
+ok( 0 === $r['ret'], 'un adjunto en el destino tambien bloquea el movimiento' );
+ok( has( $r['out'], 'attachment' ), 'y el aviso dice QUE lo ocupa, no lo llama pagina' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );
