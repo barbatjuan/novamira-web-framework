@@ -66,11 +66,30 @@
   `.crashed` had NO `es_*` function defined at all. Catch: in safe mode this function is not
   loaded either, so `project-context` step 8 reads the file directly, before this library exists.
   Never delete `.crashed` without fixing the file named in it.
+- `es_safe_mode_check()` → the offending filename, or `''`. Called from `es_save_page()`, because
+  reporting safe mode was never the problem: `project-context` step 8 already reported it and the
+  next step walked straight past. `.crashed` stops the LOADER, not an explicit `require_once`, so a
+  build runs to completion and reports success over a site nobody repaired. It warns **once per
+  request** — the opposite of `es_approval_check()`, deliberately: an unapproved write is a fact
+  about one page, so falling silent would hide the rest, while safe mode is one fact about the site
+  and repeating it per page would bury the pages under it. It does not block, because the way out
+  of a crashed sandbox is to run something and a guard that blocks writes blocks the repair too.
 - **Delivery**: `es_sandbox_report()` lists what is still in `wp-content/novamira-sandbox/`;
   `es_sandbox_purge()` deletes the build scripts and then RE-READS, returning what SURVIVED —
   the proof is the re-read, because a purge blocked by permissions and one that worked look
-  identical from `unlink()`. It never recurses and never touches unknown extensions; those still
-  block delivery, they just need a human. `es_backup_keys($ids)` returns the restore keys per
+  identical from `unlink()`. It never recurses, never touches unknown extensions, and never
+  deletes a file that registers a WordPress hook; those still block delivery, they just need a
+  human. `es_sandbox_runtime_hooks($path)` is the last of those three and the one learned the hard
+  way, on a real client's sandbox: `es-dlo-a11y.php` hooked `template_redirect` and wrapped every
+  page in the `<main>` landmark Hello Elementor does not print. That is the site's accessibility,
+  not build scaffolding, and it was living in the one directory whose job is to empty itself — so
+  hand-off day would have deleted it silently with every check green. A hooking file is MOVED into
+  the child theme and deleted here afterwards, never before; this framework may not write PHP
+  outside the sandbox, so that move is a human's. The detector reads the source rather than loading
+  it (loading is what the sandbox already does every request, and re-running it inside a report is
+  a side effect), skips comment lines so a docblock about a removed hook cannot keep a dead file
+  alive, and returns the hook NAMES so the warning can say which ones.
+  `es_backup_keys($ids)` returns the restore keys per
   page, newest last. `es_indexing_state()` reads `blog_public` only — `0` is "discourage search
   engines" — and deliberately does NOT parse robots.txt, because a half-parser is a confident
   wrong answer and a virtual robots.txt is invisible from disk anyway.

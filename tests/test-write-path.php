@@ -924,6 +924,29 @@ ok( has( $r['out'], 'NO es la unica' ), 'y el guardado avisa: registrado no es v
 ok( has( $r['out'], '#777' ), 'nombrando la rival por id, que es con lo que se la busca' );
 ok( has( $r['out'], 'header' ), 'y la ubicacion en disputa' );
 
+/* Un sitio puede tener dos plantillas en una ubicacion a proposito, con condiciones distintas.
+   Sin forma de decirlo, este aviso saltaba en cada build de un sitio CORRECTO, que es como un
+   aviso se convierte en paisaje — el mismo argumento que el umbral de palabras que nadie cumplia. */
+$r = grab(
+	function () use ( $els, $ajena ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a, array( $ajena ) );
+	}
+);
+ok( ! has( $r['out'], 'NO es la unica' ), 'una rival RECONOCIDA por quien llama no vuelve a avisar' );
+
+/* Pero reconocer es por ID, nunca por ubicacion: la que aparece DESPUES es un hecho nuevo. */
+$GLOBALS['wp']['options']['elementor_pro_theme_builder_conditions']['header'][999] = array( 'include/general' );
+$r = grab(
+	function () use ( $els, $ajena ) {
+		$a = null;
+		return es_save_theme_part( 'site-header', 'Header', 'header', $els, array( 'include/general' ), $a, array( $ajena ) );
+	}
+);
+ok( has( $r['out'], '#999' ), 'una rival NUEVA sigue avisando aunque otra este reconocida' );
+ok( ! has( $r['out'], '#777' ), 'y no vuelve a nombrar la que ya se miro' );
+ok( has( $r['out'], '1 rival' ), 'pero dice cuantas hay silenciadas: reconocida no es invisible' );
+
 /* Una plantilla en OTRA ubicacion no compite: avisar de ella seria ruido, y un aviso que salta
    siempre es un aviso que se aprende a ignorar. */
 wp_fake_reset();
@@ -968,7 +991,7 @@ if ( ! function_exists( 'exec' ) ) {
 	ok( false !== $ran && -1 !== $code, 'el proceso de prueba se pudo lanzar' );
 	ok( '' !== trim( $txt ), 'falta la dependencia y la salida NO esta vacia' );
 	ok( has( $txt, 'es-builder.php' ), 'nombra el fichero que falta' );
-	ok( has( $txt, 'NOTHING WAS BUILT' ), 'y dice explicitamente que no se construyo nada' );
+	ok( has( $txt, 'NO SE CONSTRUYO NADA' ), 'y dice explicitamente que no se construyo nada' );
 	ok( has( $txt, 'SOBREVIVIO' ), 'y devuelve el control en vez de fatalar, que es lo que tumbaba el sitio al subirlo' );
 	ok( ! has( $txt, 'Fatal error' ), 'sin fatal' );
 }
@@ -1010,6 +1033,28 @@ ok( has( $r['out'], 'imagen.png' ), 'nombrando lo que queda' );
 unlink( $sb . '/subdir/dentro.php' );
 rmdir( $sb . '/subdir' );
 unlink( $sb . '/imagen.png' );
+
+/* Encontrado limpiando el sandbox de un cliente REAL: `es-dlo-a11y.php` registraba
+   template_redirect y envolvia cada pagina en un landmark <main> porque el tema no imprime
+   ninguno. No es andamio: es la accesibilidad del sitio, viviendo en el unico directorio cuyo
+   trabajo es vaciarse. La entrega lo habria borrado el dia de la entrega, en silencio y con todos
+   los checks en verde. */
+file_put_contents( $sb . '/es-page-otra.php', "<?php\nfunction es_build_otra() { return 1; }\n" );
+/* Un hook citado SOLO en un comentario no mantiene vivo un fichero muerto: fichero aparte, para
+   que la asercion pueda fallar. La primera version metia el comentario dentro del fichero que SI
+   engancha, asi que decia "no se borro" por el motivo equivocado y no podia distinguir nada. */
+file_put_contents( $sb . '/es-muerto.php', "<?php\n/* add_action( 'init', 'viejo' ); ya no se usa */\nfunction viejo() { return 1; }\n" );
+file_put_contents( $sb . '/es-a11y.php', "<?php\nfunction wrap( \$h ) { return \$h; }\nadd_action( 'template_redirect', 'wrap', 1 );\n" );
+$r    = grab( 'es_sandbox_purge' );
+$left = $r['ret'];
+ok( ! in_array( 'es-page-otra.php', $left, true ), 'un script de build se borra como siempre' );
+ok( ! in_array( 'es-muerto.php', $left, true ), 'un hook citado solo en un COMENTARIO no mantiene vivo un fichero muerto' );
+ok( in_array( 'es-a11y.php', $left, true ), 'pero uno que registra hooks NO se borra: corre en cada visita, no es andamio' );
+ok( has( $r['out'], 'template_redirect' ), 'y el aviso NOMBRA el hook, que es lo que lo delata' );
+ok( has( $r['out'], 'tema hijo' ), 'diciendo adonde tiene que mudarse' );
+ok( array( 'template_redirect' ) === es_sandbox_runtime_hooks( $sb . '/es-a11y.php' ), 'el detector devuelve el hook, no un booleano: por eso el aviso puede nombrarlo' );
+ok( array() === es_sandbox_runtime_hooks( $sb . '/no-existe.php' ), 'y un fichero que no existe no tiene hooks, no revienta' );
+unlink( $sb . '/es-a11y.php' );
 
 echo "--- las claves de respaldo se entregan, no se prometen ---\n";
 wp_fake_reset();
@@ -1375,6 +1420,62 @@ ok( in_array( '_elementor_data', $r['ret']['restored'], true ), 'un layout con c
  * function nothing in the repo ever called. Prose is enforced on the builds that read it. These
  * assertions are about the build that does not.
  * ------------------------------------------------------------------------- */
+
+echo "--- un build con el sandbox APAGADO deja de irse en silencio ---\n";
+
+/* `.crashed` apaga el sandbox entero, pero `execute-php` requiere el builder a mano y un require
+   explicito no pasa por el cargador: el build corre igual, escribe todas las paginas y reporta
+   exito sobre un sitio que sigue degradado. project-context REPORTABA el modo seguro y nada
+   actuaba: reportar un bloqueante que el paso siguiente se salta es la forma que esta rama borra. */
+$sb = es_sandbox_dir();
+@unlink( $sb . '/.crashed' );
+wp_fake_reset();
+approve( 'con-sandbox-ok' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'con-sandbox-ok', 'P', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( '' === $r['out'], 'sin .crashed no dice nada: el aviso tiene que doler solo cuando hay algo que mirar' );
+ok( '' === es_safe_mode_check(), 'y el veredicto viene vacio' );
+
+file_put_contents( $sb . '/.crashed', '{"sandbox_file":"/ruta/es-roto.php","message":"undefined function"}' );
+wp_fake_reset();
+approve( 'con-sandbox-roto' );
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'con-sandbox-roto', 'P', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( $r['ret'] > 0, 'el modo seguro NO bloquea la escritura: la salida de un sandbox tumbado es ejecutar algo' );
+ok( has( $r['out'], 'SANDBOX APAGADO' ), 'pero avisa, y fuerte' );
+ok( has( $r['out'], 'es-roto.php' ), 'nombrando el fichero culpable, que es lo unico accionable' );
+ok( 'es-roto.php' === es_safe_mode_check(), 'y devuelve el motivo, no un booleano' );
+
+/* Una vez por peticion, al reves que la aprobacion: un aviso sin aprobar es un hecho sobre UNA
+   pagina y callarse esconderia las demas; el modo seguro es un hecho sobre el SITIO, y repetirlo
+   por pagina enterraria las paginas debajo. */
+$out2 = '';
+foreach ( array( 'a', 'b', 'c' ) as $s ) {
+	approve( $s );
+	$rr    = grab(
+		function () use ( $els, $s ) {
+			$a = null;
+			return es_save_page( $s, 'P', $els, 'elementor_header_footer', $a );
+		}
+	);
+	$out2 .= $rr['out'];
+}
+ok( '' === $out2, 'y no lo repite en cada pagina: es un hecho del sitio, no de la pagina' );
+
+/* Un .crashed que no es JSON tampoco se ignora: fallar cerrado es no llamar sano a lo que no se
+   pudo leer. */
+@unlink( $sb . '/.crashed' );
+file_put_contents( $sb . '/.crashed', 'algo se rompio y nadie escribio json' );
+ok( '' !== es_safe_mode_check(), 'un .crashed ilegible sigue siendo modo seguro' );
+@unlink( $sb . '/.crashed' );
 
 echo "--- aprobacion y portada: las dos reglas que solo vivian en la prosa ---\n";
 

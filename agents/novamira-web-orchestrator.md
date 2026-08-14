@@ -122,8 +122,12 @@ delivered, and each one is a read, never a claim:
 1. **The sandbox is empty.** Call `es_sandbox_purge()`, then show what `es_sandbox_report()`
    returns. Every `.php` in `wp-content/novamira-sandbox/` executes on upload and stays executable
    and reachable by URL on the client's site forever, including whatever got pasted in to debug
-   something once. The purge deliberately refuses to touch subdirectories and unknown extensions —
-   those still block, they just need a human.
+   something once. The purge deliberately refuses to touch subdirectories, unknown extensions, and
+   **any file that registers a WordPress hook** — those still block, they just need a human. That
+   last one was found cleaning a real client's sandbox: a file hooking `template_redirect` was
+   wrapping every page in the `<main>` landmark the theme does not print, so it was the site's
+   accessibility rather than build scaffolding, and hand-off day would have deleted it in silence.
+   Move a hooking file into the child theme, then delete it here — never the other way round.
 2. **The backup keys are handed over.** `es_backup_keys($ids)` returns the restore keys per page,
    newest last. "There is a backup" is not a deliverable; the key and the restore call are.
 3. **The indexing state is declared out loud.** `es_indexing_state()` reads `blog_public`. Zero is
@@ -255,6 +259,11 @@ A native build is NOT atomic, and partial failure is expected — the connector 
 (`elementor-core/references/gotchas.md`). Assume you will be interrupted.
 - **Stop; do not retry blindly.** Re-running a half-finished sequence overwrites pages that already
   landed. Establish what actually got written before touching anything again.
+- **A crashed sandbox does not stop a build, and that is the trap.** `.crashed` disables the
+  loader, not an explicit `require_once`, so the next run writes every page and reports success
+  over a site nobody repaired. `project-context` step 8 reports it and `es_save_page()` now warns
+  on the first write of any run that starts this way, naming the file that crashed. Fix or delete
+  that file BEFORE removing `.crashed`; removing it alone reloads the file and crashes the site again.
 - **Report the partial state by name** — which pages/templates were written, which were not, what
   the last successful step was. A half-built site the user does not know about is worse than a
   failed build they do.

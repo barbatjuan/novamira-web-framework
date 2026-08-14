@@ -20,7 +20,7 @@ foreach ( array( 'es-builder.php' ) as $es_dep ) {
 		/* Both channels on purpose: es_warn() lives in es-builder.php, which is exactly the
 		   file that may be missing here, and error_log() alone is not "loudly" — the sandbox
 		   returns STDOUT, so a log-only warning is a build that silently does nothing. */
-		$es_msg = 'NovaMira: ' . basename( __FILE__ ) . ' requires ' . $es_dep . ' in novamira-sandbox/. Upload it first. NOTHING WAS BUILT.';
+		$es_msg = 'NovaMira: ' . basename( __FILE__ ) . ' necesita ' . $es_dep . ' en novamira-sandbox/. Subelo primero. NO SE CONSTRUYO NADA.';
 		error_log( $es_msg );
 		echo $es_msg . "\n";
 		return;
@@ -50,8 +50,14 @@ foreach ( array( 'es-builder.php' ) as $es_dep ) {
  * 'created', 'updated', 'created-renamed', 'failed' — without breaking the returned template id.
  * The two functions share a shape, so they share the reporting contract; when they drifted apart,
  * the one that mattered more was the one nobody could see failing.
+ *
+ * `$known_rivals` are template ids the caller has already LOOKED AT and decided to leave alone.
+ * Some sites legitimately keep two templates at one location under different conditions, and the
+ * rival warning had no way to say so — it fired on every build of a correct site, which is how a
+ * warning becomes scenery. Acknowledgement is by ID and never by location, deliberately: a rival
+ * that appears LATER is a new fact and still warns, which is the whole reason the check exists.
  */
-function es_save_theme_part( $slug, $title, $type, array $elements, array $conditions, &$action = null ) {
+function es_save_theme_part( $slug, $title, $type, array $elements, array $conditions, &$action = null, array $known_rivals = array() ) {
 	$existing = get_posts(
 		array(
 			'post_type'      => 'elementor_library',
@@ -126,23 +132,30 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 	es_rebuild_css( $id );
 
 	if ( ! es_rebuild_theme_conditions() ) {
-		es_warn( 'could not regenerate the theme-builder conditions cache for "' . $slug . '" (#' . $id . '). Elementor Pro theme builder is unavailable, so this template will NOT appear on the front end.' );
+		es_warn( 'no se pudo regenerar la cache de condiciones del theme builder para "' . $slug . '" (#' . $id . '). Elementor Pro no esta disponible, asi que esta plantilla NO va a aparecer en el front.' );
 	} elseif ( ! es_theme_conditions_registered( $id ) ) {
-		es_warn( '"' . $slug . '" (#' . $id . ') is missing from elementor_pro_theme_builder_conditions after regeneration. Check the condition strings: ' . implode( ', ', $conditions ) );
+		es_warn( '"' . $slug . '" (#' . $id . ') no esta en elementor_pro_theme_builder_conditions despues de regenerar. Revisa las condiciones: ' . implode( ', ', $conditions ) );
 	} else {
 		/* Registered is not rendering. Elementor resolves ONE template per location, so a rival
 		   already claiming this one means this template can be saved, conditioned and cached and
 		   still never appear — with every check green and the site looking untouched. */
-		$rivals = es_theme_location_rivals( $id );
-		if ( $rivals ) {
-			$where = array();
-			foreach ( $rivals as $location => $ids ) {
-				$where[] = $location . ' (#' . implode( ', #', $ids ) . ')';
+		$where = array();
+		$seen  = 0;
+		foreach ( es_theme_location_rivals( $id ) as $location => $ids ) {
+			/* Acknowledged ones are subtracted, not hidden: the count is still reported, so a
+			   silenced rival stays visible as a number and cannot become a permanent blind spot. */
+			$news = array_values( array_diff( array_map( 'intval', $ids ), array_map( 'intval', $known_rivals ) ) );
+			$seen += count( $ids ) - count( $news );
+			if ( $news ) {
+				$where[] = $location . ' (#' . implode( ', #', $news ) . ')';
 			}
+		}
+		if ( $where ) {
 			es_warn(
 				'"' . $slug . '" (#' . $id . ') quedo registrado, pero NO es la unica plantilla en su ubicacion: ' . implode( '; ', $where ) . '. '
 				. 'Elementor resuelve una sola por ubicacion, asi que puede que la que se vea siga siendo la otra. '
 				. 'Borra o reacondiciona las rivales y vuelve a mirar el front — registrado no es lo mismo que visible.'
+				. ( $seen ? ' (' . $seen . ' rival(es) mas, ya reconocidas por quien llamo.)' : '' )
 			);
 		}
 	}
@@ -285,7 +298,7 @@ function es_build_theme_parts() {
 			)
 		);
 	} else {
-		es_warn( 'nav menu "' . $menu_slug . '" does not exist. The header is being built WITHOUT its navigation - create the menu, then rebuild the theme parts. This breaks the "navbar is real navigation" house rule on EVERY page.' );
+		es_warn( 'el menu "' . $menu_slug . '" no existe. El header se esta construyendo SIN su navegacion: crea el menu y vuelve a construir los theme parts. Esto rompe la regla de casa "la barra es navegacion de verdad" en TODAS las paginas.' );
 	}
 
 	$header = array(
