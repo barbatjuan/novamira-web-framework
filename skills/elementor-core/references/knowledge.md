@@ -22,6 +22,16 @@
   `created`/`updated` needs a human. All three unhappy paths also speak through `es_warn()`, so
   they reach stdout under `ES_AUDIT_SILENT` and the durable log. Do NOT treat a returned id as
   proof the page went where you asked. `es_save_theme_part()` reports the same four.
+- `es_overwrite_preflight($slugs)` → `{rows[], overwrites, creates}` and PRINTS the block a human
+  approves — never gated on `ES_AUDIT_SILENT`, an approval artifact is not routine output. Run it
+  **before the first write**. Each row: `slug`, `id`, `action`, `status`, `is_elementor`,
+  `is_front_page`, `converts`. The last two cost the most and show up the least.
+- `es_backup_page_state($id,$keys)` — parks the WHOLE displaced set (layout, page template, edit
+  mode, template type, version, post fields, and `post_content`) in `_es_page_backup_<Ymd-His>`.
+  **Call it before the first write**: it cannot tell an old value from a new one, and it used to
+  run after four of the five keys had already been overwritten, preserving what had just been
+  written. Restore key by key. `es_save_page()` calls it only when updating — a page it just
+  created has nothing to displace.
 - `es_front_page()` → `{mode:'posts'|'page', id, slug}` — the ONE resolver for "what does `/` serve".
   Never guess the home from a slug: on an install whose front page is `/`, `/inicio/` is dead.
   `page_on_front` alone is NOT a front page; without `show_on_front='page'` WordPress renders

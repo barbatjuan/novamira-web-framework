@@ -92,15 +92,35 @@ function wp_fake_reset() {
 	);
 }
 
-function wp_fake_page( $slug, $status = 'publish', $title = 'existente' ) {
+function wp_fake_page( $slug, $status = 'publish', $title = 'existente', $content = '', array $meta = array() ) {
 	$w   = &$GLOBALS['wp'];
 	$id  = $w['next_id']++;
-	$obj = (object) array( 'ID' => $id, 'post_status' => $status, 'post_name' => $slug, 'post_title' => $title );
+	$obj = (object) array(
+		'ID'           => $id,
+		'post_status'  => $status,
+		'post_name'    => $slug,
+		'post_title'   => $title,
+		'post_content' => $content,
+	);
 
 	$w['posts'][ $id ]     = $obj;
 	$w['by_slug'][ $slug ] = $obj;
+	if ( $meta ) {
+		$w['meta'][ $id ] = $meta;
+	}
 
 	return $id;
+}
+
+/** The one backup key this run wrote for $id, or '' — the tests never hard-code a timestamp. */
+function backup_of( $id ) {
+	foreach ( array_keys( isset( $GLOBALS['wp']['meta'][ $id ] ) ? $GLOBALS['wp']['meta'][ $id ] : array() ) as $k ) {
+		if ( 0 === strpos( $k, '_es_page_backup_' ) ) {
+			return $GLOBALS['wp']['meta'][ $id ][ $k ];
+		}
+	}
+
+	return '';
 }
 
 function get_page_by_path( $slug, $output = OBJECT, $post_type = 'page' ) {
@@ -549,6 +569,122 @@ $r                                         = grab(
 );
 ok( $hid === $r['ret'], 'reestablecer la MISMA portada sigue devolviendo el id' );
 ok( '' === $r['out'], 'y no avisa de nada: no se dejo de mostrar ninguna pagina' );
+
+/* ---------------------------------------------------------------------------
+ * 17. La copia de seguridad prometia mas de lo que guardaba.
+ * ------------------------------------------------------------------------- */
+echo "--- el respaldo cubre todo lo que la escritura desplaza, no solo el layout ---\n";
+
+/* El docblock decia que "cada sobrescritura aparca el layout anterior". Cierto y estrecho:
+   es_save_page() tambien pisa _wp_page_template, y restaurar el layout sobre una plantilla
+   cambiada no devuelve la pagina a como estaba. */
+wp_fake_reset();
+$pid = wp_fake_page(
+	'servicios',
+	'publish',
+	'Servicios',
+	'',
+	array(
+		'_elementor_data'      => '[{"viejo":1}]',
+		'_elementor_edit_mode' => 'builder',
+		'_wp_page_template'    => 'plantilla-del-tema.php',
+	)
+);
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'servicios', 'Servicios', $els, 'elementor_header_footer', $a );
+	}
+);
+$bk = backup_of( $pid );
+ok( is_array( $bk ), 'el respaldo es un conjunto, no un unico blob' );
+ok( isset( $bk['_elementor_data'] ) && has( $bk['_elementor_data'], 'viejo' ), 'con el layout anterior' );
+ok( isset( $bk['_wp_page_template'] ) && 'plantilla-del-tema.php' === $bk['_wp_page_template'], 'Y la plantilla anterior, que la escritura tambien pisa' );
+ok( isset( $bk['post_title'] ) && 'Servicios' === $bk['post_title'], 'y el titulo, que wp_update_post reescribe' );
+ok( isset( $bk['post_status'] ) && 'publish' === $bk['post_status'], 'y el estado' );
+ok( 'elementor_header_footer' === get_post_meta( $pid, '_wp_page_template' ), 'la escritura si cambio la plantilla, que es lo que hace falta respaldar' );
+
+/* Convertir una pagina clasica es la sobrescritura mas destructiva del repertorio y era la unica
+   que NO dejaba respaldo: sin _elementor_data que copiar, el respaldo antiguo devolvia '' y se iba
+   en silencio, mientras el post_content que ERA la pagina dejaba de renderizarse para siempre. */
+wp_fake_reset();
+$pid = wp_fake_page( 'quienes-somos', 'publish', 'Quienes somos', '<p>Texto que lleva ahi ocho anios.</p>' );
+$r   = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'quienes-somos', 'Quienes somos', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( '' !== $r['out'], 'convertir una pagina que no era de Elementor avisa' );
+ok( has( $r['out'], 'quienes-somos' ), 'nombrando el slug' );
+$bk = backup_of( $pid );
+ok( is_array( $bk ), 'y deja respaldo aunque no hubiera layout que copiar' );
+ok( isset( $bk['post_content'] ) && has( $bk['post_content'], 'ocho anios' ), 'con el contenido clasico que deja de renderizarse' );
+
+/* Una pagina nueva y vacia no tiene nada que perder: respaldarla es ruido, y un respaldo por
+   reconstruccion en una pagina que nunca tuvo nada llena la tabla de meta sin motivo. */
+wp_fake_reset();
+$r = grab(
+	function () use ( $els ) {
+		$a = null;
+		return es_save_page( 'nueva', 'Nueva', $els, 'elementor_header_footer', $a );
+	}
+);
+ok( '' === $r['out'], 'crear una pagina nueva no avisa de ninguna conversion' );
+$ninguno = true;
+foreach ( array_keys( $GLOBALS['wp']['meta'] ) as $any ) {
+	if ( '' !== backup_of( $any ) ) {
+		$ninguno = false;
+	}
+}
+ok( $ninguno, 'ni deja respaldo en ninguna parte: no habia nada que desplazar' );
+
+/* ---------------------------------------------------------------------------
+ * 30. Nadie cruzaba el inventario con los slugs a escribir.
+ * ------------------------------------------------------------------------- */
+echo "--- se puede saber QUE se va a pisar antes de pisarlo ---\n";
+
+wp_fake_reset();
+$home  = wp_fake_page( 'inicio', 'publish', 'Inicio', '', array( '_elementor_data' => '[1]', '_elementor_edit_mode' => 'builder' ) );
+$clas  = wp_fake_page( 'quienes-somos', 'publish', 'Quienes somos', '<p>clasica</p>' );
+$borr  = wp_fake_page( 'servicios', 'draft', 'Servicios' );
+$GLOBALS['wp']['options']['show_on_front'] = 'page';
+$GLOBALS['wp']['options']['page_on_front'] = $home;
+
+$r = grab(
+	function () {
+		return es_overwrite_preflight( array( 'inicio', 'quienes-somos', 'servicios', 'contacto' ) );
+	}
+);
+$p = $r['ret'];
+ok( is_array( $p ) && isset( $p['rows'] ), 'el preflight devuelve filas' );
+ok( 4 === count( $p['rows'] ), 'una por slug pedido, incluida la que no existe' );
+ok( 3 === $p['overwrites'] && 1 === $p['creates'], 'y separa lo que se pisa de lo que se crea' );
+
+$by = array();
+foreach ( $p['rows'] as $row ) {
+	$by[ $row['slug'] ] = $row;
+}
+ok( 'overwrite' === $by['inicio']['action'] && $home === $by['inicio']['id'], 'una pagina existente sale como sobrescritura, con su id' );
+ok( true === $by['inicio']['is_front_page'], 'y marca cual es la PORTADA: pisarla es lo que ve el cliente al entrar' );
+ok( true === $by['inicio']['is_elementor'], 'dice si ya era de Elementor' );
+ok( false === $by['quienes-somos']['is_elementor'], 'y si no lo era' );
+ok( true === $by['quienes-somos']['converts'], 'porque eso es una CONVERSION, no una reconstruccion' );
+ok( 'draft' === $by['servicios']['status'], 'da el estado, para no publicar un borrador sin querer' );
+ok( 'create' === $by['contacto']['action'] && 0 === $by['contacto']['id'], 'y lo que no existe se va a crear' );
+
+ok( has( $r['out'], 'inicio' ), 'lo imprime, porque esto es lo que el usuario aprueba' );
+ok( has( $r['out'], 'PORTADA' ), 'destacando la portada' );
+ok( has( $r['out'], 'quienes-somos' ), 'y la conversion' );
+
+wp_fake_reset();
+$r = grab(
+	function () {
+		return es_overwrite_preflight( array( 'contacto' ) );
+	}
+);
+ok( 0 === $r['ret']['overwrites'], 'un sitio vacio no pisa nada' );
+ok( '' !== $r['out'], 'y aun asi informa: "no se pisa nada" tambien es una respuesta que hay que ver' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

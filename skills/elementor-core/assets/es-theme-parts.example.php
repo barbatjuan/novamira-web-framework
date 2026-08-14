@@ -16,9 +16,10 @@ require_once WP_CONTENT_DIR . '/novamira-sandbox/es-builder.php';
  * never renders. Regeneration is therefore part of saving a theme part, not something
  * a caller has to remember, and the result is verified before we call it done.
  *
- * Overwriting also replaces `_elementor_data` outright with no revision behind it, so
- * the previous layout is parked in a timestamped backup key first
- * (see es_backup_elementor_data in es-builder.php).
+ * Overwriting also replaces `_elementor_data` outright with no revision behind it, so the
+ * displaced state is parked in a timestamped backup key first (see es_backup_page_state in
+ * es-builder.php) — including `_elementor_conditions`, the key that decides WHERE a template
+ * renders and the one the old narrower backup never covered.
  *
  * Unlike es_save_page(), a theme part IS forced to `publish`: it is only ever saved in
  * order to be live, and this same call is writing the conditions that put it on the
@@ -80,11 +81,21 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 		}
 	}
 
+	if ( 'updated' === $action ) {
+		/* BEFORE the writes, and it did not use to be: the backup sat below three update_post_meta()
+		   calls, so it preserved what this call had just written. `_elementor_conditions` was never
+		   covered at all, and that is the key that decides WHERE a template renders -- overwriting
+		   it can un-hijack the whole site or hijack it, with nothing to restore from. */
+		es_backup_page_state(
+			$id,
+			array( '_elementor_data', '_elementor_conditions', '_elementor_template_type', '_elementor_edit_mode', '_elementor_version' )
+		);
+	}
+
 	wp_set_object_terms( $id, $type, 'elementor_library_type' );
 	update_post_meta( $id, '_elementor_template_type', $type );
 	update_post_meta( $id, '_elementor_edit_mode', 'builder' );
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
-	es_backup_elementor_data( $id );
 	/* Theme parts used to skip the audit entirely, which is backwards: headers, footers and
 	   commerce templates are the MOST nested artifacts in the system (see the mobile 3-zone
 	   header recipe) and they are reused on every page, so a wasted level here is paid site-wide. */

@@ -970,8 +970,11 @@ function es_audit_verdict( $rest, $code ) {
  *
  * Overwriting an existing page is destructive and irreversible on its own: writing
  * `_elementor_data` through the meta API replaces the whole layout and leaves no
- * revision behind. Every overwrite therefore parks the previous layout in a
- * timestamped backup key first (see es_backup_elementor_data).
+ * revision behind. Every overwrite therefore parks the displaced state in a timestamped
+ * backup key first (see es_backup_page_state) — the layout AND the page template, the
+ * edit mode, the template type, the version, and the post fields. Overwriting a page
+ * that was not built with Elementor also warns: its `post_content` survives in the
+ * database and in the backup, but stops being what the visitor sees.
  *
  * The existing `post_status` is preserved too. Forcing `publish` here used to push a
  * client's draft live as a side effect of rebuilding its layout; only pages this
@@ -1040,11 +1043,36 @@ function es_save_page( $slug, $title, array $elements, $tpl = 'elementor_header_
 		}
 	}
 
+	if ( 'updated' === $action ) {
+		/* FIRST, before a single update_post_meta(). The backup used to sit four lines below this
+		   point, after `_wp_page_template`, `_elementor_edit_mode`, `_elementor_template_type` and
+		   `_elementor_version` had ALREADY been overwritten -- so it preserved the values this call
+		   had just written and labelled them as the previous state. It looked correct only because
+		   the one key it named, `_elementor_data`, happens to be written last.
+
+		   Only on the update path: a page this call just created has nothing to displace, and a
+		   backup of an empty page is meta-table noise on every rebuild. */
+		es_backup_page_state(
+			$id,
+			array( '_elementor_data', '_wp_page_template', '_elementor_edit_mode', '_elementor_template_type', '_elementor_version' )
+		);
+		/* The most destructive overwrite in the repertoire, and the one the old backup covered
+		   LEAST: with no `_elementor_data` to copy it returned '' and said nothing, while the
+		   post_content that WAS the page stopped rendering for good. */
+		$body = trim( (string) get_post_field( 'post_content', $id ) );
+		if ( 'builder' !== get_post_meta( $id, '_elementor_edit_mode', true ) && '' !== $body ) {
+			es_warn(
+				'"' . $slug . '" (#' . $id . ') no era una pagina de Elementor y va a serlo. Su contenido actual ('
+				. strlen( $body ) . ' caracteres del editor clasico o de bloques) deja de renderizarse: sigue en la base de '
+				. 'datos y en el respaldo, pero el visitante ya no lo ve. Si no era la intencion, para aqui.'
+			);
+		}
+	}
+
 	update_post_meta( $id, '_elementor_edit_mode', 'builder' );
 	update_post_meta( $id, '_elementor_template_type', 'wp-page' );
 	update_post_meta( $id, '_elementor_version', defined( 'ELEMENTOR_VERSION' ) ? ELEMENTOR_VERSION : '3.0.0' );
 	update_post_meta( $id, '_wp_page_template', $tpl );
-	es_backup_elementor_data( $id );
 	es_container_report( $elements, $slug );
 	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
 	es_rebuild_css( $id );
@@ -1135,29 +1163,126 @@ function es_set_front_page( $slug ) {
 }
 
 /**
- * Park a post's current `_elementor_data` in a timestamped backup meta key.
+ * Park EVERYTHING an overwrite is about to displace, in one timestamped backup meta key.
  *
- * Elementor stores a layout as one blob of post meta, so rewriting it through the API
- * destroys the previous design outright: no revision, no diff, nothing to roll back to.
- * Copying the old blob aside first is the cheapest thing that makes an accidental
- * overwrite recoverable by a human.
+ * Elementor stores a layout as one blob of post meta, so rewriting it through the API destroys
+ * the previous design outright: no revision, no diff, nothing to roll back to. Copying the old
+ * state aside first is the cheapest thing that makes an accidental overwrite recoverable.
  *
- * Backup key: `_es_elementor_data_backup_<Ymd-His>` (UTC). Restore by hand with
- * `update_post_meta( $id, '_elementor_data', wp_slash( get_post_meta( $id, '<key>', true ) ) )`.
- * The leading underscore keeps the backups out of the custom-fields UI; they are never
- * pruned automatically, so a long-lived page accumulates one per rebuild on purpose.
+ * This used to copy `_elementor_data` and nothing else, while the caller also rewrote the page
+ * template, the edit mode, the template type and the version -- so restoring the layout onto a
+ * template that had silently changed did NOT put the page back the way it was. The docblock said
+ * "the previous layout", which was true and far narrower than the damage. It now takes the exact
+ * key list the caller is about to write, plus the post fields `wp_update_post()` touches, and
+ * `post_content`, which is not displaced but STOPS BEING RENDERED the moment a classic page
+ * becomes an Elementor one.
  *
- * Returns the key written, or '' when the post had no layout worth preserving.
+ * Must be called BEFORE the first write. It cannot tell an old value from a new one.
+ *
+ * Backup key: `_es_page_backup_<Ymd-His>` (UTC), holding an array keyed by what it saved. Restore
+ * by hand, key by key: meta keys go back through `update_post_meta()` (`_elementor_data` needs
+ * `wp_slash()`), post fields through `wp_update_post()`. The leading underscore keeps backups out
+ * of the custom-fields UI; they are never pruned, so a long-lived page accumulates one per
+ * rebuild on purpose.
+ *
+ * Returns the key written, or '' when there was genuinely nothing to preserve.
  */
-function es_backup_elementor_data( $post_id ) {
-	$previous = get_post_meta( $post_id, '_elementor_data', true );
-	if ( ! is_string( $previous ) || '' === $previous || '[]' === $previous ) {
+function es_backup_page_state( $post_id, array $meta_keys ) {
+	$state = array();
+	foreach ( $meta_keys as $key ) {
+		$value = get_post_meta( $post_id, $key, true );
+		if ( '' !== $value && array() !== $value && '[]' !== $value ) {
+			$state[ $key ] = $value;
+		}
+	}
+	foreach ( array( 'post_title', 'post_status', 'post_content' ) as $field ) {
+		$value = (string) get_post_field( $field, $post_id );
+		if ( '' !== $value ) {
+			$state[ $field ] = $value;
+		}
+	}
+	if ( ! $state ) {
 		return '';
 	}
-	$key = '_es_elementor_data_backup_' . gmdate( 'Ymd-His' );
-	update_post_meta( $post_id, $key, wp_slash( $previous ) );
+	$key = '_es_page_backup_' . gmdate( 'Ymd-His' );
+	update_post_meta( $post_id, $key, $state );
 
 	return $key;
+}
+
+/**
+ * Cross the slugs a build is about to write against what is already on the site.
+ *
+ * Nothing did this. The build discovered an existing page by trying to overwrite it, which means
+ * the first time anybody learned that `/inicio` already belonged to somebody was after it had
+ * stopped belonging to them. This is the report a human approves BEFORE the connector is handed
+ * a single write.
+ *
+ * It prints as well as returning, and its printing is NOT gated on `ES_AUDIT_SILENT`: that switch
+ * mutes the routine container report, and an approval artifact is not routine output.
+ *
+ * Returns `array( 'rows' => [...], 'overwrites' => int, 'creates' => int )`. Each row carries
+ * `slug`, `id`, `action` (`create`|`overwrite`), `status`, `is_elementor`, `is_front_page` and
+ * `converts` -- the last two being the ones that cost the most and show up the least.
+ */
+function es_overwrite_preflight( array $slugs ) {
+	$front = es_front_page();
+	$rows  = array();
+	$over  = 0;
+	$make  = 0;
+
+	foreach ( $slugs as $slug ) {
+		$page = get_page_by_path( $slug, OBJECT, 'page' );
+		if ( ! $page ) {
+			$rows[] = array(
+				'slug'          => $slug,
+				'id'            => 0,
+				'action'        => 'create',
+				'status'        => '',
+				'is_elementor'  => false,
+				'is_front_page' => false,
+				'converts'      => false,
+			);
+			$make++;
+			continue;
+		}
+		$is_elementor = 'builder' === get_post_meta( $page->ID, '_elementor_edit_mode', true );
+		$body         = trim( (string) get_post_field( 'post_content', $page->ID ) );
+		$rows[]       = array(
+			'slug'          => $slug,
+			'id'            => (int) $page->ID,
+			'action'        => 'overwrite',
+			'status'        => $page->post_status,
+			'is_elementor'  => $is_elementor,
+			'is_front_page' => ( 'page' === $front['mode'] && $front['id'] === (int) $page->ID ),
+			'converts'      => ( ! $is_elementor && '' !== $body ),
+		);
+		$over++;
+	}
+
+	$out = 'NovaMira preflight de escritura: ' . count( $rows ) . ' slugs — ' . $over . ' se pisan, ' . $make . ' se crean';
+	foreach ( $rows as $row ) {
+		if ( 'create' === $row['action'] ) {
+			$out .= "\n  CREA       " . $row['slug'];
+			continue;
+		}
+		$out .= "\n  " . ( $row['converts'] ? 'CONVIERTE ' : 'PISA      ' ) . $row['slug']
+			. ' #' . $row['id'] . ' ' . $row['status']
+			. ' ' . ( $row['is_elementor'] ? 'Elementor' : 'clasica' )
+			. ( $row['is_front_page'] ? '  [PORTADA — es lo que ve el visitante al entrar]' : '' )
+			. ( $row['converts'] ? '  [su contenido actual deja de renderizarse]' : '' );
+	}
+	if ( ! $over ) {
+		$out .= "\n  nada que pisar: ninguno de estos slugs existe todavia";
+	}
+	error_log( str_replace( "\n", ' | ', $out ) );
+	echo $out . "\n";
+
+	return array(
+		'rows'       => $rows,
+		'overwrites' => $over,
+		'creates'    => $make,
+	);
 }
 
 /**

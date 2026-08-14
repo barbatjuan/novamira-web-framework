@@ -124,6 +124,18 @@ no native build.
   elTypes the audit cannot judge, so zero offenders proves nothing; `SIN AUDITAR` means the audit
   never ran, which is a wiring bug reported as a result.
   (verifier: `qa-review` house-rule row 11 re-runs the container audit against what actually landed and lists every offender by path.)
+- **Nobody approves a write they have not been shown.** Before the connector is handed a single
+  write, run `es_overwrite_preflight($slugs)` with every slug the build is about to touch and put
+  its output in front of the user — that block IS the approval artifact, not a summary of it.
+  Until it existed, the build discovered an existing page by overwriting it, so the first time
+  anybody learned that `/inicio` already belonged to somebody was after it had stopped belonging
+  to them. Three rows cost far more than the rest and show up the least: the **front page**
+  (pisarla cambia lo primero que ve un visitante), a **conversion** (a page not built with
+  Elementor keeps its `post_content` in the database and in the backup, but stops rendering it),
+  and a **draft** (rebuilding it must not publish it). Every overwrite is recoverable —
+  `es_backup_page_state()` parks the whole displaced set — but recovery is manual, so the
+  approval comes first.
+  (no verifier: nothing can prove a human was shown the block before the writes; the preflight prints it and the honesty is the operator's.)
 - **The home page is not the front page until you say so.** Building a page called "Inicio" does
   nothing to what WordPress serves at `/`: a fresh install shows the blog, and an existing site
   shows whatever it showed before. Nothing in this framework touched `show_on_front` or
