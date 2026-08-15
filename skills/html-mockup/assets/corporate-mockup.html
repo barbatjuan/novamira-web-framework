@@ -7,25 +7,105 @@
   Archetypes covered: TPL-C-01 (lead-gen) as the backbone, plus blocks from TPL-C-02 (trust),
   TPL-C-03 (portfolio), TPL-C-04 (single-offer) and TPL-C-05 (local/booking).
   Every section is labelled with its COMP-* / TPL-C-* code so the native build knows what it reproduces.
-  To re-brand for a client: (1) swap the :root tokens (they are the canonical design-system.md names),
-  (2) replace "MARCA" + copy + placeholder .ph blocks with real content, (3) keep only the
-  pages/sections the resolved archetypes call for. See ../SKILL.md and ../references/mockup-guide.md.
+
+  DEFAULT ANCHOR — `PERS-INSTITUTIONAL`. This file starts from one position on each of the five
+  perceptual axes, and those positions are a DEFAULT, never a decision about a client:
+    scale contained · ground cool · density standard · composition centered · elevation soft-shadow
+  `ux-design-system`'s axis dialogue resolves the five with the client and re-points them here; this
+  is the landing place for its output. `PERS-INSTITUTIONAL` is the default because this is the
+  B2B/credibility asset and that is the anchor design-personalities.md files under "B2B, professional
+  services, anything selling credibility over excitement".
+
+  To re-brand for a client: (1) swap the FIVE axis lines at the top of :root — every value copied
+  from web-templates/references/design-system.md § "Perceptual axes — token values", never typed by
+  hand — then the brand colours beneath them; the type and space scales re-derive themselves, because
+  no heading size and no section padding is written here as a number. (2) replace "MARCA" + copy +
+  placeholder .ph blocks with real content, (3) keep only the pages/sections the resolved archetypes
+  call for. See ../SKILL.md and ../references/mockup-guide.md.
+
+  COMPOSITION IS A LAYOUT RULE, NOT A NUMBER, so it is the one axis a token cannot carry alone: the
+  `/* composition: LP-CENTERED */` line below is a claim about how this page is BUILT, and the
+  sections honour it — one centred axis, section headings centred with the eyebrow above, symmetric
+  grids only, and no image bleeding a viewport edge anywhere on any of the six pages. Re-pointing
+  that axis means re-laying out, not editing a comment.
 -->
 <style>
   :root{
-    /* ── tokens: canonical names from web-templates/references/design-system.md ── */
-    /* Typography — two families max; secondary may equal primary (corporate default). */
-    --font-primary: system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    /* ══ AXIS POSITIONS — the only lines a project replaces ══
+       Every value COPIED from web-templates/references/design-system.md § "Perceptual axes — token
+       values". Never type a number here and never re-derive one: these five lines are the whole
+       visual identity, and a hand-picked value is how every client site ends up looking the same.
+       Default anchor PERS-INSTITUTIONAL; see the header comment. */
+    --type-ratio: 1.200;  --display-lh: 1.25;  --fs-h1-max: 48;   /* scale: contained */
+    --sp-scale: 1.0;                                              /* density: standard */
+    --c-bg:#F2F5F8; --c-bg-alt:#E8EDF3; --c-text:#141C24;         /* ground: cool (15.7:1) */
+    --elev-rest: 0 1px 2px rgba(0,0,0,.04);                       /* elevation: soft-shadow */
+    --elev-hover: 0 18px 40px -12px rgba(21,24,26,.16);
+    /* composition: LP-CENTERED */
+
+    /* ── Typography — two families max; secondary may equal primary. design-personalities.md names
+          Source Sans 3 for this anchor, so the family is NAMED with honest system fallbacks and
+          never @font-face'd at a URL: the Artifact CSP blocks external requests, and a blocked font
+          is worse than a declared fallback. Tracking stays `normal` — the `contained` h1 cap is
+          48px, far under the ~80px where tightening starts paying, so the `-.012em` that used to
+          sit on h1–h3 here was a value with no axis and no anchor behind it. ── */
+    --font-primary: 'Source Sans 3',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
     --font-secondary: var(--font-primary);
-    --fs-h1: clamp(2rem,5vw,3.5rem); --fs-h2: clamp(1.6rem,3.5vw,2.5rem);
-    --fs-h3: clamp(1.25rem,2.5vw,1.75rem); --fs-body: clamp(1rem,1.2vw,1.125rem);
+
+    /* ── Type scale, transcribed VERBATIM from design-system.md § Scale. Every heading step hangs
+          off --type-ratio and --fs-h1-max; not one heading size is written by hand, and each step's
+          preferred term interpolates ITS OWN floor into ITS OWN cap across 430 → 1280 so the cap
+          engages on a laptop. What used to sit on these lines — `clamp(2rem,5vw,3.5rem)` — IS the
+          defect the axes replaced: a 56px h1 cap on every client site, byte-identical at all four
+          scale positions. --fs-h1-max is UNITLESS on purpose: calc() cannot divide a length by a
+          length, so the coefficient multiplying --fluid must arrive without a unit, and --fs-base
+          is the single bridge back to a length. ── */
+    --fs-base: 16;
+    --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
+    --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
+    --n-h2: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio));
+    --n-h3: calc(var(--fs-base) * var(--type-ratio));
+    --n-h1-cap: var(--fs-h1-max);
+    --n-h2-cap: calc(var(--fs-h1-max) / var(--type-ratio));
+    --n-h3-cap: calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio));
+    --fs-h1: clamp(calc(var(--n-h1) / var(--fs-base) * 1rem),
+                   calc(var(--n-h1) / var(--fs-base) * 1rem + (var(--n-h1-cap) - var(--n-h1)) * var(--fluid)),
+                   calc(var(--n-h1-cap) * 1px));
+    --fs-h2: clamp(calc(var(--n-h2) / var(--fs-base) * 1rem),
+                   calc(var(--n-h2) / var(--fs-base) * 1rem + (var(--n-h2-cap) - var(--n-h2)) * var(--fluid)),
+                   calc(var(--n-h2-cap) * 1px));
+    --fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
+                   calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
+                   calc(var(--n-h3-cap) * 1px));
+    --fs-body: clamp(1rem,1.2vw,1.25rem);   /* body is NOT an axis — a plain vw term is correct */
     --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
-    /* Colors */
-    --c-primary:#132F4C; --c-secondary:#4B5D72; --c-accent:#1F7A8C;
-    --c-bg:#FFFFFF; --c-bg-alt:#F3F6F9; --c-text:#12212E; --c-text-muted:#5F6E7D;
-    --c-border:#DEE5EC; --c-success:#2E7D32; --c-error:#C62828;
-    /* Spacing */
-    --sp-xs:.5rem; --sp-s:1rem; --sp-m:1.5rem; --sp-l:3rem; --sp-xl:5rem; --sp-xxl:7.5rem;
+
+    /* ── Colours design-system.md does NOT pin per ground position. The ground table gives
+          --c-bg / --c-bg-alt / --c-text only, so accent, muted and border are DERIVED for THIS
+          ground rather than copied, and each is stated with its measured ratio. The pair the file
+          carried before was derived against a #FFFFFF/#F3F6F9 ground; on `cool`'s darker alt they
+          both fell under AA (accent 4.23:1, muted 4.45:1), which is why they are re-derived here
+          instead of carried over.
+            --c-accent  #1A6474 on #F2F5F8 .... 6.21:1     on #E8EDF3 .... 5.77:1
+            --c-text-muted #5C6B7A on #F2F5F8 . 5.00:1     on #E8EDF3 .... 4.65:1
+            --c-bg text on #132F4C fill ....... 12.5:1  (the primary button is legible) ── */
+    --c-primary:#132F4C; --c-secondary:#4B5D72; --c-accent:#1A6474;
+    --c-text-muted:#5C6B7A; --c-border:#D2DBE4; --c-success:#2E7D32; --c-error:#C62828;
+
+    /* ── Spacing, verbatim from design-system.md § Density: ONE scale multiplied whole by the
+          density position, so the rhythm survives by construction and only the sensation of air
+          changes. --sp-section carries --sp-scale on BOTH ends of the interpolation, which is what
+          makes the density axis visible at 430, 768 AND 1280 instead of only at the extremes. The
+          fixed rems that used to sit here (`--sp-l:3rem`) flatten it to one density. ── */
+    --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
+    --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
+    --sp-xl: calc(5rem   * var(--sp-scale));  --sp-xxl:calc(7.5rem * var(--sp-scale));
+    --n-sec:     calc(2 * var(--fs-base) * var(--sp-scale));
+    --n-sec-cap: calc(7 * var(--fs-base) * var(--sp-scale));
+    --sp-section: clamp(calc(var(--n-sec) / var(--fs-base) * 1rem),
+                        calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
+                        calc(var(--n-sec-cap) * 1px));
+
     /* Containers */
     --container-max:1280px; --content-width:1140px;
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
@@ -35,32 +115,80 @@
     --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
     --btn-border-width:1.5px; --ease:cubic-bezier(.22,1,.36,1); --btn-transition:all .25s var(--ease);
   }
+  /* This asset stays THEME-AWARE (html-mockup/SKILL.md Hard Rule) rather than pinning one ground
+     the way the two proof files deliberately do. The ground axis therefore fixes the LIGHT
+     position; under a dark scheme the palette below takes over and the `cool` row no longer
+     describes what is on screen. That is a real limit of the ground axis in a theme-aware asset,
+     and it is written down rather than left for a reader to discover. */
   @media (prefers-color-scheme: dark){
     :root{--c-primary:#DCE7F0;--c-secondary:#8FA2B6;--c-accent:#58B6C9;
           --c-bg:#0F1620;--c-bg-alt:#17212D;--c-text:#E9F0F6;--c-text-muted:#98A6B5;--c-border:#26313E;}
   }
   :root[data-theme="dark"]{--c-primary:#DCE7F0;--c-secondary:#8FA2B6;--c-accent:#58B6C9;
     --c-bg:#0F1620;--c-bg-alt:#17212D;--c-text:#E9F0F6;--c-text-muted:#98A6B5;--c-border:#26313E;}
-  :root[data-theme="light"]{--c-primary:#132F4C;--c-secondary:#4B5D72;--c-accent:#1F7A8C;
-    --c-bg:#FFFFFF;--c-bg-alt:#F3F6F9;--c-text:#12212E;--c-text-muted:#5F6E7D;--c-border:#DEE5EC;}
+  :root[data-theme="light"]{--c-primary:#132F4C;--c-secondary:#4B5D72;--c-accent:#1A6474;
+    --c-bg:#F2F5F8;--c-bg-alt:#E8EDF3;--c-text:#141C24;--c-text-muted:#5C6B7A;--c-border:#D2DBE4;}
 
   *{box-sizing:border-box} body,figure,h1,h2,h3,p,ul,ol,form,fieldset,dl,dd{margin:0;padding:0}
   body{font-family:var(--font-secondary);color:var(--c-text);background:var(--c-bg);line-height:1.6;font-size:var(--fs-body)}
-  h1,h2,h3{font-family:var(--font-primary);line-height:1.15;font-weight:700;letter-spacing:-.012em;text-wrap:balance}
-  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3)}
+  /* `overflow-wrap:ANYWHERE`, not `break-word`, and SCOPED under 1024px.
+     `break-word` is not the guard it looks like: it leaves a box's intrinsic min-content size
+     alone, so a heading sized `fit-content` stays wider than its column and the page still
+     scrolls. Only `anywhere` shrinks the min-content size. MEASURED on this page at 320px, the
+     committed original scrolled 159px at a 32px root (200% text, WCAG 1.4.4) inside the 320px
+     reflow width WCAG 1.4.10 requires; `anywhere` is what takes it to 0.
+     THE SCOPE is load-bearing too. Unscoped, this rule breaks words at widths where they fit —
+     the proof mockups measured an orphaned `subcontratamo / s` in an H2 at 1280, a visible defect
+     on an anchor selling careful work. Under 1024px it is needed; at 1024 and above it is not.
+     1024px is the framework's own desktop breakpoint, not a number chosen here. */
+  @media(max-width:1023px){ body{overflow-wrap:anywhere} }
+  /* h1/h2 take the display leading the SCALE axis fixes; h3 stays 1.25 and body 1.6
+     (design-system.md). A fixed 1.15 for every heading was the other half of the hardcoded-scale
+     defect: display leading is what separates a contained headline from a monumental one, and it
+     cannot be a constant. Weights are design-system.md's type table (h1/h2 700, h3 600). */
+  h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance}
+  h1,h2{line-height:var(--display-lh)}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)}
+  h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
   a{color:inherit;text-decoration:none} img,svg{max-width:100%}
   .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
   .wrap-wide{max-width:var(--container-max);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
-  section{padding-block:var(--sp-l)}
+  /* Fluid, density-scaled, and no breakpoint by hand — that is the point of --sp-section. The
+     `@media(min-width:768px){section{padding-block:var(--sp-xl)}}` this replaces was a step
+     function that made the density axis visible only on one side of one breakpoint. */
+  section{padding-block:var(--sp-section)}
   .eyebrow{font-size:var(--fs-eyebrow);letter-spacing:.2em;text-transform:uppercase;color:var(--c-accent);font-weight:600;display:block}
   .muted{color:var(--c-text-muted)}
   .small{font-size:var(--fs-small)}
   .bg-alt{background:var(--c-bg-alt)}
-  .head{display:flex;align-items:end;justify-content:space-between;gap:var(--sp-m);margin-bottom:var(--sp-l)}
-  .head p{max-width:56ch}
-  .stack{display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start}
+  /* ══ LP-CENTERED · section headings ══ layout-patterns.md: "Section headings: centred, eyebrow
+     centred above them." The `justify-content:space-between` row this replaces put the heading
+     left and its "Ver todos →" link right — a left-aligned composition, which is LP-STRICT-GRID's
+     rule, not this one. The link now sits centred beneath the heading it belongs to. */
+  .head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--sp-s);margin-bottom:var(--sp-l)}
+  .head p{max-width:56ch;margin-inline:auto}
+  /* LP-CENTERED: "one symmetric axis". `.stack` is the section-heading block on every page, so it
+     centres; forms, lists and tabular data stay left-aligned, because a centred form is a form
+     nobody can scan. Paragraphs get a measure cap so centred copy still reads. */
+  .stack{display:flex;flex-direction:column;gap:var(--sp-m);align-items:center;text-align:center}
+  .stack p{max-width:56ch;margin-inline:auto}
+  /* A text block takes the width of its own AREA, never the width of its longest word. `.stack` is
+     a column flex container with `align-items:center`, which sizes every child to `fit-content` —
+     and `fit-content` floors at min-content, so one unbreakable word makes the box wider than the
+     area it was given and every line in it is then laid out across territory that belongs to
+     something else. `align-self:stretch` pins each box to the area it was given; only buttons opt
+     back out, because a button SHOULD be as wide as its label and no wider. */
+  .stack > *{align-self:stretch;min-width:0}
+  .stack > .btn{align-self:center}
+  /* `width` MUST be pinned alongside `aspect-ratio`: with a ratio and no width, an auto width is
+     computed FROM the ratio and the available height, measured at 660px inside a 390px column.
+     `min-width:0` is the OTHER half, and `width:100%;max-width:100%` does not cover it — on a grid
+     or flex item `aspect-ratio` transfers an automatic minimum size through the ratio, and
+     `min-width:auto` OUTRANKS `max-width:100%`, so the box refuses to shrink below what the ratio
+     asks for. Every `.ph` on this page is a grid or flex item. Both lines or neither. */
   .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 12px),var(--c-bg-alt);
       border:1px solid var(--c-border);border-radius:var(--radius-image);display:grid;place-items:center;
+      width:100%;max-width:100%;min-width:0;
       color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:.5rem}
   /* A button centres its own label on BOTH axes. `text-align:center` is only the horizontal half:
      it says nothing about the vertical, so a button stretched taller than its own line box renders
@@ -72,7 +200,7 @@
   .btn{display:inline-flex;align-items:center;justify-content:center;
        padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;line-height:1.2;
        text-align:center;border-radius:var(--btn-radius);border:var(--btn-border-width) solid transparent;
-       cursor:pointer;transition:var(--btn-transition)}
+       cursor:pointer;transition:var(--btn-transition);box-shadow:var(--elev-rest)}
   .btn-primary{background:var(--c-primary);color:var(--c-bg);border-color:var(--c-primary)}
   .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);transform:translateY(-2px)}
   .btn-outline{background:transparent;color:var(--c-text);border-color:var(--c-primary)}
@@ -87,7 +215,7 @@
   ::placeholder{color:var(--c-text-muted);opacity:.8}
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-  @media(min-width:768px){ section{padding-block:var(--sp-xl)} .wrap,.wrap-wide{padding-inline:var(--pad-x-tablet)} }
+  @media(min-width:768px){ .wrap,.wrap-wide{padding-inline:var(--pad-x-tablet)} }
   @media(min-width:1024px){ .wrap,.wrap-wide{padding-inline:var(--pad-x-desktop)} }
 
   /* ── GLOBAL CHROME (outside .page) ── */
@@ -96,35 +224,54 @@
   .ann{background:var(--c-text);color:var(--c-bg);text-align:center;font-size:var(--fs-small);padding:.55rem var(--pad-x-mobile)}
   header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 92%,transparent);
         backdrop-filter:blur(8px);border-bottom:1px solid var(--c-border)}
-  .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:.75rem}
-  .logo{flex:none;font-family:var(--font-primary);font-weight:700;font-size:1.25rem;letter-spacing:.18em;cursor:pointer}
-  .mainnav{flex:1;min-width:0;display:flex;gap:1.1rem;overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
+  .nav{display:flex;align-items:center;gap:var(--sp-s);padding-block:.75rem;flex-wrap:wrap;min-width:0}
+  /* `flex:0 1 auto` + `min-width:0`, never `flex:none`. A wordmark that refuses to shrink is a
+     WCAG 1.4.4 failure waiting for the first reader who scales text: this rem-sized span could not
+     give up a pixel, so at 320px it pushed the header — and the page — wider than the viewport as
+     soon as the root font size passed 16px. It wraps at its own space now. Same for `.tools`,
+     which carries a nowrap phone number and a button and had the identical `flex:none`. */
+  .logo{flex:0 1 auto;min-width:0;font-family:var(--font-primary);font-weight:700;font-size:1.25rem;letter-spacing:.18em;cursor:pointer}
+  /* flex-basis 200px, not 0: a zero basis lets the nav shrink to a few pixels before the row would
+     wrap. A basis forces the wrap and gives the nav a full row of its own. */
+  .mainnav{flex:1 1 200px;min-width:0;display:flex;gap:1.1rem;overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
   .mainnav::-webkit-scrollbar{display:none}
   .mainnav a{padding:.3rem 0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--c-text-muted);transition:color .2s var(--ease)}
   .mainnav a:hover{color:var(--c-text)}
   .mainnav a[aria-current]{color:var(--c-text);border-color:var(--c-accent)}
-  .tools{flex:none;display:flex;align-items:center;gap:var(--sp-s)}
+  .tools{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:var(--sp-s);flex-wrap:wrap}
   .tel{display:inline-flex;align-items:center;gap:.4rem;font-size:var(--fs-nav);color:var(--c-text-muted);white-space:nowrap}
   .tel svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
   .tel span{display:none}
   @media(min-width:1024px){.tel span{display:inline}}
 
   .page{display:none} .page.active{display:block}
-  .pagehead{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-l)}
-  .pagehead p{max-width:60ch}
+  /* LP-CENTERED: the page head is a section heading, so it centres like every other one. */
+  .pagehead{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-l);text-align:center}
+  .pagehead p{max-width:60ch;margin-inline:auto}
   .breadcrumb{font-size:var(--fs-small);color:var(--c-text-muted);margin-bottom:var(--sp-s)}
 
-  /* ── COMP-HERO (lead-gen split) ── */
-  .hero{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-xl)}
-  .hero .inner{display:grid;gap:var(--sp-l);align-items:center;min-height:45vh}
-  .hero h1{max-width:16ch}
-  .hero p{max-width:52ch}
-  .herocta{display:flex;flex-wrap:wrap;gap:var(--sp-s)}
-  @media(min-width:900px){.hero .inner{grid-template-columns:1.05fr .95fr;min-height:50vh}}
+  /* ── COMP-HERO ── ══ LP-CENTERED · hero ══
+     layout-patterns.md: "Hero: eyebrow, H1 and subcopy on ONE CENTRED AXIS; both buttons centred
+     beneath, side by side." and "Images: always inside the container, equal margins left and
+     right. Nothing bleeds, ever."
+     The `grid-template-columns:1.05fr .95fr` split this replaces was neither centred nor
+     symmetric — it was a two-column composition with the copy left and the image right, which is
+     LP-STRICT-GRID's hero rule, not this blueprint's. The image now sits beneath the centred copy,
+     inside the container, on the same axis. TGL-LEAD-FORM is unaffected: the hero still carries a
+     CTA only and the lead form still lives in the closing conversion band (house rule). */
+  .hero{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);padding-block:var(--sp-section)}
+  /* Items STRETCH to the grid area and the text centres inside them (`.stack` does that), rather
+     than `justify-items:center` shrinking each item to fit-content — a fit-content box floors at
+     min-content, which is how a long word ends up wider than the column it was given. */
+  .hero .inner{display:grid;gap:var(--sp-l);align-content:center;min-height:45vh}
+  .hero h1{max-width:16ch;margin-inline:auto}
+  .hero p{max-width:52ch;margin-inline:auto}
+  /* "both buttons centred beneath, side by side" — side by side until they cannot be. */
+  .herocta{display:flex;flex-wrap:wrap;gap:var(--sp-s);justify-content:center}
 
   /* ── COMP-HERO · imagen fija (TGL-LEAD-FORM = solo CTA: sin formulario aquí) ── */
-  .heroimg{aspect-ratio:4/3;width:100%}
-  @media(min-width:900px){.heroimg{aspect-ratio:4/5;min-height:50vh}}
+  .heroimg{aspect-ratio:4/3}
+  @media(min-width:900px){.heroimg{aspect-ratio:21/9}}
 
   /* ── COMP-LEAD-FORM ── */
   .form{display:flex;flex-direction:column;gap:.75rem}
@@ -145,11 +292,19 @@
   .cards{display:grid;gap:var(--sp-m)}
   @media(min-width:768px){.cards{grid-template-columns:repeat(2,1fr)}}
   @media(min-width:1024px){.cards.c3{grid-template-columns:repeat(3,1fr)} .cards.c4{grid-template-columns:repeat(4,1fr)}}
+  /* elevation: soft-shadow — every shadow on this page is now var(--elev-rest)/var(--elev-hover),
+     so re-pointing the elevation axis moves all of them at once. The hardcoded
+     `0 14px 30px color-mix(...)` these carried was invisible to the axis. */
   .card{background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);
-        display:flex;flex-direction:column;gap:var(--sp-xs);align-items:flex-start;
+        display:flex;flex-direction:column;gap:var(--sp-xs);align-items:flex-start;box-shadow:var(--elev-rest);
         transition:transform .35s var(--ease),border-color .35s var(--ease),box-shadow .35s var(--ease)}
-  .card:hover{transform:translateY(-4px);border-color:var(--c-accent);box-shadow:0 14px 30px color-mix(in srgb,var(--c-text) 10%,transparent)}
-  .card h3{font-size:1.1rem}
+  .card:hover{transform:translateY(-4px);border-color:var(--c-accent);box-shadow:var(--elev-hover)}
+  /* Card and step headings are RATIOS of --fs-h3, never fixed rems. A hardcoded `1.1rem` here is
+     the same defect as a hardcoded --fs-h1: it is byte-identical at all four scale positions, so
+     the card headings of a `monumental` site and a `contained` one come out the same size. The
+     factor is chosen so the mobile floor lands where the fixed value used to; the desktop cap now
+     moves with the axis, which is the entire point. */
+  .card h3{font-size:calc(var(--fs-h3) * .92)}
   .ico{width:42px;height:42px;border-radius:var(--radius-button);display:grid;place-items:center;margin-bottom:var(--sp-xs);
        background:color-mix(in srgb,var(--c-accent) 12%,transparent);color:var(--c-accent)}
   .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -161,7 +316,7 @@
   .step{position:relative;display:grid;grid-template-columns:auto 1fr;gap:var(--sp-s);align-items:start}
   .step b{width:40px;height:40px;flex:none;border-radius:50%;border:var(--btn-border-width) solid var(--c-secondary);
         display:grid;place-items:center;font-size:var(--fs-small);color:var(--c-secondary)}
-  .step h3{font-size:1.05rem}
+  .step h3{font-size:calc(var(--fs-h3) * .875)}
   .step:not(:last-child)::after{content:"";position:absolute;left:20px;top:46px;bottom:calc(var(--sp-m) * -1);width:1px;background:var(--c-border)}
   @media(min-width:768px){
     .steps{grid-template-columns:repeat(4,1fr)}
@@ -178,8 +333,9 @@
   /* ── COMP-CASES ── */
   .cases{display:grid;gap:var(--sp-m)}
   .case{border:1px solid var(--c-border);border-radius:var(--radius-card);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;
+        min-width:0;box-shadow:var(--elev-rest);
         transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
-  .case:hover{transform:translateY(-4px);box-shadow:0 14px 30px color-mix(in srgb,var(--c-text) 10%,transparent)}
+  .case:hover{transform:translateY(-4px);box-shadow:var(--elev-hover)}
   .case>.ph{aspect-ratio:16/10;border:none;border-radius:0}
   .case .body{padding:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-xs)}
   .metric{font-family:var(--font-primary);font-size:1.9rem;font-weight:700;line-height:1;color:var(--c-accent)}
@@ -192,7 +348,7 @@
   @media(min-width:768px){.quotes{grid-template-columns:repeat(3,1fr)}}
 
   /* ── COMP-CTA band ── */
-  .ctaband{background:var(--c-primary);color:var(--c-bg);padding-block:var(--sp-xl)}
+  .ctaband{background:var(--c-primary);color:var(--c-bg);padding-block:var(--sp-section)}
   .ctaband .inner{display:grid;gap:var(--sp-l);align-items:center}
   .ctaband .eyebrow{color:inherit;opacity:.75}
   .ctaband label,.ctaband .consent{color:inherit;opacity:.8}
@@ -202,8 +358,8 @@
   .ctaband .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg)}
   .ctaband .btn-outline{color:var(--c-bg);border-color:var(--c-bg)}
   .ctaband .btn-outline:hover{background:var(--c-bg);color:var(--c-primary)}
+  /* LP-CENTERED: "Grids: symmetric only — 2, 3 or 4 equal columns." 1fr 1fr qualifies. */
   @media(min-width:900px){.ctaband .inner{grid-template-columns:1fr 1fr}}
-  @media(min-width:1024px){.ctaband{padding-block:var(--sp-xxl)}}
 
   /* ── COMP-ABOUT (editorial) ── */
   .editorial{display:grid;gap:var(--sp-l);align-items:center}
@@ -215,7 +371,7 @@
   .pitem{cursor:pointer}
   .pitem .ph{aspect-ratio:4/3;transition:transform .45s var(--ease),border-color .35s var(--ease)}
   .pitem:hover .ph{transform:translateY(-4px);border-color:var(--c-accent)}
-  .pitem h3{font-size:1.05rem;margin-top:.7rem}
+  .pitem h3{font-size:calc(var(--fs-h3) * .875);margin-top:.7rem}
   @media(min-width:640px){.pgrid{grid-template-columns:1fr 1fr}}
   @media(min-width:1024px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 
@@ -228,13 +384,13 @@
   /* ── COMP-TEAM ── */
   .team{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
   .team .ph{aspect-ratio:1/1;margin-bottom:.6rem}
-  .team h3{font-size:1rem}
+  .team h3{font-size:calc(var(--fs-h3) * .83)}
   @media(min-width:768px){.team{grid-template-columns:repeat(4,1fr)}}
 
   /* ── COMP-PRICING (no figures: scope-based plans) ── */
   .plans{display:grid;gap:var(--sp-m)}
   .plan{border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s)}
-  .plan.feat{border-color:var(--c-accent);box-shadow:0 14px 30px color-mix(in srgb,var(--c-accent) 16%,transparent)}
+  .plan.feat{border-color:var(--c-accent);box-shadow:var(--elev-hover)}
   .plan .scope{font-family:var(--font-primary);font-size:1.35rem;font-weight:700;color:var(--c-primary)}
   .plan ul{list-style:none;display:flex;flex-direction:column;gap:.45rem;font-size:var(--fs-small);color:var(--c-text-muted)}
   .plan li::before{content:"— ";color:var(--c-accent)}
@@ -242,7 +398,9 @@
   @media(min-width:768px){.plans{grid-template-columns:repeat(3,1fr)}}
 
   /* ── COMP-FAQ ── */
-  .faq{max-width:60rem}
+  /* LP-CENTERED: content sits on one centred axis, so a capped block centres rather than
+     hugging the left edge of the container. Answers stay left-aligned — they are prose. */
+  .faq{max-width:60rem;margin-inline:auto;text-align:left}
   .faq details{border-bottom:1px solid var(--c-border);padding:1rem 0}
   .faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:var(--sp-s)}
   .faq summary::-webkit-details-marker{display:none}
@@ -267,11 +425,13 @@
   .napdata b{display:block;font-size:var(--fs-eyebrow);letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:.2rem}
   .hours{display:grid;grid-template-columns:auto 1fr;gap:.3rem var(--sp-s);font-size:var(--fs-small)}
   .hours dt{color:var(--c-text-muted)}
-  @media(min-width:768px){.nap{grid-template-columns:1.25fr 1fr}}
+  /* LP-CENTERED forbids an uneven split: "Grids: symmetric only." `1.25fr 1fr` here and
+     `1.2fr 1fr` below were the last two asymmetric grids on the page. */
+  @media(min-width:768px){.nap{grid-template-columns:1fr 1fr}}
 
   /* ── contact split ── */
   .contact{display:grid;gap:var(--sp-l);align-items:start}
-  @media(min-width:768px){.contact{grid-template-columns:1.2fr 1fr}}
+  @media(min-width:768px){.contact{grid-template-columns:1fr 1fr}}
 
   /* ── COMP-FOOTER ── */
   footer.site{background:var(--c-text);color:var(--c-bg);padding-block:var(--sp-xl) var(--sp-l);margin-top:var(--sp-xl)}
