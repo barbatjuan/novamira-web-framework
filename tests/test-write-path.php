@@ -1836,8 +1836,20 @@ $residuo = array(
 	/* valor => array( cuantas veces, de donde salen ) */
 	'none' => array( 1, 'display:none!important sobre a.added_to_cart en es_products_css(): esconde el enlace "Ver carrito" redundante, y no tiene nada que ver con elev_rest, que es la sombra en reposo' ),
 );
+/* "Lo lee alguien" cambio de significado en cuanto el build dejo de ser un solo
+   fichero. es_token_probe() solo ejercita los ayudantes de es-builder.php, asi
+   que un token que solo leen la cabecera, el pie, la tienda o la ficha de
+   producto salia aqui como SIN LEER —— y la salida barata era eximirlo, que es
+   exactamente lo que prohibe la Restriccion Global 1.
+   El volcado dorado ya trae la respuesta: su segunda seccion es los CUATRO
+   ficheros con todos los tokens sustituidos por centinelas. Si el centinela de
+   una clave aparece ahi, alguien la lee. Esto ENSANCHA la comprobacion a la
+   superficie real del build; no afloja nada, porque una clave que no lee nadie
+   en ninguno de los cuatro sigue poniendo esto rojo. */
+$oro_centinelas = strstr( $oro_txt, 'TOKENS SUSTITUIDOS POR CENTINELAS' );
+ok( '' !== (string) $oro_centinelas, 'el volcado dorado trae su seccion de centinelas: sin ella lo de abajo no comprueba nada y pasaria igual' );
 foreach ( $sentinelas as $clave => $centinela ) {
-	if ( ! has( $emitido, $centinela ) ) {
+	if ( ! has( $emitido, $centinela ) && ! has( (string) $oro_centinelas, $centinela ) ) {
 		$sin_leer[] = $clave;
 	}
 	$valor    = $es_defaults[ $clave ];

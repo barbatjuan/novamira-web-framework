@@ -163,7 +163,23 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
 	return $id;
 }
 
-/* =====================================================================
+/* -------------------------------------------------- start of the visual layer
+   This file declares no es_tokens() of its own and must not: es-builder.php,
+   required above, holds the ONE token block for the whole build, and a second
+   copy of it here would be the drift this layer exists to end. Everything from
+   this marker down to the "end of the visual layer" marker at the bottom reads
+   it through es_t() / es_rgba(); nothing types a colour, a family, a shadow or
+   an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it.
+
+   THE REGION STARTS HERE AND NOT AT THE TOP OF THE FILE, on purpose. The save
+   pipeline -- es_save_theme_part(), 100 lines of it -- sits ABOVE this marker
+   rather than below it, which is the reverse of es-builder.php's layout. Its
+   warnings build post ids by concatenating '#' with a variable, and its
+   '(#' . $id . ')' strings are outside the scanned region for exactly the
+   reason es-builder.php:1962's "#732" is: a hex regex cannot tell a post id
+   from a colour, and neither one can reach the emitted data.
+
+ * =====================================================================
  * HEADER
  * ===================================================================== */
 function es_foot_col( $title, array $links ) {
@@ -173,9 +189,9 @@ function es_foot_col( $title, array $links ) {
 			array(
 				'title'                     => $title,
 				'header_size'               => 'div',
-				'title_color'               => 'rgba(255,255,255,0.42)',
+				'title_color'               => es_rgba( es_t( 'on_inverse' ), '0.42' ),
 				'typography_typography'     => 'custom',
-				'typography_font_family'    => 'Manrope',
+				'typography_font_family'    => es_t( 'font_body' ),
 				'typography_font_size'      => es_size( 11.5 ),
 				'typography_font_weight'    => '700',
 				'typography_text_transform' => 'uppercase',
@@ -197,13 +213,13 @@ function es_foot_col( $title, array $links ) {
 			'icon_list'             => $items,
 			'view'                  => 'traditional',
 			'space_between'         => es_size( 11 ),
-			'text_color'            => 'rgba(255,255,255,0.76)',
-			'text_color_hover'      => '#0FA968',
-			'icon_color'            => 'rgba(255,255,255,0)',
+			'text_color'            => es_rgba( es_t( 'on_inverse' ), '0.76' ),
+			'text_color_hover'      => es_t( 'accent' ),
+			'icon_color'            => es_rgba( es_t( 'on_inverse' ), '0' ),
 			'icon_size'             => es_size( 0 ),
 			'text_indent'           => es_size( 0 ),
 			'icon_typography_typography' => 'custom',
-			'icon_typography_font_family' => 'Manrope',
+			'icon_typography_font_family' => es_t( 'font_body' ),
 			'icon_typography_font_size' => es_size( 14.5 ),
 		)
 	);
@@ -235,13 +251,13 @@ function es_build_theme_parts() {
 				'align_items'           => 'center',
 				'pointer'               => 'underline',
 				'animation_line'        => 'fade',
-				'color_menu_item'       => '#6A6F6C',
-				'color_menu_item_hover' => '#15181A',
-				'color_menu_item_active' => '#15181A',
-				'pointer_color_menu_item_hover' => '#0FA968',
-				'pointer_color_menu_item_active' => '#0FA968',
+				'color_menu_item'       => es_t( 'muted' ),
+				'color_menu_item_hover' => es_t( 'text' ),
+				'color_menu_item_active' => es_t( 'text' ),
+				'pointer_color_menu_item_hover' => es_t( 'accent' ),
+				'pointer_color_menu_item_active' => es_t( 'accent' ),
 				'menu_typography_typography' => 'custom',
-				'menu_typography_font_family' => 'Manrope',
+				'menu_typography_font_family' => es_t( 'font_body' ),
 				'menu_typography_font_size' => es_size( 14.5 ),
 				'menu_typography_font_weight' => '500',
 				'padding_horizontal_menu_item' => es_size( 13 ),
@@ -250,39 +266,39 @@ function es_build_theme_parts() {
 				/* ---- Mobile / tablet: modern full-width panel ---- */
 				'dropdown'              => 'tablet',
 				'toggle'                => 'burger',
-				'color_dropdown_item'   => '#15181A',
-				'background_color_dropdown_item' => '#FFFFFF',
-				'color_dropdown_item_hover' => '#0FA968',
-				'background_color_dropdown_item_hover' => '#F4F5F3',
-				'color_dropdown_item_active' => '#0FA968',
-				'background_color_dropdown_item_active' => 'rgba(15,169,104,0.08)',
+				'color_dropdown_item'   => es_t( 'text' ),
+				'background_color_dropdown_item' => es_t( 'bg' ),
+				'color_dropdown_item_hover' => es_t( 'accent' ),
+				'background_color_dropdown_item_hover' => es_t( 'bg_alt' ),
+				'color_dropdown_item_active' => es_t( 'accent' ),
+				'background_color_dropdown_item_active' => es_rgba( es_t( 'accent' ), '0.08' ),
 				'dropdown_typography_typography' => 'custom',
-				'dropdown_typography_font_family' => 'Space Grotesk',
+				'dropdown_typography_font_family' => es_t( 'font_head' ),
 				'dropdown_typography_font_size' => es_size( 17 ),
 				'dropdown_typography_font_weight' => '600',
 				'padding_horizontal_dropdown_item' => es_size( 22 ),
 				'padding_vertical_dropdown_item' => es_size( 17 ),
 				'dropdown_divider_border' => 'solid',
 				'dropdown_divider_width' => es_size( 1 ),
-				'dropdown_divider_color' => '#EEF0EE',
+				'dropdown_divider_color' => es_t( 'border_softer' ),
 				'dropdown_border_border' => 'solid',
 				'dropdown_border_width'  => es_box( 1, 1, 1, 1 ),
-				'dropdown_border_color'  => '#EAECEA',
+				'dropdown_border_color'  => es_t( 'border_soft' ),
 				'dropdown_border_radius' => es_box( 14, 14, 14, 14 ),
 				'dropdown_top_distance'  => es_size( 10 ),
 				/* ---- Toggle: rounded square, not a bare burger ---- */
 				'toggle_size'           => es_size( 19 ),
-				'toggle_color'          => '#15181A',
-				'toggle_background_color' => 'rgba(15,169,104,0.07)',
-				'toggle_color_hover'    => '#FFFFFF',
-				'toggle_background_color_hover' => '#0FA968',
+				'toggle_color'          => es_t( 'text' ),
+				'toggle_background_color' => es_rgba( es_t( 'accent' ), '0.07' ),
+				'toggle_color_hover'    => es_t( 'on_accent' ),
+				'toggle_background_color_hover' => es_t( 'accent' ),
 				'toggle_border_width'   => es_box( 0, 0, 0, 0 ),
 				'toggle_border_radius'  => es_box( 10, 10, 10, 10 ),
 				/* Green underline only on desktop; in the mobile panel it read
 				   as odd green bars, so it is scoped out below. */
-				'custom_css'            => 'selector .elementor-nav-menu--dropdown{overflow:hidden;box-shadow:0 24px 50px -18px rgba(21,24,26,0.22);}'
+				'custom_css'            => 'selector .elementor-nav-menu--dropdown{overflow:hidden;box-shadow:0 24px 50px -18px ' . es_rgba( es_t( 'text' ), '0.22' ) . ';}'
 					. '@media(max-width:1024px){selector .elementor-menu-toggle{width:46px;height:46px;position:relative;z-index:100;}'
-					. 'selector .elementor-menu-toggle[aria-expanded="true"] ~ .elementor-nav-menu--dropdown{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100vw!important;max-width:100vw!important;height:100vh!important;max-height:100vh!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#FFFFFF!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:104px 22px 44px!important;overflow-y:auto!important;z-index:99!important;}'
+					. 'selector .elementor-menu-toggle[aria-expanded="true"] ~ .elementor-nav-menu--dropdown{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100vw!important;max-width:100vw!important;height:100vh!important;max-height:100vh!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:' . es_t( 'bg' ) . '!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:104px 22px 44px!important;overflow-y:auto!important;z-index:99!important;}'
 					. 'selector .elementor-menu-toggle[aria-expanded="true"] ~ .elementor-nav-menu--dropdown .elementor-nav-menu{width:100%;max-width:440px;margin:0 auto;}'
 					. 'selector .elementor-menu-toggle[aria-expanded="true"] ~ .elementor-nav-menu--dropdown .elementor-item{text-align:center!important;font-size:24px!important;padding:16px!important;border-radius:12px!important;}}'
 					/* Zone 1 of the mobile 3-zone header. The toggle ships its own
@@ -293,7 +309,7 @@ function es_build_theme_parts() {
 					. '@media(max-width:767px){selector .elementor-menu-toggle{margin:0!important;}'
 					. 'selector .elementor-menu-toggle[aria-expanded="false"] ~ .elementor-nav-menu--dropdown{position:absolute!important;}}'
 					. '@media(min-width:1025px){selector .elementor-item{position:relative;}'
-					. 'selector .elementor-item::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;background:#0FA968;opacity:0;transform:translateY(2px);transition:opacity .28s ease,transform .28s ease;}'
+					. 'selector .elementor-item::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;background:' . es_t( 'accent' ) . ';opacity:0;transform:translateY(2px);transition:opacity .28s ease,transform .28s ease;}'
 					. 'selector .elementor-item:hover::after,selector .current-menu-item .elementor-item::after,selector .elementor-item-active::after{opacity:1;transform:translateY(0);}}',
 			)
 		);
@@ -310,13 +326,13 @@ function es_build_theme_parts() {
 				'padding'               => es_box( 16, 24, 16, 24 ),
 				'border_border'         => 'solid',
 				'border_width'          => es_box( 0, 0, 1, 0 ),
-				'border_color'          => 'rgba(21,24,26,0.08)',
+				'border_color'          => es_rgba( es_t( 'text' ), '0.08' ),
 				/* Glass lives on a ::before layer, NOT the container. backdrop-filter
 				   on the container itself creates a containing block that traps the
 				   fixed side-cart inside the header box; the pseudo-element keeps the
 				   frosted look while the cart is free to cover the viewport. */
 				'custom_css'            => 'selector{position:relative;}'
-					. 'selector::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(255,255,255,0.72);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);}',
+					. 'selector::before{content:"";position:absolute;inset:0;z-index:-1;background:' . es_rgba( es_t( 'bg' ), '0.72' ) . ';backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);}',
 				'sticky'                => 'top',
 				'sticky_on'             => array( 'desktop', 'tablet', 'mobile' ),
 				'sticky_effects_offset' => 0,
@@ -343,12 +359,12 @@ function es_build_theme_parts() {
 				es_w(
 					'heading',
 					array(
-						'title'                     => 'YOUR<span style="color:#0FA968">BRAND</span>',
+						'title'                     => 'YOUR<span style="color:' . es_t( 'accent' ) . '">BRAND</span>',
 						'header_size'               => 'div',
 						'link'                      => array( 'url' => home_url( '/' ) ),
-						'title_color'               => '#15181A',
+						'title_color'               => es_t( 'text' ),
 						'typography_typography'     => 'custom',
-						'typography_font_family'    => 'Space Grotesk',
+						'typography_font_family'    => es_t( 'font_head' ),
 						'typography_font_size'      => es_size( 20 ),
 						'typography_font_weight'    => '700',
 						'typography_letter_spacing' => es_size( -0.4 ),
@@ -423,26 +439,26 @@ function es_build_theme_parts() {
 								'automatically_update_cart' => 'yes',
 								'close_cart_button_show'   => 'yes',
 								'view_cart_button_show'    => 'yes',
-								'toggle_button_icon_color' => '#15181A',
-								'toggle_button_background_color' => 'rgba(0,0,0,0)',
-								'toggle_button_border_color' => 'rgba(0,0,0,0)',
+								'toggle_button_icon_color' => es_t( 'text' ),
+								'toggle_button_background_color' => es_t( 'transparent' ),
+								'toggle_button_border_color' => es_t( 'transparent' ),
 								'toggle_button_border_width' => es_box( 0, 0, 0, 0 ),
-								'toggle_button_hover_icon_color' => '#0FA968',
+								'toggle_button_hover_icon_color' => es_t( 'accent' ),
 								'toggle_icon_size'         => es_size( 22 ),
 								'toggle_button_padding'    => es_box( 4, 4, 4, 4 ),
 								/* Just the icon, no square frame. */
 								'custom_css'               => 'selector .elementor-menu-cart__toggle .elementor-button{border:0!important;background:transparent!important;box-shadow:none!important;}'
 									. '@media(max-width:767px){selector .elementor-menu-cart__container{width:100vw!important;max-width:100vw!important;}}',
-								'items_indicator_text_color' => '#FFFFFF',
-								'items_indicator_background_color' => '#0FA968',
-								'view_cart_button_background_color' => '#15181A',
-								'view_cart_button_text_color' => '#FFFFFF',
+								'items_indicator_text_color' => es_t( 'on_accent' ),
+								'items_indicator_background_color' => es_t( 'accent' ),
+								'view_cart_button_background_color' => es_t( 'surface_inverse' ),
+								'view_cart_button_text_color' => es_t( 'on_inverse' ),
 								/* Cart item contrast (product name was inheriting a pink link color) */
-								'product_title_color'      => '#15181A',
-								'product_title_hover_color' => '#0FA968',
-								'product_price_color'      => '#15181A',
-								'product_quantity_color'   => '#6A6F6C',
-								'subtotal_color'           => '#15181A',
+								'product_title_color'      => es_t( 'text' ),
+								'product_title_hover_color' => es_t( 'accent' ),
+								'product_price_color'      => es_t( 'text' ),
+								'product_quantity_color'   => es_t( 'muted' ),
+								'subtotal_color'           => es_t( 'text' ),
 								'_element_width'           => 'auto',
 							)
 						),
@@ -517,7 +533,7 @@ function es_build_theme_parts() {
 				'padding'               => es_box( 76, 24, 32, 24 ),
 				'padding_mobile'        => es_box( 56, 20, 28, 20 ),
 				'background_background' => 'classic',
-				'background_color'      => '#15181A',
+				'background_color'      => es_t( 'surface_inverse' ),
 			),
 			array(
 				/* Columns */
@@ -530,11 +546,11 @@ function es_build_theme_parts() {
 								es_w(
 									'heading',
 									array(
-										'title'                  => 'YOUR<span style="color:#0FA968">BRAND</span>',
+										'title'                  => 'YOUR<span style="color:' . es_t( 'accent' ) . '">BRAND</span>',
 										'header_size'            => 'div',
-										'title_color'            => '#FFFFFF',
+										'title_color'            => es_t( 'on_inverse' ),
 										'typography_typography'  => 'custom',
-										'typography_font_family' => 'Space Grotesk',
+										'typography_font_family' => es_t( 'font_head' ),
 										'typography_font_size'   => es_size( 21 ),
 										'typography_font_weight' => '700',
 										'_margin'                => es_box( 0, 0, 16, 0 ),
@@ -543,7 +559,7 @@ function es_build_theme_parts() {
 								es_p(
 									'Short brand tagline goes here — one or two lines describing the business.',
 									array(
-										'text_color'           => 'rgba(255,255,255,0.52)',
+										'text_color'           => es_rgba( es_t( 'on_inverse' ), '0.52' ),
 										'typography_font_size' => es_size( 14 ),
 										'_margin'              => es_box( 0, 0, 22, 0 ),
 									)
@@ -561,10 +577,10 @@ function es_build_theme_parts() {
 										'icon_padding'     => es_size( 11 ),
 										'icon_spacing'     => es_size( 9 ),
 										'icon_color'       => 'custom',
-										'icon_primary_color' => 'rgba(255,255,255,0.08)',
-										'icon_secondary_color' => '#FFFFFF',
-										'hover_primary_color' => '#0FA968',
-										'hover_secondary_color' => '#FFFFFF',
+										'icon_primary_color' => es_rgba( es_t( 'on_inverse' ), '0.08' ),
+										'icon_secondary_color' => es_t( 'on_inverse' ),
+										'hover_primary_color' => es_t( 'accent' ),
+										'hover_secondary_color' => es_t( 'on_accent' ),
 									)
 								),
 							),
@@ -615,16 +631,16 @@ function es_build_theme_parts() {
 						'padding'              => es_box( 28, 0, 0, 0 ),
 						'border_border'        => 'solid',
 						'border_width'         => es_box( 1, 0, 0, 0 ),
-						'border_color'         => 'rgba(255,255,255,0.11)',
+						'border_color'         => es_rgba( es_t( 'on_inverse' ), '0.11' ),
 					),
 					array(
 						es_p(
 							'© ' . gmdate( 'Y' ) . ' Your Brand. All rights reserved.',
-							array( 'text_color' => 'rgba(255,255,255,0.42)', 'typography_font_size' => es_size( 13 ), '_element_width' => 'auto' )
+							array( 'text_color' => es_rgba( es_t( 'on_inverse' ), '0.42' ), 'typography_font_size' => es_size( 13 ), '_element_width' => 'auto' )
 						),
 						es_p(
 							'Aviso legal · Privacidad · Cookies',
-							array( 'text_color' => 'rgba(255,255,255,0.42)', 'typography_font_size' => es_size( 13 ), '_element_width' => 'auto' )
+							array( 'text_color' => es_rgba( es_t( 'on_inverse' ), '0.42' ), 'typography_font_size' => es_size( 13 ), '_element_width' => 'auto' )
 						),
 					),
 					true
@@ -643,3 +659,10 @@ function es_build_theme_parts() {
 
 	return array( 'header' => $header_id, 'footer' => $footer_id );
 }
+
+/* -------------------------------------------------- end of the visual layer
+   Nothing follows. In this file the save pipeline is es_save_theme_part(), up
+   at the top above the start marker, so there is no tail to exclude -- but the
+   marker is here anyway because the region needs a BOTTOM. An unbounded region
+   is an unscannable one, and a region nothing scans is a rule nothing
+   enforces: the check treats a missing marker as the failure itself. */

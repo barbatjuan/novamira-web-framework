@@ -282,6 +282,12 @@ function es_tokens( array $override = array() ) {
 		$base = array(
 			/* ground ------------------------------------------------ */
 			'bg'                 => '#FFFFFF', /* the light surface a card sits on */
+			/* The quiet band that separates one section from the next without
+			   flipping the page over. es-builder.php never needed it -- it has
+			   no banded sections -- but the shop archive, the product tabs and
+			   the mobile dropdown all reach for the same value, so it belongs
+			   in the one edit point rather than three times in three files. */
+			'bg_alt'             => '#F4F5F3',
 			'surface_inverse'    => '#15181A', /* the surface that flips the page over: the `dark` button, the CTA scrim */
 			'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
 			/* ink --------------------------------------------------- */
@@ -303,6 +309,17 @@ function es_tokens( array $override = array() ) {
 			   its darkness implied, so nothing is lost by collapsing it. */
 			'border'             => '#E5E7E5',
 			'border_hover'       => null, /* derived: border darkened 6.5% */
+			/* Two MORE hairlines, arriving from the sibling assets, and named
+			   honestly as what they are: the same drift this block already
+			   collapsed once, living in three files nobody was comparing. They
+			   are 3 and 6 units off `border` and no decision anywhere says why.
+			   They exist as separate keys ONLY so the sibling migration can be
+			   proven byte-identical -- collapsing them onto `border` moves
+			   emitted bytes, and moving bytes is a value change that belongs in
+			   a task allowed to make them, with a diff to show for it.
+			   REPORTED AS A FINDING, not as a design. */
+			'border_soft'        => '#EAECEA',
+			'border_softer'      => '#EEF0EE',
 			'border_on_inverse'  => null, /* derived: on_inverse at 0.5 */
 			/* accent -- derives from the BRAND, never from the anchor.
 			   design-tokens.md is explicit that accent is not an axis. */
