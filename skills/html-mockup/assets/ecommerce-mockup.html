@@ -4,70 +4,240 @@
   Pages: home · shop · pdp · cart · checkout · about · contact. Prices in €. Cart = icon.
   Los nombres de token del :root son los canónicos de web-templates/references/design-system.md;
   solo cambian los VALORES por marca (mapeo 1:1 a Elementor Global Colors / Divi presets).
-  To re-brand for a client: (1) swap the :root token values (colors/fonts/radii) for the brand,
-  (2) replace "MARCA" + copy + placeholder .ph blocks with real content, (3) keep only the
-  pages/sections the resolved archetypes call for. Checkout is LAYOUT ONLY — woocommerce builds
-  the functional one. See ../SKILL.md and ../references/mockup-guide.md.
+
+  DEFAULT ANCHOR — `PERS-MATTER`. This file starts from one position on each of the five
+  perceptual axes, and those positions are a DEFAULT, never a decision about a client:
+    scale classic · ground warm · density standard · composition strict-grid · elevation hairline
+  `ux-design-system`'s axis dialogue resolves the five with the client and re-points them here; this
+  is the landing place for its output. `PERS-MATTER` is the default because commerce sells a made
+  thing — design-personalities.md files it under "clients who sell a material or a made thing" —
+  and a product grid is what `strict-grid` is for.
+
+  To re-brand for a client: (1) swap the FIVE axis lines at the top of :root — every value copied
+  from web-templates/references/design-system.md § "Perceptual axes — token values", never typed by
+  hand — then the brand colours beneath them; the type and space scales re-derive themselves,
+  because no heading size and no section padding is written here as a number. (2) replace "MARCA" +
+  copy + placeholder .ph blocks with real content, (3) keep only the pages/sections the resolved
+  archetypes call for. Checkout is LAYOUT ONLY — woocommerce builds the functional one.
+  See ../SKILL.md and ../references/mockup-guide.md.
+
+  COMPOSITION IS A LAYOUT RULE, NOT A NUMBER, so it is the one axis a token cannot carry alone: the
+  `/* composition: LP-STRICT-GRID */` line below is a claim about how these pages are BUILT, and
+  the sections honour it — every element starting and ending on a column line, equal columns and
+  equal gutters in the CARD grids, one fixed image ratio per section so rows align, section
+  headings left-aligned on the first column line, and ZERO bleeds. The two full-bleed hero photos
+  this file used to open with (home and Nosotros) were the only things on any of the seven pages
+  that broke that last rule; they now sit inside the grid beside their copy, which is what
+  LP-STRICT-GRID's own hero rule asks for. Re-pointing that axis means re-laying out, not editing
+  a comment.
+
+  THE SCOPE OF "section headings left-aligned" IS STATED HERE so the sentence can be checked
+  instead of believed, because it was FALSE when it was written: `.benefits` on home and `.values`,
+  `.stats` and `.team` on Nosotros all ran `text-align:center`, putting 16 headings on a centred
+  axis — LP-CENTERED's rule, not this file's — measured 4/4 in each of the four sections at 1280.
+  Only `.news` had been fixed. All four are left-aligned now.
+  The scope reaches the global header and footer too: they sit OUTSIDE the `.page` containers, so
+  they render on all seven pages and an exception there is an exception seven times over. It does
+  NOT reach a two-track label/value layout inside a component (`.citem`'s thumbnail beside its
+  copy): that is not a section grid. An unstated scope is how a claim survives a counter-example.
 -->
 <style>
   :root{
-    /* ── tokens de design-system.md · valores resueltos para esta marca (editorial neutra) ── */
-    --font-primary: Georgia,'Times New Roman',serif;
-    --font-secondary: system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
-    --fs-h1: clamp(2.2rem,5.5vw,4rem); --fs-h2: clamp(1.6rem,3.4vw,2.5rem); --fs-h3:1.25rem;
-    --fs-body: clamp(1rem,1.1vw,1.075rem); --fs-small:.82rem; --fs-eyebrow:.72rem;
-    --fs-price:1.2rem; --fs-price-old:.9rem; --fs-button:.85rem; --fs-nav:.78rem;
-    --c-primary:#211E1B; --c-secondary:#211E1B; --c-accent:#5C574F;
-    --c-bg:#F3EFEA; --c-bg-alt:#E7E0D6; --c-text:#211E1B; --c-text-muted:#7A7167;
-    --c-border:#D9D1C4; --c-success:#4A7C59; --c-error:#A33A2E; --c-sale:#B0503A;
-    --sp-xs:.5rem; --sp-s:1rem; --sp-m:1.5rem; --sp-l:3rem; --sp-xl:5rem; --sp-xxl:7.5rem;
+    /* ══ AXIS POSITIONS — the only lines a project replaces ══
+       Every value COPIED from web-templates/references/design-system.md § "Perceptual axes — token
+       values". Never type a number here and never re-derive one: these five lines are the whole
+       visual identity, and a hand-picked value is how every client site ends up looking the same.
+       Default anchor PERS-MATTER; see the header comment. */
+    --type-ratio: 1.333;  --display-lh: 1.10;  --fs-h1-max: 64;   /* scale: classic */
+    --sp-scale: 1.0;                                              /* density: standard */
+    --c-bg:#FFF3E3; --c-bg-alt:#F7E8D4; --c-text:#241C14;         /* ground: warm (15.3:1) */
+    --elev-rest: 0 0 0 1px var(--c-border);                       /* elevation: hairline */
+    --elev-hover: 0 0 0 1px var(--c-text);
+    /* composition: LP-STRICT-GRID */
+
+    /* ── Typefaces: design-personalities.md names Instrument Serif / DM Sans for this anchor, so
+          the families are NAMED with honest fallbacks and never @font-face'd at a URL — the
+          Artifact CSP blocks external requests, and a blocked font is worse than a declared
+          fallback. Display tracking stays `normal`: the `classic` h1 cap is 64px, under the ~80px
+          where tightening starts paying. ── */
+    --font-primary: 'Instrument Serif',Georgia,'Times New Roman',serif;
+    --font-secondary: 'DM Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+
+    /* ── Type scale, transcribed VERBATIM from design-system.md § Scale. Every heading step hangs
+          off --type-ratio and --fs-h1-max; not one heading size is written by hand, and each step's
+          preferred term interpolates ITS OWN floor into ITS OWN cap across 430 → 1280 so the cap
+          engages on a laptop. What used to sit on these lines — `clamp(2.2rem,5.5vw,4rem)` and a
+          FLAT `--fs-h3:1.25rem` — is the defect the axes replaced: byte-identical at all four scale
+          positions, and an h3 that did not move at all. --fs-h1-max is UNITLESS on purpose:
+          calc() cannot divide a length by a length, so the coefficient multiplying --fluid must
+          arrive without a unit, and --fs-base is the single bridge back to a length. ── */
+    --fs-base: 16;
+    --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
+    --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
+    --n-h2: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio));
+    --n-h3: calc(var(--fs-base) * var(--type-ratio));
+    --n-h1-cap: var(--fs-h1-max);
+    --n-h2-cap: calc(var(--fs-h1-max) / var(--type-ratio));
+    --n-h3-cap: calc(var(--fs-h1-max) / var(--type-ratio) / var(--type-ratio));
+    --fs-h1: clamp(calc(var(--n-h1) / var(--fs-base) * 1rem),
+                   calc(var(--n-h1) / var(--fs-base) * 1rem + (var(--n-h1-cap) - var(--n-h1)) * var(--fluid)),
+                   calc(var(--n-h1-cap) * 1px));
+    --fs-h2: clamp(calc(var(--n-h2) / var(--fs-base) * 1rem),
+                   calc(var(--n-h2) / var(--fs-base) * 1rem + (var(--n-h2-cap) - var(--n-h2)) * var(--fluid)),
+                   calc(var(--n-h2-cap) * 1px));
+    --fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
+                   calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
+                   calc(var(--n-h3-cap) * 1px));
+    --fs-body: clamp(1rem,1.2vw,1.25rem);   /* body is NOT an axis — a plain vw term is correct */
+    --fs-small:.82rem; --fs-eyebrow:.72rem;
+    --fs-price: clamp(1.1rem,1.6vw,1.35rem); --fs-price-old:.95rem;
+    --fs-button:.85rem; --fs-nav:.78rem;
+
+    /* ── Colours design-system.md does NOT pin per ground position. The ground table gives
+          --c-bg / --c-bg-alt / --c-text only, so muted, accent, border and the state colours are
+          DERIVED for THIS ground rather than copied. EVERY ratio below names the surface it was
+          measured against, and every colour that lands on both surfaces states BOTH: a single
+          figure hides the alt, and the alt is always the darker of the two. The muted the file
+          carried, #7A7167, measured 4.18:1 against the ground it was derived for — the OLD
+          #F3EFEA, which this file no longer has — so it was under AA before this change, not
+          because of it. (On the `warm` ground it would read 4.37:1 on #FFF3E3 and 3.98:1 on
+          #F7E8D4: still under, on both.) That is why it is re-derived rather than carried over.
+                                              on --c-bg #FFF3E3   on --c-bg-alt #F7E8D4
+            --c-accent      #5C574F ......... 6.54:1              5.95:1
+            --c-text-muted  #6B6257 ......... 5.47:1              4.97:1
+            --c-sale        #944A22 ......... 5.88:1              5.35:1
+            --c-bg text on #241C14 fill ..... 15.3:1  (the primary button is legible) ── */
+    --c-primary:#241C14; --c-secondary:#241C14; --c-accent:#5C574F;
+    --c-text-muted:#6B6257; --c-border:#D9D1C4;
+    /* --c-sale was #B0503A: 4.73:1 on --c-bg but 4.30:1 on --c-bg-alt, and only the first was
+       written down. `bg-alt` is where a discount badge on an alternating band actually lands, so
+       the figure that was missing is the one that decided it. Re-derived in the same burnt-rust
+       family, clear of 4.5:1 on both, and far enough in hue from --c-error #A33A2E that a sale
+       price is not read as a failure.
+       --c-success and --c-error are NOT re-derived here and this file states no ratio for them:
+       both are unused in these seven pages, and re-deriving a colour nothing paints would be
+       inventing a value rather than fixing one. Measured, for whoever does use them:
+       --c-success #4A7C59 is 4.44:1 / 4.04:1 and does NOT clear AA on either surface as text —
+       it is a stock/confirmation dot in this system, a UI component at the 3:1 threshold, and a
+       project that puts it on text must re-derive it first. --c-error #A33A2E is 5.99:1 / 5.45:1. */
+    --c-success:#4A7C59; --c-error:#A33A2E; --c-sale:#944A22;
+
+    /* ── Spacing, verbatim from design-system.md § Density: ONE scale multiplied whole by the
+          density position, so the rhythm survives by construction and only the sensation of air
+          changes. --sp-section carries --sp-scale on BOTH ends of the interpolation, which is what
+          makes the density axis visible at 430, 768 AND 1280 instead of only at the extremes. ── */
+    --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
+    --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
+    --sp-xl: calc(5rem   * var(--sp-scale));  --sp-xxl:calc(7.5rem * var(--sp-scale));
+    --n-sec:     calc(2 * var(--fs-base) * var(--sp-scale));
+    --n-sec-cap: calc(7 * var(--fs-base) * var(--sp-scale));
+    --sp-section: clamp(calc(var(--n-sec) / var(--fs-base) * 1rem),
+                        calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
+                        calc(var(--n-sec-cap) * 1px));
+
     --container-max:1280px; --content-width:1180px;
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
-    --radius-card:2px; --radius-button:2px; --radius-image:2px; --radius-input:2px; --radius-container:2px;
+    /* Radius: design-system.md's table, with the ONE move PERS-MATTER's Card recipe asks for —
+       "image at the container radius". The flat 2px this file used everywhere predates the
+       anchors and belonged to no documented position. */
+    --radius-card:12px; --radius-button:8px; --radius-input:8px; --radius-container:16px;
+    --radius-image:var(--radius-container);
     --ease:cubic-bezier(.22,1,.36,1);
   }
+  /* This asset stays THEME-AWARE (html-mockup/SKILL.md Hard Rule) rather than pinning one ground
+     the way the two proof files deliberately do. The ground axis therefore fixes the LIGHT
+     position; under a dark scheme the palette below takes over and the `warm` row no longer
+     describes what is on screen. That is a real limit of the ground axis in a theme-aware asset,
+     and it is written down rather than left for a reader to discover. */
   @media (prefers-color-scheme: dark){:root{--c-primary:#EDE7DC;--c-secondary:#EDE7DC;--c-bg:#17150F;--c-bg-alt:#211E17;--c-text:#EDE7DC;--c-text-muted:#9A9184;--c-border:#3A352B;--c-accent:#B7B0A6;}}
   :root[data-theme="dark"]{--c-primary:#EDE7DC;--c-secondary:#EDE7DC;--c-bg:#17150F;--c-bg-alt:#211E17;--c-text:#EDE7DC;--c-text-muted:#9A9184;--c-border:#3A352B;--c-accent:#B7B0A6;}
-  :root[data-theme="light"]{--c-primary:#211E1B;--c-secondary:#211E1B;--c-bg:#F3EFEA;--c-bg-alt:#E7E0D6;--c-text:#211E1B;--c-text-muted:#7A7167;--c-border:#D9D1C4;--c-accent:#5C574F;}
+  :root[data-theme="light"]{--c-primary:#241C14;--c-secondary:#241C14;--c-bg:#FFF3E3;--c-bg-alt:#F7E8D4;--c-text:#241C14;--c-text-muted:#6B6257;--c-border:#D9D1C4;--c-accent:#5C574F;}
   *{box-sizing:border-box} body,figure,h1,h2,h3,p,ul,form{margin:0;padding:0}
   body{font-family:var(--font-secondary);color:var(--c-text);background:var(--c-bg);line-height:1.6;font-size:var(--fs-body)}
-  h1,h2,h3{font-family:var(--font-primary);line-height:1.1;font-weight:600;text-wrap:balance}
-  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)} h3{font-size:var(--fs-h3)}
+  /* `overflow-wrap:ANYWHERE`, not `break-word`, and SCOPED under 1024px.
+     `break-word` is not the guard it looks like: it leaves a box's intrinsic min-content size
+     alone, so a heading sized `fit-content` stays wider than its column and the page still
+     scrolls. Only `anywhere` shrinks the min-content size. MEASURED on this page at 320px, the
+     committed original scrolled 227px at a 32px root (200% text, WCAG 1.4.4) inside the 320px
+     reflow width WCAG 1.4.10 requires; `anywhere` is part of what takes it to 0.
+     THE SCOPE is load-bearing too. Unscoped, this rule breaks words at widths where they fit —
+     the proof mockups measured an orphaned letter in an H2 at 1280. Under 1024px it is needed; at
+     1024 and above it is not. 1024px is the framework's own desktop breakpoint. */
+  @media(max-width:1023px){ body{overflow-wrap:anywhere} }
+  /* h1/h2 take the display leading the SCALE axis fixes; h3 stays 1.25 and body 1.6
+     (design-system.md). A fixed 1.1 for every heading was the other half of the hardcoded-scale
+     defect: display leading is what separates a classic headline from a monumental one, and it
+     cannot be a constant. */
+  h1,h2,h3{font-family:var(--font-primary);font-weight:600;text-wrap:balance}
+  h1,h2{line-height:var(--display-lh)}
+  h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)}
+  h3{font-size:var(--fs-h3);line-height:1.25}
   a{color:inherit;text-decoration:none} img{max-width:100%}
   .wrap{max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
-  section{padding-block:var(--sp-xl)}
+  /* Fluid, density-scaled, and no breakpoint by hand — that is the point of --sp-section. The
+     flat `var(--sp-xl)` this replaces was one fixed padding at every width. */
+  section{padding-block:var(--sp-section)}
   .eyebrow{font-size:var(--fs-eyebrow);letter-spacing:.22em;text-transform:uppercase;color:var(--c-text-muted);font-weight:600}
   .muted{color:var(--c-text-muted)}
   .bg-alt{background:var(--c-bg-alt)}
+  /* `width` MUST be pinned alongside `aspect-ratio`: with a ratio and no width, an auto width is
+     computed FROM the ratio and the available height, measured at 660px inside a 390px column.
+     `min-width:0` is the OTHER half, and `width:100%;max-width:100%` does not cover it — on a grid
+     or flex item `aspect-ratio` transfers an automatic minimum size through the ratio, and
+     `min-width:auto` OUTRANKS `max-width:100%`, so the box refuses to shrink below what the ratio
+     asks for. Nearly every `.ph` here is a grid item in a product grid. Both lines or neither. */
   .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-border) 55%,transparent) 11px,color-mix(in srgb,var(--c-border) 55%,transparent) 12px),var(--c-bg-alt);
-      border:1px solid var(--c-border);display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-image)}
+      border:1px solid var(--c-border);display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);
+      letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-image);
+      width:100%;max-width:100%;min-width:0;text-align:center;padding:.5rem}
   /* A button centres its own label on BOTH axes — `text-align:center` alone is only the horizontal
      half, so a button stretched taller than its line box (any flex row's default
      `align-items:stretch`, and the equal-height product-card grid) pins its label to the TOP.
      Hard Rule in ux-design-system/SKILL.md; `text-align:center` is here for two-line labels. */
-  .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:.9rem 1.9rem;font-size:var(--fs-button);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-button);border:1px solid var(--c-primary);cursor:pointer;transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);background:transparent;color:var(--c-text)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:.9rem 1.9rem;font-size:var(--fs-button);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-button);border:1px solid var(--c-primary);cursor:pointer;transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);background:transparent;color:var(--c-text);max-width:100%}
   .btn-primary{background:var(--c-primary);color:var(--c-bg)}
   .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);transform:translateY(-2px)}
   .btn-outline{color:var(--c-secondary);border-color:var(--c-secondary)}
   .btn-outline:hover{background:var(--c-secondary);color:var(--c-bg);transform:translateY(-2px)}
-  input,textarea{font:inherit;color:inherit;background:transparent;border:1px solid var(--c-text);border-radius:var(--radius-input);padding:.85rem 1rem}
+  /* `width:100%` AND `min-width:0`, both. A bare `<textarea rows="5">` carries an intrinsic width
+     from its default `cols` attribute, and that intrinsic width is what an `auto` grid track sizes
+     itself to — measured on the contact page at 320px with a 32px root, a 433px column inside a
+     280px container, 133px of page scroll. `max-width:100%` cannot save it, because a percentage
+     max-width resolves against a container the child is itself sizing. */
+  input,textarea{font:inherit;color:inherit;background:transparent;border:1px solid var(--c-text);border-radius:var(--radius-input);padding:.85rem 1rem;width:100%;min-width:0;max-width:100%}
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
-  .note{background:var(--c-accent);color:#fff;text-align:center;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.4rem}
+  /* `var(--c-bg)`, never a frozen `#fff`. This is the same defect the hero scrim's #F3EFEA
+     literals were: a colour the ground axis cannot reach, so a project re-pointing `warm` to a
+     light-on-light or dark ground keeps the white and loses the text. It was also a LIVE AA
+     failure, not a hypothetical one — `#fff` on `--c-accent` measured 7.16:1 under the light
+     palette but 2.15:1 under this file's OWN dark scheme, where `--c-accent` is `#B7B0A6`.
+     `--c-bg` follows the ground on both: 6.54:1 light (#FFF3E3 on #5C574F), 8.49:1 dark
+     (#17150F on #B7B0A6). `.ann` and `.btn-primary` already used exactly this pairing. */
+  .note{background:var(--c-accent);color:var(--c-bg);text-align:center;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.4rem}
   .ann{background:var(--c-text);color:var(--c-bg);text-align:center;font-size:var(--fs-small);letter-spacing:.08em;padding:.55rem;text-transform:uppercase}
   header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--c-border)}
-  .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-m);padding-block:.9rem}
-  .logo{font-family:var(--font-primary);font-size:1.4rem;letter-spacing:.35em;padding-left:.35em;cursor:pointer}
-  .mainnav{display:flex;gap:1.1rem;overflow-x:auto;font-size:var(--fs-nav);letter-spacing:.12em;text-transform:uppercase;scrollbar-width:none}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-m);padding-block:.9rem;flex-wrap:wrap;min-width:0}
+  /* `flex:0 1 auto` + `min-width:0`, never the implicit `flex:0 1 auto` with an unbreakable
+     min-content floor. A wordmark that refuses to shrink is a WCAG 1.4.4 failure waiting for the
+     first reader who scales text: this rem-sized, .35em-tracked span could not give up a pixel, so
+     at 320px it pushed the header — and the page — wider than the viewport as soon as the root
+     font size passed 16px. It wraps at its own space now. Same for `.mainnav` and `.tools`. */
+  .logo{font-family:var(--font-primary);font-size:1.4rem;letter-spacing:.35em;padding-left:.35em;cursor:pointer;flex:0 1 auto;min-width:0}
+  /* flex-basis 180px, not 0: a zero basis lets the nav shrink to a few pixels before the row would
+     wrap. A basis forces the wrap and gives the nav a full row of its own. */
+  .mainnav{display:flex;gap:1.1rem;overflow-x:auto;font-size:var(--fs-nav);letter-spacing:.12em;text-transform:uppercase;scrollbar-width:none;flex:1 1 180px;min-width:0}
   .mainnav::-webkit-scrollbar{display:none}
   .mainnav a{padding:.3rem 0;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--c-text-muted)}
   .mainnav a[aria-current]{color:var(--c-text);border-color:var(--c-accent)}
-  .tools{display:flex;align-items:center;gap:1.1rem}
+  .tools{display:flex;align-items:center;gap:1.1rem;flex:0 1 auto;min-width:0}
   .tools .srch{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
   .icart{position:relative;display:inline-flex;width:24px;height:24px;cursor:pointer}
   .icart svg{width:24px;height:24px;stroke:var(--c-text);fill:none;stroke-width:1.5}
-  .icart b{position:absolute;top:-6px;right:-8px;background:var(--c-accent);color:#fff;font-size:.6rem;font-weight:700;min-width:15px;height:15px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
+  /* Same frozen `#fff` on the same `--c-accent` fill as `.note`, same two measured ratios, same
+     fix — and this badge is 0.6rem type, which is the last place to spend contrast. */
+  .icart b{position:absolute;top:-6px;right:-8px;background:var(--c-accent);color:var(--c-bg);font-size:.6rem;font-weight:700;min-width:15px;height:15px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
 
   .page{display:none} .page.active{display:block}
   .breadcrumb{font-size:var(--fs-small);color:var(--c-text-muted);letter-spacing:.04em;padding-top:var(--sp-m)}
@@ -76,38 +246,80 @@
   .linkline{letter-spacing:.12em;text-transform:uppercase;font-size:.78rem;cursor:pointer}
 
   /* HOME */
-  .hero{position:relative;min-height:70vh;display:grid}
-  .hero>.ph{border:none;border-radius:0;min-height:70vh}
-  .hero .inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--sp-m);padding:var(--sp-l) var(--pad-x-mobile) var(--sp-xl);background:linear-gradient(to top,color-mix(in srgb,#211E1B 55%,transparent),transparent 60%)}
-  .hero .inner *{color:#F3EFEA} .hero h1{max-width:12ch}
-  .hero .btn-outline{color:#F3EFEA;border-color:#F3EFEA}.hero .btn-outline:hover{background:#F3EFEA;color:#211E1B}
-  .slider-dots{display:flex;gap:var(--sp-xs)}.slider-dots i{width:26px;height:2px;background:#F3EFEA;opacity:.4}.slider-dots i:first-child{opacity:1}
-  @media(min-width:768px){.hero,.hero>.ph{min-height:60vh}.hero .inner{padding-inline:6%}}
+  /* ══ LP-STRICT-GRID · hero ══ layout-patterns.md: "Hero: copy in columns 1–6, image in columns
+     7–12, BOTH INSIDE THE CONTAINER, no overlap", and for the grid as a whole: "zero bleeds —
+     every element starts and ends on a column line".
+     What this replaces was a full-bleed photo with the copy absolutely positioned over it under a
+     gradient scrim. That is LP-EDITORIAL's imagery rule, not this blueprint's, and it was the only
+     thing on any of the seven pages that bled a viewport edge — so the composition comment in
+     :root could not have been true while it stood. `.hero-grid` is shared with the Nosotros hero
+     below, which had the identical problem.
+     The scrim went with it, and so did the three hardcoded #F3EFEA/#211E1B literals that painted
+     the copy: they were the OLD ground's values frozen into rules the ground axis cannot reach,
+     so a project re-pointing the ground would have got white-on-white here. */
+  .hero-grid{display:grid;gap:var(--sp-m);align-items:center}
+  .hero-grid .ph{aspect-ratio:4/5}
+  .hero .inner,.hero-sm .in{display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start;min-width:0}
+  .hero h1{max-width:12ch}
+  .slider-dots{display:flex;gap:var(--sp-xs)}
+  .slider-dots i{width:26px;height:2px;background:var(--c-text);opacity:.3}.slider-dots i:first-child{opacity:1}
+  /* "Hero: copy in columns 1–6, image in columns 7–12" — an equal split IS the column line. */
+  @media(min-width:768px){.hero-grid{grid-template-columns:1fr 1fr}}
   .grid{display:grid;gap:var(--sp-m)}
   .cats{grid-template-columns:1fr 1fr}
-  .cat{position:relative;display:block;cursor:pointer}.cat .ph{aspect-ratio:3/4}
-  .cat .label{position:absolute;left:1rem;bottom:1rem;color:#F3EFEA;font-family:var(--font-primary);font-size:1.2rem;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+  /* PERS-MATTER card recipe: "image at the container radius, hairline border, TEXT BELOW. No
+     chips, no fills — the border is the whole chrome." The label used to sit absolutely
+     positioned over the photo in #F3EFEA with a text-shadow: a chip in all but name, and one more
+     literal of the OLD ground frozen into a rule the ground axis cannot reach. */
+  .cat{display:block;cursor:pointer;min-width:0}.cat .ph{aspect-ratio:3/4}
+  .cat .label{display:block;margin-top:.6rem;font-family:var(--font-primary);font-size:calc(var(--fs-h3) * .85)}
   @media(min-width:768px){.cats{grid-template-columns:repeat(4,1fr)}}
   .rail{display:grid;grid-auto-flow:column;grid-auto-columns:70%;gap:var(--sp-m);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:1rem}
-  .rail .card{scroll-snap-align:start}.card{cursor:pointer}.card .ph{aspect-ratio:3/4;margin-bottom:.8rem}.card h3{font-family:var(--font-secondary);font-size:.92rem;font-weight:600}
+  .rail .card{scroll-snap-align:start}
+  /* elevation: hairline — for this anchor the RING IS the elevation, and PERS-MATTER's card recipe
+     puts it on the image ("image at the container radius, hairline border, text below"), not
+     around the whole card. So the axis token rides on the `.ph`, where the chrome actually is, and
+     re-pointing the elevation axis to `soft-shadow` or `accent-glow` moves it without touching a
+     card rule. */
+  .card{cursor:pointer;min-width:0}
+  .card .ph{aspect-ratio:3/4;margin-bottom:.8rem;box-shadow:var(--elev-rest);transition:box-shadow .3s var(--ease)}
+  .card:hover .ph{box-shadow:var(--elev-hover)}
+  .card h3{font-family:var(--font-secondary);font-size:calc(var(--fs-h3) * .7);font-weight:600}
   @media(min-width:768px){.rail{grid-auto-columns:1fr;grid-template-columns:repeat(4,1fr);overflow:visible}}
   .editorial{display:grid;gap:var(--sp-l);align-items:center}.editorial .ph{aspect-ratio:4/5}
   @media(min-width:768px){.editorial{grid-template-columns:1fr 1fr}}
-  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
-  .benefit .ico{width:34px;height:34px;margin:0 auto .7rem;border:1px solid var(--c-text);border-radius:50%}
-  .benefit h3{font-family:var(--font-secondary);font-size:.95rem}
+  /* ══ LP-STRICT-GRID · card grids ══ layout-patterns.md: "Section headings: LEFT-ALIGNED on the
+     first column line, sharing the grid with the content below." A centred axis is LP-CENTERED's
+     rule, and this file is not that blueprint. `text-align:center` here plus `margin:0 auto` on the
+     icon put 4/4 headings and 4/4 icons on a centred axis instead of the column line — measured at
+     1280 on home. `.values`, `.stats` and `.team` on the Nosotros page carried the identical pair;
+     all four are left now, so the composition claim in the header comment covers the sections it
+     names instead of three quarters of them. */
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m)}
+  .benefit .ico{width:34px;height:34px;margin:0 0 .7rem;border:1px solid var(--c-text);border-radius:50%}
+  /* Card-level headings are RATIOS of --fs-h3, never fixed rems: a hardcoded `.95rem` is
+     byte-identical at all four scale positions, so a `monumental` shop and a `contained` one get
+     the same card type. The factor keeps the mobile floor where the fixed value was; the desktop
+     cap now moves with the axis, which is the point. */
+  .benefit h3{font-family:var(--font-secondary);font-size:calc(var(--fs-h3) * .72)}
   @media(min-width:768px){.benefits{grid-template-columns:repeat(4,1fr)}}
-  .quotes{display:grid;gap:var(--sp-l)}.quote{border-top:1px solid var(--c-border);padding-top:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s)}.quote p{font-family:var(--font-primary);font-size:1.2rem;line-height:1.45}
+  .quotes{display:grid;gap:var(--sp-l)}.quote{border-top:1px solid var(--c-border);padding-top:var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-s);min-width:0}
+  .quote p{font-family:var(--font-primary);font-size:calc(var(--fs-h3) * .9);line-height:1.45}
   @media(min-width:768px){.quotes{grid-template-columns:repeat(3,1fr)}}
-  .news{text-align:center;display:flex;flex-direction:column;gap:var(--sp-m);align-items:center}
+  /* LP-STRICT-GRID: "Section headings: LEFT-ALIGNED on the first column line, sharing the grid
+     with the content below." The centred axis this used to run is LP-CENTERED's rule. */
+  .news{display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start}
   .news form{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:440px}.news input{flex:1}
   @media(min-width:560px){.news form{flex-direction:row}}
 
   /* SHOP */
   .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;margin-block:var(--sp-m);position:sticky;top:53px;background:var(--c-bg);padding-block:.6rem;z-index:30}
-  .chips{display:flex;gap:var(--sp-xs);overflow-x:auto}.chips span{border:1px solid var(--c-border);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;white-space:nowrap;cursor:pointer}
-  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-m)}.grid4 article{cursor:pointer}.grid4 .ph{aspect-ratio:3/4;margin-bottom:.6rem}
-  .grid4 h3{font-family:var(--font-secondary);font-size:.92rem;font-weight:600}
+  .chips{display:flex;gap:var(--sp-xs);overflow-x:auto;min-width:0}.chips span{border:1px solid var(--c-border);border-radius:20px;padding:.4rem .9rem;font-size:.78rem;white-space:nowrap;cursor:pointer}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-m)}
+  .grid4 article{cursor:pointer;min-width:0}
+  .grid4 .ph{aspect-ratio:3/4;margin-bottom:.6rem;box-shadow:var(--elev-rest);transition:box-shadow .3s var(--ease)}
+  .grid4 article:hover .ph{box-shadow:var(--elev-hover)}
+  .grid4 h3{font-family:var(--font-secondary);font-size:calc(var(--fs-h3) * .7);font-weight:600}
   .pagination{display:flex;gap:.4rem;justify-content:center;margin-top:var(--sp-l)}
   .pagination span{border:1px solid var(--c-border);width:40px;height:40px;display:grid;place-items:center;border-radius:var(--radius-button);cursor:pointer}
   .pagination span[aria-current]{background:var(--c-primary);color:var(--c-bg)}
@@ -121,47 +333,57 @@
   .swatch i:nth-child(1){background:#211E1B}.swatch i:nth-child(2){background:#B8A991}.swatch i:nth-child(3){background:#5C574F}
   .sizes{display:flex;gap:.4rem;flex-wrap:wrap}.sizes span{border:1px solid var(--c-border);padding:.5rem .8rem;font-size:.85rem;border-radius:var(--radius-button);cursor:pointer}
   .acc details{border-top:1px solid var(--c-border);padding:1rem 0}.acc summary{cursor:pointer;font-weight:600}
-  @media(min-width:768px){.pdp{grid-template-columns:1.3fr 1fr;align-items:start}.pdp .info{position:sticky;top:70px}}
+  /* LP-STRICT-GRID: "every element starts and ends on a column line." `1.3fr 1fr` lands on no
+     line of a 12-column grid; an equal split is 6/6. Same reasoning for `.contact`, `.cartgrid`
+     and `.checkout` below, which used 1.2/1.6/1.4 against 1. */
+  @media(min-width:768px){.pdp{grid-template-columns:1fr 1fr;align-items:start}.pdp .info{position:sticky;top:70px}}
 
-  /* ABOUT */
-  .hero-sm{position:relative;min-height:38vh;display:grid}.hero-sm>.ph{border:none;border-radius:0;min-height:38vh}
-  .hero-sm .in{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:.6rem;padding:var(--pad-x-mobile);background:linear-gradient(color-mix(in srgb,#211E1B 25%,transparent),color-mix(in srgb,#211E1B 45%,transparent))}
-  .hero-sm .in *{color:#F3EFEA}
-  .values,.stats,.team{display:grid;gap:var(--sp-l) var(--sp-m);text-align:center}
+  /* ABOUT — the second of the two heroes that used to bleed; same `.hero-grid` as the home one. */
+  /* Same left-alignment as `.benefits` above, and for the same reason: LP-STRICT-GRID puts every
+     heading on the first column line of its own cell. These three were the other 12 centred
+     headings (4 `.values` + 4 `.stats` + 4 `.team`, measured at 1280 on Nosotros). */
+  .values,.stats,.team{display:grid;gap:var(--sp-l) var(--sp-m)}
   .values{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.team{grid-template-columns:1fr 1fr}
-  .stat b{font-family:var(--font-primary);font-size:2.4rem;display:block}.ico{width:34px;height:34px;border:1px solid var(--c-text);border-radius:50%;margin:0 auto .7rem}
+  .stat b{font-family:var(--font-primary);font-size:calc(var(--fs-h2) * .8);display:block}.ico{width:34px;height:34px;border:1px solid var(--c-text);border-radius:50%;margin:0 0 .7rem}
   .team .ph{aspect-ratio:1/1;margin-bottom:.6rem}
   @media(min-width:768px){.values,.stats,.team{grid-template-columns:repeat(4,1fr)}}
 
   /* CONTACT */
-  .contact{display:grid;gap:var(--sp-l)}.cform{display:flex;flex-direction:column;gap:.8rem}
-  .cdata{display:flex;flex-direction:column;gap:var(--sp-m)}.cdata b{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:.2rem}
+  /* `minmax(0,1fr)`, not the implicit `auto`: an `auto` track's minimum is its content's
+     min-content size, so one item with an intrinsic width drags the whole column past the
+     container. `minmax(0,1fr)` says the track may not exceed its share, whatever is inside it. */
+  .contact{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-l)}
+  .cform{display:flex;flex-direction:column;gap:.8rem;min-width:0}
+  .cdata{display:flex;flex-direction:column;gap:var(--sp-m);min-width:0}.cdata b{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:.2rem}
   .map .ph{aspect-ratio:21/9}
-  @media(min-width:768px){.contact{grid-template-columns:1.2fr 1fr}}
+  @media(min-width:768px){.contact{grid-template-columns:1fr 1fr}}
 
-  /* CART + CHECKOUT */
-  .cartgrid{display:grid;gap:var(--sp-l)}
-  .cart{display:flex;flex-direction:column}
-  .citem{display:grid;grid-template-columns:56px 1fr auto;gap:var(--sp-m);align-items:center;border-bottom:1px solid var(--c-border);padding-block:var(--sp-m)}
-  .citem .ph{width:56px;height:72px}
-  .citem h3{font-family:var(--font-secondary);font-size:.95rem;font-weight:600}
+  /* CART + CHECKOUT — same `minmax(0,1fr)` reasoning as `.contact`: both hold form controls. */
+  .cartgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-l)}
+  .checkout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-l)}
+  .cart{display:flex;flex-direction:column;min-width:0}
+  .citem{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:var(--sp-m);align-items:center;border-bottom:1px solid var(--c-border);padding-block:var(--sp-m)}
+  .citem > *{min-width:0}
+  .citem .ph{width:56px;height:72px;flex:none}
+  .citem h3{font-family:var(--font-secondary);font-size:calc(var(--fs-h3) * .72);font-weight:600}
   .rm{font-size:.72rem;color:var(--c-text-muted);cursor:pointer;letter-spacing:.06em}
   .stepper{display:inline-flex;align-items:center;border:1px solid var(--c-border);border-radius:var(--radius-input);margin-top:.5rem}
   .stepper button{background:none;border:none;color:inherit;font:inherit;padding:.25rem .7rem;cursor:pointer}
   .stepper span{min-width:2ch;text-align:center;font-size:.9rem}
-  .summary{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem;align-self:start}
+  .summary{background:var(--c-bg-alt);box-shadow:var(--elev-rest);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem;align-self:start;min-width:0}
   .summary .row{display:flex;justify-content:space-between;font-size:.92rem}
   .summary .total{border-top:1px solid var(--c-border);padding-top:.7rem;font-weight:700;font-size:1.05rem}
   .summary .coupon{display:flex;gap:.4rem}.summary .coupon input{flex:1;padding:.6rem .8rem}
-  .cofields{display:flex;flex-direction:column;gap:var(--sp-m)}
-  .cofields fieldset{border:1px solid var(--c-border);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem}
+  .cofields{display:flex;flex-direction:column;gap:var(--sp-m);min-width:0}
+  .cofields fieldset{border:0;box-shadow:var(--elev-rest);border-radius:var(--radius-card);padding:var(--sp-m);display:flex;flex-direction:column;gap:.7rem;min-width:0}
   .cofields legend{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted);padding:0 .4rem}
   .cofields input{width:100%}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .trust{display:flex;gap:1rem;flex-wrap:wrap;color:var(--c-text-muted);font-size:.8rem}
   @media(min-width:768px){
-    .cartgrid{grid-template-columns:1.6fr 1fr;align-items:start}
-    .checkout{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp-l);align-items:start}
+    /* 8/4 of a 12-column grid — a column line. `1.6fr 1fr` and `1.4fr 1fr` were not. */
+    .cartgrid{grid-template-columns:2fr 1fr;align-items:start}
+    .checkout{display:grid;grid-template-columns:2fr 1fr;gap:var(--sp-l);align-items:start}
     .summary.sticky{position:sticky;top:70px}
   }
 
@@ -170,6 +392,17 @@
   .fcols h3{font-family:var(--font-secondary);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
   .fcols ul{list-style:none;display:flex;flex-direction:column;gap:var(--sp-xs);font-size:.9rem}
   .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
+  /* CORRECTED — this used to claim "6/3/3 of a 12-column grid, every track lands on a column
+     line," citing `.cartgrid`'s 8/4 above as the same test passing. Measured against the 1140px
+     content box and this row's own 24px column-gap, neither holds: `.fcols` is `2fr 1fr 1fr`, and
+     `fr` only divides the two REAL gaps out of the remainder, so the rendered split (546/273/273)
+     misses the 12-column-line targets (558/267/267). `.cartgrid`'s 8/4 misses its own target the
+     same way (728/364 rendered against 744/348), so it was never a passing precedent either. What
+     DOES hold is LP-STRICT-GRID's other bullet: "Grids: 3 or 4 equal columns, equal gutters, equal
+     CARD heights — rows must visibly align" is scoped to the card grids (`.grid4`, `.cats`,
+     `.benefits`, `.team`), all `repeat(3,1fr)`/`repeat(4,1fr)` here. A three-column link list has
+     one row and no cards, so that bullet was never the footer's test to pass or fail — `2fr 1fr
+     1fr` here is a visual weighting, not a grid-line claim. */
   @media(min-width:768px){.fcols{grid-template-columns:2fr 1fr 1fr}}
 </style>
 
@@ -196,15 +429,17 @@
 
 <!-- ================= HOME · TPL-E-01 ================= -->
 <div class="page active" id="home">
-  <section class="hero" style="padding:0" aria-label="Hero">
-    <div class="ph">Imagen hero · slide 1/3</div>
-    <div class="inner wrap">
+  <!-- LP-STRICT-GRID hero: copy on the left column line, image on the right, both inside the
+       container. No bleed, no scrim, no copy over a photo. -->
+  <section class="hero" aria-label="Hero"><div class="wrap hero-grid">
+    <div class="inner">
       <span class="eyebrow">Colección Otoño</span>
       <h1>La forma sigue al cuerpo</h1>
       <div><a class="btn btn-outline" data-t="shop">Ver colección</a></div>
       <div class="slider-dots" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
-  </section>
+    <div class="ph">Imagen hero · slide 1/3</div>
+  </div></section>
 
   <section aria-label="Categorías"><div class="wrap">
     <div class="head"><div><span class="eyebrow">Explorar</span><h2>Categorías</h2></div><a class="muted linkline" data-t="shop">Ver todo</a></div>
@@ -261,7 +496,9 @@
 <!-- ================= TIENDA · TPL-SHOP-02 ================= -->
 <div class="page" id="shop"><main class="wrap">
   <p class="breadcrumb">Inicio / Tienda</p>
-  <section style="padding-block:var(--sp-l);text-align:center">
+  <!-- LP-STRICT-GRID: section headings sit LEFT, on the first column line, sharing the grid with
+       the product rows below. Centred was LP-CENTERED's rule. -->
+  <section style="padding-block:var(--sp-l)">
     <span class="eyebrow">Catálogo</span><h1 style="margin:.4rem 0">Tienda</h1>
     <p class="muted">Edición corta, fibras naturales. 24 productos.</p>
     <p class="muted" style="font-size:.78rem;margin-top:.4rem">Tip de maqueta: cliqueá un producto para ver la ficha (PDP).</p>
@@ -322,7 +559,10 @@
 
 <!-- ================= NOSOTROS · TPL-ABOUT-01 ================= -->
 <div class="page" id="about">
-  <div class="hero-sm"><div class="ph">Imagen marca</div><div class="in"><span class="eyebrow">Nosotros</span><h1>Menos, pero mejor</h1></div></div>
+  <section class="hero-sm" aria-label="Nosotros"><div class="wrap hero-grid">
+    <div class="in"><span class="eyebrow">Nosotros</span><h1>Menos, pero mejor</h1></div>
+    <div class="ph">Imagen marca</div>
+  </div></section>
   <main class="wrap">
     <section class="editorial"><div class="ph">Historia</div>
       <div style="display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start">
@@ -348,7 +588,7 @@
       <div><div class="ph"></div><h3>Sofía</h3><p class="muted" style="font-size:.85rem">Producción</p></div>
       <div><div class="ph"></div><h3>Marco</h3><p class="muted" style="font-size:.85rem">Atención</p></div>
     </section>
-    <section style="text-align:center;display:flex;flex-direction:column;gap:var(--sp-m);align-items:center">
+    <section style="display:flex;flex-direction:column;gap:var(--sp-m);align-items:flex-start">
       <h2>Conocé la colección</h2><a class="btn btn-primary" data-t="shop">Ver tienda</a>
     </section>
   </main>

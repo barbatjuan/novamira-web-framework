@@ -99,6 +99,7 @@ const ROW_TYPES = array(
 	'RT_AXIS_BLUEPRINT_MISSING'  => 'FAIL  — an axis position names a blueprint layout-patterns.md never defines',
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
+	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1354,6 +1355,79 @@ if ( $proof_all_here && 2 === count( $proof_copy ) ) {
 				. basename( $PROOF_MOCKUPS[ $anchors[0] ] ) . ' and ' . $nb . 'x by '
 				. basename( $PROOF_MOCKUPS[ $anchors[1] ] )
 				. '. Same content is the other half of the criterion: two pages that differ in a word prove nothing about the axes'
+		);
+	}
+}
+
+/* The two rows above gate the PROOF files — the pair that demonstrates the axis system works.
+   This one gates the files a real project is actually copied from, which is a different and
+   larger claim: a proof nobody builds on proves nothing about client sites.
+
+   Measured on a532df1, `corporate-mockup.html` and `ecommerce-mockup.html` contained ZERO
+   occurrences of --type-ratio, --sp-scale or --elev-rest while both proof files carried the whole
+   system and every other row stayed green. So the axis work stopped one step before the first
+   real project, and every client kept receiving the same hardcoded 56px h1 cap. The point of this
+   row is not that a mockup is pretty; it is that a mockup which cannot EXPRESS an axis silently
+   reverts every project that starts from it to one look — which is the defect the whole axis
+   effort exists to remove.
+
+   GLOB, not a hardcoded pair, unlike the proof rows above. Those two files are named because a
+   missing one must FAIL rather than skip; here the opposite risk dominates — a THIRD production
+   asset added later without axes is exactly the regression this row is for, and a hardcoded list
+   would not see it.
+
+   Files whose basename starts with `_` are skipped: within this glob, `_` marks a PARTIAL — an
+   `.html` fragment a page file includes rather than a page a project is copied from. A partial
+   carries markup and copy, not a `:root`, so demanding five axis declarations from it would be
+   demanding them from something that has no palette to declare.
+   The carve-out is a RESERVATION, not a description of today's tree: as of this commit no `_`
+   `.html` partial exists, and the `_axis-proof-content.md` this comment used to cite as "the real
+   instance" was never one — the glob is `*.html`, so a `.md` file is out of reach with or without
+   the prefix, and naming it made the rule look load-bearing where it does nothing. What the skip
+   actually buys is that splitting a shared band out of the two production mockups stays a one-file
+   move instead of a new FAIL. tests/test-framework-audit.php covers it with `_shared-copy.html`,
+   which is that shape: an `.html` file with no axis declarations at all. */
+$mockup_assets = glob( $root . '/skills/html-mockup/assets/*.html' );
+if ( ! is_array( $mockup_assets ) ) {
+	$mockup_assets = array();
+}
+sort( $mockup_assets );
+foreach ( $mockup_assets as $mockup_path ) {
+	$mockup_name = basename( $mockup_path );
+	if ( '_' === substr( $mockup_name, 0, 1 ) ) {
+		continue;
+	}
+	/* Only the `:root` block is read, for the same reason proof_axis_signature() reads only it:
+	   every one of these properties is REFERENCED further down each file (`box-shadow:
+	   var(--elev-rest)` and friends), so a whole-file scan would match a USE and call it a
+	   declaration — and a file that consumes an axis it never defines would pass. */
+	$mockup_root = '';
+	if ( preg_match( '/:root\s*\{(.*?)\}/s', slurp( $mockup_path ), $mrm ) ) {
+		$mockup_root = $mrm[1];
+	}
+	$mockup_missing = array();
+	foreach ( array( '--type-ratio', '--display-lh', '--fs-h1-max', '--sp-scale', '--elev-rest' ) as $mockup_prop ) {
+		/* (?![\w-]) so `--elev-rest` never matches on `--elev-rest-something`, the same boundary
+		   the proof signature needs to stop `--c-bg` swallowing `--c-bg-alt`. */
+		if ( ! preg_match( '/' . preg_quote( $mockup_prop, '/' ) . '(?![\w-])\s*:/', $mockup_root ) ) {
+			$mockup_missing[] = $mockup_prop;
+		}
+	}
+	/* Composition is the one axis with no custom property, because its value is a layout rule
+	   rather than a number. The marker IS the declaration, so a check that only counted custom
+	   properties would pass a file that had quietly dropped a whole axis. */
+	if ( ! preg_match( '#/\*\s*composition\s*:\s*LP-[A-Z0-9-]+#i', $mockup_root ) ) {
+		$mockup_missing[] = '/* composition: LP-* */';
+	}
+	if ( array() !== $mockup_missing ) {
+		/* Naming each missing declaration is what makes the row actionable: "declares no axis
+		   tokens" sends the reader to diff an 880-line file against a reference by eye. */
+		add(
+			'RT_MOCKUP_NO_AXES',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
+				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
 		);
 	}
 }
