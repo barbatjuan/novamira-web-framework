@@ -146,6 +146,13 @@ brand from `ux-design-system`"). Closing this gap — either by parameterizing `
 helpers or adding a framework-audit check against it — is out of scope for this branch and left
 as follow-up work.
 
+> **CLOSED** by `docs/superpowers/plans/2026-08-15-axes-reach-the-build.md`. Everything above is
+> the state on 2026-08-12 and is kept as history, not as a live gap: `es_tokens()` now exists and
+> all four builder assets read it, `RT_BUILDER_NO_TOKENS` and `RT_BUILDER_HARDCODED_TOKEN` are the
+> framework-audit checks this note asked for, and the SKILL.md sentence quoted above no longer
+> exists — step 2 says "override `es_tokens()` — the one edit point" (67dcb45). Both remedies this
+> note offered as alternatives were taken.
+
 ## Component: `framework-audit` verifier
 
 New deterministic check in `skills/framework-audit/assets/framework-audit.php`, following this

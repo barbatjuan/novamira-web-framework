@@ -192,9 +192,30 @@ if ( ! function_exists( 'es_build_theme_parts' ) || ! function_exists( 'es_build
  * es_btn's four style branches are all here on purpose: the branch you leave
  * out is the branch that keeps its hand-written literal, and no check would
  * ever look at it.
+ *
+ * "Every" is now MEASURED rather than maintained by hand: tests/test-write-path.php
+ * reads every `function es_*` declared between es-builder.php's two region
+ * markers and fails if one of them is not named in here. It was measured the
+ * other way first — deleting `es_feature_card` from this list and regenerating
+ * left all four suites and the audit green, so a helper could leave coverage in
+ * silence and, once outside the golden, nothing but the audit's literal row was
+ * looking at it at all.
+ *
+ * That is why the primitives and the two scale TABLES are in the list too. They
+ * are not widgets and their entries look odd next to `es_card`, but the rule
+ * that admits no exception is the only kind that survives: an exemption list is
+ * where the next uncovered helper goes to hide. Dumping the tables is not
+ * ceremony either — it pins which step each heading tag takes and at which three
+ * widths, so moving h2 off step 2 shows up as a diff instead of as nothing.
  */
 function es_dump_visuals() {
 	return array(
+		'es_t'              => es_t( 'accent' ),
+		'es_fs'             => es_fs( 1 ),
+		'es_fs_at'          => array( es_fs_at( 3, 430 ), es_fs_at( 3, 768 ), es_fs_at( 3, 1280 ) ),
+		'es_sp'             => es_sp( 88 ),
+		'es_h_widths'       => es_h_widths(),
+		'es_h_scale'        => es_h_scale(),
 		'es_box'            => es_box( 88, 24, 88, 24 ),
 		'es_box_pct'        => es_box( 5, 0, 5, 0, '%' ),
 		'es_size'           => es_size( 19 ),
@@ -234,9 +255,19 @@ function es_dump_visuals() {
  * `ZTOK_accent_hover_Z`.
  *
  * A numeric token cannot take a text sentinel without breaking the arithmetic
- * that reads it, so numbers get an out-of-range NUMBER instead. There are no
- * numeric tokens today; Task 2 adds them, and this arrives before they do so
- * the first one is covered on the day it lands rather than a task later.
+ * that reads it, so numbers get an out-of-range NUMBER instead.
+ *
+ * INTEGERS get a big one (9974+). FLOATS get a small one (7.1+), and the
+ * difference is not taste. `type_ratio` is a float that gets EXPONENTIATED:
+ * es_fs_at() computes `fs_base * ratio^3`, and at a 9974 sentinel that is
+ * 9.9e15 — past 2^53, where a double stops representing integers exactly and
+ * the last digits come from whatever `pow()` the platform's libm ships. Pinning
+ * that in a golden means pinning a number this repo does not control, and the
+ * suite would go red on another machine with no defect to find. 7.1 is far
+ * outside every documented position of every float token (`type_ratio`
+ * 1.2–1.618, `display_lh` 0.82–1.25, `sp_scale` 0.8–1.7), so it still proves a
+ * reader exists, and 7.1^3 stays where arithmetic is exact. The same rule
+ * applies to whatever float token lands next.
  */
 function es_dump_sentinels() {
 	$out = array();
@@ -247,7 +278,7 @@ function es_dump_sentinels() {
 		} elseif ( is_int( $valor ) ) {
 			$out[ $clave ] = 9973 + ( ++$n );
 		} elseif ( is_float( $valor ) ) {
-			$out[ $clave ] = 9973.0 + ( ++$n );
+			$out[ $clave ] = 7.0 + ( ++$n ) / 10;
 		} else {
 			fwrite( STDERR, "ENTORNO: el token '$clave' no es texto ni numero; el volcado no sabe sustituirlo.\n" );
 			exit( 2 );

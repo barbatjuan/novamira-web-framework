@@ -1438,11 +1438,15 @@ foreach ( $mockup_assets as $mockup_path ) {
  *
  * RT_MOCKUP_NO_AXES above asks whether the file a project is COPIED FROM can express an axis.
  * These two ask the same question one hop later, of the file that actually writes the site.
- * `elementor-core/SKILL.md` has always told the operator to "swap its palette/type constants";
- * until the token layer landed there were no constants of any kind in es-builder.php — 51 colour
- * literals, 9 font strings and 5 shadows typed inline between the helpers instead. So every
- * NovaMira site shipped the same green on the same white whatever the axis dialogue resolved,
- * with every other row in this audit green.
+ * `elementor-core/SKILL.md` step 2 USED to tell the operator to "swap its palette/type constants",
+ * and there were no constants of any kind in es-builder.php to swap — 51 colour literals, 9 font
+ * strings and 5 shadows typed inline between the helpers instead. So every NovaMira site shipped
+ * the same green on the same white whatever the axis dialogue resolved, with every other row in
+ * this audit green. That step now says "override es_tokens() — the one edit point" (67dcb45),
+ * which is a real mechanism; the sentence above is history, quoted as history, because a comment
+ * that quotes deleted text as current text sends the next reader looking for a string that is not
+ * there. What these two rows guarantee is the half a SKILL.md sentence cannot: that the one edit
+ * point stays the ONLY one.
  *
  * THE REGION, and why getting its START wrong makes the whole row useless. The scan runs from the
  * closing brace of es_tokens() to the end-of-visual-layer marker. Anchoring on the OPENING of
@@ -1513,6 +1517,24 @@ function php_code_lines( $src ) {
 	return explode( "\n", $out );
 }
 
+/* A token READ is not a literal, by definition — and two token NAMES are spelled exactly like the
+   CSS values this row exists to catch. `es_t( 'ease' )` is the correct shape and `ease` is the
+   keyword the widened rules below hunt; `es_t( 'transparent' )` is the correct shape and
+   `transparent` is a named colour. Blanked to spaces of the SAME length before any pattern runs
+   (so a real literal later on the line still reports the right line), which is why widening the
+   keyword set cannot charge a file for reading its own tokens. Only `es_t( 'identifier' )` is
+   blanked: a `#`, a bracket or an expression inside the parens is not a token name and stays
+   visible to the scan. */
+function es_blank_token_reads( $line ) {
+	return preg_replace_callback(
+		'/es_t\(\s*([\'"])[A-Za-z0-9_]+\1\s*\)/',
+		function ( $m ) {
+			return str_repeat( ' ', strlen( $m[0] ) );
+		},
+		$line
+	);
+}
+
 $builder_end_marker   = 'end of the visual layer';
 $builder_start_marker = 'start of the visual layer';
 /* 3-to-8 hex covers every CSS form (#fff, #ffff, #ffffff, #ffffffff), not just the two the plan
@@ -1529,11 +1551,77 @@ $builder_start_marker = 'start of the visual layer';
    call sits INSIDE es_tokens(), above the region; the three siblings make 13 such calls in-region.
    This narrows only by an identifier character before the name: `:rgba(`, `,rgba(`, ` rgba(` and
    `'rgba(` all still match, and a hand-typed colour is never preceded by [A-Za-z0-9_]. */
-$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|(?<![0-9A-Za-z_])(?:rgba|cubic-bezier)\((?:[^)\n]{0,48}\))?/';
+/* THE FUNCTION SET IS EVERY COLOUR AND TIMING FUNCTION CSS HAS, not the two the file happened to
+   contain. `rgba` alone missed `rgb(` outright — the `a` was mandatory — and with it `hsl()`,
+   `hsla()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()` and `color-mix()`, which is the syntax
+   design-system.md's own `accent-glow` elevation position is written in. `steps()` joins
+   `cubic-bezier()` for the same reason on the motion side. `linear-gradient()` is deliberately NOT
+   here: a gradient built out of token colours is the correct shape, and its colours are caught on
+   their own.
+   THE SPLIT HEX. `'#0FA' . '968'` was already caught (`#0FA` is a valid three-digit hex and the
+   quote is not a hex character), but `'#0F' . 'A968'` was not, and neither was `'#' . '0FA968'` —
+   the split point decided whether the rule saw anything, which is not a rule. A `#` with 0-2 hex
+   digits sitting at the end of a string that is being concatenated is a colour torn in half; there
+   is no other reason to write one. The `'(#' . $id . ')'` warnings that shape resembles all live
+   BELOW the END marker, which is what that marker is for. */
+$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|#[0-9A-Fa-f]{0,2}[\'"]\s*\.|(?<![0-9A-Za-z_])(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|cubic-bezier|steps)\((?:[^)\n]{0,48}\))?/';
+
+/* NAMED CSS COLOURS: the FULL 148-keyword list plus `transparent`, not a curated shortlist.
+ *
+ * The curated option — `white`, `black`, `transparent`, the three anybody actually types — is the
+ * one that makes this row green for the least work, and it is wrong for the reason the row exists:
+ * the literal that survives is always the one nobody thought of. `rebeccapurple` is not a colour a
+ * careful author reaches for, which is exactly why a shortlist would never have carried it, and a
+ * live probe put `rebeccapurple` inside a scanned region and watched all four suites and the audit
+ * pass. A list that only contains the colours you predicted is a list that only catches the
+ * mistakes you predicted. The full list costs one long string and never needs maintaining: CSS has
+ * not added a colour keyword since `rebeccapurple` in 2014, and if it ever does, the two rules
+ * below still catch it by shape and by key.
+ *
+ * THE PRICE, and how it is paid. `tan`, `peru`, `snow`, `linen`, `plum`, `gold` and `red` are also
+ * ordinary words, and these files carry Spanish UI copy. So the match is anchored where a colour
+ * ENDS a CSS value: the keyword must be followed (after optional space) by `;`, `,`, `!`, `}`, `)`,
+ * a quote, or end of line. `background:rebeccapurple;`, `border:1px solid black;` and
+ * `'title_color' => 'white'` all satisfy it; `tan pronto como` does not, because a Spanish word is
+ * followed by another word.
+ *
+ * RESIDUAL, stated rather than discovered: a named colour in the MIDDLE of a shorthand it does not
+ * end — `background:white url(x)` — is not caught, and a Spanish clause that happens to end on a
+ * colour word before a comma would be a false FAIL. Both are the loud kind: the first is a miss the
+ * `*_color` key rule below usually catches anyway, and the second fails visibly with the file and
+ * line in the message, which beats a rule that quietly scans nothing. */
+$builder_colour_names = 'aliceblue|antiquewhite|aquamarine|aqua|azure|beige|bisque|blanchedalmond|blueviolet|blue|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|goldenrod|gold|gray|greenyellow|green|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavenderblush|lavender|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|limegreen|lime|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olivedrab|olive|orangered|orange|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|whitesmoke|white|yellowgreen|yellow|black';
+$builder_named_re     = '/(?<![\w-])(?:' . $builder_colour_names . ')(?![\w-])(?=\s*(?:[;,!}\')"]|$))/i';
+
+/* BARE TIMING KEYWORDS, anchored on the duration that always precedes one.
+ *
+ * This is the rule with seven live violations at the moment it was written: `transition:opacity
+ * .28s ease,transform .28s ease` in the header, three more in the shop archive's pagination, and
+ * two in the product page's add-to-cart — in the SAME declaration as `es_t('ease')`, so `transform`
+ * eased on the house curve while `background-color` and `box-shadow` fell back to the browser
+ * default. Two of the three sibling assets reached the motion axis at exactly 0%.
+ *
+ * Anchored on `<number>s`/`<number>ms` (or an explicit `timing-function:`) rather than matched as a
+ * bare word, because `ease` and `linear` are too common to hunt loose — and because `es_t( 'ease' )`
+ * is blanked before this runs, the correct shape can never trip it either way. */
+$builder_timing_re = '/(?:[0-9]*\.?[0-9]+\s*m?s\s+|timing-function\s*:\s*)(?:ease-in-out|ease-in|ease-out|ease|linear|step-start|step-end)(?![\w-])/i';
 /* A family typed as a STRING on a typography key. `=> es_t( 'font_body' )` has no quote after the
    arrow and is the shape this row wants; `=> 'Manrope'` is the shape it exists to stop. \w* so a
    `_tablet`/`_mobile` responsive variant cannot slip past the same rule. */
 $builder_family_re = '/typography_font_family\w*[\'"]?\s*=>\s*([\'"])(.*?)\1/';
+
+/* THE FORMAT-BLIND BACKSTOP: a settings key whose name ends in `color` may not be fed a quoted
+   string at all. Every rule above hunts a SHAPE, and a shape list is only ever as complete as the
+   CSS spec was on the day it was written — `oklch()` did not exist when `rgba()` was the whole of
+   this check. This one asks the other question: not "does this look like a colour" but "is this
+   the slot a colour goes in". `'title_color' => <anything quoted>` is a hardcoded colour whatever
+   syntax it is written in, including syntaxes nobody has invented yet.
+   The exception list is four CSS-wide keywords and one Elementor control mode, and every one of
+   them is a DECISION rather than a colour: `custom` is how Elementor is told a sibling key carries
+   the value (es-theme-parts.example.php:579 uses it), and `initial`/`inherit`/`unset`/`revert`
+   defer to the cascade. Nothing that names a colour is on it. */
+$builder_colour_key_re    = '/[\'"]?(\w*colou?r)[\'"]?\s*=>\s*([\'"])(.*?)\2/i';
+$builder_colour_key_allow = array( 'custom', 'initial', 'inherit', 'unset', 'revert', '' );
 
 $builder_assets = array();
 foreach ( array( 'elementor-core', 'elementor-theme-parts', 'woocommerce' ) as $builder_dir ) {
@@ -1628,15 +1716,30 @@ foreach ( $builder_assets as $builder_path ) {
 
 	$builder_hits = array();
 	for ( $bi = $region_start + 1; $bi < $region_end; $bi++ ) {
-		if ( preg_match_all( $builder_literal_re, $builder_code[ $bi ], $bm ) ) {
-			foreach ( $bm[0] as $bhit ) {
-				$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . $bhit;
+		/* Token reads blanked FIRST and once, so every pattern below sees the same line and none of
+		   them can charge `es_t( 'ease' )` or `es_t( 'transparent' )` for spelling a CSS keyword. */
+		$bline = es_blank_token_reads( $builder_code[ $bi ] );
+		foreach ( array( $builder_literal_re, $builder_named_re, $builder_timing_re ) as $bre ) {
+			if ( preg_match_all( $bre, $bline, $bm ) ) {
+				foreach ( $bm[0] as $bhit ) {
+					$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . trim( $bhit );
+				}
 			}
 		}
-		if ( preg_match( $builder_family_re, $builder_code[ $bi ], $bfm ) ) {
+		if ( preg_match( $builder_family_re, $bline, $bfm ) ) {
 			$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → typography_font_family ' . $bfm[1] . $bfm[2] . $bfm[1];
 		}
+		if ( preg_match_all( $builder_colour_key_re, $bline, $bkm, PREG_SET_ORDER ) ) {
+			foreach ( $bkm as $bk ) {
+				if ( ! in_array( strtolower( $bk[3] ), $builder_colour_key_allow, true ) ) {
+					$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . $bk[1] . ' ' . $bk[2] . $bk[3] . $bk[2];
+				}
+			}
+		}
 	}
+	/* The same literal can satisfy two rules — `'title_color' => '#0FA968'` is both a hex and a
+	   colour key — and reporting it twice makes the count read as twice the debt. */
+	$builder_hits = array_values( array_unique( $builder_hits ) );
 	if ( array() !== $builder_hits ) {
 		/* Every hit is named with its own line and its own value. "hay un literal" sends a reader
 		   to eye-scan 500 lines; "es-builder.php:388 → #CBD0CB" is one keystroke away from fixed.

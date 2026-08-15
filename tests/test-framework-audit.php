@@ -2612,6 +2612,164 @@ ok( 1 === count( fx_lines_with( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN' ) )
 fx_rrmdir( $r112 );
 
 /* ---------------------------------------------------------------------------
+   THE DETECTOR'S REACH, which is a separate question from the region's boundary.
+
+   Measured before it was widened: the row caught hex, `rgba(`, `cubic-bezier(` and a quoted font
+   family, and NOTHING else. A brand-new visual helper carrying `rebeccapurple`, `rgb(15,169,104)`,
+   `hsl(151,84%,36%)` and a bare `ease` was dropped inside a scanned region and passed all four
+   suites AND the audit at exit 0 — `rgb(` missed because the `a` was mandatory in the pattern.
+   Every arm below gets its own named assertion so dropping one kills a specific line instead of
+   halving the reach while the row still fires on the others.
+   --------------------------------------------------------------------------- */
+
+echo "--- toda sintaxis de color, no solo hex y rgba(), es un literal ---\n";
+$r116 = fx_tmp_root();
+fx_base( $r116 );
+$b116 = fx_builder(
+	array(
+		'region' => "\t\$s['a_rgb']    = 'background:rgb(15,169,104);';\n"
+			. "\t\$s['a_hsl']    = 'background:hsl(151,84%,36%);';\n"
+			. "\t\$s['a_hsla']   = 'background:hsla(151,84%,36%,.5);';\n"
+			. "\t\$s['a_oklch']  = 'background:oklch(70% 0.1 150);';\n"
+			. "\t\$s['a_lab']    = 'background:lab(50% 40 59);';\n"
+			. "\t\$s['a_mix']    = 'outline:color-mix(in srgb,white 22%,transparent);';\n"
+			. "\t\$s['a_nombre'] = 'background:rebeccapurple;';\n"
+			. "\t\$s['a_medio']  = 'border:1px solid black;';\n",
+	)
+);
+fx_builder_skill( $r116, $b116 );
+list( , $out116 ) = fx_run_ok( $audit, $r116 );
+foreach ( array(
+	'a_rgb'    => 'rgb(15,169,104)',
+	'a_hsl'    => 'hsl(151,84%,36%)',
+	'a_hsla'   => 'hsla(151,84%,36%,.5)',
+	'a_oklch'  => 'oklch(70% 0.1 150)',
+	'a_lab'    => 'lab(50% 40 59)',
+	'a_mix'    => 'color-mix(in srgb,white 22%,transparent)',
+	'a_nombre' => 'rebeccapurple',
+	'a_medio'  => 'black',
+) as $clave116 => $valor116 ) {
+	ok(
+		array() !== fx_lines_with( $out116, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b116, $clave116 ) . ' → ' . $valor116 ) ),
+		'"' . $valor116 . '" es un literal, con su linea y su valor',
+		$out116
+	);
+}
+fx_rrmdir( $r116 );
+
+echo "--- una curva de easing escrita como palabra suelta es un literal; es_t('ease') no ---\n";
+$r117 = fx_tmp_root();
+fx_base( $r117 );
+/* THE LIVE FIXTURE. These three lines are the seven violations that existed in the tree when this
+   was written, copied verbatim: the header's nav underline, the shop archive's pagination and the
+   product page's add-to-cart — the last one carrying a bare `ease` in the SAME declaration as
+   es_t('ease'), so `transform` eased on the house curve while `background-color` fell back to the
+   browser default. Two of the three sibling assets reached the motion axis at exactly 0%.
+   The fourth line is the corrected shape and must stay silent, because `ease` is also a TOKEN NAME:
+   without the blanking pass, es_t('ease') reads as the keyword it replaced and the only way to
+   satisfy the row would be to stop naming the token. */
+$b117 = fx_builder(
+	array(
+		'region' => "\t\$s['t_nav']   = 'transition:opacity .28s ease,transform .28s ease;';\n"
+			. "\t\$s['t_pag']   = 'transition:color .25s ease,background-color .25s ease;';\n"
+			. "\t\$s['t_carro'] = 'transition:box-shadow .35s ease,transform .35s ' . es_t( 'ease' ) . ';';\n"
+			. "\t\$s['t_func']  = 'transition-timing-function:linear;';\n"
+			. "\t\$s['t_pasos'] = 'animation:x 2s steps(4);';\n"
+			. "\t\$s['t_bien']  = 'transition:opacity .28s ' . es_t( 'ease' ) . ';';\n"
+			. "\t\$s['t_fondo'] = 'background:' . es_t( 'transparent' ) . ';';\n",
+	)
+);
+fx_builder_skill( $r117, $b117 );
+list( , $out117 ) = fx_run_ok( $audit, $r117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_nav' ) . ' → .28s ease' ) ), 'un `ease` suelto tras una duracion es un literal', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_pag' ) . ' → .25s ease' ) ), 'y en la paginacion tambien', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_carro' ) . ' → .35s ease' ) ), 'y el que comparte declaracion con es_t(ease), que es el peor de los tres', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_func' ) . ' → timing-function:linear' ) ), 'y `linear` en timing-function', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_pasos' ) . ' → steps(4)' ) ), 'y steps(), que es una curva como cualquier otra', $out117 );
+ok( array() === fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_bien' ) . ' →' ) ), 'y la forma correcta —— es_t(ease) —— NO se acusa aunque el token se llame igual que la palabra clave', $out117 );
+/* Y el token cuyo NOMBRE es un color CSS, que es el unico caso donde el blanqueo
+   de es_t() carga peso de verdad. `ease` se salva por el ancla de duracion —— no
+   hay ningun `<num>s ease` en la forma correcta —— pero `transparent` esta en la
+   lista de 148 nombres y va pegado a comillas, asi que sin blanquear la lectura
+   del token, `es_t('transparent')` se acusa a si mismo. es-theme-parts.example.php
+   lo usa de verdad (linea 444), asi que sin esta linea el mutante que apaga el
+   blanqueo pasaba la suite entera y solo caia sobre el arbol real. */
+ok( array() === fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_fondo' ) . ' →' ) ), 'y es_t(transparent) tampoco: leer un token no es escribir su valor, aunque el token se llame como un color CSS', $out117 );
+fx_rrmdir( $r117 );
+
+echo "--- un hex partido por una concatenacion es un hex, se parta donde se parta ---\n";
+$r118 = fx_tmp_root();
+fx_base( $r118 );
+/* `'#0FA' . '968'` was already caught by accident — `#0FA` is a valid three-digit hex — but
+   `'#0F' . 'A968'` and `'#' . '0FA968'` were not. A rule whose reach depends on WHERE somebody put
+   the quote is not a rule, and the split is one search-and-replace away from happening by itself. */
+$b118 = fx_builder(
+	array(
+		'region' => "\t\$s['p_tres'] = '#0FA' . '968';\n"
+			. "\t\$s['p_dos']  = '#0F' . 'A968';\n"
+			. "\t\$s['p_cero'] = '#' . '0FA968';\n",
+	)
+);
+fx_builder_skill( $r118, $b118 );
+list( , $out118 ) = fx_run_ok( $audit, $r118 );
+foreach ( array( 'p_tres', 'p_dos', 'p_cero' ) as $clave118 ) {
+	ok(
+		array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b118, $clave118 ) ) ),
+		'el hex partido en ' . $clave118 . ' se caza igual',
+		$out118
+	);
+}
+fx_rrmdir( $r118 );
+
+echo "--- una clave *_color con una cadena entre comillas es un color, escriba lo que escriba ---\n";
+$r119 = fx_tmp_root();
+fx_base( $r119 );
+/* The format-blind backstop. Every other arm hunts a SHAPE, and a shape list is only as complete as
+   the CSS spec was the day it was written. `ButtonText` is a system colour that matches no pattern
+   in this file and never will; the KEY is what gives it away. And `custom` on the same kind of key
+   must stay silent, because it is Elementor's control mode rather than a colour —— es-theme-parts
+   really uses it. */
+$b119 = fx_builder(
+	array(
+		'region' => "\t\$s2 = array( 'k_sistema' => 1, 'toggle_color' => 'ButtonText' );\n"
+			. "\t\$s3 = array( 'k_modo' => 1, 'icon_color' => 'custom' );\n",
+	)
+);
+fx_builder_skill( $r119, $b119 );
+list( , $out119 ) = fx_run_ok( $audit, $r119 );
+ok(
+	array() !== fx_lines_with( $out119, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b119, 'k_sistema' ) . " → toggle_color 'ButtonText'" ) ),
+	'un color de sistema en una clave de color se caza por la CLAVE, no por la forma',
+	$out119
+);
+ok(
+	array() === fx_lines_with( $out119, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b119, 'k_modo' ) . ' →' ) ),
+	'y el modo de control "custom" de Elementor no es un color: es una decision, y no se acusa',
+	$out119
+);
+fx_rrmdir( $r119 );
+
+echo "--- una palabra castellana que TAMBIEN es un color CSS no dispara la fila ---\n";
+$r120 = fx_tmp_root();
+fx_base( $r120 );
+/* The price of taking the FULL 148-keyword list instead of a curated three. `tan`, `peru`, `snow`,
+   `plum` and `gold` are ordinary words and these files carry Spanish copy, so the match is anchored
+   where a colour ENDS a CSS value —— followed by `;`, `,`, `!`, `}`, `)`, a quote or end of line.
+   A Spanish word is followed by another word. Without this assertion the cheap way out of a false
+   FAIL is to shrink the list, which is exactly the move that lets the next `rebeccapurple` through. */
+$b120 = fx_builder(
+	array(
+		'region' => "\t\$s['prosa'] = 'el menu se pinta tan pronto como exista, no antes';\n"
+			. "\t\$s['color'] = 'background:tan;';\n",
+	)
+);
+fx_builder_skill( $r120, $b120 );
+list( , $out120 ) = fx_run_ok( $audit, $r120 );
+ok( array() === fx_lines_with( $out120, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b120, 'prosa' ) . ' →' ) ), '"tan pronto" en una frase no es el color `tan`', $out120 );
+ok( array() !== fx_lines_with( $out120, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b120, "\$s['color']" ) . ' → tan' ) ), 'pero `background:tan;` si lo es, asi que la lista sigue entera', $out120 );
+fx_rrmdir( $r120 );
+
+/* ---------------------------------------------------------------------------
    SHAPE B — the sibling assets, which INHERIT es_tokens() instead of declaring it.
    The glob used to stop at elementor-core/assets/ because the other three files had no token
    layer at all and would have put this gate permanently red. They have one now, so the glob

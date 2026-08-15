@@ -191,6 +191,96 @@ function es_shade( $hex, $factor ) {
 }
 
 /**
+ * One token's colour blended toward another's, as a hex string.
+ *
+ * This is the GROUND axis, and it is the axis the token layer was still faking. `bg`, `bg_alt` and
+ * `text` moved with the ground; `muted`, `text_soft`, `border`, `surface_inverse` and `on_inverse`
+ * did not, because they were five hand-picked values sampled off a white page. Measured under the
+ * `ink` position design-system.md documents (`bg #0E1113`, `text #F4F6F7`), against their own ground
+ * rather than against white:
+ *
+ *   muted           #6A6F6C   3.70:1   below AA —— and es_p() paints every paragraph with it
+ *   text_soft       #4A4F4C   2.27:1   below AA
+ *   surface_inverse #15181A   1.06:1   the `dark` button was invisible on its own page
+ *   border          #E5E7E5  15.24:1   a near-WHITE hairline on a near-black page
+ *
+ * design-system.md:263 states the rule those break in its own words —— "each pair was
+ * contrast-checked against its OWN --c-bg, not against white" —— and it was enforced for `--c-text`
+ * and for nothing else.
+ *
+ * Blending is the fix rather than a documented value per position, and the reason is coverage: the
+ * ground table has four positions and a client's ground is whatever their brand is. A derived
+ * neutral is right on grounds nobody has thought of yet; a documented one is right on four.
+ * design-tokens.md step 4 already specifies exactly this ("Derive the neutrals from the contrast,
+ * not from grey"), so this implements a written rule rather than inventing one.
+ */
+function es_mix( $a, $b, $f ) {
+	$out = '#';
+	foreach ( array( $a, $b ) as $hex ) {
+		$h = ltrim( (string) $hex, '#' );
+		if ( 3 === strlen( $h ) ) {
+			$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+		}
+		if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+			/* Same reasoning as es_rgba() and es_shade(): loud and visibly unpainted beats silently
+			   plausible, and the warning names the value it could not read. */
+			es_warn( 'es_mix() no sabe leer "' . $hex . '" como color hex, asi que el neutro derivado que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+			return '';
+		}
+		$c[] = $h;
+	}
+	for ( $i = 0; $i < 3; $i++ ) {
+		$v    = (int) round( hexdec( substr( $c[0], $i * 2, 2 ) ) + ( hexdec( substr( $c[1], $i * 2, 2 ) ) - hexdec( substr( $c[0], $i * 2, 2 ) ) ) * $f );
+		$out .= sprintf( '%02X', max( 0, min( 255, $v ) ) );
+	}
+	return $out;
+}
+
+/**
+ * Tokens that are one ground token blended toward another: array( from, to, fraction ).
+ *
+ * The fractions are MEASURED off the values this file already shipped, not chosen: each is where
+ * the old hand-picked colour actually sat between `text` and `bg` on the `paper` ground, so the
+ * framework's own look survives the change to within one or two units per channel while every other
+ * ground finally gets neutrals of its own. What the old values also carried was a faint green cast
+ * (`#6A6F6C` has more green than red or blue) —— sampled off a green-tinted neutral rather than off
+ * the ink, which is drift, not a decision, and it goes.
+ *
+ * The two at 0.00 are not a rounding curiosity, they are the point:
+ *   surface_inverse = `text`. design-tokens.md files "near-black type" and "inverted dark surfaces
+ *     (footer, announcement bar, solid CTA)" under ONE role, so the surface that flips the page over
+ *     is the contrast colour. On `paper` that is #15181A —— byte for byte what was typed there —— and
+ *     on `ink` it correctly becomes near-white instead of staying invisible at 1.06:1.
+ *   on_inverse = `bg`. Ink sitting on the inverse surface is the page's own ground. #FFFFFF on
+ *     `paper`, byte-identical again, and near-black on `ink`.
+ * Written as mixes rather than as aliases so there is one mechanism to read instead of two, and so
+ * a brand that wants its footer a shade off its ink can say so by moving one number.
+ *
+ * design-tokens.md's own step 4 gives "muted ≈ 55–60%" and "border ≈ 85%". The border number is
+ * close (89%); the muted one is not, and it is not close in the direction that matters: at 57% on
+ * `paper` muted lands on #9A9C9D, which is 2.76:1 —— a WCAG AA failure for the body copy es_p()
+ * paints with it. The measured 36.6% is what ships and what passes, so that file's number is the
+ * one that moved.
+ *
+ * `bg_alt` is deliberately NOT here. It is one of the three the ground table DOCUMENTS per position,
+ * so it is an axis INPUT the operator sets, not an output.
+ */
+function es_token_mixes() {
+	return array(
+		'surface_inverse' => array( 'text', 'bg', 0.00 ),
+		'on_inverse'      => array( 'bg', 'text', 0.00 ),
+		'text_soft'       => array( 'text', 'bg', 0.230 ),
+		'muted'           => array( 'text', 'bg', 0.366 ),
+		'border'          => array( 'text', 'bg', 0.890 ),
+		/* The two extra hairlines the siblings brought with them. Derived so they follow the ground
+		   like everything else; still three keys for one job, which remains the standing finding
+		   this block records rather than a design anybody chose. */
+		'border_soft'     => array( 'text', 'bg', 0.912 ),
+		'border_softer'   => array( 'text', 'bg', 0.929 ),
+	);
+}
+
+/**
  * Tokens that are another token's colour, darkened.
  *
  * array( source token, factor ). Same table shape as es_token_recipes() and for
@@ -245,11 +335,11 @@ function es_token_recipes() {
 }
 
 /* ---------------------------------------------------------- design tokens
-   This block IS what elementor-core/SKILL.md step 2 means by "swap the
-   constants": ONE edit point per project, filled from the axis positions the
-   ux-design-system dialogue resolved. The values below are the framework
-   default, not a recommendation for any client -- a site that ships with them
-   unchanged is a site nobody made a decision about.
+   This block IS the "override es_tokens() -- the one edit point" that
+   elementor-core/SKILL.md step 2 names: ONE edit point per project, filled from
+   the axis positions the ux-design-system dialogue resolved. The values below
+   are the framework default, not a recommendation for any client -- a site that
+   ships with them unchanged is a site nobody made a decision about.
 
    No colour, family, shadow, easing curve, font size or spacing value between
    here and the END marker below is typed by hand. The bare CSS keyword `ease`
@@ -258,10 +348,14 @@ function es_token_recipes() {
    `border-color` fell back to the browser default, two motion languages in one
    rule -- and it is gone: every duration in this file now names es_t('ease').
 
-   ONE thing is still not true of that region: RT_BUILDER_HARDCODED_TOKEN does
-   not exist yet -- it is Task 3. Until it lands, NOTHING mechanical stops the
-   next literal. The golden dump in tests/ is what catches a value that moves;
-   it does not catch a literal that happens to equal the token it replaced.
+   RT_BUILDER_HARDCODED_TOKEN enforces that region mechanically -- it landed in
+   this same branch (c101cd2) and reaches all four builder assets since accd2f6.
+   It reads the lines between es_tokens()'s closing brace and the END marker,
+   with PHP comments stripped, and FAILS naming every literal as file:line ->
+   value. What it cannot see is a literal that happens to EQUAL the token it
+   replaced: that one is the golden dump's job, and the two are complementary
+   rather than redundant -- the golden catches a value that moves, the row
+   catches a value that stopped being addressable.
 
    Keys are named for the ROLE the value plays, never for what it looks like:
    `muted`, not `grey`; `surface_inverse`, not `surface_dark`. A token called
@@ -286,9 +380,16 @@ function es_tokens( array $override = array() ) {
 			   flipping the page over. es-builder.php never needed it -- it has
 			   no banded sections -- but the shop archive, the product tabs and
 			   the mobile dropdown all reach for the same value, so it belongs
-			   in the one edit point rather than three times in three files. */
-			'bg_alt'             => '#F4F5F3',
-			'surface_inverse'    => '#15181A', /* the surface that flips the page over: the `dark` button, the CTA scrim */
+			   in the one edit point rather than three times in three files.
+			   design-system.md's ground table pins this per position, and the value
+			   here is its `paper` row verbatim. It used to read #F4F5F3, which is on
+			   NO row of that table -- an invented fourth ground half a step off the
+			   documented one, in a file whose own plan says never to invent a number.
+			   tests/test-write-path.php now reads the three documented cells out of
+			   design-system.md and compares them against these three defaults, so the
+			   next drift is a red row instead of a colour nobody re-checked. */
+			'bg_alt'             => '#F6F7F8',
+			'surface_inverse'    => null, /* derived: the ground's own `text` -- the surface that flips the page over */
 			'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
 			/* ink --------------------------------------------------- */
 			'text'               => '#15181A',
@@ -299,10 +400,10 @@ function es_tokens( array $override = array() ) {
 			   short description, the trust list, the tab body. Folding it into
 			   either neighbour would shout the body copy or demote it to
 			   furniture. */
-			'text_soft'          => '#4A4F4C',
-			'muted'              => '#6A6F6C',
+			'text_soft'          => null, /* derived: text 23% toward bg */
+			'muted'              => null, /* derived: text 36.6% toward bg */
 			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
-			'on_inverse'         => '#FFFFFF', /* text sitting ON surface_inverse or on the CTA scrim */
+			'on_inverse'         => null, /* derived: the ground's own bg -- ink ON surface_inverse or on the CTA scrim */
 			'muted_on_inverse'   => null, /* derived: on_inverse at 0.75 */
 			/* borders ----------------------------------------------- */
 			/* ONE hairline and its hover. This was five keys -- a rest/hover
@@ -314,20 +415,34 @@ function es_tokens( array $override = array() ) {
 			   than a divider is a real argument, but it is an accessibility
 			   argument, and #CBD0CB was 1.5:1 on white, nowhere near the 3:1
 			   WCAG 1.4.11 asks of a control. It was not buying the contrast
-			   its darkness implied, so nothing is lost by collapsing it. */
-			'border'             => '#E5E7E5',
+			   its darkness implied, so nothing is lost by collapsing it.
+			   It is DERIVED now rather than typed, and the reason is the ground
+			   axis: at #E5E7E5 this hairline was 1.24:1 on the `paper` it was
+			   picked for and 15.24:1 on `ink` -- a near-WHITE slash across a
+			   near-black page. Blended off the ink it stays a hairline on every
+			   ground (1.15-1.31:1 across all four documented positions).
+			   It is asserted as a RANGE, not against 3:1: WCAG 1.4.11's 3:1 is
+			   for controls, this is a divider, and it has never met 3:1 on any
+			   ground including the white one it was drawn for. Asserting a
+			   threshold the framework has never met would have meant either
+			   darkening every divider on every site or writing a check that
+			   passes by being pointed somewhere else. The outline BUTTON's edge
+			   reading this same token IS a control at 1.25:1, and that is a real
+			   WCAG 1.4.11 gap -- reported, still open, and not silently papered
+			   over by a range assertion that says nothing about it. */
+			'border'             => null, /* derived: text 89% toward bg */
 			'border_hover'       => null, /* derived: border darkened 6.5% */
 			/* Two MORE hairlines, arriving from the sibling assets, and named
 			   honestly as what they are: the same drift this block already
 			   collapsed once, living in three files nobody was comparing. They
-			   are 3 and 6 units off `border` and no decision anywhere says why.
-			   They exist as separate keys ONLY so the sibling migration can be
-			   proven byte-identical -- collapsing them onto `border` moves
-			   emitted bytes, and moving bytes is a value change that belongs in
-			   a task allowed to make them, with a diff to show for it.
-			   REPORTED AS A FINDING, not as a design. */
-			'border_soft'        => '#EAECEA',
-			'border_softer'      => '#EEF0EE',
+			   are 5 and 9 units off `border` on every channel (#E5E7E5 ->
+			   #EAECEA -> #EEF0EE, measured, not eyeballed) and no decision
+			   anywhere says why. Derived now, so they at least follow the ground
+			   instead of staying three white-page constants, but three keys for
+			   one job is STILL THE FINDING and collapsing them is still a
+			   deliberate visual decision somebody has to make and look at. */
+			'border_soft'        => null, /* derived: text 91.2% toward bg */
+			'border_softer'      => null, /* derived: text 92.9% toward bg */
 			'border_on_inverse'  => null, /* derived: on_inverse at 0.5 */
 			/* accent -- derives from the BRAND, never from the anchor.
 			   design-tokens.md is explicit that accent is not an axis. */
@@ -398,6 +513,19 @@ function es_tokens( array $override = array() ) {
 		}
 
 		$t = array_merge( $base, $override );
+		/* Three passes, and the ORDER is the dependency chain, not a style.
+		   Mixes read the two ground literals and produce hexes; shades read a hex
+		   and produce a hex; veils read a hex and produce an rgba(). So `border`
+		   has to exist before `border_hover` can darken it, and `surface_inverse`
+		   before `scrim_from` can veil it. Run the veils first and every ground
+		   derivative silently reads null. */
+		foreach ( es_token_mixes() as $clave => $receta ) {
+			/* Same escape hatch as the two passes below: a brand whose hairline is
+			   not a blend of its own ink must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = es_mix( $t[ $receta[0] ], $t[ $receta[1] ], $receta[2] );
+			}
+		}
 		/* Shades run BEFORE the veils: a shade produces a hex, a veil consumes
 		   one, so this order is what lets a future glow be built on a hover. */
 		foreach ( es_token_shades() as $clave => $receta ) {
@@ -450,6 +578,73 @@ function es_fs( $step ) {
 	$t  = es_tokens();
 	$px = $t['fs_base'] * pow( $t['type_ratio'], $step );
 	return round( min( $px, $t['fs_h1_max'] ), 1 );
+}
+
+/**
+ * One step of the type scale, in px, RESOLVED AT A VIEWPORT WIDTH.
+ *
+ * es_fs() above answers "how big is this step" with one number, which is the right shape for a
+ * body size and the WRONG shape for a heading. design-system.md does not give a heading one size:
+ * it gives it a clamp() whose floor is `fs_base x ratio^n`, whose cap is `fs_h1_max / ratio^(3-n)`,
+ * and whose preferred term interpolates that step's OWN floor into that step's OWN cap between
+ * 430px and 1280px. Elementor cannot emit a clamp(); it emits a fixed px per breakpoint. So the
+ * honest translation is to RESOLVE the same formula at each breakpoint, which is what this does.
+ *
+ * Why it matters, measured rather than argued: es_fs(3) is the FLOOR, so an h1 built from it ships
+ * at 37.9px on a desktop at `classic` and 54px at `editorial`, while design-system.md's own browser
+ * table (its "MEASURED in a browser at a 16px root" rows) pins editorial h1 at 88px and monumental
+ * at 120px from 1280px up. A build sized off the floor misses the approved mockup by 40% on the
+ * single largest element of the page, and misses it with a number that LOOKS derived. That is worse
+ * than the sizeless heading it replaces, so the cap has to be reachable and this is what reaches it.
+ *
+ * 430 / 850 are design-system.md's `--fluid` endpoints verbatim (`clamp(0px, calc((100vw - 430px)
+ * / 850), 1px)`), not numbers chosen here. The clamp order is CSS's: `max(floor, min(px, cap))`, so
+ * a position whose cap falls below its floor keeps the floor, exactly as clamp() would.
+ *
+ * tests/test-write-path.php checks this against design-system.md's measured table, not against
+ * itself: 54.00 / 67.52 / 88.00 for editorial h1 and 67.77 / 88.54 / 120.00 for monumental.
+ */
+function es_fs_at( $step, $vw ) {
+	$t     = es_tokens();
+	$floor = $t['fs_base'] * pow( $t['type_ratio'], $step );
+	$cap   = $t['fs_h1_max'] / pow( $t['type_ratio'], 3 - $step );
+	$f     = max( 0.0, min( 1.0, ( $vw - 430 ) / 850 ) );
+	return round( max( $floor, min( $floor + ( $cap - $floor ) * $f, $cap ) ), 1 );
+}
+
+/**
+ * The three widths es_h() resolves the scale at, one per Elementor breakpoint.
+ *
+ * They are not midpoints or guesses: each is a column of design-system.md's own measured table.
+ * 1280 is where every cap engages ("a laptop — which is the entire point"), 768 is the tablet
+ * band's floor, and 430 is the fluid range's floor, below which the clamp holds its own floor.
+ * Taking the FLOOR of each band rather than its middle is deliberate: a fixed size that is right at
+ * the narrow end of a band and a little small at the wide end never overflows, and the failure mode
+ * this file cares about is a heading running off a phone.
+ */
+function es_h_widths() {
+	return array( '' => 1280, '_tablet' => 768, '_mobile' => 430 );
+}
+
+/**
+ * What each heading tag is, on the scale.
+ *
+ * array( step, line-height, weight ). design-system.md's typography table defines exactly three
+ * heading steps — h1 = step 3, h2 = step 2, h3 = step 1 — and pins h1/h2 to `--display-lh`, which
+ * IS the scale axis, while h3 keeps a flat 1.25 and body a flat 1.6 because neither is an axis.
+ * The `null` leading means "read display_lh"; 1.25 is design-system.md's literal and is declared as
+ * a known non-axis residual at the END marker below, with the four body leadings it keeps company.
+ *
+ * h4/h5/h6 are absent because design-system.md defines no step for them. Emitting step 0 would make
+ * a heading the same size as body on a guess, so es_h() emits nothing for them and SAYS SO —— see
+ * its warning. Zero call sites in the tree use one today.
+ */
+function es_h_scale() {
+	return array(
+		'h1' => array( 3, null, '700' ),
+		'h2' => array( 2, null, '700' ),
+		'h3' => array( 1, 1.25, '600' ),
+	);
 }
 
 /**
@@ -694,14 +889,56 @@ function es_eyebrow( $text, $color = null ) {
 	);
 }
 
-/** Section heading. */
+/**
+ * Section heading, ON the scale axis.
+ *
+ * This used to emit `title`, `header_size` and `_margin` and NOTHING else, which meant every
+ * heading on every NovaMira site inherited whatever size the active theme happened to have.
+ * Measured before the fix: `es_h('T','h1')` differed between PERS-EDITORIAL and PERS-DIRECT only in
+ * `_margin.bottom`, the largest heading the whole build could emit was a CTA banner h2, and
+ * `display_lh` —— a token that exists to carry the scale axis —— had exactly one reader in the tree.
+ * The chain promised the build would match an approved mockup rendering an h1 at 88px, and the
+ * build emitted no h1 typography at all. This is that promise made keepable.
+ *
+ * $extra STILL WINS, and it wins WHOLE. A caller passing an explicit `typography_font_size` gets
+ * that size at every breakpoint, not that size on desktop and this function's derived one on tablet
+ * —— which would render a card title LARGER on a tablet than on a desktop. es_feature_card() is
+ * exactly that caller: a card title is not a section h3 and says so with its own size.
+ */
 function es_h( $text, $tag = 'h2', array $extra = array() ) {
 	$settings = array(
 		'title'       => $text,
 		'header_size' => $tag,
 		'_margin'     => es_box( 0, 0, 16, 0 ),
 	);
+
+	$escala = es_h_scale();
+	if ( isset( $escala[ $tag ] ) ) {
+		list( $paso, $leading, $peso ) = $escala[ $tag ];
+		$settings['typography_typography']  = 'custom';
+		$settings['typography_font_family'] = es_t( 'font_head' );
+		$settings['typography_font_weight'] = $peso;
+		$settings['typography_line_height'] = es_size( null === $leading ? es_t( 'display_lh' ) : $leading, 'em' );
+		foreach ( es_h_widths() as $sufijo => $ancho ) {
+			$settings[ 'typography_font_size' . $sufijo ] = es_size( es_fs_at( $paso, $ancho ) );
+		}
+	} elseif ( preg_match( '/^h[1-6]$/', $tag ) ) {
+		/* A heading tag the scale does not define. Loud rather than silent: the whole defect this
+		   function is fixing was a heading with no size, and quietly shipping a second one under a
+		   different tag would be the same bug wearing an h4. */
+		es_warn( 'es_h() no sabe que tamano dar a <' . $tag . '>: design-system.md define la escala solo para h1, h2 y h3. Este titular va a heredar el tamano del TEMA. Usa h1/h2/h3, o pasa la tipografia entera en $extra.' );
+	}
+
 	$settings = array_merge( $settings, $extra );
+	/* A caller that overrode the desktop size and nothing else would otherwise keep this function's
+	   derived tablet/mobile sizes underneath it —— bigger than the desktop size it just set. */
+	if ( isset( $extra['typography_font_size'] ) ) {
+		foreach ( array_keys( es_h_widths() ) as $sufijo ) {
+			if ( '' !== $sufijo && ! isset( $extra[ 'typography_font_size' . $sufijo ] ) ) {
+				unset( $settings[ 'typography_font_size' . $sufijo ] );
+			}
+		}
+	}
 	return es_w( 'heading', $settings );
 }
 
@@ -878,15 +1115,16 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 							es_h(
 								$title,
 								'h2',
+								/* Everything this override used to carry —— the head family, the
+								   weight, display_lh and a size per breakpoint —— es_h() now emits
+								   for every h2 in the build. Keeping a copy here would be a second
+								   place to remember, and it was already drifting: it sized an h2 at
+								   the DISPLAY step (es_fs(3)) because es_h() gave it nothing, which
+								   is the hand-picked exception the token layer exists to remove.
+								   Only the ink is left, and it is genuinely local: this heading
+								   sits on a scrim, not on the page. */
 								array(
-									'title_color'                 => es_t( 'on_inverse' ),
-									'typography_typography'       => 'custom',
-									'typography_font_family'      => es_t( 'font_head' ),
-									'typography_font_size'        => es_size( es_fs( 3 ) ),
-									'typography_font_size_mobile' => es_size( es_fs( 2 ) ),
-									'typography_font_weight'      => '700',
-									'typography_line_height'      => es_size( es_t( 'display_lh' ), 'em' ),
-									'_margin'                     => es_box( 0, 0, 16, 0 ),
+									'title_color' => es_t( 'on_inverse' ),
 								)
 							),
 							es_p(
@@ -1011,9 +1249,20 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
        distances (`translateY(-4px)`, `scale(1.045)`) are still literals. They
        are a real gap, not an oversight -- reported, not silently left.
      - Body leading drifted the way the borders did: 1.65 / 1.60 / 1.58 / 1.55
-       across four helpers for one job. design-system.md says body is 1.6 flat
-       and is NOT an axis, so collapsing it belongs to whoever owns that value,
-       not to the axis task. `display_lh`, which IS an axis, is tokenised. */
+       across four helpers for one job, and es_h_scale() adds h3's flat 1.25 to
+       the pile. design-system.md pins body at 1.6 and h3 at 1.25, and says
+       neither is an axis, so collapsing the four body values belongs to whoever
+       owns that number, not to the axis task. `display_lh`, which IS an axis,
+       is tokenised and now has a reader on every h1 and h2 in the build instead
+       of the single one it had.
+     - `on_accent` is still a literal #FFFFFF, and it is the one that should not
+       be. Measured on the framework's own accent: white label on #0FA968 is
+       3.05:1, and the near-black `text` on the same green is 5.86:1 -- so the
+       default primary button fails AA for normal text, and the token layer has
+       both candidates in scope to choose between. Deriving it (whichever of
+       text/bg contrasts better on the accent) flips every primary button label
+       on the house brand from white to near-black, which is a design decision
+       for the framework's owner rather than a bug fix. REPORTED, not taken. */
 
 /**
  * Audit the container tree before it is written.

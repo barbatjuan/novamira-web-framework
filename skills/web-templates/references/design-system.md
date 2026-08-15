@@ -273,6 +273,50 @@ pair was contrast-checked against its OWN `--c-bg`, not against white. "very lig
 `ink` inverts the derivation, and that is the one that bites: the accent has to be re-derived to
 clear 4.5:1 against `#0E1113`, because an accent that passed on `paper` will usually fail here.
 
+#### The other six ground-dependent colours are DERIVED, not tabled
+
+The three columns above are the axis INPUT. A build has more colours than that which depend on the
+ground, and for a while they did not move with it: `es-builder.php` shipped `muted`, `text_soft`,
+`border`, `surface_inverse` and `on_inverse` as constants sampled off a white page. Measured on the
+`ink` row of the table above, against its own `--c-bg` — which is the rule this file states two
+paragraphs up and enforced for `--c-text` alone: `muted` **3.70:1**, `text_soft` **2.27:1**,
+`surface_inverse` **1.06:1** (the dark button was invisible on its own page) and `border`
+**15.24:1**, a near-white hairline slashed across a near-black page.
+
+They are now blended out of `--c-text` and `--c-bg` rather than tabled per position, and the reason
+is coverage: this table has four rows and a client's ground is whatever their brand is. A derived
+neutral is right on grounds nobody has thought of yet; a tabled one is right on four. It also
+follows `design-tokens.md` step 4, which already said to derive neutrals off the contrast colour.
+
+| Derived token | Recipe | paper | warm | cool | ink |
+|---|---|---|---|---|---|
+| `--c-text-soft` | text → bg, 23% | 8.49:1 | 7.55:1 | 7.71:1 | 10.50:1 |
+| `--c-text-muted` | text → bg, 36.6% | 5.20:1 | 4.78:1 | 4.92:1 | 7.40:1 |
+| `--c-border` | text → bg, 89% | 1.25:1 | 1.25:1 | 1.25:1 | 1.31:1 |
+| `--c-surface-inverse` | text (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
+| `--c-on-inverse` | bg (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
+
+Every cell is a **measured contrast against that position's own `--c-bg`** — except the last row,
+which is measured against `--c-surface-inverse`, since that is what that ink sits on. The two 0%
+rows are the point rather than a rounding curiosity: the surface that flips the page over IS the
+contrast colour, and the ink on it IS the page's ground, so on `warm` an inverted panel is dark
+brown carrying cream, not dark brown carrying a white that appears nowhere else in the palette.
+
+**These cells are evidence, not values, and that is why the position names in this table's header
+are not backticked.** `RT_AXIS_VALUE_MISSING` reads any table row containing a backticked position
+name and requires a token-shaped value beside it; a contrast ratio is not one, so backticking them
+here would fail the audit on correct documentation. The verifier for a derived token is not a column
+in this file — it is `tests/test-write-path.php`, which recomputes every ratio above on every run
+against all four positions and requires body copy ≥ 4.5:1 and the inverse surface ≥ 3:1. That is
+strictly stronger than a documented literal, which is only ever as true as the day it was typed.
+
+`--c-border` is asserted as a **range** (1.05–2.5:1) rather than against WCAG 1.4.11's 3:1. It is a
+divider, and it has never reached 3:1 on any ground including the white one it was drawn for. What
+went wrong on `ink` was not that it was too faint but that it stopped being a hairline at all.
+**Open, not closed:** the outline button's edge reads this same token, and *that* is a control at
+1.25:1, so it is a real 1.4.11 gap. Fixing it means a separate control-edge token with its own
+measured cell, and it is recorded here rather than hidden behind the range.
+
 ### Elevation (`--elev-rest`, `--elev-hover`)
 | Position | `--elev-rest` | `--elev-hover` |
 |---|---|---|

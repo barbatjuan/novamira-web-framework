@@ -25,8 +25,11 @@ color; it must never equal the accent, or the one-accent rule collapses.
    becomes a hover/active shade, not a second accent.
 2. **Dominant** = the lightest neutral in the brand material, or plain white.
 3. **Contrast** = the darkest brand neutral pushed to near-black. Check 4.5:1 against the dominant.
-4. Derive the neutrals from the contrast, not from grey: muted text ≈ 55–60% of the way toward
-   the dominant, border ≈ 85%. Sampling off the contrast keeps the whole page coherent.
+4. Derive the neutrals from the contrast, not from grey: muted text ≈ **37%** of the way toward
+   the dominant, soft body ink ≈ 23%, border ≈ 89%. Sampling off the contrast keeps the whole page
+   coherent, and it is what lets a dark ground work without a second palette.
+   Muted read 55–60% here and was never built at that value, because it cannot be: 57% of the way
+   from a near-black to white lands on 2.76:1, and this role paints body copy. Measured figures.
 5. Accent hover = the accent darkened ~10%. Verify the CTA label still passes contrast on it.
 
 Reject an accent that fails 4.5:1 with both white and near-black label text — pick a darker

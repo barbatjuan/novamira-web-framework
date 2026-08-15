@@ -1675,6 +1675,90 @@ ok( 2 === substr_count( $salida, '----- hermanos:' ), 'y las dos secciones cubre
 ok( $oro_txt === $salida, 'lo que emite el constructor es, byte a byte, lo que dice tests/fixtures/emitted-golden.txt' );
 
 /* ---------------------------------------------------------------------------
+ * Un ayudante puede irse de la cobertura sin que nadie lo note.
+ *
+ * Medido: borrando `es_feature_card` de es_dump_visuals() y regenerando el
+ * dorado, las cuatro suites y la auditoria seguian en verde. La lista de
+ * ayudantes del volcado se mantenia A MANO, asi que el ayudante que se olvida es
+ * el que deja de estar cubierto —— y, combinado con lo que la fila de literales
+ * NO cazaba entonces, un ayudante nuevo no estaba protegido en ninguna de las
+ * dos capas.
+ *
+ * Asi que "todos" se MIDE: se leen las funciones declaradas entre los dos
+ * marcadores de region de es-builder.php y se exige que cada una este nombrada
+ * en es_dump_visuals(). Sin lista de exentos, que es donde se escondería el
+ * siguiente.
+ *
+ * Los tres hermanos no se enumeran aqui porque no hace falta: el volcado los
+ * ejecuta ENTEROS (es_build_theme_parts / _shop_template / _product_single) y ya
+ * afirma que las cuatro plantillas y el nav llegaron a _elementor_data.
+ * ------------------------------------------------------------------------- */
+$eb_src   = file_get_contents( dirname( __DIR__ ) . '/skills/elementor-core/assets/es-builder.php' );
+$eb_lin   = explode( "\n", $eb_src );
+$eb_ini   = -1;
+$eb_fin   = -1;
+foreach ( $eb_lin as $i => $l ) {
+	if ( false !== strpos( $l, 'end of the visual layer' ) ) {
+		$eb_fin = $i;   /* el ULTIMO, igual que framework-audit.php */
+	}
+}
+foreach ( $eb_lin as $i => $l ) {
+	if ( preg_match( '/^function\s+es_tokens\s*\(/', $l ) ) {
+		for ( $j = $i + 1; $j < count( $eb_lin ); $j++ ) {
+			if ( '}' === rtrim( $eb_lin[ $j ] ) ) {
+				$eb_ini = $j;
+				break;
+			}
+		}
+		break;
+	}
+}
+$region_fn = array();
+for ( $i = $eb_ini + 1; $i < $eb_fin; $i++ ) {
+	if ( preg_match( '/^function\s+(es_\w+)\s*\(/', $eb_lin[ $i ], $m ) ) {
+		$region_fn[] = $m[1];
+	}
+}
+/* Si los marcadores dejan de encontrarse, la region sale vacia y el bucle de
+   abajo no comprueba NADA mientras dice OK. Eso es el fallo, no un detalle. */
+ok( $eb_ini > 0 && $eb_fin > $eb_ini, 'los dos marcadores de region de es-builder.php se localizan: sin ellos lo de abajo recorreria una lista vacia' );
+ok( count( $region_fn ) >= 20, 'y la region declara ' . count( $region_fn ) . ' funciones es_*, no un puñado por un regex que dejo de casar' );
+$dump_src = (string) file_get_contents( $dump_php );
+$sin_dump = array();
+if ( preg_match( '/function es_dump_visuals\(\).*?\n}/s', $dump_src, $dvm ) ) {
+	foreach ( $region_fn as $f ) {
+		if ( false === strpos( $dvm[0], $f . '(' ) ) {
+			$sin_dump[] = $f;
+		}
+	}
+} else {
+	$sin_dump[] = '(no se pudo leer es_dump_visuals() del volcado)';
+}
+ok( array() === $sin_dump, 'el volcado ejercita TODAS las funciones de la region visual: ' . ( $sin_dump ? 'fuera de cobertura -> ' . implode( ', ', $sin_dump ) : count( $region_fn ) . ' comprobadas' ) );
+
+/* ---------------------------------------------------------------------------
+ * La mascara del año, clavada estrecha.
+ *
+ * gmdate('Y') en el copyright del pie es el unico valor de los tres hermanos que
+ * se mueve sin que nadie edite nada, asi que el volcado lo enmascara. Hoy la
+ * mascara es estrecha y segura —— dos apariciones, las dos del copyright. Pero
+ * nada la obligaba a serlo: ensanchandola a preg_replace('/[0-9]{2,}/','N') y
+ * regenerando, todo seguia en verde y CUALQUIER numero de la seccion de hermanos
+ * quedaba libre de moverse. Una mascara es un agujero autorizado en el dorado; su
+ * tamaño tiene que estar afirmado, no ser una costumbre.
+ * ------------------------------------------------------------------------- */
+ok( 2 === substr_count( $oro_txt, '© AAAA ' ), 'la mascara del año tapa exactamente las dos lineas de copyright, ni una mas' );
+ok( ! has( $oro_txt, '© ' . gmdate( 'Y' ) . ' ' ), 'y no queda ningun año sin enmascarar, que es para lo que existe' );
+/* Y lo que de verdad mata al mutante que la ensancha: el dorado sigue lleno de
+   numeros. Una mascara numerica general los colapsaria todos y esto se hundiria.
+   El suelo es 1500 sobre las ~2020 que hay: holgado para que un cambio de valor
+   normal no lo roce, y a la vez a un abismo del 0 al que caeria el mutante. No
+   es un umbral que mida calidad —— mide que la mascara sigue siendo un agujero
+   del tamaño de un año y no del tamaño de la seccion entera. */
+$digitos = preg_match_all( '/[0-9]{2,}/', $oro_txt );
+ok( $digitos > 1500, 'y el dorado sigue clavando ' . $digitos . ' numeros de dos o mas cifras: una mascara numerica general los colapsaria a N y no clavaria ninguno' );
+
+/* ---------------------------------------------------------------------------
  * es_rgba(): el color de un token con un velo por encima.
  *
  * Siete valores metian el color de OTRO token dentro de un rgba() sin
@@ -1931,12 +2015,22 @@ ok( ! has( $probe['out'], 'es_t(' ), 'construir una pagina no pide ninguna clave
  * ajuste aparece con el NOMBRE del rol que lo alimenta y una confusion de roles
  * deja de ser invisible en la revision.
  * ------------------------------------------------------------------------- */
-es_tokens( array( 'bg' => '#FCF7EE' ) );
+/* Este par se escribia antes moviendo SOLO bg y exigiendo que el boton no lo
+   tocase. Ya no se puede preguntar asi, y el motivo es una decision, no un
+   estorbo: `on_inverse` es ahora DERIVADO de `bg` —— la tinta que va sobre la
+   superficie inversa es el suelo de la propia pagina —— asi que mover bg mueve
+   los dos y "no toma nada del color de pagina" es literalmente imposible de
+   cumplir. Esa igualdad es CORRECTA: sobre el ground `warm`, la tinta del heroe
+   oscuro tiene que ser la crema de la pagina (#FFF3E3, 15.3:1 sobre la
+   superficie inversa), no un blanco puro que no esta en la paleta.
+   Lo que el fallo original rompia sigue siendo cierto y sigue afirmado aqui: el
+   boton lee el ROL. Se separan los dos valores a mano —— un override explicito
+   gana a la derivacion —— y se pregunta en las DOS direcciones a la vez, que es
+   mas fuerte que las dos afirmaciones sueltas de antes. */
+es_tokens( array( 'bg' => '#FCF7EE', 'on_inverse' => '#E3F1FF' ) );
 $fantasma = json_encode( es_btn( 'Ir', '#', 'outline-light' ) );
-ok( ! has( $fantasma, '#FCF7EE' ), 'el boton fantasma sobre heroe oscuro no toma NADA del color de pagina' );
-es_tokens( array( 'on_inverse' => '#FCF7EE' ) );
-$fantasma = json_encode( es_btn( 'Ir', '#', 'outline-light' ) );
-ok( has( $fantasma, '#FCF7EE' ), 'lo toma de la tinta inversa, que es el rol que le corresponde' );
+ok( ! has( $fantasma, '#FCF7EE' ), 'el boton fantasma sobre heroe oscuro no toma NADA del color de pagina cuando los dos roles se separan' );
+ok( has( $fantasma, '#E3F1FF' ), 'lo toma de la tinta inversa, que es el rol que le corresponde' );
 
 /* Los tokens derivados existen para que UN punto de edicion sea de verdad uno:
    cambiar el acento tiene que mover tambien todo lo que lo lleva dentro. */
@@ -2030,6 +2124,223 @@ ok( 3 === substr_count( $reposo, 'box-shadow:0 0 0 1px #E5E7E5' ), 'las tres rec
 es_tokens( array( 'elev_rest' => 'none' ) );
 $sin_reposo = es_card_hover_css() . es_products_css() . json_encode( es_feature_card( 'fas fa-check', 'titulo', 'texto' ) );
 ok( ! has( $sin_reposo, '0 0 0 1px #E5E7E5' ), 'y volver a `none` las deja planas: la sombra en reposo sale del token, no esta clavada' );
+
+/* ---------------------------------------------------------------------------
+ * Los titulares llevan la escala.
+ *
+ * es_h() emitia `title`, `header_size` y `_margin`, y nada mas. Medido antes de
+ * arreglarlo: es_h('T','h1') se diferenciaba entre PERS-EDITORIAL y PERS-DIRECT
+ * SOLO en `_margin.bottom`; el titular mas grande que sabia emitir el build
+ * entero era el h2 del banner CTA; y `display_lh` —— un token que existe para
+ * llevar el eje de escala —— tenia exactamente UN lector en todo el arbol.
+ * Mientras tanto la cadena promete que el build reproduce una maqueta aprobada
+ * que pinta el h1 a 88px. El elemento mas visible de la pagina era el unico que
+ * no podia cumplir su propio contrato.
+ * ------------------------------------------------------------------------- */
+echo "--- los titulares llevan la escala hasta el tope de su posicion ---\n";
+
+/* La comprobacion que lo ancla todo, y NO contra si misma: los numeros de la
+   derecha son la tabla "MEASURED in a browser at a 16px root" de
+   design-system.md, copiada tal cual. Si es_fs_at() y esa tabla se separan, o el
+   build dejo de reproducir la maqueta o la maqueta dejo de medir lo que dice. */
+es_tokens( array( 'type_ratio' => 1.500, 'display_lh' => 0.95, 'fs_h1_max' => 88 ) );
+ok( 54.0 === es_fs_at( 3, 430 ) && 67.5 === es_fs_at( 3, 768 ) && 88.0 === es_fs_at( 3, 1280 ), 'editorial h1 reproduce la tabla medida de design-system.md: 54 / 67.5 / 88' );
+es_tokens( array( 'type_ratio' => 1.618, 'display_lh' => 0.82, 'fs_h1_max' => 120 ) );
+ok( 67.8 === es_fs_at( 3, 430 ) && 88.5 === es_fs_at( 3, 768 ) && 120.0 === es_fs_at( 3, 1280 ), 'y monumental tambien: 67.8 / 88.5 / 120' );
+/* El tope se alcanza a 1280 y se queda ahi. Sin esto, un es_fs_at() que
+   devolviese siempre el SUELO pasaria las dos afirmaciones de arriba en su
+   columna de 430 y fallaria callando en la unica que se ve en un portatil. */
+ok( 120.0 === es_fs_at( 3, 1920 ), 'y por encima de 1280 se queda en el tope, no sigue creciendo' );
+ok( 67.8 === es_fs_at( 3, 100 ), 'y por debajo de 430 se queda en el suelo, no sigue encogiendo' );
+
+/* La afirmacion falsable de todo el Grupo C. Dos anclas, el MISMO h1, y la
+   pregunta es si se distinguen en el TAMANO. Antes se distinguian solo en el
+   margen inferior, que es lo mismo que no distinguirse. */
+es_tokens( array( 'type_ratio' => 1.500, 'display_lh' => 0.95, 'fs_h1_max' => 88 ) );
+$h1_editorial = es_h( 'Titular', 'h1' );
+es_tokens( array( 'type_ratio' => 1.200, 'display_lh' => 1.25, 'fs_h1_max' => 48 ) );
+$h1_directo   = es_h( 'Titular', 'h1' );
+ok( 88.0 === $h1_editorial['settings']['typography_font_size']['size'], 'un h1 editorial sale a 88px en escritorio, que es lo que pinta la maqueta aprobada' );
+ok( 48.0 === $h1_directo['settings']['typography_font_size']['size'], 'y uno contenido a 48px: la misma llamada, dos sitios que no se confunden' );
+ok( $h1_editorial['settings']['typography_line_height'] !== $h1_directo['settings']['typography_line_height'], 'y el leading del display tambien se mueve, que es la otra mitad del eje' );
+
+/* La jerarquia, en los tres puntos de ruptura. Un h3 mas grande que un h2 en
+   tablet es exactamente el fallo que produce sobrescribir solo el tamano de
+   escritorio, y es un fallo que solo se ve en una tablet. */
+es_tokens( $es_defaults );
+foreach ( array( '', '_tablet', '_mobile' ) as $bp ) {
+	$t1 = es_h( 'a', 'h1' )['settings'][ 'typography_font_size' . $bp ]['size'];
+	$t2 = es_h( 'a', 'h2' )['settings'][ 'typography_font_size' . $bp ]['size'];
+	$t3 = es_h( 'a', 'h3' )['settings'][ 'typography_font_size' . $bp ]['size'];
+	ok( $t1 > $t2 && $t2 > $t3, 'h1 > h2 > h3 en ' . ( '' === $bp ? 'escritorio' : trim( $bp, '_' ) ) . ": $t1 / $t2 / $t3" );
+}
+/* Y la jerarquia entre puntos de ruptura, que es la que se rompe sola: cada
+   titular tiene que ser MAS grande cuanto mas ancha la pantalla. */
+$h2 = es_h( 'a' )['settings'];
+ok( $h2['typography_font_size']['size'] > $h2['typography_font_size_tablet']['size'] && $h2['typography_font_size_tablet']['size'] > $h2['typography_font_size_mobile']['size'], 'y cada titular crece de movil a tablet a escritorio, nunca al reves' );
+
+/* El leading: display_lh en los tags de display, plano en h3. */
+ok( es_t( 'display_lh' ) === es_h( 'a', 'h1' )['settings']['typography_line_height']['size'], 'h1 toma el leading del eje' );
+ok( es_t( 'display_lh' ) === es_h( 'a', 'h2' )['settings']['typography_line_height']['size'], 'y h2 tambien' );
+ok( 1.25 === es_h( 'a', 'h3' )['settings']['typography_line_height']['size'], 'y h3 se queda en el 1.25 plano que design-system.md le fija: no es un eje' );
+ok( es_t( 'font_head' ) === es_h( 'a' )['settings']['typography_font_family'], 'y la familia de titulares sale del token' );
+
+/* $extra gana, y gana ENTERO. Sobrescribir solo el tamano de escritorio y
+   heredar los derivados de tablet/movil deja una tarjeta MAS grande en tablet
+   que en escritorio —— que es lo que pasaria con es_feature_card(), el unico
+   sitio del arbol que sobrescribe el tamano de un h3. */
+$tarjeta = es_h( 'a', 'h3', array( 'typography_font_size' => es_size( 19 ) ) );
+ok( 19 === $tarjeta['settings']['typography_font_size']['size'], 'un tamano explicito gana al derivado' );
+ok( ! isset( $tarjeta['settings']['typography_font_size_tablet'] ), 'y retira el derivado de tablet, que si no saldria MAS grande que el explicito de escritorio' );
+ok( ! isset( $tarjeta['settings']['typography_font_size_mobile'] ), 'y el de movil' );
+/* Pero quien SI dice los tres se queda con los tres. */
+$tres = es_h( 'a', 'h3', array( 'typography_font_size' => es_size( 19 ), 'typography_font_size_tablet' => es_size( 18 ), 'typography_font_size_mobile' => es_size( 17 ) ) );
+ok( 18 === $tres['settings']['typography_font_size_tablet']['size'], 'y quien declara los tres puntos de ruptura se queda con los tres' );
+/* Y el resto de la tipografia sigue llegando: retirar el tamano no es retirar
+   la familia ni el leading. */
+ok( es_t( 'font_head' ) === $tarjeta['settings']['typography_font_family'], 'y sobrescribir el tamano no descuelga la familia del token' );
+
+/* Un tag fuera de la escala AVISA en vez de emitir un titular sin tamano, que
+   es el fallo original de esta funcion con otra etiqueta. */
+$r = grab(
+	function () {
+		return es_h( 'a', 'h4' );
+	}
+);
+ok( has( $r['out'], 'h4' ), 'un tag que la escala no define avisa nombrandolo' );
+ok( ! isset( $r['ret']['settings']['typography_font_size'] ), 'y no se inventa un tamano: emitir un paso a ojo seria el mismo fallo con otra cara' );
+es_tokens( $es_defaults );
+
+/* ---------------------------------------------------------------------------
+ * El eje de ground, medido en contraste y no en "el valor se ha movido".
+ *
+ * El eje documentaba TRES tokens —— bg, bg_alt y text —— y el build tenia al
+ * menos SEIS colores que dependen del ground. Los otros tres se quedaban con su
+ * valor de pagina blanca en todas las posiciones. Medido sobre los tokens
+ * emitidos con el ground `ink` que design-system.md documenta (bg #0E1113,
+ * text #F4F6F7):
+ *
+ *   muted           #6A6F6C   3.70:1  por debajo de AA —— y es_p() pinta con el
+ *                                      TODO el texto de cuerpo
+ *   text_soft       #4A4F4C   2.27:1  por debajo de AA
+ *   surface_inverse #15181A   1.06:1  el boton `dark` invisible en su pagina
+ *   border          #E5E7E5  15.24:1  un filete casi BLANCO sobre casi negro
+ *
+ * design-system.md:263 dice la regla que eso rompe con sus propias palabras ——
+ * "each pair was contrast-checked against its OWN --c-bg, not against white" ——
+ * y estaba puesta en practica para --c-text y para nada mas.
+ *
+ * Lo que se afirma aqui es el CONTRASTE, no que el valor cambie. `muted !==
+ * '#6A6F6C'` lo cumple un valor que sigue sin leerse; 4.5:1 no.
+ * ------------------------------------------------------------------------- */
+echo "--- el ground mueve TODOS los colores que dependen de el, con contraste medido ---\n";
+
+/* WCAG 2.x relative luminance y ratio de contraste, escritos aqui y no en el
+   build: es una herramienta de afirmacion, no algo que se emita. */
+function wcag_lum( $hex ) {
+	$h = ltrim( (string) $hex, '#' );
+	$s = 0.0;
+	$k = array( 0.2126, 0.7152, 0.0722 );
+	for ( $i = 0; $i < 3; $i++ ) {
+		$c  = hexdec( substr( $h, $i * 2, 2 ) ) / 255;
+		$c  = $c <= 0.03928 ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+		$s += $k[ $i ] * $c;
+	}
+	return $s;
+}
+function wcag_ratio( $a, $b ) {
+	$x = wcag_lum( $a );
+	$y = wcag_lum( $b );
+	return round( ( max( $x, $y ) + 0.05 ) / ( min( $x, $y ) + 0.05 ), 2 );
+}
+
+/* Las cuatro posiciones se LEEN de design-system.md, no se copian aqui. Copiarlas
+   seria clavar los mismos numeros en dos sitios y perder justo la pregunta que
+   importa: ¿sigue el build en la posicion que la referencia documenta? Asi es
+   como bg_alt se habia ido a #F4F5F3, que no esta en ninguna fila de esa tabla. */
+$ds_ruta = dirname( __DIR__ ) . '/skills/web-templates/references/design-system.md';
+$suelos  = array();
+foreach ( explode( "\n", (string) file_get_contents( $ds_ruta ) ) as $linea ) {
+	$linea = trim( $linea );
+	if ( '' === $linea || '|' !== $linea[0] ) {
+		continue;
+	}
+	$celdas = array_map(
+		function ( $c ) {
+			return trim( trim( $c ), '`' );
+		},
+		explode( '|', trim( $linea, '|' ) )
+	);
+	if ( count( $celdas ) >= 4 && in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'ink' ), true ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[1] ) ) {
+		$suelos[ $celdas[0] ] = array( 'bg' => $celdas[1], 'bg_alt' => $celdas[2], 'text' => $celdas[3] );
+	}
+}
+/* Sin esto, un cambio de formato en la tabla dejaria $suelos vacio y TODO el
+   bucle de abajo pasaria sin comprobar ni una posicion. */
+ok( 4 === count( $suelos ), 'las cuatro posiciones de ground se leen de design-system.md: ' . implode( ', ', array_keys( $suelos ) ) );
+
+/* Los tres tokens que el eje DOCUMENTA tienen que ser, en el build, los de la
+   fila `paper`. Nada comprobaba esto, y por eso bg_alt llevaba un cuarto ground
+   inventado. */
+es_tokens( $es_defaults );
+foreach ( array( 'bg', 'bg_alt', 'text' ) as $documentado ) {
+	ok(
+		strtoupper( $suelos['paper'][ $documentado ] ) === strtoupper( es_t( $documentado ) ),
+		'el valor por defecto de "' . $documentado . '" es la celda `paper` de design-system.md (' . $suelos['paper'][ $documentado ] . '), no un ground inventado',
+		es_t( $documentado )
+	);
+}
+
+foreach ( $suelos as $posicion => $celdas ) {
+	es_tokens( array( 'bg' => $celdas['bg'], 'bg_alt' => $celdas['bg_alt'], 'text' => $celdas['text'] ) );
+	$fondo = es_t( 'bg' );
+	/* TEXTO DE CUERPO: 4.5:1. `muted` es el que pinta es_p(), asi que es el que
+	   se lee en cada parrafo del sitio; `text_soft` pinta la prosa de la ficha
+	   de producto. Los dos son texto normal, no texto grande. */
+	foreach ( array( 'text', 'muted', 'text_soft' ) as $tinta ) {
+		$r = wcag_ratio( es_t( $tinta ), $fondo );
+		ok( $r >= 4.5, 'ground `' . $posicion . '`: "' . $tinta . '" (' . es_t( $tinta ) . ') contra su PROPIO fondo llega a AA —— ' . $r . ':1' );
+	}
+	/* UI NO TEXTUAL: 3:1. La superficie inversa tiene que leerse como OTRA
+	   superficie sobre la pagina, que es lo que a 1.06:1 no pasaba: el boton
+	   `dark` era invisible sobre su propia pagina. */
+	$r = wcag_ratio( es_t( 'surface_inverse' ), $fondo );
+	ok( $r >= 3.0, 'ground `' . $posicion . '`: la superficie inversa (' . es_t( 'surface_inverse' ) . ') se distingue de la pagina —— ' . $r . ':1' );
+	/* Y la tinta que va ENCIMA de esa superficie, contra la superficie, no
+	   contra la pagina. */
+	$r = wcag_ratio( es_t( 'on_inverse' ), es_t( 'surface_inverse' ) );
+	ok( $r >= 4.5, 'ground `' . $posicion . '`: la tinta sobre la superficie inversa llega a AA contra ELLA —— ' . $r . ':1' );
+	/* EL FILETE, y por que NO se le pide 3:1. WCAG 1.4.11 pide 3:1 a un control;
+	   esto es un divisor, y no ha llegado a 3:1 en NINGUN ground, incluido el
+	   blanco para el que se dibujo (1.24:1). Pedirle 3:1 seria o bien oscurecer
+	   todos los divisores de todos los sitios sin que nadie lo haya pedido, o
+	   bien escribir una comprobacion que se aprueba mirando a otro lado. Lo que
+	   si se le puede pedir —— y es lo que fallaba —— es que siga siendo un
+	   filete: a 15.24:1 sobre `ink` era un tajo casi blanco. */
+	$r = wcag_ratio( es_t( 'border' ), $fondo );
+	ok( $r >= 1.05 && $r <= 2.5, 'ground `' . $posicion . '`: el filete sigue siendo un filete sobre su propio fondo —— ' . $r . ':1' );
+}
+
+/* La afirmacion es del CONTRASTE, no del cambio, y esto es lo que lo demuestra:
+   un `muted` que se ha movido de su valor por defecto pero sigue sin leerse
+   tiene que suspender. Sin esta linea, "muted !== #6A6F6C" pasaria por una
+   comprobacion de accesibilidad. */
+es_tokens( array( 'bg' => $suelos['ink']['bg'], 'text' => $suelos['ink']['text'], 'muted' => '#5A5F5C' ) );
+ok( wcag_ratio( es_t( 'muted' ), es_t( 'bg' ) ) < 4.5, 'un muted que SE MUEVE pero sigue ilegible da menos de 4.5:1: lo que se afirma arriba es el contraste, no el cambio' );
+
+/* Y el otro lado: un override explicito de un derivado gana, igual que en las
+   otras dos pasadas. Una marca cuyo filete no es una mezcla de su tinta tiene
+   que poder decirlo. */
+es_tokens( array( 'border' => '#123456' ) );
+ok( '#123456' === es_t( 'border' ), 'un override explicito de un neutro derivado gana a la mezcla' );
+$r = grab(
+	function () {
+		return es_mix( 'azul', '#FFFFFF', 0.5 );
+	}
+);
+ok( '' === $r['ret'], 'un valor que no es hex no se convierte en un neutro plausible al mezclarlo' );
+ok( has( $r['out'], 'azul' ), 'y lo dice en voz alta nombrando el valor que no supo leer' );
+es_tokens( $es_defaults );
 
 /* Cualquier override reconstruye el juego DESDE los valores por defecto, asi que
    devolverlos entero restaura todos. Esa es la via de reset, y esta afirmada

@@ -309,7 +309,7 @@ function es_build_theme_parts() {
 					. '@media(max-width:767px){selector .elementor-menu-toggle{margin:0!important;}'
 					. 'selector .elementor-menu-toggle[aria-expanded="false"] ~ .elementor-nav-menu--dropdown{position:absolute!important;}}'
 					. '@media(min-width:1025px){selector .elementor-item{position:relative;}'
-					. 'selector .elementor-item::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;background:' . es_t( 'accent' ) . ';opacity:0;transform:translateY(2px);transition:opacity .28s ease,transform .28s ease;}'
+					. 'selector .elementor-item::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;background:' . es_t( 'accent' ) . ';opacity:0;transform:translateY(2px);transition:opacity .28s ' . es_t( 'ease' ) . ',transform .28s ' . es_t( 'ease' ) . ';}'
 					. 'selector .elementor-item:hover::after,selector .current-menu-item .elementor-item::after,selector .elementor-item-active::after{opacity:1;transform:translateY(0);}}',
 			)
 		);
@@ -447,7 +447,7 @@ function es_build_theme_parts() {
 								'toggle_icon_size'         => es_size( 22 ),
 								'toggle_button_padding'    => es_box( 4, 4, 4, 4 ),
 								/* Just the icon, no square frame. */
-								'custom_css'               => 'selector .elementor-menu-cart__toggle .elementor-button{border:0!important;background:transparent!important;box-shadow:none!important;}'
+								'custom_css'               => 'selector .elementor-menu-cart__toggle .elementor-button{border:0!important;background:' . es_t( 'transparent' ) . '!important;box-shadow:none!important;}'
 									. '@media(max-width:767px){selector .elementor-menu-cart__container{width:100vw!important;max-width:100vw!important;}}',
 								'items_indicator_text_color' => es_t( 'on_accent' ),
 								'items_indicator_background_color' => es_t( 'accent' ),

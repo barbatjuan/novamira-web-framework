@@ -537,11 +537,85 @@ git commit -m "docs: the anchor survives the hop into the build"
 
 - `es_tokens()` exists in all four builder assets; no visual literal survives between the markers.
 - Task 1 and Task 4 produced **byte-identical** output; Task 2's value shifts are recorded in a table.
-- `es_fs()` and `es_sp()` are derived, and swapping a ratio or a multiplier provably moves the emitted data.
+- `es_fs()` and `es_sp()` are derived, and swapping a ratio or a multiplier provably moves the emitted data **in `es-builder.php`**. Scoped deliberately, because the wider sentence was false: `es_sp()` reaches all four assets (every box goes through `es_box()`, and the three siblings inherit it), but `es_fs()` is called **zero times outside `es-builder.php`** and 32 sibling font sizes are frozen literals at every anchor. The density axis reaches the whole build; the scale axis reaches one file of four. That gap is named and scoped in "Named follow-on work" below — it is a decision on the record, not an omission.
 - `elev_rest` exists, so `hairline` and `soft-shadow` are expressible for the first time.
 - `RT_BUILDER_NO_TOKENS` and `RT_BUILDER_HARDCODED_TOKEN` exist with entries, rows and fixtures — including the `#732` fixture. `COVERAGE_EXEMPT` still `array()`.
 - `elementor-core/SKILL.md` names `es_tokens()` and is under 600 words.
 - Audit `0 FAIL`; four suites `0 FAIL`.
+
+## Named follow-on work (decided, not omitted)
+
+Both entries below are things this plan's tasks found, measured, and deliberately did not fix.
+They are written down so the next reader inherits a decision with numbers attached rather than a
+silence. Neither is a bug report against Task 4 — the reasoning is sound and is endorsed here.
+
+### 1. The scale axis stops at `es-builder.php`: 32 frozen sibling font sizes
+
+Measured, not estimated (`rg -o "font_size\w*'?\s*=>\s*es_size\(\s*[0-9.]+"`):
+
+| File | `es_size()` font sizes | Values |
+|---|---|---|
+| `es-theme-parts.example.php` | 11 | 11.5 · 13 ×2 · 14 ×3 · 14.5 ×2 · 17 · 20 · 21 |
+| `es-product-single.example.php` | 12 | 13.5 ×2 · 14 · 15 ×3 · 15.5 · 24 · 27 · 30 · 32 · 36 |
+| `es-shop-template.example.php` | 9 | 13.5 · 14 ×2 · 15 · 17 ×2 · 18 · 31 · 48 |
+| **total** | **32** | 18 distinct values |
+
+Three more are typed as raw CSS rather than through `es_size()` — `font-size:24px` in the mobile
+dropdown (`es-theme-parts.example.php:303`) and `font-size:0` / `font-size:13.5px` in
+`es_products_css()` (`es-builder.php:617-618`) — so **35** absolute font sizes in the build do not
+move with `--type-ratio`. None of them is reachable by `es_fs()`; `es_fs()` has no caller outside
+`es-builder.php`.
+
+**Why forcing them onto the scale was declined.** At the `classic` position the steps are
+9.0 · 12.0 · 16 · 21.3 · 28.4 · 37.9 · 50.5. Snapping each of the 18 distinct values to its nearest
+step costs a bend of **1.4% to 14.3%** — not the gentle rounding it looks like from the two ends of
+the range. The worst case is `14`, which appears six times and sits at an *exact* ±14.3% tie
+between step −1 (12) and step 0 (16), so there is no nearest step to snap it to. And the snap
+collapses roles that are deliberately distinct: the shop card's add-to-cart label (13.5) and the
+footer's legal links (13) both land on 12, which sizes a button exactly like fine print, while the
+product page's add-to-cart label (15) goes the other way to 16. A derivation that has to be argued
+with at seventeen call sites is not a derivation; it is twelve numbers wearing a formula.
+
+**What the honest fix looks like when someone takes it.** Not a snap. Either (a) give the siblings
+their own named non-axis steps the way `fs_small` and `fs_eyebrow` already are — roles with a
+stated reason to sit off the ratio — or (b) widen the scale itself so the sizes these files
+actually need are steps. Both are real work with a visual review attached, which is why they are
+here and not inside this plan.
+
+**Not in scope for that work, and already fixed:** headings. `es_h()` emitted no typography at all
+until Group C of the whole-branch review, so the largest heading the build could produce was 54px
+at `editorial` against a mockup rendering 88px. That was a different defect — a missing derivation,
+not a declined one — and it is closed.
+
+### 2. Thirteen hand-picked alphas, and no alpha scale to pick them from
+
+`es-theme-parts.example.php` makes **13** `es_rgba( es_t( … ), … )` calls; the other two sibling
+assets make none. The colours are correctly derived — that is what Task 4 bought — but every alpha
+is a hand-typed constant:
+
+| alpha | times | lines |
+|---|---|---|
+| `0` | 1 | 218 |
+| `0.07` | 1 | 292 |
+| `0.08` | 3 | 274, 329, 580 |
+| `0.11` | 1 | 634 |
+| `0.22` | 1 | 299 |
+| `0.42` | 3 | 192, 639, 643 |
+| `0.52` | 1 | 562 |
+| `0.72` | 1 | 335 |
+| `0.76` | 1 | 216 |
+
+Nine distinct values for what is visibly one job — "the same ink, quieter" — and the two nearest
+neighbours (`0.42` and `0.52`, `0.72` and `0.76`) have no recorded reason to differ. This is the
+`border` / `border_soft` / `border_softer` drift again, one property over.
+
+**And there is nothing to check them against.** `design-system.md` documents no alpha scale — its
+only `0.5` is `:disabled` opacity, an unrelated state. `es-builder.php:230-231`'s `0.75` and `0.5`
+are this file's own choices, not documented values, so citing them as the scale these thirteen
+should snap to would be citing the framework to itself. `design-tokens.md` is explicit: *"Never
+restate a number here — read it there."* Closing this properly means **`design-system.md` grows an
+alpha scale first** (and `RT_AXIS_VALUE_MISSING`, or a sibling row, grows to cover it), and only
+then do the thirteen call sites move onto it. Doing it the other way round invents an authority.
 
 ## The falsifiable criterion
 
