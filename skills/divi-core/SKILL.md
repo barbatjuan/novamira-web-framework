@@ -29,14 +29,17 @@ On an existing site, confirm every page/template you would overwrite by name fir
   fields or the page/section advanced CSS — scoped, never a global stylesheet.
   (no verifier: Divi's compiled-CSS artifact name is unconfirmed in this repo, so there is
   nothing to grep yet. Confirm it on the first real build and record it in `references/gotchas.md`.)
-- **Fewest containers that do the job** (house rule). Divi differs from Elementor here and the
-  difference matters: `section → row → column → module` is Divi's *mandatory* grammar, not
-  padding you can trim. So the rule is not "flatten it" — it is **never nest beyond that
-  grammar**. No section inside a section, no row inside a row, no extra one-column row whose
-  only job is padding the module already supports. There is no `es_container_report()`
-  equivalent here: `divi-core` has no helper library yet, so the count is a manual read of the
-  shortcode tree. Report it as **UNVERIFIED**, never as a measured PASS.
+- **Fewest containers that do the job** (house rule). `section → row → column → module` is Divi's
+  *mandatory* grammar, not padding you can trim. So the rule is not "flatten it" — it is **never
+  nest beyond that grammar**. No section inside a section, no row inside a row, no extra
+  one-column row whose only job is padding the module already supports. Report the count as
+  **UNVERIFIED**, never as a measured PASS.
   (no verifier: divi-core has no helper library yet, so the container count is a manual read of the shortcode tree.)
+- **The axis positions arrive here, and nothing holds them.** `html-mockup` hands over the scale,
+  density, ground, elevation and composition its approved `:root` declares. There is no
+  `di_tokens()`: carry each into every module by hand until the `di_*` library below exists, and
+  say so in the hand-off.
+  (no verifier: this skill has no assets/ and no token layer, so nothing can tell an axis position that was carried across from one that was silently dropped.)
 - Wrap all build logic in named functions; the NovaMira sandbox auto-runs any uploaded `.php`.
   Self-verifying: top-level logic fatals the site on upload, before `execute-php` is reached.
   (no verifier: self-verifying at upload — top-level logic fatals the site before the call is ever reached, so a violation cannot ship quietly.)
@@ -57,8 +60,8 @@ On an existing site, confirm every page/template you would overwrite by name fir
    (`et_core_page_resource_*` / Divi > cache), and verify.
 
 ## Output Contract
-Report what was built, what was VERIFIED vs assumed, and every new Divi fact discovered
-(append to `references/gotchas.md`). Flag unverified assumptions explicitly.
+Report what was built, what was VERIFIED vs assumed, and every new Divi fact discovered.
+Flag unverified assumptions explicitly.
 
 ## References
 - `references/gotchas.md` — Divi findings (starts near-empty; grow it).
