@@ -1601,5 +1601,117 @@ grab(
 );
 ok( array() === $GLOBALS['es_saved_pages'], 'una escritura rechazada no anota nada: la lista es lo que sobrevivio, no lo que se intento' );
 
+/* ---------------------------------------------------------------------------
+ * La capa de tokens.
+ *
+ * SKILL.md lleva desde siempre diciendole al operador que "cambie las constantes
+ * de paleta y tipografia" de este fichero. Nunca hubo constantes: habia 51
+ * colores, 9 familias y 5 sombras escritos a mano por el medio. Estas
+ * afirmaciones son lo que convierte es_tokens() en una capa de verdad y no en un
+ * array decorativo que nadie lee.
+ * ------------------------------------------------------------------------- */
+echo "--- los tokens llegan a los datos emitidos ---\n";
+
+/* Todo lo que hay debajo compara contra ESTO, nunca contra un color escrito a
+   mano en el test. Afirmar "#0FA968" aqui seria clavar el verde por defecto en
+   dos sitios, y la tarea siguiente tiene permiso para moverlo. */
+$es_defaults = es_tokens();
+
+/* Un unico sitio que ejercite todas las claves. es_card y es_cta_banner pasan
+   por es_img(), que aqui no encuentra nada y AVISA: por eso va dentro de grab(),
+   que ademas es como el resto del fichero mira lo que se imprime. */
+function es_token_probe() {
+	return es_card_hover_css() . es_products_css() . json_encode(
+		array(
+			es_eyebrow( 'etiqueta' ),
+			es_p( 'texto' ),
+			es_h( 'titulo' ),
+			es_btn( 'Comprar', '#', 'primary' ),
+			es_btn( 'Comprar', '#', 'dark' ),
+			es_btn( 'Comprar', '#', 'outline' ),
+			es_btn( 'Comprar', '#', 'outline-light' ),
+			es_card( 'foto', 'titulo', 'texto' ),
+			es_cta_banner( 'foto', 'titulo', 'texto', 'Ir', '#' ),
+			es_iconbox( 'fas fa-check', 'titulo', 'texto' ),
+			es_feature_card( 'fas fa-check', 'titulo', 'texto' ),
+		)
+	);
+}
+
+/* La capa solo es real si cambiar un token cambia lo que se emite. Un token que
+   nadie lee devuelve todos los proyectos al mismo aspecto. */
+es_tokens( array( 'accent' => '#B4001F' ) );
+$json = json_encode( es_btn( 'Comprar', '#', 'primary' ) );
+ok( has( $json, '#B4001F' ), 'el acento del token llega al boton primario' );
+ok( ! has( $json, $es_defaults['accent'] ), 'el acento por defecto ya no aparece tras el override' );
+
+/* La familia es el otro literal que se repite por todo el fichero. */
+es_tokens( array( 'font_body' => 'Inter' ) );
+$body = json_encode( array( es_p( 'texto' ), es_btn( 'Comprar', '#', 'outline' ) ) );
+ok( has( $body, 'Inter' ), 'la familia de cuerpo sale del token, no de cada funcion' );
+ok( ! has( $body, $es_defaults['font_body'] ), 'y la de por defecto ya no aparece en ningun sitio' );
+
+/* Una clave mal escrita AVISA en vez de devolver algo plausible: un color vacio
+   en Elementor se ve como "el tema decidio", no como un error. */
+$r = grab(
+	function () {
+		return es_t( 'acento' );
+	}
+);
+ok( '' === $r['ret'], 'una clave inexistente devuelve cadena vacia, no null ni la clave' );
+ok( has( $r['out'], 'acento' ), 'y lo dice en voz alta nombrando la clave que se escribio mal' );
+
+/* La comprobacion estructural, y la razon de que exista: una afirmacion por
+   clave escrita a mano solo cubre las claves que alguien se acordo de escribir,
+   y el literal que sobrevive es siempre el del sitio en el que nadie penso.
+   Esto sustituye TODAS las claves de texto a la vez por centinelas y pregunta
+   dos cosas de cada una: que su centinela llegue a los datos (la clave se lee
+   en algun sitio) y que su valor por defecto desaparezca (ningun sitio de
+   llamada se quedo el literal escrito a mano). Crece sola con las claves que
+   anadan las tareas siguientes.
+
+   Solo cadenas: las claves numericas que llegan despues (fs_base, type_ratio,
+   sp_scale) alimentan aritmetica, y un centinela de texto ahi no probaria nada.
+   Si algun dia un valor por defecto es tan corto que aparece en los datos por
+   otro motivo, esta comprobacion se pondra roja en vez de callarse; se anota la
+   excepcion, no se afloja la regla. */
+$sentinelas = array();
+$n          = 0;
+foreach ( $es_defaults as $clave => $valor ) {
+	if ( is_string( $valor ) ) {
+		$sentinelas[ $clave ] = 'ZTOK' . ( ++$n ) . 'Z';
+	}
+}
+es_tokens( $sentinelas );
+$probe   = grab( 'es_token_probe' );
+$emitido = $probe['ret'];
+$sin_leer = array();
+$literal  = array();
+foreach ( $sentinelas as $clave => $centinela ) {
+	if ( ! has( $emitido, $centinela ) ) {
+		$sin_leer[] = $clave;
+	}
+	if ( has( $emitido, $es_defaults[ $clave ] ) ) {
+		$literal[] = $clave;
+	}
+}
+ok( array() === $sin_leer, 'todas las claves de es_tokens() las lee alguien: ' . ( $sin_leer ? 'sin leer -> ' . implode( ', ', $sin_leer ) : 'ninguna sobra' ) );
+ok( array() === $literal, 'ningun sitio de llamada se quedo el literal: ' . ( $literal ? 'todavia escrito a mano -> ' . implode( ', ', $literal ) : 'ninguno' ) );
+
+/* Y el otro lado de lo mismo: ninguna funcion pide una clave que no existe.
+   Sin esto, borrar una entrada de es_tokens() manda un color VACIO a Elementor
+   —— que se ve como "asi lo quiso el tema", no como un fallo —— y las dos
+   comprobaciones de arriba ni se enteran, porque la clave ya no esta en la lista
+   que recorren. es_img() tambien avisa aqui (no hay imagenes en este fixture),
+   asi que se mira el aviso concreto y no el buffer entero. */
+ok( ! has( $probe['out'], 'es_t(' ), 'construir una pagina no pide ninguna clave inexistente' );
+
+/* Cualquier override reconstruye el juego DESDE los valores por defecto, asi que
+   devolverlos entero restaura todos. Esa es la via de reset, y esta afirmada
+   aqui para que nadie la cambie por acumulacion sin darse cuenta. */
+es_tokens( $es_defaults );
+ok( $es_defaults['accent'] === es_t( 'accent' ), 'el reset devuelve el acento por defecto' );
+ok( $es_defaults['font_body'] === es_t( 'font_body' ), 'y tambien la familia tocada antes: un override reconstruye desde los valores por defecto' );
+
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

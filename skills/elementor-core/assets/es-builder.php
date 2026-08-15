@@ -97,6 +97,96 @@ function es_img( $slug ) {
 	return $cache[ $slug ];
 }
 
+/* ---------------------------------------------------------- design tokens
+   This block IS what elementor-core/SKILL.md step 2 means by "swap the
+   constants": ONE edit point per project, filled from the axis positions the
+   ux-design-system dialogue resolved. The values below are the framework
+   default, not a recommendation for any client -- a site that ships with them
+   unchanged is a site nobody made a decision about.
+
+   Nothing between es_tokens() and the END marker below types a colour, a
+   family, a shadow or an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it.
+
+   Keys are named for the ROLE the value plays, never for what it looks like:
+   `muted`, not `grey`. A token called `green` cannot survive a client whose
+   brand is navy, and renaming it later means touching every call site again.
+
+   Some keys below are duplicates of each other. They are duplicates in the
+   FILE too — four neutral borders that started as one value and drifted, two
+   accent glows that differ by 0.05 of alpha, one white written `#fff` in a CSS
+   blob and `#FFFFFF` everywhere else. Collapsing them changes the emitted data,
+   which is exactly what this task is forbidden to do, so each drifted value
+   keeps its own key here and the collapse is reported as a finding. */
+function es_tokens( array $override = array() ) {
+	static $t = null;
+	if ( null === $t || $override ) {
+		$t = array_merge(
+			array(
+				/* ground ------------------------------------------------ */
+				'bg'                 => '#FFFFFF', /* the light surface a card sits on, and what the ghost-on-dark button fills with */
+				'surface_dark'       => '#15181A', /* the near-black used AS a surface (the `dark` button) */
+				'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
+				/* ink --------------------------------------------------- */
+				'text'               => '#15181A',
+				'muted'              => '#6A6F6C',
+				'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
+				'on_dark'            => '#FFFFFF', /* text sitting ON surface_dark or on the CTA scrim */
+				'muted_on_dark'      => 'rgba(255,255,255,0.75)',
+				/* DRIFT: the same white as on_accent, written in CSS 3-digit
+				   shorthand at one call site (the products-grid button). Kept
+				   only so this task stays byte-identical. Task 2 deletes it. */
+				'on_accent_short'    => '#fff',
+				/* borders ----------------------------------------------- */
+				/* DRIFT: five keys doing one job. `border` is the hairline at
+				   rest; `border_hover` is the same hairline on the image-box
+				   card; `border_panel`/`border_panel_hover` are the feature
+				   card's own pair, two shades off for no stated reason; and
+				   `border_control` is the outline button's edge. Task 2 should
+				   collapse these to `border` + a derived hover. */
+				'border'             => '#E5E7E5',
+				'border_hover'       => '#D6DAD6',
+				'border_panel'       => '#EAECEA',
+				'border_panel_hover' => '#E0E4E0',
+				'border_control'     => '#CBD0CB',
+				'border_on_dark'     => 'rgba(255,255,255,0.5)',
+				/* accent -- derives from the BRAND, never from the anchor.
+				   design-tokens.md is explicit that accent is not an axis. */
+				'accent'             => '#0FA968',
+				'accent_hover'       => '#0C8A55',
+				'accent_wash'        => 'rgba(15,169,104,0.10)', /* the faint tint an outline control fills with */
+				/* scrim over the CTA banner photo, so the copy stays legible */
+				'scrim_from'         => 'rgba(21,24,26,0.92)',
+				'scrim_to'           => 'rgba(21,24,26,0.30)',
+				/* scale ------------------------------------------------- */
+				'font_head'          => 'Space Grotesk',
+				'font_body'          => 'Manrope',
+				/* elevation --------------------------------------------- */
+				/* There is no rest-state shadow in this file, only hover ones;
+				   `elev_rest` is Task 2's job, not an omission here. */
+				'elev_hover'         => '0 18px 40px -12px rgba(21,24,26,0.16)',
+				'elev_hover_panel'   => '0 24px 50px -18px rgba(21,24,26,0.20)',
+				/* DRIFT: one green glow written twice, different geometry AND
+				   different alpha (0.55 vs 0.5). Task 2 collapses them. */
+				'elev_accent'        => '0 12px 26px -10px rgba(15,169,104,0.55)',
+				'elev_accent_cart'   => '0 10px 22px -8px rgba(15,169,104,0.5)',
+				/* motion ------------------------------------------------ */
+				'ease'               => 'cubic-bezier(.22,1,.36,1)',
+			),
+			$override
+		);
+	}
+	return $t;
+}
+
+function es_t( $key ) {
+	$t = es_tokens();
+	if ( ! array_key_exists( $key, $t ) ) {
+		es_warn( 'es_t("' . $key . '") no existe en es_tokens(); revisa el nombre.' );
+		return '';
+	}
+	return $t[ $key ];
+}
+
 /**
  * Full-width section wrapper with boxed inner content.
  */
@@ -211,13 +301,14 @@ function es_photo( $img_slug, $height = 420, array $extra = array() ) {
  * (which are not registered when the layout is written via the API).
  */
 function es_card_hover_css() {
-	return 'selector .elementor-widget-image-box{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1),border-color .5s ease;will-change:transform;}'
-		. 'selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:#D6DAD6;box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
+	$ease = es_t( 'ease' );
+	return 'selector .elementor-widget-image-box{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ease;will-change:transform;}'
+		. 'selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:' . es_t( 'border_hover' ) . ';box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector .elementor-widget-image-box .elementor-image-box-img{overflow:hidden;}'
-		. 'selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s cubic-bezier(.22,1,.36,1);will-change:transform;}'
+		. 'selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s ' . $ease . ';will-change:transform;}'
 		. 'selector .elementor-widget-image-box:hover .elementor-image-box-img img{transform:scale(1.045);}'
 		. 'selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ease;}'
-		. 'selector .elementor-widget-image-box:hover .elementor-image-box-title{color:#0FA968;}';
+		. 'selector .elementor-widget-image-box:hover .elementor-image-box-title{color:' . es_t( 'accent' ) . ';}';
 }
 
 /**
@@ -234,14 +325,15 @@ function es_card_hover_css() {
  * shared and the difference stays visible at the call site.
  */
 function es_products_css( $extra_css = '' ) {
-	return 'selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
-		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}'
-		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
+	$ease = es_t( 'ease' );
+	return 'selector ul.products li.product{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ';border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
+		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s ' . $ease . ';border-radius:8px;will-change:transform;}'
+		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector ul.products li.product:hover img{transform:scale(1.045);}'
 		. 'selector ul.products{align-items:stretch;}'
 		. 'selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}'
-		. 'selector ul.products li.product .button{margin-top:auto;background-color:#0FA968!important;border-color:#0FA968!important;color:#fff!important;border-radius:6px!important;transition:background-color .3s ease,box-shadow .35s ease!important;}'
-		. 'selector ul.products li.product .button:hover{background-color:#0C8A55!important;box-shadow:0 10px 22px -8px rgba(15,169,104,0.5)!important;}'
+		. 'selector ul.products li.product .button{margin-top:auto;background-color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;color:' . es_t( 'on_accent_short' ) . '!important;border-radius:6px!important;transition:background-color .3s ease,box-shadow .35s ease!important;}'
+		. 'selector ul.products li.product .button:hover{background-color:' . es_t( 'accent_hover' ) . '!important;box-shadow:' . es_t( 'elev_accent_cart' ) . '!important;}'
 		. 'selector ul.products li.product a.added_to_cart{display:none!important;}'
 		. 'selector ul.products li.product a.button.added{font-size:0!important;}'
 		. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}'
@@ -296,8 +388,14 @@ function es_row( array $children, $gap = 14, array $extra = array() ) {
 	return es_c( $settings, $children, true );
 }
 
-/** Small uppercase green label above a heading. */
-function es_eyebrow( $text, $color = '#0FA968' ) {
+/**
+ * Small uppercase label above a heading, in the accent colour.
+ *
+ * $color defaults to null rather than to the accent itself because PHP cannot
+ * call a function in a parameter default; null means "whatever the tokens say".
+ */
+function es_eyebrow( $text, $color = null ) {
+	$color = ( null === $color ) ? es_t( 'accent' ) : $color;
 	return es_w(
 		'heading',
 		array(
@@ -305,7 +403,7 @@ function es_eyebrow( $text, $color = '#0FA968' ) {
 			'header_size'                => 'div',
 			'title_color'                => $color,
 			'typography_typography'      => 'custom',
-			'typography_font_family'     => 'Manrope',
+			'typography_font_family'     => es_t( 'font_body' ),
 			'typography_font_size'       => es_size( 12 ),
 			'typography_font_weight'     => '700',
 			'typography_text_transform'  => 'uppercase',
@@ -330,9 +428,9 @@ function es_h( $text, $tag = 'h2', array $extra = array() ) {
 function es_p( $html, array $extra = array() ) {
 	$settings = array(
 		'editor'                => '<p>' . $html . '</p>',
-		'text_color'            => '#6A6F6C',
+		'text_color'            => es_t( 'muted' ),
 		'typography_typography' => 'custom',
-		'typography_font_family' => 'Manrope',
+		'typography_font_family' => es_t( 'font_body' ),
 		'typography_font_size'  => es_size( 16 ),
 		'typography_line_height' => es_size( 1.65, 'em' ),
 		'_margin'               => es_box( 0, 0, 0, 0 ),
@@ -354,8 +452,8 @@ function es_p( $html, array $extra = array() ) {
  * so they never depend on conditionally-enqueued hover assets.
  */
 function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
-	$trans = 'selector .elementor-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.22,1,.36,1);}';
-	$lift_green = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(15,169,104,0.55);}';
+	$trans = 'selector .elementor-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .35s ease,transform .35s ' . es_t( 'ease' ) . ';}';
+	$lift_green = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);box-shadow:' . es_t( 'elev_accent' ) . ';}';
 	$lift_soft  = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);}';
 
 	$settings = array(
@@ -364,41 +462,41 @@ function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
 		'border_radius'          => es_box( 8, 8, 8, 8 ),
 		'text_padding'           => es_box( 14, 26, 14, 26 ),
 		'typography_typography'  => 'custom',
-		'typography_font_family' => 'Manrope',
+		'typography_font_family' => es_t( 'font_body' ),
 		'typography_font_size'   => es_size( 15 ),
 		'typography_font_weight' => '600',
 	);
 	if ( 'primary' === $style ) {
-		$settings['background_color']              = '#0FA968';
-		$settings['button_text_color']            = '#FFFFFF';
-		$settings['button_background_hover_color'] = '#0C8A55';
-		$settings['hover_color']                  = '#FFFFFF';
+		$settings['background_color']              = es_t( 'accent' );
+		$settings['button_text_color']            = es_t( 'on_accent' );
+		$settings['button_background_hover_color'] = es_t( 'accent_hover' );
+		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_green;
 	} elseif ( 'dark' === $style ) {
-		$settings['background_color']              = '#15181A';
-		$settings['button_text_color']            = '#FFFFFF';
-		$settings['button_background_hover_color'] = '#0FA968';
-		$settings['hover_color']                  = '#FFFFFF';
+		$settings['background_color']              = es_t( 'surface_dark' );
+		$settings['button_text_color']            = es_t( 'on_dark' );
+		$settings['button_background_hover_color'] = es_t( 'accent' );
+		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_soft;
 	} elseif ( 'outline' === $style ) {
-		$settings['background_color']              = 'rgba(0,0,0,0)';
-		$settings['button_text_color']            = '#15181A';
+		$settings['background_color']              = es_t( 'transparent' );
+		$settings['button_text_color']            = es_t( 'text' );
 		$settings['border_border']                = 'solid';
 		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = '#CBD0CB';
-		$settings['button_background_hover_color'] = 'rgba(15,169,104,0.10)';
-		$settings['hover_color']                  = '#0FA968';
-		$settings['button_hover_border_color']    = '#0FA968';
+		$settings['border_color']                 = es_t( 'border_control' );
+		$settings['button_background_hover_color'] = es_t( 'accent_wash' );
+		$settings['hover_color']                  = es_t( 'accent' );
+		$settings['button_hover_border_color']    = es_t( 'accent' );
 		$settings['custom_css']                   = $lift_soft;
 	} elseif ( 'outline-light' === $style ) {
-		$settings['background_color']              = 'rgba(0,0,0,0)';
-		$settings['button_text_color']            = '#FFFFFF';
+		$settings['background_color']              = es_t( 'transparent' );
+		$settings['button_text_color']            = es_t( 'on_dark' );
 		$settings['border_border']                = 'solid';
 		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = 'rgba(255,255,255,0.5)';
-		$settings['button_background_hover_color'] = '#FFFFFF';
-		$settings['hover_color']                  = '#15181A';
-		$settings['button_hover_border_color']    = '#FFFFFF';
+		$settings['border_color']                 = es_t( 'border_on_dark' );
+		$settings['button_background_hover_color'] = es_t( 'bg' );
+		$settings['hover_color']                  = es_t( 'text' );
+		$settings['button_hover_border_color']    = es_t( 'bg' );
 		$settings['custom_css']                   = $lift_soft;
 	}
 	$settings = array_merge( $settings, $extra );
@@ -423,23 +521,23 @@ function es_card( $img_slug, $title, $text, $link = '', array $extra = array() )
 		'position'                 => 'top',
 		'text_align'               => 'left',
 		'title_size'               => 'h3',
-		'title_color'              => '#15181A',
-		'description_color'        => '#6A6F6C',
+		'title_color'              => es_t( 'text' ),
+		'description_color'        => es_t( 'muted' ),
 		'title_typography_typography' => 'custom',
-		'title_typography_font_family' => 'Space Grotesk',
+		'title_typography_font_family' => es_t( 'font_head' ),
 		'title_typography_font_size' => es_size( 19 ),
 		'title_typography_font_weight' => '700',
 		'description_typography_typography' => 'custom',
-		'description_typography_font_family' => 'Manrope',
+		'description_typography_font_family' => es_t( 'font_body' ),
 		'description_typography_font_size' => es_size( 14.5 ),
 		'description_typography_line_height' => es_size( 1.6, 'em' ),
 		'title_bottom_space'       => es_size( 8 ),
 		'_padding'                 => es_box( 20, 20, 24, 20 ),
 		'_background_background'   => 'classic',
-		'_background_color'        => '#FFFFFF',
+		'_background_color'        => es_t( 'bg' ),
 		'_border_border'           => 'solid',
 		'_border_width'            => es_box( 1, 1, 1, 1 ),
-		'_border_color'            => '#E5E7E5',
+		'_border_color'            => es_t( 'border' ),
 		'_border_radius'           => es_box( 10, 10, 10, 10 ),
 		/* Hover handled by the parent grid's Custom CSS (es_card_hover_css). */
 	);
@@ -473,8 +571,8 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 					'background_position'   => 'center center',
 					'background_size'       => 'cover',
 					'background_overlay_background' => 'gradient',
-					'background_overlay_color'   => 'rgba(21,24,26,0.92)',
-					'background_overlay_color_b' => 'rgba(21,24,26,0.30)',
+					'background_overlay_color'   => es_t( 'scrim_from' ),
+					'background_overlay_color_b' => es_t( 'scrim_to' ),
 					'background_overlay_gradient_type'  => 'linear',
 					'background_overlay_gradient_angle' => es_size( 90, 'deg' ),
 					'background_overlay_color_stop'     => es_size( 10, '%' ),
@@ -493,9 +591,9 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 								$title,
 								'h2',
 								array(
-									'title_color'                 => '#FFFFFF',
+									'title_color'                 => es_t( 'on_dark' ),
 									'typography_typography'       => 'custom',
-									'typography_font_family'      => 'Space Grotesk',
+									'typography_font_family'      => es_t( 'font_head' ),
 									'typography_font_size'        => es_size( 38 ),
 									'typography_font_size_mobile' => es_size( 27 ),
 									'typography_font_weight'      => '700',
@@ -506,7 +604,7 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 							es_p(
 								$text,
 								array(
-									'text_color'             => 'rgba(255,255,255,0.75)',
+									'text_color'             => es_t( 'muted_on_dark' ),
 									'typography_font_size'   => es_size( 16 ),
 									'typography_line_height' => es_size( 1.65, 'em' ),
 									'_margin'                => es_box( 0, 0, 30, 0 ),
@@ -535,24 +633,24 @@ function es_iconbox( $icon, $title, $text ) {
 			'position'        => 'inline-start',
 			'text_align'      => 'left',
 			'title_size'      => 'h3',
-			'primary_color'   => '#0FA968',
+			'primary_color'   => es_t( 'accent' ),
 			'icon_space'      => es_size( 18 ),
 			'icon_size'       => es_size( 20 ),
-			'title_color'     => '#15181A',
-			'description_color' => '#6A6F6C',
+			'title_color'     => es_t( 'text' ),
+			'description_color' => es_t( 'muted' ),
 			'title_typography_typography' => 'custom',
-			'title_typography_font_family' => 'Space Grotesk',
+			'title_typography_font_family' => es_t( 'font_head' ),
 			'title_typography_font_size' => es_size( 17 ),
 			'title_typography_font_weight' => '700',
 			'description_typography_typography' => 'custom',
-			'description_typography_font_family' => 'Manrope',
+			'description_typography_font_family' => es_t( 'font_body' ),
 			'description_typography_font_size' => es_size( 14.5 ),
 			'description_typography_line_height' => es_size( 1.55, 'em' ),
 			'title_bottom_space' => es_size( 5 ),
 			'_padding'        => es_box( 22, 0, 22, 0 ),
 			'_border_border'  => 'solid',
 			'_border_width'   => es_box( 1, 0, 0, 0 ),
-			'_border_color'   => '#E5E7E5',
+			'_border_color'   => es_t( 'border' ),
 		)
 	);
 }
@@ -563,21 +661,22 @@ function es_iconbox( $icon, $title, $text ) {
  * so the whole site keeps one card language. Meant to sit inside es_grid().
  */
 function es_feature_card( $icon, $title, $text, array $extra = array() ) {
+	$ease     = es_t( 'ease' );
 	$defaults = array(
 		'content_width'         => 'full',
 		'flex_direction'        => 'column',
 		'padding'               => es_box( 34, 30, 36, 30 ),
 		'background_background'  => 'classic',
-		'background_color'      => '#FFFFFF',
+		'background_color'      => es_t( 'bg' ),
 		'border_border'         => 'solid',
 		'border_width'          => es_box( 1, 1, 1, 1 ),
-		'border_color'          => '#EAECEA',
+		'border_color'          => es_t( 'border_panel' ),
 		'border_radius'         => es_box( 16, 16, 16, 16 ),
-		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1),border-color .5s ease;will-change:transform;}'
-			. 'selector::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:#0FA968;transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.22,1,.36,1);}'
-			. 'selector:hover{transform:translateY(-6px);box-shadow:0 24px 50px -18px rgba(21,24,26,0.20);border-color:#E0E4E0;}'
+		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ease;will-change:transform;}'
+			. 'selector::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:' . es_t( 'accent' ) . ';transform:scaleX(0);transform-origin:left;transition:transform .55s ' . $ease . ';}'
+			. 'selector:hover{transform:translateY(-6px);box-shadow:' . es_t( 'elev_hover_panel' ) . ';border-color:' . es_t( 'border_panel_hover' ) . ';}'
 			. 'selector:hover::before{transform:scaleX(1);}'
-			. 'selector .es-feat-ico{transition:transform .5s cubic-bezier(.22,1,.36,1);}'
+			. 'selector .es-feat-ico{transition:transform .5s ' . $ease . ';}'
 			. 'selector:hover .es-feat-ico{transform:translateY(-3px);}',
 	);
 	return es_c(
@@ -589,19 +688,25 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 					'selected_icon'   => array( 'value' => $icon, 'library' => 'fa-solid' ),
 					'view'            => 'stacked',
 					'shape'           => 'circle',
-					'primary_color'   => '#0FA968',
-					'secondary_color' => '#FFFFFF',
+					'primary_color'   => es_t( 'accent' ),
+					'secondary_color' => es_t( 'on_accent' ),
 					'size'            => es_size( 20 ),
 					'_css_classes'    => 'es-feat-ico',
 					'_margin'         => es_box( 0, 0, 22, 0 ),
 				)
 			),
-			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => 'Space Grotesk', 'typography_font_size' => es_size( 19 ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
+			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => es_t( 'font_head' ), 'typography_font_size' => es_size( 19 ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
 			es_p( $text, array( 'typography_font_size' => es_size( 14.5 ), 'typography_line_height' => es_size( 1.58, 'em' ) ) ),
 		),
 		true
 	);
 }
+
+/* -------------------------------------------------- end of the visual layer
+   Everything below is the save pipeline, the container audit, the sandbox and
+   the slug machinery. No styling value belongs here, and RT_BUILDER_HARDCODED_TOKEN
+   does not scan past this line -- further down, "#732" appears inside a Spanish
+   warning string as a fake post id, and a colour regex cannot tell it apart. */
 
 /**
  * Audit the container tree before it is written.
