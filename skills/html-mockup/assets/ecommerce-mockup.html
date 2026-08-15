@@ -41,7 +41,11 @@
   .bg-alt{background:var(--c-bg-alt)}
   .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-border) 55%,transparent) 11px,color-mix(in srgb,var(--c-border) 55%,transparent) 12px),var(--c-bg-alt);
       border:1px solid var(--c-border);display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-image)}
-  .btn{display:inline-block;padding:.9rem 1.9rem;font-size:var(--fs-button);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-button);border:1px solid var(--c-primary);cursor:pointer;transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);background:transparent;color:var(--c-text)}
+  /* A button centres its own label on BOTH axes — `text-align:center` alone is only the horizontal
+     half, so a button stretched taller than its line box (any flex row's default
+     `align-items:stretch`, and the equal-height product-card grid) pins its label to the TOP.
+     Hard Rule in ux-design-system/SKILL.md; `text-align:center` is here for two-line labels. */
+  .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:.9rem 1.9rem;font-size:var(--fs-button);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-radius:var(--radius-button);border:1px solid var(--c-primary);cursor:pointer;transition:background .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);background:transparent;color:var(--c-text)}
   .btn-primary{background:var(--c-primary);color:var(--c-bg)}
   .btn-primary:hover{background:var(--c-accent);border-color:var(--c-accent);transform:translateY(-2px)}
   .btn-outline{color:var(--c-secondary);border-color:var(--c-secondary)}

@@ -62,7 +62,15 @@
   .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 11px,color-mix(in srgb,var(--c-border) 65%,transparent) 12px),var(--c-bg-alt);
       border:1px solid var(--c-border);border-radius:var(--radius-image);display:grid;place-items:center;
       color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:.5rem}
-  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;line-height:1.2;
+  /* A button centres its own label on BOTH axes. `text-align:center` is only the horizontal half:
+     it says nothing about the vertical, so a button stretched taller than its own line box renders
+     its label pinned to the TOP — which is what `align-items:stretch`, the default of every flex
+     row a `.btn` lands in here (`.ctas`, `.nav`, a card footer, `.btn-full` on mobile), does to it.
+     No text-based check catches this, because `text-align:center` is present either way; it was
+     found by measuring a label's box against its button's box, and it is now a Hard Rule in
+     ux-design-system/SKILL.md. `text-align:center` stays for a label that wraps to two lines. */
+  .btn{display:inline-flex;align-items:center;justify-content:center;
+       padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;line-height:1.2;
        text-align:center;border-radius:var(--btn-radius);border:var(--btn-border-width) solid transparent;
        cursor:pointer;transition:var(--btn-transition)}
   .btn-primary{background:var(--c-primary);color:var(--c-bg);border-color:var(--c-primary)}

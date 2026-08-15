@@ -16,13 +16,24 @@ Motion ranges below stay inside the curve those two files already define
 (`cubic-bezier(.22,1,.36,1)`, the documented duration/lift ranges) — a personality tunes where on
 that curve it lands, never invents new physics.
 
+**Display tracking** is stated per anchor for the same reason the typeface is: it is a property of
+that face at that size, not of an axis. It tightens only where the Scale axis puts the h1 cap past
+~80px, because tracking that closes the counters at 120px opens holes at 48px; below that the faces
+run at the tracking they were drawn with. The two proof mockups shipped `-0.015em` and `-0.025em`
+with nothing behind them, which is what put this paragraph here — a difference with no home is
+indistinguishable from an accident. Weight, `text-wrap`, button radius, footer direction and the
+composition breakpoint were the other five differences those files carried; none of them earned an
+anchor, so they are identical in both. Weights and radius come from
+`web-templates/references/design-system.md` (type table, radius table); the breakpoint is the
+framework's own `>1024`.
+
 ### `PERS-EDITORIAL` — Editorial
 
 **Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` · elevation `none`
 
 **Fits:** Heritage, prestige, a story worth slowing down for — galleries, publishers, high-end services.
 
-**Typography:** `--font-primary` **Fraunces** (variable serif, real thick/thin contrast, optical sizing); `--font-secondary` **Inter Tight**. Both SIL OFL.
+**Typography:** `--font-primary` **Fraunces** (variable serif, real thick/thin contrast, optical sizing); `--font-secondary` **Inter Tight**. Both SIL OFL. Display tracking `-0.015em` (h1–h3), wordmark `.16em`.
 
 **Motion intensity:** slowest documented durations, lift capped at `-4px`. Nothing should feel quick.
 
@@ -36,7 +47,7 @@ that curve it lands, never invents new physics.
 
 **Fits:** Brands that win by being unmistakable — studios, launches, anything that must not read as safe.
 
-**Typography:** `--font-primary` **Archivo Expanded** at 700+; `--font-secondary` **Archivo** regular. One family, two extremes. SIL OFL.
+**Typography:** `--font-primary` **Archivo Expanded** at 700; `--font-secondary` **Archivo** regular. One family, two extremes. SIL OFL. Display tracking `-0.025em` (h1–h3), wordmark `.1em`.
 
 **Motion intensity:** short durations, confident lift, accent glow rather than a neutral shadow.
 
@@ -50,7 +61,7 @@ that curve it lands, never invents new physics.
 
 **Fits:** Clients who sell a material or a made thing — stone, wood, food, furniture. The page should feel like the substance, not like software.
 
-**Typography:** `--font-primary` **Instrument Serif** for headings; `--font-secondary` **DM Sans** for body. Both SIL OFL. The pairing is deliberately quieter than Editorial's: the photography carries the page.
+**Typography:** `--font-primary` **Instrument Serif** for headings; `--font-secondary` **DM Sans** for body. Both SIL OFL. The pairing is deliberately quieter than Editorial's: the photography carries the page. Display tracking `normal` — the `classic` h1 cap is 64px, under the ~80px where tightening starts paying.
 
 **Motion intensity:** documented defaults, nothing faster. A material brand gains nothing from looking quick.
 
@@ -64,7 +75,7 @@ that curve it lands, never invents new physics.
 
 **Fits:** B2B, professional services, anything selling credibility over excitement — the archetype the abogados build belongs to.
 
-**Typography:** `--font-primary` **Source Sans 3** semibold; `--font-secondary` **Source Sans 3** regular. One family, weight discipline instead of contrast. SIL OFL.
+**Typography:** `--font-primary` **Source Sans 3** semibold; `--font-secondary` **Source Sans 3** regular. One family, weight discipline instead of contrast. SIL OFL. Display tracking `normal` — the `contained` h1 cap is 48px, well under the ~80px where tightening starts paying.
 
 **Motion intensity:** unmodified defaults. This anchor earns trust by not drawing attention to its own interactions.
 

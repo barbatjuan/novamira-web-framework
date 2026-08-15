@@ -34,6 +34,18 @@ Never put `backdrop-filter` on the container — it becomes a containing block t
 inset:0;z-index:-1;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(16px)}`.
 
 ## Button system (two families, real hover in both states)
+- **The label is centred on BOTH axes**, always, unless someone explicitly asks otherwise:
+  `display:inline-flex; align-items:center; justify-content:center`, keeping `text-align:center`
+  for a label that wraps to two lines.
+  Why `text-align:center` is not enough: it centres horizontally and says nothing about the
+  vertical. A button is only as tall as its own line box until something stretches it — and
+  `align-items:stretch` is the DEFAULT of every flex row, so a CTA row, a nav bar or an
+  equal-height card grid stretches its buttons to match the tallest sibling as a matter of course.
+  A stretched button renders its label pinned to the TOP with all the slack underneath.
+  Measured on a hero CTA row stretched to 179.5px around a 21px label: the label's centre sat
+  65.2px above the button's centre, with `text-align:center` present and every text-based check
+  passing. This one is invisible to grep and visible only in a render, which is why `qa-review`
+  measures it on the built page (house-rules row 25) instead of looking for the declaration.
 - Solid accent: accent bg → darker accent on hover + `translateY(-2px)` + accent glow shadow.
 - Ghost/outline: transparent, dark text, soft border → on hover faint accent-tint bg +
   accent text + accent border (NOT white text, which vanishes on light bg).

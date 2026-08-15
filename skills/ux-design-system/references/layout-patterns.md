@@ -43,9 +43,12 @@ above, the header, motion) is shared and does not change with the position.
 - Grids: symmetric only — 2, 3 or 4 equal columns; an odd last row centres its remainder.
 
 ### `LP-ASYMMETRIC`
-- Grid: 12 columns; text blocks occupy columns 1–7 (~58%), the remaining 5 are air or image.
-- Hero: copy left at ~58% width, ONE image bleeding the right viewport edge
-  (`margin-right: calc(50% - 50vw)`).
+- Grid: 12 columns declared with named lines so an edge is a line, not a margin:
+  `[full-start] minmax(pad,1fr) [wide-start] repeat(12,[c] minmax(0,var(--col))) [wide-end c] minmax(pad,1fr) [full-end]`.
+- Hero: copy left at ~58% width, ONE image bleeding the right viewport edge —
+  `grid-column: c 8 / full-end`. **Not** `margin-right: calc(50% - 50vw)`: percentage margins on a
+  grid item resolve against that item's own grid area, not the container, so the bleed overshoots
+  (measured 312px past a 1265px viewport) and `overflow-x:clip` then hides the damage.
 - Section headings: left-aligned, never centred; the eyebrow sits above and left.
 - Images: exactly one bleed per section, always on the same edge down the whole page.
 - Grids: two columns at 7/5 or 5/7, alternating direction section to section. Never 50/50.
@@ -58,11 +61,13 @@ above, the header, motion) is shared and does not change with the position.
 - Grids: 3 or 4 equal columns, equal gutters, equal card heights. Rows must visibly align.
 
 ### `LP-BROKEN-GRID`
-- Grid: 12 columns kept as a reference the page deliberately violates.
+- Grid: the same named-line 12 columns as `LP-ASYMMETRIC`, kept as a reference the page
+  deliberately violates. Crossing the container is `grid-column: c 1 / full-end`; bleeding two
+  edges is `full-start / full-end`. Naming a line is what makes the violation safe.
 - Hero: oversized H1 crossing the container's right edge; the image sits BEHIND it, offset.
 - Every section: at least one element crossing a column line or overlapping its neighbour by ~`--sp-m`.
-- Images: at least one per page bleeding two edges; overlaps stack with `z-index`, never with
-  negative margins that collapse on small screens.
+- Images: at least one per page bleeding two edges; overlaps stack with `z-index` in a shared grid
+  row, never with negative margins that collapse on small screens.
 - Grids: deliberately uneven columns (7/5, 4/8), with one card offset vertically by `--sp-l`.
 - Mobile: every overlap collapses to a single stacked column — a broken grid at 430px is just broken.
 
