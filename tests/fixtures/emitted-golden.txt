@@ -6492,7 +6492,7 @@
                     "left": "0",
                     "isLinked": false
                 },
-                "border_color": "#E5E7E5"
+                "border_color": "ZTOK_border_Z"
             },
             "elements": [
                 {
@@ -6544,7 +6544,7 @@
                             "isLinked": false
                         },
                         "typography_typography": "custom",
-                        "typography_font_family": "Space Grotesk",
+                        "typography_font_family": "ZTOK_font_head_Z",
                         "typography_font_size": {
                             "unit": "px",
                             "size": 48,
@@ -6668,9 +6668,9 @@
                             "sizes": []
                         },
                         "text_align": "left",
-                        "product_title_color": "#15181A",
+                        "product_title_color": "ZTOK_text_Z",
                         "product_title_typography_typography": "custom",
-                        "product_title_typography_font_family": "Manrope",
+                        "product_title_typography_font_family": "ZTOK_font_body_Z",
                         "product_title_typography_font_size": {
                             "unit": "px",
                             "size": 15,
@@ -6682,19 +6682,19 @@
                             "size": 1.4,
                             "sizes": []
                         },
-                        "price_color": "#15181A",
+                        "price_color": "ZTOK_text_Z",
                         "price_typography_typography": "custom",
-                        "price_typography_font_family": "Space Grotesk",
+                        "price_typography_font_family": "ZTOK_font_head_Z",
                         "price_typography_font_size": {
                             "unit": "px",
                             "size": 18,
                             "sizes": []
                         },
                         "price_typography_font_weight": "700",
-                        "button_color": "#FFFFFF",
-                        "button_background_color": "#0FA968",
-                        "button_hover_color": "#FFFFFF",
-                        "button_background_hover_color": "#0C8A55",
+                        "button_color": "ZTOK_on_accent_Z",
+                        "button_background_color": "ZTOK_accent_Z",
+                        "button_hover_color": "ZTOK_on_accent_Z",
+                        "button_background_hover_color": "ZTOK_accent_hover_Z",
                         "button_border_radius": {
                             "unit": "px",
                             "top": "59880",
@@ -6712,7 +6712,7 @@
                             "isLinked": false
                         },
                         "button_typography_typography": "custom",
-                        "button_typography_font_family": "Manrope",
+                        "button_typography_font_family": "ZTOK_font_body_Z",
                         "button_typography_font_size": {
                             "unit": "px",
                             "size": 13.5,
@@ -6727,12 +6727,12 @@
                             "left": "79840",
                             "isLinked": false
                         },
-                        "custom_css": "selector ul.products li.product{transition:transform .5s ZTOK_ease_Z,box-shadow .5s ZTOK_ease_Z;box-shadow:ZTOK_elev_rest_Z;border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s ZTOK_ease_Z;border-radius:8px;will-change:transform;}selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:ZTOK_elev_hover_Z;}selector ul.products li.product:hover img{transform:scale(1.045);}selector ul.products{align-items:stretch;}selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}selector ul.products li.product .button{margin-top:auto;background-color:ZTOK_accent_Z!important;border-color:ZTOK_accent_Z!important;color:ZTOK_on_accent_Z!important;border-radius:6px!important;transition:background-color .3s ZTOK_ease_Z,box-shadow .35s ZTOK_ease_Z!important;}selector ul.products li.product .button:hover{background-color:ZTOK_accent_hover_Z!important;box-shadow:ZTOK_elev_accent_Z!important;}selector ul.products li.product a.added_to_cart{display:none!important;}selector ul.products li.product a.button.added{font-size:0!important;}selector ul.products li.product a.button.added::after{content:\"Añadido ✓\"!important;font-size:13.5px!important;font-weight:600;}selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#6A6F6C!important;border-color:#E5E7E5!important;border-radius:8px!important;transition:color .25s ease,background-color .25s ease,border-color .25s ease;}selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:#0FA968!important;border-color:#0FA968!important;}selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#FFFFFF!important;background-color:#0FA968!important;border-color:#0FA968!important;}",
-                        "pagination_color": "#6A6F6C",
-                        "pagination_color_hover": "#0FA968",
-                        "pagination_color_active": "#15181A",
+                        "custom_css": "selector ul.products li.product{transition:transform .5s ZTOK_ease_Z,box-shadow .5s ZTOK_ease_Z;box-shadow:ZTOK_elev_rest_Z;border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s ZTOK_ease_Z;border-radius:8px;will-change:transform;}selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:ZTOK_elev_hover_Z;}selector ul.products li.product:hover img{transform:scale(1.045);}selector ul.products{align-items:stretch;}selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}selector ul.products li.product .button{margin-top:auto;background-color:ZTOK_accent_Z!important;border-color:ZTOK_accent_Z!important;color:ZTOK_on_accent_Z!important;border-radius:6px!important;transition:background-color .3s ZTOK_ease_Z,box-shadow .35s ZTOK_ease_Z!important;}selector ul.products li.product .button:hover{background-color:ZTOK_accent_hover_Z!important;box-shadow:ZTOK_elev_accent_Z!important;}selector ul.products li.product a.added_to_cart{display:none!important;}selector ul.products li.product a.button.added{font-size:0!important;}selector ul.products li.product a.button.added::after{content:\"Añadido ✓\"!important;font-size:13.5px!important;font-weight:600;}selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:ZTOK_muted_Z!important;border-color:ZTOK_border_Z!important;border-radius:8px!important;transition:color .25s ease,background-color .25s ease,border-color .25s ease;}selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:ZTOK_accent_Z!important;border-color:ZTOK_accent_Z!important;}selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:ZTOK_on_accent_Z!important;background-color:ZTOK_accent_Z!important;border-color:ZTOK_accent_Z!important;}",
+                        "pagination_color": "ZTOK_muted_Z",
+                        "pagination_color_hover": "ZTOK_accent_Z",
+                        "pagination_color_active": "ZTOK_text_Z",
                         "pagination_typography_typography": "custom",
-                        "pagination_typography_font_family": "Manrope",
+                        "pagination_typography_font_family": "ZTOK_font_body_Z",
                         "pagination_typography_font_size": {
                             "unit": "px",
                             "size": 14,
@@ -6781,7 +6781,7 @@
                     "isLinked": false
                 },
                 "background_background": "classic",
-                "background_color": "#F4F5F3"
+                "background_color": "ZTOK_bg_alt_Z"
             },
             "elements": [
                 {
@@ -6824,7 +6824,7 @@
                         "_flex_shrink": 0,
                         "custom_css": "selector .elementor-widget-image-box{transition:transform .5s ZTOK_ease_Z,box-shadow .5s ZTOK_ease_Z,border-color .5s ZTOK_ease_Z;box-shadow:ZTOK_elev_rest_Z;will-change:transform;}selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:ZTOK_border_hover_Z;box-shadow:ZTOK_elev_hover_Z;}selector .elementor-widget-image-box .elementor-image-box-img{overflow:hidden;}selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s ZTOK_ease_Z;will-change:transform;}selector .elementor-widget-image-box:hover .elementor-image-box-img img{transform:scale(1.045);}selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ZTOK_ease_Z;}selector .elementor-widget-image-box:hover .elementor-image-box-title{color:ZTOK_accent_Z;}",
                         "background_background": "classic",
-                        "background_color": "#E5E7E5"
+                        "background_color": "ZTOK_border_Z"
                     },
                     "elements": [
                         {
@@ -6841,7 +6841,7 @@
                                 "position": "block-start",
                                 "text_align": "left",
                                 "title_size": "h3",
-                                "primary_color": "#0FA968",
+                                "primary_color": "ZTOK_accent_Z",
                                 "icon_size": {
                                     "unit": "px",
                                     "size": 20,
@@ -6852,10 +6852,10 @@
                                     "size": 16,
                                     "sizes": []
                                 },
-                                "title_color": "#15181A",
-                                "description_color": "#6A6F6C",
+                                "title_color": "ZTOK_text_Z",
+                                "description_color": "ZTOK_muted_Z",
                                 "title_typography_typography": "custom",
-                                "title_typography_font_family": "Space Grotesk",
+                                "title_typography_font_family": "ZTOK_font_head_Z",
                                 "title_typography_font_size": {
                                     "unit": "px",
                                     "size": 17,
@@ -6863,7 +6863,7 @@
                                 },
                                 "title_typography_font_weight": "700",
                                 "description_typography_typography": "custom",
-                                "description_typography_font_family": "Manrope",
+                                "description_typography_font_family": "ZTOK_font_body_Z",
                                 "description_typography_font_size": {
                                     "unit": "px",
                                     "size": 14,
@@ -6899,7 +6899,7 @@
                                 "position": "block-start",
                                 "text_align": "left",
                                 "title_size": "h3",
-                                "primary_color": "#0FA968",
+                                "primary_color": "ZTOK_accent_Z",
                                 "icon_size": {
                                     "unit": "px",
                                     "size": 20,
@@ -6910,10 +6910,10 @@
                                     "size": 16,
                                     "sizes": []
                                 },
-                                "title_color": "#15181A",
-                                "description_color": "#6A6F6C",
+                                "title_color": "ZTOK_text_Z",
+                                "description_color": "ZTOK_muted_Z",
                                 "title_typography_typography": "custom",
-                                "title_typography_font_family": "Space Grotesk",
+                                "title_typography_font_family": "ZTOK_font_head_Z",
                                 "title_typography_font_size": {
                                     "unit": "px",
                                     "size": 17,
@@ -6921,7 +6921,7 @@
                                 },
                                 "title_typography_font_weight": "700",
                                 "description_typography_typography": "custom",
-                                "description_typography_font_family": "Manrope",
+                                "description_typography_font_family": "ZTOK_font_body_Z",
                                 "description_typography_font_size": {
                                     "unit": "px",
                                     "size": 14,
@@ -6957,7 +6957,7 @@
                                 "position": "block-start",
                                 "text_align": "left",
                                 "title_size": "h3",
-                                "primary_color": "#0FA968",
+                                "primary_color": "ZTOK_accent_Z",
                                 "icon_size": {
                                     "unit": "px",
                                     "size": 20,
@@ -6968,10 +6968,10 @@
                                     "size": 16,
                                     "sizes": []
                                 },
-                                "title_color": "#15181A",
-                                "description_color": "#6A6F6C",
+                                "title_color": "ZTOK_text_Z",
+                                "description_color": "ZTOK_muted_Z",
                                 "title_typography_typography": "custom",
-                                "title_typography_font_family": "Space Grotesk",
+                                "title_typography_font_family": "ZTOK_font_head_Z",
                                 "title_typography_font_size": {
                                     "unit": "px",
                                     "size": 17,
@@ -6979,7 +6979,7 @@
                                 },
                                 "title_typography_font_weight": "700",
                                 "description_typography_typography": "custom",
-                                "description_typography_font_family": "Manrope",
+                                "description_typography_font_family": "ZTOK_font_body_Z",
                                 "description_typography_font_size": {
                                     "unit": "px",
                                     "size": 14,
@@ -7015,7 +7015,7 @@
                                 "position": "block-start",
                                 "text_align": "left",
                                 "title_size": "h3",
-                                "primary_color": "#0FA968",
+                                "primary_color": "ZTOK_accent_Z",
                                 "icon_size": {
                                     "unit": "px",
                                     "size": 20,
@@ -7026,10 +7026,10 @@
                                     "size": 16,
                                     "sizes": []
                                 },
-                                "title_color": "#15181A",
-                                "description_color": "#6A6F6C",
+                                "title_color": "ZTOK_text_Z",
+                                "description_color": "ZTOK_muted_Z",
                                 "title_typography_typography": "custom",
-                                "title_typography_font_family": "Space Grotesk",
+                                "title_typography_font_family": "ZTOK_font_head_Z",
                                 "title_typography_font_size": {
                                     "unit": "px",
                                     "size": 17,
@@ -7037,7 +7037,7 @@
                                 },
                                 "title_typography_font_weight": "700",
                                 "description_typography_typography": "custom",
-                                "description_typography_font_family": "Manrope",
+                                "description_typography_font_family": "ZTOK_font_body_Z",
                                 "description_typography_font_size": {
                                     "unit": "px",
                                     "size": 14,
