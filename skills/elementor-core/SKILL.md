@@ -36,8 +36,8 @@ yes yourself and stop until you get it.
   (verifier: es_container_audit() walks the saved tree and names every container that did not earn its place.)
 - **Read the audit verdict.** `es_save_page()` prints `es_container_report()` to stdout before
   writing; end every build function with `es_audit_summary()` and deploy only on
-  `VEREDICTO LIMPIO`. `optimizable` is a judgement call, not an error. `qa-review` row 11 re-runs
-  the same audit on what landed. Detail: `references/gotchas.md` → "Container hygiene".
+  `VEREDICTO LIMPIO`. `optimizable` is a judgement call, not an error. Detail:
+  `references/gotchas.md` → "Container hygiene".
   (verifier: es_container_report() prints the container verdict from inside the save, before that page's data is written.)
 - Deterministic IDs: `es_uid_reset('<page>')` once per page, `es_uid()` per element.
   (no verifier: nothing re-builds a page twice to diff the generated ids, so a non-deterministic one only surfaces later as a spurious diff.)
@@ -45,15 +45,16 @@ yes yourself and stop until you get it.
   EVERY request, not on upload, and one fatal switches the whole directory off.
   (no verifier: self-verifying — top-level logic fatals the site before `execute-php` is ever reached, so a violation cannot ship quietly.)
 - **Read `references/gotchas.md` before the first deploy.** Introspect widget/control names;
-  never guess them (`references/knowledge.md` lists the ones that bit us).
+  never guess them.
   (no verifier: nothing can tell a guessed control name from a researched one until the build silently renders nothing.)
 
 ## Execution Steps
 1. `es_manifest_read()`, then `es_manifest_verify()`. Any drift stops here: a recorded id the site
    disagrees with is how this session overwrites what the last one agreed to leave alone.
-2. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; swap its palette/type
-   constants for the brand from `ux-design-system`. Upload dependencies FIRST: sandbox `.php`
-   runs on every request, so a missing one stops the run.
+2. Copy `assets/es-builder.php` into `wp-content/novamira-sandbox/`; override `es_tokens()` — the
+   one edit point — with the axis positions and brand `ux-design-system` resolved. Left at its
+   defaults, every site ships the same green. Upload dependencies FIRST: a missing one stops the
+   run.
 3. `es_overwrite_preflight()` with EVERY slug this run writes; show the block, get the yes.
    Moving an existing page is `es_migrate_slug()`, never a second page at the new slug.
 4. Write one `es_build_<page>()` per page → `es_save_page(...)`, which defaults to the

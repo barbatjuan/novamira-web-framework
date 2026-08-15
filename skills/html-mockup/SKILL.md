@@ -48,8 +48,9 @@ Its approved output is the visual contract `qa-review` checks the build against.
 3. Publish as ONE **Artifact** (title `<brand> — maqueta`, favicon emoji, one-line description).
    Share the URL as a structural preview needing the user's visual confirmation.
 4. Collect approval or a per-page change list. Iterate the same file → republish to the same URL.
-5. On approval: freeze it as the visual contract and hand inventories + tokens to
-   `elementor-core` / `divi-core`; the build must match it.
+5. On approval: freeze it as the visual contract and hand inventories + tokens + the resolved
+   axis positions its `:root` declares to `elementor-core` / `divi-core`; the build must match
+   it. An axis that stops here becomes the framework default.
 
 ## Output Contract
 Return the Artifact URL, the per-page section inventory and the toggle states baked in. On
