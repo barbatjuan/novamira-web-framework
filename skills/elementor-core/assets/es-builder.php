@@ -968,9 +968,15 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 /* -------------------------------------------------- end of the visual layer
    Everything below is the save pipeline, the container audit, the sandbox and
    the slug machinery. No styling value belongs here, and RT_BUILDER_HARDCODED_TOKEN
-   -- which Task 3 writes and which does not exist yet -- must not scan past this
-   line: further down, "#732" appears inside a Spanish warning string as a fake
-   post id, and a colour regex cannot tell it apart.
+   does not scan past this line.
+
+   That boundary is a RESERVATION, not a response to this file as it stands: every
+   post id below is concatenated (`'#' . $id`), never typed, so a hex scan of the
+   current machinery finds nothing. It is drawn because the day someone does type
+   a "#732" into a warning, a colour regex cannot tell it from a colour -- and the
+   cheap time to draw a boundary is before it is load-bearing. The START boundary
+   is the one carrying weight today: without it the token declarations themselves
+   read as 21 hardcoded literals.
 
    What the region above now holds, and what it deliberately still does not:
      - Every colour, family, shadow, easing curve, font size and spacing length
