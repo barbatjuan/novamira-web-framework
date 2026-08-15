@@ -3525,7 +3525,7 @@
                                             "left": "0",
                                             "isLinked": false
                                         },
-                                        "custom_css": "selector .button,selector .single_add_to_cart_button{background-color:#0FA968!important;border-color:#0FA968!important;color:#fff!important;border-radius:8px!important;transition:background-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.22,1,.36,1)!important;}selector .button:hover,selector .single_add_to_cart_button:hover{background-color:#0C8A55!important;border-color:#0C8A55!important;transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(15,169,104,0.55)!important;}"
+                                        "custom_css": "selector .button,selector .single_add_to_cart_button{background-color:#0FA968!important;border-color:#0FA968!important;color:#FFFFFF!important;border-radius:8px!important;transition:background-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.22,1,.36,1)!important;}selector .button:hover,selector .single_add_to_cart_button:hover{background-color:#0C8A55!important;border-color:#0C8A55!important;transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(15,169,104,0.55)!important;}"
                                     },
                                     "elements": []
                                 },
@@ -7098,7 +7098,7 @@
                     "left": "0",
                     "isLinked": false
                 },
-                "border_color": "#EAECEA"
+                "border_color": "ZTOK_border_soft_Z"
             },
             "elements": [
                 {
@@ -7106,11 +7106,11 @@
                     "elType": "widget",
                     "widgetType": "woocommerce-breadcrumb",
                     "settings": {
-                        "text_color": "#6A6F6C",
-                        "link_color": "#6A6F6C",
-                        "link_hover_color": "#0FA968",
+                        "text_color": "ZTOK_muted_Z",
+                        "link_color": "ZTOK_muted_Z",
+                        "link_hover_color": "ZTOK_accent_Z",
                         "typography_typography": "custom",
-                        "typography_font_family": "Manrope",
+                        "typography_font_family": "ZTOK_font_body_Z",
                         "typography_font_size": {
                             "unit": "px",
                             "size": 13.5,
@@ -7250,9 +7250,9 @@
                                     "elType": "widget",
                                     "widgetType": "woocommerce-product-title",
                                     "settings": {
-                                        "text_color": "#15181A",
+                                        "text_color": "ZTOK_text_Z",
                                         "typography_typography": "custom",
-                                        "typography_font_family": "Space Grotesk",
+                                        "typography_font_family": "ZTOK_font_head_Z",
                                         "typography_font_size": {
                                             "unit": "px",
                                             "size": 36,
@@ -7285,7 +7285,7 @@
                                     "elType": "widget",
                                     "widgetType": "woocommerce-product-rating",
                                     "settings": {
-                                        "star_color": "#0FA968",
+                                        "star_color": "ZTOK_accent_Z",
                                         "_margin": {
                                             "unit": "px",
                                             "top": "0",
@@ -7302,9 +7302,9 @@
                                     "elType": "widget",
                                     "widgetType": "woocommerce-product-price",
                                     "settings": {
-                                        "price_color": "#15181A",
+                                        "price_color": "ZTOK_text_Z",
                                         "price_typography_typography": "custom",
-                                        "price_typography_font_family": "Space Grotesk",
+                                        "price_typography_font_family": "ZTOK_font_head_Z",
                                         "price_typography_font_size": {
                                             "unit": "px",
                                             "size": 30,
@@ -7327,9 +7327,9 @@
                                     "elType": "widget",
                                     "widgetType": "woocommerce-product-short-description",
                                     "settings": {
-                                        "text_color": "#4A4F4C",
+                                        "text_color": "ZTOK_text_soft_Z",
                                         "typography_typography": "custom",
-                                        "typography_font_family": "Manrope",
+                                        "typography_font_family": "ZTOK_font_body_Z",
                                         "typography_font_size": {
                                             "unit": "px",
                                             "size": 15.5,
@@ -7356,10 +7356,10 @@
                                     "elType": "widget",
                                     "widgetType": "woocommerce-product-add-to-cart",
                                     "settings": {
-                                        "button_background_color": "#0FA968",
-                                        "button_hover_background_color": "#0C8A55",
-                                        "button_text_color": "#FFFFFF",
-                                        "button_hover_text_color": "#FFFFFF",
+                                        "button_background_color": "ZTOK_accent_Z",
+                                        "button_hover_background_color": "ZTOK_accent_hover_Z",
+                                        "button_text_color": "ZTOK_on_accent_Z",
+                                        "button_hover_text_color": "ZTOK_on_accent_Z",
                                         "button_border_radius": {
                                             "unit": "px",
                                             "top": "79840",
@@ -7368,9 +7368,9 @@
                                             "left": "79840",
                                             "isLinked": false
                                         },
-                                        "quantity_border_color": "#E5E7E5",
+                                        "quantity_border_color": "ZTOK_border_Z",
                                         "button_typography_typography": "custom",
-                                        "button_typography_font_family": "Manrope",
+                                        "button_typography_font_family": "ZTOK_font_body_Z",
                                         "button_typography_font_size": {
                                             "unit": "px",
                                             "size": 15,
@@ -7385,7 +7385,7 @@
                                             "left": "0",
                                             "isLinked": false
                                         },
-                                        "custom_css": "selector .button,selector .single_add_to_cart_button{background-color:#0FA968!important;border-color:#0FA968!important;color:#fff!important;border-radius:8px!important;transition:background-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.22,1,.36,1)!important;}selector .button:hover,selector .single_add_to_cart_button:hover{background-color:#0C8A55!important;border-color:#0C8A55!important;transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(15,169,104,0.55)!important;}"
+                                        "custom_css": "selector .button,selector .single_add_to_cart_button{background-color:ZTOK_accent_Z!important;border-color:ZTOK_accent_Z!important;color:ZTOK_on_accent_Z!important;border-radius:8px!important;transition:background-color .3s ease,box-shadow .35s ease,transform .35s ZTOK_ease_Z!important;}selector .button:hover,selector .single_add_to_cart_button:hover{background-color:ZTOK_accent_hover_Z!important;border-color:ZTOK_accent_hover_Z!important;transform:translateY(-2px);box-shadow:ZTOK_elev_accent_Z!important;}"
                                     },
                                     "elements": []
                                 },
@@ -7422,15 +7422,15 @@
                                             "size": 12,
                                             "sizes": []
                                         },
-                                        "icon_color": "#0FA968",
+                                        "icon_color": "ZTOK_accent_Z",
                                         "icon_size": {
                                             "unit": "px",
                                             "size": 15,
                                             "sizes": []
                                         },
-                                        "text_color": "#4A4F4C",
+                                        "text_color": "ZTOK_text_soft_Z",
                                         "icon_typography_typography": "custom",
-                                        "icon_typography_font_family": "Manrope",
+                                        "icon_typography_font_family": "ZTOK_font_body_Z",
                                         "icon_typography_font_size": {
                                             "unit": "px",
                                             "size": 14,
@@ -7445,7 +7445,7 @@
                                             "isLinked": false
                                         },
                                         "_background_background": "classic",
-                                        "_background_color": "#F4F5F3",
+                                        "_background_color": "ZTOK_bg_alt_Z",
                                         "_border_radius": {
                                             "unit": "px",
                                             "top": "119760",
@@ -7471,7 +7471,7 @@
                                     "widgetType": "woocommerce-product-meta",
                                     "settings": {
                                         "typography_typography": "custom",
-                                        "typography_font_family": "Manrope",
+                                        "typography_font_family": "ZTOK_font_body_Z",
                                         "typography_font_size": {
                                             "unit": "px",
                                             "size": 13.5,
@@ -7526,7 +7526,7 @@
                     "isLinked": false
                 },
                 "background_background": "classic",
-                "background_color": "#F4F5F3"
+                "background_color": "ZTOK_bg_alt_Z"
             },
             "elements": [
                 {
@@ -7534,20 +7534,20 @@
                     "elType": "widget",
                     "widgetType": "woocommerce-product-data-tabs",
                     "settings": {
-                        "tabs_title_color": "#6A6F6C",
-                        "tabs_title_color_active": "#15181A",
+                        "tabs_title_color": "ZTOK_muted_Z",
+                        "tabs_title_color_active": "ZTOK_text_Z",
                         "tabs_title_typography_typography": "custom",
-                        "tabs_title_typography_font_family": "Space Grotesk",
+                        "tabs_title_typography_font_family": "ZTOK_font_head_Z",
                         "tabs_title_typography_font_size": {
                             "unit": "px",
                             "size": 15,
                             "sizes": []
                         },
                         "tabs_title_typography_font_weight": "600",
-                        "border_color": "#EAECEA",
-                        "content_color": "#4A4F4C",
+                        "border_color": "ZTOK_border_soft_Z",
+                        "content_color": "ZTOK_text_soft_Z",
                         "content_typography_typography": "custom",
-                        "content_typography_font_family": "Manrope",
+                        "content_typography_font_family": "ZTOK_font_body_Z",
                         "content_typography_font_size": {
                             "unit": "px",
                             "size": 15,
@@ -7667,7 +7667,7 @@
                                     "isLinked": false
                                 },
                                 "typography_typography": "custom",
-                                "typography_font_family": "Space Grotesk",
+                                "typography_font_family": "ZTOK_font_head_Z",
                                 "typography_font_size": {
                                     "unit": "px",
                                     "size": 32,
@@ -7695,12 +7695,12 @@
                         "columns_mobile": 2,
                         "posts_per_page": 4,
                         "text_align": "left",
-                        "product_title_color": "#15181A",
-                        "price_color": "#15181A",
-                        "button_color": "#FFFFFF",
-                        "button_background_color": "#0FA968",
-                        "button_hover_color": "#FFFFFF",
-                        "button_background_hover_color": "#0C8A55",
+                        "product_title_color": "ZTOK_text_Z",
+                        "price_color": "ZTOK_text_Z",
+                        "button_color": "ZTOK_on_accent_Z",
+                        "button_background_color": "ZTOK_accent_Z",
+                        "button_hover_color": "ZTOK_on_accent_Z",
+                        "button_background_hover_color": "ZTOK_accent_hover_Z",
                         "button_border_radius": {
                             "unit": "px",
                             "top": "59880",

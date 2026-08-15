@@ -292,6 +292,14 @@ function es_tokens( array $override = array() ) {
 			'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
 			/* ink --------------------------------------------------- */
 			'text'               => '#15181A',
+			/* Running prose, one step off the title ink. A real third role and
+			   not drift: `text` paints titles, prices and UI labels, `muted`
+			   paints chrome (a breadcrumb, pagination, an inactive tab), and
+			   this paints the paragraphs somebody actually READS -- the product
+			   short description, the trust list, the tab body. Folding it into
+			   either neighbour would shout the body copy or demote it to
+			   furniture. */
+			'text_soft'          => '#4A4F4C',
 			'muted'              => '#6A6F6C',
 			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
 			'on_inverse'         => '#FFFFFF', /* text sitting ON surface_inverse or on the CTA scrim */
