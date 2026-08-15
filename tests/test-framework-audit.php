@@ -2697,6 +2697,38 @@ ok(
 );
 fx_rrmdir( $r117 );
 
+echo "--- el glob llega a los OTROS dos skills, no solo a elementor-core ---\n";
+$r118 = fx_tmp_root();
+fx_base( $r118 );
+/* THE SCENARIO THAT PROTECTS THE WIDENING ITSELF, and it was written because its absence was
+   MEASURED, not guessed: with the glob narrowed back to elementor-core alone and a hardcoded
+   colour put back into the real es-theme-parts.example.php, the audit exited 0 and this suite
+   still reported every assertion green. Every other builder fixture writes into
+   elementor-core/assets/, so not one of them can tell a widened glob from a narrow one — and a
+   glob nothing pins is a glob the next person narrows for a quiet afternoon, taking the header,
+   the footer, the shop and the product page out of the check with it.
+   Two assets in the two OTHER directories, so narrowing EITHER one turns this red. */
+$b118 = fx_builder_hermano( array( 'region' => "\t\$s['fuga'] = '#0FA968';\n" ) );
+fx_wc_skill( $r118, 'woocommerce', "- Every colour, family and shadow lives in es_tokens().\n", "\nThe demo build lives in `assets/es-shop.example.php` — see `es_fixture_build()`.\n" );
+fx( $r118, 'skills/woocommerce/assets/es-shop.example.php', $b118 );
+fx_wc_skill( $r118, 'elementor-theme-parts', "- Every colour, family and shadow lives in es_tokens().\n", "\nThe demo build lives in `assets/es-parts.example.php` — see `es_fixture_build()`.\n" );
+fx( $r118, 'skills/elementor-theme-parts/assets/es-parts.example.php', $b118 );
+list( , $out118 ) = fx_run_ok( $audit, $r118 );
+/* The skill name is in the needle set on purpose: narrowing the glob for ONE of the two
+   directories has to turn exactly one of these red, and a needle that only named the file would
+   still match the other skill's row. */
+ok(
+	array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'woocommerce', 'es-shop.example.php:' . fx_line_of( $b118, "\$s['fuga']" ) . ' → #0FA968' ) ),
+	'un literal en woocommerce/assets se ve, con su fichero y su linea',
+	$out118
+);
+ok(
+	array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'elementor-theme-parts', 'es-parts.example.php:' . fx_line_of( $b118, "\$s['fuga']" ) . ' → #0FA968' ) ),
+	'y uno en elementor-theme-parts/assets tambien',
+	$out118
+);
+fx_rrmdir( $r118 );
+
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
 sort( $fx_observed );
