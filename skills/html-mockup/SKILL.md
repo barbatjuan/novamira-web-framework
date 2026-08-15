@@ -10,8 +10,7 @@ metadata:
 # HTML Mockup (approval preview)
 
 Turn the resolved architecture (`web-templates`) + visual spec (`ux-design-system`) into static,
-responsive HTML/CSS the client can approve before paying for the fragile native build — home and
-every inner page, in **ONE Artifact** sharing one `:root` token block.
+responsive HTML/CSS the client can approve before paying for the fragile native build.
 
 ## Activation Contract
 Run after `ux-design-system` (tokens + patterns decided), BEFORE `elementor-core` / `divi-core`.
@@ -42,9 +41,8 @@ Its approved output is the visual contract `qa-review` checks the build against.
 1. Take the resolved section inventories + tokens. Pick the starting asset **by site type** —
    never start a corporate site from the ecommerce one (cart, shipping bar and Tienda nav are
    ecommerce DNA). Read `references/mockup-guide.md` first.
-2. Build ONE responsive file: one `:root` block, semantic `header/main/section/footer`, one
-   `.page` per page, only the sections resolved as kept/on. Header/announcement/footer stay
-   global. **Ecommerce only**: € prices, cart badge.
+2. Build ONE responsive file: semantic `header/main/section/footer`, one `.page` per page, only
+   the sections resolved as kept/on. **Ecommerce only**: € prices, cart badge.
 3. Publish as ONE **Artifact** (title `<brand> — maqueta`, favicon emoji, one-line description).
    Share the URL as a structural preview needing the user's visual confirmation.
 4. Collect approval or a per-page change list. Iterate the same file → republish to the same URL.
@@ -70,4 +68,4 @@ iteration, report what changed.
   scale, `LP-ASYMMETRIC`, no elevation.
 - `assets/proof-direct-mockup.html` — `PERS-DIRECT` over the SAME copy: ink ground, monumental
   scale, `LP-BROKEN-GRID`, accent glow. Same strings (`RT_PROOF_COPY_DIFFERS` gates it); every
-  difference is the anchor — five axes plus the typography and detail each file lists in its head.
+  difference is the anchor, and each file's own head lists them.
