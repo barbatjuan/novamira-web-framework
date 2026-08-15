@@ -365,36 +365,65 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
  * thing RT_MOCKUP_NO_AXES reads: a `:root` block declaring the perceptual axes, plus the
  * composition marker that is the one axis a token cannot carry.
  *
- * $omit names the declarations to leave OUT, which is how each "missing" scenario gets a fixture.
- * Everything a real production mockup also has — six or seven pages, the nav script, the
- * placeholder recipe — is deliberately absent, so a fixture that fails fails on the axis
+ * $omit names the declarations to leave OUT of `:root`, which is how each "missing" scenario gets
+ * a fixture. Everything a real production mockup also has — six or seven pages, the nav script,
+ * the placeholder recipe — is deliberately absent, so a fixture that fails fails on the axis
  * DECLARATIONS and on nothing else.
  *
- * The `.card` rule at the end is not decoration: it USES `--elev-rest` outside `:root`, so a
- * check written against "does the string appear anywhere" instead of "is it declared" would pass
- * a file that only ever consumes a token it never defines.
+ * $outside names declarations to emit OUTSIDE `:root` while still omitting them from it, and it is
+ * what holds the check's `:root` SCOPING in place. The audit reads `$mockup_root`, not the file,
+ * and the comment there says a whole-file scan "would match a USE and call it a declaration". The
+ * `.card{box-shadow:var(--elev-rest)}` line below is that use — but it is NOT what defends the
+ * scoping, and this docblock claimed it was. The check's regex is `--elev-rest(?![\w-])\s*:`: it
+ * demands a COLON after the property name, and `var(--elev-rest)}` has a `)` there, so a use can
+ * never be mistaken for a declaration and swapping `$mockup_root` for the whole file left every
+ * assertion in this suite green. A real DECLARATION outside `:root` is what the scope actually
+ * excludes, and both shapes are real in the production files: a `:root[data-theme="dark"]` block
+ * (both mockups carry one) and any ordinary rule setting a custom property. `$outside` writes
+ * both, so the theme block is what a whole-file scan would read as the light palette's
+ * declaration — which is exactly the file that must FAIL: a mockup declaring an axis only under
+ * `prefers-color-scheme: dark` cannot express that axis at all in the light default every project
+ * ships. The `.card` line stays because a real file has one; it is scenery, and it is labelled
+ * scenery now.
  */
-function fx_mockup( array $omit = array() ) {
+function fx_mockup( array $omit = array(), array $outside = array() ) {
+	/* One source for every declaration so `:root` and $outside emit byte-identical text — a
+	   fixture whose two copies differed could pass the scoping test for the wrong reason. */
+	$axis_decl = array(
+		'--type-ratio' => '--type-ratio: 1.200;',
+		'--display-lh' => '--display-lh: 1.25;',
+		'--fs-h1-max'  => '--fs-h1-max: 48;',
+		'--sp-scale'   => '--sp-scale: 1.0;',
+		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;',
+		'composition'  => '/* composition: LP-CENTERED */',
+	);
 	$decl = '';
-	if ( ! in_array( '--type-ratio', $omit, true ) ) {
-		$decl .= "    --type-ratio: 1.200;\n";
+	foreach ( $axis_decl as $axis_key => $axis_line ) {
+		if ( ! in_array( $axis_key, $omit, true ) ) {
+			$decl .= '    ' . $axis_line . "\n";
+		}
 	}
-	if ( ! in_array( '--display-lh', $omit, true ) ) {
-		$decl .= "    --display-lh: 1.25;\n";
+	/* Custom properties go in a `:root[data-theme="dark"]` block AND in an ordinary rule; the
+	   composition marker is a comment, so it just sits loose in the stylesheet. `:root[` is not
+	   `:root{`, so the audit's `/:root\s*\{(.*?)\}/s` cannot reach either of them — which is the
+	   whole point of the scenario. */
+	$theme_decl = '';
+	$rule_decl  = '';
+	$loose      = '';
+	foreach ( $outside as $axis_key ) {
+		if ( ! isset( $axis_decl[ $axis_key ] ) ) {
+			continue;
+		}
+		if ( 'composition' === $axis_key ) {
+			$loose .= '  ' . $axis_decl[ $axis_key ] . "\n";
+			continue;
+		}
+		$theme_decl .= '    ' . $axis_decl[ $axis_key ] . "\n";
+		$rule_decl  .= '  .panel{' . $axis_decl[ $axis_key ] . "}\n";
 	}
-	if ( ! in_array( '--fs-h1-max', $omit, true ) ) {
-		$decl .= "    --fs-h1-max: 48;\n";
-	}
-	if ( ! in_array( '--sp-scale', $omit, true ) ) {
-		$decl .= "    --sp-scale: 1.0;\n";
-	}
-	if ( ! in_array( '--elev-rest', $omit, true ) ) {
-		$decl .= "    --elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;\n";
-	}
-	if ( ! in_array( 'composition', $omit, true ) ) {
-		$decl .= "    /* composition: LP-CENTERED */\n";
-	}
+	$outside_block = ( '' === $theme_decl ) ? '' : "  :root[data-theme=\"dark\"]{\n" . $theme_decl . "  }\n";
 	return "<!-- production mockup fixture -->\n<style>\n  :root{\n" . $decl . "  }\n"
+		. $outside_block . $rule_decl . $loose
 		. "  .card{box-shadow:var(--elev-rest)}\n"
 		. "</style>\n<h1>Maqueta</h1>\n";
 }
@@ -2230,6 +2259,36 @@ list( $code104, $out104 ) = fx_run_ok( $audit, $r104 );
 ok( array() === fx_lines_with( $out104, array( 'RT_MOCKUP_NO_AXES' ) ), 'un fichero _-prefijado no produce fila', $out104 );
 ok( 0 === $code104, 'y el arbol sigue saliendo con codigo 0', $code104 );
 fx_rrmdir( $r104 );
+
+echo "--- declarar un eje FUERA de :root no cuenta: la maqueta sigue FALLANDO ---\n";
+$r105 = fx_tmp_root();
+fx_base( $r105 );
+/* THE SCOPING SCENARIO. framework-audit.php reads only the first `:root{...}` block and says so:
+   "a whole-file scan would match a USE and call it a declaration". Nothing in this suite tested
+   that until now — mutate `$mockup_root` to the whole file and all fifteen assertions above stay
+   green, because the check's regex demands a colon after the property name and the `.card` line
+   every fixture carries is `var(--elev-rest)}`, a use with a `)` there.
+
+   This fixture is the one that fails the mutant. `--elev-rest` and the composition marker are
+   omitted from `:root` and written OUTSIDE it instead — in a `:root[data-theme="dark"]` block, in
+   an ordinary `.panel` rule, and (for the comment) loose in the stylesheet. Both mockups really do
+   carry a `[data-theme]` block, so this is the shape a production file drifts into, not an
+   invented one. It must FAIL: an axis declared only under a dark theme is an axis the light
+   default every project ships cannot express, which is the exact regression this row exists for.
+   Under the mutant it PASSES, and these assertions go red. */
+fx(
+	$r105,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup( array( '--elev-rest', 'composition' ), array( '--elev-rest', 'composition' ) )
+);
+list( , $out105 ) = fx_run_ok( $audit, $r105 );
+ok( 'FAIL' === fx_row_level( $out105, array( 'RT_MOCKUP_NO_AXES' ) ), 'un eje declarado solo fuera de :root FALLA', fx_row_level( $out105, array( 'RT_MOCKUP_NO_AXES' ) ) );
+ok( array() !== fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', '--elev-rest' ) ), 'y nombra el token que :root no declara', $out105 );
+ok( array() !== fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', 'composition: LP-' ) ), 'y tambien el marcador de composicion suelto', $out105 );
+/* The four it DOES declare in `:root` must stay unaccused, or a reader cannot tell the scoping
+   failure from a file with no axes at all. */
+ok( array() === fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y no acusa a los que si estan en :root', $out105 );
+fx_rrmdir( $r105 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

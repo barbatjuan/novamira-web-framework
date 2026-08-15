@@ -26,8 +26,19 @@
   COMPOSITION IS A LAYOUT RULE, NOT A NUMBER, so it is the one axis a token cannot carry alone: the
   `/* composition: LP-CENTERED */` line below is a claim about how this page is BUILT, and the
   sections honour it — one centred axis, section headings centred with the eyebrow above, symmetric
-  grids only, and no image bleeding a viewport edge anywhere on any of the six pages. Re-pointing
-  that axis means re-laying out, not editing a comment.
+  SECTION grids only, and no image bleeding a viewport edge anywhere on any of the six pages.
+  Re-pointing that axis means re-laying out, not editing a comment.
+
+  THE SCOPE OF "symmetric section grids only" IS STATED HERE so the sentence can be checked instead
+  of believed. It reaches the global header and footer too: they sit OUTSIDE the `.page` containers,
+  so they render on all six pages and an uneven split there is an uneven split six times over —
+  `.fcols` carried `1.6fr 1fr 1fr 1.2fr` (measured 313/196/196/235px at 1280) while this sentence
+  claimed the opposite, and it is `repeat(4,1fr)` now. It does NOT reach a two-track label/value
+  layout inside a component — `.step`'s marker beside its copy, `.hours`' dt beside its dd — which
+  is not a section grid and which layout-patterns.md's "Grids: symmetric only — 2, 3 or 4 equal
+  columns" bullet is not about; that bullet sits beside Hero, Section headings and Images, all
+  section-level rules. Naming both halves is the point: an unstated scope is how a claim survives
+  a counter-example.
 -->
 <style>
   :root{
@@ -86,9 +97,11 @@
           carried before was derived against a #FFFFFF/#F3F6F9 ground; on `cool`'s darker alt they
           both fell under AA (accent 4.23:1, muted 4.45:1), which is why they are re-derived here
           instead of carried over.
-            --c-accent  #1A6474 on #F2F5F8 .... 6.21:1     on #E8EDF3 .... 5.77:1
+            --c-accent  #1A6474 on #F2F5F8 .... 6.15:1     on #E8EDF3 .... 5.72:1
             --c-text-muted #5C6B7A on #F2F5F8 . 5.00:1     on #E8EDF3 .... 4.65:1
-            --c-bg text on #132F4C fill ....... 12.5:1  (the primary button is legible) ── */
+            --c-bg text on #132F4C fill ....... 12.47:1 (the primary button is legible)
+          The accent pair read 6.21/5.77 here until it was re-measured: both clear AA either way,
+          but a figure nobody can reproduce is the same defect as a claim nobody can check. ── */
     --c-primary:#132F4C; --c-secondary:#4B5D72; --c-accent:#1A6474;
     --c-text-muted:#5C6B7A; --c-border:#D2DBE4; --c-success:#2E7D32; --c-error:#C62828;
 
@@ -426,7 +439,8 @@
   .hours{display:grid;grid-template-columns:auto 1fr;gap:.3rem var(--sp-s);font-size:var(--fs-small)}
   .hours dt{color:var(--c-text-muted)}
   /* LP-CENTERED forbids an uneven split: "Grids: symmetric only." `1.25fr 1fr` here and
-     `1.2fr 1fr` below were the last two asymmetric grids on the page. */
+     `1.2fr 1fr` on `.contact` below were two of the three asymmetric section grids this file
+     carried; the third was `.fcols` in the footer, fixed at its own rule. */
   @media(min-width:768px){.nap{grid-template-columns:1fr 1fr}}
 
   /* ── contact split ── */
@@ -440,7 +454,12 @@
   .fcols h3{font-family:var(--font-secondary);font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
   .fcols ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;font-size:var(--fs-small)}
   .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
-  @media(min-width:768px){.fcols{grid-template-columns:1.6fr 1fr 1fr 1.2fr}}
+  /* The footer is OUTSIDE the `.page` containers, so it renders on all six pages: an uneven split
+     here is an uneven split on every one of them, and LP-CENTERED's "Grids: symmetric only — 2, 3
+     or 4 equal columns" reaches it exactly as it reaches a section grid. `1.6fr 1fr 1fr 1.2fr`
+     measured 313/196/196/235px at 1280 — the one place left where the composition claim in the
+     header comment was false. Four equal columns is one of the three shapes that bullet allows. */
+  @media(min-width:768px){.fcols{grid-template-columns:repeat(4,1fr)}}
 </style>
 
 <!-- ===== GLOBAL: preview note + announcement bar (OUTSIDE .page) ===== -->

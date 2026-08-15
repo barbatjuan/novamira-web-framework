@@ -1376,9 +1376,17 @@ if ( $proof_all_here && 2 === count( $proof_copy ) ) {
    asset added later without axes is exactly the regression this row is for, and a hardcoded list
    would not see it.
 
-   Files whose basename starts with `_` are skipped: they are content, not pages.
-   `_axis-proof-content.md` is the real instance — one copy set both proof files render — and it
-   has no `:root` and never will. */
+   Files whose basename starts with `_` are skipped: within this glob, `_` marks a PARTIAL — an
+   `.html` fragment a page file includes rather than a page a project is copied from. A partial
+   carries markup and copy, not a `:root`, so demanding five axis declarations from it would be
+   demanding them from something that has no palette to declare.
+   The carve-out is a RESERVATION, not a description of today's tree: as of this commit no `_`
+   `.html` partial exists, and the `_axis-proof-content.md` this comment used to cite as "the real
+   instance" was never one — the glob is `*.html`, so a `.md` file is out of reach with or without
+   the prefix, and naming it made the rule look load-bearing where it does nothing. What the skip
+   actually buys is that splitting a shared band out of the two production mockups stays a one-file
+   move instead of a new FAIL. tests/test-framework-audit.php covers it with `_shared-copy.html`,
+   which is that shape: an `.html` file with no axis declarations at all. */
 $mockup_assets = glob( $root . '/skills/html-mockup/assets/*.html' );
 if ( ! is_array( $mockup_assets ) ) {
 	$mockup_assets = array();

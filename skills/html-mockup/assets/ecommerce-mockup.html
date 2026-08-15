@@ -23,12 +23,23 @@
 
   COMPOSITION IS A LAYOUT RULE, NOT A NUMBER, so it is the one axis a token cannot carry alone: the
   `/* composition: LP-STRICT-GRID */` line below is a claim about how these pages are BUILT, and
-  the sections honour it — every element starting and ending on a column line, one fixed image
-  ratio per section so rows align, section headings left-aligned on the first column line, and ZERO
-  bleeds. The two full-bleed hero photos this file used to open with (home and Nosotros) were the
-  only things on any of the seven pages that broke that last rule; they now sit inside the grid
-  beside their copy, which is what LP-STRICT-GRID's own hero rule asks for. Re-pointing that axis
-  means re-laying out, not editing a comment.
+  the sections honour it — every element starting and ending on a column line, equal columns and
+  equal gutters in the CARD grids, one fixed image ratio per section so rows align, section
+  headings left-aligned on the first column line, and ZERO bleeds. The two full-bleed hero photos
+  this file used to open with (home and Nosotros) were the only things on any of the seven pages
+  that broke that last rule; they now sit inside the grid beside their copy, which is what
+  LP-STRICT-GRID's own hero rule asks for. Re-pointing that axis means re-laying out, not editing
+  a comment.
+
+  THE SCOPE OF "section headings left-aligned" IS STATED HERE so the sentence can be checked
+  instead of believed, because it was FALSE when it was written: `.benefits` on home and `.values`,
+  `.stats` and `.team` on Nosotros all ran `text-align:center`, putting 16 headings on a centred
+  axis — LP-CENTERED's rule, not this file's — measured 4/4 in each of the four sections at 1280.
+  Only `.news` had been fixed. All four are left-aligned now.
+  The scope reaches the global header and footer too: they sit OUTSIDE the `.page` containers, so
+  they render on all seven pages and an exception there is an exception seven times over. It does
+  NOT reach a two-track label/value layout inside a component (`.citem`'s thumbnail beside its
+  copy): that is not a section grid. An unstated scope is how a claim survives a counter-example.
 -->
 <style>
   :root{
@@ -83,17 +94,33 @@
     --fs-button:.85rem; --fs-nav:.78rem;
 
     /* ── Colours design-system.md does NOT pin per ground position. The ground table gives
-          --c-bg / --c-bg-alt / --c-text only, so muted and border are DERIVED for THIS ground
-          rather than copied, and each is stated with its measured ratio. The muted the file
-          carried (#7A7167) measured 4.18:1 on its own background — under AA before this change,
-          not because of it — which is why it is re-derived here rather than carried over.
-            --c-accent  #5C574F on #FFF3E3 .... 6.54:1     on #F7E8D4 .... 5.95:1
-            --c-text-muted #6B6257 on #FFF3E3 . 5.52:1     on #F7E8D4 .... 5.02:1
-            --c-sale    #B0503A on #FFF3E3 .... 4.73:1
-            --c-bg text on #241C14 fill ....... 15.3:1  (the primary button is legible) ── */
+          --c-bg / --c-bg-alt / --c-text only, so muted, accent, border and the state colours are
+          DERIVED for THIS ground rather than copied. EVERY ratio below names the surface it was
+          measured against, and every colour that lands on both surfaces states BOTH: a single
+          figure hides the alt, and the alt is always the darker of the two. The muted the file
+          carried, #7A7167, measured 4.18:1 against the ground it was derived for — the OLD
+          #F3EFEA, which this file no longer has — so it was under AA before this change, not
+          because of it. (On the `warm` ground it would read 4.37:1 on #FFF3E3 and 3.98:1 on
+          #F7E8D4: still under, on both.) That is why it is re-derived rather than carried over.
+                                              on --c-bg #FFF3E3   on --c-bg-alt #F7E8D4
+            --c-accent      #5C574F ......... 6.54:1              5.95:1
+            --c-text-muted  #6B6257 ......... 5.47:1              4.97:1
+            --c-sale        #944A22 ......... 5.88:1              5.35:1
+            --c-bg text on #241C14 fill ..... 15.3:1  (the primary button is legible) ── */
     --c-primary:#241C14; --c-secondary:#241C14; --c-accent:#5C574F;
     --c-text-muted:#6B6257; --c-border:#D9D1C4;
-    --c-success:#4A7C59; --c-error:#A33A2E; --c-sale:#B0503A;
+    /* --c-sale was #B0503A: 4.73:1 on --c-bg but 4.30:1 on --c-bg-alt, and only the first was
+       written down. `bg-alt` is where a discount badge on an alternating band actually lands, so
+       the figure that was missing is the one that decided it. Re-derived in the same burnt-rust
+       family, clear of 4.5:1 on both, and far enough in hue from --c-error #A33A2E that a sale
+       price is not read as a failure.
+       --c-success and --c-error are NOT re-derived here and this file states no ratio for them:
+       both are unused in these seven pages, and re-deriving a colour nothing paints would be
+       inventing a value rather than fixing one. Measured, for whoever does use them:
+       --c-success #4A7C59 is 4.44:1 / 4.04:1 and does NOT clear AA on either surface as text —
+       it is a stock/confirmation dot in this system, a UI component at the 3:1 threshold, and a
+       project that puts it on text must re-derive it first. --c-error #A33A2E is 5.99:1 / 5.45:1. */
+    --c-success:#4A7C59; --c-error:#A33A2E; --c-sale:#944A22;
 
     /* ── Spacing, verbatim from design-system.md § Density: ONE scale multiplied whole by the
           density position, so the rhythm survives by construction and only the sensation of air
@@ -181,7 +208,14 @@
   :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
-  .note{background:var(--c-accent);color:#fff;text-align:center;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.4rem}
+  /* `var(--c-bg)`, never a frozen `#fff`. This is the same defect the hero scrim's #F3EFEA
+     literals were: a colour the ground axis cannot reach, so a project re-pointing `warm` to a
+     light-on-light or dark ground keeps the white and loses the text. It was also a LIVE AA
+     failure, not a hypothetical one — `#fff` on `--c-accent` measured 7.16:1 under the light
+     palette but 2.15:1 under this file's OWN dark scheme, where `--c-accent` is `#B7B0A6`.
+     `--c-bg` follows the ground on both: 6.54:1 light (#FFF3E3 on #5C574F), 8.49:1 dark
+     (#17150F on #B7B0A6). `.ann` and `.btn-primary` already used exactly this pairing. */
+  .note{background:var(--c-accent);color:var(--c-bg);text-align:center;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.4rem}
   .ann{background:var(--c-text);color:var(--c-bg);text-align:center;font-size:var(--fs-small);letter-spacing:.08em;padding:.55rem;text-transform:uppercase}
   header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--c-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--c-border)}
   .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-m);padding-block:.9rem;flex-wrap:wrap;min-width:0}
@@ -201,7 +235,9 @@
   .tools .srch{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
   .icart{position:relative;display:inline-flex;width:24px;height:24px;cursor:pointer}
   .icart svg{width:24px;height:24px;stroke:var(--c-text);fill:none;stroke-width:1.5}
-  .icart b{position:absolute;top:-6px;right:-8px;background:var(--c-accent);color:#fff;font-size:.6rem;font-weight:700;min-width:15px;height:15px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
+  /* Same frozen `#fff` on the same `--c-accent` fill as `.note`, same two measured ratios, same
+     fix — and this badge is 0.6rem type, which is the last place to spend contrast. */
+  .icart b{position:absolute;top:-6px;right:-8px;background:var(--c-accent);color:var(--c-bg);font-size:.6rem;font-weight:700;min-width:15px;height:15px;border-radius:9px;display:grid;place-items:center;padding:0 3px}
 
   .page{display:none} .page.active{display:block}
   .breadcrumb{font-size:var(--fs-small);color:var(--c-text-muted);letter-spacing:.04em;padding-top:var(--sp-m)}
@@ -252,8 +288,15 @@
   @media(min-width:768px){.rail{grid-auto-columns:1fr;grid-template-columns:repeat(4,1fr);overflow:visible}}
   .editorial{display:grid;gap:var(--sp-l);align-items:center}.editorial .ph{aspect-ratio:4/5}
   @media(min-width:768px){.editorial{grid-template-columns:1fr 1fr}}
-  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m);text-align:center}
-  .benefit .ico{width:34px;height:34px;margin:0 auto .7rem;border:1px solid var(--c-text);border-radius:50%}
+  /* ══ LP-STRICT-GRID · card grids ══ layout-patterns.md: "Section headings: LEFT-ALIGNED on the
+     first column line, sharing the grid with the content below." A centred axis is LP-CENTERED's
+     rule, and this file is not that blueprint. `text-align:center` here plus `margin:0 auto` on the
+     icon put 4/4 headings and 4/4 icons on a centred axis instead of the column line — measured at
+     1280 on home. `.values`, `.stats` and `.team` on the Nosotros page carried the identical pair;
+     all four are left now, so the composition claim in the header comment covers the sections it
+     names instead of three quarters of them. */
+  .benefits{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-l) var(--sp-m)}
+  .benefit .ico{width:34px;height:34px;margin:0 0 .7rem;border:1px solid var(--c-text);border-radius:50%}
   /* Card-level headings are RATIOS of --fs-h3, never fixed rems: a hardcoded `.95rem` is
      byte-identical at all four scale positions, so a `monumental` shop and a `contained` one get
      the same card type. The factor keeps the mobile floor where the fixed value was; the desktop
@@ -296,9 +339,12 @@
   @media(min-width:768px){.pdp{grid-template-columns:1fr 1fr;align-items:start}.pdp .info{position:sticky;top:70px}}
 
   /* ABOUT — the second of the two heroes that used to bleed; same `.hero-grid` as the home one. */
-  .values,.stats,.team{display:grid;gap:var(--sp-l) var(--sp-m);text-align:center}
+  /* Same left-alignment as `.benefits` above, and for the same reason: LP-STRICT-GRID puts every
+     heading on the first column line of its own cell. These three were the other 12 centred
+     headings (4 `.values` + 4 `.stats` + 4 `.team`, measured at 1280 on Nosotros). */
+  .values,.stats,.team{display:grid;gap:var(--sp-l) var(--sp-m)}
   .values{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.team{grid-template-columns:1fr 1fr}
-  .stat b{font-family:var(--font-primary);font-size:calc(var(--fs-h2) * .8);display:block}.ico{width:34px;height:34px;border:1px solid var(--c-text);border-radius:50%;margin:0 auto .7rem}
+  .stat b{font-family:var(--font-primary);font-size:calc(var(--fs-h2) * .8);display:block}.ico{width:34px;height:34px;border:1px solid var(--c-text);border-radius:50%;margin:0 0 .7rem}
   .team .ph{aspect-ratio:1/1;margin-bottom:.6rem}
   @media(min-width:768px){.values,.stats,.team{grid-template-columns:repeat(4,1fr)}}
 
@@ -346,6 +392,13 @@
   .fcols h3{font-family:var(--font-secondary);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
   .fcols ul{list-style:none;display:flex;flex-direction:column;gap:var(--sp-xs);font-size:.9rem}
   .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
+  /* 6/3/3 of a 12-column grid — every track lands on a column line, which is the same test
+     `.cartgrid`'s 8/4 passes above and the one `1.3fr 1fr` failed. The footer is OUTSIDE the
+     `.page` containers, so it renders on all seven pages and the blueprint reaches it exactly as
+     it reaches a section grid; this is the measurement, not an exemption. LP-STRICT-GRID's other
+     bullet, "Grids: 3 or 4 equal columns, equal gutters, equal CARD heights — rows must visibly
+     align", is about the card grids (`.grid4`, `.cats`, `.benefits`, `.team`), which are all
+     `repeat(3,1fr)`/`repeat(4,1fr)` here. A three-column link list has one row and no cards. */
   @media(min-width:768px){.fcols{grid-template-columns:2fr 1fr 1fr}}
 </style>
 
