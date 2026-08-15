@@ -428,6 +428,167 @@ function fx_mockup( array $omit = array(), array $outside = array() ) {
 		. "</style>\n<h1>Maqueta</h1>\n";
 }
 
+/**
+ * One BUILDER asset — the shape RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN read — reduced
+ * to the three things the region boundary depends on: an es_tokens() block, a visual helper below
+ * it, and the "end of the visual layer" marker with save-pipeline code underneath.
+ *
+ * The token block is deliberately STUFFED with literals — hex in both lengths, an `rgba()`, a
+ * `cubic-bezier()` and a font family. Every one of them is correct THERE: it is the declaration
+ * site. That is the whole point of the fixture. A check anchored on the OPENING of es_tokens()
+ * instead of its closing brace reports all seven against a perfectly correct file and is useless
+ * — es-builder.php really does carry 21 of them — and the conforming scenario below is what turns
+ * red the moment someone moves that anchor.
+ *
+ * $region and $below_end inject raw PHP lines on either side of the END marker, which is how the
+ * "a literal here FAILS / the same literal there does not" pair gets written from one template.
+ * $tokens / $end_marker / $end_first omit or misplace the boundary pieces.
+ */
+function fx_builder( array $opts = array() ) {
+	$o = array_merge(
+		array(
+			'tokens'     => true,
+			'end_marker' => true,
+			'end_first'  => false,
+			'region'     => '',
+			'below_end'  => '',
+		),
+		$opts
+	);
+	$token_block = "/* ------------------------------------------------------ design tokens */\n"
+		. "function es_tokens( array \$override = array() ) {\n"
+		. "\treturn array_merge(\n"
+		. "\t\tarray(\n"
+		. "\t\t\t'bg'        => '#FFFFFF',\n"
+		. "\t\t\t'text'      => '#15181A',\n"
+		. "\t\t\t'accent'    => '#0FA968',\n"
+		. "\t\t\t'on_accent' => '#fff',\n"
+		. "\t\t\t'glow'      => 'rgba(15,169,104,0.55)',\n"
+		. "\t\t\t'ease'      => 'cubic-bezier(.22,1,.36,1)',\n"
+		. "\t\t\t'font_body' => 'Manrope',\n"
+		. "\t\t),\n"
+		. "\t\t\$override\n"
+		. "\t);\n"
+		. "}\n";
+	$end_block = "/* ------------------------------------------ end of the visual layer\n"
+		. "   Everything below is the save pipeline. No styling value belongs here. */\n";
+
+	$src = "<?php\n/* fixture builder asset */\n";
+	if ( $o['end_first'] && $o['end_marker'] ) {
+		$src .= $end_block;
+	}
+	if ( $o['tokens'] ) {
+		$src .= $token_block;
+	}
+	$src .= "function es_t( \$key ) {\n\t\$t = es_tokens();\n\treturn isset( \$t[ \$key ] ) ? \$t[ \$key ] : '';\n}\n"
+		. "function es_fixture_card() {\n"
+		. "\t\$s = array(\n"
+		. "\t\t'typography_font_family' => es_t( 'font_body' ),\n"
+		. "\t\t'border_color'           => es_t( 'text' ),\n"
+		. "\t);\n"
+		. $o['region']
+		. "\treturn \$s;\n}\n";
+	if ( $o['end_marker'] && ! $o['end_first'] ) {
+		$src .= $end_block;
+	}
+	/* The save-pipeline half. Note how the REAL file builds a post-id warning: '#' concatenated
+	   with a variable, never a literal — so $below_end is what writes the literal form. */
+	$src .= "function es_fixture_slug( \$id ) {\n"
+		. "\t\$msg = 'la pagina #' . \$id . ' no existe';\n"
+		. $o['below_end']
+		. "\treturn \$msg;\n}\n"
+		. "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n}\n";
+	return $src;
+}
+/**
+ * One SIBLING builder asset — SHAPE B, the second honest way to have a token layer.
+ *
+ * es-theme-parts.example.php, es-product-single.example.php and es-shop-template.example.php
+ * cannot declare es_tokens(): they require es-builder.php, which already declares it, and PHP
+ * fatals on a duplicate function. A second copy of the block would be the drift the whole layer
+ * exists to end. So they DEPEND on it and mark their region with an explicit
+ * "start of the visual layer" comment instead — and they need one, because in those files the
+ * save pipeline sits ABOVE the visual code, so a region anchored on the top of the file would
+ * scan it and a hex regex cannot tell a post id from a colour.
+ *
+ * The conforming region carries an es_rgba( es_t(...), '0.42' ) call on purpose. That is the ONE
+ * shape a derived veil can take, the three real files make thirteen such calls, and a bare
+ * `rgba|cubic-bezier` alternation matches inside the helper's own NAME — so without a lookbehind
+ * this check reports the correct shape as the literal it replaced.
+ *
+ * Written into elementor-core/assets/es-builder.php like fx_builder(), because the check reads
+ * CONTENT and not filenames, and that path already carries the SKILL.md scaffolding a
+ * write-capable skill needs.
+ */
+function fx_builder_hermano( array $opts = array() ) {
+	$o = array_merge(
+		array(
+			'depende'    => true,
+			'inicio'     => true,
+			'end_marker' => true,
+			'prosa_fin'  => false,
+			'region'     => '',
+		),
+		$opts
+	);
+	$src = "<?php\n/* fixture sibling asset */\n";
+	if ( $o['depende'] ) {
+		/* The dependency is named the way the real files name it: inside an array in a guard
+		   loop, NOT on the require line, so a check that pattern-matches `require .* es-builder`
+		   never sees it. */
+		$src .= "foreach ( array( 'es-builder.php' ) as \$dep ) {\n"
+			. "\trequire_once WP_CONTENT_DIR . '/novamira-sandbox/' . \$dep;\n}\n";
+	}
+	if ( $o['inicio'] ) {
+		$src .= "/* ------------------------------------------ start of the visual layer\n";
+		if ( $o['prosa_fin'] ) {
+			$src .= "   Everything from here to the \"end of the visual layer\" marker reads es_t().\n";
+		}
+		$src .= "   Nothing below this line types a colour. */\n";
+	}
+	$src .= "function es_fixture_card() {\n"
+		. "\t\$s = array(\n"
+		. "\t\t'typography_font_family' => es_t( 'font_body' ),\n"
+		. "\t\t'border_color'           => es_t( 'text' ),\n"
+		. "\t\t'veil'                   => es_rgba( es_t( 'on_inverse' ), '0.42' ),\n"
+		. "\t);\n"
+		. $o['region']
+		. "\treturn \$s;\n}\n";
+	if ( $o['end_marker'] ) {
+		$src .= "/* ------------------------------------------ end of the visual layer\n"
+			. "   Everything below is the save pipeline. No styling value belongs here. */\n";
+	}
+	$src .= "function es_fixture_slug( \$id ) {\n"
+		. "\t\$msg = 'la pagina #' . \$id . ' no existe';\n"
+		. "\treturn \$msg;\n}\n"
+		. "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n}\n";
+	return $src;
+}
+
+/* The 1-based line a needle first appears on, so a "names the line" assertion pins the REAL line
+   number instead of one hand-counted from a template that will be edited again. */
+function fx_line_of( $content, $needle ) {
+	foreach ( explode( "\n", $content ) as $i => $l ) {
+		if ( false !== strpos( $l, $needle ) ) {
+			return $i + 1;
+		}
+	}
+	return -1;
+}
+/* elementor-core is in framework-audit.php's own $WRITE_CAPABLE, so it needs the build gate and
+   the Hard Rules a write-capable skill needs, or every builder scenario carries two FAILs that
+   have nothing to do with the token layer. The $extra names the asset and its unrouted entry
+   point so the scenario is not read through a fog of RT_ORPHAN_FILE / RT_HELPER_UNROUTABLE. */
+function fx_builder_skill( $root, $content ) {
+	fx_wc_skill(
+		$root,
+		'elementor-core',
+		"- Every colour, family and shadow lives in es_tokens(); nothing below it types one.\n",
+		"\nThe token layer and the demo build live in `assets/es-builder.php` — see `es_fixture_build()`.\n"
+	);
+	fx( $root, 'skills/elementor-core/assets/es-builder.php', $content );
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
    offline test file, a conforming ux-design-system skill carrying a conforming
@@ -2292,6 +2453,439 @@ ok( array() !== fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', 'composition
    failure from a file with no axes at all. */
 ok( array() === fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y no acusa a los que si estan en :root', $out105 );
 fx_rrmdir( $r105 );
+
+/* ---------------------------------------------------------------------------
+   RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of
+   the file a project is COPIED FROM, asked one hop later of the file that WRITES the site.
+   elementor-core/SKILL.md told operators to "swap its palette/type constants" while es-builder.php
+   contained no constants of any kind: 51 colour literals typed where they were used. Every site
+   shipped the same green on the same white and every row in this audit stayed green.
+
+   The whole difficulty is the region's START boundary, and the scenarios below are ordered so the
+   trap comes first. See fx_builder()'s docblock.
+   --------------------------------------------------------------------------- */
+
+echo "--- un builder con es_tokens() y sin literales en la region no produce fila ---\n";
+$r106 = fx_tmp_root();
+fx_base( $r106 );
+/* THE BOUNDARY SCENARIO. This asset's token block declares seven visual literals, and it is
+   CORRECT: the declaration site is the one place they belong. The region starts at the CLOSING
+   brace of es_tokens(). Move that anchor to the function's opening line — the mistake that is one
+   character of intent away — and this scenario reports seven findings against a conforming file,
+   which is a check nobody keeps switched on. */
+fx_builder_skill( $r106, fx_builder() );
+list( $code106, $out106 ) = fx_run_ok( $audit, $r106 );
+ok( array() === fx_lines_with( $out106, array( 'RT_BUILDER_' ) ), 'un builder conforme no produce ninguna fila de builder', $out106 );
+ok( 0 === $code106, 'y el arbol conforme sale con codigo 0', $code106 );
+fx_rrmdir( $r106 );
+
+echo "--- cada forma de literal en la region FALLA, nombrando fichero, linea y valor ---\n";
+$r107   = fx_tmp_root();
+fx_base( $r107 );
+/* All four detected shapes in one asset, each on its own line with its own unique anchor, so
+   dropping ANY ONE arm of the detector kills a specific named assertion instead of quietly
+   halving the check's reach while the row still fires on the other three. */
+$b107 = fx_builder(
+	array(
+		'region' => "\t\$s['background_color']  = '#0FA968';\n"
+			. "\t\$s['box_shadow_color']  = 'rgba(15,169,104,0.55)';\n"
+			. "\t\$s['transition_curve']  = 'cubic-bezier(.22,1,.36,1)';\n"
+			. "\t\$s2 = array( 'typography_font_family' => 'Manrope' );\n",
+	)
+);
+fx_builder_skill( $r107, $b107 );
+list( , $out107 ) = fx_run_ok( $audit, $r107 );
+ok( 'FAIL' === fx_row_level( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'un literal en la region FALLA', fx_row_level( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b107, 'background_color' ) . ' → #0FA968' ) ),
+	'y nombra fichero, LINEA y valor del hex',
+	$out107
+);
+ok(
+	array() !== fx_lines_with( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b107, 'box_shadow_color' ) . ' → rgba(15,169,104,0.55)' ) ),
+	'y tambien el rgba() entero, no solo "rgba("',
+	$out107
+);
+ok(
+	array() !== fx_lines_with( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b107, 'transition_curve' ) . ' → cubic-bezier(.22,1,.36,1)' ) ),
+	'y la curva de easing',
+	$out107
+);
+ok(
+	array() !== fx_lines_with( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b107, "'typography_font_family' => 'Manrope'" ) . " → typography_font_family 'Manrope'" ) ),
+	'y una familia escrita como cadena en una clave de tipografia',
+	$out107
+);
+/* The es_t() call sites in the same function are the shape this row WANTS. If they were reported
+   the message would stop being a list of what to fix. */
+ok( array() === fx_lines_with( $out107, array( 'RT_BUILDER_HARDCODED_TOKEN', "es_t( 'font_body' )" ) ), 'y no acusa a las llamadas es_t() que estan bien', $out107 );
+fx_rrmdir( $r107 );
+
+echo "--- un builder SIN es_tokens() FALLA con RT_BUILDER_NO_TOKENS ---\n";
+$r108 = fx_tmp_root();
+fx_base( $r108 );
+fx_builder_skill( $r108, fx_builder( array( 'tokens' => false ) ) );
+list( , $out108 ) = fx_run_ok( $audit, $r108 );
+ok( 'FAIL' === fx_row_level( $out108, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin es_tokens() FALLA', fx_row_level( $out108, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out108, array( 'RT_BUILDER_NO_TOKENS', 'assets/es-builder.php' ) ), 'y nombra el fichero', $out108 );
+/* Without a token block there is no region, so the literal row must stay silent rather than
+   reporting the whole file as hardcoded — two rows for one cause is one row too many. */
+ok( array() === fx_lines_with( $out108, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'y no dispara ademas la fila de literales', $out108 );
+fx_rrmdir( $r108 );
+
+echo "--- LA TRAMPA: \"#732\" bajo el marcador de fin NO es un color ---\n";
+$r109 = fx_tmp_root();
+fx_base( $r109 );
+/* THE SCOPING SCENARIO, and the one that proves the END boundary is load-bearing rather than
+   decorative. `#732` is a fake post id inside a Spanish warning, and a hex regex cannot tell it
+   from a colour: three hex digits behind a `#`. Below the END marker it is inert — it never
+   reaches the emitted data — so the region excludes it. Mutate the scan to read the whole file
+   and this scenario goes red, which is the only thing that stops the region from being deleted as
+   ceremony by the next reader.
+
+   Honest note, because the plan this fixture comes from is wrong about it: es-builder.php does
+   NOT type `#732` in a live string. It builds every such warning as `'#' . $post_id`, and the
+   literal `#732` survives only in two explanatory COMMENTS. So this fixture is a RESERVATION in
+   the same sense `_shared-copy.html` is above — the shape one refactor away, not a description of
+   today's tree. The boundary still earns its place on today's file at the START end: without it,
+   the token declarations are 21 findings. */
+fx_builder_skill( $r109, fx_builder( array( 'below_end' => "\t\$otro = 'pagina #732 no existe';\n" ) ) );
+list( $code109, $out109 ) = fx_run_ok( $audit, $r109 );
+ok( array() === fx_lines_with( $out109, array( 'RT_BUILDER_' ) ), 'un "#732" bajo el marcador de fin no produce fila', $out109 );
+ok( 0 === $code109, 'y el arbol sigue saliendo con codigo 0', $code109 );
+fx_rrmdir( $r109 );
+
+echo "--- un builder SIN marcador de fin FALLA: una region sin limite no se puede escanear ---\n";
+$r110 = fx_tmp_root();
+fx_base( $r110 );
+fx_builder_skill( $r110, fx_builder( array( 'end_marker' => false ) ) );
+list( , $out110 ) = fx_run_ok( $audit, $r110 );
+ok( 'FAIL' === fx_row_level( $out110, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin marcador de fin FALLA', fx_row_level( $out110, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+/* This row covers three causes; the message has to say WHICH, or the reader is left diffing the
+   asset against es-builder.php by eye to find out what is missing. */
+ok( array() !== fx_lines_with( $out110, array( 'RT_BUILDER_NO_TOKENS', 'carries no "end of the visual layer" marker' ) ), 'y dice cual de las tres causas es', $out110 );
+fx_rrmdir( $r110 );
+
+echo "--- el marcador de fin POR ENCIMA de es_tokens() deja la region vacia y FALLA ---\n";
+$r111 = fx_tmp_root();
+fx_base( $r111 );
+/* The shape a copy-paste produces when the markers are added to a second asset — and without this
+   branch the region loop simply never runs and the file passes with nothing scanned, which is the
+   silent-hole version of the same bug the END marker exists to prevent. */
+fx_builder_skill( $r111, fx_builder( array( 'end_first' => true ) ) );
+list( , $out111 ) = fx_run_ok( $audit, $r111 );
+ok( 'FAIL' === fx_row_level( $out111, array( 'RT_BUILDER_NO_TOKENS' ) ), 'un marcador de fin mal colocado FALLA', fx_row_level( $out111, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out111, array( 'RT_BUILDER_NO_TOKENS', 'sits ABOVE where the region starts' ) ), 'y dice que el marcador esta por encima', $out111 );
+fx_rrmdir( $r111 );
+
+echo "--- un hex en un COMENTARIO no es un literal; uno tras una URL en la misma linea SI ---\n";
+$r112 = fx_tmp_root();
+fx_base( $r112 );
+/* Two claims in one fixture, and they only hold together.
+   1. A hex inside a PHP comment does not fire. It cannot reach the emitted data, and es-builder.php
+      really does explain a token choice with the words "both are #FFFFFF today" — a check that
+      charged the file for that would be charging it for documenting itself.
+   2. The stripping is done by PHP's own lexer, not by a regex. The second line here puts a URL
+      inside a string BEFORE a real literal. A hand-rolled stripper that treats `//` as a comment
+      opener blanks the rest of that line and the literal vanishes — a silent escape hatch anyone
+      could reach by accident. This assertion is what forbids that implementation. */
+$b112 = fx_builder(
+	array(
+		'region' => "\t/* era #0FA968 antes de que el token existiera; ver rgba(0,0,0,0) */\n"
+			. "\t\$url = 'https://ejemplo.test/a'; \$s['tras_url'] = '#0FA968';\n",
+	)
+);
+fx_builder_skill( $r112, $b112 );
+list( , $out112 ) = fx_run_ok( $audit, $r112 );
+ok( 'FAIL' === fx_row_level( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'el literal tras la URL FALLA', fx_row_level( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b112, 'tras_url' ) . ' → #0FA968' ) ),
+	'y lo nombra con su linea, sin que la URL de la misma linea lo tape',
+	$out112
+);
+ok(
+	array() === fx_lines_with( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b112, 'antes de que el token' ) . ' →' ) ),
+	'y el hex del comentario no aparece como hallazgo',
+	$out112
+);
+ok( 1 === count( fx_lines_with( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) ), 'y es UN hallazgo, no dos ni tres', $out112 );
+fx_rrmdir( $r112 );
+
+/* ---------------------------------------------------------------------------
+   THE DETECTOR'S REACH, which is a separate question from the region's boundary.
+
+   Measured before it was widened: the row caught hex, `rgba(`, `cubic-bezier(` and a quoted font
+   family, and NOTHING else. A brand-new visual helper carrying `rebeccapurple`, `rgb(15,169,104)`,
+   `hsl(151,84%,36%)` and a bare `ease` was dropped inside a scanned region and passed all four
+   suites AND the audit at exit 0 — `rgb(` missed because the `a` was mandatory in the pattern.
+   Every arm below gets its own named assertion so dropping one kills a specific line instead of
+   halving the reach while the row still fires on the others.
+   --------------------------------------------------------------------------- */
+
+echo "--- toda sintaxis de color, no solo hex y rgba(), es un literal ---\n";
+$r116 = fx_tmp_root();
+fx_base( $r116 );
+$b116 = fx_builder(
+	array(
+		'region' => "\t\$s['a_rgb']    = 'background:rgb(15,169,104);';\n"
+			. "\t\$s['a_hsl']    = 'background:hsl(151,84%,36%);';\n"
+			. "\t\$s['a_hsla']   = 'background:hsla(151,84%,36%,.5);';\n"
+			. "\t\$s['a_oklch']  = 'background:oklch(70% 0.1 150);';\n"
+			. "\t\$s['a_lab']    = 'background:lab(50% 40 59);';\n"
+			. "\t\$s['a_mix']    = 'outline:color-mix(in srgb,white 22%,transparent);';\n"
+			. "\t\$s['a_nombre'] = 'background:rebeccapurple;';\n"
+			. "\t\$s['a_medio']  = 'border:1px solid black;';\n",
+	)
+);
+fx_builder_skill( $r116, $b116 );
+list( , $out116 ) = fx_run_ok( $audit, $r116 );
+foreach ( array(
+	'a_rgb'    => 'rgb(15,169,104)',
+	'a_hsl'    => 'hsl(151,84%,36%)',
+	'a_hsla'   => 'hsla(151,84%,36%,.5)',
+	'a_oklch'  => 'oklch(70% 0.1 150)',
+	'a_lab'    => 'lab(50% 40 59)',
+	'a_mix'    => 'color-mix(in srgb,white 22%,transparent)',
+	'a_nombre' => 'rebeccapurple',
+	'a_medio'  => 'black',
+) as $clave116 => $valor116 ) {
+	ok(
+		array() !== fx_lines_with( $out116, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b116, $clave116 ) . ' → ' . $valor116 ) ),
+		'"' . $valor116 . '" es un literal, con su linea y su valor',
+		$out116
+	);
+}
+fx_rrmdir( $r116 );
+
+echo "--- una curva de easing escrita como palabra suelta es un literal; es_t('ease') no ---\n";
+$r117 = fx_tmp_root();
+fx_base( $r117 );
+/* THE LIVE FIXTURE. These three lines are the seven violations that existed in the tree when this
+   was written, copied verbatim: the header's nav underline, the shop archive's pagination and the
+   product page's add-to-cart — the last one carrying a bare `ease` in the SAME declaration as
+   es_t('ease'), so `transform` eased on the house curve while `background-color` fell back to the
+   browser default. Two of the three sibling assets reached the motion axis at exactly 0%.
+   The fourth line is the corrected shape and must stay silent, because `ease` is also a TOKEN NAME:
+   without the blanking pass, es_t('ease') reads as the keyword it replaced and the only way to
+   satisfy the row would be to stop naming the token. */
+$b117 = fx_builder(
+	array(
+		'region' => "\t\$s['t_nav']   = 'transition:opacity .28s ease,transform .28s ease;';\n"
+			. "\t\$s['t_pag']   = 'transition:color .25s ease,background-color .25s ease;';\n"
+			. "\t\$s['t_carro'] = 'transition:box-shadow .35s ease,transform .35s ' . es_t( 'ease' ) . ';';\n"
+			. "\t\$s['t_func']  = 'transition-timing-function:linear;';\n"
+			. "\t\$s['t_pasos'] = 'animation:x 2s steps(4);';\n"
+			. "\t\$s['t_bien']  = 'transition:opacity .28s ' . es_t( 'ease' ) . ';';\n"
+			. "\t\$s['t_fondo'] = 'background:' . es_t( 'transparent' ) . ';';\n",
+	)
+);
+fx_builder_skill( $r117, $b117 );
+list( , $out117 ) = fx_run_ok( $audit, $r117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_nav' ) . ' → .28s ease' ) ), 'un `ease` suelto tras una duracion es un literal', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_pag' ) . ' → .25s ease' ) ), 'y en la paginacion tambien', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_carro' ) . ' → .35s ease' ) ), 'y el que comparte declaracion con es_t(ease), que es el peor de los tres', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_func' ) . ' → timing-function:linear' ) ), 'y `linear` en timing-function', $out117 );
+ok( array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_pasos' ) . ' → steps(4)' ) ), 'y steps(), que es una curva como cualquier otra', $out117 );
+ok( array() === fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_bien' ) . ' →' ) ), 'y la forma correcta —— es_t(ease) —— NO se acusa aunque el token se llame igual que la palabra clave', $out117 );
+/* Y el token cuyo NOMBRE es un color CSS, que es el unico caso donde el blanqueo
+   de es_t() carga peso de verdad. `ease` se salva por el ancla de duracion —— no
+   hay ningun `<num>s ease` en la forma correcta —— pero `transparent` esta en la
+   lista de 148 nombres y va pegado a comillas, asi que sin blanquear la lectura
+   del token, `es_t('transparent')` se acusa a si mismo. es-theme-parts.example.php
+   lo usa de verdad (linea 444), asi que sin esta linea el mutante que apaga el
+   blanqueo pasaba la suite entera y solo caia sobre el arbol real. */
+ok( array() === fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, 't_fondo' ) . ' →' ) ), 'y es_t(transparent) tampoco: leer un token no es escribir su valor, aunque el token se llame como un color CSS', $out117 );
+fx_rrmdir( $r117 );
+
+echo "--- un hex partido por una concatenacion es un hex, se parta donde se parta ---\n";
+$r118 = fx_tmp_root();
+fx_base( $r118 );
+/* `'#0FA' . '968'` was already caught by accident — `#0FA` is a valid three-digit hex — but
+   `'#0F' . 'A968'` and `'#' . '0FA968'` were not. A rule whose reach depends on WHERE somebody put
+   the quote is not a rule, and the split is one search-and-replace away from happening by itself. */
+$b118 = fx_builder(
+	array(
+		'region' => "\t\$s['p_tres'] = '#0FA' . '968';\n"
+			. "\t\$s['p_dos']  = '#0F' . 'A968';\n"
+			. "\t\$s['p_cero'] = '#' . '0FA968';\n",
+	)
+);
+fx_builder_skill( $r118, $b118 );
+list( , $out118 ) = fx_run_ok( $audit, $r118 );
+foreach ( array( 'p_tres', 'p_dos', 'p_cero' ) as $clave118 ) {
+	ok(
+		array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b118, $clave118 ) ) ),
+		'el hex partido en ' . $clave118 . ' se caza igual',
+		$out118
+	);
+}
+fx_rrmdir( $r118 );
+
+echo "--- una clave *_color con una cadena entre comillas es un color, escriba lo que escriba ---\n";
+$r119 = fx_tmp_root();
+fx_base( $r119 );
+/* The format-blind backstop. Every other arm hunts a SHAPE, and a shape list is only as complete as
+   the CSS spec was the day it was written. `ButtonText` is a system colour that matches no pattern
+   in this file and never will; the KEY is what gives it away. And `custom` on the same kind of key
+   must stay silent, because it is Elementor's control mode rather than a colour —— es-theme-parts
+   really uses it. */
+$b119 = fx_builder(
+	array(
+		'region' => "\t\$s2 = array( 'k_sistema' => 1, 'toggle_color' => 'ButtonText' );\n"
+			. "\t\$s3 = array( 'k_modo' => 1, 'icon_color' => 'custom' );\n",
+	)
+);
+fx_builder_skill( $r119, $b119 );
+list( , $out119 ) = fx_run_ok( $audit, $r119 );
+ok(
+	array() !== fx_lines_with( $out119, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b119, 'k_sistema' ) . " → toggle_color 'ButtonText'" ) ),
+	'un color de sistema en una clave de color se caza por la CLAVE, no por la forma',
+	$out119
+);
+ok(
+	array() === fx_lines_with( $out119, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b119, 'k_modo' ) . ' →' ) ),
+	'y el modo de control "custom" de Elementor no es un color: es una decision, y no se acusa',
+	$out119
+);
+fx_rrmdir( $r119 );
+
+echo "--- una palabra castellana que TAMBIEN es un color CSS no dispara la fila ---\n";
+$r120 = fx_tmp_root();
+fx_base( $r120 );
+/* The price of taking the FULL 148-keyword list instead of a curated three. `tan`, `peru`, `snow`,
+   `plum` and `gold` are ordinary words and these files carry Spanish copy, so the match is anchored
+   where a colour ENDS a CSS value —— followed by `;`, `,`, `!`, `}`, `)`, a quote or end of line.
+   A Spanish word is followed by another word. Without this assertion the cheap way out of a false
+   FAIL is to shrink the list, which is exactly the move that lets the next `rebeccapurple` through. */
+$b120 = fx_builder(
+	array(
+		'region' => "\t\$s['prosa'] = 'el menu se pinta tan pronto como exista, no antes';\n"
+			. "\t\$s['color'] = 'background:tan;';\n",
+	)
+);
+fx_builder_skill( $r120, $b120 );
+list( , $out120 ) = fx_run_ok( $audit, $r120 );
+ok( array() === fx_lines_with( $out120, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b120, 'prosa' ) . ' →' ) ), '"tan pronto" en una frase no es el color `tan`', $out120 );
+ok( array() !== fx_lines_with( $out120, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b120, "\$s['color']" ) . ' → tan' ) ), 'pero `background:tan;` si lo es, asi que la lista sigue entera', $out120 );
+fx_rrmdir( $r120 );
+
+/* ---------------------------------------------------------------------------
+   SHAPE B — the sibling assets, which INHERIT es_tokens() instead of declaring it.
+   The glob used to stop at elementor-core/assets/ because the other three files had no token
+   layer at all and would have put this gate permanently red. They have one now, so the glob
+   covers elementor-theme-parts and woocommerce too, and shape B is what it has to understand.
+   --------------------------------------------------------------------------- */
+
+echo "--- un hermano que HEREDA es_tokens() y marca su region no produce fila ---\n";
+$r113 = fx_tmp_root();
+fx_base( $r113 );
+fx_builder_skill( $r113, fx_builder_hermano() );
+list( $code113, $out113 ) = fx_run_ok( $audit, $r113 );
+ok( array() === fx_lines_with( $out113, array( 'RT_BUILDER_' ) ), 'un hermano conforme no produce ninguna fila de builder', $out113 );
+/* The assertion the lookbehind exists for. es_rgba( es_t('on_inverse'), '0.42' ) is the shape
+   this row WANTS: the source colour comes from a token, only the alpha is local. Matched as a
+   literal, the only way to satisfy the check would be to invent a named token per alpha — eleven
+   of them, named after their appearance, which is the opposite of what a token is for. */
+ok( array() === fx_lines_with( $out113, array( 'RT_BUILDER_HARDCODED_TOKEN', 'rgba(' ) ), 'y no acusa a es_rgba( es_t(...) ), que es la forma correcta de un velo derivado', $out113 );
+ok( 0 === $code113, 'y el arbol conforme sale con codigo 0', $code113 );
+fx_rrmdir( $r113 );
+
+echo "--- pero un rgba() escrito a mano en la region de un hermano SIGUE fallando ---\n";
+$r114 = fx_tmp_root();
+fx_base( $r114 );
+/* The other half of the pair, and the one that keeps the narrowing honest: if the lookbehind had
+   been written loosely enough to let `es_rgba(` through by disabling the rgba branch, this
+   scenario goes green and the check has been quietly turned off. */
+$b114 = fx_builder_hermano( array( 'region' => "\t\$s['halo'] = 'rgba(15,169,104,0.55)';\n" ) );
+fx_builder_skill( $r114, $b114 );
+list( , $out114 ) = fx_run_ok( $audit, $r114 );
+ok( 'FAIL' === fx_row_level( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'un rgba() a mano en un hermano FALLA', fx_row_level( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b114, "\$s['halo']" ) . ' → rgba(15,169,104,0.55)' ) ),
+	'y lo nombra con su linea y su valor',
+	$out114
+);
+fx_rrmdir( $r114 );
+
+echo "--- sin es_tokens() Y sin depender de es-builder.php es RT_BUILDER_NO_TOKENS ---\n";
+$r115 = fx_tmp_root();
+fx_base( $r115 );
+/* Shape B must not become a way to opt out. A file with no block of its own and no dependency on
+   the file that has one really does type every colour where it is used. */
+fx_builder_skill( $r115, fx_builder_hermano( array( 'depende' => false ) ) );
+list( , $out115 ) = fx_run_ok( $audit, $r115 );
+ok( 'FAIL' === fx_row_level( $out115, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin bloque y sin dependencia FALLA', fx_row_level( $out115, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out115, array( 'RT_BUILDER_NO_TOKENS', 'does not require es-builder.php' ) ), 'y dice que la causa es la dependencia que falta', $out115 );
+fx_rrmdir( $r115 );
+
+echo "--- un hermano que depende pero NO marca el inicio deja la region sin techo y FALLA ---\n";
+$r116 = fx_tmp_root();
+fx_base( $r116 );
+/* Without the start marker there is no upper boundary, and the save pipeline these files carry
+   ABOVE their visual code would be scanned as if it were design. */
+fx_builder_skill( $r116, fx_builder_hermano( array( 'inicio' => false ) ) );
+list( , $out116 ) = fx_run_ok( $audit, $r116 );
+ok( 'FAIL' === fx_row_level( $out116, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin marcador de inicio FALLA', fx_row_level( $out116, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out116, array( 'RT_BUILDER_NO_TOKENS', 'carries no "start of the visual layer" marker' ) ), 'y dice cual de las causas es', $out116 );
+fx_rrmdir( $r116 );
+
+echo "--- el marcador de inicio puede NOMBRAR al de fin sin encoger la region a nada ---\n";
+$r117 = fx_tmp_root();
+fx_base( $r117 );
+/* THE VACUOUS-REGION SCENARIO, and the reason the END marker takes the LAST match instead of the
+   first. Every start marker naturally wants to say "…down to the end of the visual layer marker",
+   and all three real sibling files were written that way. On a first match that prose IS the end
+   boundary: the region collapses to the four lines of its own comment, every literal below it goes
+   unscanned, and the check reports a clean file because it looked at almost nothing. A check that
+   passes by scanning nothing is worse than no check, because it is reported as a pass.
+   The literal here sits where the collapsed region would not reach it. */
+$b117 = fx_builder_hermano(
+	array(
+		'prosa_fin' => true,
+		'region'    => "\t\$s['lejos'] = '#0FA968';\n",
+	)
+);
+fx_builder_skill( $r117, $b117 );
+list( , $out117 ) = fx_run_ok( $audit, $r117 );
+ok( 'FAIL' === fx_row_level( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'la prosa del marcador de inicio no encoge la region: el literal de mas abajo se sigue viendo', fx_row_level( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, "\$s['lejos']" ) . ' → #0FA968' ) ),
+	'y lo nombra con la linea real, no con una de la region encogida',
+	$out117
+);
+fx_rrmdir( $r117 );
+
+echo "--- el glob llega a los OTROS dos skills, no solo a elementor-core ---\n";
+$r118 = fx_tmp_root();
+fx_base( $r118 );
+/* THE SCENARIO THAT PROTECTS THE WIDENING ITSELF, and it was written because its absence was
+   MEASURED, not guessed: with the glob narrowed back to elementor-core alone and a hardcoded
+   colour put back into the real es-theme-parts.example.php, the audit exited 0 and this suite
+   still reported every assertion green. Every other builder fixture writes into
+   elementor-core/assets/, so not one of them can tell a widened glob from a narrow one — and a
+   glob nothing pins is a glob the next person narrows for a quiet afternoon, taking the header,
+   the footer, the shop and the product page out of the check with it.
+   Two assets in the two OTHER directories, so narrowing EITHER one turns this red. */
+$b118 = fx_builder_hermano( array( 'region' => "\t\$s['fuga'] = '#0FA968';\n" ) );
+fx_wc_skill( $r118, 'woocommerce', "- Every colour, family and shadow lives in es_tokens().\n", "\nThe demo build lives in `assets/es-shop.example.php` — see `es_fixture_build()`.\n" );
+fx( $r118, 'skills/woocommerce/assets/es-shop.example.php', $b118 );
+fx_wc_skill( $r118, 'elementor-theme-parts', "- Every colour, family and shadow lives in es_tokens().\n", "\nThe demo build lives in `assets/es-parts.example.php` — see `es_fixture_build()`.\n" );
+fx( $r118, 'skills/elementor-theme-parts/assets/es-parts.example.php', $b118 );
+list( , $out118 ) = fx_run_ok( $audit, $r118 );
+/* The skill name is in the needle set on purpose: narrowing the glob for ONE of the two
+   directories has to turn exactly one of these red, and a needle that only named the file would
+   still match the other skill's row. */
+ok(
+	array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'woocommerce', 'es-shop.example.php:' . fx_line_of( $b118, "\$s['fuga']" ) . ' → #0FA968' ) ),
+	'un literal en woocommerce/assets se ve, con su fichero y su linea',
+	$out118
+);
+ok(
+	array() !== fx_lines_with( $out118, array( 'RT_BUILDER_HARDCODED_TOKEN', 'elementor-theme-parts', 'es-parts.example.php:' . fx_line_of( $b118, "\$s['fuga']" ) . ' → #0FA968' ) ),
+	'y uno en elementor-theme-parts/assets tambien',
+	$out118
+);
+fx_rrmdir( $r118 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

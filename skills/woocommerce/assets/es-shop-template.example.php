@@ -26,6 +26,12 @@ foreach ( array( 'es-builder.php', 'es-theme-parts.php' ) as $es_dep ) {
 	require_once $es_dep_path;
 }
 
+/* -------------------------------------------------- start of the visual layer
+   This file declares no es_tokens() of its own and must not: es-builder.php,
+   required above, holds the ONE token block for the whole build. Everything
+   from this marker down to the closing marker at the bottom of this file
+   reads it through es_t() / es_rgba(); nothing types a colour, a family, a
+   shadow or an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it. */
 function es_build_shop_template() {
 	es_uid_reset( 'shoparchive' );
 
@@ -40,7 +46,7 @@ function es_build_shop_template() {
 			'padding_mobile' => es_box( 48, 20, 40, 20 ),
 			'border_border'  => 'solid',
 			'border_width'   => es_box( 0, 0, 1, 0 ),
-			'border_color'   => '#E5E7E5',
+			'border_color'   => es_t( 'border' ),
 		),
 		array(
 			es_eyebrow( 'Tienda online' ),
@@ -49,7 +55,7 @@ function es_build_shop_template() {
 				'h1',
 				array(
 					'typography_typography'       => 'custom',
-					'typography_font_family'      => 'Space Grotesk',
+					'typography_font_family'      => es_t( 'font_head' ),
 					'typography_font_size'        => es_size( 48 ),
 					'typography_font_size_mobile' => es_size( 31 ),
 					'typography_font_weight'      => '700',
@@ -82,27 +88,27 @@ function es_build_shop_template() {
 					'column_gap'               => es_size( 24 ),
 					'text_align'               => 'left',
 					/* Title */
-					'product_title_color'      => '#15181A',
+					'product_title_color'      => es_t( 'text' ),
 					'product_title_typography_typography' => 'custom',
-					'product_title_typography_font_family' => 'Manrope',
+					'product_title_typography_font_family' => es_t( 'font_body' ),
 					'product_title_typography_font_size' => es_size( 15 ),
 					'product_title_typography_font_weight' => '600',
 					'product_title_typography_line_height' => es_size( 1.4, 'em' ),
 					/* Price */
-					'price_color'              => '#15181A',
+					'price_color'              => es_t( 'text' ),
 					'price_typography_typography' => 'custom',
-					'price_typography_font_family' => 'Space Grotesk',
+					'price_typography_font_family' => es_t( 'font_head' ),
 					'price_typography_font_size' => es_size( 18 ),
 					'price_typography_font_weight' => '700',
 					/* Button */
-					'button_color'             => '#FFFFFF',
-					'button_background_color'  => '#0FA968',
-					'button_hover_color'       => '#FFFFFF',
-					'button_background_hover_color' => '#0C8A55',
+					'button_color'             => es_t( 'on_accent' ),
+					'button_background_color'  => es_t( 'accent' ),
+					'button_hover_color'       => es_t( 'on_accent' ),
+					'button_background_hover_color' => es_t( 'accent_hover' ),
 					'button_border_radius'     => es_box( 6, 6, 6, 6 ),
 					'button_padding'           => es_box( 11, 18, 11, 18 ),
 					'button_typography_typography' => 'custom',
-					'button_typography_font_family' => 'Manrope',
+					'button_typography_font_family' => es_t( 'font_body' ),
 					'button_typography_font_size' => es_size( 13.5 ),
 					'button_typography_font_weight' => '600',
 					/* Image hover zoom */
@@ -114,16 +120,16 @@ function es_build_shop_template() {
 					   exists on the archive and nowhere else, is passed in as an extra. */
 					'custom_css'               => es_products_css(
 						/* Pagination in palette (was inheriting a pink link color) */
-						'selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#6A6F6C!important;border-color:#E5E7E5!important;border-radius:8px!important;transition:color .25s ease,background-color .25s ease,border-color .25s ease;}'
-						. 'selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:#0FA968!important;border-color:#0FA968!important;}'
-						. 'selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#FFFFFF!important;background-color:#0FA968!important;border-color:#0FA968!important;}'
+						'selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:' . es_t( 'muted' ) . '!important;border-color:' . es_t( 'border' ) . '!important;border-radius:8px!important;transition:color .25s ' . es_t( 'ease' ) . ',background-color .25s ' . es_t( 'ease' ) . ',border-color .25s ' . es_t( 'ease' ) . ';}'
+						. 'selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;}'
+						. 'selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:' . es_t( 'on_accent' ) . '!important;background-color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;}'
 					),
 					/* Pagination */
-					'pagination_color'         => '#6A6F6C',
-					'pagination_color_hover'   => '#0FA968',
-					'pagination_color_active'  => '#15181A',
+					'pagination_color'         => es_t( 'muted' ),
+					'pagination_color_hover'   => es_t( 'accent' ),
+					'pagination_color_active'  => es_t( 'text' ),
 					'pagination_typography_typography' => 'custom',
-					'pagination_typography_font_family' => 'Manrope',
+					'pagination_typography_font_family' => es_t( 'font_body' ),
 					'pagination_typography_font_size' => es_size( 14 ),
 				)
 			),
@@ -148,17 +154,17 @@ function es_build_shop_template() {
 				'position'         => 'block-start',
 				'text_align'       => 'left',
 				'title_size'       => 'h3',
-				'primary_color'    => '#0FA968',
+				'primary_color'    => es_t( 'accent' ),
 				'icon_size'        => es_size( 20 ),
 				'icon_space'       => es_size( 16 ),
-				'title_color'      => '#15181A',
-				'description_color' => '#6A6F6C',
+				'title_color'      => es_t( 'text' ),
+				'description_color' => es_t( 'muted' ),
 				'title_typography_typography' => 'custom',
-				'title_typography_font_family' => 'Space Grotesk',
+				'title_typography_font_family' => es_t( 'font_head' ),
 				'title_typography_font_size' => es_size( 17 ),
 				'title_typography_font_weight' => '700',
 				'description_typography_typography' => 'custom',
-				'description_typography_font_family' => 'Manrope',
+				'description_typography_font_family' => es_t( 'font_body' ),
 				'description_typography_font_size' => es_size( 14 ),
 				'description_typography_line_height' => es_size( 1.55, 'em' ),
 				'_padding'         => es_box( 28, 24, 30, 24 ),
@@ -166,8 +172,8 @@ function es_build_shop_template() {
 		);
 	}
 	$el[] = es_section(
-		array( es_grid( 4, $vcards, 1, array( 'background_background' => 'classic', 'background_color' => '#E5E7E5' ) ) ),
-		array( 'bg' => '#F4F5F3' )
+		array( es_grid( 4, $vcards, 1, array( 'background_background' => 'classic', 'background_color' => es_t( 'border' ) ) ) ),
+		array( 'bg' => es_t( 'bg_alt' ) )
 	);
 
 	/*
@@ -183,3 +189,9 @@ function es_build_shop_template() {
 		array( 'include/product_archive/shop_page' )
 	);
 }
+
+/* -------------------------------------------------- end of the visual layer
+   Nothing follows: this file is one build function and the save pipeline it
+   calls lives in es-theme-parts.php. The marker is here because the region
+   needs a BOTTOM -- an unbounded region is an unscannable one, and the check
+   treats a missing marker as the failure itself. */

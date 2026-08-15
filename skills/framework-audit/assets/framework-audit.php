@@ -100,6 +100,8 @@ const ROW_TYPES = array(
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
+	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
+	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1428,6 +1430,327 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'html-mockup',
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
+		);
+	}
+}
+
+/* --------------------------------------------------- the builder's token layer
+ *
+ * RT_MOCKUP_NO_AXES above asks whether the file a project is COPIED FROM can express an axis.
+ * These two ask the same question one hop later, of the file that actually writes the site.
+ * `elementor-core/SKILL.md` step 2 USED to tell the operator to "swap its palette/type constants",
+ * and there were no constants of any kind in es-builder.php to swap — 51 colour literals, 9 font
+ * strings and 5 shadows typed inline between the helpers instead. So every NovaMira site shipped
+ * the same green on the same white whatever the axis dialogue resolved, with every other row in
+ * this audit green. That step now says "override es_tokens() — the one edit point" (67dcb45),
+ * which is a real mechanism; the sentence above is history, quoted as history, because a comment
+ * that quotes deleted text as current text sends the next reader looking for a string that is not
+ * there. What these two rows guarantee is the half a SKILL.md sentence cannot: that the one edit
+ * point stays the ONLY one.
+ *
+ * THE REGION, and why getting its START wrong makes the whole row useless. The scan runs from the
+ * closing brace of es_tokens() to the end-of-visual-layer marker. Anchoring on the OPENING of
+ * es_tokens() instead puts the token DECLARATIONS inside the scanned region, and every one of
+ * those is a hex literal by definition — the check then reports ~21 findings against a perfectly
+ * correct file, which is a check nobody keeps. Anchoring on some neighbouring helper's brace
+ * instead (es_t(), es_fs(), es_sp()) breaks the first time a function is added next to it. So the
+ * boundary depends on exactly one name — es_tokens — and that is the one name this row already
+ * requires to exist, so it cannot be an incidental coupling. Everything else in the file, es_t()
+ * included, is INSIDE the region and held to the rule.
+ *
+ * COMMENTS ARE NOT SCANNED, and that is a decision, not an oversight. A hex in a comment cannot
+ * reach the emitted data — it is inert for the same reason the region below the END marker is
+ * inert. Scanning them would FAIL es-builder.php today on a rationale comment that reads "…was
+ * byte-identical only because both are #FFFFFF today", i.e. it would charge a file for explaining
+ * itself, in a repo whose whole style is explaining itself. Stripping is done with PHP's OWN
+ * lexer (php_code_lines()) rather than a regex: a hand-rolled stripper that treats `//` as a
+ * comment opener blanks the rest of any line carrying a URL inside a string, and a real literal
+ * after one would vanish — that is a genuine escape hatch, and tests/test-framework-audit.php
+ * carries the fixture for it.
+ *
+ * SCOPE. It covers the assets/ of every skill that emits Elementor data — elementor-core,
+ * elementor-theme-parts and woocommerce — which is all four builder assets. It used to cover
+ * elementor-core alone, deliberately, because the other three carried 131 literals and no token
+ * block, and a gate that is red for known, scheduled, un-started work is a gate people learn to
+ * scroll past. They were migrated in Task 4 of
+ * docs/superpowers/plans/2026-08-15-axes-reach-the-build.md, whose Step 2 makes widening this the
+ * same task's job and not a follow-up, so the reservation is spent and the glob is open.
+ *
+ * Still a GLOB per skill and not four hardcoded filenames, for the reason RT_MOCKUP_NO_AXES gives
+ * above: a SECOND asset dropped into any of those three assets/ directories without a token layer
+ * is exactly the regression this row exists for, and a hardcoded name would not see it. The skill
+ * LIST is explicit rather than one wildcard across every skill's assets, because that wider glob
+ * also picks up framework-audit.php — this file — whose literal regexes and examples are not
+ * colours a build emits, and which has no visual region to bound. divi-core has no assets/ and no PHP at
+ * all; when it grows a di_* library, its directory joins this list.
+ *
+ * TWO SHAPES OF TOKEN LAYER, because there are two honest ways to have one:
+ *   A. The file DECLARES es_tokens() — es-builder.php. Region starts at that function's closing
+ *      brace, never at its opening line, or the 27 declarations inside it read as 27 literals.
+ *   B. The file INHERITS it — the three siblings require es-builder.php and must not redeclare
+ *      es_tokens() (PHP would fatal on the duplicate, and a second copy of the block is the drift
+ *      this whole layer exists to end). Those files carry an explicit "start of the visual layer"
+ *      marker instead, because their save pipeline sits ABOVE the visual code rather than below
+ *      it and a region anchored on the top of the file would scan it.
+ * A file with neither is a file where every colour is typed where it is used: RT_BUILDER_NO_TOKENS.
+ */
+
+/* Every line of $src with its PHP comments blanked out and the line NUMBERING preserved, so a
+   finding's reported line still points at the real line of the real file. Uses token_get_all()
+   — PHP's own lexer — so "is this a comment" is answered by the thing that decides it at runtime,
+   never by a regex that cannot tell `'https://x'` from the start of one. A file that is not PHP
+   at all lexes to one T_INLINE_HTML token and nothing is stripped, which errs toward scanning
+   MORE, never less. */
+function php_code_lines( $src ) {
+	$out = '';
+	foreach ( token_get_all( $src ) as $tk ) {
+		if ( ! is_array( $tk ) ) {
+			$out .= $tk;
+			continue;
+		}
+		if ( T_COMMENT === $tk[0] || T_DOC_COMMENT === $tk[0] ) {
+			$out .= str_repeat( "\n", substr_count( $tk[1], "\n" ) );
+			continue;
+		}
+		$out .= $tk[1];
+	}
+	return explode( "\n", $out );
+}
+
+/* A token READ is not a literal, by definition — and two token NAMES are spelled exactly like the
+   CSS values this row exists to catch. `es_t( 'ease' )` is the correct shape and `ease` is the
+   keyword the widened rules below hunt; `es_t( 'transparent' )` is the correct shape and
+   `transparent` is a named colour. Blanked to spaces of the SAME length before any pattern runs
+   (so a real literal later on the line still reports the right line), which is why widening the
+   keyword set cannot charge a file for reading its own tokens. Only `es_t( 'identifier' )` is
+   blanked: a `#`, a bracket or an expression inside the parens is not a token name and stays
+   visible to the scan. */
+function es_blank_token_reads( $line ) {
+	return preg_replace_callback(
+		'/es_t\(\s*([\'"])[A-Za-z0-9_]+\1\s*\)/',
+		function ( $m ) {
+			return str_repeat( ' ', strlen( $m[0] ) );
+		},
+		$line
+	);
+}
+
+$builder_end_marker   = 'end of the visual layer';
+$builder_start_marker = 'start of the visual layer';
+/* 3-to-8 hex covers every CSS form (#fff, #ffff, #ffffff, #ffffffff), not just the two the plan
+   named — an alpha hex is as much a hardcoded colour as a plain one. The trailing boundary stops
+   `#facade-panel` (a CSS id selector) from reading as a colour, and stops the six-digit form from
+   also reporting its own first three digits as a second finding. rgba()/cubic-bezier() report
+   their whole call when it closes on the same line, because "rgba(" alone is not a value a reader
+   can go and look for. */
+/* The lookBEHIND is what lets `es_rgba( es_t( 'accent' ), '0.07' )` through while
+   `'rgba(15,169,104,0.07)'` still fails. Without it the bare `rgba|cubic-bezier` alternation
+   matches inside the helper's own NAME, so the one shape this row wants to see — a veil derived
+   from a token — reads as the literal it replaced, and the only way to satisfy the check would be
+   to invent a named token per alpha. es-builder.php never hit this because its single es_rgba()
+   call sits INSIDE es_tokens(), above the region; the three siblings make 13 such calls in-region.
+   This narrows only by an identifier character before the name: `:rgba(`, `,rgba(`, ` rgba(` and
+   `'rgba(` all still match, and a hand-typed colour is never preceded by [A-Za-z0-9_]. */
+/* THE FUNCTION SET IS EVERY COLOUR AND TIMING FUNCTION CSS HAS, not the two the file happened to
+   contain. `rgba` alone missed `rgb(` outright — the `a` was mandatory — and with it `hsl()`,
+   `hsla()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()` and `color-mix()`, which is the syntax
+   design-system.md's own `accent-glow` elevation position is written in. `steps()` joins
+   `cubic-bezier()` for the same reason on the motion side. `linear-gradient()` is deliberately NOT
+   here: a gradient built out of token colours is the correct shape, and its colours are caught on
+   their own.
+   THE SPLIT HEX. `'#0FA' . '968'` was already caught (`#0FA` is a valid three-digit hex and the
+   quote is not a hex character), but `'#0F' . 'A968'` was not, and neither was `'#' . '0FA968'` —
+   the split point decided whether the rule saw anything, which is not a rule. A `#` with 0-2 hex
+   digits sitting at the end of a string that is being concatenated is a colour torn in half; there
+   is no other reason to write one. The `'(#' . $id . ')'` warnings that shape resembles all live
+   BELOW the END marker, which is what that marker is for. */
+$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|#[0-9A-Fa-f]{0,2}[\'"]\s*\.|(?<![0-9A-Za-z_])(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix|cubic-bezier|steps)\((?:[^)\n]{0,48}\))?/';
+
+/* NAMED CSS COLOURS: the FULL 148-keyword list plus `transparent`, not a curated shortlist.
+ *
+ * The curated option — `white`, `black`, `transparent`, the three anybody actually types — is the
+ * one that makes this row green for the least work, and it is wrong for the reason the row exists:
+ * the literal that survives is always the one nobody thought of. `rebeccapurple` is not a colour a
+ * careful author reaches for, which is exactly why a shortlist would never have carried it, and a
+ * live probe put `rebeccapurple` inside a scanned region and watched all four suites and the audit
+ * pass. A list that only contains the colours you predicted is a list that only catches the
+ * mistakes you predicted. The full list costs one long string and never needs maintaining: CSS has
+ * not added a colour keyword since `rebeccapurple` in 2014, and if it ever does, the two rules
+ * below still catch it by shape and by key.
+ *
+ * THE PRICE, and how it is paid. `tan`, `peru`, `snow`, `linen`, `plum`, `gold` and `red` are also
+ * ordinary words, and these files carry Spanish UI copy. So the match is anchored where a colour
+ * ENDS a CSS value: the keyword must be followed (after optional space) by `;`, `,`, `!`, `}`, `)`,
+ * a quote, or end of line. `background:rebeccapurple;`, `border:1px solid black;` and
+ * `'title_color' => 'white'` all satisfy it; `tan pronto como` does not, because a Spanish word is
+ * followed by another word.
+ *
+ * RESIDUAL, stated rather than discovered: a named colour in the MIDDLE of a shorthand it does not
+ * end — `background:white url(x)` — is not caught, and a Spanish clause that happens to end on a
+ * colour word before a comma would be a false FAIL. Both are the loud kind: the first is a miss the
+ * `*_color` key rule below usually catches anyway, and the second fails visibly with the file and
+ * line in the message, which beats a rule that quietly scans nothing. */
+$builder_colour_names = 'aliceblue|antiquewhite|aquamarine|aqua|azure|beige|bisque|blanchedalmond|blueviolet|blue|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|goldenrod|gold|gray|greenyellow|green|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavenderblush|lavender|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|limegreen|lime|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olivedrab|olive|orangered|orange|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|whitesmoke|white|yellowgreen|yellow|black';
+$builder_named_re     = '/(?<![\w-])(?:' . $builder_colour_names . ')(?![\w-])(?=\s*(?:[;,!}\')"]|$))/i';
+
+/* BARE TIMING KEYWORDS, anchored on the duration that always precedes one.
+ *
+ * This is the rule with seven live violations at the moment it was written: `transition:opacity
+ * .28s ease,transform .28s ease` in the header, three more in the shop archive's pagination, and
+ * two in the product page's add-to-cart — in the SAME declaration as `es_t('ease')`, so `transform`
+ * eased on the house curve while `background-color` and `box-shadow` fell back to the browser
+ * default. Two of the three sibling assets reached the motion axis at exactly 0%.
+ *
+ * Anchored on `<number>s`/`<number>ms` (or an explicit `timing-function:`) rather than matched as a
+ * bare word, because `ease` and `linear` are too common to hunt loose — and because `es_t( 'ease' )`
+ * is blanked before this runs, the correct shape can never trip it either way. */
+$builder_timing_re = '/(?:[0-9]*\.?[0-9]+\s*m?s\s+|timing-function\s*:\s*)(?:ease-in-out|ease-in|ease-out|ease|linear|step-start|step-end)(?![\w-])/i';
+/* A family typed as a STRING on a typography key. `=> es_t( 'font_body' )` has no quote after the
+   arrow and is the shape this row wants; `=> 'Manrope'` is the shape it exists to stop. \w* so a
+   `_tablet`/`_mobile` responsive variant cannot slip past the same rule. */
+$builder_family_re = '/typography_font_family\w*[\'"]?\s*=>\s*([\'"])(.*?)\1/';
+
+/* THE FORMAT-BLIND BACKSTOP: a settings key whose name ends in `color` may not be fed a quoted
+   string at all. Every rule above hunts a SHAPE, and a shape list is only ever as complete as the
+   CSS spec was on the day it was written — `oklch()` did not exist when `rgba()` was the whole of
+   this check. This one asks the other question: not "does this look like a colour" but "is this
+   the slot a colour goes in". `'title_color' => <anything quoted>` is a hardcoded colour whatever
+   syntax it is written in, including syntaxes nobody has invented yet.
+   The exception list is four CSS-wide keywords and one Elementor control mode, and every one of
+   them is a DECISION rather than a colour: `custom` is how Elementor is told a sibling key carries
+   the value (es-theme-parts.example.php:579 uses it), and `initial`/`inherit`/`unset`/`revert`
+   defer to the cascade. Nothing that names a colour is on it. */
+$builder_colour_key_re    = '/[\'"]?(\w*colou?r)[\'"]?\s*=>\s*([\'"])(.*?)\2/i';
+$builder_colour_key_allow = array( 'custom', 'initial', 'inherit', 'unset', 'revert', '' );
+
+$builder_assets = array();
+foreach ( array( 'elementor-core', 'elementor-theme-parts', 'woocommerce' ) as $builder_dir ) {
+	$builder_found = glob( $root . '/skills/' . $builder_dir . '/assets/*.php' );
+	if ( is_array( $builder_found ) ) {
+		$builder_assets = array_merge( $builder_assets, $builder_found );
+	}
+}
+sort( $builder_assets );
+foreach ( $builder_assets as $builder_path ) {
+	$builder_name  = basename( $builder_path );
+	$builder_skill = basename( dirname( dirname( $builder_path ) ) );
+	$builder_src   = slurp( $builder_path );
+	$builder_raw   = explode( "\n", $builder_src );
+	$builder_code  = php_code_lines( $builder_src );
+
+	$tokens_open = -1;
+	foreach ( $builder_code as $bi => $bl ) {
+		if ( preg_match( '/^\s*function\s+es_tokens\s*\(/', $bl ) ) {
+			$tokens_open = $bi;
+			break;
+		}
+	}
+	$region_start = -1;
+	if ( -1 !== $tokens_open ) {
+		/* SHAPE A — the file declares the block. The top-level closing brace, found by column: a
+		   `}` alone on a line ends the function, an indented one closes an inner block. */
+		for ( $bi = $tokens_open + 1, $bn = count( $builder_code ); $bi < $bn; $bi++ ) {
+			if ( '}' === rtrim( $builder_code[ $bi ] ) ) {
+				$region_start = $bi;
+				break;
+			}
+		}
+		$builder_why_start = 'es_tokens() never closes on a line of its own, so where the declarations stop cannot be read';
+	} else {
+		/* SHAPE B — the file inherits the block. It must actually depend on the file that holds
+		   it: the dependency is named in CODE, not in a comment, and the three siblings name it
+		   inside a `foreach ( array( 'es-builder.php' ) ... )` guard rather than on the require
+		   line itself, so this asks whether the code mentions it at all rather than pattern-
+		   matching a require that is not there. */
+		if ( false === strpos( implode( "\n", $builder_code ), 'es-builder.php' ) ) {
+			add(
+				'RT_BUILDER_NO_TOKENS',
+				'FAIL',
+				$builder_skill,
+				'assets/' . $builder_name . ' declares no es_tokens() and does not require es-builder.php, which holds the only one'
+					. ' — every colour, family and shadow in it is typed where it is used, so the site it builds cannot be re-skinned'
+					. ' from one edit point and ships the framework default'
+			);
+			continue;
+		}
+		foreach ( $builder_raw as $bi => $bl ) {
+			if ( false !== strpos( $bl, $builder_start_marker ) ) {
+				$region_start = $bi;
+				break;
+			}
+		}
+		$builder_why_start = 'it inherits es_tokens() from es-builder.php but carries no "' . $builder_start_marker
+			. '" marker, so where its visual region BEGINS cannot be read — and in these files the save pipeline sits above the visual code, so "the top" is the wrong answer';
+	}
+	/* Both markers are located in the RAW lines: they are comments, and php_code_lines() has just
+	   blanked them out of $builder_code.
+	   The END marker takes the LAST match, not the first, and that is load-bearing. Every start
+	   marker naturally wants to say "…down to the end of the visual layer marker", and on a FIRST
+	   match that prose collapses the region to the four lines of its own comment — a check that
+	   passes because it scanned almost nothing, which is the worst failure a check has. Taking the
+	   last match makes the same mistake widen the region instead, and a region that is too wide
+	   fails LOUDLY on the first inert `#` it meets. Loud beats silently vacuous. */
+	$region_end = -1;
+	foreach ( $builder_raw as $bi => $bl ) {
+		if ( false !== strpos( $bl, $builder_end_marker ) ) {
+			$region_end = $bi;
+		}
+	}
+	if ( -1 === $region_start || -1 === $region_end || $region_end <= $region_start ) {
+		if ( -1 === $region_start ) {
+			$why = $builder_why_start;
+		} elseif ( -1 === $region_end ) {
+			$why = 'it carries no "' . $builder_end_marker . '" marker';
+		} else {
+			$why = 'its "' . $builder_end_marker . '" marker sits ABOVE where the region starts, leaving nothing between them';
+		}
+		add(
+			'RT_BUILDER_NO_TOKENS',
+			'FAIL',
+			$builder_skill,
+			'assets/' . $builder_name . ' has an es_tokens() block no scan can be bounded by: ' . $why
+				. ' — an unbounded region is an unscannable one, and a region nothing scans is a rule nothing enforces'
+		);
+		continue;
+	}
+
+	$builder_hits = array();
+	for ( $bi = $region_start + 1; $bi < $region_end; $bi++ ) {
+		/* Token reads blanked FIRST and once, so every pattern below sees the same line and none of
+		   them can charge `es_t( 'ease' )` or `es_t( 'transparent' )` for spelling a CSS keyword. */
+		$bline = es_blank_token_reads( $builder_code[ $bi ] );
+		foreach ( array( $builder_literal_re, $builder_named_re, $builder_timing_re ) as $bre ) {
+			if ( preg_match_all( $bre, $bline, $bm ) ) {
+				foreach ( $bm[0] as $bhit ) {
+					$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . trim( $bhit );
+				}
+			}
+		}
+		if ( preg_match( $builder_family_re, $bline, $bfm ) ) {
+			$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → typography_font_family ' . $bfm[1] . $bfm[2] . $bfm[1];
+		}
+		if ( preg_match_all( $builder_colour_key_re, $bline, $bkm, PREG_SET_ORDER ) ) {
+			foreach ( $bkm as $bk ) {
+				if ( ! in_array( strtolower( $bk[3] ), $builder_colour_key_allow, true ) ) {
+					$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . $bk[1] . ' ' . $bk[2] . $bk[3] . $bk[2];
+				}
+			}
+		}
+	}
+	/* The same literal can satisfy two rules — `'title_color' => '#0FA968'` is both a hex and a
+	   colour key — and reporting it twice makes the count read as twice the debt. */
+	$builder_hits = array_values( array_unique( $builder_hits ) );
+	if ( array() !== $builder_hits ) {
+		/* Every hit is named with its own line and its own value. "hay un literal" sends a reader
+		   to eye-scan 500 lines; "es-builder.php:388 → #CBD0CB" is one keystroke away from fixed.
+		   Nothing is truncated: a long row is the honest size of the debt. */
+		add(
+			'RT_BUILDER_HARDCODED_TOKEN',
+			'FAIL',
+			$builder_skill,
+			'assets/' . $builder_name . ' types ' . count( $builder_hits ) . ' visual literal(s) between es_tokens() and the "'
+				. $builder_end_marker . '" marker: ' . implode( ', ', $builder_hits )
+				. ' — each one is a value the axis dialogue can no longer move, so the site reverts to the framework default wherever it is read'
 		);
 	}
 }

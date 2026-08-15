@@ -50,7 +50,32 @@ function es_w( $type, array $settings ) {
 	);
 }
 
-function es_box( $t, $r, $b, $l, $unit = 'px' ) {
+/**
+ * A four-sided box value, with the density axis applied ONCE, here.
+ *
+ * The multiplier lives inside this function and not at the 29 call sites for
+ * one reason: a call site can forget, and the one that forgets is the one that
+ * stops moving when the axis moves. Two guards keep it from scaling things that
+ * are not rhythm:
+ *
+ *  - $unit. Density scales LENGTHS. A percentage or a viewport unit is already
+ *    relative to something else, and multiplying it is not a smaller gap -- it
+ *    is a different layout. Every call in all four assets is px today (checked,
+ *    not assumed); the guard is here so the first non-px call does not silently
+ *    become a bug.
+ *  - $scale. A border WIDTH and a border RADIUS ride in this same shape and are
+ *    NOT rhythm. At sp_scale 1.7 a 1px hairline rounds to 2px -- that is a
+ *    heavier border, not more air, and it makes the `hairline` elevation
+ *    position unexpressible -- and a 16px radius becomes 27px, which is a
+ *    different shape language. Those call sites say so with es_box_unscaled().
+ */
+function es_box( $t, $r, $b, $l, $unit = 'px', $scale = true ) {
+	if ( $scale && 'px' === $unit ) {
+		$t = es_sp( $t );
+		$r = es_sp( $r );
+		$b = es_sp( $b );
+		$l = es_sp( $l );
+	}
 	return array(
 		'unit'     => $unit,
 		'top'      => (string) $t,
@@ -59,6 +84,11 @@ function es_box( $t, $r, $b, $l, $unit = 'px' ) {
 		'left'     => (string) $l,
 		'isLinked' => false,
 	);
+}
+
+/** A box the density axis must NOT touch: border widths and border radii. */
+function es_box_unscaled( $t, $r, $b, $l ) {
+	return es_box( $t, $r, $b, $l, 'px', false );
 }
 
 function es_size( $n, $unit = 'px' ) {
@@ -95,6 +125,537 @@ function es_img( $slug ) {
 		'id'  => $posts[0]->ID,
 	);
 	return $cache[ $slug ];
+}
+
+/**
+ * One token's colour, at an alpha, as an rgba() string.
+ *
+ * A token whose value hides another token's colour is not a token. Overriding
+ * the accent used to leave the old green inside every glow -- `accent` went
+ * navy and `elev_accent` still carried `rgba(15,169,104,0.55)`, so the client
+ * got a navy button with a green halo, and the ONE edit point was not one.
+ * The seven accent/ink glows and the two white veils are derived through here
+ * so that overriding the source colour really does move all of them.
+ *
+ * $alpha is TEXT on purpose. `0.10` and `0.1` are the same float and different
+ * bytes, and this file carries both shapes on purpose-by-accident: the outline
+ * wash is `0.10`, the cart glow is `0.5`. Formatting a number would silently
+ * rewrite one of them, and rewriting emitted bytes is the one thing the
+ * extraction task may not do.
+ */
+function es_rgba( $hex, $alpha ) {
+	$h = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $h ) ) {
+		$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+	}
+	if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+		/* Loud and visibly unpainted beats silently plausible: a wrong colour
+		   in a shadow reads as "the theme decided that", a missing one does
+		   not, and the warning names the value that could not be read. */
+		es_warn( 'es_rgba() no sabe leer "' . $hex . '" como color hex, asi que el efecto que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+		return 'rgba(0,0,0,0)';
+	}
+	return 'rgba(' . hexdec( substr( $h, 0, 2 ) ) . ',' . hexdec( substr( $h, 2, 2 ) ) . ',' . hexdec( substr( $h, 4, 2 ) ) . ',' . $alpha . ')';
+}
+
+/**
+ * One token's colour, darkened by a factor, as a hex string.
+ *
+ * The hover of a colour is not a second colour to remember. `accent_hover` was
+ * a hand-picked darker GREEN sitting next to an accent a client is expected to
+ * change -- so a navy brand got a navy button and a green hover, which is the
+ * rgba bug from es_rgba() one level up: an edit point that is only one edit
+ * point if you also remember the other one.
+ *
+ * Multiplying every channel by the same factor is the ordinary "darken": it
+ * keeps the hue and the relative channel spacing and works on any brand,
+ * including a dark one, where a fixed subtraction would flatten to black.
+ */
+function es_shade( $hex, $factor ) {
+	$h = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $h ) ) {
+		$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+	}
+	if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+		/* Same reasoning as es_rgba(): loud and visibly unpainted beats
+		   silently plausible, and the warning names the value it could not read. */
+		es_warn( 'es_shade() no sabe leer "' . $hex . '" como color hex, asi que el estado derivado que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+		return '';
+	}
+	$out = '#';
+	for ( $i = 0; $i < 3; $i++ ) {
+		$c    = (int) round( hexdec( substr( $h, $i * 2, 2 ) ) * $factor );
+		$out .= sprintf( '%02X', max( 0, min( 255, $c ) ) );
+	}
+	return $out;
+}
+
+/**
+ * One token's colour blended toward another's, as a hex string.
+ *
+ * This is the GROUND axis, and it is the axis the token layer was still faking. `bg`, `bg_alt` and
+ * `text` moved with the ground; `muted`, `text_soft`, `border`, `surface_inverse` and `on_inverse`
+ * did not, because they were five hand-picked values sampled off a white page. Measured under the
+ * `ink` position design-system.md documents (`bg #0E1113`, `text #F4F6F7`), against their own ground
+ * rather than against white:
+ *
+ *   muted           #6A6F6C   3.70:1   below AA —— and es_p() paints every paragraph with it
+ *   text_soft       #4A4F4C   2.27:1   below AA
+ *   surface_inverse #15181A   1.06:1   the `dark` button was invisible on its own page
+ *   border          #E5E7E5  15.24:1   a near-WHITE hairline on a near-black page
+ *
+ * design-system.md:263 states the rule those break in its own words —— "each pair was
+ * contrast-checked against its OWN --c-bg, not against white" —— and it was enforced for `--c-text`
+ * and for nothing else.
+ *
+ * Blending is the fix rather than a documented value per position, and the reason is coverage: the
+ * ground table has four positions and a client's ground is whatever their brand is. A derived
+ * neutral is right on grounds nobody has thought of yet; a documented one is right on four.
+ * design-tokens.md step 4 already specifies exactly this ("Derive the neutrals from the contrast,
+ * not from grey"), so this implements a written rule rather than inventing one.
+ */
+function es_mix( $a, $b, $f ) {
+	$out = '#';
+	foreach ( array( $a, $b ) as $hex ) {
+		$h = ltrim( (string) $hex, '#' );
+		if ( 3 === strlen( $h ) ) {
+			$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+		}
+		if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+			/* Same reasoning as es_rgba() and es_shade(): loud and visibly unpainted beats silently
+			   plausible, and the warning names the value it could not read. */
+			es_warn( 'es_mix() no sabe leer "' . $hex . '" como color hex, asi que el neutro derivado que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+			return '';
+		}
+		$c[] = $h;
+	}
+	for ( $i = 0; $i < 3; $i++ ) {
+		$v    = (int) round( hexdec( substr( $c[0], $i * 2, 2 ) ) + ( hexdec( substr( $c[1], $i * 2, 2 ) ) - hexdec( substr( $c[0], $i * 2, 2 ) ) ) * $f );
+		$out .= sprintf( '%02X', max( 0, min( 255, $v ) ) );
+	}
+	return $out;
+}
+
+/**
+ * Tokens that are one ground token blended toward another: array( from, to, fraction ).
+ *
+ * The fractions are MEASURED off the values this file already shipped, not chosen: each is where
+ * the old hand-picked colour actually sat between `text` and `bg` on the `paper` ground, so the
+ * framework's own look survives the change to within one or two units per channel while every other
+ * ground finally gets neutrals of its own. What the old values also carried was a faint green cast
+ * (`#6A6F6C` has more green than red or blue) —— sampled off a green-tinted neutral rather than off
+ * the ink, which is drift, not a decision, and it goes.
+ *
+ * The two at 0.00 are not a rounding curiosity, they are the point:
+ *   surface_inverse = `text`. design-tokens.md files "near-black type" and "inverted dark surfaces
+ *     (footer, announcement bar, solid CTA)" under ONE role, so the surface that flips the page over
+ *     is the contrast colour. On `paper` that is #15181A —— byte for byte what was typed there —— and
+ *     on `ink` it correctly becomes near-white instead of staying invisible at 1.06:1.
+ *   on_inverse = `bg`. Ink sitting on the inverse surface is the page's own ground. #FFFFFF on
+ *     `paper`, byte-identical again, and near-black on `ink`.
+ * Written as mixes rather than as aliases so there is one mechanism to read instead of two, and so
+ * a brand that wants its footer a shade off its ink can say so by moving one number.
+ *
+ * design-tokens.md's own step 4 gives "muted ≈ 55–60%" and "border ≈ 85%". The border number is
+ * close (89%); the muted one is not, and it is not close in the direction that matters: at 57% on
+ * `paper` muted lands on #9A9C9D, which is 2.76:1 —— a WCAG AA failure for the body copy es_p()
+ * paints with it. The measured 36.6% is what ships and what passes, so that file's number is the
+ * one that moved.
+ *
+ * `bg_alt` is deliberately NOT here. It is one of the three the ground table DOCUMENTS per position,
+ * so it is an axis INPUT the operator sets, not an output.
+ */
+function es_token_mixes() {
+	return array(
+		'surface_inverse' => array( 'text', 'bg', 0.00 ),
+		'on_inverse'      => array( 'bg', 'text', 0.00 ),
+		'text_soft'       => array( 'text', 'bg', 0.230 ),
+		'muted'           => array( 'text', 'bg', 0.366 ),
+		'border'          => array( 'text', 'bg', 0.890 ),
+		/* The two extra hairlines the siblings brought with them. Derived so they follow the ground
+		   like everything else; still three keys for one job, which remains the standing finding
+		   this block records rather than a design anybody chose. */
+		'border_soft'     => array( 'text', 'bg', 0.912 ),
+		'border_softer'   => array( 'text', 'bg', 0.929 ),
+	);
+}
+
+/**
+ * Tokens that are another token's colour, darkened.
+ *
+ * array( source token, factor ). Same table shape as es_token_recipes() and for
+ * the same reason: the key list, the derivation and the unknown-key guard read
+ * ONE table and cannot drift apart.
+ *
+ * The two factors are different on purpose, because the two jobs are. Pressing
+ * a button has to be FELT, so the accent drops ~18%; a hairline nudging on
+ * hover is a hint, so the border drops ~6.5%. One factor for both would either
+ * make the border look broken or make the button look asleep.
+ */
+function es_token_shades() {
+	return array(
+		/* 0.815 is not a fitted curiosity: it is the factor at which the
+		   framework's own accent reproduces its hand-picked hover #0C8A55
+		   exactly, so making this derived costs zero emitted bytes on the
+		   default brand while every other brand finally gets a hover of its
+		   OWN colour. */
+		'accent_hover' => array( 'accent', 0.815 ),
+		'border_hover' => array( 'border', 0.935 ),
+	);
+}
+
+/**
+ * Tokens that are another token's colour with a veil over it.
+ *
+ * array( prefix, source token, alpha ). Kept as data rather than inline so the
+ * key list, the derivation and the unknown-key guard all read the SAME table
+ * and cannot drift apart.
+ *
+ * Only the colour is derived; the geometry (`0 18px 40px -12px `) stays a
+ * literal because it is a distance, not a colour, and distances belong to the
+ * density axis that Task 2 owns.
+ */
+function es_token_recipes() {
+	return array(
+		'muted_on_inverse'  => array( '', 'on_inverse', '0.75' ),
+		'border_on_inverse' => array( '', 'on_inverse', '0.5' ),
+		'accent_wash'       => array( '', 'accent', '0.10' ),
+		'scrim_from'        => array( '', 'surface_inverse', '0.92' ),
+		'scrim_to'          => array( '', 'surface_inverse', '0.30' ),
+		/* ONE neutral lift and ONE accent glow. Both existed twice, and neither
+		   pair had a stated reason to differ -- `elev_hover_panel` was the same
+		   shadow 6px further out at 0.20, `elev_accent_cart` the same glow 2px
+		   tighter at 0.5. Where two values disagreed, the survivor is the one
+		   design-system.md actually documents: `0 18px 40px -12px rgba(21,24,26,.16)`
+		   is verbatim its `soft-shadow` --elev-hover. The other two were nobody's
+		   decision, which is why nothing was keeping them in step. */
+		'elev_hover'        => array( '0 18px 40px -12px ', 'text', '0.16' ),
+		'elev_accent'       => array( '0 12px 26px -10px ', 'accent', '0.55' ),
+	);
+}
+
+/* ---------------------------------------------------------- design tokens
+   This block IS the "override es_tokens() -- the one edit point" that
+   elementor-core/SKILL.md step 2 names: ONE edit point per project, filled from
+   the axis positions the ux-design-system dialogue resolved. The values below
+   are the framework default, not a recommendation for any client -- a site that
+   ships with them unchanged is a site nobody made a decision about.
+
+   No colour, family, shadow, easing curve, font size or spacing value between
+   here and the END marker below is typed by hand. The bare CSS keyword `ease`
+   used to be the exception -- typed 9 times on 5 lines INSIDE the same rules as
+   the tokenised curve, so `transform` eased on cubic-bezier(.22,1,.36,1) while
+   `border-color` fell back to the browser default, two motion languages in one
+   rule -- and it is gone: every duration in this file now names es_t('ease').
+
+   RT_BUILDER_HARDCODED_TOKEN enforces that region mechanically -- it landed in
+   this same branch (c101cd2) and reaches all four builder assets since accd2f6.
+   It reads the lines between es_tokens()'s closing brace and the END marker,
+   with PHP comments stripped, and FAILS naming every literal as file:line ->
+   value. What it cannot see is a literal that happens to EQUAL the token it
+   replaced: that one is the golden dump's job, and the two are complementary
+   rather than redundant -- the golden catches a value that moves, the row
+   catches a value that stopped being addressable.
+
+   Keys are named for the ROLE the value plays, never for what it looks like:
+   `muted`, not `grey`; `surface_inverse`, not `surface_dark`. A token called
+   `green` cannot survive a client whose brand is navy, and a token called
+   `dark` cannot survive one whose inverse surface is cream -- and renaming it
+   afterwards means touching every call site again.
+
+   Nothing below is a duplicate of anything else below. The six that were --
+   five neutral borders doing one job, two accent glows differing in geometry
+   AND alpha, two neutral lifts, and one white written `#fff` in a CSS blob and
+   `#FFFFFF` everywhere else -- were collapsed here, and the values that moved
+   are recorded in the golden dump's diff. Drift is not a naming problem: two
+   keys for one job are two things to remember to change together, and the
+   whole point of this block is that there is only one. */
+function es_tokens( array $override = array() ) {
+	static $t = null;
+	if ( null === $t || $override ) {
+		$base = array(
+			/* ground ------------------------------------------------ */
+			'bg'                 => '#FFFFFF', /* the light surface a card sits on */
+			/* The quiet band that separates one section from the next without
+			   flipping the page over. es-builder.php never needed it -- it has
+			   no banded sections -- but the shop archive, the product tabs and
+			   the mobile dropdown all reach for the same value, so it belongs
+			   in the one edit point rather than three times in three files.
+			   design-system.md's ground table pins this per position, and the value
+			   here is its `paper` row verbatim. It used to read #F4F5F3, which is on
+			   NO row of that table -- an invented fourth ground half a step off the
+			   documented one, in a file whose own plan says never to invent a number.
+			   tests/test-write-path.php now reads the three documented cells out of
+			   design-system.md and compares them against these three defaults, so the
+			   next drift is a red row instead of a colour nobody re-checked. */
+			'bg_alt'             => '#F6F7F8',
+			'surface_inverse'    => null, /* derived: the ground's own `text` -- the surface that flips the page over */
+			'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
+			/* ink --------------------------------------------------- */
+			'text'               => '#15181A',
+			/* Running prose, one step off the title ink. A real third role and
+			   not drift: `text` paints titles, prices and UI labels, `muted`
+			   paints chrome (a breadcrumb, pagination, an inactive tab), and
+			   this paints the paragraphs somebody actually READS -- the product
+			   short description, the trust list, the tab body. Folding it into
+			   either neighbour would shout the body copy or demote it to
+			   furniture. */
+			'text_soft'          => null, /* derived: text 23% toward bg */
+			'muted'              => null, /* derived: text 36.6% toward bg */
+			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
+			'on_inverse'         => null, /* derived: the ground's own bg -- ink ON surface_inverse or on the CTA scrim */
+			'muted_on_inverse'   => null, /* derived: on_inverse at 0.75 */
+			/* borders ----------------------------------------------- */
+			/* ONE hairline and its hover. This was five keys -- a rest/hover
+			   pair for the image-box card, a second pair two shades off for
+			   the feature card, and a darker edge for the outline button --
+			   five values for one job, none of them a decision anybody
+			   recorded. The outline button's edge is the one that lightens
+			   most (#CBD0CB -> #E5E7E5); a control edge wanting more contrast
+			   than a divider is a real argument, but it is an accessibility
+			   argument, and #CBD0CB was 1.5:1 on white, nowhere near the 3:1
+			   WCAG 1.4.11 asks of a control. It was not buying the contrast
+			   its darkness implied, so nothing is lost by collapsing it.
+			   It is DERIVED now rather than typed, and the reason is the ground
+			   axis: at #E5E7E5 this hairline was 1.24:1 on the `paper` it was
+			   picked for and 15.24:1 on `ink` -- a near-WHITE slash across a
+			   near-black page. Blended off the ink it stays a hairline on every
+			   ground (1.15-1.31:1 across all four documented positions).
+			   It is asserted as a RANGE, not against 3:1: WCAG 1.4.11's 3:1 is
+			   for controls, this is a divider, and it has never met 3:1 on any
+			   ground including the white one it was drawn for. Asserting a
+			   threshold the framework has never met would have meant either
+			   darkening every divider on every site or writing a check that
+			   passes by being pointed somewhere else. The outline BUTTON's edge
+			   reading this same token IS a control at 1.25:1, and that is a real
+			   WCAG 1.4.11 gap -- reported, still open, and not silently papered
+			   over by a range assertion that says nothing about it. */
+			'border'             => null, /* derived: text 89% toward bg */
+			'border_hover'       => null, /* derived: border darkened 6.5% */
+			/* Two MORE hairlines, arriving from the sibling assets, and named
+			   honestly as what they are: the same drift this block already
+			   collapsed once, living in three files nobody was comparing. They
+			   are 5 and 9 units off `border` on every channel (#E5E7E5 ->
+			   #EAECEA -> #EEF0EE, measured, not eyeballed) and no decision
+			   anywhere says why. Derived now, so they at least follow the ground
+			   instead of staying three white-page constants, but three keys for
+			   one job is STILL THE FINDING and collapsing them is still a
+			   deliberate visual decision somebody has to make and look at. */
+			'border_soft'        => null, /* derived: text 91.2% toward bg */
+			'border_softer'      => null, /* derived: text 92.9% toward bg */
+			'border_on_inverse'  => null, /* derived: on_inverse at 0.5 */
+			/* accent -- derives from the BRAND, never from the anchor.
+			   design-tokens.md is explicit that accent is not an axis. */
+			'accent'             => '#0FA968',
+			'accent_hover'       => null, /* derived: accent darkened 18.5% */
+			'accent_wash'        => null, /* derived: accent at 0.10 -- the faint tint an outline control fills with */
+			/* scrim over the CTA banner photo, so the copy stays legible */
+			'scrim_from'         => null, /* derived: surface_inverse at 0.92 */
+			'scrim_to'           => null, /* derived: surface_inverse at 0.30 */
+			/* scale ------------------------------------------------- */
+			'font_head'          => 'Space Grotesk',
+			'font_body'          => 'Manrope',
+			/* The four numbers that ARE the scale axis, at the `classic`
+			   position from design-system.md's "Perceptual axes" table. Every
+			   heading and body size in this file is es_fs(step) off these; no
+			   size is typed. */
+			'fs_base'            => 16,
+			'type_ratio'         => 1.333,
+			'display_lh'         => 1.10,
+			'fs_h1_max'          => 64,
+			/* The one size deliberately OFF the ratio. design-system.md pins
+			   --fs-small at a flat 0.875rem rather than deriving it, because
+			   card meta text is not a step in the heading hierarchy: it is the
+			   floor under body, and a ratio that pushes headings apart must not
+			   also push meta text into unreadability. Nearest-step would have
+			   sent it to 16 -- the same size as body -- erasing the distinction
+			   it exists to make. An honest exception, not a bent derivation.
+			   It does NOT track fs_base; a project that moves the base should
+			   move this too. */
+			'fs_small'           => 14,
+			/* Same reasoning, and design-system.md pins it the same way
+			   (--fs-eyebrow: 0.75rem, flat). This one was ON the scale for a
+			   while at step -1, and the render numbers showed why that is
+			   wrong: a step BELOW body shrinks as the ratio grows, so the
+			   monumental position -- the one meant to make headings shout --
+			   was quietly taking this uppercase, letter-spaced label down to
+			   9.9px. The scale axis pushes the hierarchy APART; it must not
+			   push the small end into unreadability. */
+			'fs_eyebrow'         => 12,
+			/* density ----------------------------------------------- */
+			/* `standard`. Applied inside es_box() and the three gap defaults,
+			   so one multiplier moves the whole rhythm. */
+			'sp_scale'           => 1.0,
+			/* elevation --------------------------------------------- */
+			/* The rest state, which did not exist at all before: this file had
+			   five :hover shadows and nothing underneath them, which is why
+			   `hairline` and `soft-shadow` could not be expressed. `none` is
+			   the `none` position from design-system.md and renders exactly as
+			   the absence it replaces. Swap it for `0 0 0 1px #E5E7E5`
+			   (hairline) or `0 1px 2px rgba(0,0,0,.04)` (soft-shadow) and every
+			   card recipe picks it up. */
+			'elev_rest'          => 'none',
+			'elev_hover'         => null, /* derived: text at 0.16 */
+			'elev_accent'        => null, /* derived: accent at 0.55 */
+			/* motion ------------------------------------------------ */
+			'ease'               => 'cubic-bezier(.22,1,.36,1)',
+		);
+
+		/* A mistyped override key used to be accepted in silence: es_tokens()
+		   merged `acento` in, nothing read it, the accent stayed green and no
+		   channel said a word. es_t()'s guard only catches typos on the READ
+		   side, and this is the one edit point the whole token layer exists to
+		   create -- a typo here is the likeliest operator error there is. */
+		foreach ( $override as $clave => $ignorado ) {
+			if ( ! array_key_exists( $clave, $base ) ) {
+				es_warn( 'la clave "' . $clave . '" no es un token: el override se ha aceptado y NO cambia nada. Revisa el nombre contra la lista de es_tokens.' );
+			}
+		}
+
+		$t = array_merge( $base, $override );
+		/* Three passes, and the ORDER is the dependency chain, not a style.
+		   Mixes read the two ground literals and produce hexes; shades read a hex
+		   and produce a hex; veils read a hex and produce an rgba(). So `border`
+		   has to exist before `border_hover` can darken it, and `surface_inverse`
+		   before `scrim_from` can veil it. Run the veils first and every ground
+		   derivative silently reads null. */
+		foreach ( es_token_mixes() as $clave => $receta ) {
+			/* Same escape hatch as the two passes below: a brand whose hairline is
+			   not a blend of its own ink must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = es_mix( $t[ $receta[0] ], $t[ $receta[1] ], $receta[2] );
+			}
+		}
+		/* Shades run BEFORE the veils: a shade produces a hex, a veil consumes
+		   one, so this order is what lets a future glow be built on a hover. */
+		foreach ( es_token_shades() as $clave => $receta ) {
+			/* Same escape hatch as the veils below: a brand whose hover is not
+			   a darker version of its accent must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = es_shade( $t[ $receta[0] ], $receta[1] );
+			}
+		}
+		foreach ( es_token_recipes() as $clave => $receta ) {
+			/* An explicit override of a derived key still wins: a brand whose
+			   glow is not its accent must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = $receta[0] . es_rgba( $t[ $receta[1] ], $receta[2] );
+			}
+		}
+		foreach ( $t as $clave => $valor ) {
+			if ( null === $valor ) {
+				es_warn( 'el token "' . $clave . '" quedo sin valor: hay un hueco declarado arriba sin receta en es_token_recipes(), o al reves.' );
+			}
+		}
+	}
+	return $t;
+}
+
+function es_t( $key ) {
+	$t = es_tokens();
+	if ( ! array_key_exists( $key, $t ) ) {
+		es_warn( 'es_t("' . $key . '") no existe en es_tokens(); revisa el nombre.' );
+		return '';
+	}
+	return $t[ $key ];
+}
+
+/**
+ * One step on the type scale, in px.
+ *
+ * Step 0 is body; each step up multiplies by the ratio, each step down divides.
+ * This is what the scale axis IS -- ONE number moves the whole hierarchy,
+ * instead of twelve sizes that happen to look related and drift apart the first
+ * time someone nudges one of them. (They had: two card titles declared with the
+ * same `title_size => h3` were shipping at 19px and 17px.)
+ *
+ * Capped at fs_h1_max so a monumental ratio cannot run a heading off a phone.
+ * At the `classic` position the cap does not engage until step 5, and this file
+ * emits nothing above step 3 -- so today it is insurance, not a live value, and
+ * the suite proves it engages rather than assuming it.
+ */
+function es_fs( $step ) {
+	$t  = es_tokens();
+	$px = $t['fs_base'] * pow( $t['type_ratio'], $step );
+	return round( min( $px, $t['fs_h1_max'] ), 1 );
+}
+
+/**
+ * One step of the type scale, in px, RESOLVED AT A VIEWPORT WIDTH.
+ *
+ * es_fs() above answers "how big is this step" with one number, which is the right shape for a
+ * body size and the WRONG shape for a heading. design-system.md does not give a heading one size:
+ * it gives it a clamp() whose floor is `fs_base x ratio^n`, whose cap is `fs_h1_max / ratio^(3-n)`,
+ * and whose preferred term interpolates that step's OWN floor into that step's OWN cap between
+ * 430px and 1280px. Elementor cannot emit a clamp(); it emits a fixed px per breakpoint. So the
+ * honest translation is to RESOLVE the same formula at each breakpoint, which is what this does.
+ *
+ * Why it matters, measured rather than argued: es_fs(3) is the FLOOR, so an h1 built from it ships
+ * at 37.9px on a desktop at `classic` and 54px at `editorial`, while design-system.md's own browser
+ * table (its "MEASURED in a browser at a 16px root" rows) pins editorial h1 at 88px and monumental
+ * at 120px from 1280px up. A build sized off the floor misses the approved mockup by 40% on the
+ * single largest element of the page, and misses it with a number that LOOKS derived. That is worse
+ * than the sizeless heading it replaces, so the cap has to be reachable and this is what reaches it.
+ *
+ * 430 / 850 are design-system.md's `--fluid` endpoints verbatim (`clamp(0px, calc((100vw - 430px)
+ * / 850), 1px)`), not numbers chosen here. The clamp order is CSS's: `max(floor, min(px, cap))`, so
+ * a position whose cap falls below its floor keeps the floor, exactly as clamp() would.
+ *
+ * tests/test-write-path.php checks this against design-system.md's measured table, not against
+ * itself: 54.00 / 67.52 / 88.00 for editorial h1 and 67.77 / 88.54 / 120.00 for monumental.
+ */
+function es_fs_at( $step, $vw ) {
+	$t     = es_tokens();
+	$floor = $t['fs_base'] * pow( $t['type_ratio'], $step );
+	$cap   = $t['fs_h1_max'] / pow( $t['type_ratio'], 3 - $step );
+	$f     = max( 0.0, min( 1.0, ( $vw - 430 ) / 850 ) );
+	return round( max( $floor, min( $floor + ( $cap - $floor ) * $f, $cap ) ), 1 );
+}
+
+/**
+ * The three widths es_h() resolves the scale at, one per Elementor breakpoint.
+ *
+ * They are not midpoints or guesses: each is a column of design-system.md's own measured table.
+ * 1280 is where every cap engages ("a laptop — which is the entire point"), 768 is the tablet
+ * band's floor, and 430 is the fluid range's floor, below which the clamp holds its own floor.
+ * Taking the FLOOR of each band rather than its middle is deliberate: a fixed size that is right at
+ * the narrow end of a band and a little small at the wide end never overflows, and the failure mode
+ * this file cares about is a heading running off a phone.
+ */
+function es_h_widths() {
+	return array( '' => 1280, '_tablet' => 768, '_mobile' => 430 );
+}
+
+/**
+ * What each heading tag is, on the scale.
+ *
+ * array( step, line-height, weight ). design-system.md's typography table defines exactly three
+ * heading steps — h1 = step 3, h2 = step 2, h3 = step 1 — and pins h1/h2 to `--display-lh`, which
+ * IS the scale axis, while h3 keeps a flat 1.25 and body a flat 1.6 because neither is an axis.
+ * The `null` leading means "read display_lh"; 1.25 is design-system.md's literal and is declared as
+ * a known non-axis residual at the END marker below, with the four body leadings it keeps company.
+ *
+ * h4/h5/h6 are absent because design-system.md defines no step for them. Emitting step 0 would make
+ * a heading the same size as body on a guess, so es_h() emits nothing for them and SAYS SO —— see
+ * its warning. Zero call sites in the tree use one today.
+ */
+function es_h_scale() {
+	return array(
+		'h1' => array( 3, null, '700' ),
+		'h2' => array( 2, null, '700' ),
+		'h3' => array( 1, 1.25, '600' ),
+	);
+}
+
+/**
+ * One length on the density axis, in px.
+ *
+ * Every spacing value in the file goes through here -- via es_box() and the
+ * three gap defaults -- so density is one multiplier over the whole rhythm
+ * rather than 29 numbers to re-tune by hand and 29 chances to miss one.
+ */
+function es_sp( $px ) {
+	return (int) round( $px * es_tokens()['sp_scale'] );
 }
 
 /**
@@ -136,7 +697,10 @@ function es_section( array $children, array $opts = array() ) {
  * $opts: bg, gap, align (flex_align_items), reverse (stack mobile in reverse), settings.
  */
 function es_split( array $children, array $opts = array() ) {
-	$gap      = isset( $opts['gap'] ) ? (int) $opts['gap'] : 48;
+	/* The three flex gaps are the only spacing that does not travel through
+	   es_box(), so density has to be applied to them by hand -- here, at the
+	   default, and not at any call site. */
+	$gap      = es_sp( isset( $opts['gap'] ) ? (int) $opts['gap'] : 48 );
 	$settings = array(
 		'content_width'         => 'boxed',
 		'flex_direction'        => 'row',
@@ -211,13 +775,14 @@ function es_photo( $img_slug, $height = 420, array $extra = array() ) {
  * (which are not registered when the layout is written via the API).
  */
 function es_card_hover_css() {
-	return 'selector .elementor-widget-image-box{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1),border-color .5s ease;will-change:transform;}'
-		. 'selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:#D6DAD6;box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
+	$ease = es_t( 'ease' );
+	return 'selector .elementor-widget-image-box{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';will-change:transform;}'
+		. 'selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:' . es_t( 'border_hover' ) . ';box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector .elementor-widget-image-box .elementor-image-box-img{overflow:hidden;}'
-		. 'selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s cubic-bezier(.22,1,.36,1);will-change:transform;}'
+		. 'selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s ' . $ease . ';will-change:transform;}'
 		. 'selector .elementor-widget-image-box:hover .elementor-image-box-img img{transform:scale(1.045);}'
-		. 'selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ease;}'
-		. 'selector .elementor-widget-image-box:hover .elementor-image-box-title{color:#0FA968;}';
+		. 'selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ' . $ease . ';}'
+		. 'selector .elementor-widget-image-box:hover .elementor-image-box-title{color:' . es_t( 'accent' ) . ';}';
 }
 
 /**
@@ -234,14 +799,15 @@ function es_card_hover_css() {
  * shared and the difference stays visible at the call site.
  */
 function es_products_css( $extra_css = '' ) {
-	return 'selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
-		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}'
-		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}'
+	$ease = es_t( 'ease' );
+	return 'selector ul.products li.product{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
+		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s ' . $ease . ';border-radius:8px;will-change:transform;}'
+		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector ul.products li.product:hover img{transform:scale(1.045);}'
 		. 'selector ul.products{align-items:stretch;}'
 		. 'selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}'
-		. 'selector ul.products li.product .button{margin-top:auto;background-color:#0FA968!important;border-color:#0FA968!important;color:#fff!important;border-radius:6px!important;transition:background-color .3s ease,box-shadow .35s ease!important;}'
-		. 'selector ul.products li.product .button:hover{background-color:#0C8A55!important;box-shadow:0 10px 22px -8px rgba(15,169,104,0.5)!important;}'
+		. 'selector ul.products li.product .button{margin-top:auto;background-color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;color:' . es_t( 'on_accent' ) . '!important;border-radius:6px!important;transition:background-color .3s ' . $ease . ',box-shadow .35s ' . $ease . '!important;}'
+		. 'selector ul.products li.product .button:hover{background-color:' . es_t( 'accent_hover' ) . '!important;box-shadow:' . es_t( 'elev_accent' ) . '!important;}'
 		. 'selector ul.products li.product a.added_to_cart{display:none!important;}'
 		. 'selector ul.products li.product a.button.added{font-size:0!important;}'
 		. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}'
@@ -256,6 +822,7 @@ function es_products_css( $extra_css = '' ) {
  * the grid height follow its content.
  */
 function es_grid( $cols, array $children, $gap = 24, array $extra = array() ) {
+	$gap      = es_sp( $gap );   /* ver es_split(): la densidad se aplica aqui, no en la llamada */
 	$settings = array(
 		'container_type'          => 'grid',
 		'content_width'           => 'full',
@@ -283,6 +850,7 @@ function es_grid( $cols, array $children, $gap = 24, array $extra = array() ) {
  * Horizontal row (buttons, inline items).
  */
 function es_row( array $children, $gap = 14, array $extra = array() ) {
+	$gap      = es_sp( $gap );   /* ver es_split(): la densidad se aplica aqui, no en la llamada */
 	$settings = array(
 		'content_width'  => 'full',
 		'flex_direction' => 'row',
@@ -296,8 +864,14 @@ function es_row( array $children, $gap = 14, array $extra = array() ) {
 	return es_c( $settings, $children, true );
 }
 
-/** Small uppercase green label above a heading. */
-function es_eyebrow( $text, $color = '#0FA968' ) {
+/**
+ * Small uppercase label above a heading, in the accent colour.
+ *
+ * $color defaults to null rather than to the accent itself because PHP cannot
+ * call a function in a parameter default; null means "whatever the tokens say".
+ */
+function es_eyebrow( $text, $color = null ) {
+	$color = ( null === $color ) ? es_t( 'accent' ) : $color;
 	return es_w(
 		'heading',
 		array(
@@ -305,8 +879,8 @@ function es_eyebrow( $text, $color = '#0FA968' ) {
 			'header_size'                => 'div',
 			'title_color'                => $color,
 			'typography_typography'      => 'custom',
-			'typography_font_family'     => 'Manrope',
-			'typography_font_size'       => es_size( 12 ),
+			'typography_font_family'     => es_t( 'font_body' ),
+			'typography_font_size'       => es_size( es_t( 'fs_eyebrow' ) ),
 			'typography_font_weight'     => '700',
 			'typography_text_transform'  => 'uppercase',
 			'typography_letter_spacing'  => es_size( 1.6 ),
@@ -315,14 +889,56 @@ function es_eyebrow( $text, $color = '#0FA968' ) {
 	);
 }
 
-/** Section heading. */
+/**
+ * Section heading, ON the scale axis.
+ *
+ * This used to emit `title`, `header_size` and `_margin` and NOTHING else, which meant every
+ * heading on every NovaMira site inherited whatever size the active theme happened to have.
+ * Measured before the fix: `es_h('T','h1')` differed between PERS-EDITORIAL and PERS-DIRECT only in
+ * `_margin.bottom`, the largest heading the whole build could emit was a CTA banner h2, and
+ * `display_lh` —— a token that exists to carry the scale axis —— had exactly one reader in the tree.
+ * The chain promised the build would match an approved mockup rendering an h1 at 88px, and the
+ * build emitted no h1 typography at all. This is that promise made keepable.
+ *
+ * $extra STILL WINS, and it wins WHOLE. A caller passing an explicit `typography_font_size` gets
+ * that size at every breakpoint, not that size on desktop and this function's derived one on tablet
+ * —— which would render a card title LARGER on a tablet than on a desktop. es_feature_card() is
+ * exactly that caller: a card title is not a section h3 and says so with its own size.
+ */
 function es_h( $text, $tag = 'h2', array $extra = array() ) {
 	$settings = array(
 		'title'       => $text,
 		'header_size' => $tag,
 		'_margin'     => es_box( 0, 0, 16, 0 ),
 	);
+
+	$escala = es_h_scale();
+	if ( isset( $escala[ $tag ] ) ) {
+		list( $paso, $leading, $peso ) = $escala[ $tag ];
+		$settings['typography_typography']  = 'custom';
+		$settings['typography_font_family'] = es_t( 'font_head' );
+		$settings['typography_font_weight'] = $peso;
+		$settings['typography_line_height'] = es_size( null === $leading ? es_t( 'display_lh' ) : $leading, 'em' );
+		foreach ( es_h_widths() as $sufijo => $ancho ) {
+			$settings[ 'typography_font_size' . $sufijo ] = es_size( es_fs_at( $paso, $ancho ) );
+		}
+	} elseif ( preg_match( '/^h[1-6]$/', $tag ) ) {
+		/* A heading tag the scale does not define. Loud rather than silent: the whole defect this
+		   function is fixing was a heading with no size, and quietly shipping a second one under a
+		   different tag would be the same bug wearing an h4. */
+		es_warn( 'es_h() no sabe que tamano dar a <' . $tag . '>: design-system.md define la escala solo para h1, h2 y h3. Este titular va a heredar el tamano del TEMA. Usa h1/h2/h3, o pasa la tipografia entera en $extra.' );
+	}
+
 	$settings = array_merge( $settings, $extra );
+	/* A caller that overrode the desktop size and nothing else would otherwise keep this function's
+	   derived tablet/mobile sizes underneath it —— bigger than the desktop size it just set. */
+	if ( isset( $extra['typography_font_size'] ) ) {
+		foreach ( array_keys( es_h_widths() ) as $sufijo ) {
+			if ( '' !== $sufijo && ! isset( $extra[ 'typography_font_size' . $sufijo ] ) ) {
+				unset( $settings[ 'typography_font_size' . $sufijo ] );
+			}
+		}
+	}
 	return es_w( 'heading', $settings );
 }
 
@@ -330,10 +946,10 @@ function es_h( $text, $tag = 'h2', array $extra = array() ) {
 function es_p( $html, array $extra = array() ) {
 	$settings = array(
 		'editor'                => '<p>' . $html . '</p>',
-		'text_color'            => '#6A6F6C',
+		'text_color'            => es_t( 'muted' ),
 		'typography_typography' => 'custom',
-		'typography_font_family' => 'Manrope',
-		'typography_font_size'  => es_size( 16 ),
+		'typography_font_family' => es_t( 'font_body' ),
+		'typography_font_size'  => es_size( es_fs( 0 ) ),
 		'typography_line_height' => es_size( 1.65, 'em' ),
 		'_margin'               => es_box( 0, 0, 0, 0 ),
 	);
@@ -354,51 +970,58 @@ function es_p( $html, array $extra = array() ) {
  * so they never depend on conditionally-enqueued hover assets.
  */
 function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
-	$trans = 'selector .elementor-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .35s ease,transform .35s cubic-bezier(.22,1,.36,1);}';
-	$lift_green = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(15,169,104,0.55);}';
+	$ease  = es_t( 'ease' );
+	$trans = 'selector .elementor-button{transition:background-color .3s ' . $ease . ',color .3s ' . $ease . ',border-color .3s ' . $ease . ',box-shadow .35s ' . $ease . ',transform .35s ' . $ease . ';}';
+	$lift_green = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);box-shadow:' . es_t( 'elev_accent' ) . ';}';
 	$lift_soft  = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);}';
 
 	$settings = array(
 		'text'                   => $text,
 		'link'                   => array( 'url' => $link, 'is_external' => '', 'nofollow' => '' ),
-		'border_radius'          => es_box( 8, 8, 8, 8 ),
+		'border_radius'          => es_box_unscaled( 8, 8, 8, 8 ),
 		'text_padding'           => es_box( 14, 26, 14, 26 ),
 		'typography_typography'  => 'custom',
-		'typography_font_family' => 'Manrope',
-		'typography_font_size'   => es_size( 15 ),
+		'typography_font_family' => es_t( 'font_body' ),
+		'typography_font_size'   => es_size( es_fs( 0 ) ),
 		'typography_font_weight' => '600',
 	);
 	if ( 'primary' === $style ) {
-		$settings['background_color']              = '#0FA968';
-		$settings['button_text_color']            = '#FFFFFF';
-		$settings['button_background_hover_color'] = '#0C8A55';
-		$settings['hover_color']                  = '#FFFFFF';
+		$settings['background_color']              = es_t( 'accent' );
+		$settings['button_text_color']            = es_t( 'on_accent' );
+		$settings['button_background_hover_color'] = es_t( 'accent_hover' );
+		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_green;
 	} elseif ( 'dark' === $style ) {
-		$settings['background_color']              = '#15181A';
-		$settings['button_text_color']            = '#FFFFFF';
-		$settings['button_background_hover_color'] = '#0FA968';
-		$settings['hover_color']                  = '#FFFFFF';
+		$settings['background_color']              = es_t( 'surface_inverse' );
+		$settings['button_text_color']            = es_t( 'on_inverse' );
+		$settings['button_background_hover_color'] = es_t( 'accent' );
+		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_soft;
 	} elseif ( 'outline' === $style ) {
-		$settings['background_color']              = 'rgba(0,0,0,0)';
-		$settings['button_text_color']            = '#15181A';
+		$settings['background_color']              = es_t( 'transparent' );
+		$settings['button_text_color']            = es_t( 'text' );
 		$settings['border_border']                = 'solid';
-		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = '#CBD0CB';
-		$settings['button_background_hover_color'] = 'rgba(15,169,104,0.10)';
-		$settings['hover_color']                  = '#0FA968';
-		$settings['button_hover_border_color']    = '#0FA968';
+		$settings['border_width']                 = es_box_unscaled( 1, 1, 1, 1 );
+		$settings['border_color']                 = es_t( 'border' );
+		$settings['button_background_hover_color'] = es_t( 'accent_wash' );
+		$settings['hover_color']                  = es_t( 'accent' );
+		$settings['button_hover_border_color']    = es_t( 'accent' );
 		$settings['custom_css']                   = $lift_soft;
 	} elseif ( 'outline-light' === $style ) {
-		$settings['background_color']              = 'rgba(0,0,0,0)';
-		$settings['button_text_color']            = '#FFFFFF';
+		$settings['background_color']              = es_t( 'transparent' );
+		$settings['button_text_color']            = es_t( 'on_inverse' );
 		$settings['border_border']                = 'solid';
-		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = 'rgba(255,255,255,0.5)';
-		$settings['button_background_hover_color'] = '#FFFFFF';
-		$settings['hover_color']                  = '#15181A';
-		$settings['button_hover_border_color']    = '#FFFFFF';
+		$settings['border_width']                 = es_box_unscaled( 1, 1, 1, 1 );
+		$settings['border_color']                 = es_t( 'border_on_inverse' );
+		/* The fill is the SOLID version of the ink this button already lives
+		   in: border_on_inverse is on_inverse at 0.5, so hovering to on_inverse
+		   at 1.0 is the same ink turned up. It used to read es_t('bg') -- the
+		   PAGE surface -- which was byte-identical only because both are
+		   #FFFFFF today, and would have filled a cream-page client's ghost
+		   button with cream on top of a near-black hero. */
+		$settings['button_background_hover_color'] = es_t( 'on_inverse' );
+		$settings['hover_color']                  = es_t( 'text' );
+		$settings['button_hover_border_color']    = es_t( 'on_inverse' );
 		$settings['custom_css']                   = $lift_soft;
 	}
 	$settings = array_merge( $settings, $extra );
@@ -417,30 +1040,30 @@ function es_card( $img_slug, $title, $text, $link = '', array $extra = array() )
 		'image_height'             => es_size( 190 ),
 		'image_object_fit'         => 'cover',
 		'image_border_radius'      => es_size( 8 ),
-		'image_space'              => es_size( 20 ),
+		'image_space'              => es_size( es_sp( 20 ) ),
 		'title_text'               => $title,
 		'description_text'         => $text,
 		'position'                 => 'top',
 		'text_align'               => 'left',
 		'title_size'               => 'h3',
-		'title_color'              => '#15181A',
-		'description_color'        => '#6A6F6C',
+		'title_color'              => es_t( 'text' ),
+		'description_color'        => es_t( 'muted' ),
 		'title_typography_typography' => 'custom',
-		'title_typography_font_family' => 'Space Grotesk',
-		'title_typography_font_size' => es_size( 19 ),
+		'title_typography_font_family' => es_t( 'font_head' ),
+		'title_typography_font_size' => es_size( es_fs( 1 ) ),
 		'title_typography_font_weight' => '700',
 		'description_typography_typography' => 'custom',
-		'description_typography_font_family' => 'Manrope',
-		'description_typography_font_size' => es_size( 14.5 ),
+		'description_typography_font_family' => es_t( 'font_body' ),
+		'description_typography_font_size' => es_size( es_t( 'fs_small' ) ),
 		'description_typography_line_height' => es_size( 1.6, 'em' ),
-		'title_bottom_space'       => es_size( 8 ),
+		'title_bottom_space'       => es_size( es_sp( 8 ) ),
 		'_padding'                 => es_box( 20, 20, 24, 20 ),
 		'_background_background'   => 'classic',
-		'_background_color'        => '#FFFFFF',
+		'_background_color'        => es_t( 'bg' ),
 		'_border_border'           => 'solid',
-		'_border_width'            => es_box( 1, 1, 1, 1 ),
-		'_border_color'            => '#E5E7E5',
-		'_border_radius'           => es_box( 10, 10, 10, 10 ),
+		'_border_width'            => es_box_unscaled( 1, 1, 1, 1 ),
+		'_border_color'            => es_t( 'border' ),
+		'_border_radius'           => es_box_unscaled( 10, 10, 10, 10 ),
 		/* Hover handled by the parent grid's Custom CSS (es_card_hover_css). */
 	);
 	if ( $link ) {
@@ -466,15 +1089,15 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 					'min_height_mobile'     => es_size( 340 ),
 					'padding'               => es_box( 64, 64, 64, 64 ),
 					'padding_mobile'        => es_box( 36, 28, 36, 28 ),
-					'border_radius'         => es_box( 14, 14, 14, 14 ),
+					'border_radius'         => es_box_unscaled( 14, 14, 14, 14 ),
 					'overflow'              => 'hidden',
 					'background_background' => 'classic',
 					'background_image'      => es_img( $img_slug ),
 					'background_position'   => 'center center',
 					'background_size'       => 'cover',
 					'background_overlay_background' => 'gradient',
-					'background_overlay_color'   => 'rgba(21,24,26,0.92)',
-					'background_overlay_color_b' => 'rgba(21,24,26,0.30)',
+					'background_overlay_color'   => es_t( 'scrim_from' ),
+					'background_overlay_color_b' => es_t( 'scrim_to' ),
 					'background_overlay_gradient_type'  => 'linear',
 					'background_overlay_gradient_angle' => es_size( 90, 'deg' ),
 					'background_overlay_color_stop'     => es_size( 10, '%' ),
@@ -492,22 +1115,23 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 							es_h(
 								$title,
 								'h2',
+								/* Everything this override used to carry —— the head family, the
+								   weight, display_lh and a size per breakpoint —— es_h() now emits
+								   for every h2 in the build. Keeping a copy here would be a second
+								   place to remember, and it was already drifting: it sized an h2 at
+								   the DISPLAY step (es_fs(3)) because es_h() gave it nothing, which
+								   is the hand-picked exception the token layer exists to remove.
+								   Only the ink is left, and it is genuinely local: this heading
+								   sits on a scrim, not on the page. */
 								array(
-									'title_color'                 => '#FFFFFF',
-									'typography_typography'       => 'custom',
-									'typography_font_family'      => 'Space Grotesk',
-									'typography_font_size'        => es_size( 38 ),
-									'typography_font_size_mobile' => es_size( 27 ),
-									'typography_font_weight'      => '700',
-									'typography_line_height'      => es_size( 1.12, 'em' ),
-									'_margin'                     => es_box( 0, 0, 16, 0 ),
+									'title_color' => es_t( 'on_inverse' ),
 								)
 							),
 							es_p(
 								$text,
 								array(
-									'text_color'             => 'rgba(255,255,255,0.75)',
-									'typography_font_size'   => es_size( 16 ),
+									'text_color'             => es_t( 'muted_on_inverse' ),
+									'typography_font_size'   => es_size( es_fs( 0 ) ),
 									'typography_line_height' => es_size( 1.65, 'em' ),
 									'_margin'                => es_box( 0, 0, 30, 0 ),
 								)
@@ -535,24 +1159,24 @@ function es_iconbox( $icon, $title, $text ) {
 			'position'        => 'inline-start',
 			'text_align'      => 'left',
 			'title_size'      => 'h3',
-			'primary_color'   => '#0FA968',
-			'icon_space'      => es_size( 18 ),
+			'primary_color'   => es_t( 'accent' ),
+			'icon_space'      => es_size( es_sp( 18 ) ),
 			'icon_size'       => es_size( 20 ),
-			'title_color'     => '#15181A',
-			'description_color' => '#6A6F6C',
+			'title_color'     => es_t( 'text' ),
+			'description_color' => es_t( 'muted' ),
 			'title_typography_typography' => 'custom',
-			'title_typography_font_family' => 'Space Grotesk',
-			'title_typography_font_size' => es_size( 17 ),
+			'title_typography_font_family' => es_t( 'font_head' ),
+			'title_typography_font_size' => es_size( es_fs( 1 ) ),
 			'title_typography_font_weight' => '700',
 			'description_typography_typography' => 'custom',
-			'description_typography_font_family' => 'Manrope',
-			'description_typography_font_size' => es_size( 14.5 ),
+			'description_typography_font_family' => es_t( 'font_body' ),
+			'description_typography_font_size' => es_size( es_t( 'fs_small' ) ),
 			'description_typography_line_height' => es_size( 1.55, 'em' ),
-			'title_bottom_space' => es_size( 5 ),
+			'title_bottom_space' => es_size( es_sp( 5 ) ),
 			'_padding'        => es_box( 22, 0, 22, 0 ),
 			'_border_border'  => 'solid',
-			'_border_width'   => es_box( 1, 0, 0, 0 ),
-			'_border_color'   => '#E5E7E5',
+			'_border_width'   => es_box_unscaled( 1, 0, 0, 0 ),
+			'_border_color'   => es_t( 'border' ),
 		)
 	);
 }
@@ -563,21 +1187,22 @@ function es_iconbox( $icon, $title, $text ) {
  * so the whole site keeps one card language. Meant to sit inside es_grid().
  */
 function es_feature_card( $icon, $title, $text, array $extra = array() ) {
+	$ease     = es_t( 'ease' );
 	$defaults = array(
 		'content_width'         => 'full',
 		'flex_direction'        => 'column',
 		'padding'               => es_box( 34, 30, 36, 30 ),
 		'background_background'  => 'classic',
-		'background_color'      => '#FFFFFF',
+		'background_color'      => es_t( 'bg' ),
 		'border_border'         => 'solid',
-		'border_width'          => es_box( 1, 1, 1, 1 ),
-		'border_color'          => '#EAECEA',
-		'border_radius'         => es_box( 16, 16, 16, 16 ),
-		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1),border-color .5s ease;will-change:transform;}'
-			. 'selector::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:#0FA968;transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.22,1,.36,1);}'
-			. 'selector:hover{transform:translateY(-6px);box-shadow:0 24px 50px -18px rgba(21,24,26,0.20);border-color:#E0E4E0;}'
+		'border_width'          => es_box_unscaled( 1, 1, 1, 1 ),
+		'border_color'          => es_t( 'border' ),
+		'border_radius'         => es_box_unscaled( 16, 16, 16, 16 ),
+		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';will-change:transform;}'
+			. 'selector::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:' . es_t( 'accent' ) . ';transform:scaleX(0);transform-origin:left;transition:transform .55s ' . $ease . ';}'
+			. 'selector:hover{transform:translateY(-6px);box-shadow:' . es_t( 'elev_hover' ) . ';border-color:' . es_t( 'border_hover' ) . ';}'
 			. 'selector:hover::before{transform:scaleX(1);}'
-			. 'selector .es-feat-ico{transition:transform .5s cubic-bezier(.22,1,.36,1);}'
+			. 'selector .es-feat-ico{transition:transform .5s ' . $ease . ';}'
 			. 'selector:hover .es-feat-ico{transform:translateY(-3px);}',
 	);
 	return es_c(
@@ -589,19 +1214,55 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 					'selected_icon'   => array( 'value' => $icon, 'library' => 'fa-solid' ),
 					'view'            => 'stacked',
 					'shape'           => 'circle',
-					'primary_color'   => '#0FA968',
-					'secondary_color' => '#FFFFFF',
+					'primary_color'   => es_t( 'accent' ),
+					'secondary_color' => es_t( 'on_accent' ),
 					'size'            => es_size( 20 ),
 					'_css_classes'    => 'es-feat-ico',
 					'_margin'         => es_box( 0, 0, 22, 0 ),
 				)
 			),
-			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => 'Space Grotesk', 'typography_font_size' => es_size( 19 ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
-			es_p( $text, array( 'typography_font_size' => es_size( 14.5 ), 'typography_line_height' => es_size( 1.58, 'em' ) ) ),
+			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => es_t( 'font_head' ), 'typography_font_size' => es_size( es_fs( 1 ) ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
+			es_p( $text, array( 'typography_font_size' => es_size( es_t( 'fs_small' ) ), 'typography_line_height' => es_size( 1.58, 'em' ) ) ),
 		),
 		true
 	);
 }
+
+/* -------------------------------------------------- end of the visual layer
+   Everything below is the save pipeline, the container audit, the sandbox and
+   the slug machinery. No styling value belongs here, and RT_BUILDER_HARDCODED_TOKEN
+   does not scan past this line.
+
+   That boundary is a RESERVATION, not a response to this file as it stands: every
+   post id below is concatenated (`'#' . $id`), never typed, so a hex scan of the
+   current machinery finds nothing. It is drawn because the day someone does type
+   a "#732" into a warning, a colour regex cannot tell it from a colour -- and the
+   cheap time to draw a boundary is before it is load-bearing. The START boundary
+   is the one carrying weight today: without it the token declarations themselves
+   read as 21 hardcoded literals.
+
+   What the region above now holds, and what it deliberately still does not:
+     - Every colour, family, shadow, easing curve, font size and spacing length
+       reads a token. The bare `ease` keyword is gone.
+     - Lengths written INSIDE the CSS blobs are not on the density axis:
+       `border-radius:12px`, `padding:10px`, `font-size:13.5px` and the motion
+       distances (`translateY(-4px)`, `scale(1.045)`) are still literals. They
+       are a real gap, not an oversight -- reported, not silently left.
+     - Body leading drifted the way the borders did: 1.65 / 1.60 / 1.58 / 1.55
+       across four helpers for one job, and es_h_scale() adds h3's flat 1.25 to
+       the pile. design-system.md pins body at 1.6 and h3 at 1.25, and says
+       neither is an axis, so collapsing the four body values belongs to whoever
+       owns that number, not to the axis task. `display_lh`, which IS an axis,
+       is tokenised and now has a reader on every h1 and h2 in the build instead
+       of the single one it had.
+     - `on_accent` is still a literal #FFFFFF, and it is the one that should not
+       be. Measured on the framework's own accent: white label on #0FA968 is
+       3.05:1, and the near-black `text` on the same green is 5.86:1 -- so the
+       default primary button fails AA for normal text, and the token layer has
+       both candidates in scope to choose between. Deriving it (whichever of
+       text/bg contrasts better on the accent) flips every primary button label
+       on the house brand from white to near-black, which is a design decision
+       for the framework's owner rather than a bug fix. REPORTED, not taken. */
 
 /**
  * Audit the container tree before it is written.
