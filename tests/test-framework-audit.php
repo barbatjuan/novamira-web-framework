@@ -589,6 +589,20 @@ function fx_builder_skill( $root, $content ) {
 	fx( $root, 'skills/elementor-core/assets/es-builder.php', $content );
 }
 
+/* A conforming house-rules.md, and it is a helper rather than a literal because RT_QA_NO_AXIS_CHECK
+   raised the bar for "conforming": the gate must NAME every axis declaration axis_declarations()
+   lists plus a composition blueprint, so a bare "No rows." file — what fx_base() used to write —
+   now carries a FAIL that has nothing to do with whatever a scenario is testing. $extra_rows is
+   appended verbatim so a scenario can add the one malformed row it actually cares about without
+   also tripping the axis row and having to read two failures as one. */
+function fx_house_rules( $extra_rows = '' ) {
+	return "# House Rules\n\n"
+		. '| 1 | The build stands at the approved axis positions | Compare the approved mockup `:root` against `es_tokens()`:'
+		. ' `--type-ratio`, `--display-lh`, `--fs-h1-max`, `--sp-scale`, `--elev-rest`,'
+		. " and the `LP-CENTERED` composition blueprint the user confirms by eye | **auto (declared) + eyes (composition)** |\n"
+		. $extra_rows;
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
    offline test file, a conforming ux-design-system skill carrying a conforming
@@ -619,7 +633,7 @@ function fx_base( $root ) {
 		"---\n\n" .
 		"# QA Review Fixture\n\nSee `references/house-rules.md`.\n"
 	);
-	fx( $root, 'skills/qa-review/references/house-rules.md', "# House Rules\n\nNo rows.\n" );
+	fx( $root, 'skills/qa-review/references/house-rules.md', fx_house_rules() );
 	fx(
 		$root,
 		'skills/ux-design-system/SKILL.md',
@@ -1175,7 +1189,7 @@ fx_rrmdir( $r20 );
 echo "--- a house-rules.md row with no verdict source in its last column is RT_HOUSERULES_NO_VERDICT ---\n";
 $r21 = fx_tmp_root();
 fx_base( $r21 );
-fx( $r21, 'skills/qa-review/references/house-rules.md', "# House Rules\n\n| 1 | Some rule | plain text, no bold verdict source |\n" );
+fx( $r21, 'skills/qa-review/references/house-rules.md', fx_house_rules( "| 2 | Some rule | plain text, no bold verdict source |\n" ) );
 list( , $out21 ) = fx_run_ok( $audit, $r21 );
 ok( has( $out21, 'RT_HOUSERULES_NO_VERDICT' ), 'a house-rules.md row with no bold verdict source is RT_HOUSERULES_NO_VERDICT', $out21 );
 fx_rrmdir( $r21 );
@@ -1188,6 +1202,63 @@ list( , $out22 ) = fx_run_ok( $audit, $r22 );
 ok( has( $out22, 'RT_HOUSERULES_MISSING' ), 'a missing qa-review/references/house-rules.md is RT_HOUSERULES_MISSING', $out22 );
 fx_rrmdir( $r22 );
 
+/* The contract has two ends and one list. RT_MOCKUP_NO_AXES asks the mockup to DECLARE each axis;
+   this asks the gate that verifies the finished site to NAME each one. Dropping a single
+   declaration is the mutation that matters: an assertion that only asked "does the row appear"
+   would stay green with the list emptied down to one property, and the check would then be
+   guarding a single axis while reading as if it guarded five. */
+echo "--- house-rules.md missing ONE axis declaration is RT_QA_NO_AXIS_CHECK, naming exactly that one ---\n";
+$r22b = fx_tmp_root();
+fx_base( $r22b );
+/* Everything the conforming helper writes EXCEPT --display-lh. Hand-built rather than a
+   str_replace over fx_house_rules(), so this fixture cannot be quietly emptied by an edit there. */
+fx(
+	$r22b,
+	'skills/qa-review/references/house-rules.md',
+	"# House Rules\n\n"
+	. '| 1 | Four fifths of the scale | `--type-ratio`, `--fs-h1-max`, `--sp-scale`, `--elev-rest`,'
+	. " and the `LP-CENTERED` blueprint | **auto** |\n"
+);
+list( , $out22b ) = fx_run_ok( $audit, $r22b );
+ok( 'FAIL' === fx_row_level( $out22b, array( 'RT_QA_NO_AXIS_CHECK' ) ), 'a house-rules.md missing one axis declaration is RT_QA_NO_AXIS_CHECK, at FAIL level', fx_row_level( $out22b, array( 'RT_QA_NO_AXIS_CHECK' ) ) );
+ok( array() !== fx_lines_with( $out22b, array( 'RT_QA_NO_AXIS_CHECK', '--display-lh' ) ), 'the message names the declaration that is actually missing', $out22b );
+/* The other half of "names exactly that one": a message listing every property regardless of what
+   the file contains is a message that tells the reader nothing about where to look. */
+foreach ( array( '--type-ratio', '--fs-h1-max', '--sp-scale', '--elev-rest', 'LP-' ) as $present ) {
+	ok( array() === fx_lines_with( $out22b, array( 'RT_QA_NO_AXIS_CHECK', $present ) ), "and does not name $present, which the file does carry", $out22b );
+}
+fx_rrmdir( $r22b );
+
+/* Composition is the arm with no custom property behind it — the axis whose position is a layout
+   rule — so it is matched by its blueprint marker and needs its own fixture. Without this one the
+   whole `LP-` clause could be deleted with the suite still green, which would silently drop the
+   ONE axis qa-review cannot automate: exactly the axis most able to go missing unnoticed. */
+echo "--- house-rules.md naming every property but no composition blueprint is still RT_QA_NO_AXIS_CHECK ---\n";
+$r22c = fx_tmp_root();
+fx_base( $r22c );
+fx(
+	$r22c,
+	'skills/qa-review/references/house-rules.md',
+	"# House Rules\n\n"
+	. '| 1 | Every number, no blueprint | `--type-ratio`, `--display-lh`, `--fs-h1-max`, `--sp-scale`,'
+	. " `--elev-rest`, and nothing about how the page is arranged | **auto** |\n"
+);
+list( , $out22c ) = fx_run_ok( $audit, $r22c );
+ok( array() !== fx_lines_with( $out22c, array( 'RT_QA_NO_AXIS_CHECK', 'composition' ) ), 'a gate naming all five properties but no LP-* blueprint still fires, naming composition', $out22c );
+/* And the row clears the moment the blueprint is named — a check that fires on every input is not
+   a check. fx_base()'s own conforming house-rules is the positive control at r1; this is the
+   narrower one, differing from the fixture above by a single blueprint id. */
+fx(
+	$r22c,
+	'skills/qa-review/references/house-rules.md',
+	"# House Rules\n\n"
+	. '| 1 | Every number, and the blueprint | `--type-ratio`, `--display-lh`, `--fs-h1-max`, `--sp-scale`,'
+	. " `--elev-rest`, and the `LP-BROKEN-GRID` the user confirms by eye | **auto** |\n"
+);
+list( , $out22d ) = fx_run_ok( $audit, $r22c );
+ok( array() === fx_lines_with( $out22d, array( 'RT_QA_NO_AXIS_CHECK' ) ), 'naming the blueprint clears the row', $out22d );
+fx_rrmdir( $r22c );
+
 echo "--- a tree with no tests/*.php at all is RT_NO_OFFLINE_TESTS ---\n";
 $r23 = fx_tmp_root();
 fx( $r23, 'CONTRIBUTING.md', "# Contributing\nFixture root, deliberately no tests/*.php anywhere.\n\n" . fx_row_type_doc() );
@@ -1196,7 +1267,7 @@ fx(
 	'skills/qa-review/SKILL.md',
 	"---\nname: qa-review\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n# QA Review Fixture\n\nSee `references/house-rules.md`.\n"
 );
-fx( $r23, 'skills/qa-review/references/house-rules.md', "# House Rules\n\nNo rows.\n" );
+fx( $r23, 'skills/qa-review/references/house-rules.md', fx_house_rules() );
 list( , $out23 ) = fx_run_ok( $audit, $r23 );
 ok( has( $out23, 'RT_NO_OFFLINE_TESTS' ), 'a tree with no tests/*.php at all is RT_NO_OFFLINE_TESTS', $out23 );
 fx_rrmdir( $r23 );
@@ -1581,7 +1652,7 @@ $r47 = fx_tmp_root();
 fx_base( $r47 );
 fx( $r47, 'skills/elementor-core/assets/shapes.php', "<?php\nfunction es_shape_ok() {\n\treturn true;\n}\n" );
 fx( $r47, 'tests/shape-ok.php', "<?php\n// fixture, never executed by the audit\n" );
-fx( $r47, 'skills/qa-review/references/house-rules.md', "# House Rules\n\n| 5 | A real rule | Server-side check | **auto** |\n" );
+fx( $r47, 'skills/qa-review/references/house-rules.md', fx_house_rules( "| 5 | A real rule | Server-side check | **auto** |\n" ) );
 fx_wc_skill(
 	$r47,
 	'elementor-core',

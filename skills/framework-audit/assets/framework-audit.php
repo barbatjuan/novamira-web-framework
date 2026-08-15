@@ -83,6 +83,7 @@ const ROW_TYPES = array(
 	'RT_AGENT_SKILL_UNMENTIONED' => 'WARN  — an agent never mentions an existing skill',
 	'RT_HOUSERULES_NO_VERDICT'   => 'FAIL  — a house-rules.md row has no verdict source',
 	'RT_HOUSERULES_MISSING'      => 'FAIL  — qa-review/references/house-rules.md is missing',
+	'RT_QA_NO_AXIS_CHECK'        => 'FAIL  — the house rules never name an axis declaration the mockup gate demands',
 	'RT_NO_OFFLINE_TESTS'        => 'FAIL  — no offline test suite under tests/',
 	'RT_GATE_LINE_UNREGISTERED'  => 'FAIL  — a tests/test-*.php file is absent from the CONTRIBUTING.md gate line',
 	'RT_ROWTYPE_UNDOCUMENTED'    => 'FAIL  — a ROW_TYPES ID is not listed in CONTRIBUTING.md',
@@ -921,6 +922,24 @@ foreach ( $asset_defs as $fn => $owner ) {
 	);
 }
 
+/**
+ * The custom properties that carry a perceptual-axis POSITION as a value.
+ *
+ * ONE list, two consumers, and that is the whole reason it is a function rather than two literals.
+ * RT_MOCKUP_NO_AXES asks whether the file a project is copied FROM declares them; RT_QA_NO_AXIS_CHECK
+ * asks whether the gate that verifies the FINISHED site names them. A sixth axis property added here
+ * is demanded of both ends at once — and the two ends drifting apart is exactly the defect this
+ * pair exists to close, since `html-mockup/SKILL.md` spent a whole branch telling the operator its
+ * approved output was "the visual contract qa-review checks the build against" while qa-review
+ * contained zero mentions of the mockup, the contract or any axis.
+ *
+ * Composition is deliberately NOT here: its position is a layout rule rather than a number, so it
+ * has no custom property and both consumers match its `LP-*` blueprint marker separately.
+ */
+function axis_declarations() {
+	return array( '--type-ratio', '--display-lh', '--fs-h1-max', '--sp-scale', '--elev-rest' );
+}
+
 /* ------------------------------------------------- qa-review house rules */
 
 $hr_file = $root . '/skills/qa-review/references/house-rules.md';
@@ -932,6 +951,33 @@ if ( file_exists( $hr_file ) ) {
 		if ( ! preg_match( '/\|\s*\*\*[^|]*(auto|eyes|measured|manual)[^|]*\*\*\s*\|\s*$/i', rtrim( $line ) ) ) {
 			add( 'RT_HOUSERULES_NO_VERDICT', 'FAIL', 'qa-review', 'house-rules.md:' . ( $i + 1 ) . ' row has no verdict source in its last column' );
 		}
+	}
+
+	/* Naming, not automating, is what this asks — and the distinction is the point. An axis
+	   qa-review can only hand to the user's eyes still has to be NAMED as unverifiable, because the
+	   failure being closed is a SILENT omission: composition was not declared out of scope, it was
+	   simply never mentioned, and a reader who trusts the promise stops looking. A row that says
+	   "composition: eyes" is an honest gate; a row that says nothing is a gap wearing a green tick.
+	   This is a documentation-coherence check of the same strength as RT_CATALOG_UNMENTIONED — it
+	   proves the gate names each axis, never that the method behind it works. */
+	$hr_text    = slurp( $hr_file );
+	$hr_missing = array();
+	foreach ( axis_declarations() as $hr_prop ) {
+		if ( false === strpos( $hr_text, $hr_prop ) ) {
+			$hr_missing[] = $hr_prop;
+		}
+	}
+	if ( ! preg_match( '/\bLP-[A-Z0-9-]+/', $hr_text ) ) {
+		$hr_missing[] = 'the composition blueprint (LP-*)';
+	}
+	if ( array() !== $hr_missing ) {
+		add(
+			'RT_QA_NO_AXIS_CHECK',
+			'FAIL',
+			'qa-review',
+			'house-rules.md never names ' . implode( ', ', $hr_missing )
+				. ' — html-mockup/SKILL.md promises its approved output is the visual contract qa-review checks the build against, and an axis the gate does not name is a promise with nothing behind it'
+		);
 	}
 } else {
 	add( 'RT_HOUSERULES_MISSING', 'FAIL', 'qa-review', 'references/house-rules.md is missing — the house rules have no gate' );
@@ -1408,7 +1454,8 @@ foreach ( $mockup_assets as $mockup_path ) {
 		$mockup_root = $mrm[1];
 	}
 	$mockup_missing = array();
-	foreach ( array( '--type-ratio', '--display-lh', '--fs-h1-max', '--sp-scale', '--elev-rest' ) as $mockup_prop ) {
+	/* Shared with RT_QA_NO_AXIS_CHECK — see axis_declarations(). */
+	foreach ( axis_declarations() as $mockup_prop ) {
 		/* (?![\w-]) so `--elev-rest` never matches on `--elev-rest-something`, the same boundary
 		   the proof signature needs to stop `--c-bg` swallowing `--c-bg-alt`. */
 		if ( ! preg_match( '/' . preg_quote( $mockup_prop, '/' ) . '(?![\w-])\s*:/', $mockup_root ) ) {

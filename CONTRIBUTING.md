@@ -169,6 +169,7 @@ the code — adding a check without adding its row here fails the audit on itsel
 | `RT_AGENT_SKILL_UNMENTIONED` | WARN | an agent never mentions an existing skill |
 | `RT_HOUSERULES_NO_VERDICT` | FAIL | a `house-rules.md` row has no verdict source |
 | `RT_HOUSERULES_MISSING` | FAIL | `qa-review/references/house-rules.md` is missing |
+| `RT_QA_NO_AXIS_CHECK` | FAIL | `house-rules.md` never names an axis declaration the mockup gate demands, and the message lists each missing one. It reads the SAME `axis_declarations()` list `RT_MOCKUP_NO_AXES` reads, plus the `LP-*` composition blueprint both match separately — one list, two ends of one contract, so a sixth axis property cannot land on the mockup side with the QA side left behind. **Naming, not automating**: an axis `qa-review` can only hand to the user's eyes still has to be named as such. The failure it closes is a silent omission — `html-mockup/SKILL.md` told the operator its approved output was "the visual contract `qa-review` checks the build against" while `qa-review` contained zero mentions of the mockup, the contract or any axis, and the nearest row compared four hex values |
 | `RT_NO_OFFLINE_TESTS` | FAIL | no offline test suite under `tests/` |
 | `RT_GATE_LINE_UNREGISTERED` | FAIL | a `tests/test-*.php` file is absent from the testing gate line below |
 | `RT_ROWTYPE_UNDOCUMENTED` | FAIL | a `ROW_TYPES` ID is not listed in this table |
