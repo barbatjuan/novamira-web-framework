@@ -392,13 +392,17 @@
   .fcols h3{font-family:var(--font-secondary);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:.8rem}
   .fcols ul{list-style:none;display:flex;flex-direction:column;gap:var(--sp-xs);font-size:.9rem}
   .fbottom{margin-top:var(--sp-l);padding-top:var(--sp-m);border-top:1px solid color-mix(in srgb,var(--c-bg) 22%,transparent);font-size:var(--fs-small);opacity:.8}
-  /* 6/3/3 of a 12-column grid — every track lands on a column line, which is the same test
-     `.cartgrid`'s 8/4 passes above and the one `1.3fr 1fr` failed. The footer is OUTSIDE the
-     `.page` containers, so it renders on all seven pages and the blueprint reaches it exactly as
-     it reaches a section grid; this is the measurement, not an exemption. LP-STRICT-GRID's other
-     bullet, "Grids: 3 or 4 equal columns, equal gutters, equal CARD heights — rows must visibly
-     align", is about the card grids (`.grid4`, `.cats`, `.benefits`, `.team`), which are all
-     `repeat(3,1fr)`/`repeat(4,1fr)` here. A three-column link list has one row and no cards. */
+  /* CORRECTED — this used to claim "6/3/3 of a 12-column grid, every track lands on a column
+     line," citing `.cartgrid`'s 8/4 above as the same test passing. Measured against the 1140px
+     content box and this row's own 24px column-gap, neither holds: `.fcols` is `2fr 1fr 1fr`, and
+     `fr` only divides the two REAL gaps out of the remainder, so the rendered split (546/273/273)
+     misses the 12-column-line targets (558/267/267). `.cartgrid`'s 8/4 misses its own target the
+     same way (728/364 rendered against 744/348), so it was never a passing precedent either. What
+     DOES hold is LP-STRICT-GRID's other bullet: "Grids: 3 or 4 equal columns, equal gutters, equal
+     CARD heights — rows must visibly align" is scoped to the card grids (`.grid4`, `.cats`,
+     `.benefits`, `.team`), all `repeat(3,1fr)`/`repeat(4,1fr)` here. A three-column link list has
+     one row and no cards, so that bullet was never the footer's test to pass or fail — `2fr 1fr
+     1fr` here is a visual weighting, not a grid-line claim. */
   @media(min-width:768px){.fcols{grid-template-columns:2fr 1fr 1fr}}
 </style>
 

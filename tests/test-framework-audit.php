@@ -2250,10 +2250,13 @@ fx_rrmdir( $r103 );
 echo "--- un asset con prefijo _ es CONTENIDO, no maqueta: no se le exigen ejes ---\n";
 $r104 = fx_tmp_root();
 fx_base( $r104 );
-/* `_axis-proof-content.md` is the real instance of this: a copy set both proof files render, not
-   a page. It has no `:root` and never will. Without the skip this row would demand axes from a
-   content file; with a skip written too wide it would demand them from nothing at all, which is
-   why the scenario above has to keep failing while this one passes. */
+/* The `_` skip is a RESERVATION, not a response to a file that exists: no `_`-prefixed `.html`
+   partial is in the tree today. `_axis-proof-content.md` sits in this same directory but is a
+   `.md`, and the audit's glob is `*.html`, so it was never in scope with or without the skip —
+   naming it here made the skip look load-bearing where it did nothing. `_shared-copy.html` is the
+   shape the reservation is FOR: an `.html` file with no axis declarations at all. Without the
+   skip this row would demand axes from it; with a skip written too wide it would demand them from
+   nothing at all, which is why the scenario above has to keep failing while this one passes. */
 fx( $r104, 'skills/html-mockup/assets/_shared-copy.html', fx_mockup( array( '--type-ratio', '--display-lh', '--fs-h1-max', '--sp-scale', '--elev-rest', 'composition' ) ) );
 list( $code104, $out104 ) = fx_run_ok( $audit, $r104 );
 ok( array() === fx_lines_with( $out104, array( 'RT_MOCKUP_NO_AXES' ) ), 'un fichero _-prefijado no produce fila', $out104 );
