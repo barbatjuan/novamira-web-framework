@@ -360,6 +360,45 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
 		. "</style>\n" . $body;
 }
 
+/**
+ * One PRODUCTION mockup asset — the kind a real project is copied from — reduced to the only
+ * thing RT_MOCKUP_NO_AXES reads: a `:root` block declaring the perceptual axes, plus the
+ * composition marker that is the one axis a token cannot carry.
+ *
+ * $omit names the declarations to leave OUT, which is how each "missing" scenario gets a fixture.
+ * Everything a real production mockup also has — six or seven pages, the nav script, the
+ * placeholder recipe — is deliberately absent, so a fixture that fails fails on the axis
+ * DECLARATIONS and on nothing else.
+ *
+ * The `.card` rule at the end is not decoration: it USES `--elev-rest` outside `:root`, so a
+ * check written against "does the string appear anywhere" instead of "is it declared" would pass
+ * a file that only ever consumes a token it never defines.
+ */
+function fx_mockup( array $omit = array() ) {
+	$decl = '';
+	if ( ! in_array( '--type-ratio', $omit, true ) ) {
+		$decl .= "    --type-ratio: 1.200;\n";
+	}
+	if ( ! in_array( '--display-lh', $omit, true ) ) {
+		$decl .= "    --display-lh: 1.25;\n";
+	}
+	if ( ! in_array( '--fs-h1-max', $omit, true ) ) {
+		$decl .= "    --fs-h1-max: 48;\n";
+	}
+	if ( ! in_array( '--sp-scale', $omit, true ) ) {
+		$decl .= "    --sp-scale: 1.0;\n";
+	}
+	if ( ! in_array( '--elev-rest', $omit, true ) ) {
+		$decl .= "    --elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;\n";
+	}
+	if ( ! in_array( 'composition', $omit, true ) ) {
+		$decl .= "    /* composition: LP-CENTERED */\n";
+	}
+	return "<!-- production mockup fixture -->\n<style>\n  :root{\n" . $decl . "  }\n"
+		. "  .card{box-shadow:var(--elev-rest)}\n"
+		. "</style>\n<h1>Maqueta</h1>\n";
+}
+
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
    offline test file, a conforming ux-design-system skill carrying a conforming
@@ -2130,6 +2169,67 @@ ok( 'FAIL' === fx_row_level( $out100, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'una c
 ok( array() !== fx_lines_with( $out100, array( 'RT_PROOF_COPY_DIFFERS', '1 visible string(s) differ' ) ), 'y es UNA diferencia, no dos', $out100 );
 ok( array() !== fx_lines_with( $out100, array( 'RT_PROOF_COPY_DIFFERS', '`Pedir presupuesto` is rendered 1x by proof-editorial-mockup.html and 2x by proof-direct-mockup.html' ) ), 'y dice cuantas veces la pinta cada fichero', $out100 );
 fx_rrmdir( $r100 );
+
+/* ---------------------------------------------------------------------------
+   RT_MOCKUP_NO_AXES — the two PROOF files above carry the whole axis system; this row is about
+   the files a real project is actually copied from. Measured on a532df1, corporate-mockup.html
+   and ecommerce-mockup.html contained ZERO occurrences of --type-ratio, --sp-scale or
+   --elev-rest, so the axis system stopped before the first client site and every project
+   reverted to one look with every other row still green. The point is not that a mockup is
+   pretty; it is that a mockup which cannot EXPRESS an axis silently flattens every project that
+   starts from it.
+   --------------------------------------------------------------------------- */
+
+echo "--- una maqueta de produccion con los seis ejes declarados no produce fila ---\n";
+$r101 = fx_tmp_root();
+fx_base( $r101 );
+fx( $r101, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup() );
+list( $code101, $out101 ) = fx_run_ok( $audit, $r101 );
+ok( array() === fx_lines_with( $out101, array( 'RT_MOCKUP_NO_AXES' ) ), 'una maqueta completa no produce fila', $out101 );
+ok( 0 === $code101, 'y el arbol conforme sale con codigo 0', $code101 );
+fx_rrmdir( $r101 );
+
+echo "--- una maqueta SIN --sp-scale FALLA, nombrando ese token ---\n";
+$r102 = fx_tmp_root();
+fx_base( $r102 );
+/* Only the density axis is missing. The assertion names the token because "no axis tokens" would
+   send a reader to diff an 880-line file by eye against a reference — which is the work this row
+   exists to replace. */
+fx( $r102, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array( '--sp-scale' ) ) );
+list( , $out102 ) = fx_run_ok( $audit, $r102 );
+ok( 'FAIL' === fx_row_level( $out102, array( 'RT_MOCKUP_NO_AXES' ) ), 'falta un token de eje y FALLA', fx_row_level( $out102, array( 'RT_MOCKUP_NO_AXES' ) ) );
+ok( array() !== fx_lines_with( $out102, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y nombra el token que falta', $out102 );
+ok( array() !== fx_lines_with( $out102, array( 'RT_MOCKUP_NO_AXES', 'corporate-mockup.html' ) ), 'y nombra el fichero', $out102 );
+/* The five it DOES declare must not be reported as missing, or the message stops being a list of
+   what to fix and becomes noise. */
+ok( array() === fx_lines_with( $out102, array( 'RT_MOCKUP_NO_AXES', '--type-ratio' ) ), 'y no acusa a los tokens que si estan', $out102 );
+fx_rrmdir( $r102 );
+
+echo "--- una maqueta SIN el comentario de composicion FALLA, nombrandolo ---\n";
+$r103 = fx_tmp_root();
+fx_base( $r103 );
+/* Composition is the one axis whose value is a layout rule rather than a number, so it has no
+   token to look for: the marker IS the declaration. A check that only counted custom properties
+   would pass a file that had quietly dropped a whole axis. */
+fx( $r103, 'skills/html-mockup/assets/ecommerce-mockup.html', fx_mockup( array( 'composition' ) ) );
+list( , $out103 ) = fx_run_ok( $audit, $r103 );
+ok( 'FAIL' === fx_row_level( $out103, array( 'RT_MOCKUP_NO_AXES' ) ), 'falta el marcador de composicion y FALLA', fx_row_level( $out103, array( 'RT_MOCKUP_NO_AXES' ) ) );
+ok( array() !== fx_lines_with( $out103, array( 'RT_MOCKUP_NO_AXES', 'composition: LP-' ) ), 'y nombra el marcador que falta', $out103 );
+ok( array() !== fx_lines_with( $out103, array( 'RT_MOCKUP_NO_AXES', 'ecommerce-mockup.html' ) ), 'y nombra el fichero', $out103 );
+fx_rrmdir( $r103 );
+
+echo "--- un asset con prefijo _ es CONTENIDO, no maqueta: no se le exigen ejes ---\n";
+$r104 = fx_tmp_root();
+fx_base( $r104 );
+/* `_axis-proof-content.md` is the real instance of this: a copy set both proof files render, not
+   a page. It has no `:root` and never will. Without the skip this row would demand axes from a
+   content file; with a skip written too wide it would demand them from nothing at all, which is
+   why the scenario above has to keep failing while this one passes. */
+fx( $r104, 'skills/html-mockup/assets/_shared-copy.html', fx_mockup( array( '--type-ratio', '--display-lh', '--fs-h1-max', '--sp-scale', '--elev-rest', 'composition' ) ) );
+list( $code104, $out104 ) = fx_run_ok( $audit, $r104 );
+ok( array() === fx_lines_with( $out104, array( 'RT_MOCKUP_NO_AXES' ) ), 'un fichero _-prefijado no produce fila', $out104 );
+ok( 0 === $code104, 'y el arbol sigue saliendo con codigo 0', $code104 );
+fx_rrmdir( $r104 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
