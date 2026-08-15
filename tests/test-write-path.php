@@ -2271,12 +2271,31 @@ foreach ( explode( "\n", (string) file_get_contents( $ds_ruta ) ) as $linea ) {
 		},
 		explode( '|', trim( $linea, '|' ) )
 	);
-	if ( count( $celdas ) >= 4 && in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'ink' ), true ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[1] ) ) {
+	/* LAS TRES celdas de color, no solo la primera. Esto pedia un hex en la
+	   columna de `--c-bg` y se creia lo que hubiera en las otras dos, asi que
+	   CUALQUIER tabla del fichero cuya primera celda sea el nombre de un ground
+	   redefinia el ground entero —— y la ultima que apareciera ganaba. Medido: al
+	   documentar `--c-on-accent` con una tabla de forma
+	   `| ground | acento | tinta | ratio |` este bucle se quedo con
+	   bg=#0FA968 / text=5.86:1 y quince filas se pusieron rojas. Se pusieron rojas
+	   porque los valores intrusos no contrastaban; una tabla con hexes plausibles
+	   en las tres columnas habria redefinido el ground EN SILENCIO y el bucle de
+	   abajo habria medido contra una referencia que no es la del eje.
+	   La tabla del eje tiene tres colores seguidos; ninguna otra del fichero los
+	   tiene, y esa es la forma que se exige aqui. */
+	if ( count( $celdas ) >= 4
+		&& in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'ink' ), true )
+		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[1] )
+		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[2] )
+		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[3] ) ) {
 		$suelos[ $celdas[0] ] = array( 'bg' => $celdas[1], 'bg_alt' => $celdas[2], 'text' => $celdas[3] );
 	}
 }
 /* Sin esto, un cambio de formato en la tabla dejaria $suelos vacio y TODO el
-   bucle de abajo pasaria sin comprobar ni una posicion. */
+   bucle de abajo pasaria sin comprobar ni una posicion.
+   NO basta con contar cuatro: la tabla intrusa de arriba dejaba las cuatro
+   claves puestas y esta linea seguia verde. Por eso lo que se comprueba debajo
+   es que las celdas `paper` son las del build, y despues el CONTRASTE. */
 ok( 4 === count( $suelos ), 'las cuatro posiciones de ground se leen de design-system.md: ' . implode( ', ', array_keys( $suelos ) ) );
 
 /* Los tres tokens que el eje DOCUMENTA tienen que ser, en el build, los de la
@@ -2340,6 +2359,143 @@ $r = grab(
 );
 ok( '' === $r['ret'], 'un valor que no es hex no se convierte en un neutro plausible al mezclarlo' );
 ok( has( $r['out'], 'azul' ), 'y lo dice en voz alta nombrando el valor que no supo leer' );
+es_tokens( $es_defaults );
+
+/* ---------------------------------------------------------------------------
+ * La etiqueta del boton primario: `on_accent`, medida y no fijada.
+ *
+ * Era un #FFFFFF literal. Sobre el acento propio del framework (#0FA968) eso son
+ * 3.05:1 —— por debajo del 4.5:1 que WCAG AA pide al texto normal, en la
+ * etiqueta de TODOS los botones primarios que el framework emite. La tinta
+ * oscura sobre ese mismo verde da 5.86:1.
+ *
+ * Lo que NO se afirma aqui es `on_accent === '#15181A'`. Esa comprobacion pasa
+ * para una marca cuyo acento es azul marino, donde el negro es justo el que no
+ * se lee, asi que seria clavar el mismo defecto con el color contrario: la
+ * siguiente tarea de ejes tendria que debilitarla para poder avanzar. Se afirma
+ * el CONTRASTE, sobre acentos elegidos por incomodos.
+ *
+ * Y el caso en que NINGUNO de los dos candidatos llega a 4.5:1 no es una
+ * hipotesis remota, es geometria: en el acento donde los dos candidatos se
+ * cruzan, ambos miden exactamente sqrt(contraste del propio ground). Sobre
+ * `paper` (17.84:1) eso es 4.22:1, asi que existe una BANDA de acentos donde
+ * ninguna de las dos tintas cumple AA, y solo un ground de negro puro sobre
+ * blanco puro (21:1 -> 4.58) la cerraria. Ahi el build pinta la mejor de las dos
+ * y avisa; lo que sigue lo demuestra en vez de suponerlo.
+ * ------------------------------------------------------------------------- */
+echo "--- la etiqueta sobre el acento se ELIGE midiendo, no se fija ---\n";
+
+/* Antes que nada, la falsabilidad de todo el bloque: el valor que estaba escrito
+   a mano SUSPENDE sobre el acento por defecto. Sin esta linea, "on_accent llega
+   a 4.5" podria estar pasando por casualidad sobre un acento facil. */
+ok( wcag_ratio( '#FFFFFF', '#0FA968' ) < 4.5, 'el #FFFFFF que estaba fijado a mano da ' . wcag_ratio( '#FFFFFF', '#0FA968' ) . ':1 sobre el acento por defecto: por eso se deriva' );
+
+/* Cuatro acentos elegidos por incomodos: el de la casa (donde gana la tinta),
+   uno palido, uno oscuro (donde tiene que ganar el BLANCO —— si estuviera
+   clavado en oscuro, esta fila seria roja) y uno de tono medio en la banda del
+   cruce, donde no gana ninguno. */
+$acentos = array(
+	'#0FA968' => array( 'casa',   true ),
+	'#F4D03F' => array( 'palido', true ),
+	'#1B2A4A' => array( 'oscuro', true ),
+	'#008899' => array( 'medio',  false ),
+);
+foreach ( $acentos as $acento => $caso ) {
+	list( $mote, $cumple ) = $caso;
+	$r      = grab(
+		function () use ( $acento ) {
+			es_tokens( array( 'accent' => $acento ) );
+			return es_t( 'on_accent' );
+		}
+	);
+	$tinta  = $r['ret'];
+	$medido = wcag_ratio( $tinta, $acento );
+	/* La REGLA: la etiqueta es uno de los dos extremos del ground, nunca un
+	   color nuevo que no esta en la paleta. */
+	ok(
+		in_array( strtoupper( $tinta ), array( strtoupper( es_t( 'text' ) ), strtoupper( es_t( 'bg' ) ) ), true ),
+		'acento ' . $mote . ' ' . $acento . ': la etiqueta es uno de los dos extremos del ground (' . $tinta . '), no un color inventado'
+	);
+	/* Y que sea el MEJOR de los dos, que es lo que "derivado" significa aqui. */
+	$otro = strtoupper( $tinta ) === strtoupper( es_t( 'text' ) ) ? es_t( 'bg' ) : es_t( 'text' );
+	ok(
+		$medido >= wcag_ratio( $otro, $acento ),
+		'acento ' . $mote . ' ' . $acento . ': se elige el que MAS contrasta —— ' . $tinta . ' ' . $medido . ':1 contra ' . $otro . ' ' . wcag_ratio( $otro, $acento ) . ':1'
+	);
+	if ( $cumple ) {
+		ok( $medido >= 4.5, 'acento ' . $mote . ' ' . $acento . ': la etiqueta llega a AA —— ' . $medido . ':1' );
+		ok( '' === trim( $r['out'] ), 'acento ' . $mote . ' ' . $acento . ': y no avisa de nada, porque no hay nada que avisar' );
+	} else {
+		/* El caso que no se puede resolver: ninguno llega, se pinta el mejor y se
+		   DICE. Un build que se callara aqui pintaria una etiqueta ilegible con
+		   la misma cara que una legible. */
+		ok( $medido < 4.5, 'acento ' . $mote . ' ' . $acento . ': ninguna de las dos tintas llega a AA —— la mejor da ' . $medido . ':1' );
+		ok( has( $r['out'], $acento ) && has( $r['out'], '4.5' ), 'acento ' . $mote . ' ' . $acento . ': y el aviso nombra el acento y el umbral que no se alcanza' );
+		ok( has( $r['out'], es_t( 'text' ) ) && has( $r['out'], es_t( 'bg' ) ), 'acento ' . $mote . ' ' . $acento . ': y las DOS medidas, para que se pueda decidir sin volver a medir' );
+	}
+}
+
+/* EL EMPATE, que no es un caso de laboratorio. Los dos candidatos empatan a dos
+   decimales justo en el cruce —— o sea a sqrt(17.84) = 4.22:1 —— y ahi caen
+   azules de marca de lo mas corrientes: #0076FA, #007AEA, #0081C8. Cuando eso
+   pasa NO hay diferencia legible que decidir, pero la eleccion tiene que salir
+   IGUAL en cada maquina y en cada ejecucion o los bytes emitidos dejan de ser
+   reproducibles. Gana el primer candidato de la receta, que es `text`.
+   Esta afirmacion existe porque sin ella invertir el orden de la receta
+   (`text`,`bg` -> `bg`,`text`) no ponia roja ni una sola linea de la suite. */
+es_tokens( array( 'accent' => '#0076FA' ) );
+ok( 4.22 === wcag_ratio( es_t( 'text' ), '#0076FA' ) && 4.22 === wcag_ratio( es_t( 'bg' ), '#0076FA' ), 'el acento #0076FA empata de verdad: las dos tintas dan 4.22:1 sobre el, asi que el desempate se ejecuta' );
+ok( strtoupper( es_t( 'text' ) ) === strtoupper( es_t( 'on_accent' ) ), 'y el empate se resuelve SIEMPRE al primer candidato de la receta (`text`, ' . es_t( 'on_accent' ) . '): sin regla fija, dos maquinas emitirian bytes distintos' );
+
+/* Que el oscuro y el claro salgan de la misma regla es lo que separa esto de
+   fijar un color: el mismo codigo devuelve tintas OPUESTAS. */
+es_tokens( array( 'accent' => '#0FA968' ) );
+$casa = es_t( 'on_accent' );
+es_tokens( array( 'accent' => '#1B2A4A' ) );
+$navy = es_t( 'on_accent' );
+ok( strtoupper( $casa ) !== strtoupper( $navy ), 'el verde de la casa y un azul marino reciben etiquetas OPUESTAS (' . $casa . ' / ' . $navy . '): la regla es la medida, no un valor' );
+
+/* La banda del cruce, medida en vez de argumentada: sobre `paper`, el mejor
+   caso posible en el punto donde los dos candidatos empatan es sqrt(17.84) =
+   4.22, o sea que la rama del aviso es alcanzable por construccion. */
+es_tokens( $es_defaults );
+$cruce = sqrt( wcag_ratio( es_t( 'text' ), es_t( 'bg' ) ) );
+ok( $cruce < 4.5, 'en el cruce los dos candidatos miden sqrt(contraste del ground) = ' . round( $cruce, 2 ) . ':1 sobre `paper`: la banda sin salida existe, no es una rama defensiva' );
+ok( max( wcag_ratio( '#9966BB', es_t( 'text' ) ), wcag_ratio( '#9966BB', es_t( 'bg' ) ) ) <= round( $cruce, 2 ) + 0.01, 'y el peor acento de todo el cubo RGB sobre `paper` (#9966BB) cae justo ahi: ' . max( wcag_ratio( '#9966BB', es_t( 'text' ) ), wcag_ratio( '#9966BB', es_t( 'bg' ) ) ) . ':1' );
+
+/* Los cuatro grounds documentados, con el acento por defecto. En `ink` la
+   eleccion se DA LA VUELTA —— gana el fondo casi negro, no la tinta casi
+   blanca —— que es exactamente lo que un valor fijado no puede hacer. */
+$elegido = array();
+foreach ( $suelos as $posicion => $celdas ) {
+	es_tokens( array( 'bg' => $celdas['bg'], 'bg_alt' => $celdas['bg_alt'], 'text' => $celdas['text'] ) );
+	$m                     = wcag_ratio( es_t( 'on_accent' ), es_t( 'accent' ) );
+	$elegido[ $posicion ] = strtoupper( es_t( 'on_accent' ) ) === strtoupper( es_t( 'text' ) ) ? 'text' : 'bg';
+	ok( $m >= 4.5, 'ground `' . $posicion . '`: la etiqueta sobre el acento llega a AA contra EL —— ' . es_t( 'on_accent' ) . ' ' . $m . ':1' );
+}
+ok( 'text' === $elegido['paper'] && 'bg' === $elegido['ink'], 'y el candidato ganador cambia con el ground: `paper` elige text, `ink` elige bg' );
+
+/* El override explicito gana, igual que en las otras tres pasadas. Una marca
+   cuya etiqueta es una crema que no esta en su ground tiene que poder decirlo. */
+es_tokens( array( 'on_accent' => '#123456' ) );
+ok( '#123456' === es_t( 'on_accent' ), 'un override explicito de la etiqueta gana a la medida' );
+
+/* Y un acento ilegible no produce una etiqueta plausible: se queda sin pintar y
+   lo dice, igual que es_mix() y es_shade(). */
+$r = grab(
+	function () {
+		return es_contrast( 'azul', '#FFFFFF' );
+	}
+);
+ok( 0.0 === $r['ret'], 'un valor que no es hex no produce un ratio plausible: 0.0 es imposible en una escala que empieza en 1:1' );
+ok( has( $r['out'], 'azul' ), 'y lo dice en voz alta nombrando el valor que no supo leer' );
+$r = grab(
+	function () {
+		es_tokens( array( 'accent' => 'azul' ) );
+		return es_t( 'on_accent' );
+	}
+);
+ok( '' === $r['ret'], 'y con un acento ilegible la etiqueta se queda SIN pintar en vez de inventarse un blanco' );
 es_tokens( $es_defaults );
 
 /* Cualquier override reconstruye el juego DESDE los valores por defecto, asi que

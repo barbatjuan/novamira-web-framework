@@ -237,6 +237,148 @@ function es_mix( $a, $b, $f ) {
 }
 
 /**
+ * WCAG 2.x relative luminance of a hex colour, or null when it cannot be read.
+ *
+ * The coefficients and the 0.03928 / 12.92 / 1.055 / 2.4 constants are the
+ * formula's, verbatim from WCAG 2.x -- not tuning, not this file's opinion.
+ *
+ * It returns null rather than warning, and that is on purpose: es_contrast()
+ * below is the one that knows WHICH of two colours it could not read and can
+ * therefore say so. A warning here would fire twice and name neither.
+ *
+ * The three lines that normalise `#RGB` to `#RRGGBB` are the FOURTH copy of that
+ * parse in this file (es_rgba, es_shade, es_mix, and now this). Four copies of
+ * one parse is the same drift this file collapses everywhere else, and it is
+ * named here rather than quietly extracted, because folding the other three into
+ * a shared helper changes three working functions and belongs to whoever owns
+ * that refactor -- not to the token that needed a fourth reader.
+ */
+function es_lum( $hex ) {
+	$h = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $h ) ) {
+		$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+	}
+	if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+		return null;
+	}
+	$s = 0.0;
+	$k = array( 0.2126, 0.7152, 0.0722 );
+	for ( $i = 0; $i < 3; $i++ ) {
+		$c  = hexdec( substr( $h, $i * 2, 2 ) ) / 255;
+		$c  = $c <= 0.03928 ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+		$s += $k[ $i ] * $c;
+	}
+	return $s;
+}
+
+/**
+ * WCAG 2.x contrast ratio between two hex colours, or 0.0 when one is unreadable.
+ *
+ * 0.0 is an impossible ratio -- two identical colours are 1.0:1 and the range
+ * runs to 21:1 -- so it is a sentinel the caller can test for, in the same
+ * spirit as es_mix() returning '': loud and visibly unpainted beats silently
+ * plausible.
+ *
+ * Rounded to two decimals ON PURPOSE, and it is not cosmetic. tests/test-write-path.php
+ * measures the same ratios with its OWN independent implementation and asserts
+ * them against 4.5; if one side rounded and the other did not, a value at 4.4951
+ * would pass the suite and warn in the build, or the reverse. Same rounding, one
+ * verdict.
+ */
+function es_contrast( $a, $b ) {
+	$x = es_lum( $a );
+	$y = es_lum( $b );
+	if ( null === $x || null === $y ) {
+		es_warn( 'es_contrast() no sabe leer "' . ( null === $x ? $a : $b ) . '" como color hex, asi que la tinta que se elegia midiendo ese color se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+		return 0.0;
+	}
+	return round( ( max( $x, $y ) + 0.05 ) / ( min( $x, $y ) + 0.05 ), 2 );
+}
+
+/**
+ * The ink that goes ON a surface: whichever candidate reads best against it.
+ *
+ * `on_accent` was a literal #FFFFFF, and measured against this framework's own
+ * accent that is 3.05:1 -- a WCAG AA failure on the label of every primary
+ * button the framework ships. Pinning the other extreme instead (#15181A, 5.86:1)
+ * fixes the house brand and breaks the next one: a navy or deep-burgundy accent
+ * needs the WHITE label, and would fail exactly the way white fails the green.
+ * So the CHOICE is what gets derived, not the colour.
+ *
+ * The candidates are the two ground extremes -- `text` and `bg` -- and not a
+ * freshly invented near-black/near-white, because a label that is not already in
+ * the palette is a colour nobody chose. On a cream page the ink on an accent
+ * button is that page's own cream, not a white that appears nowhere else.
+ *
+ * TIES go to the first candidate listed. A tie at two decimals means the two
+ * inks are within 0.005 of each other, so there is no readable difference to
+ * decide on -- but "no difference" still has to resolve the SAME way on every
+ * machine and every run, or the emitted bytes stop being reproducible.
+ *
+ * WHEN NEITHER CANDIDATE REACHES 4.5:1 it paints the better of the two and warns
+ * naming both measurements. That branch is not defensive padding, it is
+ * reachable by construction: at the accent where the two candidates cross, both
+ * measure exactly sqrt(the ground's own contrast), so a `paper` ground (17.84:1)
+ * tops out at 4.22:1 there and NO accent in that band can reach AA against
+ * either extreme. Measured across the whole RGB cube on `paper`, the worst
+ * accent is #9966BB at 4.22:1, and ordinary brand colours live in that band --
+ * #008899 gives 4.23 / 4.22, #1177EE gives 4.16 / 4.29. Refusing to paint would
+ * leave the label the widget's own default; painting silently would hide a real
+ * AA failure. It paints and says so.
+ */
+function es_ink_on( $clave, array $t, array $receta ) {
+	$fondo_clave = $receta[0];
+	$fondo       = $t[ $fondo_clave ];
+	$mejor       = '';
+	$ratio       = 0.0;
+	$medido      = array();
+	for ( $i = 1, $n = count( $receta ); $i < $n; $i++ ) {
+		$tinta_clave = $receta[ $i ];
+		$r           = es_contrast( $t[ $tinta_clave ], $fondo );
+		if ( 0.0 === $r ) {
+			/* es_contrast() already named the value it could not read. */
+			return '';
+		}
+		$medido[] = '"' . $tinta_clave . '" (' . $t[ $tinta_clave ] . ') ' . number_format( $r, 2 ) . ':1';
+		if ( $r > $ratio ) {
+			$mejor = $t[ $tinta_clave ];
+			$ratio = $r;
+		}
+	}
+	if ( $ratio < 4.5 ) {
+		es_warn(
+			'ninguna tinta se lee sobre "' . $fondo_clave . '" (' . $fondo . '): ' . implode( ' y ', $medido )
+			. '. WCAG AA pide 4.5:1 al texto normal, asi que "' . $clave . '" se pinta con la mejor de las dos (' . $mejor
+			. ', ' . number_format( $ratio, 2 ) . ':1) y AUN ASI no cumple. Mueve el acento o fija "' . $clave . '" a mano.'
+		);
+	}
+	return $mejor;
+}
+
+/**
+ * Tokens that are the readable ink ON another token: array( surface, candidate... ).
+ *
+ * Same table shape, and for the same reason, as es_token_mixes() / es_token_shades()
+ * / es_token_recipes(): the key list, the derivation and the unknown-key guard
+ * read ONE table and cannot drift apart.
+ *
+ * `text` is listed before `bg` so a tie resolves to the ink rather than to the
+ * page. There is exactly one entry today, and the sibling that looks like it
+ * should be here is `on_inverse` -- it is NOT, and the reason is that it is
+ * already this rule's answer by construction: `on_inverse` is `bg` sitting on
+ * `surface_inverse`, which is `text`, so its contrast IS the ground's own
+ * contrast (17.84:1 on `paper`, 15.33 warm, 15.71 cool, 17.48 ink) and the
+ * ground table cannot document a position where the better candidate is the
+ * other one. Routing it through here would add a measurement whose answer is
+ * fixed -- a branch nothing can distinguish.
+ */
+function es_token_contrasts() {
+	return array(
+		'on_accent' => array( 'accent', 'text', 'bg' ),
+	);
+}
+
+/**
  * Tokens that are one ground token blended toward another: array( from, to, fraction ).
  *
  * The fractions are MEASURED off the values this file already shipped, not chosen: each is where
@@ -402,7 +544,7 @@ function es_tokens( array $override = array() ) {
 			   furniture. */
 			'text_soft'          => null, /* derived: text 23% toward bg */
 			'muted'              => null, /* derived: text 36.6% toward bg */
-			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
+			'on_accent'          => null, /* derived: whichever of `text`/`bg` reads better ON the accent */
 			'on_inverse'         => null, /* derived: the ground's own bg -- ink ON surface_inverse or on the CTA scrim */
 			'muted_on_inverse'   => null, /* derived: on_inverse at 0.75 */
 			/* borders ----------------------------------------------- */
@@ -533,6 +675,21 @@ function es_tokens( array $override = array() ) {
 			   a darker version of its accent must be able to say so. */
 			if ( ! array_key_exists( $clave, $override ) ) {
 				$t[ $clave ] = es_shade( $t[ $receta[0] ], $receta[1] );
+			}
+		}
+		/* Contrasts run AFTER the mixes and the shades and BEFORE the veils, and
+		   both halves of that are dependency, not style. After: an ink chosen by
+		   measuring a surface must be able to measure a DERIVED surface, and
+		   `surface_inverse` only exists once the mixes have run. Before: a veil
+		   produces an `rgba(...)` string, and es_lum() cannot read one -- run the
+		   veils first and every future on-colour over a veiled surface silently
+		   returns ''. */
+		foreach ( es_token_contrasts() as $clave => $receta ) {
+			/* Same escape hatch as the other three passes: a brand whose label on
+			   the accent is neither of its ground extremes -- a cream on a navy,
+			   say -- must be able to say so, and it must still win here. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = es_ink_on( $clave, $t, $receta );
 			}
 		}
 		foreach ( es_token_recipes() as $clave => $receta ) {
@@ -1255,14 +1412,19 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
        owns that number, not to the axis task. `display_lh`, which IS an axis,
        is tokenised and now has a reader on every h1 and h2 in the build instead
        of the single one it had.
-     - `on_accent` is still a literal #FFFFFF, and it is the one that should not
-       be. Measured on the framework's own accent: white label on #0FA968 is
-       3.05:1, and the near-black `text` on the same green is 5.86:1 -- so the
-       default primary button fails AA for normal text, and the token layer has
-       both candidates in scope to choose between. Deriving it (whichever of
-       text/bg contrasts better on the accent) flips every primary button label
-       on the house brand from white to near-black, which is a design decision
-       for the framework's owner rather than a bug fix. REPORTED, not taken. */
+     - `on_accent` is DERIVED now -- whichever of `text`/`bg` reads better on the
+       accent -- so the default primary button label went from white at 3.05:1,
+       a WCAG AA failure, to near-black at 5.86:1. What that fixes is the REST
+       state, and the state it does not fix is the one right next to it: the
+       primary button hovers to `accent_hover`, which is the accent darkened
+       18.5%, and darkening a fill LOWERS its contrast against a dark label.
+       Measured with the derived label on the four documented grounds --
+       paper 4.06:1, warm 3.82, cool 3.92, ink 4.32 -- all four below AA. It was
+       below AA before this change too (white on #0C8A55 is 4.39:1), so this is a
+       pre-existing gap that moved rather than one that opened, and the honest
+       fix is not another on-colour: it is that `accent_hover` darkens
+       unconditionally, when a button whose label is dark needs its hover to go
+       LIGHTER. That is the shade table's decision, not this one's. REPORTED. */
 
 /**
  * Audit the container tree before it is written.

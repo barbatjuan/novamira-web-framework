@@ -75,6 +75,7 @@ es lo que separa un titular contenido de uno monumental, y no puede ser una cons
 | Background secondary | `--c-bg-alt` | secciones alternadas |
 | Text | `--c-text` | texto principal |
 | Text muted | `--c-text-muted` | texto secundario, meta |
+| On accent | `--c-on-accent` | la tinta que va ENCIMA del acento (etiqueta del botón primario). No se elige a mano: es el que más contraste da de `--c-text` / `--c-bg`, medido. Ver "Ground" |
 | Border | `--c-border` | bordes, divisores |
 | Success | `--c-success` | stock, confirmación |
 | Error | `--c-error` | errores, sin stock |
@@ -93,6 +94,11 @@ Cambiar estos tokens = re-brandear todo el sitio.
 Estados: `:hover` (oscurecer 8–10% o accent), `:active` (scale 0.98), `:disabled` (opacity 0.5).
 Dos familias de botón solamente (alineado con `ux-design-system`): sólido + ghost/outline;
 ambos con hover legible en los dos estados.
+
+La **etiqueta** del botón sólido no es un color que se elija: es `--c-on-accent`, y sale de medir
+`--c-text` y `--c-bg` contra el relleno y quedarse con el que más contraste da. Escribir un blanco
+ahí es el defecto que este token existe para quitar — sobre el verde por defecto medía 3.05:1.
+Regla, medidas por ground y la banda donde ninguno de los dos llega a AA: sección "Ground".
 
 ```
 --btn-padding: 0.875rem 1.75rem;
@@ -316,6 +322,42 @@ went wrong on `ink` was not that it was too faint but that it stopped being a ha
 **Open, not closed:** the outline button's edge reads this same token, and *that* is a control at
 1.25:1, so it is a real 1.4.11 gap. Fixing it means a separate control-edge token with its own
 measured cell, and it is recorded here rather than hidden behind the range.
+
+#### `--c-on-accent` — the label on the primary button is CHOSEN, not tabled
+
+The ink that sits on the accent is whichever of the two ground extremes — `--c-text` or `--c-bg` —
+measures higher against it. It is the one derived colour that cannot be tabled per ground position,
+because the surface it sits on is the **brand's** accent, and the accent is not an axis.
+
+It was a literal `#FFFFFF`, and on this framework's own accent that is **3.05:1** — below AA, on the
+label of every primary button the framework emits. Pinning the other extreme instead fixes exactly
+one brand and breaks the next: a navy accent needs the white label back.
+
+| Ground | Accent | `--c-on-accent` | Measured on the accent | White would have been |
+|---|---|---|---|---|
+| `paper` | `#0FA968` | `#15181A` | 5.86:1 | 3.05:1 — fails AA |
+| `warm` | `#0FA968` | `#241C14` | 5.51:1 | 2.78:1 — fails AA |
+| `cool` | `#0FA968` | `#141C24` | 5.65:1 | 2.78:1 — fails AA |
+| `ink` | `#0FA968` | `#0E1113` | 6.22:1 | 2.81:1 — fails AA |
+
+`ink` is the row that proves the rule is a measurement: there the winner is the near-black **`--c-bg`**,
+not the near-white `--c-text`, and the same code produced both. Two more, to show the span: a pale
+`#F4D03F` resolves to `#15181A` at 11.84:1, a dark `#1B2A4A` resolves to `#FFFFFF` at 14.22:1.
+
+**There is a band of accents where NEITHER extreme reaches AA, and it is geometry rather than bad
+luck.** At the accent where the two candidates cross, both measure exactly `sqrt(the ground's own
+contrast)`: on `paper` (17.84:1) that is **4.22:1**, so no accent in that band can clear 4.5 against
+either ink — only a pure-black-on-pure-white ground (21:1 → 4.58) would close it. Ordinary brand
+colours live there: `#008899` measures 4.23 / 4.22, `#1177EE` measures 4.16 / 4.29. The build paints
+the better of the two and **warns naming both measurements**; the way out is to move the accent or
+to set `on_accent` by hand, and both are decisions somebody has to make rather than defaults.
+
+**Open, not closed:** the primary button hovers to `accent_hover`, the accent darkened 18.5%, and
+darkening a fill *lowers* its contrast against a dark label. With the derived label that hover
+measures **4.06:1 on `paper`, 3.82 warm, 3.92 cool, 4.32 ink** — all four below AA. It was below AA
+before this token was derived too (white on `#0C8A55` is 4.39:1), so it is a pre-existing gap that
+moved rather than one that opened. The fix is not a second on-colour: it is that `accent_hover`
+darkens unconditionally, when a button whose label is dark needs its hover to go *lighter*.
 
 ### Elevation (`--elev-rest`, `--elev-hover`)
 | Position | `--elev-rest` | `--elev-hover` |
