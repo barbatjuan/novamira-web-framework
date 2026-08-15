@@ -100,6 +100,8 @@ const ROW_TYPES = array(
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
+	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
+	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1428,6 +1430,177 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'html-mockup',
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
+		);
+	}
+}
+
+/* --------------------------------------------------- the builder's token layer
+ *
+ * RT_MOCKUP_NO_AXES above asks whether the file a project is COPIED FROM can express an axis.
+ * These two ask the same question one hop later, of the file that actually writes the site.
+ * `elementor-core/SKILL.md` has always told the operator to "swap its palette/type constants";
+ * until the token layer landed there were no constants of any kind in es-builder.php — 51 colour
+ * literals, 9 font strings and 5 shadows typed inline between the helpers instead. So every
+ * NovaMira site shipped the same green on the same white whatever the axis dialogue resolved,
+ * with every other row in this audit green.
+ *
+ * THE REGION, and why getting its START wrong makes the whole row useless. The scan runs from the
+ * closing brace of es_tokens() to the end-of-visual-layer marker. Anchoring on the OPENING of
+ * es_tokens() instead puts the token DECLARATIONS inside the scanned region, and every one of
+ * those is a hex literal by definition — the check then reports ~21 findings against a perfectly
+ * correct file, which is a check nobody keeps. Anchoring on some neighbouring helper's brace
+ * instead (es_t(), es_fs(), es_sp()) breaks the first time a function is added next to it. So the
+ * boundary depends on exactly one name — es_tokens — and that is the one name this row already
+ * requires to exist, so it cannot be an incidental coupling. Everything else in the file, es_t()
+ * included, is INSIDE the region and held to the rule.
+ *
+ * COMMENTS ARE NOT SCANNED, and that is a decision, not an oversight. A hex in a comment cannot
+ * reach the emitted data — it is inert for the same reason the region below the END marker is
+ * inert. Scanning them would FAIL es-builder.php today on a rationale comment that reads "…was
+ * byte-identical only because both are #FFFFFF today", i.e. it would charge a file for explaining
+ * itself, in a repo whose whole style is explaining itself. Stripping is done with PHP's OWN
+ * lexer (php_code_lines()) rather than a regex: a hand-rolled stripper that treats `//` as a
+ * comment opener blanks the rest of any line carrying a URL inside a string, and a real literal
+ * after one would vanish — that is a genuine escape hatch, and tests/test-framework-audit.php
+ * carries the fixture for it.
+ *
+ * SCOPE — read this before widening the glob. It covers `skills/elementor-core/assets/*.php` and
+ * NOT the three sibling assets that also emit Elementor data:
+ * elementor-theme-parts/assets/es-theme-parts.example.php (52 literals),
+ * woocommerce/assets/es-product-single.example.php (34) and
+ * woocommerce/assets/es-shop-template.example.php (22). Those three have no token block at all
+ * yet, so a glob reaching them today would put this gate permanently red on 108 findings nobody
+ * has started migrating — and a gate that is red for known, scheduled, un-started work is a gate
+ * people learn to scroll past. Their migration is Task 4 of
+ * docs/superpowers/plans/2026-08-15-axes-reach-the-build.md, whose Step 2 states that widening
+ * this glob is part of THAT task and not a follow-up. It is still a GLOB and not a hardcoded
+ * filename for the reason RT_MOCKUP_NO_AXES gives above: a SECOND asset dropped into
+ * elementor-core/assets/ without a token block is exactly the regression this row is for, and a
+ * hardcoded name would not see it.
+ */
+
+/* Every line of $src with its PHP comments blanked out and the line NUMBERING preserved, so a
+   finding's reported line still points at the real line of the real file. Uses token_get_all()
+   — PHP's own lexer — so "is this a comment" is answered by the thing that decides it at runtime,
+   never by a regex that cannot tell `'https://x'` from the start of one. A file that is not PHP
+   at all lexes to one T_INLINE_HTML token and nothing is stripped, which errs toward scanning
+   MORE, never less. */
+function php_code_lines( $src ) {
+	$out = '';
+	foreach ( token_get_all( $src ) as $tk ) {
+		if ( ! is_array( $tk ) ) {
+			$out .= $tk;
+			continue;
+		}
+		if ( T_COMMENT === $tk[0] || T_DOC_COMMENT === $tk[0] ) {
+			$out .= str_repeat( "\n", substr_count( $tk[1], "\n" ) );
+			continue;
+		}
+		$out .= $tk[1];
+	}
+	return explode( "\n", $out );
+}
+
+$builder_end_marker = 'end of the visual layer';
+/* 3-to-8 hex covers every CSS form (#fff, #ffff, #ffffff, #ffffffff), not just the two the plan
+   named — an alpha hex is as much a hardcoded colour as a plain one. The trailing boundary stops
+   `#facade-panel` (a CSS id selector) from reading as a colour, and stops the six-digit form from
+   also reporting its own first three digits as a second finding. rgba()/cubic-bezier() report
+   their whole call when it closes on the same line, because "rgba(" alone is not a value a reader
+   can go and look for. */
+$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|(?:rgba|cubic-bezier)\((?:[^)\n]{0,48}\))?/';
+/* A family typed as a STRING on a typography key. `=> es_t( 'font_body' )` has no quote after the
+   arrow and is the shape this row wants; `=> 'Manrope'` is the shape it exists to stop. \w* so a
+   `_tablet`/`_mobile` responsive variant cannot slip past the same rule. */
+$builder_family_re = '/typography_font_family\w*[\'"]?\s*=>\s*([\'"])(.*?)\1/';
+
+$builder_assets = glob( $root . '/skills/elementor-core/assets/*.php' );
+if ( ! is_array( $builder_assets ) ) {
+	$builder_assets = array();
+}
+sort( $builder_assets );
+foreach ( $builder_assets as $builder_path ) {
+	$builder_name  = basename( $builder_path );
+	$builder_skill = basename( dirname( dirname( $builder_path ) ) );
+	$builder_src   = slurp( $builder_path );
+	$builder_raw   = explode( "\n", $builder_src );
+	$builder_code  = php_code_lines( $builder_src );
+
+	$tokens_open = -1;
+	foreach ( $builder_code as $bi => $bl ) {
+		if ( preg_match( '/^\s*function\s+es_tokens\s*\(/', $bl ) ) {
+			$tokens_open = $bi;
+			break;
+		}
+	}
+	if ( -1 === $tokens_open ) {
+		add(
+			'RT_BUILDER_NO_TOKENS',
+			'FAIL',
+			$builder_skill,
+			'assets/' . $builder_name . ' declares no es_tokens() — every colour, family and shadow in it is typed'
+				. ' where it is used, so the site it builds cannot be re-skinned from one edit point and ships the framework default'
+		);
+		continue;
+	}
+	/* The top-level closing brace, found by column: a `}` alone on a line is the end of the
+	   function, an indented one closes an inner block. */
+	$region_start = -1;
+	for ( $bi = $tokens_open + 1, $bn = count( $builder_code ); $bi < $bn; $bi++ ) {
+		if ( '}' === rtrim( $builder_code[ $bi ] ) ) {
+			$region_start = $bi;
+			break;
+		}
+	}
+	/* The END marker is located in the RAW lines: it is itself a comment, and php_code_lines()
+	   has just blanked it out of $builder_code. */
+	$region_end = -1;
+	foreach ( $builder_raw as $bi => $bl ) {
+		if ( false !== strpos( $bl, $builder_end_marker ) ) {
+			$region_end = $bi;
+			break;
+		}
+	}
+	if ( -1 === $region_start || -1 === $region_end || $region_end <= $region_start ) {
+		if ( -1 === $region_start ) {
+			$why = 'es_tokens() never closes on a line of its own, so where the declarations stop cannot be read';
+		} elseif ( -1 === $region_end ) {
+			$why = 'it carries no "' . $builder_end_marker . '" marker';
+		} else {
+			$why = 'its "' . $builder_end_marker . '" marker sits ABOVE es_tokens(), leaving nothing between them';
+		}
+		add(
+			'RT_BUILDER_NO_TOKENS',
+			'FAIL',
+			$builder_skill,
+			'assets/' . $builder_name . ' has an es_tokens() block no scan can be bounded by: ' . $why
+				. ' — an unbounded region is an unscannable one, and a region nothing scans is a rule nothing enforces'
+		);
+		continue;
+	}
+
+	$builder_hits = array();
+	for ( $bi = $region_start + 1; $bi < $region_end; $bi++ ) {
+		if ( preg_match_all( $builder_literal_re, $builder_code[ $bi ], $bm ) ) {
+			foreach ( $bm[0] as $bhit ) {
+				$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → ' . $bhit;
+			}
+		}
+		if ( preg_match( $builder_family_re, $builder_code[ $bi ], $bfm ) ) {
+			$builder_hits[] = $builder_name . ':' . ( $bi + 1 ) . ' → typography_font_family ' . $bfm[1] . $bfm[2] . $bfm[1];
+		}
+	}
+	if ( array() !== $builder_hits ) {
+		/* Every hit is named with its own line and its own value. "hay un literal" sends a reader
+		   to eye-scan 500 lines; "es-builder.php:388 → #CBD0CB" is one keystroke away from fixed.
+		   Nothing is truncated: a long row is the honest size of the debt. */
+		add(
+			'RT_BUILDER_HARDCODED_TOKEN',
+			'FAIL',
+			$builder_skill,
+			'assets/' . $builder_name . ' types ' . count( $builder_hits ) . ' visual literal(s) between es_tokens() and the "'
+				. $builder_end_marker . '" marker: ' . implode( ', ', $builder_hits )
+				. ' — each one is a value the axis dialogue can no longer move, so the site reverts to the framework default wherever it is read'
 		);
 	}
 }
