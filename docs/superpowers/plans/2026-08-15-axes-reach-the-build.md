@@ -250,7 +250,7 @@ Values WILL change here. That is the point, and it is why it is a separate task.
 **How a value change is recorded, now that Task 1 committed a golden dump.** `tests/fixtures/emitted-golden.txt` pins what the builder emits, and `tests/test-write-path.php` re-checks it on every run. So every step below that moves a value ends with:
 
 ```bash
-php tests/dump-emitted.php > tests/fixtures/emitted-golden.txt
+php tests/tools/dump-emitted.php > tests/fixtures/emitted-golden.txt
 git diff tests/fixtures/emitted-golden.txt
 ```
 
