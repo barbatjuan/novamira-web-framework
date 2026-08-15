@@ -500,6 +500,71 @@ function fx_builder( array $opts = array() ) {
 		. "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n}\n";
 	return $src;
 }
+/**
+ * One SIBLING builder asset — SHAPE B, the second honest way to have a token layer.
+ *
+ * es-theme-parts.example.php, es-product-single.example.php and es-shop-template.example.php
+ * cannot declare es_tokens(): they require es-builder.php, which already declares it, and PHP
+ * fatals on a duplicate function. A second copy of the block would be the drift the whole layer
+ * exists to end. So they DEPEND on it and mark their region with an explicit
+ * "start of the visual layer" comment instead — and they need one, because in those files the
+ * save pipeline sits ABOVE the visual code, so a region anchored on the top of the file would
+ * scan it and a hex regex cannot tell a post id from a colour.
+ *
+ * The conforming region carries an es_rgba( es_t(...), '0.42' ) call on purpose. That is the ONE
+ * shape a derived veil can take, the three real files make thirteen such calls, and a bare
+ * `rgba|cubic-bezier` alternation matches inside the helper's own NAME — so without a lookbehind
+ * this check reports the correct shape as the literal it replaced.
+ *
+ * Written into elementor-core/assets/es-builder.php like fx_builder(), because the check reads
+ * CONTENT and not filenames, and that path already carries the SKILL.md scaffolding a
+ * write-capable skill needs.
+ */
+function fx_builder_hermano( array $opts = array() ) {
+	$o = array_merge(
+		array(
+			'depende'    => true,
+			'inicio'     => true,
+			'end_marker' => true,
+			'prosa_fin'  => false,
+			'region'     => '',
+		),
+		$opts
+	);
+	$src = "<?php\n/* fixture sibling asset */\n";
+	if ( $o['depende'] ) {
+		/* The dependency is named the way the real files name it: inside an array in a guard
+		   loop, NOT on the require line, so a check that pattern-matches `require .* es-builder`
+		   never sees it. */
+		$src .= "foreach ( array( 'es-builder.php' ) as \$dep ) {\n"
+			. "\trequire_once WP_CONTENT_DIR . '/novamira-sandbox/' . \$dep;\n}\n";
+	}
+	if ( $o['inicio'] ) {
+		$src .= "/* ------------------------------------------ start of the visual layer\n";
+		if ( $o['prosa_fin'] ) {
+			$src .= "   Everything from here to the \"end of the visual layer\" marker reads es_t().\n";
+		}
+		$src .= "   Nothing below this line types a colour. */\n";
+	}
+	$src .= "function es_fixture_card() {\n"
+		. "\t\$s = array(\n"
+		. "\t\t'typography_font_family' => es_t( 'font_body' ),\n"
+		. "\t\t'border_color'           => es_t( 'text' ),\n"
+		. "\t\t'veil'                   => es_rgba( es_t( 'on_inverse' ), '0.42' ),\n"
+		. "\t);\n"
+		. $o['region']
+		. "\treturn \$s;\n}\n";
+	if ( $o['end_marker'] ) {
+		$src .= "/* ------------------------------------------ end of the visual layer\n"
+			. "   Everything below is the save pipeline. No styling value belongs here. */\n";
+	}
+	$src .= "function es_fixture_slug( \$id ) {\n"
+		. "\t\$msg = 'la pagina #' . \$id . ' no existe';\n"
+		. "\treturn \$msg;\n}\n"
+		. "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n}\n";
+	return $src;
+}
+
 /* The 1-based line a needle first appears on, so a "names the line" assertion pins the REAL line
    number instead of one hand-counted from a template that will be edited again. */
 function fx_line_of( $content, $needle ) {
@@ -2510,7 +2575,7 @@ fx_base( $r111 );
 fx_builder_skill( $r111, fx_builder( array( 'end_first' => true ) ) );
 list( , $out111 ) = fx_run_ok( $audit, $r111 );
 ok( 'FAIL' === fx_row_level( $out111, array( 'RT_BUILDER_NO_TOKENS' ) ), 'un marcador de fin mal colocado FALLA', fx_row_level( $out111, array( 'RT_BUILDER_NO_TOKENS' ) ) );
-ok( array() !== fx_lines_with( $out111, array( 'RT_BUILDER_NO_TOKENS', 'sits ABOVE es_tokens()' ) ), 'y dice que el marcador esta por encima', $out111 );
+ok( array() !== fx_lines_with( $out111, array( 'RT_BUILDER_NO_TOKENS', 'sits ABOVE where the region starts' ) ), 'y dice que el marcador esta por encima', $out111 );
 fx_rrmdir( $r111 );
 
 echo "--- un hex en un COMENTARIO no es un literal; uno tras una URL en la misma linea SI ---\n";
@@ -2545,6 +2610,92 @@ ok(
 );
 ok( 1 === count( fx_lines_with( $out112, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) ), 'y es UN hallazgo, no dos ni tres', $out112 );
 fx_rrmdir( $r112 );
+
+/* ---------------------------------------------------------------------------
+   SHAPE B — the sibling assets, which INHERIT es_tokens() instead of declaring it.
+   The glob used to stop at elementor-core/assets/ because the other three files had no token
+   layer at all and would have put this gate permanently red. They have one now, so the glob
+   covers elementor-theme-parts and woocommerce too, and shape B is what it has to understand.
+   --------------------------------------------------------------------------- */
+
+echo "--- un hermano que HEREDA es_tokens() y marca su region no produce fila ---\n";
+$r113 = fx_tmp_root();
+fx_base( $r113 );
+fx_builder_skill( $r113, fx_builder_hermano() );
+list( $code113, $out113 ) = fx_run_ok( $audit, $r113 );
+ok( array() === fx_lines_with( $out113, array( 'RT_BUILDER_' ) ), 'un hermano conforme no produce ninguna fila de builder', $out113 );
+/* The assertion the lookbehind exists for. es_rgba( es_t('on_inverse'), '0.42' ) is the shape
+   this row WANTS: the source colour comes from a token, only the alpha is local. Matched as a
+   literal, the only way to satisfy the check would be to invent a named token per alpha — eleven
+   of them, named after their appearance, which is the opposite of what a token is for. */
+ok( array() === fx_lines_with( $out113, array( 'RT_BUILDER_HARDCODED_TOKEN', 'rgba(' ) ), 'y no acusa a es_rgba( es_t(...) ), que es la forma correcta de un velo derivado', $out113 );
+ok( 0 === $code113, 'y el arbol conforme sale con codigo 0', $code113 );
+fx_rrmdir( $r113 );
+
+echo "--- pero un rgba() escrito a mano en la region de un hermano SIGUE fallando ---\n";
+$r114 = fx_tmp_root();
+fx_base( $r114 );
+/* The other half of the pair, and the one that keeps the narrowing honest: if the lookbehind had
+   been written loosely enough to let `es_rgba(` through by disabling the rgba branch, this
+   scenario goes green and the check has been quietly turned off. */
+$b114 = fx_builder_hermano( array( 'region' => "\t\$s['halo'] = 'rgba(15,169,104,0.55)';\n" ) );
+fx_builder_skill( $r114, $b114 );
+list( , $out114 ) = fx_run_ok( $audit, $r114 );
+ok( 'FAIL' === fx_row_level( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'un rgba() a mano en un hermano FALLA', fx_row_level( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out114, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b114, "\$s['halo']" ) . ' → rgba(15,169,104,0.55)' ) ),
+	'y lo nombra con su linea y su valor',
+	$out114
+);
+fx_rrmdir( $r114 );
+
+echo "--- sin es_tokens() Y sin depender de es-builder.php es RT_BUILDER_NO_TOKENS ---\n";
+$r115 = fx_tmp_root();
+fx_base( $r115 );
+/* Shape B must not become a way to opt out. A file with no block of its own and no dependency on
+   the file that has one really does type every colour where it is used. */
+fx_builder_skill( $r115, fx_builder_hermano( array( 'depende' => false ) ) );
+list( , $out115 ) = fx_run_ok( $audit, $r115 );
+ok( 'FAIL' === fx_row_level( $out115, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin bloque y sin dependencia FALLA', fx_row_level( $out115, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out115, array( 'RT_BUILDER_NO_TOKENS', 'does not require es-builder.php' ) ), 'y dice que la causa es la dependencia que falta', $out115 );
+fx_rrmdir( $r115 );
+
+echo "--- un hermano que depende pero NO marca el inicio deja la region sin techo y FALLA ---\n";
+$r116 = fx_tmp_root();
+fx_base( $r116 );
+/* Without the start marker there is no upper boundary, and the save pipeline these files carry
+   ABOVE their visual code would be scanned as if it were design. */
+fx_builder_skill( $r116, fx_builder_hermano( array( 'inicio' => false ) ) );
+list( , $out116 ) = fx_run_ok( $audit, $r116 );
+ok( 'FAIL' === fx_row_level( $out116, array( 'RT_BUILDER_NO_TOKENS' ) ), 'sin marcador de inicio FALLA', fx_row_level( $out116, array( 'RT_BUILDER_NO_TOKENS' ) ) );
+ok( array() !== fx_lines_with( $out116, array( 'RT_BUILDER_NO_TOKENS', 'carries no "start of the visual layer" marker' ) ), 'y dice cual de las causas es', $out116 );
+fx_rrmdir( $r116 );
+
+echo "--- el marcador de inicio puede NOMBRAR al de fin sin encoger la region a nada ---\n";
+$r117 = fx_tmp_root();
+fx_base( $r117 );
+/* THE VACUOUS-REGION SCENARIO, and the reason the END marker takes the LAST match instead of the
+   first. Every start marker naturally wants to say "…down to the end of the visual layer marker",
+   and all three real sibling files were written that way. On a first match that prose IS the end
+   boundary: the region collapses to the four lines of its own comment, every literal below it goes
+   unscanned, and the check reports a clean file because it looked at almost nothing. A check that
+   passes by scanning nothing is worse than no check, because it is reported as a pass.
+   The literal here sits where the collapsed region would not reach it. */
+$b117 = fx_builder_hermano(
+	array(
+		'prosa_fin' => true,
+		'region'    => "\t\$s['lejos'] = '#0FA968';\n",
+	)
+);
+fx_builder_skill( $r117, $b117 );
+list( , $out117 ) = fx_run_ok( $audit, $r117 );
+ok( 'FAIL' === fx_row_level( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ), 'la prosa del marcador de inicio no encoge la region: el literal de mas abajo se sigue viendo', fx_row_level( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN' ) ) );
+ok(
+	array() !== fx_lines_with( $out117, array( 'RT_BUILDER_HARDCODED_TOKEN', 'es-builder.php:' . fx_line_of( $b117, "\$s['lejos']" ) . ' → #0FA968' ) ),
+	'y lo nombra con la linea real, no con una de la region encogida',
+	$out117
+);
+fx_rrmdir( $r117 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

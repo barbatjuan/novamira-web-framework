@@ -1464,19 +1464,31 @@ foreach ( $mockup_assets as $mockup_path ) {
  * after one would vanish — that is a genuine escape hatch, and tests/test-framework-audit.php
  * carries the fixture for it.
  *
- * SCOPE — read this before widening the glob. It covers `skills/elementor-core/assets/*.php` and
- * NOT the three sibling assets that also emit Elementor data:
- * elementor-theme-parts/assets/es-theme-parts.example.php (52 literals),
- * woocommerce/assets/es-product-single.example.php (34) and
- * woocommerce/assets/es-shop-template.example.php (22). Those three have no token block at all
- * yet, so a glob reaching them today would put this gate permanently red on 108 findings nobody
- * has started migrating — and a gate that is red for known, scheduled, un-started work is a gate
- * people learn to scroll past. Their migration is Task 4 of
- * docs/superpowers/plans/2026-08-15-axes-reach-the-build.md, whose Step 2 states that widening
- * this glob is part of THAT task and not a follow-up. It is still a GLOB and not a hardcoded
- * filename for the reason RT_MOCKUP_NO_AXES gives above: a SECOND asset dropped into
- * elementor-core/assets/ without a token block is exactly the regression this row is for, and a
- * hardcoded name would not see it.
+ * SCOPE. It covers the assets/ of every skill that emits Elementor data — elementor-core,
+ * elementor-theme-parts and woocommerce — which is all four builder assets. It used to cover
+ * elementor-core alone, deliberately, because the other three carried 131 literals and no token
+ * block, and a gate that is red for known, scheduled, un-started work is a gate people learn to
+ * scroll past. They were migrated in Task 4 of
+ * docs/superpowers/plans/2026-08-15-axes-reach-the-build.md, whose Step 2 makes widening this the
+ * same task's job and not a follow-up, so the reservation is spent and the glob is open.
+ *
+ * Still a GLOB per skill and not four hardcoded filenames, for the reason RT_MOCKUP_NO_AXES gives
+ * above: a SECOND asset dropped into any of those three assets/ directories without a token layer
+ * is exactly the regression this row exists for, and a hardcoded name would not see it. The skill
+ * LIST is explicit rather than one wildcard across every skill's assets, because that wider glob
+ * also picks up framework-audit.php — this file — whose literal regexes and examples are not
+ * colours a build emits, and which has no visual region to bound. divi-core has no assets/ and no PHP at
+ * all; when it grows a di_* library, its directory joins this list.
+ *
+ * TWO SHAPES OF TOKEN LAYER, because there are two honest ways to have one:
+ *   A. The file DECLARES es_tokens() — es-builder.php. Region starts at that function's closing
+ *      brace, never at its opening line, or the 27 declarations inside it read as 27 literals.
+ *   B. The file INHERITS it — the three siblings require es-builder.php and must not redeclare
+ *      es_tokens() (PHP would fatal on the duplicate, and a second copy of the block is the drift
+ *      this whole layer exists to end). Those files carry an explicit "start of the visual layer"
+ *      marker instead, because their save pipeline sits ABOVE the visual code rather than below
+ *      it and a region anchored on the top of the file would scan it.
+ * A file with neither is a file where every colour is typed where it is used: RT_BUILDER_NO_TOKENS.
  */
 
 /* Every line of $src with its PHP comments blanked out and the line NUMBERING preserved, so a
@@ -1501,22 +1513,34 @@ function php_code_lines( $src ) {
 	return explode( "\n", $out );
 }
 
-$builder_end_marker = 'end of the visual layer';
+$builder_end_marker   = 'end of the visual layer';
+$builder_start_marker = 'start of the visual layer';
 /* 3-to-8 hex covers every CSS form (#fff, #ffff, #ffffff, #ffffffff), not just the two the plan
    named — an alpha hex is as much a hardcoded colour as a plain one. The trailing boundary stops
    `#facade-panel` (a CSS id selector) from reading as a colour, and stops the six-digit form from
    also reporting its own first three digits as a second finding. rgba()/cubic-bezier() report
    their whole call when it closes on the same line, because "rgba(" alone is not a value a reader
    can go and look for. */
-$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|(?:rgba|cubic-bezier)\((?:[^)\n]{0,48}\))?/';
+/* The lookBEHIND is what lets `es_rgba( es_t( 'accent' ), '0.07' )` through while
+   `'rgba(15,169,104,0.07)'` still fails. Without it the bare `rgba|cubic-bezier` alternation
+   matches inside the helper's own NAME, so the one shape this row wants to see — a veil derived
+   from a token — reads as the literal it replaced, and the only way to satisfy the check would be
+   to invent a named token per alpha. es-builder.php never hit this because its single es_rgba()
+   call sits INSIDE es_tokens(), above the region; the three siblings make 13 such calls in-region.
+   This narrows only by an identifier character before the name: `:rgba(`, `,rgba(`, ` rgba(` and
+   `'rgba(` all still match, and a hand-typed colour is never preceded by [A-Za-z0-9_]. */
+$builder_literal_re = '/#[0-9A-Fa-f]{3,8}(?![0-9A-Za-z_-])|(?<![0-9A-Za-z_])(?:rgba|cubic-bezier)\((?:[^)\n]{0,48}\))?/';
 /* A family typed as a STRING on a typography key. `=> es_t( 'font_body' )` has no quote after the
    arrow and is the shape this row wants; `=> 'Manrope'` is the shape it exists to stop. \w* so a
    `_tablet`/`_mobile` responsive variant cannot slip past the same rule. */
 $builder_family_re = '/typography_font_family\w*[\'"]?\s*=>\s*([\'"])(.*?)\1/';
 
-$builder_assets = glob( $root . '/skills/elementor-core/assets/*.php' );
-if ( ! is_array( $builder_assets ) ) {
-	$builder_assets = array();
+$builder_assets = array();
+foreach ( array( 'elementor-core', 'elementor-theme-parts', 'woocommerce' ) as $builder_dir ) {
+	$builder_found = glob( $root . '/skills/' . $builder_dir . '/assets/*.php' );
+	if ( is_array( $builder_found ) ) {
+		$builder_assets = array_merge( $builder_assets, $builder_found );
+	}
 }
 sort( $builder_assets );
 foreach ( $builder_assets as $builder_path ) {
@@ -1533,41 +1557,64 @@ foreach ( $builder_assets as $builder_path ) {
 			break;
 		}
 	}
-	if ( -1 === $tokens_open ) {
-		add(
-			'RT_BUILDER_NO_TOKENS',
-			'FAIL',
-			$builder_skill,
-			'assets/' . $builder_name . ' declares no es_tokens() — every colour, family and shadow in it is typed'
-				. ' where it is used, so the site it builds cannot be re-skinned from one edit point and ships the framework default'
-		);
-		continue;
-	}
-	/* The top-level closing brace, found by column: a `}` alone on a line is the end of the
-	   function, an indented one closes an inner block. */
 	$region_start = -1;
-	for ( $bi = $tokens_open + 1, $bn = count( $builder_code ); $bi < $bn; $bi++ ) {
-		if ( '}' === rtrim( $builder_code[ $bi ] ) ) {
-			$region_start = $bi;
-			break;
+	if ( -1 !== $tokens_open ) {
+		/* SHAPE A — the file declares the block. The top-level closing brace, found by column: a
+		   `}` alone on a line ends the function, an indented one closes an inner block. */
+		for ( $bi = $tokens_open + 1, $bn = count( $builder_code ); $bi < $bn; $bi++ ) {
+			if ( '}' === rtrim( $builder_code[ $bi ] ) ) {
+				$region_start = $bi;
+				break;
+			}
 		}
+		$builder_why_start = 'es_tokens() never closes on a line of its own, so where the declarations stop cannot be read';
+	} else {
+		/* SHAPE B — the file inherits the block. It must actually depend on the file that holds
+		   it: the dependency is named in CODE, not in a comment, and the three siblings name it
+		   inside a `foreach ( array( 'es-builder.php' ) ... )` guard rather than on the require
+		   line itself, so this asks whether the code mentions it at all rather than pattern-
+		   matching a require that is not there. */
+		if ( false === strpos( implode( "\n", $builder_code ), 'es-builder.php' ) ) {
+			add(
+				'RT_BUILDER_NO_TOKENS',
+				'FAIL',
+				$builder_skill,
+				'assets/' . $builder_name . ' declares no es_tokens() and does not require es-builder.php, which holds the only one'
+					. ' — every colour, family and shadow in it is typed where it is used, so the site it builds cannot be re-skinned'
+					. ' from one edit point and ships the framework default'
+			);
+			continue;
+		}
+		foreach ( $builder_raw as $bi => $bl ) {
+			if ( false !== strpos( $bl, $builder_start_marker ) ) {
+				$region_start = $bi;
+				break;
+			}
+		}
+		$builder_why_start = 'it inherits es_tokens() from es-builder.php but carries no "' . $builder_start_marker
+			. '" marker, so where its visual region BEGINS cannot be read — and in these files the save pipeline sits above the visual code, so "the top" is the wrong answer';
 	}
-	/* The END marker is located in the RAW lines: it is itself a comment, and php_code_lines()
-	   has just blanked it out of $builder_code. */
+	/* Both markers are located in the RAW lines: they are comments, and php_code_lines() has just
+	   blanked them out of $builder_code.
+	   The END marker takes the LAST match, not the first, and that is load-bearing. Every start
+	   marker naturally wants to say "…down to the end of the visual layer marker", and on a FIRST
+	   match that prose collapses the region to the four lines of its own comment — a check that
+	   passes because it scanned almost nothing, which is the worst failure a check has. Taking the
+	   last match makes the same mistake widen the region instead, and a region that is too wide
+	   fails LOUDLY on the first inert `#` it meets. Loud beats silently vacuous. */
 	$region_end = -1;
 	foreach ( $builder_raw as $bi => $bl ) {
 		if ( false !== strpos( $bl, $builder_end_marker ) ) {
 			$region_end = $bi;
-			break;
 		}
 	}
 	if ( -1 === $region_start || -1 === $region_end || $region_end <= $region_start ) {
 		if ( -1 === $region_start ) {
-			$why = 'es_tokens() never closes on a line of its own, so where the declarations stop cannot be read';
+			$why = $builder_why_start;
 		} elseif ( -1 === $region_end ) {
 			$why = 'it carries no "' . $builder_end_marker . '" marker';
 		} else {
-			$why = 'its "' . $builder_end_marker . '" marker sits ABOVE es_tokens(), leaving nothing between them';
+			$why = 'its "' . $builder_end_marker . '" marker sits ABOVE where the region starts, leaving nothing between them';
 		}
 		add(
 			'RT_BUILDER_NO_TOKENS',

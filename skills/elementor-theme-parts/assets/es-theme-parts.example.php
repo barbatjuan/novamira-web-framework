@@ -167,7 +167,7 @@ function es_save_theme_part( $slug, $title, $type, array $elements, array $condi
    This file declares no es_tokens() of its own and must not: es-builder.php,
    required above, holds the ONE token block for the whole build, and a second
    copy of it here would be the drift this layer exists to end. Everything from
-   this marker down to the "end of the visual layer" marker at the bottom reads
+   this marker down to the closing marker at the bottom of this file reads
    it through es_t() / es_rgba(); nothing types a colour, a family, a shadow or
    an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it.
 

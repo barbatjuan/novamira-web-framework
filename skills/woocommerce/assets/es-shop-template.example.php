@@ -29,7 +29,7 @@ foreach ( array( 'es-builder.php', 'es-theme-parts.php' ) as $es_dep ) {
 /* -------------------------------------------------- start of the visual layer
    This file declares no es_tokens() of its own and must not: es-builder.php,
    required above, holds the ONE token block for the whole build. Everything
-   from this marker down to the "end of the visual layer" marker at the bottom
+   from this marker down to the closing marker at the bottom of this file
    reads it through es_t() / es_rgba(); nothing types a colour, a family, a
    shadow or an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it. */
 function es_build_shop_template() {
