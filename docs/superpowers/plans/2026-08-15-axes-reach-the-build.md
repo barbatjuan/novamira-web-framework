@@ -247,6 +247,23 @@ Task 1 made the values addressable. This task makes three of them *derived*, whi
 
 Values WILL change here. That is the point, and it is why it is a separate task.
 
+**How a value change is recorded, now that Task 1 committed a golden dump.** `tests/fixtures/emitted-golden.txt` pins what the builder emits, and `tests/test-write-path.php` re-checks it on every run. So every step below that moves a value ends with:
+
+```bash
+php tests/dump-emitted.php > tests/fixtures/emitted-golden.txt
+git diff tests/fixtures/emitted-golden.txt
+```
+
+That diff **is** the "WRITE DOWN THE SHIFT" table — paste it, do not paraphrase it. Regenerating without showing the diff is how a value moves without anyone deciding it should.
+
+**Three things Task 1 found and deliberately left here, because fixing any of them moves bytes:**
+
+1. **The bare `ease` keyword.** `es-builder.php` types the CSS keyword `ease` 9 times on 5 lines, *inside the same rules* as the tokenised curve — `transition:transform .5s cubic-bezier(.22,1,.36,1), border-color .5s ease`. So `transform` eases on the house curve and `border-color` falls back to the browser default: two motion languages in one rule. Tokenise them onto `es_t('ease')` and record the diff.
+2. **`accent_hover` is not derived.** It is a hand-picked darker green (`#0C8A55`). A navy brand gets a navy accent and a hand-picked *green-derived* hover unless someone remembers to change both. It wants a shade function, not a second literal.
+3. **The drift collapses Task 1 named**: four neutral borders into one + a derived hover, the two accent glows into one, and `on_accent_short` (`#fff`) deleted in favour of `on_accent`.
+
+**And one landmine defused in advance.** `'elev_rest' => 'none'` collides with `display:none!important` in `es_products_css`. The structural probe now declares its residual instead of demanding zero — when you add `elev_rest`, the probe goes red with the exact remedy in the message: add `'none' => array( 1, 'display:none!important en es_products_css()' )` to `$residuo` in `tests/test-write-path.php`. Declaring the residual is the correct move and keeps the check strong (a call site that keeps the literal by hand still turns it red at count 2). Do **not** loosen the assertion.
+
 **Files:**
 - Modify: `skills/elementor-core/assets/es-builder.php`
 - Test: `tests/test-write-path.php`

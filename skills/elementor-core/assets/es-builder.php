@@ -97,6 +97,62 @@ function es_img( $slug ) {
 	return $cache[ $slug ];
 }
 
+/**
+ * One token's colour, at an alpha, as an rgba() string.
+ *
+ * A token whose value hides another token's colour is not a token. Overriding
+ * the accent used to leave the old green inside every glow -- `accent` went
+ * navy and `elev_accent` still carried `rgba(15,169,104,0.55)`, so the client
+ * got a navy button with a green halo, and the ONE edit point was not one.
+ * The seven accent/ink glows and the two white veils are derived through here
+ * so that overriding the source colour really does move all of them.
+ *
+ * $alpha is TEXT on purpose. `0.10` and `0.1` are the same float and different
+ * bytes, and this file carries both shapes on purpose-by-accident: the outline
+ * wash is `0.10`, the cart glow is `0.5`. Formatting a number would silently
+ * rewrite one of them, and rewriting emitted bytes is the one thing the
+ * extraction task may not do.
+ */
+function es_rgba( $hex, $alpha ) {
+	$h = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $h ) ) {
+		$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+	}
+	if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+		/* Loud and visibly unpainted beats silently plausible: a wrong colour
+		   in a shadow reads as "the theme decided that", a missing one does
+		   not, and the warning names the value that could not be read. */
+		es_warn( 'es_rgba() no sabe leer "' . $hex . '" como color hex, asi que el efecto que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+		return 'rgba(0,0,0,0)';
+	}
+	return 'rgba(' . hexdec( substr( $h, 0, 2 ) ) . ',' . hexdec( substr( $h, 2, 2 ) ) . ',' . hexdec( substr( $h, 4, 2 ) ) . ',' . $alpha . ')';
+}
+
+/**
+ * Tokens that are another token's colour with a veil over it.
+ *
+ * array( prefix, source token, alpha ). Kept as data rather than inline so the
+ * key list, the derivation and the unknown-key guard all read the SAME table
+ * and cannot drift apart.
+ *
+ * Only the colour is derived; the geometry (`0 18px 40px -12px `) stays a
+ * literal because it is a distance, not a colour, and distances belong to the
+ * density axis that Task 2 owns.
+ */
+function es_token_recipes() {
+	return array(
+		'muted_on_inverse'  => array( '', 'on_inverse', '0.75' ),
+		'border_on_inverse' => array( '', 'on_inverse', '0.5' ),
+		'accent_wash'       => array( '', 'accent', '0.10' ),
+		'scrim_from'        => array( '', 'surface_inverse', '0.92' ),
+		'scrim_to'          => array( '', 'surface_inverse', '0.30' ),
+		'elev_hover'        => array( '0 18px 40px -12px ', 'text', '0.16' ),
+		'elev_hover_panel'  => array( '0 24px 50px -18px ', 'text', '0.20' ),
+		'elev_accent'       => array( '0 12px 26px -10px ', 'accent', '0.55' ),
+		'elev_accent_cart'  => array( '0 10px 22px -8px ', 'accent', '0.5' ),
+	);
+}
+
 /* ---------------------------------------------------------- design tokens
    This block IS what elementor-core/SKILL.md step 2 means by "swap the
    constants": ONE edit point per project, filled from the axis positions the
@@ -104,12 +160,28 @@ function es_img( $slug ) {
    default, not a recommendation for any client -- a site that ships with them
    unchanged is a site nobody made a decision about.
 
-   Nothing between es_tokens() and the END marker below types a colour, a
-   family, a shadow or an easing curve. RT_BUILDER_HARDCODED_TOKEN enforces it.
+   No colour, family or shadow between here and the END marker below is typed
+   by hand. TWO things are NOT true of that region, and naming them is the
+   point of writing this down at all:
+
+     1. The bare CSS keyword `ease` is still typed 9 times on 5 lines
+        (es_card_hover_css, es_products_css, es_btn, es_feature_card) -- and it
+        sits INSIDE the same rules as the tokenised curve, so `transform` eases
+        on cubic-bezier(.22,1,.36,1) while `border-color` falls back to the
+        browser default. That is two motion languages in one rule against a
+        house rule that says hovers use the curve. Tokenising it MOVES the
+        emitted bytes, and this task is the one that must not, so it belongs to
+        Task 2 along with the other value changes.
+     2. RT_BUILDER_HARDCODED_TOKEN does not exist yet -- it is Task 3. Until it
+        lands, NOTHING mechanical stops the next literal. The golden dump in
+        tests/ is what catches a value that moves; it does not catch a literal
+        that happens to equal the token it replaced.
 
    Keys are named for the ROLE the value plays, never for what it looks like:
-   `muted`, not `grey`. A token called `green` cannot survive a client whose
-   brand is navy, and renaming it later means touching every call site again.
+   `muted`, not `grey`; `surface_inverse`, not `surface_dark`. A token called
+   `green` cannot survive a client whose brand is navy, and a token called
+   `dark` cannot survive one whose inverse surface is cream -- and renaming it
+   afterwards means touching every call site again.
 
    Some keys below are duplicates of each other. They are duplicates in the
    FILE too — four neutral borders that started as one value and drifted, two
@@ -120,60 +192,82 @@ function es_img( $slug ) {
 function es_tokens( array $override = array() ) {
 	static $t = null;
 	if ( null === $t || $override ) {
-		$t = array_merge(
-			array(
-				/* ground ------------------------------------------------ */
-				'bg'                 => '#FFFFFF', /* the light surface a card sits on, and what the ghost-on-dark button fills with */
-				'surface_dark'       => '#15181A', /* the near-black used AS a surface (the `dark` button) */
-				'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
-				/* ink --------------------------------------------------- */
-				'text'               => '#15181A',
-				'muted'              => '#6A6F6C',
-				'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
-				'on_dark'            => '#FFFFFF', /* text sitting ON surface_dark or on the CTA scrim */
-				'muted_on_dark'      => 'rgba(255,255,255,0.75)',
-				/* DRIFT: the same white as on_accent, written in CSS 3-digit
-				   shorthand at one call site (the products-grid button). Kept
-				   only so this task stays byte-identical. Task 2 deletes it. */
-				'on_accent_short'    => '#fff',
-				/* borders ----------------------------------------------- */
-				/* DRIFT: five keys doing one job. `border` is the hairline at
-				   rest; `border_hover` is the same hairline on the image-box
-				   card; `border_panel`/`border_panel_hover` are the feature
-				   card's own pair, two shades off for no stated reason; and
-				   `border_control` is the outline button's edge. Task 2 should
-				   collapse these to `border` + a derived hover. */
-				'border'             => '#E5E7E5',
-				'border_hover'       => '#D6DAD6',
-				'border_panel'       => '#EAECEA',
-				'border_panel_hover' => '#E0E4E0',
-				'border_control'     => '#CBD0CB',
-				'border_on_dark'     => 'rgba(255,255,255,0.5)',
-				/* accent -- derives from the BRAND, never from the anchor.
-				   design-tokens.md is explicit that accent is not an axis. */
-				'accent'             => '#0FA968',
-				'accent_hover'       => '#0C8A55',
-				'accent_wash'        => 'rgba(15,169,104,0.10)', /* the faint tint an outline control fills with */
-				/* scrim over the CTA banner photo, so the copy stays legible */
-				'scrim_from'         => 'rgba(21,24,26,0.92)',
-				'scrim_to'           => 'rgba(21,24,26,0.30)',
-				/* scale ------------------------------------------------- */
-				'font_head'          => 'Space Grotesk',
-				'font_body'          => 'Manrope',
-				/* elevation --------------------------------------------- */
-				/* There is no rest-state shadow in this file, only hover ones;
-				   `elev_rest` is Task 2's job, not an omission here. */
-				'elev_hover'         => '0 18px 40px -12px rgba(21,24,26,0.16)',
-				'elev_hover_panel'   => '0 24px 50px -18px rgba(21,24,26,0.20)',
-				/* DRIFT: one green glow written twice, different geometry AND
-				   different alpha (0.55 vs 0.5). Task 2 collapses them. */
-				'elev_accent'        => '0 12px 26px -10px rgba(15,169,104,0.55)',
-				'elev_accent_cart'   => '0 10px 22px -8px rgba(15,169,104,0.5)',
-				/* motion ------------------------------------------------ */
-				'ease'               => 'cubic-bezier(.22,1,.36,1)',
-			),
-			$override
+		$base = array(
+			/* ground ------------------------------------------------ */
+			'bg'                 => '#FFFFFF', /* the light surface a card sits on */
+			'surface_inverse'    => '#15181A', /* the surface that flips the page over: the `dark` button, the CTA scrim */
+			'transparent'        => 'rgba(0,0,0,0)', /* an explicit no-fill; Elementor needs the value, not an absent key */
+			/* ink --------------------------------------------------- */
+			'text'               => '#15181A',
+			'muted'              => '#6A6F6C',
+			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
+			'on_inverse'         => '#FFFFFF', /* text sitting ON surface_inverse or on the CTA scrim */
+			'muted_on_inverse'   => null, /* derived: on_inverse at 0.75 */
+			/* DRIFT: the same white as on_accent, written in CSS 3-digit
+			   shorthand at one call site (the products-grid button). Kept
+			   only so this task stays byte-identical. Task 2 deletes it. */
+			'on_accent_short'    => '#fff',
+			/* borders ----------------------------------------------- */
+			/* DRIFT: five keys doing one job. `border` is the hairline at
+			   rest; `border_hover` is the same hairline on the image-box
+			   card; `border_panel`/`border_panel_hover` are the feature
+			   card's own pair, two shades off for no stated reason; and
+			   `border_control` is the outline button's edge. Task 2 should
+			   collapse these to `border` + a derived hover. */
+			'border'             => '#E5E7E5',
+			'border_hover'       => '#D6DAD6',
+			'border_panel'       => '#EAECEA',
+			'border_panel_hover' => '#E0E4E0',
+			'border_control'     => '#CBD0CB',
+			'border_on_inverse'  => null, /* derived: on_inverse at 0.5 */
+			/* accent -- derives from the BRAND, never from the anchor.
+			   design-tokens.md is explicit that accent is not an axis. */
+			'accent'             => '#0FA968',
+			'accent_hover'       => '#0C8A55', /* FINDING for Task 2: a hand-picked darker green, NOT derived from accent. A navy brand still gets a hand-picked hover. */
+			'accent_wash'        => null, /* derived: accent at 0.10 -- the faint tint an outline control fills with */
+			/* scrim over the CTA banner photo, so the copy stays legible */
+			'scrim_from'         => null, /* derived: surface_inverse at 0.92 */
+			'scrim_to'           => null, /* derived: surface_inverse at 0.30 */
+			/* scale ------------------------------------------------- */
+			'font_head'          => 'Space Grotesk',
+			'font_body'          => 'Manrope',
+			/* elevation --------------------------------------------- */
+			/* There is no rest-state shadow in this file, only hover ones;
+			   `elev_rest` is Task 2's job, not an omission here. */
+			'elev_hover'         => null, /* derived: text at 0.16 */
+			'elev_hover_panel'   => null, /* derived: text at 0.20 */
+			/* DRIFT: one green glow written twice, different geometry AND
+			   different alpha (0.55 vs 0.5). Task 2 collapses them. */
+			'elev_accent'        => null, /* derived: accent at 0.55 */
+			'elev_accent_cart'   => null, /* derived: accent at 0.5 */
+			/* motion ------------------------------------------------ */
+			'ease'               => 'cubic-bezier(.22,1,.36,1)',
 		);
+
+		/* A mistyped override key used to be accepted in silence: es_tokens()
+		   merged `acento` in, nothing read it, the accent stayed green and no
+		   channel said a word. es_t()'s guard only catches typos on the READ
+		   side, and this is the one edit point the whole token layer exists to
+		   create -- a typo here is the likeliest operator error there is. */
+		foreach ( $override as $clave => $ignorado ) {
+			if ( ! array_key_exists( $clave, $base ) ) {
+				es_warn( 'la clave "' . $clave . '" no es un token: el override se ha aceptado y NO cambia nada. Revisa el nombre contra la lista de es_tokens.' );
+			}
+		}
+
+		$t = array_merge( $base, $override );
+		foreach ( es_token_recipes() as $clave => $receta ) {
+			/* An explicit override of a derived key still wins: a brand whose
+			   glow is not its accent must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = $receta[0] . es_rgba( $t[ $receta[1] ], $receta[2] );
+			}
+		}
+		foreach ( $t as $clave => $valor ) {
+			if ( null === $valor ) {
+				es_warn( 'el token "' . $clave . '" quedo sin valor: hay un hueco declarado arriba sin receta en es_token_recipes(), o al reves.' );
+			}
+		}
 	}
 	return $t;
 }
@@ -473,8 +567,8 @@ function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
 		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_green;
 	} elseif ( 'dark' === $style ) {
-		$settings['background_color']              = es_t( 'surface_dark' );
-		$settings['button_text_color']            = es_t( 'on_dark' );
+		$settings['background_color']              = es_t( 'surface_inverse' );
+		$settings['button_text_color']            = es_t( 'on_inverse' );
 		$settings['button_background_hover_color'] = es_t( 'accent' );
 		$settings['hover_color']                  = es_t( 'on_accent' );
 		$settings['custom_css']                   = $lift_soft;
@@ -490,13 +584,19 @@ function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
 		$settings['custom_css']                   = $lift_soft;
 	} elseif ( 'outline-light' === $style ) {
 		$settings['background_color']              = es_t( 'transparent' );
-		$settings['button_text_color']            = es_t( 'on_dark' );
+		$settings['button_text_color']            = es_t( 'on_inverse' );
 		$settings['border_border']                = 'solid';
 		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = es_t( 'border_on_dark' );
-		$settings['button_background_hover_color'] = es_t( 'bg' );
+		$settings['border_color']                 = es_t( 'border_on_inverse' );
+		/* The fill is the SOLID version of the ink this button already lives
+		   in: border_on_inverse is on_inverse at 0.5, so hovering to on_inverse
+		   at 1.0 is the same ink turned up. It used to read es_t('bg') -- the
+		   PAGE surface -- which was byte-identical only because both are
+		   #FFFFFF today, and would have filled a cream-page client's ghost
+		   button with cream on top of a near-black hero. */
+		$settings['button_background_hover_color'] = es_t( 'on_inverse' );
 		$settings['hover_color']                  = es_t( 'text' );
-		$settings['button_hover_border_color']    = es_t( 'bg' );
+		$settings['button_hover_border_color']    = es_t( 'on_inverse' );
 		$settings['custom_css']                   = $lift_soft;
 	}
 	$settings = array_merge( $settings, $extra );
@@ -591,7 +691,7 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 								$title,
 								'h2',
 								array(
-									'title_color'                 => es_t( 'on_dark' ),
+									'title_color'                 => es_t( 'on_inverse' ),
 									'typography_typography'       => 'custom',
 									'typography_font_family'      => es_t( 'font_head' ),
 									'typography_font_size'        => es_size( 38 ),
@@ -604,7 +704,7 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 							es_p(
 								$text,
 								array(
-									'text_color'             => es_t( 'muted_on_dark' ),
+									'text_color'             => es_t( 'muted_on_inverse' ),
 									'typography_font_size'   => es_size( 16 ),
 									'typography_line_height' => es_size( 1.65, 'em' ),
 									'_margin'                => es_box( 0, 0, 30, 0 ),
@@ -705,8 +805,9 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 /* -------------------------------------------------- end of the visual layer
    Everything below is the save pipeline, the container audit, the sandbox and
    the slug machinery. No styling value belongs here, and RT_BUILDER_HARDCODED_TOKEN
-   does not scan past this line -- further down, "#732" appears inside a Spanish
-   warning string as a fake post id, and a colour regex cannot tell it apart. */
+   -- which Task 3 writes and which does not exist yet -- must not scan past this
+   line: further down, "#732" appears inside a Spanish warning string as a fake
+   post id, and a colour regex cannot tell it apart. */
 
 /**
  * Audit the container tree before it is written.

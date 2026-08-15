@@ -1617,10 +1617,93 @@ echo "--- los tokens llegan a los datos emitidos ---\n";
    dos sitios, y la tarea siguiente tiene permiso para moverlo. */
 $es_defaults = es_tokens();
 
-/* Un unico sitio que ejercite todas las claves. es_card y es_cta_banner pasan
-   por es_img(), que aqui no encuentra nada y AVISA: por eso va dentro de grab(),
-   que ademas es como el resto del fichero mira lo que se imprime. */
+/* ---------------------------------------------------------------------------
+ * El volcado dorado.
+ *
+ * Nada de lo que hay comprometido protegia la identidad byte a byte que esta
+ * tarea existe para establecer: la prueba vivia en un script de usar y tirar
+ * que se borro. Lo que eso cuesta esta medido, no supuesto —— con las cuatro
+ * suites en verde se podia cambiar el valor por defecto del acento, poner
+ * Comic Sans MS de familia de titulares, colapsar border_panel dentro de
+ * border (justo el colapso que la Tarea 1 prohibe), sustituir elev_hover
+ * entero y cambiar el fondo de la tarjeta de caracteristica de bg a
+ * surface_inverse, y TODO seguia diciendo OK. Una tarjeta blanca que se vuelve
+ * casi negra pasaba todas las comprobaciones que teniamos.
+ *
+ * El fichero dorado convierte "fue identico una vez" en una propiedad que se
+ * vuelve a comprobar en cada ejecucion. No lo congela para siempre: el paso
+ * "APUNTA EL DESPLAZAMIENTO" de la Tarea 2 es exactamente regenerarlo y
+ * ensenar el diff. Un cambio que aparece en el diff es una decision; uno que
+ * no aparece en ningun sitio es el fallo.
+ *
+ * Se ejecuta en un PROCESO APARTE a proposito: el volcado tiene que ver los
+ * tokens tal y como los ve un build de verdad, no como los deja este fichero
+ * despues de sobrescribirlos treinta veces mas abajo.
+ * ------------------------------------------------------------------------- */
+$dump_php = dirname( __DIR__ ) . '/tests/dump-emitted.php';
+$oro_ruta = dirname( __DIR__ ) . '/tests/fixtures/emitted-golden.txt';
+$salida   = null;
+if ( function_exists( 'shell_exec' ) && is_file( $dump_php ) && is_file( $oro_ruta ) ) {
+	$salida = shell_exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $dump_php ) );
+}
+if ( null === $salida ) {
+	/* Ni verde ni rojo: no se pudo comprobar. Un "no se pudo" contado como OK
+	   es la misma enfermedad que este fichero entero existe para quitar. */
+	fwrite( STDERR, "ENTORNO: no se pudo ejecutar tests/dump-emitted.php (¿shell_exec deshabilitado?); el volcado dorado queda SIN COMPROBAR\n" );
+	exit( 2 );
+}
+/* El arbol de trabajo es CRLF y el repositorio guarda LF (core.autocrlf=true),
+   asi que el fichero dorado leido de disco y el volcado recien emitido no
+   tienen por que traer el mismo salto de linea. Se normalizan los dos. */
+$sin_cr  = function ( $s ) {
+	return str_replace( "\r\n", "\n", (string) $s );
+};
+$salida  = $sin_cr( $salida );
+$oro_txt = $sin_cr( file_get_contents( $oro_ruta ) );
+
+/* Las tres trampas del volcado, afirmadas antes de compararlo con nada.
+   Sin ABSPATH, es-builder.php:6-8 sale por la puerta y el volcado es de 0
+   bytes —— y `cmp` de dos ficheros VACIOS pasa. */
+ok( '' !== trim( $salida ), 'el volcado trae contenido: dos ficheros vacios tambien son identicos, y eso se reporta como aprobado' );
+ok( substr_count( $salida, "\n" ) > 2000, 'y trae un volcado entero, no un fragmento: ' . substr_count( $salida, "\n" ) . ' lineas' );
+ok( has( $salida, "===== FIN DEL VOLCADO =====\n" ), 'y termina en el centinela, asi que un volcado cortado no puede hacerse pasar por una coincidencia' );
+ok( $oro_txt === $salida, 'lo que emite el constructor es, byte a byte, lo que dice tests/fixtures/emitted-golden.txt' );
+
+/* ---------------------------------------------------------------------------
+ * es_rgba(): el color de un token con un velo por encima.
+ *
+ * Siete valores metian el color de OTRO token dentro de un rgba() sin
+ * tokenizar, asi que cambiar el acento no quitaba el verde: la marca se volvia
+ * azul marino y el boton conservaba el halo verde. El formato es parte del
+ * contrato —— este fichero lleva `0.10` y `0.5` a la vez, que NO son la misma
+ * forma, y un alfa numerico reescribiria uno de los dos en silencio.
+ * ------------------------------------------------------------------------- */
+ok( 'rgba(15,169,104,0.55)' === es_rgba( '#0FA968', '0.55' ), 'es_rgba() escribe el triplete con el espaciado y el alfa exactos' );
+ok( 'rgba(15,169,104,0.10)' === es_rgba( '#0FA968', '0.10' ), 'y respeta 0.10, que como numero seria 0.1 y moveria bytes' );
+ok( 'rgba(15,169,104,0.5)' === es_rgba( '#0fa968', '0.5' ), 'y le da igual la caja del hex' );
+ok( 'rgba(255,255,255,0.75)' === es_rgba( '#fff', '0.75' ), 'y entiende la forma corta de tres digitos' );
+$r = grab(
+	function () {
+		return es_rgba( 'verde', '0.5' );
+	}
+);
+ok( 'rgba(0,0,0,0)' === $r['ret'], 'un valor que no es hex no se convierte en un color plausible: se queda sin pintar' );
+ok( has( $r['out'], 'verde' ), 'y lo dice en voz alta nombrando el valor que no supo leer' );
+
+/* ---------------------------------------------------------------------------
+ * Un unico sitio que ejercite todas las claves.
+ *
+ * es_card y es_cta_banner pasan por es_img(), que aqui no encuentra nada y
+ * AVISA: por eso va dentro de grab(), que ademas es como el resto del fichero
+ * mira lo que se imprime.
+ *
+ * es_uid_reset() al entrar porque los ids son un contador global: sin el, dos
+ * llamadas seguidas devuelven cadenas distintas aunque no haya cambiado ni un
+ * token, y la comparacion numerica de mas abajo no podria distinguir "esta
+ * clave la lee alguien" de "los ids han avanzado".
+ * ------------------------------------------------------------------------- */
 function es_token_probe() {
+	es_uid_reset( 'probe' );
 	return es_card_hover_css() . es_products_css() . json_encode(
 		array(
 			es_eyebrow( 'etiqueta' ),
@@ -1645,6 +1728,18 @@ $json = json_encode( es_btn( 'Comprar', '#', 'primary' ) );
 ok( has( $json, '#B4001F' ), 'el acento del token llega al boton primario' );
 ok( ! has( $json, $es_defaults['accent'] ), 'el acento por defecto ya no aparece tras el override' );
 
+/* Y la MISMA pregunta en la otra forma en la que se escribe un color. Afirmar
+   solo el hex es la razon de que esto se colara: siete tokens llevaban el verde
+   dentro de un rgba() —— accent_wash, elev_accent, elev_accent_cart —— y
+   sobrevivian intactos a cambiar el acento. El hex desaparecia, el halo no.
+   El triplete se calcula del valor por defecto, nunca se escribe a mano aqui. */
+$triple_defecto = substr( es_rgba( $es_defaults['accent'], 'X' ), 5, -3 );
+ok( '15,169,104' === $triple_defecto, 'el triplete de referencia sale del token, no de un numero escrito en el test' );
+es_tokens( array( 'accent' => '#B4001F' ) );
+$todo = grab( 'es_token_probe' );
+ok( ! has( $todo['ret'], $es_defaults['accent'] ), 'cambiar el acento no deja ni una vez el hex por defecto en toda la pagina' );
+ok( ! has( $todo['ret'], $triple_defecto ), 'ni una sola vez el mismo verde escrito como triplete rgba dentro de una sombra' );
+
 /* La familia es el otro literal que se repite por todo el fichero. */
 es_tokens( array( 'font_body' => 'Inter' ) );
 $body = json_encode( array( es_p( 'texto' ), es_btn( 'Comprar', '#', 'outline' ) ) );
@@ -1661,42 +1756,127 @@ $r = grab(
 ok( '' === $r['ret'], 'una clave inexistente devuelve cadena vacia, no null ni la clave' );
 ok( has( $r['out'], 'acento' ), 'y lo dice en voz alta nombrando la clave que se escribio mal' );
 
-/* La comprobacion estructural, y la razon de que exista: una afirmacion por
-   clave escrita a mano solo cubre las claves que alguien se acordo de escribir,
-   y el literal que sobrevive es siempre el del sitio en el que nadie penso.
-   Esto sustituye TODAS las claves de texto a la vez por centinelas y pregunta
-   dos cosas de cada una: que su centinela llegue a los datos (la clave se lee
-   en algun sitio) y que su valor por defecto desaparezca (ningun sitio de
-   llamada se quedo el literal escrito a mano). Crece sola con las claves que
-   anadan las tareas siguientes.
+/* El otro lado, y el mas probable de los dos: la clave mal escrita en el
+   OVERRIDE. es_t() solo vigila la LECTURA, asi que es_tokens(['acento'=>...])
+   se aceptaba entero, no cambiaba nada y no avisaba de nada —— en el unico
+   punto de edicion que toda esta capa existe para crear. */
+$r = grab(
+	function () {
+		es_tokens( array( 'acento' => '#001133' ) );
+		return es_t( 'accent' );
+	}
+);
+ok( has( $r['out'], 'acento' ), 'un override con una clave que no es token avisa nombrandola' );
+ok( '#001133' !== $r['ret'], 'y deja claro por que hace falta el aviso: el override no ha cambiado el acento' );
 
-   Solo cadenas: las claves numericas que llegan despues (fs_base, type_ratio,
-   sp_scale) alimentan aritmetica, y un centinela de texto ahi no probaria nada.
-   Si algun dia un valor por defecto es tan corto que aparece en los datos por
-   otro motivo, esta comprobacion se pondra roja en vez de callarse; se anota la
-   excepcion, no se afloja la regla. */
+/* ---------------------------------------------------------------------------
+ * La comprobacion estructural, y la razon de que exista.
+ *
+ * Una afirmacion por clave escrita a mano solo cubre las claves que alguien se
+ * acordo de escribir, y el literal que sobrevive es siempre el del sitio en el
+ * que nadie penso. Esto sustituye TODAS las claves a la vez por centinelas y
+ * pregunta dos cosas de cada una: que su centinela llegue a los datos (la clave
+ * se lee en algun sitio) y que su valor por defecto desaparezca (ningun sitio
+ * de llamada se quedo el literal escrito a mano). Crece sola con las claves que
+ * anadan las tareas siguientes.
+ *
+ * Los centinelas van nombrados por la clave, no numerados: anadir un token
+ * renumeraba —— y por tanto ensuciaba —— todas las demas lineas del volcado
+ * dorado. El `_Z` final es lo que impide que `accent` case dentro de
+ * `ZTOK_accent_hover_Z`.
+ * ------------------------------------------------------------------------- */
 $sentinelas = array();
-$n          = 0;
+$numericas  = array();
+$raras      = array();
 foreach ( $es_defaults as $clave => $valor ) {
 	if ( is_string( $valor ) ) {
-		$sentinelas[ $clave ] = 'ZTOK' . ( ++$n ) . 'Z';
+		$sentinelas[ $clave ] = 'ZTOK_' . $clave . '_Z';
+	} elseif ( is_int( $valor ) || is_float( $valor ) ) {
+		$numericas[ $clave ] = $valor;
+	} else {
+		$raras[] = $clave;
 	}
 }
-es_tokens( $sentinelas );
-$probe   = grab( 'es_token_probe' );
-$emitido = $probe['ret'];
+/* Un token que no es ni texto ni numero se caia por el `is_string()` de antes y
+   se quedaba SIN cubrir en silencio. Aqui no se salta nada: o esta en uno de
+   los dos grupos, o esto se pone rojo. */
+ok( array() === $raras, 'ningun token se escapa de la comprobacion por no ser ni texto ni numero: ' . ( $raras ? implode( ', ', $raras ) : 'ninguno' ) );
+ok( count( $sentinelas ) + count( $numericas ) === count( $es_defaults ), 'y los dos grupos suman las ' . count( $es_defaults ) . ' claves que hay' );
+
+es_tokens( $sentinelas + $es_defaults );
+$probe    = grab( 'es_token_probe' );
+$emitido  = $probe['ret'];
 $sin_leer = array();
 $literal  = array();
+
+/* Un valor de token puede coincidir, byte a byte, con gramatica CSS que no
+   tiene nada que ver con el. En cuanto la Tarea 2 anada 'elev_rest' => 'none',
+   `display:none!important` de es_products_css() (es-builder.php:337) ya esta en
+   la salida, y la comprobacion de literales se pone ROJA sobre codigo CORRECTO.
+   La salida barata para el siguiente implementador seria aflojar la afirmacion,
+   que es justo lo que prohibe la Restriccion Global 1.
+   La misma exposicion existe hoy para `auto`, `cover`, `center`, `solid`,
+   `hidden`, `column`, `full`, `boxed`, `classic` y `custom`: todas estan ya en
+   la salida sin ser el valor de ningun token.
+   Asi que el residuo se DECLARA: cuantas veces aparecen esos bytes sin que
+   ningun token los haya puesto, y por que. Declararlo es una decision visible;
+   no declararlo es el fallo. Y se compara con ===, no con <=, para que un sitio
+   de llamada que se quede el literal escrito a mano suba el contador por encima
+   del residuo y esto se ponga rojo igual.
+   LIMITE HONESTO: una busqueda de subcadenas no puede distinguir `display:none`
+   de un 'none' escrito a mano dentro del mismo blob de CSS. Esta tabla es el
+   limite real de la comprobacion, no un adorno; lo que la sostiene es que cada
+   linea obliga a escribir POR QUE. */
+$residuo = array(
+	/* valor => array( cuantas veces, de donde salen ) */
+);
 foreach ( $sentinelas as $clave => $centinela ) {
 	if ( ! has( $emitido, $centinela ) ) {
 		$sin_leer[] = $clave;
 	}
-	if ( has( $emitido, $es_defaults[ $clave ] ) ) {
-		$literal[] = $clave;
+	$valor    = $es_defaults[ $clave ];
+	$esperado = isset( $residuo[ $valor ] ) ? $residuo[ $valor ][0] : 0;
+	$veces    = substr_count( $emitido, $valor );
+	if ( $veces !== $esperado ) {
+		$literal[] = $clave . ' (' . $veces . ' apariciones, ' . $esperado . ' declaradas)';
 	}
 }
-ok( array() === $sin_leer, 'todas las claves de es_tokens() las lee alguien: ' . ( $sin_leer ? 'sin leer -> ' . implode( ', ', $sin_leer ) : 'ninguna sobra' ) );
-ok( array() === $literal, 'ningun sitio de llamada se quedo el literal: ' . ( $literal ? 'todavia escrito a mano -> ' . implode( ', ', $literal ) : 'ninguno' ) );
+/* Y una declaracion de residuo que ya no corresponde a ningun token es basura
+   que solo puede tapar el proximo fallo. */
+$residuo_muerto = array();
+foreach ( $residuo as $valor => $porque ) {
+	if ( ! in_array( $valor, $es_defaults, true ) ) {
+		$residuo_muerto[] = $valor;
+	}
+}
+ok( array() === $sin_leer, 'todas las claves de texto las lee alguien: ' . ( $sin_leer ? 'sin leer -> ' . implode( ', ', $sin_leer ) : 'ninguna sobra' ) );
+ok( array() === $literal, 'ningun sitio de llamada se quedo el literal: ' . ( $literal ? 'todavia escrito a mano -> ' . implode( ', ', $literal ) . ' | si son bytes de gramatica CSS y no del token, declaralo en $residuo con el motivo' : 'ninguno' ) );
+ok( array() === $residuo_muerto, 'no hay residuos declarados que ya no correspondan a ningun token: ' . ( $residuo_muerto ? implode( ', ', $residuo_muerto ) : 'ninguno' ) );
+
+/* Las claves NUMERICAS no admiten un centinela de texto: alimentan aritmetica,
+   y `16 * 1.333` no deja los bytes de ningun centinela en ningun sitio. Por eso
+   el `is_string()` que habia aqui antes cubria CERO de las claves que trae la
+   Tarea 2 —— anadir `radius => 10` y `sp_scale => 1.0` que no lee nadie dejaba
+   la suite en verde, mientras que el equivalente de texto moria bien.
+   La pregunta que importa es la misma —— ¿la lee alguien? —— y se responde
+   moviendo la clave a un valor fuera de rango y exigiendo que la salida CAMBIE.
+   Eso vale igual para un numero que se emite tal cual y para uno del que se
+   deriva otro, que es lo que un centinela literal no aguantaria.
+   Hoy no hay ninguna clave numerica; esto llega antes que ellas para que la
+   primera este cubierta el dia que aterrice, no una tarea despues. */
+es_tokens( $es_defaults );
+$referencia         = grab( 'es_token_probe' );
+$numericas_sin_leer = array();
+foreach ( $numericas as $clave => $valor ) {
+	$movido           = $es_defaults;
+	$movido[ $clave ] = is_int( $valor ) ? 9973 : 9973.0;
+	es_tokens( $movido );
+	$m = grab( 'es_token_probe' );
+	if ( $m['ret'] === $referencia['ret'] ) {
+		$numericas_sin_leer[] = $clave;
+	}
+}
+ok( array() === $numericas_sin_leer, 'mover una clave numerica fuera de rango mueve los datos emitidos: ' . ( $numericas_sin_leer ? 'no la lee nadie -> ' . implode( ', ', $numericas_sin_leer ) : count( $numericas ) . ' claves numericas comprobadas' ) );
 
 /* Y el otro lado de lo mismo: ninguna funcion pide una clave que no existe.
    Sin esto, borrar una entrada de es_tokens() manda un color VACIO a Elementor
@@ -1706,12 +1886,44 @@ ok( array() === $literal, 'ningun sitio de llamada se quedo el literal: ' . ( $l
    asi que se mira el aviso concreto y no el buffer entero. */
 ok( ! has( $probe['out'], 'es_t(' ), 'construir una pagina no pide ninguna clave inexistente' );
 
+/* ---------------------------------------------------------------------------
+ * Roles, no apariencias.
+ *
+ * El boton fantasma vive sobre un heroe OSCURO. Su relleno de hover leia
+ * es_t('bg') —— el color de PAGINA —— y era invisible porque hoy bg y la tinta
+ * inversa son los dos #FFFFFF. Un cliente con fondo crema recibia un relleno
+ * crema sobre un heroe casi negro.
+ *
+ * Esta comprobacion no generaliza: es la pregunta concreta "¿depende este
+ * elemento de un token cuyo rol no le toca?", y hay que escribirla por sitio.
+ * Lo que si escala es la seccion de centinelas del volcado dorado, donde cada
+ * ajuste aparece con el NOMBRE del rol que lo alimenta y una confusion de roles
+ * deja de ser invisible en la revision.
+ * ------------------------------------------------------------------------- */
+es_tokens( array( 'bg' => '#FCF7EE' ) );
+$fantasma = json_encode( es_btn( 'Ir', '#', 'outline-light' ) );
+ok( ! has( $fantasma, '#FCF7EE' ), 'el boton fantasma sobre heroe oscuro no toma NADA del color de pagina' );
+es_tokens( array( 'on_inverse' => '#FCF7EE' ) );
+$fantasma = json_encode( es_btn( 'Ir', '#', 'outline-light' ) );
+ok( has( $fantasma, '#FCF7EE' ), 'lo toma de la tinta inversa, que es el rol que le corresponde' );
+
+/* Los tokens derivados existen para que UN punto de edicion sea de verdad uno:
+   cambiar el acento tiene que mover tambien todo lo que lo lleva dentro. */
+es_tokens( array( 'accent' => '#123456' ) );
+ok( 'rgba(18,52,86,0.10)' === es_t( 'accent_wash' ), 'cambiar el acento mueve el tinte derivado' );
+ok( '0 12px 26px -10px rgba(18,52,86,0.55)' === es_t( 'elev_accent' ), 'y el halo, conservando su geometria' );
+/* ...y quien tenga un halo que NO es su acento tiene que poder decirlo. */
+es_tokens( array( 'accent' => '#123456', 'elev_accent' => '0 1px 2px rgba(0,0,0,0.9)' ) );
+ok( '0 1px 2px rgba(0,0,0,0.9)' === es_t( 'elev_accent' ), 'un override explicito de una clave derivada gana a la derivacion' );
+
 /* Cualquier override reconstruye el juego DESDE los valores por defecto, asi que
    devolverlos entero restaura todos. Esa es la via de reset, y esta afirmada
    aqui para que nadie la cambie por acumulacion sin darse cuenta. */
 es_tokens( $es_defaults );
 ok( $es_defaults['accent'] === es_t( 'accent' ), 'el reset devuelve el acento por defecto' );
 ok( $es_defaults['font_body'] === es_t( 'font_body' ), 'y tambien la familia tocada antes: un override reconstruye desde los valores por defecto' );
+ok( $es_defaults['elev_accent'] === es_t( 'elev_accent' ), 'y los derivados vuelven a derivarse del acento por defecto' );
+ok( ! array_key_exists( 'acento', es_tokens() ), 'y la clave inventada de antes no se queda pegada al juego de tokens' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );
