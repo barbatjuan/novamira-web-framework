@@ -395,6 +395,8 @@ Four of them, using the suite's existing fixture helpers:
 
 Scope the literal scan to the region between the two markers Task 1 added, following the precedent `RT_MOCKUP_NO_AXES` set at `framework-audit.php:1400-1403` — it reads only the `:root` block deliberately, because *"a whole-file scan would match a USE and call it a declaration"*. Same discipline, inverted: outside the visual region a colour is inert, and `#732` proves a whole-file scan is unsafe.
 
+**Get the region's START boundary exactly right, and add a fixture for it.** The region begins after the **closing brace of `es_t()`**, not after `es_tokens()`. Anchoring on `es_tokens()` puts the token DECLARATIONS inside the scanned region, and every one of them is a hex literal by definition — the check then reports 27 findings against a correct file and is useless. I made exactly this mistake on the first attempt at a hand-scan; the correct region is `es-builder.php:188` to the END marker, 518 lines. Write a fixture whose token block contains hex values and assert the check stays silent, or the next person re-lives it.
+
 Detect: 3- and 6-digit hex, `rgba(`, `cubic-bezier`, and a literal on `typography_font_family`. Report the file, the line and the literal — "hay un literal" is not actionable, `es-builder.php:388 → #CBD0CB` is.
 
 If a builder asset has no END marker, that is itself the FAIL: an unbounded region is an unscannable one.
@@ -438,6 +440,13 @@ A themed body under an un-themed header is worse than no theming at all.
 - [ ] **Step 1: Baseline each one**
 
 Same technique as Task 1 Step 1 — dump before, `cmp` after. These three have no derivation stage, so **byte-identical is the acceptance criterion for all three**.
+
+**Two traps that make this proof silently vacuous. Task 1 hit both; do not re-live them.**
+
+1. **`define( 'ABSPATH', __DIR__ );` is mandatory at the top of your dump script.** `es-builder.php:6-8` exits without it, and so do all three sibling assets by the same guard. Without it your dump is an **empty file — and `cmp` of two empty files passes.** A green proof over nothing is worse than no proof, because it is reported as a pass. Assert the dump is non-empty (`test -s`) and print its line count before you trust a single `cmp`.
+2. **PHP on Windows resolves `/tmp/x` as `C:\tmp\x`; Git Bash's `/tmp` is `C:\Users\Juan\AppData\Local\Temp`.** A file PHP "wrote" is not where the shell looks, so you end up diffing a stale or missing file. Use absolute Windows paths inside PHP, or `pwd -W` to build them.
+
+Also stub `get_posts()` and `wp_get_attachment_url()` the way the existing suites already do. Task 1 found that without them, `es_photo`, `es_card`, `es_cta_banner`, `es_eyebrow` and `es_iconbox` fall out of the dump entirely — and `es_cta_banner` alone carries four literals that nothing else covers. **A helper missing from the baseline is a helper whose literals are unprotected**, and the dump gives you no signal that it was skipped.
 
 - [ ] **Step 2: Add the region markers to each**
 
