@@ -1640,7 +1640,7 @@ $es_defaults = es_tokens();
  * tokens tal y como los ve un build de verdad, no como los deja este fichero
  * despues de sobrescribirlos treinta veces mas abajo.
  * ------------------------------------------------------------------------- */
-$dump_php = dirname( __DIR__ ) . '/tests/dump-emitted.php';
+$dump_php = dirname( __DIR__ ) . '/tests/tools/dump-emitted.php';
 $oro_ruta = dirname( __DIR__ ) . '/tests/fixtures/emitted-golden.txt';
 $salida   = null;
 if ( function_exists( 'shell_exec' ) && is_file( $dump_php ) && is_file( $oro_ruta ) ) {
@@ -1649,7 +1649,7 @@ if ( function_exists( 'shell_exec' ) && is_file( $dump_php ) && is_file( $oro_ru
 if ( null === $salida ) {
 	/* Ni verde ni rojo: no se pudo comprobar. Un "no se pudo" contado como OK
 	   es la misma enfermedad que este fichero entero existe para quitar. */
-	fwrite( STDERR, "ENTORNO: no se pudo ejecutar tests/dump-emitted.php (¿shell_exec deshabilitado?); el volcado dorado queda SIN COMPROBAR\n" );
+	fwrite( STDERR, "ENTORNO: no se pudo ejecutar tests/tools/dump-emitted.php (¿shell_exec deshabilitado?); el volcado dorado queda SIN COMPROBAR\n" );
 	exit( 2 );
 }
 /* El arbol de trabajo es CRLF y el repositorio guarda LF (core.autocrlf=true),
@@ -1667,6 +1667,11 @@ $oro_txt = $sin_cr( file_get_contents( $oro_ruta ) );
 ok( '' !== trim( $salida ), 'el volcado trae contenido: dos ficheros vacios tambien son identicos, y eso se reporta como aprobado' );
 ok( substr_count( $salida, "\n" ) > 2000, 'y trae un volcado entero, no un fragmento: ' . substr_count( $salida, "\n" ) . ' lineas' );
 ok( has( $salida, "===== FIN DEL VOLCADO =====\n" ), 'y termina en el centinela, asi que un volcado cortado no puede hacerse pasar por una coincidencia' );
+/* El umbral de lineas de arriba dejo de significar nada en cuanto el volcado
+   paso a cubrir tambien los tres ficheros hermanos: es-builder.php solo ya trae
+   2913 lineas, asi que los tres podian caerse enteros y el ">2000" seguia en
+   verde. Lo que hay que afirmar es que ESTAN, no que hay muchas lineas. */
+ok( 2 === substr_count( $salida, '----- hermanos:' ), 'y las dos secciones cubren tambien header, footer, tienda y ficha: si los hermanos se caen, un umbral de lineas no se entera' );
 ok( $oro_txt === $salida, 'lo que emite el constructor es, byte a byte, lo que dice tests/fixtures/emitted-golden.txt' );
 
 /* ---------------------------------------------------------------------------
