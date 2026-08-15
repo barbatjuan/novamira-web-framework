@@ -39,12 +39,15 @@
     · valores body copy ... full body size                  (the twin: --fs-small)
     · measure caps ........ 46 / 52 / 48 / 16ch             (the twin: 44 / - / 46 / 18ch)
     · .mainnav a hover .... a border-bottom rule            (the twin: accent colour)
-  Six properties that used to sit in this tier are gone from it — heading and button WEIGHT,
-  `text-wrap`, button RADIUS, the footer nav direction and the composition breakpoint were
-  measured as differing with no axis and no anchor behind them, and are now identical in both
-  files (weights, button radius and the breakpoint taken from design-system.md and SKILL.md, not
-  chosen here). Tracking was the one of the six worth keeping per anchor, so it was written down
-  in design-personalities.md rather than left implicit. The `«»` this file used to paint through
+  Seven properties that used to sit in this tier are gone from it — heading and button WEIGHT,
+  `text-wrap`, button RADIUS, the footer nav direction, the composition breakpoint and `.quote`'s
+  own `letter-spacing` were measured as differing with no axis and no anchor behind them, and are
+  now identical in both files (weights, button radius and the breakpoint taken from
+  design-system.md and SKILL.md, not chosen here). `.quote` was the last one found: the twin
+  carried -.02em on it against nothing here, a third value matching neither anchor's documented
+  display tracking (-0.015em here, -0.025em there, both scoped to h1–h3), so it was removed there
+  rather than invented into the catalogue here. Tracking on h1–h3 was the one of the seven worth
+  keeping per anchor, so it was written down in design-personalities.md rather than left implicit. The `«»` this file used to paint through
   `.quote::before/::after` went with them: `_axis-proof-content.md` is the authority on every
   rendered string and its Cita row carries no guillemets, so a CSS `content:` that puts glyphs on
   one page and not the other is a copy difference wearing a stylesheet's clothes — and it is the
@@ -141,17 +144,29 @@
   /* ── base ── */
   *{box-sizing:border-box}
   body,figure,blockquote,h1,h2,h3,p,ul,ol,li{margin:0;padding:0}
-  /* `overflow-wrap: ANYWHERE` on body, inherited by every text box — byte-identical to the twin's
-     rule, because a reflow guard is not an anchor choice. It changes nothing visible on THIS page
-     at a 16px root (no word here outgrows its column at any width measured), but `break-word`
-     would not have been the guard it looks like: it leaves a box's min-content size alone, so a
-     heading sized `fit-content` stays as wide as its longest word and never breaks it. The twin
-     measures that difference at 58px of horizontal scroll at 320px, and a further 106px at a 32px
-     root (200% text, WCAG 1.4.4) through its `.quote` rather than a heading — which is why the
-     rule sits on body rather than on `h1,h2,h3`. */
   body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text);
-       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased;
-       overflow-wrap:anywhere}
+       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+  /* `overflow-wrap: ANYWHERE` on body, inherited by every text box, and SCOPED to viewports under
+     1024px — byte-identical to the twin's rule, because a reflow guard is not an anchor choice.
+
+     `break-word` would not have been the guard it looks like: it leaves a box's min-content size
+     alone. MEASURED on this page at 320px with a 32px root (200% text, WCAG 1.4.4), `break-word`
+     still left 13px of horizontal scroll where `anywhere` leaves 0; with no guard at all the page
+     scrolls 8px at a 16px root and 302px at a 32px root (the twin: 73px and 430px). The block
+     still overflowing under `break-word` is a `.step`, not a heading — which is why the rule sits
+     on body rather than on `h1,h2,h3`: a guard that only covers headings is a guard for the text
+     that happened to break first.
+
+     THE SCOPE is what this comment used to get wrong. It claimed the rule "changes nothing visible
+     on THIS page at a 16px root (no word here outgrows its column at any width measured)". That
+     was measured false: at 1280 with a 16px root this page's `Por qué nosotros` H2 rendered
+     `subcontratamo / s` — a single orphaned letter at 58.7px, on the anchor whose whole pitch is
+     careful typography. Unscoped, the guard was breaking words at widths where they fit. Under
+     1024px it is load-bearing and stays; at 1024, 1280 and 1920 this page needs it for nothing and
+     now breaks no word. 1024px is the framework's own desktop breakpoint, not a number chosen
+     here. */
+  @media(max-width:1023px){ body{overflow-wrap:anywhere} }
   /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice.
      `text-wrap:balance` is a legibility default, identical in both files.
      Only `letter-spacing` is anchor-scoped here — see design-personalities.md § Typography.
@@ -171,6 +186,17 @@
            letter-spacing:.24em;text-transform:uppercase;color:var(--c-accent)}
   .muted{color:var(--c-text-muted)} .small{font-size:var(--fs-small)}
   .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
+  /* A heading takes the width of its own BLOCK, never the width of its longest word.
+     `.stack` is a column flex container with `align-items:flex-start`, which sizes every child to
+     `fit-content` — and `fit-content` floors at min-content, so one unbreakable word makes the
+     heading's BOX wider than the column span it was given, and every line in it is then laid out
+     across territory the layout gave to something else. The twin is where that collided (its
+     `.vals` H2 box computed 550.3px inside a 297.4px area at 1024 and put its first line on an
+     opaque card); this page's own headings overhang by less — 478.2px inside 456px at 1280 — and
+     hit nothing, which is exactly why the rule belongs in both files rather than in the one where
+     it happened to draw blood. `align-self:stretch` pins the box to the area it was given.
+     Not an axis, and not a personality choice — byte-identical in the twin. */
+  .stack > h1,.stack > h2,.stack > h3{align-self:stretch;min-width:0}
 
   /* Placeholder recipe, same as corporate-mockup.html — no remote image is ever requested. */
   .ph{background:repeating-linear-gradient(-45deg,transparent,transparent 11px,
@@ -186,8 +212,22 @@
   /* Button weight 600 and radius --btn-radius (8px) both come from design-system.md — the type
      table's "Botón" row and the radius table. Neither is an axis, so neither may differ from the
      twin; the square `border-radius:0` this rule used to hardcode contradicted the token this
-     file's own :root declares and the comment beside it calling radius shared chrome. */
-  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
+     file's own :root declares and the comment beside it calling radius shared chrome.
+
+     A BUTTON CENTRES ITS OWN LABEL ON BOTH AXES, and `text-align:center` is only the horizontal
+     half of that. It says nothing about the vertical, so a button stretched taller than its own
+     line box renders its label pinned to the TOP — and every `.btn` on this page lands in a flex
+     row whose default `align-items:stretch` does exactly that. No text-based check could ever
+     have caught it: `text-align:center` was present the whole time. The twin is where it was
+     MEASURED (its `.ctas` put a 21px label 12.04px above the centre of a 73.1px button at 1280
+     and 65.23px above it at 1920); the rule is not an axis, so it is byte-identical here rather
+     than waiting for this file's own layout to stretch a button one day. `inline-flex` +
+     `align-items:center` + `justify-content:center` centres the label whatever the container
+     does; `text-align:center` stays for a label that wraps to two lines. The `inline-block` it
+     replaces was already inert — a flex item's display is blockified, so it computed to `block`.
+     Now a Hard Rule in ux-design-system/SKILL.md. */
+  .btn{display:inline-flex;align-items:center;justify-content:center;
+       padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
        line-height:1.2;text-align:center;border-radius:var(--btn-radius);border:var(--btn-border-width) solid transparent;
        cursor:pointer;transition:var(--btn-transition);box-shadow:var(--elev-rest)}
   /* elevation: none — the hover is colour and a -4px lift at most, never a shadow. */

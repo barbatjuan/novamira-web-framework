@@ -39,12 +39,15 @@
     · valores body copy ... --fs-small                      (the twin: full body size)
     · measure caps ........ 44 / - / 46 / 18ch              (the twin: 46 / 52 / 48 / 16ch)
     · .mainnav a hover .... accent colour                   (the twin: a border-bottom rule)
-  Six properties that used to sit in this tier are gone from it — heading and button WEIGHT,
-  `text-wrap`, button RADIUS, the footer nav direction and the composition breakpoint were
-  measured as differing with no axis and no anchor behind them, and are now identical in both
-  files (weights, button radius and the breakpoint taken from design-system.md and SKILL.md, not
-  chosen here). Tracking was the one of the six worth keeping per anchor, so it was written down
-  in design-personalities.md rather than left implicit.
+  Seven properties that used to sit in this tier are gone from it — heading and button WEIGHT,
+  `text-wrap`, button RADIUS, the footer nav direction, the composition breakpoint and `.quote`'s
+  own `letter-spacing` were measured as differing with no axis and no anchor behind them, and are
+  now identical in both files (weights, button radius and the breakpoint taken from
+  design-system.md and SKILL.md, not chosen here). `.quote` was the last one found: it carried
+  -.02em against the twin's nothing, a third value matching neither anchor's documented display
+  tracking (-0.025em here, -0.015em there, both scoped to h1–h3), so it was removed rather than
+  invented into the catalogue. Tracking on h1–h3 was the one of the seven worth keeping per
+  anchor, so it was written down in design-personalities.md rather than left implicit.
 
   This file is deliberately NOT theme-aware: it pins the `ink` ground on purpose. Making it
   follow the reader's colour scheme would erase the ground axis, which is one of the five
@@ -155,23 +158,41 @@
   /* ── base ── */
   *{box-sizing:border-box}
   body,figure,blockquote,h1,h2,h3,p,ul,ol,li{margin:0;padding:0}
-  /* `overflow-wrap: ANYWHERE` sits on body so it INHERITS to every text box, and it is `anywhere`
-     rather than `break-word`, and both halves of that are the fix.
-     `anywhere` vs `break-word`: identical for line breaking, different in one thing — `anywhere`
-     shrinks a box's intrinsic min-content size and `break-word` does not. Headings here are flex
-     items sized `fit-content`, which is clamped at min-content, so under `break-word` the box just
-     stays as wide as its longest word and the word never has to break. MEASURED with `break-word`
-     on the headings: at a 320px viewport (WCAG 1.4.10's reflow width) "subcontratamos" at the
-     monumental 41.89px floor made that H2 357.6px inside a 280px column — 58px of horizontal
-     scroll, unchanged; and at 1280 the same clamp made it 633px inside its 367px grid area,
-     pushing ten of its fourteen glyphs under `.vals .i2`, an opaque z-index 2 card.
-     On body rather than on `h1,h2,h3`: the same 320px viewport at a 32px root (200% text, WCAG
-     1.4.4) put 106px of scroll on this page through `.quote`, not a heading. A reflow guard that
-     only covers headings is a guard for the text that happened to break first.
-     Nothing on either page changes at a 16px root: a word that already fits is never broken. */
   body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text);
-       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased;
-       overflow-wrap:anywhere}
+       font-size:var(--fs-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+  /* `overflow-wrap: ANYWHERE`, on body so it INHERITS to every text box, and SCOPED to viewports
+     under 1024px. Both halves are the fix, and the scope is the half this file got wrong first.
+
+     WHY `anywhere` rather than `break-word`: identical for line breaking, different in one thing —
+     `anywhere` shrinks a box's intrinsic min-content size and `break-word` does not. MEASURED at a
+     320px viewport (WCAG 1.4.10's reflow width) with a 32px root (200% text, WCAG 1.4.4):
+     `break-word` still left 36px of horizontal scroll where `anywhere` leaves 0. At a 16px root
+     the two now tie at 0, because the heading rule below caps the box that used to carry most of
+     this difference — so the 200% case is where the choice between them is still load-bearing.
+
+     WHY on body rather than on `h1,h2,h3`: the block still overflowing under `break-word` at
+     320/32 is a `.step` — its H3 "Colocación y sellado" and the paragraph under it — not a
+     heading in a `.stack` and not the `.quote` an earlier version of this comment named. A reflow
+     guard that only covers headings is a guard for the text that happened to break first.
+     MEASURED with no guard at all, on this page: 73px of horizontal scroll at a 16px root and
+     430px at a 32px root (the twin: 8px and 302px).
+
+     WHY it now STOPS at 1023px. Unscoped it also broke words at widths where they fit, which is a
+     typographic defect and not a reflow guard. MEASURED at 1280 with a 16px root, before this
+     scope: this page's `.vals` H2 rendered `subcontr / atamos` and the twin's rendered
+     `subcontratamo / s` — an orphaned letter at 58.7px. The sentence that used to close this
+     comment, "Nothing on either page changes at a 16px root: a word that already fits is never
+     broken", was false on both counts, and it contradicted the 1280 measurement four lines above
+     it. What is measured instead: below 1024px the guard is load-bearing — at 320px it is the
+     difference between 0 and 73px of horizontal scroll at a 16px root, and 0 and 430px at a 32px
+     root. At 1024, 1280 and 1920 both pages hold 0 overflow WITHOUT it and break no word at all
+     — `subcontratamos` renders whole on both — which is the whole reason it now stops. 1024px is
+     the framework's own desktop breakpoint, not a number chosen here.
+
+     Scoping it re-opened exactly one thing, and it was fixed at its source rather than by putting
+     the word-breaking back — see the heading rule below. */
+  @media(max-width:1023px){ body{overflow-wrap:anywhere} }
   /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice — 800
      was a number no table gives. `text-wrap:balance` is a legibility default, identical in both
      files. Only `letter-spacing` is anchor-scoped here — design-personalities.md § Typography.
@@ -198,13 +219,39 @@
       border:1px solid var(--c-border);display:grid;place-items:center;text-align:center;padding:.5rem;
       color:var(--c-text-muted);font-size:var(--fs-small);letter-spacing:.14em;text-transform:uppercase;
       /* width MUST be pinned: with `aspect-ratio` plus a `min-height`, an auto width is computed
-         FROM the ratio, which overflows narrow columns. Pinning it makes the ratio drive height only. */
-      width:100%;max-width:100%}
+         FROM the ratio, which overflows narrow columns. Pinning it makes the ratio drive height only.
+
+         `min-width:0` is the other half, and `width:100%;max-width:100%` cannot stand in for it.
+         `aspect-ratio` on a grid or flex item TRANSFERS an automatic minimum size through the
+         ratio, and `min-width:auto` outranks `max-width:100%` — so the box is floored at whatever
+         width the ratio demands for its content height and simply refuses to shrink. MEASURED at
+         1280 before this: `.ph.heroimg` computed 638.3px inside its 613.3px `.shot` at a 28px root
+         and 783.1px at a 32px root, putting 23px and 170px of horizontal scroll on the page. This
+         was previously parked on `--content-width:1140px`, which had nothing to do with it — the
+         page overflowed at 1280 while the container was well inside its own limit.
+         The same two lines live in html-mockup/references/mockup-guide.md, which is the file
+         people start from; the trap was set there too until this was written. */
+      width:100%;max-width:100%;min-width:0}
 
   /* Button weight 600 and radius --btn-radius (8px) both come from design-system.md — the type
      table's "Botón" row and the radius table. Neither is an axis, so neither may differ from the
-     twin. */
-  .btn{display:inline-block;padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
+     twin.
+
+     A BUTTON CENTRES ITS OWN LABEL ON BOTH AXES, and `text-align:center` is only the horizontal
+     half of that. It says nothing about the vertical, so a button stretched taller than its own
+     line box renders its label pinned to the TOP — and every `.btn` on this page lands in a flex
+     row (`.ctas`, `.nav`, `.foot`) whose default `align-items:stretch` does exactly that.
+     MEASURED here before this rule, at a 16px root: the two `.ctas` buttons hold a 21px label in
+     a box the hero's grid row stretches to 54px at 1024, 73.1px at 1280 and 179.5px at 1920, so
+     the label's centre sat 2.49px, 12.04px and 65.23px ABOVE the button's centre. No text-based
+     check could ever have caught it: `text-align:center` was present the whole time.
+     `inline-flex` + `align-items:center` + `justify-content:center` centres the label whatever
+     the container does and whatever height it is stretched to; `text-align:center` stays for a
+     label that wraps to two lines. Note the `inline-block` this replaces was already inert — a
+     flex item's display is blockified, so it computed to `block`. Not an axis: identical in the
+     twin, and now a Hard Rule in ux-design-system/SKILL.md. */
+  .btn{display:inline-flex;align-items:center;justify-content:center;
+       padding:var(--btn-padding);font-size:var(--btn-font);font-weight:600;
        line-height:1.2;text-align:center;border-radius:var(--btn-radius);
        border:var(--btn-border-width) solid transparent;cursor:pointer;transition:var(--btn-transition)}
   .btn-primary{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent)}   /* 6.61:1 */
@@ -278,8 +325,13 @@
   /* ── 5 · testimonio ── */
   /* `text-wrap:balance` here for the same reason it is on the headings: a legibility default, not
      an anchor signature, so it may not differ from the twin. */
+  /* No `letter-spacing` here. It used to carry -.02em, a value that matched NOTHING: this anchor's
+     documented display tracking is -0.025em and the twin's is -0.015em, both scoped to h1–h3 in
+     design-personalities.md, and `.quote` is neither. A third invented number with no axis and no
+     anchor behind it is the same defect as the six properties the header lists as removed, so it
+     went the same way and the twin's `.quote` — which never had one — is now identical. */
   .quote{font-family:var(--font-primary);font-size:calc(var(--fs-h3) * .95);text-wrap:balance;
-         line-height:1.12;letter-spacing:-.02em;background:var(--c-bg-alt);padding:var(--sp-m);
+         line-height:1.12;background:var(--c-bg-alt);padding:var(--sp-m);
          box-shadow:var(--elev-rest)}
   .attrib{background:var(--c-accent);color:var(--c-bg);padding:var(--sp-s) var(--sp-m);
           display:flex;flex-direction:column}                      /* ink on accent: 6.61:1 */
@@ -304,6 +356,20 @@
   .fnav a{color:var(--c-text-muted)} .fnav a:hover{color:var(--c-accent)}
   .legal{padding-top:var(--sp-m);border-top:1px solid var(--c-border);color:var(--c-text-muted)}
   .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
+  /* A heading takes the width of its own BLOCK, never the width of its longest word.
+     `.stack` is a column flex container with `align-items:flex-start`, which sizes every child to
+     `fit-content` — and `fit-content` floors at min-content, so one unbreakable word makes the
+     heading's BOX wider than the grid area it was given, and every line in it is then laid out
+     across territory the layout gave to something else. MEASURED at 1024 with the reflow guard
+     above scoped off: the `.vals` H2 box computed 550.3px inside its 297.4px area, which put the
+     FIRST line — "Tres cosas", a phrase that fits perfectly well — on top of `.i1`'s H3 inside an
+     opaque card. The long word was never what collided; the box was.
+     `align-self:stretch` pins the box to the area it was given, so the only thing that can reach
+     past it is the single word that genuinely does not fit, and at 1024 that word sits on the
+     heading's last line, which is below the card rather than on it. Same rule as everywhere else
+     in this file: an overlap you cannot read is not a composition, it is a bug.
+     Not an axis, and not a personality choice — byte-identical in the twin. */
+  .stack > h1,.stack > h2,.stack > h3{align-self:stretch;min-width:0}
 
   /* ══ the broken layout — desktop only. Below 1024px every rule here is off and the page is
         one stacked column, because a broken grid at 430px is just broken. ══ */

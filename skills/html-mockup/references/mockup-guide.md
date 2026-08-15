@@ -105,10 +105,15 @@ one inline `<style>`. No external anything.
   .btn:hover{transform:translateY(-3px)}
   /* `width` MUST be pinned alongside `aspect-ratio`. With a ratio and no width, an auto width is
      computed FROM the ratio and the available height — measured at 660px inside a 390px column,
-     a 250px page overflow. Pinning width makes the ratio drive height only. */
+     a 250px page overflow. Pinning width makes the ratio drive height only.
+     `min-width:0` is the OTHER half, and `width:100%;max-width:100%` does not cover it: on a grid
+     or flex item, `aspect-ratio` transfers an automatic minimum size through the ratio, and
+     `min-width:auto` outranks `max-width:100%`, so the box refuses to shrink below what the ratio
+     asks for. Measured at 1280 with a 28px root: 638.3px inside a 613.3px column, 23px of page
+     overflow — 170px at a 32px root. Both lines or neither. */
   .ph{background:var(--c-bg-alt);border:1px dashed var(--c-border);border-radius:var(--radius-image);
       display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);
-      width:100%;max-width:100%;aspect-ratio:4/3}
+      width:100%;max-width:100%;min-width:0;aspect-ratio:4/3}
   .grid{display:grid;gap:var(--sp-m)}
   @media(min-width:768px){ .wrap{padding-inline:var(--pad-x-tablet)} }
   @media(min-width:1024px){ .wrap{padding-inline:var(--pad-x-desktop)} }
