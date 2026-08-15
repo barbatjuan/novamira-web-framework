@@ -1829,6 +1829,7 @@ $literal  = array();
    linea obliga a escribir POR QUE. */
 $residuo = array(
 	/* valor => array( cuantas veces, de donde salen ) */
+	'none' => array( 1, 'display:none!important sobre a.added_to_cart en es_products_css(): esconde el enlace "Ver carrito" redundante, y no tiene nada que ver con elev_rest, que es la sombra en reposo' ),
 );
 foreach ( $sentinelas as $clave => $centinela ) {
 	if ( ! has( $emitido, $centinela ) ) {
@@ -1862,17 +1863,30 @@ ok( array() === $residuo_muerto, 'no hay residuos declarados que ya no correspon
    moviendo la clave a un valor fuera de rango y exigiendo que la salida CAMBIE.
    Eso vale igual para un numero que se emite tal cual y para uno del que se
    deriva otro, que es lo que un centinela literal no aguantaria.
-   Hoy no hay ninguna clave numerica; esto llega antes que ellas para que la
-   primera este cubierta el dia que aterrice, no una tarea despues. */
+   Y se mueve en las DOS direcciones, que es lo que la primera version de esto
+   no hacia. Solo subia a 9973, y hay una forma de token para la que subir no
+   dice nada: un TOPE. `fs_h1_max` recorta por arriba, este fichero no emite
+   ningun paso que llegue al tope, y subirlo a 9973 deja la salida intacta ——
+   asi que una clave que SI lee es_fs() se reportaba como que no la lee nadie.
+   Bajarla a 1 recorta todos los tamanos y la salida se mueve entera.
+   Esto no afloja nada: la pregunta sigue siendo "¿la lee alguien?", y una clave
+   que no lee nadie no mueve la salida en NINGUNA de las dos direcciones. Lo que
+   cambia es que ahora la pregunta se responde bien tambien para los topes. */
 es_tokens( $es_defaults );
 $referencia         = grab( 'es_token_probe' );
 $numericas_sin_leer = array();
 foreach ( $numericas as $clave => $valor ) {
-	$movido           = $es_defaults;
-	$movido[ $clave ] = is_int( $valor ) ? 9973 : 9973.0;
-	es_tokens( $movido );
-	$m = grab( 'es_token_probe' );
-	if ( $m['ret'] === $referencia['ret'] ) {
+	$movio = false;
+	foreach ( is_int( $valor ) ? array( 9973, 1 ) : array( 9973.0, 0.5 ) as $fuera ) {
+		$movido           = $es_defaults;
+		$movido[ $clave ] = $fuera;
+		es_tokens( $movido );
+		$m = grab( 'es_token_probe' );
+		if ( $m['ret'] !== $referencia['ret'] ) {
+			$movio = true;
+		}
+	}
+	if ( ! $movio ) {
 		$numericas_sin_leer[] = $clave;
 	}
 }
@@ -1912,9 +1926,93 @@ ok( has( $fantasma, '#FCF7EE' ), 'lo toma de la tinta inversa, que es el rol que
 es_tokens( array( 'accent' => '#123456' ) );
 ok( 'rgba(18,52,86,0.10)' === es_t( 'accent_wash' ), 'cambiar el acento mueve el tinte derivado' );
 ok( '0 12px 26px -10px rgba(18,52,86,0.55)' === es_t( 'elev_accent' ), 'y el halo, conservando su geometria' );
+/* El estado HOVER es la otra mitad de lo mismo, y la que faltaba: accent_hover
+   era un verde oscuro elegido a mano al lado de un acento que el cliente SI
+   cambia, asi que una marca azul marino recibia un boton azul y un hover verde.
+   Es la enfermedad de es_rgba() un nivel mas arriba —— un punto de edicion que
+   solo es uno si te acuerdas tambien del otro.
+   Sin esta afirmacion el unico que cazaba una es_shade() rota era el volcado
+   dorado, y un volcado se regenera; una propiedad, no. */
+ok( '#0F2A46' === es_t( 'accent_hover' ), 'el hover del acento se deriva del acento: cambiarlo a azul da un azul mas oscuro, no el verde de la casa' );
+es_tokens( array( 'border' => '#123456' ) );
+ok( '#113150' === es_t( 'border_hover' ), 'y el filete hace lo mismo con el suyo' );
+/* Y el precio de haber hecho esto derivado: CERO en la marca por defecto. El
+   factor 0.815 reproduce exactamente el #0C8A55 que estaba escrito a mano, asi
+   que la derivacion no movio ni un byte del verde de la casa —— solo arreglo a
+   todas las demas marcas. Clavado aqui para que se note si alguien lo toca. */
+es_tokens( $es_defaults );
+ok( '#0C8A55' === es_t( 'accent_hover' ), 'y con la marca por defecto sale el mismo #0C8A55 de siempre: derivarlo no costo bytes' );
+/* La entrada ilegible avisa en vez de devolver un color plausible, igual que
+   es_rgba(): un hover vacio en Elementor se ve como "asi lo quiso el tema". */
+$r = grab(
+	function () {
+		return es_shade( 'azul', 0.8 );
+	}
+);
+ok( '' === $r['ret'], 'un valor que no es hex no se convierte en un color plausible al oscurecerlo' );
+ok( has( $r['out'], 'azul' ), 'y lo dice en voz alta nombrando el valor que no supo leer' );
+es_tokens( array( 'accent' => '#123456' ) );
+
 /* ...y quien tenga un halo que NO es su acento tiene que poder decirlo. */
 es_tokens( array( 'accent' => '#123456', 'elev_accent' => '0 1px 2px rgba(0,0,0,0.9)' ) );
 ok( '0 1px 2px rgba(0,0,0,0.9)' === es_t( 'elev_accent' ), 'un override explicito de una clave derivada gana a la derivacion' );
+
+/* ---------------------------------------------------------------------------
+ * Los ejes se mueven.
+ *
+ * La afirmacion falsable de todo este esfuerzo: cambia el ratio y se mueve la
+ * jerarquia entera; cambia el multiplicador y se mueve el ritmo entero. Si esto
+ * pasara con las posiciones de eje intercambiadas y la salida no cambiase, el
+ * eje seria decorativo —— que es exactamente lo que era antes de esta tarea.
+ * ------------------------------------------------------------------------- */
+echo "--- los ejes mueven de verdad los datos emitidos ---\n";
+
+es_tokens( array( 'type_ratio' => 1.618, 'fs_h1_max' => 120 ) );
+$monumental = es_fs( 3 );
+es_tokens( array( 'type_ratio' => 1.200, 'fs_h1_max' => 48 ) );
+$contenido = es_fs( 3 );
+ok( $monumental > $contenido, 'un ratio monumental produce un display mayor que uno contenido' );
+/* Y con los numeros clavados, porque `$a > $b` tambien lo cumple una funcion que
+   devuelva `$step * 2`: eso mide el orden, no la escala. */
+ok( 67.8 === $monumental && 27.6 === $contenido, 'y los pasos son los que dicta el ratio, no solo el orden: 67.8 contra 27.6' );
+
+/* El tope, afirmado donde MUERDE. La version obvia —— `$monumental <= 120 &&
+   $contenido <= 48` —— es vacua: los dos pasos valen 67.8 y 27.6, o sea que
+   pasa igual de verde con el min() borrado, y el mutante que quita el tope
+   sobrevive sin que nadie se entere. En la posicion `classic` el tope no entra
+   hasta el paso 5 y este fichero no emite nada por encima del 3, asi que hay
+   que preguntarselo a un paso que si lo alcance. */
+es_tokens( array( 'type_ratio' => 1.618, 'fs_h1_max' => 120 ) );
+ok( 120.0 === es_fs( 8 ), 'un paso que se sale por arriba se recorta en el tope de su propia posicion (120)' );
+ok( 67.8 === es_fs( 3 ), 'y un paso que cabe NO se toca: el tope recorta, no aplana' );
+es_tokens( array( 'type_ratio' => 1.200, 'fs_h1_max' => 48 ) );
+ok( 48.0 === es_fs( 8 ), 'y cada posicion respeta su propio tope, no uno compartido (48)' );
+
+es_tokens( array( 'sp_scale' => 1.7 ) );
+$aireado = es_sp( 88 );
+$caja_aireada = es_box( 88, 24, 88, 24 );
+es_tokens( array( 'sp_scale' => 0.8 ) );
+$apretado = es_sp( 88 );
+ok( $aireado > $apretado, 'la densidad generosa deja mas aire que la compacta' );
+ok( 150 === $aireado && 70 === $apretado, 'y los valores derivados son los esperados, no solo el orden' );
+ok( '150' === $caja_aireada['top'], 'y la densidad entra DENTRO de es_box(), asi que ningun sitio de llamada puede olvidarse' );
+
+/* Las dos guardas de es_box(), que son la diferencia entre escalar el ritmo y
+   escalar cosas que no son ritmo. */
+es_tokens( array( 'sp_scale' => 1.7 ) );
+$pct = es_box( 5, 0, 5, 0, '%' );
+ok( '5' === $pct['top'], 'un porcentaje no se multiplica por la densidad: ya es relativo a otra cosa, y multiplicarlo no es un hueco menor sino otro layout' );
+$borde = es_box_unscaled( 1, 1, 1, 1 );
+ok( '1' === $borde['top'], 'y una anchura de borde tampoco: a densidad 1.7 un filete de 1px se redondearia a 2px, que es un borde mas gordo, no mas aire —— y dejaria la posicion `hairline` sin poder expresarse' );
+
+/* La sombra en reposo, que antes NO EXISTIA: solo habia cinco sombras de hover
+   y nada debajo, y por eso `hairline` y `soft-shadow` no se podian expresar. */
+es_tokens( array( 'elev_rest' => '0 0 0 1px #E5E7E5' ) );
+$reposo = es_card_hover_css() . es_products_css() . json_encode( es_feature_card( 'fas fa-check', 'titulo', 'texto' ) );
+ok( 3 === substr_count( $reposo, 'box-shadow:0 0 0 1px #E5E7E5' ), 'las tres recetas de tarjeta —— image-box, rejilla de productos y feature card —— cogen la sombra en reposo' );
+es_tokens( array( 'elev_rest' => 'none' ) );
+$sin_reposo = es_card_hover_css() . es_products_css() . json_encode( es_feature_card( 'fas fa-check', 'titulo', 'texto' ) );
+ok( ! has( $sin_reposo, '0 0 0 1px #E5E7E5' ), 'y volver a `none` las deja planas: la sombra en reposo sale del token, no esta clavada' );
 
 /* Cualquier override reconstruye el juego DESDE los valores por defecto, asi que
    devolverlos entero restaura todos. Esa es la via de reset, y esta afirmada

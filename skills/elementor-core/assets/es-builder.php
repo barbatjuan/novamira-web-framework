@@ -50,7 +50,32 @@ function es_w( $type, array $settings ) {
 	);
 }
 
-function es_box( $t, $r, $b, $l, $unit = 'px' ) {
+/**
+ * A four-sided box value, with the density axis applied ONCE, here.
+ *
+ * The multiplier lives inside this function and not at the 29 call sites for
+ * one reason: a call site can forget, and the one that forgets is the one that
+ * stops moving when the axis moves. Two guards keep it from scaling things that
+ * are not rhythm:
+ *
+ *  - $unit. Density scales LENGTHS. A percentage or a viewport unit is already
+ *    relative to something else, and multiplying it is not a smaller gap -- it
+ *    is a different layout. Every call in all four assets is px today (checked,
+ *    not assumed); the guard is here so the first non-px call does not silently
+ *    become a bug.
+ *  - $scale. A border WIDTH and a border RADIUS ride in this same shape and are
+ *    NOT rhythm. At sp_scale 1.7 a 1px hairline rounds to 2px -- that is a
+ *    heavier border, not more air, and it makes the `hairline` elevation
+ *    position unexpressible -- and a 16px radius becomes 27px, which is a
+ *    different shape language. Those call sites say so with es_box_unscaled().
+ */
+function es_box( $t, $r, $b, $l, $unit = 'px', $scale = true ) {
+	if ( $scale && 'px' === $unit ) {
+		$t = es_sp( $t );
+		$r = es_sp( $r );
+		$b = es_sp( $b );
+		$l = es_sp( $l );
+	}
 	return array(
 		'unit'     => $unit,
 		'top'      => (string) $t,
@@ -59,6 +84,11 @@ function es_box( $t, $r, $b, $l, $unit = 'px' ) {
 		'left'     => (string) $l,
 		'isLinked' => false,
 	);
+}
+
+/** A box the density axis must NOT touch: border widths and border radii. */
+function es_box_unscaled( $t, $r, $b, $l ) {
+	return es_box( $t, $r, $b, $l, 'px', false );
 }
 
 function es_size( $n, $unit = 'px' ) {
@@ -129,6 +159,62 @@ function es_rgba( $hex, $alpha ) {
 }
 
 /**
+ * One token's colour, darkened by a factor, as a hex string.
+ *
+ * The hover of a colour is not a second colour to remember. `accent_hover` was
+ * a hand-picked darker GREEN sitting next to an accent a client is expected to
+ * change -- so a navy brand got a navy button and a green hover, which is the
+ * rgba bug from es_rgba() one level up: an edit point that is only one edit
+ * point if you also remember the other one.
+ *
+ * Multiplying every channel by the same factor is the ordinary "darken": it
+ * keeps the hue and the relative channel spacing and works on any brand,
+ * including a dark one, where a fixed subtraction would flatten to black.
+ */
+function es_shade( $hex, $factor ) {
+	$h = ltrim( (string) $hex, '#' );
+	if ( 3 === strlen( $h ) ) {
+		$h = $h[0] . $h[0] . $h[1] . $h[1] . $h[2] . $h[2];
+	}
+	if ( 6 !== strlen( $h ) || ! ctype_xdigit( $h ) ) {
+		/* Same reasoning as es_rgba(): loud and visibly unpainted beats
+		   silently plausible, and the warning names the value it could not read. */
+		es_warn( 'es_shade() no sabe leer "' . $hex . '" como color hex, asi que el estado derivado que lo usa se queda SIN pintar. Escribe el token como #RGB o #RRGGBB.' );
+		return '';
+	}
+	$out = '#';
+	for ( $i = 0; $i < 3; $i++ ) {
+		$c    = (int) round( hexdec( substr( $h, $i * 2, 2 ) ) * $factor );
+		$out .= sprintf( '%02X', max( 0, min( 255, $c ) ) );
+	}
+	return $out;
+}
+
+/**
+ * Tokens that are another token's colour, darkened.
+ *
+ * array( source token, factor ). Same table shape as es_token_recipes() and for
+ * the same reason: the key list, the derivation and the unknown-key guard read
+ * ONE table and cannot drift apart.
+ *
+ * The two factors are different on purpose, because the two jobs are. Pressing
+ * a button has to be FELT, so the accent drops ~18%; a hairline nudging on
+ * hover is a hint, so the border drops ~6.5%. One factor for both would either
+ * make the border look broken or make the button look asleep.
+ */
+function es_token_shades() {
+	return array(
+		/* 0.815 is not a fitted curiosity: it is the factor at which the
+		   framework's own accent reproduces its hand-picked hover #0C8A55
+		   exactly, so making this derived costs zero emitted bytes on the
+		   default brand while every other brand finally gets a hover of its
+		   OWN colour. */
+		'accent_hover' => array( 'accent', 0.815 ),
+		'border_hover' => array( 'border', 0.935 ),
+	);
+}
+
+/**
  * Tokens that are another token's colour with a veil over it.
  *
  * array( prefix, source token, alpha ). Kept as data rather than inline so the
@@ -146,10 +232,15 @@ function es_token_recipes() {
 		'accent_wash'       => array( '', 'accent', '0.10' ),
 		'scrim_from'        => array( '', 'surface_inverse', '0.92' ),
 		'scrim_to'          => array( '', 'surface_inverse', '0.30' ),
+		/* ONE neutral lift and ONE accent glow. Both existed twice, and neither
+		   pair had a stated reason to differ -- `elev_hover_panel` was the same
+		   shadow 6px further out at 0.20, `elev_accent_cart` the same glow 2px
+		   tighter at 0.5. Where two values disagreed, the survivor is the one
+		   design-system.md actually documents: `0 18px 40px -12px rgba(21,24,26,.16)`
+		   is verbatim its `soft-shadow` --elev-hover. The other two were nobody's
+		   decision, which is why nothing was keeping them in step. */
 		'elev_hover'        => array( '0 18px 40px -12px ', 'text', '0.16' ),
-		'elev_hover_panel'  => array( '0 24px 50px -18px ', 'text', '0.20' ),
 		'elev_accent'       => array( '0 12px 26px -10px ', 'accent', '0.55' ),
-		'elev_accent_cart'  => array( '0 10px 22px -8px ', 'accent', '0.5' ),
 	);
 }
 
@@ -160,22 +251,17 @@ function es_token_recipes() {
    default, not a recommendation for any client -- a site that ships with them
    unchanged is a site nobody made a decision about.
 
-   No colour, family or shadow between here and the END marker below is typed
-   by hand. TWO things are NOT true of that region, and naming them is the
-   point of writing this down at all:
+   No colour, family, shadow, easing curve, font size or spacing value between
+   here and the END marker below is typed by hand. The bare CSS keyword `ease`
+   used to be the exception -- typed 9 times on 5 lines INSIDE the same rules as
+   the tokenised curve, so `transform` eased on cubic-bezier(.22,1,.36,1) while
+   `border-color` fell back to the browser default, two motion languages in one
+   rule -- and it is gone: every duration in this file now names es_t('ease').
 
-     1. The bare CSS keyword `ease` is still typed 9 times on 5 lines
-        (es_card_hover_css, es_products_css, es_btn, es_feature_card) -- and it
-        sits INSIDE the same rules as the tokenised curve, so `transform` eases
-        on cubic-bezier(.22,1,.36,1) while `border-color` falls back to the
-        browser default. That is two motion languages in one rule against a
-        house rule that says hovers use the curve. Tokenising it MOVES the
-        emitted bytes, and this task is the one that must not, so it belongs to
-        Task 2 along with the other value changes.
-     2. RT_BUILDER_HARDCODED_TOKEN does not exist yet -- it is Task 3. Until it
-        lands, NOTHING mechanical stops the next literal. The golden dump in
-        tests/ is what catches a value that moves; it does not catch a literal
-        that happens to equal the token it replaced.
+   ONE thing is still not true of that region: RT_BUILDER_HARDCODED_TOKEN does
+   not exist yet -- it is Task 3. Until it lands, NOTHING mechanical stops the
+   next literal. The golden dump in tests/ is what catches a value that moves;
+   it does not catch a literal that happens to equal the token it replaced.
 
    Keys are named for the ROLE the value plays, never for what it looks like:
    `muted`, not `grey`; `surface_inverse`, not `surface_dark`. A token called
@@ -183,12 +269,13 @@ function es_token_recipes() {
    `dark` cannot survive one whose inverse surface is cream -- and renaming it
    afterwards means touching every call site again.
 
-   Some keys below are duplicates of each other. They are duplicates in the
-   FILE too — four neutral borders that started as one value and drifted, two
-   accent glows that differ by 0.05 of alpha, one white written `#fff` in a CSS
-   blob and `#FFFFFF` everywhere else. Collapsing them changes the emitted data,
-   which is exactly what this task is forbidden to do, so each drifted value
-   keeps its own key here and the collapse is reported as a finding. */
+   Nothing below is a duplicate of anything else below. The six that were --
+   five neutral borders doing one job, two accent glows differing in geometry
+   AND alpha, two neutral lifts, and one white written `#fff` in a CSS blob and
+   `#FFFFFF` everywhere else -- were collapsed here, and the values that moved
+   are recorded in the golden dump's diff. Drift is not a naming problem: two
+   keys for one job are two things to remember to change together, and the
+   whole point of this block is that there is only one. */
 function es_tokens( array $override = array() ) {
 	static $t = null;
 	if ( null === $t || $override ) {
@@ -203,27 +290,24 @@ function es_tokens( array $override = array() ) {
 			'on_accent'          => '#FFFFFF', /* text/glyph sitting ON the accent */
 			'on_inverse'         => '#FFFFFF', /* text sitting ON surface_inverse or on the CTA scrim */
 			'muted_on_inverse'   => null, /* derived: on_inverse at 0.75 */
-			/* DRIFT: the same white as on_accent, written in CSS 3-digit
-			   shorthand at one call site (the products-grid button). Kept
-			   only so this task stays byte-identical. Task 2 deletes it. */
-			'on_accent_short'    => '#fff',
 			/* borders ----------------------------------------------- */
-			/* DRIFT: five keys doing one job. `border` is the hairline at
-			   rest; `border_hover` is the same hairline on the image-box
-			   card; `border_panel`/`border_panel_hover` are the feature
-			   card's own pair, two shades off for no stated reason; and
-			   `border_control` is the outline button's edge. Task 2 should
-			   collapse these to `border` + a derived hover. */
+			/* ONE hairline and its hover. This was five keys -- a rest/hover
+			   pair for the image-box card, a second pair two shades off for
+			   the feature card, and a darker edge for the outline button --
+			   five values for one job, none of them a decision anybody
+			   recorded. The outline button's edge is the one that lightens
+			   most (#CBD0CB -> #E5E7E5); a control edge wanting more contrast
+			   than a divider is a real argument, but it is an accessibility
+			   argument, and #CBD0CB was 1.5:1 on white, nowhere near the 3:1
+			   WCAG 1.4.11 asks of a control. It was not buying the contrast
+			   its darkness implied, so nothing is lost by collapsing it. */
 			'border'             => '#E5E7E5',
-			'border_hover'       => '#D6DAD6',
-			'border_panel'       => '#EAECEA',
-			'border_panel_hover' => '#E0E4E0',
-			'border_control'     => '#CBD0CB',
+			'border_hover'       => null, /* derived: border darkened 6.5% */
 			'border_on_inverse'  => null, /* derived: on_inverse at 0.5 */
 			/* accent -- derives from the BRAND, never from the anchor.
 			   design-tokens.md is explicit that accent is not an axis. */
 			'accent'             => '#0FA968',
-			'accent_hover'       => '#0C8A55', /* FINDING for Task 2: a hand-picked darker green, NOT derived from accent. A navy brand still gets a hand-picked hover. */
+			'accent_hover'       => null, /* derived: accent darkened 18.5% */
 			'accent_wash'        => null, /* derived: accent at 0.10 -- the faint tint an outline control fills with */
 			/* scrim over the CTA banner photo, so the copy stays legible */
 			'scrim_from'         => null, /* derived: surface_inverse at 0.92 */
@@ -231,15 +315,48 @@ function es_tokens( array $override = array() ) {
 			/* scale ------------------------------------------------- */
 			'font_head'          => 'Space Grotesk',
 			'font_body'          => 'Manrope',
+			/* The four numbers that ARE the scale axis, at the `classic`
+			   position from design-system.md's "Perceptual axes" table. Every
+			   heading and body size in this file is es_fs(step) off these; no
+			   size is typed. */
+			'fs_base'            => 16,
+			'type_ratio'         => 1.333,
+			'display_lh'         => 1.10,
+			'fs_h1_max'          => 64,
+			/* The one size deliberately OFF the ratio. design-system.md pins
+			   --fs-small at a flat 0.875rem rather than deriving it, because
+			   card meta text is not a step in the heading hierarchy: it is the
+			   floor under body, and a ratio that pushes headings apart must not
+			   also push meta text into unreadability. Nearest-step would have
+			   sent it to 16 -- the same size as body -- erasing the distinction
+			   it exists to make. An honest exception, not a bent derivation.
+			   It does NOT track fs_base; a project that moves the base should
+			   move this too. */
+			'fs_small'           => 14,
+			/* Same reasoning, and design-system.md pins it the same way
+			   (--fs-eyebrow: 0.75rem, flat). This one was ON the scale for a
+			   while at step -1, and the render numbers showed why that is
+			   wrong: a step BELOW body shrinks as the ratio grows, so the
+			   monumental position -- the one meant to make headings shout --
+			   was quietly taking this uppercase, letter-spaced label down to
+			   9.9px. The scale axis pushes the hierarchy APART; it must not
+			   push the small end into unreadability. */
+			'fs_eyebrow'         => 12,
+			/* density ----------------------------------------------- */
+			/* `standard`. Applied inside es_box() and the three gap defaults,
+			   so one multiplier moves the whole rhythm. */
+			'sp_scale'           => 1.0,
 			/* elevation --------------------------------------------- */
-			/* There is no rest-state shadow in this file, only hover ones;
-			   `elev_rest` is Task 2's job, not an omission here. */
+			/* The rest state, which did not exist at all before: this file had
+			   five :hover shadows and nothing underneath them, which is why
+			   `hairline` and `soft-shadow` could not be expressed. `none` is
+			   the `none` position from design-system.md and renders exactly as
+			   the absence it replaces. Swap it for `0 0 0 1px #E5E7E5`
+			   (hairline) or `0 1px 2px rgba(0,0,0,.04)` (soft-shadow) and every
+			   card recipe picks it up. */
+			'elev_rest'          => 'none',
 			'elev_hover'         => null, /* derived: text at 0.16 */
-			'elev_hover_panel'   => null, /* derived: text at 0.20 */
-			/* DRIFT: one green glow written twice, different geometry AND
-			   different alpha (0.55 vs 0.5). Task 2 collapses them. */
 			'elev_accent'        => null, /* derived: accent at 0.55 */
-			'elev_accent_cart'   => null, /* derived: accent at 0.5 */
 			/* motion ------------------------------------------------ */
 			'ease'               => 'cubic-bezier(.22,1,.36,1)',
 		);
@@ -256,6 +373,15 @@ function es_tokens( array $override = array() ) {
 		}
 
 		$t = array_merge( $base, $override );
+		/* Shades run BEFORE the veils: a shade produces a hex, a veil consumes
+		   one, so this order is what lets a future glow be built on a hover. */
+		foreach ( es_token_shades() as $clave => $receta ) {
+			/* Same escape hatch as the veils below: a brand whose hover is not
+			   a darker version of its accent must be able to say so. */
+			if ( ! array_key_exists( $clave, $override ) ) {
+				$t[ $clave ] = es_shade( $t[ $receta[0] ], $receta[1] );
+			}
+		}
 		foreach ( es_token_recipes() as $clave => $receta ) {
 			/* An explicit override of a derived key still wins: a brand whose
 			   glow is not its accent must be able to say so. */
@@ -279,6 +405,37 @@ function es_t( $key ) {
 		return '';
 	}
 	return $t[ $key ];
+}
+
+/**
+ * One step on the type scale, in px.
+ *
+ * Step 0 is body; each step up multiplies by the ratio, each step down divides.
+ * This is what the scale axis IS -- ONE number moves the whole hierarchy,
+ * instead of twelve sizes that happen to look related and drift apart the first
+ * time someone nudges one of them. (They had: two card titles declared with the
+ * same `title_size => h3` were shipping at 19px and 17px.)
+ *
+ * Capped at fs_h1_max so a monumental ratio cannot run a heading off a phone.
+ * At the `classic` position the cap does not engage until step 5, and this file
+ * emits nothing above step 3 -- so today it is insurance, not a live value, and
+ * the suite proves it engages rather than assuming it.
+ */
+function es_fs( $step ) {
+	$t  = es_tokens();
+	$px = $t['fs_base'] * pow( $t['type_ratio'], $step );
+	return round( min( $px, $t['fs_h1_max'] ), 1 );
+}
+
+/**
+ * One length on the density axis, in px.
+ *
+ * Every spacing value in the file goes through here -- via es_box() and the
+ * three gap defaults -- so density is one multiplier over the whole rhythm
+ * rather than 29 numbers to re-tune by hand and 29 chances to miss one.
+ */
+function es_sp( $px ) {
+	return (int) round( $px * es_tokens()['sp_scale'] );
 }
 
 /**
@@ -320,7 +477,10 @@ function es_section( array $children, array $opts = array() ) {
  * $opts: bg, gap, align (flex_align_items), reverse (stack mobile in reverse), settings.
  */
 function es_split( array $children, array $opts = array() ) {
-	$gap      = isset( $opts['gap'] ) ? (int) $opts['gap'] : 48;
+	/* The three flex gaps are the only spacing that does not travel through
+	   es_box(), so density has to be applied to them by hand -- here, at the
+	   default, and not at any call site. */
+	$gap      = es_sp( isset( $opts['gap'] ) ? (int) $opts['gap'] : 48 );
 	$settings = array(
 		'content_width'         => 'boxed',
 		'flex_direction'        => 'row',
@@ -396,12 +556,12 @@ function es_photo( $img_slug, $height = 420, array $extra = array() ) {
  */
 function es_card_hover_css() {
 	$ease = es_t( 'ease' );
-	return 'selector .elementor-widget-image-box{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ease;will-change:transform;}'
+	return 'selector .elementor-widget-image-box{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';will-change:transform;}'
 		. 'selector .elementor-widget-image-box:hover{transform:translateY(-4px);border-color:' . es_t( 'border_hover' ) . ';box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector .elementor-widget-image-box .elementor-image-box-img{overflow:hidden;}'
 		. 'selector .elementor-widget-image-box .elementor-image-box-img img{transition:transform .7s ' . $ease . ';will-change:transform;}'
 		. 'selector .elementor-widget-image-box:hover .elementor-image-box-img img{transform:scale(1.045);}'
-		. 'selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ease;}'
+		. 'selector .elementor-widget-image-box .elementor-image-box-title{transition:color .4s ' . $ease . ';}'
 		. 'selector .elementor-widget-image-box:hover .elementor-image-box-title{color:' . es_t( 'accent' ) . ';}';
 }
 
@@ -420,14 +580,14 @@ function es_card_hover_css() {
  */
 function es_products_css( $extra_css = '' ) {
 	$ease = es_t( 'ease' );
-	return 'selector ul.products li.product{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ';border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
+	return 'selector ul.products li.product{transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}'
 		. 'selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s ' . $ease . ';border-radius:8px;will-change:transform;}'
 		. 'selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:' . es_t( 'elev_hover' ) . ';}'
 		. 'selector ul.products li.product:hover img{transform:scale(1.045);}'
 		. 'selector ul.products{align-items:stretch;}'
 		. 'selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}'
-		. 'selector ul.products li.product .button{margin-top:auto;background-color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;color:' . es_t( 'on_accent_short' ) . '!important;border-radius:6px!important;transition:background-color .3s ease,box-shadow .35s ease!important;}'
-		. 'selector ul.products li.product .button:hover{background-color:' . es_t( 'accent_hover' ) . '!important;box-shadow:' . es_t( 'elev_accent_cart' ) . '!important;}'
+		. 'selector ul.products li.product .button{margin-top:auto;background-color:' . es_t( 'accent' ) . '!important;border-color:' . es_t( 'accent' ) . '!important;color:' . es_t( 'on_accent' ) . '!important;border-radius:6px!important;transition:background-color .3s ' . $ease . ',box-shadow .35s ' . $ease . '!important;}'
+		. 'selector ul.products li.product .button:hover{background-color:' . es_t( 'accent_hover' ) . '!important;box-shadow:' . es_t( 'elev_accent' ) . '!important;}'
 		. 'selector ul.products li.product a.added_to_cart{display:none!important;}'
 		. 'selector ul.products li.product a.button.added{font-size:0!important;}'
 		. 'selector ul.products li.product a.button.added::after{content:"Añadido ✓"!important;font-size:13.5px!important;font-weight:600;}'
@@ -442,6 +602,7 @@ function es_products_css( $extra_css = '' ) {
  * the grid height follow its content.
  */
 function es_grid( $cols, array $children, $gap = 24, array $extra = array() ) {
+	$gap      = es_sp( $gap );   /* ver es_split(): la densidad se aplica aqui, no en la llamada */
 	$settings = array(
 		'container_type'          => 'grid',
 		'content_width'           => 'full',
@@ -469,6 +630,7 @@ function es_grid( $cols, array $children, $gap = 24, array $extra = array() ) {
  * Horizontal row (buttons, inline items).
  */
 function es_row( array $children, $gap = 14, array $extra = array() ) {
+	$gap      = es_sp( $gap );   /* ver es_split(): la densidad se aplica aqui, no en la llamada */
 	$settings = array(
 		'content_width'  => 'full',
 		'flex_direction' => 'row',
@@ -498,7 +660,7 @@ function es_eyebrow( $text, $color = null ) {
 			'title_color'                => $color,
 			'typography_typography'      => 'custom',
 			'typography_font_family'     => es_t( 'font_body' ),
-			'typography_font_size'       => es_size( 12 ),
+			'typography_font_size'       => es_size( es_t( 'fs_eyebrow' ) ),
 			'typography_font_weight'     => '700',
 			'typography_text_transform'  => 'uppercase',
 			'typography_letter_spacing'  => es_size( 1.6 ),
@@ -525,7 +687,7 @@ function es_p( $html, array $extra = array() ) {
 		'text_color'            => es_t( 'muted' ),
 		'typography_typography' => 'custom',
 		'typography_font_family' => es_t( 'font_body' ),
-		'typography_font_size'  => es_size( 16 ),
+		'typography_font_size'  => es_size( es_fs( 0 ) ),
 		'typography_line_height' => es_size( 1.65, 'em' ),
 		'_margin'               => es_box( 0, 0, 0, 0 ),
 	);
@@ -546,18 +708,19 @@ function es_p( $html, array $extra = array() ) {
  * so they never depend on conditionally-enqueued hover assets.
  */
 function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
-	$trans = 'selector .elementor-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .35s ease,transform .35s ' . es_t( 'ease' ) . ';}';
+	$ease  = es_t( 'ease' );
+	$trans = 'selector .elementor-button{transition:background-color .3s ' . $ease . ',color .3s ' . $ease . ',border-color .3s ' . $ease . ',box-shadow .35s ' . $ease . ',transform .35s ' . $ease . ';}';
 	$lift_green = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);box-shadow:' . es_t( 'elev_accent' ) . ';}';
 	$lift_soft  = $trans . 'selector .elementor-button:hover{transform:translateY(-2px);}';
 
 	$settings = array(
 		'text'                   => $text,
 		'link'                   => array( 'url' => $link, 'is_external' => '', 'nofollow' => '' ),
-		'border_radius'          => es_box( 8, 8, 8, 8 ),
+		'border_radius'          => es_box_unscaled( 8, 8, 8, 8 ),
 		'text_padding'           => es_box( 14, 26, 14, 26 ),
 		'typography_typography'  => 'custom',
 		'typography_font_family' => es_t( 'font_body' ),
-		'typography_font_size'   => es_size( 15 ),
+		'typography_font_size'   => es_size( es_fs( 0 ) ),
 		'typography_font_weight' => '600',
 	);
 	if ( 'primary' === $style ) {
@@ -576,8 +739,8 @@ function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
 		$settings['background_color']              = es_t( 'transparent' );
 		$settings['button_text_color']            = es_t( 'text' );
 		$settings['border_border']                = 'solid';
-		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
-		$settings['border_color']                 = es_t( 'border_control' );
+		$settings['border_width']                 = es_box_unscaled( 1, 1, 1, 1 );
+		$settings['border_color']                 = es_t( 'border' );
 		$settings['button_background_hover_color'] = es_t( 'accent_wash' );
 		$settings['hover_color']                  = es_t( 'accent' );
 		$settings['button_hover_border_color']    = es_t( 'accent' );
@@ -586,7 +749,7 @@ function es_btn( $text, $link, $style = 'primary', array $extra = array() ) {
 		$settings['background_color']              = es_t( 'transparent' );
 		$settings['button_text_color']            = es_t( 'on_inverse' );
 		$settings['border_border']                = 'solid';
-		$settings['border_width']                 = es_box( 1, 1, 1, 1 );
+		$settings['border_width']                 = es_box_unscaled( 1, 1, 1, 1 );
 		$settings['border_color']                 = es_t( 'border_on_inverse' );
 		/* The fill is the SOLID version of the ink this button already lives
 		   in: border_on_inverse is on_inverse at 0.5, so hovering to on_inverse
@@ -615,7 +778,7 @@ function es_card( $img_slug, $title, $text, $link = '', array $extra = array() )
 		'image_height'             => es_size( 190 ),
 		'image_object_fit'         => 'cover',
 		'image_border_radius'      => es_size( 8 ),
-		'image_space'              => es_size( 20 ),
+		'image_space'              => es_size( es_sp( 20 ) ),
 		'title_text'               => $title,
 		'description_text'         => $text,
 		'position'                 => 'top',
@@ -625,20 +788,20 @@ function es_card( $img_slug, $title, $text, $link = '', array $extra = array() )
 		'description_color'        => es_t( 'muted' ),
 		'title_typography_typography' => 'custom',
 		'title_typography_font_family' => es_t( 'font_head' ),
-		'title_typography_font_size' => es_size( 19 ),
+		'title_typography_font_size' => es_size( es_fs( 1 ) ),
 		'title_typography_font_weight' => '700',
 		'description_typography_typography' => 'custom',
 		'description_typography_font_family' => es_t( 'font_body' ),
-		'description_typography_font_size' => es_size( 14.5 ),
+		'description_typography_font_size' => es_size( es_t( 'fs_small' ) ),
 		'description_typography_line_height' => es_size( 1.6, 'em' ),
-		'title_bottom_space'       => es_size( 8 ),
+		'title_bottom_space'       => es_size( es_sp( 8 ) ),
 		'_padding'                 => es_box( 20, 20, 24, 20 ),
 		'_background_background'   => 'classic',
 		'_background_color'        => es_t( 'bg' ),
 		'_border_border'           => 'solid',
-		'_border_width'            => es_box( 1, 1, 1, 1 ),
+		'_border_width'            => es_box_unscaled( 1, 1, 1, 1 ),
 		'_border_color'            => es_t( 'border' ),
-		'_border_radius'           => es_box( 10, 10, 10, 10 ),
+		'_border_radius'           => es_box_unscaled( 10, 10, 10, 10 ),
 		/* Hover handled by the parent grid's Custom CSS (es_card_hover_css). */
 	);
 	if ( $link ) {
@@ -664,7 +827,7 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 					'min_height_mobile'     => es_size( 340 ),
 					'padding'               => es_box( 64, 64, 64, 64 ),
 					'padding_mobile'        => es_box( 36, 28, 36, 28 ),
-					'border_radius'         => es_box( 14, 14, 14, 14 ),
+					'border_radius'         => es_box_unscaled( 14, 14, 14, 14 ),
 					'overflow'              => 'hidden',
 					'background_background' => 'classic',
 					'background_image'      => es_img( $img_slug ),
@@ -694,10 +857,10 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 									'title_color'                 => es_t( 'on_inverse' ),
 									'typography_typography'       => 'custom',
 									'typography_font_family'      => es_t( 'font_head' ),
-									'typography_font_size'        => es_size( 38 ),
-									'typography_font_size_mobile' => es_size( 27 ),
+									'typography_font_size'        => es_size( es_fs( 3 ) ),
+									'typography_font_size_mobile' => es_size( es_fs( 2 ) ),
 									'typography_font_weight'      => '700',
-									'typography_line_height'      => es_size( 1.12, 'em' ),
+									'typography_line_height'      => es_size( es_t( 'display_lh' ), 'em' ),
 									'_margin'                     => es_box( 0, 0, 16, 0 ),
 								)
 							),
@@ -705,7 +868,7 @@ function es_cta_banner( $img_slug, $title, $text, $btn_text, $btn_link, $bg = ''
 								$text,
 								array(
 									'text_color'             => es_t( 'muted_on_inverse' ),
-									'typography_font_size'   => es_size( 16 ),
+									'typography_font_size'   => es_size( es_fs( 0 ) ),
 									'typography_line_height' => es_size( 1.65, 'em' ),
 									'_margin'                => es_box( 0, 0, 30, 0 ),
 								)
@@ -734,22 +897,22 @@ function es_iconbox( $icon, $title, $text ) {
 			'text_align'      => 'left',
 			'title_size'      => 'h3',
 			'primary_color'   => es_t( 'accent' ),
-			'icon_space'      => es_size( 18 ),
+			'icon_space'      => es_size( es_sp( 18 ) ),
 			'icon_size'       => es_size( 20 ),
 			'title_color'     => es_t( 'text' ),
 			'description_color' => es_t( 'muted' ),
 			'title_typography_typography' => 'custom',
 			'title_typography_font_family' => es_t( 'font_head' ),
-			'title_typography_font_size' => es_size( 17 ),
+			'title_typography_font_size' => es_size( es_fs( 1 ) ),
 			'title_typography_font_weight' => '700',
 			'description_typography_typography' => 'custom',
 			'description_typography_font_family' => es_t( 'font_body' ),
-			'description_typography_font_size' => es_size( 14.5 ),
+			'description_typography_font_size' => es_size( es_t( 'fs_small' ) ),
 			'description_typography_line_height' => es_size( 1.55, 'em' ),
-			'title_bottom_space' => es_size( 5 ),
+			'title_bottom_space' => es_size( es_sp( 5 ) ),
 			'_padding'        => es_box( 22, 0, 22, 0 ),
 			'_border_border'  => 'solid',
-			'_border_width'   => es_box( 1, 0, 0, 0 ),
+			'_border_width'   => es_box_unscaled( 1, 0, 0, 0 ),
 			'_border_color'   => es_t( 'border' ),
 		)
 	);
@@ -769,12 +932,12 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 		'background_background'  => 'classic',
 		'background_color'      => es_t( 'bg' ),
 		'border_border'         => 'solid',
-		'border_width'          => es_box( 1, 1, 1, 1 ),
-		'border_color'          => es_t( 'border_panel' ),
-		'border_radius'         => es_box( 16, 16, 16, 16 ),
-		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ease;will-change:transform;}'
+		'border_width'          => es_box_unscaled( 1, 1, 1, 1 ),
+		'border_color'          => es_t( 'border' ),
+		'border_radius'         => es_box_unscaled( 16, 16, 16, 16 ),
+		'custom_css'            => 'selector{position:relative;overflow:hidden;transition:transform .5s ' . $ease . ',box-shadow .5s ' . $ease . ',border-color .5s ' . $ease . ';box-shadow:' . es_t( 'elev_rest' ) . ';will-change:transform;}'
 			. 'selector::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:' . es_t( 'accent' ) . ';transform:scaleX(0);transform-origin:left;transition:transform .55s ' . $ease . ';}'
-			. 'selector:hover{transform:translateY(-6px);box-shadow:' . es_t( 'elev_hover_panel' ) . ';border-color:' . es_t( 'border_panel_hover' ) . ';}'
+			. 'selector:hover{transform:translateY(-6px);box-shadow:' . es_t( 'elev_hover' ) . ';border-color:' . es_t( 'border_hover' ) . ';}'
 			. 'selector:hover::before{transform:scaleX(1);}'
 			. 'selector .es-feat-ico{transition:transform .5s ' . $ease . ';}'
 			. 'selector:hover .es-feat-ico{transform:translateY(-3px);}',
@@ -795,8 +958,8 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
 					'_margin'         => es_box( 0, 0, 22, 0 ),
 				)
 			),
-			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => es_t( 'font_head' ), 'typography_font_size' => es_size( 19 ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
-			es_p( $text, array( 'typography_font_size' => es_size( 14.5 ), 'typography_line_height' => es_size( 1.58, 'em' ) ) ),
+			es_h( $title, 'h3', array( 'typography_typography' => 'custom', 'typography_font_family' => es_t( 'font_head' ), 'typography_font_size' => es_size( es_fs( 1 ) ), 'typography_font_weight' => '700', '_margin' => es_box( 0, 0, 9, 0 ) ) ),
+			es_p( $text, array( 'typography_font_size' => es_size( es_t( 'fs_small' ) ), 'typography_line_height' => es_size( 1.58, 'em' ) ) ),
 		),
 		true
 	);
@@ -807,7 +970,19 @@ function es_feature_card( $icon, $title, $text, array $extra = array() ) {
    the slug machinery. No styling value belongs here, and RT_BUILDER_HARDCODED_TOKEN
    -- which Task 3 writes and which does not exist yet -- must not scan past this
    line: further down, "#732" appears inside a Spanish warning string as a fake
-   post id, and a colour regex cannot tell it apart. */
+   post id, and a colour regex cannot tell it apart.
+
+   What the region above now holds, and what it deliberately still does not:
+     - Every colour, family, shadow, easing curve, font size and spacing length
+       reads a token. The bare `ease` keyword is gone.
+     - Lengths written INSIDE the CSS blobs are not on the density axis:
+       `border-radius:12px`, `padding:10px`, `font-size:13.5px` and the motion
+       distances (`translateY(-4px)`, `scale(1.045)`) are still literals. They
+       are a real gap, not an oversight -- reported, not silently left.
+     - Body leading drifted the way the borders did: 1.65 / 1.60 / 1.58 / 1.55
+       across four helpers for one job. design-system.md says body is 1.6 flat
+       and is NOT an axis, so collapsing it belongs to whoever owns that value,
+       not to the axis task. `display_lh`, which IS an axis, is tokenised. */
 
 /**
  * Audit the container tree before it is written.
