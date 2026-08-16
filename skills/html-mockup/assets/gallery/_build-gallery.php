@@ -542,8 +542,15 @@ $css[] = <<<'CSS'
 
    WHAT IS KEPT of the rule's intent: there is exactly ONE `:root`, it is load-bearing rather
    than decorative (the gallery's own chrome renders from it — see § shell), and no strip
-   restates the derived chain. `RT_MOCKUP_NO_AXES` reads only the first `:root{…}` block, so the
-   axis declarations it looks for are all in that first block and all real.
+   restates the derived chain. `RT_MOCKUP_NO_AXES` reads only the FIRST root block, so the axis
+   declarations it looks for are all in that first block and all real.
+
+   NOTE FOR ANYONE EDITING THIS COMMENT: do not write the selector immediately followed by an
+   opening brace anywhere in prose. That check finds the first such literal in the whole file and
+   captures to the next closing brace — an earlier version of this paragraph spelled it out with
+   an ellipsis between braces, and since that ellipsis is three UTF-8 bytes the check read a
+   3-byte block, found none of the five axis properties, and would have failed the audit the
+   moment the recursive glob landed. The verifier cannot tell CSS from a sentence about CSS.
 
    THE TRAP THIS LAYOUT EXISTS TO AVOID, which is not obvious and cost a rewrite to find:
    a custom property's `var()` references are substituted AT COMPUTED-VALUE TIME ON THE ELEMENT
@@ -852,9 +859,56 @@ $css[] = <<<'CSS'
 .gal-note{margin-top:var(--sp-m);font-size:var(--fs-small);
           border-left:2px solid var(--c-accent);padding-left:var(--sp-s)}
 
+/* ── the sticky filter. `position:sticky` and not `fixed`: fixed would take the bar out of flow
+      and the first strip would start underneath it. Sticky needs an unbroken ancestor chain with
+      no `overflow` other than visible — which is why this sits as a direct child of body rather
+      than inside the strips wrapper. ── */
+.gal-filter{position:sticky;top:0;z-index:50;background:var(--c-bg);
+            border-bottom:1px solid var(--c-border)}
+.gal-filter .gal-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s);
+                      padding-block:var(--sp-xs)}
+.fgroup{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;min-width:0}
+/* `flex:0 0 auto` + `white-space:nowrap`: inside the nowrap scrolling group this span was being
+   shrunk to 11px and wrapping to five stacked letters, which alone made the group 96px tall and
+   the whole sticky bar 222px. A label is not the thing that should give way in a scroller. */
+.flabel{font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;
+        color:var(--c-text-muted);margin-right:.15rem;flex:0 0 auto;white-space:nowrap}
+/* A filter chip is a button, so it centres its own label on both axes for the same reason .btn
+   does — these sit in a wrapping flex row that can stretch them. */
+.fbtn{display:inline-flex;align-items:center;justify-content:center;
+      font:inherit;font-size:var(--fs-small);line-height:1.2;padding:.3rem .7rem;
+      border:1px solid var(--c-border);border-radius:999px;background:transparent;
+      color:var(--c-text-soft);cursor:pointer;white-space:nowrap;
+      transition:background var(--dur-color) var(--ease),color var(--dur-color) var(--ease),
+                 border-color var(--dur-color) var(--ease)}
+.fbtn:hover{border-color:var(--c-accent);color:var(--c-text)}
+/* The pressed state is colour AND weight, never colour alone: a chip set that reads only by hue
+   is invisible to a monochrome reader and to most colour-blind ones. */
+.fbtn[aria-pressed="true"]{background:var(--c-accent);border-color:var(--c-accent);
+                           color:var(--c-on-accent);font-weight:700}
+.fcount{margin-left:auto;font-size:var(--fs-small);color:var(--c-text-muted);white-space:nowrap}
+/* A STICKY BAR THAT WRAPS EATS THE PHONE. MEASURED at 320: with the chips wrapping, this bar
+   stood 196px tall — 25% of the viewport, permanently, on every scroll. Below the tablet
+   breakpoint each group becomes one horizontally-scrollable line instead, the same recipe
+   `.cats` and `.mainnav` already use, so the height is three short rows no matter how many
+   anchors the gallery grows. The chips stay reachable; they scroll inside their own group
+   rather than pushing the page. */
+@media(max-width:767px){
+  /* `display:block`, NOT a column flex. MEASURED: as a column flex container with
+     `align-items:stretch`, each `.fgroup` computed 403px inside a 320px wrap — 103px of page
+     overflow — because a nowrap flex row that is also a flex ITEM takes its cross size from its
+     own max-content here, and `min-width:0` does not undo it. A block-level scroller takes its
+     width from the containing block by definition, so there is nothing to fight. */
+  .gal-filter .gal-wrap{display:block;padding-block:var(--sp-xs)}
+  .fgroup{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-bottom:.3rem}
+  .fgroup::-webkit-scrollbar{display:none}
+  .fbtn{flex:0 0 auto}
+  .fcount{margin-left:0}
+}
+
 /* ── the strip's data bar. OUTSIDE `[data-anchor]` on purpose: it reports the axes, so it must
       not be painted by them. Its own ground is the shell's. ── */
-.strip{border-top:1px solid var(--c-border)}
+.strip{border-top:1px solid var(--c-border);scroll-margin-top:4.5rem}
 .strip[hidden]{display:none}
 .meta{background:var(--c-bg-alt);color:var(--c-text);padding-block:var(--sp-m);
       border-bottom:1px solid var(--c-border)}
@@ -1510,6 +1564,69 @@ $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. 'Si dos tiras se distinguen, la diferencia es el ancla — no la foto ni el texto.</p>'
 	. '</div></header>';
 
+// ── the sticky filter: by site type and by anchor ──────────────────────────────────────────────
+//
+// Built from the strips that actually exist rather than from a hardcoded list, so a filter can
+// never offer a value nothing matches — and adding a ninth strip needs no edit here.
+
+$sites_present  = array();
+$anchors_present = array();
+foreach ( $STRIPS as $s ) {
+	$sites_present[ $CONTENT[ $s['tpl'] ]['site'] ] = $CONTENT[ $s['tpl'] ]['site_es'];
+	$anchors_present[ $s['anchor'] ]                = $ANCHORS[ $s['anchor'] ]['name'];
+}
+
+function filter_group( $key, $label, $options ) {
+	$o = '<div class="fgroup" role="group" aria-label="' . h( $label ) . '">'
+		. '<span class="flabel">' . h( $label ) . '</span>'
+		. '<button class="fbtn" type="button" data-filter="' . $key . '" data-value="all"'
+		. ' aria-pressed="true">Todas</button>';
+	foreach ( $options as $val => $text ) {
+		$o .= '<button class="fbtn" type="button" data-filter="' . $key . '" data-value="' . h( $val ) . '"'
+			. ' aria-pressed="false">' . h( $text ) . '</button>';
+	}
+	return $o . '</div>';
+}
+
+$filter = '<div class="gal-filter"><div class="gal-wrap">'
+	. filter_group( 'site', 'Tipo', $sites_present )
+	. filter_group( 'pers', 'Ancla', $anchors_present )
+	. '<p class="fcount" id="gal-count" role="status" aria-live="polite">'
+	. $n_strip . ' tiras</p>'
+	. '</div></div>';
+
+// Plain JS, no library. `hidden` rather than a class: it is the platform's own "not rendered and
+// not in the accessibility tree", so a filtered-out strip disappears for a screen reader too
+// instead of only for the eye.
+$filter_js = "<script>\n"
+	. "(function(){\n"
+	. "  var state={site:'all',pers:'all'};\n"
+	. "  var strips=[].slice.call(document.querySelectorAll('.strip'));\n"
+	. "  var count=document.getElementById('gal-count');\n"
+	. "  function apply(){\n"
+	. "    var n=0;\n"
+	. "    for(var i=0;i<strips.length;i++){\n"
+	. "      var s=strips[i];\n"
+	. "      var ok=(state.site==='all'||s.getAttribute('data-site')===state.site)\n"
+	. "          && (state.pers==='all'||s.getAttribute('data-pers')===state.pers);\n"
+	. "      s.hidden=!ok; if(ok){n++;}\n"
+	. "    }\n"
+	. "    count.textContent = (n===strips.length) ? n+' tiras' : n+' de '+strips.length+' tiras';\n"
+	. "  }\n"
+	. "  var btns=document.querySelectorAll('.fbtn');\n"
+	. "  for(var i=0;i<btns.length;i++){\n"
+	. "    btns[i].addEventListener('click',function(){\n"
+	. "      var k=this.getAttribute('data-filter');\n"
+	. "      state[k]=this.getAttribute('data-value');\n"
+	. "      var peers=document.querySelectorAll('.fbtn[data-filter=\"'+k+'\"]');\n"
+	. "      for(var j=0;j<peers.length;j++){ peers[j].setAttribute('aria-pressed', peers[j]===this ? 'true':'false'); }\n"
+	. "      apply();\n"
+	. "    });\n"
+	. "  }\n"
+	. "  apply();\n"
+	. "})();\n"
+	. "</script>";
+
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 	. '<p>' . $n_strip . ' ' . ( 1 === $n_strip ? 'tira' : 'tiras' ) . ' · '
 	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
@@ -1523,11 +1640,13 @@ $noscript = '<noscript><div class="noscript"><div class="gal-wrap">'
 
 $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
 	. $noscript . "\n"
-	. $intro . "\n\n"
+	. $intro . "\n"
+	. $filter . "\n\n"
 	. '<main class="gal-strips">' . "\n"
 	. implode( "\n", $body ) . "\n"
 	. '</main>' . "\n\n"
 	. $foot . "\n\n"
+	. $filter_js . "\n"
 	. $script . "\n";
 
 file_put_contents( $OUT, $html );
