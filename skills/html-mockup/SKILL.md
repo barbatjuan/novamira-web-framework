@@ -69,3 +69,5 @@ iteration, report what changed.
 - `assets/proof-direct-mockup.html` — `PERS-DIRECT` over the SAME copy: ink ground, monumental
   scale, `LP-BROKEN-GRID`, accent glow. Same strings (`RT_PROOF_COPY_DIFFERS` gates it); every
   difference is the anchor, and each file's own head lists them.
+- `assets/gallery/` — internal gallery, one strip per `TPL-* × PERS-*`, generated from
+  `assets/gallery/img/`. Regenerate via `_build-gallery.php`; never hand-edit its `index.html`.

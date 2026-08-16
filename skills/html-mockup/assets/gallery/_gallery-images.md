@@ -30,7 +30,19 @@ never the photograph.
 It is also what makes the gallery fit. Unique imagery per strip is ~300 slots at
 40+ KB, which is over the Artifact's 16 MB ceiling once base64 adds its third.
 Shared, the whole set costs **1,022 KB raw / 1,362 KB base64 — 8.3% of the
-ceiling**, paid once no matter how many strips render it.
+ceiling**.
+
+**Paid once because of the MECHANISM, not because the files are shared.** An
+earlier version of this paragraph said the set was paid once "no matter how many
+strips render it", and that was false: `<img src="data:…">` cannot dedupe, so
+inline `src` attributes pay the bytes once per OCCURRENCE. Measured on the eight
+phase-1 strips that comes to ~6.8 MB, and the plan's phase-2 count of forty lands
+past the 16 MB ceiling — five times what the budget above claims. `_build-gallery.php`
+therefore declares each slug's `data:` URI ONCE in a single map and hydrates it onto
+every `<img data-img="…">` in one pass, which is the route the plan names ("una
+pasada de JS"). The `<img>`, its `alt` and its slug all stay in the static DOM —
+`RT_GALLERY_NO_MANIFEST`, grep and a screen reader all see `data-img="hero-taller"`,
+which is strictly more legible than a base64 blob. Only the pixels need the script.
 
 ## Sourcing and licence
 
