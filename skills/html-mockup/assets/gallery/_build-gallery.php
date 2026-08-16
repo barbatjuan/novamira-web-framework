@@ -928,6 +928,41 @@ $css[] = <<<'CSS'
 .axis dd span{display:block;font-size:var(--fs-eyebrow);color:var(--c-text-muted);
               font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1.5}
 
+/* ── the handoff. A pick has to LEAVE something, or choosing stays a thing that happened in
+      somebody's head. This is that something: the pair, the section inventory and the five axes
+      with their token values, as plain text somebody pastes into the conversation.
+
+      TEXT AND NOT A FILE. The Artifact sandbox makes a page-initiated download inert — an
+      `<a download>` with a `data:` or `blob:` href does nothing there — so a "descargar el spec"
+      button would be a control that looks like it works and does not. Selectable text always
+      works, in every sandbox, with the clipboard API blocked, and with JS off.
+
+      `<details>` and not a panel: it is the platform's own disclosure, it needs no script, and
+      the text sits in the DOM whether it is open or shut — collapsed is a paint state, not an
+      existence one, so grep, the accessibility tree and the build's own assertion all see it. ── */
+.handoff{margin-top:var(--sp-s);border-top:1px solid var(--c-border)}
+.handoff>summary{cursor:pointer;font-size:var(--fs-small);font-weight:700;color:var(--c-text);
+                 display:flex;align-items:center;gap:.4ch;min-height:44px}
+.handoff>summary::marker{color:var(--c-accent)}
+.handoff-bar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-xs);margin-bottom:.45rem}
+/* Same both-axes centring as .btn and .fbtn, and the same reason: this sits in a wrapping flex
+   row that is free to stretch it. 44px is the touch target, not a decoration. */
+.handoff-copy{display:inline-flex;align-items:center;justify-content:center;font:inherit;
+              font-size:var(--fs-small);line-height:1.2;font-weight:700;padding:.45rem 1rem;
+              min-height:44px;border:1px solid var(--c-accent);border-radius:999px;
+              background:var(--c-accent);color:var(--c-on-accent);cursor:pointer}
+.handoff-copy[hidden]{display:none}
+.handoff-said{font-size:var(--fs-small);color:var(--c-text-muted)}
+/* A spec line is longer than a phone, so it scrolls INSIDE ITS OWN BOX — html-mockup/SKILL.md,
+   "wide blocks scroll inside their own container". `tabindex="0"` on the element because a
+   scroll container that only a mouse can reach fails WCAG 2.1.1; the browser gives a focusable
+   box arrow-key scrolling for free. */
+.handoff pre{overflow-x:auto;margin:0;padding:var(--sp-xs);
+             background:var(--c-bg);color:var(--c-text);
+             border:1px solid var(--c-border);border-radius:var(--radius-input);
+             font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+             font-size:var(--fs-eyebrow);line-height:1.6;white-space:pre}
+
 /* The sample. FULL WIDTH, never a bounded cell: `LP-ASYMMETRIC` and `LP-BROKEN-GRID` bleed to
    `full-end`, which is the GRID CONTAINER's edge — inside a padded column the bleed silently
    stops short and the blueprint stops being the blueprint. (The `margin-right:calc(50% - 50vw)`
@@ -1426,36 +1461,140 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 	return implode( "\n", $o );
 }
 
-/** The data bar: TPL id, PERS id, and all five axis positions WITH their values, as checkable data. */
-function meta_html( $C, $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ) {
+/**
+ * ONE axis table per strip, rendered TWICE: as the visible readout and as the handoff spec.
+ *
+ * `short` is what the five-column data bar shows, because that bar has to survive a 320px phone.
+ * `spec` is what the pasted block carries, because there the token NAME is half of what makes the
+ * value unambiguous — "#FFFFFF · #F6F7F8 · #15181A" is three colours in an order the reader has to
+ * already know, `--c-bg #FFFFFF · …` is a spec. Two renderings, one source: written as two tables
+ * they would drift on the first edit, which is the failure this whole generator exists to prevent.
+ */
+function axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ) {
 	$sc = $SCALE[ $A['scale'] ];
 	$gr = $GROUND[ $A['ground'] ];
 	$el = $ELEVATION[ $A['elevation'] ];
 	$cp = $COMPOSITION[ $A['composition'] ];
 
-	$axes = array(
-		array( 'escala', $A['scale'], 'ratio ' . $sc['ratio'] . ' · lh ' . $sc['lh'] . ' · h1 ' . $sc['h1max'] . 'px' ),
-		array( 'fondo', $A['ground'], $gr['bg'] . ' · ' . $gr['alt'] . ' · ' . $gr['text'] ),
-		array( 'densidad', $A['density'], '--sp-scale ×' . $DENSITY[ $A['density'] ] ),
-		array( 'composición', $A['composition'], $cp['lp'] ),
-		array( 'elevación', $A['elevation'], $el['label'] ),
+	return array(
+		array(
+			'axis'  => 'escala',
+			'pos'   => $A['scale'],
+			'short' => 'ratio ' . $sc['ratio'] . ' · lh ' . $sc['lh'] . ' · h1 ' . $sc['h1max'] . 'px',
+			/* `--fs-h1-max` is UNITLESS on purpose — calc() cannot divide a length by a length, so
+			   the coefficient multiplying --fluid has to arrive without one. The note travels with
+			   the number because a reader who "fixes" it to 88px flattens every clamp in the chain. */
+			'spec'  => '--type-ratio ' . $sc['ratio'] . ' · --display-lh ' . $sc['lh']
+				. ' · --fs-h1-max ' . $sc['h1max'] . ' (sin unidad)',
+		),
+		array(
+			'axis'  => 'fondo',
+			'pos'   => $A['ground'],
+			'short' => $gr['bg'] . ' · ' . $gr['alt'] . ' · ' . $gr['text'],
+			'spec'  => '--c-bg ' . $gr['bg'] . ' · --c-bg-alt ' . $gr['alt'] . ' · --c-text ' . $gr['text'],
+		),
+		array(
+			'axis'  => 'densidad',
+			'pos'   => $A['density'],
+			'short' => '--sp-scale ×' . $DENSITY[ $A['density'] ],
+			'spec'  => '--sp-scale ' . $DENSITY[ $A['density'] ],
+		),
+		array(
+			'axis'  => 'composición',
+			'pos'   => $A['composition'],
+			'short' => $cp['lp'],
+			'spec'  => $cp['lp'] . ' — ' . $cp['line'],
+		),
+		array(
+			'axis'  => 'elevación',
+			'pos'   => $A['elevation'],
+			'short' => $el['label'],
+			'spec'  => '--elev-rest ' . $el['rest'] . ' · --elev-hover ' . $el['hover'],
+		),
 	);
+}
 
-	$o   = array();
-	$o[] = '<div class="meta"><div class="gal-wrap">'
+/** Pad to a display width in CHARACTERS: `composición` is 11 glyphs and 13 bytes, and str_pad counts bytes. */
+function pad( $s, $n ) {
+	$len = mb_strlen( $s, 'UTF-8' );
+	return ( $len >= $n ) ? $s : $s . str_repeat( ' ', $n - $len );
+}
+
+/**
+ * The spec a pick leaves behind: plain text, no markup, meant to be pasted into a conversation.
+ *
+ * WHAT IT IS FOR. `ux-design-system/SKILL.md` step 1 already resolves the five axes by PRECHARGING
+ * each one and letting the client confirm or override; its precharge source is "the industry
+ * `web-templates` reported". A strip is a better precharge source than an industry, because it
+ * carries an archetype and five measured positions instead of an average. Nothing else about that
+ * step changes, and the last lines here say so out loud: an axis inherited from a card and never
+ * questioned is exactly the silent default that sentence exists to prevent, just with a nicer
+ * origin, so the block that precharges the dialogue is also the block that demands the dialogue.
+ *
+ * WHAT IT DOES NOT CARRY: typefaces and motion. Those belong to the anchor and live in
+ * design-personalities.md, and copying them here would be one more place for them to drift. The
+ * anchor id is the pointer, which is the same discipline the axis VALUES follow in reverse — those
+ * are transcribed because a pasted spec that says "read another file for the numbers" is not a spec.
+ */
+function handoff_text( $C, $A, $rows ) {
+	$L   = array();
+	$L[] = 'NovaMira · precarga de galería — ' . $C['tpl'] . ' × ' . $A['id'];
+	$L[] = '';
+	$L[] = pad( 'tipo de sitio', 13 ) . ' : ' . $C['site'] . ' (' . $C['site_es'] . ')';
+	$L[] = pad( 'arquetipo', 13 ) . ' : ' . $C['tpl'] . ' — ' . $C['tpl_name'];
+	$L[] = pad( '  ADN fijo', 13 ) . ' : ' . $C['dna'];
+	$L[] = pad( '  secciones', 13 ) . ' : ' . $C['wire'];
+	$L[] = pad( 'ancla', 13 ) . ' : ' . $A['id'] . ' — ' . $A['name'];
+	$L[] = '';
+	$L[] = 'los cinco ejes, con el valor de sus tokens:';
+	foreach ( $rows as $r ) {
+		$L[] = '  ' . pad( $r['axis'], 12 ) . pad( $r['pos'], 13 ) . $r['spec'];
+	}
+	$L[] = '';
+	$L[] = 'Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.';
+	$L[] = '';
+	$L[] = 'PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra';
+	$L[] = '"el sector": el diálogo sigue preguntando en términos de negocio y el cliente confirma o';
+	$L[] = 'sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo';
+	$L[] = 'default silencioso que esa regla existe para impedir.';
+	return implode( "\n", $L );
+}
+
+/** The data bar: TPL id, PERS id, and all five axis positions WITH their values, as checkable data. */
+function meta_html( $C, $A, $rows, $uid ) {
+	$spec_id = 'spec-' . $uid;
+	$o       = array();
+	$o[]     = '<div class="meta"><div class="gal-wrap">'
 		. '<p class="meta-pair"><b>' . h( $C['tpl'] ) . '</b> ' . h( $C['tpl_name'] )
 		. ' <span class="x">×</span> <b>' . h( $A['id'] ) . '</b> ' . h( $A['name'] ) . '</p>'
 		. '<p class="meta-sub">' . h( $C['site_es'] ) . ' · ADN fijo: <code>' . h( $C['dna'] ) . '</code></p>'
 		. '<dl class="axes">';
-	foreach ( $axes as $ax ) {
-		$o[] = '<div class="axis"><dt>' . h( $ax[0] ) . '</dt>'
-			. '<dd><b>' . h( $ax[1] ) . '</b><span>' . h( $ax[2] ) . '</span></dd></div>';
+	foreach ( $rows as $r ) {
+		$o[] = '<div class="axis"><dt>' . h( $r['axis'] ) . '</dt>'
+			. '<dd><b>' . h( $r['pos'] ) . '</b><span>' . h( $r['short'] ) . '</span></dd></div>';
 	}
-	$o[] = '</dl></div></div>';
+	$o[] = '</dl>';
+
+	// The button ships `hidden` and the script unhides it: a copy control with no script behind it
+	// is a control that lies. The `<pre>` needs neither — it is selectable the moment it renders.
+	$o[] = '<details class="handoff"><summary>Precarga para el diálogo — el spec de esta tira</summary>'
+		. '<div class="handoff-bar">'
+		. '<button class="handoff-copy" type="button" hidden data-copy="' . h( $spec_id ) . '">Copiar</button>'
+		. '<span class="handoff-said" role="status" aria-live="polite" data-said="' . h( $spec_id ) . '"></span>'
+		. '</div>'
+		. '<pre id="' . h( $spec_id ) . '" tabindex="0">' . h( handoff_text( $C, $A, $rows ) ) . '</pre>'
+		. '</details>';
+
+	$o[] = '</div></div>';
 	return implode( "\n", $o );
 }
 
 // ── assemble ───────────────────────────────────────────────────────────────────────────────────
+
+/** The strip's DOM id, derived in one place because the handoff assertion below has to rebuild it. */
+function strip_uid( $C, $anchor ) {
+	return strtolower( str_replace( '-', '', $C['tpl'] ) ) . '-' . $anchor;
+}
 
 $body    = array();
 $n_strip = count( $STRIPS );
@@ -1464,7 +1603,7 @@ foreach ( $STRIPS as $s ) {
 	$C   = $CONTENT[ $s['tpl'] ];
 	$A   = $ANCHORS[ $s['anchor'] ];
 	$lp  = strtolower( $COMPOSITION[ $A['composition'] ]['lp'] );
-	$uid = strtolower( str_replace( '-', '', $C['tpl'] ) ) . '-' . $s['anchor'];
+	$uid = strip_uid( $C, $s['anchor'] );
 
 	if ( 'corporate' === $C['site'] ) {
 		$inner = strip_corporate( $s['anchor'], $C, $BRAND, $uid );
@@ -1479,7 +1618,7 @@ foreach ( $STRIPS as $s ) {
 		. ' data-tpl="' . h( $C['tpl'] ) . '"'
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
-	$body[] = meta_html( $C, $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION );
+	$body[] = meta_html( $C, $A, axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ), $uid );
 	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
 	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
@@ -1628,6 +1767,41 @@ $filter_js = "<script>\n"
 	. "})();\n"
 	. "</script>";
 
+// ── the copy pass: an enhancement over text that already works ─────────────────────────────────
+//
+// THREE ROUTES, AND THE LAST ONE CANNOT FAIL. `navigator.clipboard` rejects in a sandboxed frame
+// without `clipboard-write`, and `execCommand` is deprecated and refused by some engines outside a
+// user gesture — so neither is a floor. Selecting the block IS the floor: whatever the sandbox
+// allows, the spec ends up selected and Ctrl/⌘+C works, and the status line says which happened
+// instead of leaving a button that appears to have done something.
+//
+// The selection is made FIRST, before either API is tried, so the floor holds even when both throw.
+
+$copy_js = "<script>\n"
+	. "(function(){\n"
+	. "  var btns=document.querySelectorAll('.handoff-copy');\n"
+	. "  function say(id,msg){var s=document.querySelector('[data-said=\"'+id+'\"]');if(s){s.textContent=msg;}}\n"
+	. "  for(var i=0;i<btns.length;i++){\n"
+	. "    btns[i].hidden=false;\n"
+	. "    btns[i].addEventListener('click',function(){\n"
+	. "      var id=this.getAttribute('data-copy'), pre=document.getElementById(id);\n"
+	. "      if(!pre){return;}\n"
+	. "      var r=document.createRange(); r.selectNodeContents(pre);\n"
+	. "      var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);\n"
+	. "      var ok=false; try{ok=document.execCommand('copy');}catch(e){ok=false;}\n"
+	. "      if(ok){say(id,'Copiado al portapapeles.');return;}\n"
+	. "      if(navigator.clipboard&&navigator.clipboard.writeText){\n"
+	. "        navigator.clipboard.writeText(pre.textContent).then(\n"
+	. "          function(){say(id,'Copiado al portapapeles.');},\n"
+	. "          function(){say(id,'Seleccionado — pulsa Ctrl/⌘+C.');});\n"
+	. "        return;\n"
+	. "      }\n"
+	. "      say(id,'Seleccionado — pulsa Ctrl/⌘+C.');\n"
+	. "    });\n"
+	. "  }\n"
+	. "})();\n"
+	. "</script>";
+
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 	. '<p>' . $n_strip . ' ' . ( 1 === $n_strip ? 'tira' : 'tiras' ) . ' · '
 	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
@@ -1636,7 +1810,8 @@ $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 
 $noscript = '<noscript><div class="noscript"><div class="gal-wrap">'
 	. 'Las fotografías se hidratan con una pasada de JavaScript desde un único mapa de <code>data:</code> URIs. '
-	. 'Sin JS el texto, la maquetación y los ejes se ven enteros; las fotos no.'
+	. 'Sin JS el texto, la maquetación y los ejes se ven enteros; las fotos no. '
+	. 'El bloque de precarga se lee y se selecciona igual: sólo el botón «Copiar» necesita JS.'
 	. '</div></div></noscript>';
 
 $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
@@ -1648,7 +1823,69 @@ $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
 	. '</main>' . "\n\n"
 	. $foot . "\n\n"
 	. $filter_js . "\n"
+	. $copy_js . "\n"
 	. $script . "\n";
+
+// ── the handoff is asserted over the ASSEMBLED PAGE, not over the function that wrote it ───────
+//
+// The claim this build makes is that picking a strip LANDS: every strip leaves a block carrying
+// its pair, its site type and all five axes. Asserted against the final string rather than against
+// $rows, because reading back what a function just returned proves only that PHP works. This
+// catches a strip rendered without a handoff, an escaping change that mangles the block, a format
+// edit that quietly loses a line, and an id that stops matching the button pointed at it — all of
+// which leave a page that looks finished and a pick that produces nothing for one of eight.
+//
+// Before `file_put_contents`, so a build that cannot keep the claim writes no file at all.
+
+// The READOUT half, asserted for the same reason and found by mutating for it: the data bar and
+// the handoff are two renderings of one `axis_rows()` table, so dropping a row kills both — but
+// dropping the row from ONE of the two loops desyncs them silently, and until this ran the visible
+// bar was the half nobody watched. Five in, five out, on every strip.
+$axes_dls = array();
+if ( preg_match_all( '#<dl class="axes">(.*?)</dl>#s', $html, $dl_m ) ) {
+	$axes_dls = $dl_m[1];
+}
+if ( count( $axes_dls ) !== $n_strip ) {
+	fail( 'the page carries ' . count( $axes_dls ) . ' axis readout(s) for ' . $n_strip . ' strip(s)' );
+}
+foreach ( $axes_dls as $dl_ix => $dl_one ) {
+	$dl_n = substr_count( $dl_one, '<div class="axis">' );
+	if ( 5 !== $dl_n ) {
+		fail( 'strip #' . ( $dl_ix + 1 ) . " reports $dl_n of 5 axes in its data bar — a readout short one axis"
+			. ' is a card whose difference from its neighbour cannot be read off the page' );
+	}
+}
+
+$spec_blocks = array();
+if ( preg_match_all( '#<pre id="(spec-[a-z0-9\-]+)"[^>]*>(.*?)</pre>#s', $html, $spec_m, PREG_SET_ORDER ) ) {
+	foreach ( $spec_m as $spec_one ) {
+		$spec_blocks[ $spec_one[1] ] = $spec_one[2];
+	}
+}
+if ( count( $spec_blocks ) !== $n_strip ) {
+	fail( 'the page carries ' . count( $spec_blocks ) . ' handoff block(s) for ' . $n_strip
+		. ' strip(s) — a strip whose pick produces nothing is a card that cannot be chosen' );
+}
+foreach ( $STRIPS as $s ) {
+	$C   = $CONTENT[ $s['tpl'] ];
+	$A   = $ANCHORS[ $s['anchor'] ];
+	$key = 'spec-' . strip_uid( $C, $s['anchor'] );
+	if ( ! isset( $spec_blocks[ $key ] ) ) {
+		fail( "no handoff block `#$key` — the strip renders but its spec does not" );
+	}
+	// The copy button addresses the block by id. If those two ever stop agreeing the button is a
+	// control that silently does nothing, which is worse than no button.
+	if ( false === strpos( $html, 'data-copy="' . $key . '"' ) ) {
+		fail( "handoff block `#$key` has no button pointing at it" );
+	}
+	$spec_need = array( $C['tpl'], $A['id'], $C['site'], 'escala', 'fondo', 'densidad', 'composición', 'elevación' );
+	foreach ( $spec_need as $spec_token ) {
+		if ( false === strpos( $spec_blocks[ $key ], $spec_token ) ) {
+			fail( "handoff block `#$key` does not carry `$spec_token` — a precharge missing a field"
+				. ' is an axis the dialogue never gets asked to confirm or override' );
+		}
+	}
+}
 
 file_put_contents( $OUT, $html );
 

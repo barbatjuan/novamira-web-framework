@@ -13,8 +13,7 @@ The visual language, independent of the page builder: HOW it looks and feels.
 `elementor-core` / `divi-core` translate these into builder data.
 
 ## Activation Contract
-Run after `web-templates`, before `html-mockup`. Use for layout, spacing, color, hover/motion,
-card style, or responsive behavior — Elementor and Divi. Never hand straight to builder-core:
+Run after `web-templates`, before `html-mockup`. Never hand straight to builder-core:
 the mockup approval gate sits between this skill and any WordPress write.
 
 ## The Design Space
@@ -40,12 +39,13 @@ the mockup approval gate sits between this skill and any WordPress write.
 
 ## Execution Steps
 1. Resolve the FIVE AXES with 3–5 questions in business terms, never "which personality do you
-   want". Precharge each from the industry `web-templates` already reported; the client confirms
-   or overrides. One answer usually moves several axes: "material catalogue or gallery of
-   finished work?" moves ground, composition and density at once. **Every axis must end
-   resolved**: ask explicitly for any the answers did not reach — an axis nobody sets falls to
-   the same value on every project, which is how sites end up identical.
-   Land on an anchor from `references/design-personalities.md`, or between two — both are valid.
+   want". Precharge each from the industry `web-templates` reported, or from the spec of a strip
+   picked in `html-mockup/assets/gallery/index.html`, which precharges archetype and all five;
+   the client confirms or overrides. One answer usually moves several axes: "material catalogue
+   or gallery of finished work?" moves ground, composition and density at once. **Every axis must
+   end resolved**: ask explicitly for any the answers did not reach — an axis nobody sets, or one
+   inherited from a card and never questioned, falls to the same value on every project, which is
+   how sites end up identical.
 2. Ask `TGL-IMAGERY` and `TGL-MOTION-INTENSITY` (`web-templates/references/toggles.md`),
    precharged from the anchor's Imagery/Motion intensity; the client confirms or overrides.
 3. Read `references/design-tokens.md`: fix palette, type pair, spacing scale, radii from the
