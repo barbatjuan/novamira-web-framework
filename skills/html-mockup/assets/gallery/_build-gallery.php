@@ -425,6 +425,61 @@ $CONTENT = array(
 			'legal' => '© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda',
 		),
 	),
+
+	'TPL-E-02' => array(
+		'tpl'      => 'TPL-E-02',
+		'tpl_name' => 'Catalog / Product-First',
+		'site'     => 'ecommerce',
+		'site_es'  => 'Ecommerce',
+		'dna'      => 'COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL',
+		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER',
+		'announce' => 'Envío en 72 h a península · Corte a medida sin coste',
+		'search'   => 'Buscar mármol, granito, pizarra…',
+		'tools'    => array( 'Cuenta' ),
+		'cart'     => 'Carrito',
+		'cart_n'   => '2',
+		'hero'     => array(
+			'h1'   => 'Tienda',
+			'lede' => 'Piedra natural cortada a medida, del bloque a tu obra.',
+			'cats' => array( 'Encimeras', 'Suelos', 'Fachada', 'Chimeneas', 'Baño', 'Restos de serie' ),
+			'img'  => 'pan-fachada',
+		),
+		'prods'    => array(
+			'eyebrow' => 'Catálogo',
+			'h2'      => 'Destacados',
+			'cards'   => array(
+				array( 'img' => 'sq-marmol', 'h3' => 'Mármol Crema Levante', 'p' => '189 €/m²' ),
+				array( 'img' => 'sq-pizarra', 'h3' => 'Granito Gris Quintana', 'p' => '164 €/m²' ),
+				array( 'img' => 'card-veta', 'h3' => 'Panel de veta dorada', 'p' => '236 €/m²' ),
+				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble en piedra', 'p' => '412 €' ),
+				array( 'img' => 'card-detalle', 'h3' => 'Plaqueta labrada 30×15', 'p' => '47 €/m²' ),
+				array( 'img' => 'card-labra', 'h3' => 'Bloque para labra', 'p' => '320 €' ),
+				array( 'img' => 'card-patio', 'h3' => 'Sillar de arenisca', 'p' => '96 €' ),
+				array( 'img' => 'sq-manos', 'h3' => 'Canto pulido a mano', 'p' => '28 €/ml' ),
+			),
+		),
+		'carousel' => array(
+			'eyebrow' => 'Cross-sell',
+			'h2'      => 'Más vendidos',
+			'cards'   => array(
+				array( 'img' => 'card-cantero', 'h3' => 'Peldaño macizo 120 cm', 'p' => '138 €' ),
+				array( 'img' => 'hero-encimera', 'h3' => 'Encimera Blanco Macael 3 m', 'p' => '890 €' ),
+				array( 'img' => 'hero-cantera', 'h3' => 'Zócalo pulido 8 cm', 'p' => '19 €/ml' ),
+				array( 'img' => 'hero-taller', 'h3' => 'Kit de sellado mineral 1 L', 'p' => '24 €' ),
+			),
+		),
+		'benefits' => array(
+			array( 'Envío en 72 h', 'A península, con seguimiento.' ),
+			array( 'Corte a medida', 'Sin coste sobre el precio de tabla.' ),
+			array( 'Pago en 3 plazos', 'Sin intereses desde 200 €.' ),
+			array( 'Devolución 30 días', 'En piezas de catálogo sin cortar.' ),
+		),
+		'footer'   => array(
+			'tag'   => 'Tienda de piedra natural · Novelda, Alicante',
+			'links' => array( 'Envíos', 'Devoluciones', 'Aviso legal', 'Privacidad', 'Cookies' ),
+			'legal' => '© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido',
+		),
+	),
 );
 
 // ─────────────────────────────────────────────────────────────── 7 · the strips
@@ -434,7 +489,32 @@ $CONTENT = array(
 
 $STRIPS = array(
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-01', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-02', 'anchor' => 'institutional' ),
 );
+
+/* No pair may repeat: `RT_GALLERY_NOT_DISTINCT` will assert this from outside, but a generator
+   that can emit the same card twice makes that check a formality. Two strips sharing an anchor
+   must declare different archetypes, which duplicate detection here already guarantees. */
+$seen_pairs = array();
+foreach ( $STRIPS as $s ) {
+	$pair = $s['tpl'] . '×' . $s['anchor'];
+	if ( isset( $seen_pairs[ $pair ] ) ) {
+		fail( "duplicate strip $pair — one card per TPL × PERS pair" );
+	}
+	$seen_pairs[ $pair ] = true;
+	if ( ! isset( $CONTENT[ $s['tpl'] ] ) ) {
+		fail( "no content set for {$s['tpl']}" );
+	}
+	if ( ! isset( $ANCHORS[ $s['anchor'] ] ) ) {
+		fail( "no anchor `{$s['anchor']}` in design-personalities.md" );
+	}
+}
 
 // Only the anchors and blueprints actually rendered get a CSS block. Dead CSS for an anchor no
 // strip uses is the same lie as a token nothing reads.
@@ -689,6 +769,17 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .card{display:flex;flex-direction:column;min-width:0}
 .card .body{display:flex;flex-direction:column;gap:var(--sp-xs);padding:var(--sp-m)}
 .card .rule{height:1px;background:var(--c-border)}
+/* A CARD HEADING IS NOT A SECTION HEADING, and at `monumental` scale the difference overflows.
+   MEASURED at 1280 before this rule: PERS-DIRECT's `--fs-h3` caps at 45.84px, and "Restauración"
+   rendered 319px of min-content inside a 253px card column — 48px of horizontal scroll on the
+   whole page, at a width where the `overflow-wrap` guard is deliberately OFF and so could not
+   catch it. Both proof mockups already scale their card headings for exactly this reason
+   (`.work h3` at .8x and .74x); this takes ONE shared fraction rather than a per-anchor number,
+   because the ratio is arithmetic about column width and not a personality choice.
+   `hyphens:auto` is the second half and the reason `lang="es"` is on every strip: it breaks at a
+   Spanish syllable boundary from the hyphenation dictionary, which is ordinary typography — not
+   the mid-stem `overflow-wrap` break that was rejected at desktop widths. */
+.card h3{font-size:calc(var(--fs-h3) * .74);hyphens:auto}
 @media(min-width:768px){
   .items.cols-2,.items.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -702,6 +793,49 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   padding:.7rem .85rem;min-width:0;width:100%;max-width:100%}
 .field textarea{resize:vertical;min-height:5.5rem}
 .field input:focus,.field textarea:focus{outline:2px solid var(--c-accent);outline-offset:1px}
+
+/* ── TPL-E-02 pieces. Ecommerce DNA: € prices and a cart badge (html-mockup/SKILL.md step 2),
+      a search bar that is never hidden behind an icon, and a hero that refuses to be big. ── */
+.announce{background:var(--c-surface-inverse);color:var(--c-on-inverse);text-align:center}
+.announce p{padding-block:.5rem}
+.searchbar{flex:1 1 260px;min-width:0;display:flex;gap:.5rem}
+.searchbar input{flex:1 1 auto;min-width:0;font:inherit;font-size:var(--fs-nav);
+  color:var(--c-text);background:var(--c-bg);border:1px solid var(--c-border);
+  border-radius:var(--radius-input);padding:.5rem .75rem}
+.searchbar input:focus{outline:2px solid var(--c-accent);outline-offset:1px}
+.tools{display:flex;align-items:center;gap:var(--sp-s);font-size:var(--fs-nav);flex:0 1 auto;min-width:0}
+.tools a{color:var(--c-text-muted);white-space:nowrap}
+.tools a:hover{color:var(--c-text)}
+.cart b{display:inline-grid;place-items:center;min-width:1.4rem;height:1.4rem;padding-inline:.35rem;
+  border-radius:999px;background:var(--c-accent);color:var(--c-on-accent);
+  font-size:.7rem;font-weight:700;line-height:1}
+/* COMP-HERO mini: ~20vh is the ADN, so the height is pinned here rather than by --ratio-hero.
+   With an explicit height and no `aspect-ratio`, the automatic-minimum-size transfer that makes
+   `min-width:0` load-bearing on `.frame` cannot fire at all. */
+.mini .frame{aspect-ratio:auto;height:clamp(120px,20vh,220px)}
+.mini .head{gap:var(--sp-xs)}
+.cats{display:flex;gap:var(--sp-s);overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
+.cats::-webkit-scrollbar{display:none}
+.cats a{white-space:nowrap;padding:.35rem .75rem;border:1px solid var(--c-border);
+  border-radius:999px;color:var(--c-text-soft);transition:border-color var(--dur-color) var(--ease)}
+.cats a:hover{border-color:var(--c-accent);color:var(--c-text)}
+.price{font-size:var(--fs-price);font-weight:700;line-height:1.2}
+.card.prod .body{gap:.35rem;align-items:flex-start}
+.card.prod .btn{margin-top:.25rem}
+/* A wide block scrolls inside its OWN container rather than pushing the page (SKILL.md). */
+.rail{grid-auto-flow:column;grid-auto-columns:minmax(78%,1fr);overflow-x:auto;
+      scroll-snap-type:x mandatory;padding-bottom:.5rem}
+.rail > *{scroll-snap-align:start}
+.bens{gap:var(--sp-s)}
+.ben{display:flex;flex-direction:column;gap:.15rem;min-width:0;
+     border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
+.ben b{font-size:var(--fs-small)}
+.bicon{color:var(--c-accent);display:block;line-height:0;margin-bottom:.15rem}
+@media(min-width:600px){.bens{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){
+  .bens{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .rail{grid-auto-columns:minmax(0,1fr);overflow-x:visible}
+}
 CSS;
 
 // ── block 4 · the gallery's own chrome ─────────────────────────────────────────────────────────
@@ -847,15 +981,117 @@ $COMP_CSS['centered'] = <<<'CSS'
 /* ══════════ LP-CENTERED — one symmetric axis, nothing bleeds ══════════
    layout-patterns.md: content in columns 3–11 capped at --content-width, identical on every
    section; headings centred with the eyebrow centred above; images always inside the container
-   with equal margins left and right; grids symmetric only. */
-[data-comp="lp-centered"] .canvas{max-width:var(--content-width)}
+   with equal margins left and right; grids symmetric only — 2, 3 or 4 equal columns. */
 [data-comp="lp-centered"] .head{text-align:center;align-items:center;margin-inline:auto;max-width:62ch}
 [data-comp="lp-centered"] .ctas{justify-content:center}
-[data-comp="lp-centered"] .card .body{text-align:center;align-items:center}
+[data-comp="lp-centered"] .card:not(.prod) .body{text-align:center;align-items:center}
+[data-comp="lp-centered"] .cats{justify-content:flex-start}
 @media(min-width:1024px){
+  /* "Images: always inside the container, equal margins left and right. Nothing bleeds, ever." */
+  [data-comp="lp-centered"] .hero .media,
+  [data-comp="lp-centered"] .mini .media{max-width:var(--content-width);margin-inline:auto}
   [data-comp="lp-centered"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-comp="lp-centered"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-comp="lp-centered"] .cats{justify-content:center}
   [data-comp="lp-centered"] .band .leadform{max-width:34rem;margin-inline:auto}
+}
+CSS;
+
+$COMP_CSS['strict-grid'] = <<<'CSS'
+/* ══════════ LP-STRICT-GRID — every element starts and ends on a column line ══════════
+   layout-patterns.md: 12 columns, one gutter (--sp-m), ZERO bleeds; hero copy in columns 1–6 and
+   the image in 7–12, both inside the container and not overlapping; headings left-aligned on the
+   first column line; one fixed aspect ratio per section so rows line up; 3 or 4 equal columns
+   with equal gutters and equal card heights.
+
+   No named lines here on purpose. `full-start`/`full-end` exist to make a violation safe, and
+   this blueprint has no violation to make safe — the container edge IS the limit. */
+@media(min-width:1024px){
+  [data-comp="lp-strict-grid"] .canvas{grid-template-columns:repeat(12,minmax(0,1fr));
+    column-gap:var(--sp-m)}
+  [data-comp="lp-strict-grid"] .canvas > *{grid-column:1/-1;min-width:0}
+  [data-comp="lp-strict-grid"] .hero .head,
+  [data-comp="lp-strict-grid"] .mini .head{grid-column:1/7;justify-content:center}
+  [data-comp="lp-strict-grid"] .hero .media,
+  [data-comp="lp-strict-grid"] .mini .media{grid-column:7/13}
+  [data-comp="lp-strict-grid"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  [data-comp="lp-strict-grid"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* equal card heights: the rows must visibly align */
+  [data-comp="lp-strict-grid"] .card{height:100%}
+  [data-comp="lp-strict-grid"] .band .head{grid-column:1/7}
+  [data-comp="lp-strict-grid"] .band .formwrap{grid-column:7/13}
+}
+CSS;
+
+$COMP_CSS['broken-grid'] = <<<'CSS'
+/* ══════════ LP-BROKEN-GRID — one element per section crosses the grid ══════════
+   The same named-line 12 columns as LP-ASYMMETRIC, kept as a reference the page deliberately
+   violates. Naming a line is what makes the violation SAFE: crossing the container is
+   `c 1 / full-end`, bleeding two edges is `full-start / full-end`, and neither is a negative
+   margin that collapses at 430px. Overlaps stack with z-index inside a shared grid row.
+
+   Below 1024px every rule here is off and the page is a plain stacked column — a broken grid at
+   430px is just broken. */
+@media(min-width:1024px){
+  [data-comp="lp-broken-grid"] .canvas{
+    max-width:none;padding-inline:0;
+    grid-template-columns:
+      [full-start] minmax(var(--pad-x-mobile),1fr)
+      [wide-start] repeat(12,[c] minmax(0,var(--col)))
+      [wide-end c] minmax(var(--pad-x-mobile),1fr)
+      [full-end];
+  }
+  [data-comp="lp-broken-grid"] .canvas > *{grid-column:wide-start/wide-end;min-width:0}
+
+  /* HERO: the oversized H1 crosses the container's right edge and the image sits BEHIND it,
+     offset. Text over a photograph needs a scrim — design-tokens.md says the visual language IS
+     real photography with scrims, and this is the one place on the page that earns one.
+
+     THE SCRIM'S FLOOR IS MEASURED, NOT EYEBALLED, and the first version failed. It faded to
+     fully transparent at the frame's right edge, which LOOKED fine: the h1 was legible in a
+     screenshot. Sampling the actual pixels under the text — the image drawn to a canvas, mapped
+     through `object-fit:cover`, composited with the scrim's own alpha at each x — put the worst
+     case at **1.95:1** where the headline crosses a pale rock face, against the 3:1 that large
+     text needs. An image that happens to be dark where the text lands is luck, not a design.
+
+     The floor is 64%: over a worst-case pure-white pixel, `255 - 241×0.64` composites to 100,
+     which is 5.4:1 against `--c-text`. That is a veil dark enough to hold ANY frame, which is
+     what makes it safe to swap the photograph later. It also suits this anchor — PERS-DIRECT's
+     imagery is "high-contrast, tightly cropped", not a bright open frame. */
+  [data-comp="lp-broken-grid"] .hero .canvas{row-gap:var(--sp-s)}
+  [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/full-end;grid-row:1;
+    position:relative;z-index:2}
+  [data-comp="lp-broken-grid"] .hero .media{grid-column:c 7/full-end;grid-row:1;
+    z-index:0;align-self:stretch}
+  [data-comp="lp-broken-grid"] .hero .frame{height:100%;aspect-ratio:auto;border-radius:0;
+    min-height:min(58vh,460px)}
+  [data-comp="lp-broken-grid"] .hero .frame::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to right,var(--c-bg) 0%,var(--c-bg) 22%,
+      color-mix(in srgb,var(--c-bg) 64%,transparent) 100%)}
+  [data-comp="lp-broken-grid"] .hero h1{max-width:none}
+  [data-comp="lp-broken-grid"] .hero .lede{max-width:44ch}
+
+  /* MINI hero (TPL-E-02): the page's TWO-EDGE bleed. */
+  [data-comp="lp-broken-grid"] .mini .media{grid-column:full-start/full-end}
+  [data-comp="lp-broken-grid"] .mini .frame{border-radius:0}
+  [data-comp="lp-broken-grid"] .mini .head{grid-column:c 1/c 9}
+  [data-comp="lp-broken-grid"] .mini .cats{grid-column:c 1/c 11}
+
+  /* EVERY OTHER SECTION: the heading crosses a column line, the grid is deliberately uneven,
+     and one card is offset vertically by --sp-l. */
+  [data-comp="lp-broken-grid"] .grid-sec .head{grid-column:c 1/c 9}
+  [data-comp="lp-broken-grid"] .services .items,
+  [data-comp="lp-broken-grid"] .cases .items{grid-column:c 1/full-end;
+    grid-template-columns:4fr 5fr 3fr}
+  [data-comp="lp-broken-grid"] .cases .items{grid-template-columns:5fr 7fr}
+  /* "one card offset vertically by --sp-l" — on a CONTENT grid only. Applied to the catalogue it
+     nudged product #2 down out of an otherwise dense 4-column row, which reads as a rendering
+     bug rather than a composition choice, and TPL-E-02's density is ADN the blueprint does not
+     get to spend. Caught by looking at it; no measurement would have flagged it. */
+  [data-comp="lp-broken-grid"] .services .items > :nth-child(2),
+  [data-comp="lp-broken-grid"] .cases .items > :nth-child(2){margin-top:var(--sp-l)}
+  [data-comp="lp-broken-grid"] .band .head{grid-column:c 1/c 10}
+  [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/full-end}
 }
 CSS;
 
@@ -882,14 +1118,22 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   [data-comp="lp-asymmetric"] .canvas > *{grid-column:wide-start/wide-end;min-width:0}
   /* headings left-aligned, never centred; the eyebrow sits above and left */
   [data-comp="lp-asymmetric"] .head{grid-column:c 1/c 8}
-  /* the one bleed per section, always the same edge, all the way down */
+  /* the one bleed per section, always the SAME edge, all the way down the page */
   [data-comp="lp-asymmetric"] .hero .media{grid-column:c 8/full-end}
   [data-comp="lp-asymmetric"] .hero .frame{border-radius:0}
+  [data-comp="lp-asymmetric"] .mini .head{grid-column:c 1/c 7}
+  [data-comp="lp-asymmetric"] .mini .media{grid-column:c 7/full-end}
+  [data-comp="lp-asymmetric"] .mini .frame{border-radius:0}
+  [data-comp="lp-asymmetric"] .mini .cats{grid-column:c 1/c 11}
   /* two columns at 7/5, never 50/50 — a 3-card grid becomes 2 + 1, which is the point */
   [data-comp="lp-asymmetric"] .services .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .services .items{grid-column:c 1/c 13;grid-template-columns:7fr 5fr}
   [data-comp="lp-asymmetric"] .cases .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .cases .items{grid-column:c 6/full-end;grid-template-columns:7fr 5fr}
+  /* the catalogue grid keeps its dense equal columns — see the note in strip_ecommerce() */
+  [data-comp="lp-asymmetric"] .prods .head{grid-column:c 1/c 6}
+  [data-comp="lp-asymmetric"] .carousel .head{grid-column:c 1/c 6}
+  [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/full-end}
   [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}
@@ -903,6 +1147,14 @@ $css[] = "\n/* ═════════════════════�
         max-width:var(--content-width);margin-inline:auto;padding-inline:var(--pad-x-mobile)}
 @media(min-width:768px){.canvas{padding-inline:var(--pad-x-tablet)}}
 .canvas > *{min-width:0}
+/* COMP-PRODUCT-GRID density, straight from TPL-E-02: mobile 2, tablet 3, desktop 4. Identical
+   under all four blueprints — a catalogue grid is archetype DNA, not a composition choice. */
+/* Equal card heights so the rows visibly align — a catalogue whose cards end at four different
+   heights reads as unfinished whatever the anchor says. */
+.grid-prod > .card{height:100%}
+.grid-prod{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:768px){.grid-prod{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:1024px){.grid-prod{grid-template-columns:repeat(4,minmax(0,1fr))}}
 CSS;
 
 foreach ( $COMPOSITION as $pos => $meta ) {
@@ -968,7 +1220,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
 
 	// 2 · COMP-SERVICES  [fijo · ADN]
 	$sv  = $C['services'];
-	$o[] = '<section class="sec services" aria-label="Servicios"><div class="canvas">'
+	$o[] = '<section class="sec services grid-sec" aria-label="Servicios"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
 	foreach ( $sv['cards'] as $c ) {
@@ -978,7 +1230,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
 
 	// 3 · COMP-CASES  [toggle TGL-CASES, default on]
 	$cs  = $C['cases'];
-	$o[] = '<section class="sec cases bg-alt" aria-label="Casos"><div class="canvas">'
+	$o[] = '<section class="sec cases grid-sec bg-alt" aria-label="Casos"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $cs['h2'] ) . '</h2></div><div class="items cols-2">';
 	foreach ( $cs['cards'] as $c ) {
@@ -1003,14 +1255,118 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
 		. '</form></div></div></section>';
 
 	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
 
-	$f   = $C['footer'];
-	$o[] = '<footer class="site-foot"><div class="canvas">'
+	return implode( "\n", $o );
+}
+
+/** COMP-FOOTER — `[fijo]` in both archetypes, so it is emitted from one place. */
+function footer_html( $f ) {
+	$o = '<footer class="site-foot"><div class="canvas">'
 		. '<div class="fnav"><span class="muted small">' . h( $f['tag'] ) . '</span>';
 	foreach ( $f['links'] as $l ) {
-		$o[] = '<a href="#">' . h( $l ) . '</a>';
+		$o .= '<a href="#">' . h( $l ) . '</a>';
 	}
-	$o[] = '</div><p class="legal">' . h( $f['legal'] ) . '</p></div></footer>';
+	return $o . '</div><p class="legal">' . h( $f['legal'] ) . '</p></div></footer>';
+}
+
+/** One product card: the same `.card` recipe, plus the € price TPL-E-02 requires. */
+function product_html( $anchor_key, $c ) {
+	$im  = img( $c['img'] );
+	$out = '<article class="card prod">'
+		. '<figure class="frame sq"><img data-img="' . h( $im['slug'] ) . '" alt="' . h( $im['alt'] ) . '"'
+		. ' width="' . $im['w'] . '" height="' . $im['h'] . '"></figure>';
+	if ( 'editorial' === $anchor_key ) {
+		$out .= '<div class="rule"></div>';
+	}
+	$out .= '<div class="body"><h3>' . h( $c['h3'] ) . '</h3>'
+		. '<p class="price">' . h( $c['p'] ) . '</p>'
+		. '<button class="btn btn-outline btn-sm" type="button">Añadir</button>'
+		. '</div></article>';
+	return $out;
+}
+
+/**
+ * TPL-E-02 — Catalog / Product-First. Renders the `[fijo · ADN]` sections (search-first header,
+ * mini hero, product grid, carousel) plus the two toggles that default on.
+ *
+ * The DNA is what this archetype REFUSES: no big hero, no lookbook, no brand story, no long
+ * testimonials. The product is above the fold and the search bar is the loudest thing in the
+ * header — which is why the grid keeps its dense 2/3/4 columns under every blueprint, including
+ * the two whose "Grids" rule says never 50/50. That rule governs content grids; a catalogue grid
+ * is the archetype's identity, and when DNA and blueprint collide over the same box the DNA wins.
+ * The blueprint still governs everything else here: heading alignment, the banner's bleed, the
+ * carousel, the benefits bar and the container geometry.
+ */
+function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	// 0 · COMP-ANNOUNCEMENT  [toggle TGL-ANNOUNCEMENT, default on]
+	$o[] = '<div class="announce"><div class="canvas"><p class="small">' . h( $C['announce'] ) . '</p></div></div>';
+
+	// 1 · COMP-HEADER — search protagonista  [fijo]
+	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<form class="searchbar" role="search" onsubmit="return false">'
+		. '<label class="sr" for="' . $uid . '-q">Buscar en la tienda</label>'
+		. '<input id="' . $uid . '-q" type="search" placeholder="' . h( $C['search'] ) . '">'
+		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
+		. '</form><div class="tools">';
+	foreach ( $C['tools'] as $t ) {
+		$o[] = '<a href="#">' . h( $t ) . '</a>';
+	}
+	$o[] = '<a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+		. '</div></div></div></header>';
+
+	$o[] = '<main>';
+
+	// 2 · COMP-HERO mini ~20vh  [fijo · ADN] — a thin banner, never a big hero
+	$o[] = '<section class="sec mini" aria-label="Tienda"><div class="canvas">'
+		. '<div class="head stack"><h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<nav class="cats" aria-label="Categorías">';
+	foreach ( $hero['cats'] as $c ) {
+		$o[] = '<a href="#">' . h( $c ) . '</a>';
+	}
+	$o[] = '</nav></div></section>';
+
+	// 3 · COMP-PRODUCT-GRID  [fijo · ADN] — dense, and immediately after the header
+	$p   = $C['prods'];
+	$o[] = '<section class="sec prods grid-sec" aria-label="Destacados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $p['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $p['h2'] ) . '</h2></div><div class="items grid-prod">';
+	foreach ( $p['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 4 · COMP-PRODUCT-CAROUSEL  [fijo]
+	$cr  = $C['carousel'];
+	$o[] = '<section class="sec carousel grid-sec bg-alt" aria-label="Más vendidos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items rail">';
+	foreach ( $cr['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 5 · COMP-BENEFITS — barra fina  [toggle TGL-BENEFITS, default on]
+	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
+	foreach ( $C['benefits'] as $b ) {
+		$o[] = '<div class="ben"><span class="bicon" aria-hidden="true">'
+			. '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"'
+			. ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+			. '<path d="M20 6 9 17l-5-5"/></svg></span>'
+			. '<b>' . h( $b[0] ) . '</b><span class="muted small">' . h( $b[1] ) . '</span></div>';
+	}
+	$o[] = '</div></div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
 
 	return implode( "\n", $o );
 }
@@ -1055,9 +1411,13 @@ foreach ( $STRIPS as $s ) {
 	$lp  = strtolower( $COMPOSITION[ $A['composition'] ]['lp'] );
 	$uid = strtolower( str_replace( '-', '', $C['tpl'] ) ) . '-' . $s['anchor'];
 
-	$inner = ( 'corporate' === $C['site'] )
-		? strip_corporate( $s['anchor'], $C, $BRAND, $uid )
-		: fail( "no renderer for site type `{$C['site']}`" );
+	if ( 'corporate' === $C['site'] ) {
+		$inner = strip_corporate( $s['anchor'], $C, $BRAND, $uid );
+	} elseif ( 'ecommerce' === $C['site'] ) {
+		$inner = strip_ecommerce( $s['anchor'], $C, $BRAND, $uid );
+	} else {
+		fail( "no renderer for site type `{$C['site']}`" );
+	}
 
 	$body[] = '<section class="strip" id="' . h( $uid ) . '"'
 		. ' data-site="' . h( $C['site'] ) . '"'
@@ -1065,7 +1425,10 @@ foreach ( $STRIPS as $s ) {
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
 	$body[] = meta_html( $C, $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION );
-	$body[] = '<div class="sample" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
+	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
+	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
+	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
+	$body[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
 	$body[] = $inner;
 	$body[] = '</div></section>';
 }
