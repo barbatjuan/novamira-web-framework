@@ -215,6 +215,54 @@ is for.
   is what the deploy step reads. `ES_AUDIT_SILENT` mutes the audit REPORT — the per-page lines and
   the verdict — and nothing else. It does NOT reach `es_warn()`: silencing routine output must
   never silence a warning.
+- `es_font_serving_check()` → `'sin-wordpress'` | `'sin-familias'` | `'alojada'` | `'google'` |
+  `'sin-confirmar'`. Called from `es_audit_summary()`, beside `es_front_page_check()` and for the
+  same reason: it is one fact about the SITE, so it belongs on the line the operator reads before
+  deploying rather than repeated on every page. It asks WordPress which registered post types have
+  "font" in the name and reads their published titles — derived, never a post-type constant copied
+  out of one plugin — and reads `$GLOBALS['wp_styles']` directly (never `wp_styles()`, which
+  instantiates the registry: a report may not change what it reports on) for a `fonts.googleapis.com`
+  source. **`'sin-confirmar'` is not a pass and warns.** A build runs in a REST/CLI request where
+  the front end's enqueues never fire, so an empty style registry proves nothing; the warning says
+  what it inspected and that it could not confirm, instead of reporting a clean site. Generic and
+  web-safe faces are skipped. The once-per-build latch is `$es_font_said`, a global rather than a
+  `static`, because a static cannot be reset and half the behaviour would be untestable.
+
+### Servir las familias tipograficas
+
+`es_tokens()` names `font_head` and `font_body` and every heading and paragraph this framework emits
+carries them as `typography_font_family`. **Nothing in this framework makes those families exist on
+the site** — there is no `@font-face`, no enqueue, no registration anywhere. The family is a value
+written into Elementor; whether a browser can render it is a separate fact nobody was checking, and
+a build with every gate green can still ship the client a system fallback.
+
+**Self-host. Never Google's CDN.** This is not a preference and not a performance note: a page that
+requests `fonts.googleapis.com` sends every visitor's IP address to a third country the moment the
+page opens, with no consent and no legal basis, and EU courts have fined *site owners* for it — the
+Munich ruling of Jan 2022 being the one everybody cites. This framework's clients are Spanish. See
+`wordpress-legal`, which owns the consent side of the same problem.
+
+The procedure, and it is a **human's**, for the same reason `es_slug_redirects` is: this framework
+may not write `.php` outside the sandbox, and the sandbox is emptied at hand-off.
+
+1. **Download the family.** The families this repo ships as defaults are SIL Open Font License, so
+   downloading the `woff2` files and serving them from the client's own domain is licensed. Take
+   only the weights the build actually uses — every extra weight is a request nobody reads.
+2. **Elementor Pro:** *Elementor → Custom Fonts → Add New*. Name it **exactly** the token value
+   (`Space Grotesk`, not `space-grotesk`): `es_font_serving_check()` matches on that title, and so
+   does Elementor when it resolves `typography_font_family`. Upload one `woff2` per weight/style.
+3. **Without Elementor Pro:** the `woff2` files go in the child theme, with `@font-face` (and
+   `font-display:swap`) plus a `wp_enqueue_style` for the stylesheet that declares them. That is PHP
+   outside the sandbox, so a person writes it.
+4. **Then turn Google's copy off**, or the self-hosted files are dead weight under a request that
+   still leaks. In Elementor that is the *Google Fonts* dropdown under *Elementor → Settings*, set
+   to *Disable* — the tab it sits on has moved between Elementor versions, so find the dropdown
+   rather than trusting a path. A theme or plugin that enqueues its own Google stylesheet has to be
+   switched off separately, and only the network requests prove it is gone.
+5. **Re-run the build** and read `es_audit_summary()`. `'alojada'` means the check found the family
+   installed. `'sin-confirmar'` means it could not confirm it from a build request — which is the
+   honest answer, not a failure, and `qa-review` closes it by loading a real page and reading the
+   network requests, which is the only place the truth is visible.
 
 ## Containers, flex, grid
 - Layout with flex + grid containers, not the legacy section/column. `content_width` boxed|full.

@@ -103,6 +103,7 @@ const ROW_TYPES = array(
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
+	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1670,6 +1671,45 @@ $builder_family_re = '/typography_font_family\w*[\'"]?\s*=>\s*([\'"])(.*?)\1/';
 $builder_colour_key_re    = '/[\'"]?(\w*colou?r)[\'"]?\s*=>\s*([\'"])(.*?)\2/i';
 $builder_colour_key_allow = array( 'custom', 'initial', 'inherit', 'unset', 'revert', '' );
 
+/* The runtime half of RT_FONT_NO_SERVING_PATH, named once. A rename of the builder's check makes
+   this row fire, which is the correct outcome: a renamed check is an unwired one until its call
+   sites and its documentation follow it. */
+$font_check_fn         = 'es_font_serving_check';
+$font_check_documented = (bool) preg_match( '/(?<![\w])' . preg_quote( $font_check_fn, '/' ) . '(?![\w])/', $prose );
+/* Same list the builder's own es_font_system_faces() carries. Two copies is one too many and it is
+   named as debt rather than hidden: this script may not require a builder asset (it audits trees it
+   must not execute), so the honest options were a duplicate list or no check at all. */
+$builder_system_faces = array(
+	'',
+	'inherit',
+	'initial',
+	'serif',
+	'sans-serif',
+	'monospace',
+	'cursive',
+	'fantasy',
+	'system-ui',
+	'-apple-system',
+	'blinkmacsystemfont',
+	'arial',
+	'helvetica',
+	'helvetica neue',
+	'georgia',
+	'times',
+	'times new roman',
+	'courier',
+	'courier new',
+	'verdana',
+	'tahoma',
+	'trebuchet ms',
+	'palatino',
+	'garamond',
+	'impact',
+	'arial black',
+	'lucida sans',
+	'segoe ui',
+);
+
 $builder_assets = array();
 foreach ( array( 'elementor-core', 'elementor-theme-parts', 'woocommerce' ) as $builder_dir ) {
 	$builder_found = glob( $root . '/skills/' . $builder_dir . '/assets/*.php' );
@@ -1799,6 +1839,77 @@ foreach ( $builder_assets as $builder_path ) {
 				. $builder_end_marker . '" marker: ' . implode( ', ', $builder_hits )
 				. ' — each one is a value the axis dialogue can no longer move, so the site reverts to the framework default wherever it is read'
 		);
+	}
+
+	/* ---------------------------------------------- RT_FONT_NO_SERVING_PATH
+	 *
+	 * The token block writes `font_head => 'Space Grotesk'` into every heading this framework emits,
+	 * as `typography_font_family`. Nothing in the framework ever made that family EXIST on the site:
+	 * no `@font-face`, no enqueue, no registration. The scale axis moved every size correctly while
+	 * the typeface may never have arrived, and every row in this audit stayed green.
+	 *
+	 * WHAT THIS ROW CAN HONESTLY ASSERT, and the limit is stated in its own message rather than
+	 * discovered later: the font FILES live on a WordPress site, not in this repository, so nothing
+	 * here can know whether they are served. What a repo-time check CAN know is whether the
+	 * framework is equipped to find out and to tell someone — that the build carries a serving check,
+	 * that the check is actually called, and that a human who sees its warning has a documented
+	 * procedure to follow. Those three are the wiring, and the wiring is what rots silently.
+	 *
+	 * Scoped to the DECLARATION site: the region scanned here is the token block itself, which is
+	 * exactly the region RT_BUILDER_HARDCODED_TOKEN deliberately does not scan, so the two rows read
+	 * disjoint ground and one literal can never produce two rows. A sibling asset that inherits
+	 * es_tokens() declares no family of its own and is not asked. */
+	if ( -1 !== $tokens_open ) {
+		$builder_families = array();
+		for ( $bi = $tokens_open; $bi <= $region_start; $bi++ ) {
+			if ( preg_match_all( '/[\'"]font_\w+[\'"]\s*=>\s*[\'"]([^\'"]+)[\'"]/', $builder_code[ $bi ], $bfam ) ) {
+				foreach ( $bfam[1] as $bfamily ) {
+					$bface = strtolower( trim( explode( ',', $bfamily )[0], " \t'\"" ) );
+					/* Generic stacks and the faces a browser already has need no serving path, and a
+					   row about `Georgia` is a row people learn to scroll past. Same list the runtime
+					   check skips, and it has to stay the same list or the two disagree about what a
+					   font even is. */
+					if ( ! in_array( $bface, $builder_system_faces, true ) ) {
+						$builder_families[ $bface ] = trim( explode( ',', $bfamily )[0], " \t'\"" );
+					}
+				}
+			}
+		}
+		if ( $builder_families ) {
+			$builder_declares_check = false;
+			$builder_calls_check    = false;
+			foreach ( $builder_code as $bl ) {
+				if ( preg_match( '/^\s*function\s+' . preg_quote( $font_check_fn, '/' ) . '\s*\(/', $bl ) ) {
+					$builder_declares_check = true;
+					continue;
+				}
+				if ( false !== strpos( $bl, $font_check_fn . '(' ) ) {
+					$builder_calls_check = true;
+				}
+			}
+			$builder_font_why = array();
+			if ( ! $builder_declares_check ) {
+				$builder_font_why[] = 'it declares no ' . $font_check_fn . '()';
+			}
+			if ( ! $builder_calls_check ) {
+				$builder_font_why[] = 'nothing in it CALLS ' . $font_check_fn . '(), so the check is a function no build reaches';
+			}
+			if ( ! $font_check_documented ) {
+				$builder_font_why[] = 'no .md in this tree names ' . $font_check_fn
+					. ', so an operator who sees the warning has nowhere to go — a warning with no procedure behind it is one more line to scroll past';
+			}
+			if ( $builder_font_why ) {
+				add(
+					'RT_FONT_NO_SERVING_PATH',
+					'FAIL',
+					$builder_skill,
+					'assets/' . $builder_name . ' names ' . implode( ' and ', $builder_families )
+						. ' in its token block, and ' . implode( '; ', $builder_font_why )
+						. ' — this repo CANNOT know whether those font files are served, because they live on a WordPress site and not here;'
+						. ' what it can require is that the build ASKS the site and that the answer has a documented fix'
+				);
+			}
+		}
 	}
 }
 

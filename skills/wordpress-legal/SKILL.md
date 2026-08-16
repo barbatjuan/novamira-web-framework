@@ -38,6 +38,11 @@ yourself and stop until you get it.
 - **Every legal page is reachable from every footer.** One nobody can reach is a file, not
   compliance.
   (verifier: `qa-review` house-rule row 20 requires each legal page to be linked from the footer fragment of every page in scope, and requests each link.)
+- **Fonts are served from the client's own domain, never Google's CDN.** A page requesting
+  `fonts.googleapis.com` sends every visitor's IP to a third country before any banner appears —
+  no consent, no legal basis, and EU courts have fined the site owner for it. The procedure is in
+  `elementor-core/references/knowledge.md`.
+  (verifier: `es_font_serving_check()` warns from `es_audit_summary()`, naming the Google stylesheet when it finds one registered and saying it could not confirm when the registry is empty.)
 - **Show the overwrite preflight before writing.** Existing legal pages have the longest history
   and the least appetite for a silent rebuild.
   (verifier: `es_overwrite_preflight()` prints the slugs that would be overwritten, marking the front page and any page not currently built with the builder.)

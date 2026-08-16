@@ -1737,6 +1737,14 @@ function es_audit_summary() {
 	   alike. It stays out of the return value on purpose — callers already branch on that integer,
 	   and a fifth meaning would change what an existing `if ( es_audit_summary() )` decides. */
 	es_front_page_check();
+	/* Same shape, same reason, same place: whether the site can SERVE the families es_tokens() names
+	   is a fact about the site, true of a clean tree and of SIN AUDITAR alike, and it belongs on the
+	   one line the operator is told to read before deploying. It is wired HERE rather than in
+	   es_save_page() because it is one fact about the site — repeating it per page would bury the
+	   pages under it — and because es_audit_summary() is the call SKILL.md already requires at the
+	   end of every build function, so the wiring costs no new rule nobody enforces. It stays out of
+	   the return value for the same reason es_front_page_check() does. */
+	es_font_serving_check();
 
 	if ( ! isset( $es_audit_runs ) || ! is_array( $es_audit_runs ) || ! $es_audit_runs ) {
 		/* es_warn(), NO es_audit_verdict(): el escritor lo volvia callable, y era la unica linea
@@ -3041,6 +3049,196 @@ function es_front_page_check() {
 	);
 
 	return 'posts';
+}
+
+/**
+ * Does anything on this site actually SERVE the families `es_tokens()` names?
+ *
+ * `font_head` and `font_body` are written into every heading and every paragraph this framework
+ * emits, as `typography_font_family`. NOTHING in the framework makes those families exist on the
+ * site: there is no `@font-face`, no stylesheet enqueue, no font registration anywhere outside the
+ * mockups — which decline it on purpose, because the Artifact CSP blocks external requests. So the
+ * scale axis moves every SIZE correctly while the typeface may never arrive, and every gate stays
+ * green either way. This is the same disease as the front page nothing set: a value written, an
+ * effect never delivered, no channel saying so.
+ *
+ * WHAT IT CAN HONESTLY SEE, and this is the whole design:
+ *
+ *   - A self-hosted family. Asked of WordPress rather than guessed: `get_post_types()` is filtered
+ *     for names containing "font", and every published post in those types is read for its title.
+ *     Elementor Pro's Custom Fonts is one such type; so is every custom-fonts plugin that stores a
+ *     family as a post. The type name is DERIVED and never enumerated, because a constant copied
+ *     from one plugin's source is wrong for the next one and wrong after any rename — and a probe
+ *     that silently matches nothing reports a clean site.
+ *   - Google's CDN. Read from `$GLOBALS['wp_styles']` DIRECTLY and never through `wp_styles()`,
+ *     which instantiates the registry as a side effect; a report may not change the thing it
+ *     reports on. Finding `fonts.googleapis.com` there is proof the family comes from Google.
+ *
+ * WHAT IT CANNOT SEE, said out loud instead of reported as clean: a build runs in a REST/CLI
+ * request, where the front end's `wp_enqueue_scripts` never fires. So the style registry is mostly
+ * EMPTY here, and an empty registry proves nothing at all. Absence of evidence is reported as
+ * `sin-confirmar` and WARNS — it is not a pass. A check that always passes is worse than no check.
+ *
+ * Values that are not families are skipped: a generic stack (`serif`, `system-ui`) or a web-safe
+ * face needs no serving path, and warning about `Georgia` would teach the operator to scroll past.
+ *
+ * Returns `'sin-wordpress'` (no site to ask), `'sin-familias'` (the tokens name only generic or
+ * web-safe faces), `'alojada'`, `'google'` or `'sin-confirmar'` — the verdict, not the fact that it
+ * ran, so a caller and a test read it without parsing stdout.
+ *
+ * The once-per-build latch is a GLOBAL and not a `static` like `es_safe_mode_check()`'s, and that is
+ * deliberate rather than a slip: this is per-build state exactly like `$es_saved_pages` and
+ * `$es_preflight_slugs`, and a static cannot be reset — so a suite could observe the warning or its
+ * silence, never both, and half the behaviour would be untestable by construction.
+ */
+function es_font_serving_check() {
+	global $es_font_said;
+
+	if ( ! isset( $es_font_said ) ) {
+		$es_font_said = false;
+	}
+
+	/* Not "I looked and found nothing": there is no WordPress here to look at. `get_post_types()` is
+	   core and always loaded on a real site, so its absence means this is a dump or a test harness,
+	   not a site with a missing font. The two are different facts and only one of them is a
+	   warning. */
+	if ( ! function_exists( 'get_post_types' ) || ! function_exists( 'get_posts' ) ) {
+		return 'sin-wordpress';
+	}
+
+	/* Derived from the token block, not a list of key names typed here: `es_tokens()` is the one
+	   edit point, and a project that adds `font_mono` must not silently fall out of this check. */
+	$familias = array();
+	foreach ( es_tokens() as $clave => $valor ) {
+		if ( 0 !== strpos( $clave, 'font_' ) || ! is_string( $valor ) || '' === trim( $valor ) ) {
+			continue;
+		}
+		/* The first face of the stack is the one that has to arrive; the rest are the fallbacks it
+		   arrives INSTEAD of. */
+		$partes = explode( ',', $valor );
+		$nombre = trim( $partes[0], " \t'\"" );
+		$cara   = strtolower( $nombre );
+		if ( in_array( $cara, es_font_system_faces(), true ) ) {
+			continue;
+		}
+		$familias[ $cara ] = $nombre;
+	}
+	if ( ! $familias ) {
+		return 'sin-familias';
+	}
+
+	$tipos = array();
+	foreach ( get_post_types( array(), 'names' ) as $tipo ) {
+		if ( false !== stripos( (string) $tipo, 'font' ) ) {
+			$tipos[] = $tipo;
+		}
+	}
+	$instaladas = array();
+	if ( $tipos ) {
+		$posts = get_posts(
+			array(
+				'post_type'   => $tipos,
+				'post_status' => 'publish',
+				'numberposts' => -1,
+			)
+		);
+		if ( is_array( $posts ) ) {
+			foreach ( $posts as $p ) {
+				if ( is_object( $p ) && isset( $p->post_title ) ) {
+					$instaladas[ strtolower( trim( (string) $p->post_title ) ) ] = true;
+				}
+			}
+		}
+	}
+
+	/* PRESENCE proves Google is serving it. Absence proves nothing (see the docblock), so this only
+	   ever upgrades the verdict and never clears it. */
+	$google = '';
+	$reg    = isset( $GLOBALS['wp_styles'] ) ? $GLOBALS['wp_styles'] : null;
+	if ( is_object( $reg ) && isset( $reg->registered ) && is_array( $reg->registered ) ) {
+		foreach ( $reg->registered as $mango => $hoja ) {
+			$src = ( is_object( $hoja ) && isset( $hoja->src ) ) ? (string) $hoja->src : '';
+			if ( false !== stripos( $src, 'fonts.googleapis.com' ) || false !== stripos( $src, 'fonts.gstatic.com' ) ) {
+				$google = (string) $mango;
+				break;
+			}
+		}
+	}
+
+	$faltan = array();
+	foreach ( $familias as $cara => $nombre ) {
+		if ( ! isset( $instaladas[ $cara ] ) ) {
+			$faltan[] = $nombre;
+		}
+	}
+	if ( ! $faltan && '' === $google ) {
+		return 'alojada';
+	}
+
+	$veredicto = ( '' !== $google ) ? 'google' : 'sin-confirmar';
+	if ( ! $es_font_said ) {
+		$es_font_said = true;
+		if ( 'google' !== $veredicto ) {
+			es_warn(
+				'NO SE PUEDE CONFIRMAR QUE ESTE SITIO SIRVA ' . implode( ' NI ', $faltan ) . '. es_tokens() la escribe en cada '
+				. 'titular y cada parrafo de este build, y NADA en este framework la instala: si no esta, el navegador cae al '
+				. 'tipo de letra del sistema y el diseno aprobado no es el que ve el cliente. He mirado los tipos de contenido '
+				. 'de fuentes registrados (Custom Fonts de Elementor Pro y equivalentes) y el registro de estilos; desde un '
+				. 'build NO se ven los encolados del front, asi que esto es "no lo he podido confirmar", no "no esta". '
+				. 'Confirmalo y, si falta, subela AUTOALOJADA — nunca desde el CDN de Google. El procedimiento esta en '
+				. 'elementor-core/references/knowledge.md, "Servir las familias tipograficas".'
+			);
+		} else {
+			es_warn(
+				'ESTE SITIO CARGA TIPOGRAFIA DESDE EL CDN DE GOOGLE (estilo "' . $google . '"). Eso manda la IP de cada '
+				. 'visitante a un tercer pais en cuanto abre la pagina, sin consentimiento y sin base legal, y ya hay '
+				. 'sentencias en la UE condenando al titular de la web — no al de Google. Los clientes de este framework son '
+				. 'espanoles. Descarga la familia, subela AUTOALOJADA y quita el encolado de Google. El procedimiento esta en '
+				. 'elementor-core/references/knowledge.md, "Servir las familias tipograficas".'
+			);
+		}
+	}
+
+	return $veredicto;
+}
+
+/**
+ * Faces that need no serving path: the generic CSS stacks, and the faces a browser already has.
+ *
+ * Its own function rather than an inline array so the list is one thing in one place — the same
+ * reason `es_token_mixes()` is not an array literal inside `es_tokens()`.
+ */
+function es_font_system_faces() {
+	return array(
+		'',
+		'inherit',
+		'initial',
+		'serif',
+		'sans-serif',
+		'monospace',
+		'cursive',
+		'fantasy',
+		'system-ui',
+		'-apple-system',
+		'blinkmacsystemfont',
+		'arial',
+		'helvetica',
+		'helvetica neue',
+		'georgia',
+		'times',
+		'times new roman',
+		'courier',
+		'courier new',
+		'verdana',
+		'tahoma',
+		'trebuchet ms',
+		'palatino',
+		'garamond',
+		'impact',
+		'arial black',
+		'lucida sans',
+		'segoe ui',
+	);
 }
 
 /**

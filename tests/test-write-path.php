@@ -90,6 +90,11 @@ function wp_fake_reset() {
 		'options'    => array(),
 		'option_ro'  => array(),   /* names update_option() accepts and silently does not write */
 		'meta_ro'    => array(),   /* meta keys update/delete_post_meta accept and do not touch */
+		/* The site's registered post types, and the font families installed in whichever of them is
+		   a font type. es_font_serving_check() DERIVES the type name from this list instead of
+		   carrying one plugin's constant, so the fixture has to be able to rename it. */
+		'post_types' => array( 'post', 'page', 'attachment' ),
+		'font_posts' => array(),   /* post type => array of published post_title */
 	);
 	/* The builder's own per-run state lives in globals, so a fixture that forgot these would
 	   inherit the previous fixture's approvals and its list of saved pages — and the assertions
@@ -306,6 +311,22 @@ function get_posts( $args ) {
 	if ( isset( $args['post_type'] ) && 'elementor_library' === $args['post_type'] ) {
 		$slug = isset( $args['name'] ) ? $args['name'] : '';
 		return isset( $w['by_slug'][ $slug ] ) ? array( $w['by_slug'][ $slug ] ) : array();
+	}
+	/* A LIST of post types is the third caller — es_font_serving_check(), which asks for every type
+	   whose name looks like a font type at once. A scalar is the two lookups above; keeping the
+	   shapes apart is what stopped the theme-part branch being unreachable, and the same reasoning
+	   applies here. */
+	if ( isset( $args['post_type'] ) && is_array( $args['post_type'] ) ) {
+		$hits = array();
+		foreach ( $w['font_posts'] as $tipo => $titulos ) {
+			if ( ! in_array( $tipo, $args['post_type'], true ) ) {
+				continue;
+			}
+			foreach ( $titulos as $titulo ) {
+				$hits[] = (object) array( 'post_title' => $titulo );
+			}
+		}
+		return $hits;
 	}
 
 	return array();
@@ -2506,6 +2527,154 @@ ok( $es_defaults['accent'] === es_t( 'accent' ), 'el reset devuelve el acento po
 ok( $es_defaults['font_body'] === es_t( 'font_body' ), 'y tambien la familia tocada antes: un override reconstruye desde los valores por defecto' );
 ok( $es_defaults['elev_accent'] === es_t( 'elev_accent' ), 'y los derivados vuelven a derivarse del acento por defecto' );
 ok( ! array_key_exists( 'acento', es_tokens() ), 'y la clave inventada de antes no se queda pegada al juego de tokens' );
+
+/* ---------------------------------------------------------------------------
+ * La familia tipografica que se escribe y que nada instala.
+ *
+ * es_tokens() lleva font_head/font_body y los escribe en cada titular y cada
+ * parrafo como typography_font_family. NADA en este framework hace que esa
+ * familia exista en el sitio: ni @font-face, ni encolado, ni registro. El eje de
+ * escala movia todos los TAMANOS bien y el tipo de letra podia no llegar nunca,
+ * con las cuatro suites y el audit en verde.
+ *
+ * POR QUE WORDPRESS APARECE AQUI ABAJO Y NO ARRIBA CON LOS DEMAS DOBLES. PHP iza
+ * las declaraciones de funcion de nivel superior a tiempo de compilacion, asi
+ * que declarar get_post_types() junto a get_posts() pondria un WordPress debajo
+ * de CADA es_save_page() de este fichero — y las assertions de arriba que
+ * afirman `'' === $r['out']` pasarian a leer un aviso de tipografia en vez de lo
+ * que dicen afirmar. Eso es exactamente lavar una assertion: sigue verde y ya no
+ * prueba lo mismo. Dentro de un bloque la declaracion NO se iza, se define
+ * cuando la ejecucion llega hasta aqui, y todo lo de arriba corre con el
+ * veredicto 'sin-wordpress' — que es lo que un arbol sin sitio tiene que dar.
+ * ------------------------------------------------------------------------- */
+echo "--- la familia que es_tokens() nombra y nada instala ---\n";
+
+wp_fake_reset();
+$GLOBALS['es_font_said'] = false;
+unset( $GLOBALS['wp_styles'] );
+
+/* Sin WordPress el veredicto es "no hay sitio al que preguntar", NO "falta la
+   fuente". Son dos hechos distintos y solo uno de ellos es un aviso; confundir
+   los dos es la enfermedad que este fichero entero existe para quitar. */
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-wordpress' === $r['ret'], 'sin WordPress no hay sitio que juzgar: el veredicto lo dice y no se inventa un hallazgo' );
+ok( '' === $r['out'], 'y no dice nada: avisar de una fuente que falta en un arbol que no es un sitio seria ruido puro' );
+
+if ( ! function_exists( 'get_post_types' ) ) {
+	function get_post_types( $args = array(), $output = 'names' ) {
+		return $GLOBALS['wp']['post_types'];
+	}
+}
+
+/* 1. El sitio de verdad: hay un tipo de contenido de fuentes y no hay ninguna
+      instalada. Un "no lo he podido confirmar" NO es un aprobado. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['es_font_said']     = false;
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-confirmar' === $r['ret'], 'sin ninguna familia instalada el veredicto es sin-confirmar, que no es limpio' );
+ok( has( $r['out'], es_t( 'font_head' ) ), 'y avisa nombrando la familia de titulares' );
+ok( has( $r['out'], es_t( 'font_body' ) ), 'y tambien la de texto: las dos se escriben, las dos tienen que llegar' );
+ok( has( $r['out'], 'no lo he podido confirmar' ), 'y dice que es un "no he podido", no un "no esta": desde un build no se ven los encolados del front' );
+ok( has( $r['out'], 'AUTOALOJADA' ), 'y da el arreglo concreto: autoalojarla' );
+ok( has( $r['out'], 'CDN de Google' ), 'nombrando ademas el camino que NO se toma' );
+ok( has( $r['out'], 'knowledge.md' ), 'y donde esta el procedimiento, porque un aviso sin procedimiento detras es una linea mas que saltarse' );
+
+/* 2. Una vez por build, como el modo seguro: es un hecho del SITIO, y repetirlo
+      en cada pagina enterraria las paginas debajo. */
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-confirmar' === $r['ret'], 'el veredicto sigue siendo el mismo en la segunda llamada' );
+ok( '' === $r['out'], 'pero no se repite: una vez por build' );
+
+/* 3. Instaladas las dos, se calla. Un check que avisa siempre se apaga igual que
+      uno que aprueba siempre, solo que mas despacio. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['wp']['font_posts'] = array( 'elementor_font' => array( es_t( 'font_head' ), es_t( 'font_body' ) ) );
+$GLOBALS['es_font_said']     = false;
+$r = grab( 'es_font_serving_check' );
+ok( 'alojada' === $r['ret'], 'con las dos familias instaladas el veredicto es alojada' );
+ok( '' === $r['out'], 'y se calla: un sitio correcto no tiene que oir nada' );
+
+/* 4. Media instalacion es una instalacion que falta, y el aviso nombra SOLO la
+      que falta — nombrar las dos manda al operador a revisar una que ya esta. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['wp']['font_posts'] = array( 'elementor_font' => array( es_t( 'font_head' ) ) );
+$GLOBALS['es_font_said']     = false;
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-confirmar' === $r['ret'], 'con una de las dos instalada sigue sin poder confirmarse' );
+ok( has( $r['out'], es_t( 'font_body' ) ), 'y nombra la que falta' );
+ok( ! has( $r['out'], es_t( 'font_head' ) ), 'y NO la que ya esta: mandar a revisar lo que ya funciona es como se apaga un aviso' );
+
+/* 5. EL TIPO DE CONTENIDO SE DERIVA, NO SE ESCRIBE. Una constante copiada del
+      codigo de un plugin es falsa para el siguiente y falsa despues de cualquier
+      renombrado — y una sonda que no encuentra nada reporta un sitio limpio. Con
+      'elementor_font' escrito a mano, este escenario daria sin-confirmar. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'bsf_custom_fonts' );
+$GLOBALS['wp']['font_posts'] = array( 'bsf_custom_fonts' => array( es_t( 'font_head' ), es_t( 'font_body' ) ) );
+$GLOBALS['es_font_said']     = false;
+$r = grab( 'es_font_serving_check' );
+ok( 'alojada' === $r['ret'], 'otro plugin de fuentes con otro nombre de tipo tambien cuenta: el tipo se deriva de get_post_types()' );
+
+/* 6. El hallazgo legal. Encontrar el CDN de Google es una PRUEBA (al reves que
+      no encontrarlo, que no prueba nada), y gana al resto del veredicto. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['wp']['font_posts'] = array( 'elementor_font' => array( es_t( 'font_head' ), es_t( 'font_body' ) ) );
+$GLOBALS['es_font_said']     = false;
+$GLOBALS['wp_styles']        = (object) array(
+	'registered' => array(
+		'tema-estilo'      => (object) array( 'src' => 'https://sitio.test/wp-content/themes/x/style.css' ),
+		'elementor-gfonts' => (object) array( 'src' => 'https://fonts.googleapis.com/css?family=Manrope' ),
+	),
+);
+$r = grab( 'es_font_serving_check' );
+ok( 'google' === $r['ret'], 'una hoja de estilo apuntando a fonts.googleapis.com es prueba, y gana aunque las familias esten instaladas' );
+ok( has( $r['out'], 'elementor-gfonts' ), 'y nombra el estilo culpable, que es lo unico accionable' );
+ok( has( $r['out'], 'IP' ), 'diciendo que lo que se filtra es la IP del visitante' );
+ok( has( $r['out'], 'sentencias' ), 'y que ya hay sentencias contra el titular de la web, no contra Google' );
+
+/* 7. Un registro de estilos SIN Google no convierte el veredicto en limpio: los
+      encolados del front no han corrido en una peticion de build, asi que su
+      ausencia no prueba nada. Este es el escenario que separa "no lo he visto"
+      de "no esta", y sin el la sonda de Google podria estar leyendo el registro
+      al reves sin que nada se enterase. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['es_font_said']     = false;
+$GLOBALS['wp_styles']        = (object) array(
+	'registered' => array( 'tema-estilo' => (object) array( 'src' => 'https://sitio.test/wp-content/themes/x/style.css' ) ),
+);
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-confirmar' === $r['ret'], 'un registro de estilos sin Google no confirma nada: la ausencia de prueba no es prueba de ausencia' );
+unset( $GLOBALS['wp_styles'] );
+
+/* 8. Una cara web-safe no necesita servirse. Sin esta salida el check avisaria
+      de Georgia en cada build y el operador aprenderia a saltarselo. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['es_font_said']     = false;
+es_tokens(
+	array(
+		'font_head' => 'Georgia, serif',
+		'font_body' => 'system-ui',
+	)
+);
+$r = grab( 'es_font_serving_check' );
+ok( 'sin-familias' === $r['ret'], 'una pila generica o web-safe no necesita servirse: no hay familias que instalar' );
+ok( '' === $r['out'], 'y no avisa de nada' );
+es_tokens( $es_defaults );
+
+/* 9. QUE ESTE CABLEADO, que es el hallazgo entero — la misma forma que
+      es_front_page_check(). Con ES_AUDIT_SILENT el veredicto de contenedores no
+      imprime, asi que lo que quede en stdout son avisos. */
+wp_fake_reset();
+$GLOBALS['wp']['post_types'] = array( 'post', 'page', 'elementor_font' );
+$GLOBALS['es_font_said']     = false;
+$r = grab( 'es_audit_summary' );
+ok( has( $r['out'], es_t( 'font_head' ) ), 'es_audit_summary() lo dice: la linea que el operador tiene orden de leer antes de desplegar' );
 
 echo "\n$pass OK / $fail FAIL\n";
 exit( $fail ? 1 : 0 );

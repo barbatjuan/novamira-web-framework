@@ -452,6 +452,12 @@ function fx_builder( array $opts = array() ) {
 			'end_first'  => false,
 			'region'     => '',
 			'below_end'  => '',
+			/* RT_FONT_NO_SERVING_PATH's three pieces, each omittable on its own so a scenario can
+			   fail exactly one cause and read exactly one message. 'font_family' is the token-block
+			   value, so a web-safe face can be declared and proven NOT to be a finding. */
+			'font_family' => 'Manrope',
+			'font_decl'   => true,
+			'font_call'   => true,
 		),
 		$opts
 	);
@@ -465,7 +471,7 @@ function fx_builder( array $opts = array() ) {
 		. "\t\t\t'on_accent' => '#fff',\n"
 		. "\t\t\t'glow'      => 'rgba(15,169,104,0.55)',\n"
 		. "\t\t\t'ease'      => 'cubic-bezier(.22,1,.36,1)',\n"
-		. "\t\t\t'font_body' => 'Manrope',\n"
+		. "\t\t\t'font_body' => '" . $o['font_family'] . "',\n"
 		. "\t\t),\n"
 		. "\t\t\$override\n"
 		. "\t);\n"
@@ -496,8 +502,16 @@ function fx_builder( array $opts = array() ) {
 	$src .= "function es_fixture_slug( \$id ) {\n"
 		. "\t\$msg = 'la pagina #' . \$id . ' no existe';\n"
 		. $o['below_end']
-		. "\treturn \$msg;\n}\n"
-		. "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n}\n";
+		. "\treturn \$msg;\n}\n";
+	/* BELOW the end marker on purpose: the serving check is save-pipeline code, not visual code, and
+	   the real file puts it there too. Declared inside the region it would be scanned for literals
+	   by a row that has nothing to do with it. */
+	if ( $o['font_decl'] ) {
+		$src .= "function es_font_serving_check() {\n\treturn 'sin-wordpress';\n}\n";
+	}
+	$src .= "function es_fixture_build() {\n\tes_fixture_card();\n\tes_fixture_slug( 1 );\n"
+		. ( $o['font_call'] ? "\tes_font_serving_check();\n" : '' )
+		. "}\n";
 	return $src;
 }
 /**
@@ -579,12 +593,17 @@ function fx_line_of( $content, $needle ) {
    the Hard Rules a write-capable skill needs, or every builder scenario carries two FAILs that
    have nothing to do with the token layer. The $extra names the asset and its unrouted entry
    point so the scenario is not read through a fog of RT_ORPHAN_FILE / RT_HELPER_UNROUTABLE. */
-function fx_builder_skill( $root, $content ) {
+/* $documenta writes the third piece RT_FONT_NO_SERVING_PATH asks for: a .md in the tree that names
+   the serving check, so an operator who sees its warning has somewhere to go. It is a parameter and
+   not always-on because "the check exists, is wired, and is documented nowhere" is its own cause
+   with its own message, and a fixture that cannot express it cannot prove that arm fires. */
+function fx_builder_skill( $root, $content, $documenta = true ) {
 	fx_wc_skill(
 		$root,
 		'elementor-core',
 		"- Every colour, family and shadow lives in es_tokens(); nothing below it types one.\n",
 		"\nThe token layer and the demo build live in `assets/es-builder.php` — see `es_fixture_build()`.\n"
+			. ( $documenta ? "Serving the families is a human's job: see es_font_serving_check().\n" : '' )
 	);
 	fx( $root, 'skills/elementor-core/assets/es-builder.php', $content );
 }
@@ -2957,6 +2976,91 @@ ok(
 	$out118
 );
 fx_rrmdir( $r118 );
+
+/* ---------------------------------------------------------------------------
+   RT_FONT_NO_SERVING_PATH — the family is WRITTEN and nothing makes it exist.
+
+   es_tokens() puts `font_head => 'Space Grotesk'` into every heading this framework emits as
+   `typography_font_family`, and the framework carried no `@font-face`, no enqueue and no font
+   registration anywhere: the scale axis moved every SIZE correctly while the typeface may never
+   have arrived, with every row in this audit green.
+
+   The row is scoped to what a REPO can honestly assert. The font files live on a WordPress site,
+   not here, so nothing in this tree can know whether they are served — what it can require is that
+   the build carries a check that ASKS the site, that something calls it, and that its warning has a
+   documented procedure behind it. Three causes, one row, each named: the same shape
+   RT_BUILDER_NO_TOKENS uses for its three.
+   --------------------------------------------------------------------------- */
+
+echo "--- un builder que declara familia, la comprueba y la documenta no produce fila ---\n";
+$r121 = fx_tmp_root();
+fx_base( $r121 );
+fx_builder_skill( $r121, fx_builder() );
+list( $code121, $out121 ) = fx_run_ok( $audit, $r121 );
+ok( array() === fx_lines_with( $out121, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'las tres piezas puestas: no hay fila', $out121 );
+ok( 0 === $code121, 'y el arbol conforme sale con codigo 0', $code121 );
+fx_rrmdir( $r121 );
+
+echo "--- sin comprobacion de servicio, la familia declarada FALLA nombrandose ---\n";
+$r122 = fx_tmp_root();
+fx_base( $r122 );
+fx_builder_skill( $r122, fx_builder( array( 'font_decl' => false, 'font_call' => false ) ), false );
+list( , $out122 ) = fx_run_ok( $audit, $r122 );
+ok( 'FAIL' === fx_row_level( $out122, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'sin nada que sirva la familia, FALLA', fx_row_level( $out122, array( 'RT_FONT_NO_SERVING_PATH' ) ) );
+ok( array() !== fx_lines_with( $out122, array( 'RT_FONT_NO_SERVING_PATH', 'names Manrope' ) ), 'y nombra la familia, que es lo unico accionable', $out122 );
+/* El limite, dicho en el propio mensaje. Una fila que se leyera como "los ficheros no estan
+   servidos" estaria afirmando algo que este repositorio no puede saber. */
+ok( array() !== fx_lines_with( $out122, array( 'RT_FONT_NO_SERVING_PATH', 'CANNOT know whether those font files are served' ) ), 'y dice lo que NO puede afirmar: los ficheros viven en el sitio, no aqui', $out122 );
+fx_rrmdir( $r122 );
+
+echo "--- una comprobacion declarada que NADIE llama sigue siendo FALLA ---\n";
+$r123 = fx_tmp_root();
+fx_base( $r123 );
+/* El fallo que esta rama borra una y otra vez: la funcion escrita, probada y documentada mientras
+   NADA la invoca. Con solo el arm de "existe", este escenario pasaria en verde. */
+fx_builder_skill( $r123, fx_builder( array( 'font_call' => false ) ) );
+list( , $out123 ) = fx_run_ok( $audit, $r123 );
+ok( 'FAIL' === fx_row_level( $out123, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'declarada y sin llamar FALLA', fx_row_level( $out123, array( 'RT_FONT_NO_SERVING_PATH' ) ) );
+ok( array() !== fx_lines_with( $out123, array( 'RT_FONT_NO_SERVING_PATH', 'nothing in it CALLS' ) ), 'y dice que la causa es que nadie la llama', $out123 );
+ok( array() === fx_lines_with( $out123, array( 'RT_FONT_NO_SERVING_PATH', 'declares no es_font_serving_check' ) ), 'y NO acusa de que falte, porque esta: dos causas distintas son dos mensajes distintos', $out123 );
+fx_rrmdir( $r123 );
+
+echo "--- cableada pero sin procedimiento escrito en ningun .md, tambien FALLA ---\n";
+$r124 = fx_tmp_root();
+fx_base( $r124 );
+/* Un aviso sin procedimiento detras es una linea mas por la que pasar de largo: el operador lee
+   "no puedo confirmar que se sirva Manrope" y no tiene donde ir. */
+fx_builder_skill( $r124, fx_builder(), false );
+list( , $out124 ) = fx_run_ok( $audit, $r124 );
+ok( 'FAIL' === fx_row_level( $out124, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'sin .md que la nombre, FALLA', fx_row_level( $out124, array( 'RT_FONT_NO_SERVING_PATH' ) ) );
+ok( array() !== fx_lines_with( $out124, array( 'RT_FONT_NO_SERVING_PATH', 'nowhere to go' ) ), 'y dice que el operador no tiene donde ir', $out124 );
+ok( array() === fx_lines_with( $out124, array( 'RT_FONT_NO_SERVING_PATH', 'nothing in it CALLS' ) ), 'y no acumula las otras dos causas, que si estan cubiertas', $out124 );
+fx_rrmdir( $r124 );
+
+echo "--- una llamada a una comprobacion que NO existe tambien FALLA ---\n";
+$r126 = fx_tmp_root();
+fx_base( $r126 );
+/* La tercera causa por separado, y es la que ningun otro escenario aisla: el escenario 122 se queda
+   sin declaracion Y sin llamada, asi que borrar este arm dejaria la fila disparandose igual por la
+   otra causa y nadie se enteraria. Un renombrado de la comprobacion produce exactamente esta forma:
+   quedan las llamadas, desaparece la funcion. */
+fx_builder_skill( $r126, fx_builder( array( 'font_decl' => false ) ) );
+list( , $out126 ) = fx_run_ok( $audit, $r126 );
+ok( 'FAIL' === fx_row_level( $out126, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'llamar a una comprobacion que no se declara FALLA', fx_row_level( $out126, array( 'RT_FONT_NO_SERVING_PATH' ) ) );
+ok( array() !== fx_lines_with( $out126, array( 'RT_FONT_NO_SERVING_PATH', 'declares no es_font_serving_check' ) ), 'y dice que lo que falta es la declaracion', $out126 );
+ok( array() === fx_lines_with( $out126, array( 'RT_FONT_NO_SERVING_PATH', 'nothing in it CALLS' ) ), 'y no acusa de que nadie la llame, porque si la llaman', $out126 );
+fx_rrmdir( $r126 );
+
+echo "--- una cara web-safe NO necesita servirse y NO es un hallazgo ---\n";
+$r125 = fx_tmp_root();
+fx_base( $r125 );
+/* Sin esta exclusion la fila acusaria a un proyecto que eligio Georgia a proposito, y una fila que
+   acusa a lo correcto es una fila que se apaga. Las tres piezas se quitan a la vez: si la exclusion
+   se rompiera, este arbol FALLARIA por las mismas tres causas del escenario 122. */
+fx_builder_skill( $r125, fx_builder( array( 'font_family' => 'Georgia, serif', 'font_decl' => false, 'font_call' => false ) ), false );
+list( , $out125 ) = fx_run_ok( $audit, $r125 );
+ok( array() === fx_lines_with( $out125, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'Georgia no produce fila: el navegador ya la tiene', $out125 );
+fx_rrmdir( $r125 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
