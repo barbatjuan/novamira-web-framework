@@ -75,22 +75,28 @@ exists to disprove.
 
 ## The set
 
-| Slug | Role | Size | Weight | Freepik | `alt` |
-|---|---|---|---|---|---|
-| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | Cantero labrando un sillar a maceta y cincel en el taller |
-| `hero-banco` | hero 16:9 | 1440×810 | 119 KB | 50621783 | Cantero puliendo una pieza de piedra entre el polvo del corte |
-| `hero-cantera` | hero 16:9 | 1440×810 | 122 KB | 427777725 | Vista aérea de una cantera a cielo abierto en bancadas |
-| `hero-encimera` | hero 16:9 | 1440×810 | 114 KB | 427392968 | Encimera de piedra natural con grifería negra en una cocina |
-| `card-cantero` | card 4:3 | 800×600 | 45 KB | 50621544 | Cantero golpeando el cincel sobre un bloque de arenisca |
-| `card-patio` | card 4:3 | 800×600 | 43 KB | 50621352 | Cantero trabajando una pieza en el patio del taller |
-| `card-labra` | card 4:3 | 800×600 | 44 KB | 50621286 | Labra de un bloque con herramienta neumática |
-| `card-detalle` | card 4:3 | 800×600 | 44 KB | 50621416 | Detalle del cincel abriendo la superficie de la piedra |
-| `card-veta` | card 4:3 | 800×600 | 43 KB | 425368036 | Panel de piedra con veta dorada junto a un frente de madera |
-| `card-mueble` | card 4:3 | 800×600 | 39 KB | 427487926 | Mueble con frente de piedra y cajones abiertos |
-| `sq-manos` | square 1:1 | 600×600 | 38 KB | 50621643 | Manos de cantero puliendo el canto de una pieza |
-| `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | Superficie de mármol beige con veta natural |
-| `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | Granito gris de grano fino en placa |
-| `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | Fachada barroca en piedra labrada de Lecce |
+Every row carries its own **Licence** cell rather than leaning on the paragraph
+above it. `RT_GALLERY_NO_MANIFEST` reads that cell per row, and it has to: a
+blanket "all of these are free-licence" is true only until the fifteenth image
+arrives from somewhere else, and it becomes false in silence — nothing about the
+new row looks different from the old ones.
+
+| Slug | Role | Size | Weight | Freepik | Licence | `alt` |
+|---|---|---|---|---|---|---|
+| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | Freepik free | Cantero labrando un sillar a maceta y cincel en el taller |
+| `hero-banco` | hero 16:9 | 1440×810 | 119 KB | 50621783 | Freepik free | Cantero puliendo una pieza de piedra entre el polvo del corte |
+| `hero-cantera` | hero 16:9 | 1440×810 | 122 KB | 427777725 | Freepik free | Vista aérea de una cantera a cielo abierto en bancadas |
+| `hero-encimera` | hero 16:9 | 1440×810 | 114 KB | 427392968 | Freepik free | Encimera de piedra natural con grifería negra en una cocina |
+| `card-cantero` | card 4:3 | 800×600 | 45 KB | 50621544 | Freepik free | Cantero golpeando el cincel sobre un bloque de arenisca |
+| `card-patio` | card 4:3 | 800×600 | 43 KB | 50621352 | Freepik free | Cantero trabajando una pieza en el patio del taller |
+| `card-labra` | card 4:3 | 800×600 | 44 KB | 50621286 | Freepik free | Labra de un bloque con herramienta neumática |
+| `card-detalle` | card 4:3 | 800×600 | 44 KB | 50621416 | Freepik free | Detalle del cincel abriendo la superficie de la piedra |
+| `card-veta` | card 4:3 | 800×600 | 43 KB | 425368036 | Freepik free | Panel de piedra con veta dorada junto a un frente de madera |
+| `card-mueble` | card 4:3 | 800×600 | 39 KB | 427487926 | Freepik free | Mueble con frente de piedra y cajones abiertos |
+| `sq-manos` | square 1:1 | 600×600 | 38 KB | 50621643 | Freepik free | Manos de cantero puliendo el canto de una pieza |
+| `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | Freepik free | Superficie de mármol beige con veta natural |
+| `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | Freepik free | Granito gris de grano fino en placa |
+| `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | Freepik free | Fachada barroca en piedra labrada de Lecce |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the

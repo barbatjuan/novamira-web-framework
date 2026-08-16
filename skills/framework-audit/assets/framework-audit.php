@@ -101,6 +101,8 @@ const ROW_TYPES = array(
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
+	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
+	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
@@ -1245,13 +1247,9 @@ foreach ( $PERS_AXES as $axis => $positions ) {
  * the other file's absent axis, so two files that both forgot to declare density are correctly
  * counted as matching on it rather than as differing.
  */
-function proof_axis_signature( $src ) {
-	$sig  = array( 'scale' => '', 'ground' => '', 'density' => '', 'elevation' => '', 'composition' => '' );
-	$root_block = '';
-	if ( preg_match( '/:root\s*\{(.*?)\}/s', $src, $rm ) ) {
-		$root_block = $rm[1];
-	}
-	if ( '' === $root_block ) {
+function axis_signature_of_block( $block ) {
+	$sig = array( 'scale' => '', 'ground' => '', 'density' => '', 'elevation' => '', 'composition' => '' );
+	if ( '' === $block ) {
 		return $sig;
 	}
 	$props = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest' );
@@ -1259,15 +1257,76 @@ function proof_axis_signature( $src ) {
 		/* (?![\w-]) so `--c-bg` never swallows the `--c-bg-alt` declaration that sits beside it on
 		   the same line: the ground axis is --c-bg, and matching its longer neighbour would report
 		   the alternate surface as the page's ground. */
-		if ( preg_match( '/' . preg_quote( $prop, '/' ) . '(?![\w-])\s*:\s*([^;}]+)/', $root_block, $m ) ) {
+		if ( preg_match( '/' . preg_quote( $prop, '/' ) . '(?![\w-])\s*:\s*([^;}]+)/', $block, $m ) ) {
 			$sig[ $axis ] = strtolower( trim( preg_replace( '/\s+/', ' ', $m[1] ) ) );
 		}
 	}
-	if ( preg_match( '#/\*\s*composition\s*:\s*(LP-[A-Z0-9-]+)#i', $root_block, $cm ) ) {
+	if ( preg_match( '#/\*\s*composition\s*:\s*(LP-[A-Z0-9-]+)#i', $block, $cm ) ) {
 		$sig['composition'] = strtolower( $cm[1] );
 	}
 
 	return $sig;
+}
+
+function proof_axis_signature( $src ) {
+	$root_block = '';
+	if ( preg_match( '/:root\s*\{(.*?)\}/s', $src, $rm ) ) {
+		$root_block = $rm[1];
+	}
+	return axis_signature_of_block( $root_block );
+}
+
+/**
+ * Which of the five axes two signatures AGREE on, each named with the value they share.
+ *
+ * ONE list, two consumers, for the reason axis_declarations() is a function: RT_PROOF_NOT_DISTINCT
+ * asks it of the two proof mockups' `:root` blocks and RT_GALLERY_NOT_DISTINCT asks it of two
+ * gallery anchors' `[data-anchor]` blocks. A sixth axis, or a different property carrying one, has
+ * to land on both at once — and dropping an axis from this list silently INFLATES the difference
+ * count on both, which is the shape of a distinctness check that stops distinguishing.
+ *
+ * Naming the matching axis with its value is the whole point of the return shape. "not different
+ * enough" sends the reader back to diff two files; "both sit at --sp-scale: 1.0" is a one-line fix.
+ */
+function axis_matches( $a, $b ) {
+	$labels = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest', 'composition' => 'composition marker' );
+	$same   = array();
+	foreach ( $labels as $axis => $label ) {
+		if ( $a[ $axis ] === $b[ $axis ] ) {
+			$shown  = ( '' === $a[ $axis ] ) ? 'neither declares it' : 'both `' . $a[ $axis ] . '`';
+			$same[] = $axis . ' (' . $label . ': ' . $shown . ')';
+		}
+	}
+	return $same;
+}
+
+/**
+ * Every `.html` file under a directory, AT ANY DEPTH, in a deterministic order.
+ *
+ * A directory walk and not `glob('*.html')`, which does not descend. Entries are sorted per level
+ * before recursion, so the order is the same on every filesystem — a row whose order depends on
+ * inode order is a row whose output diffs at random. Paths are built by appending `/`, so a caller
+ * can take the tail with substr() and get a relative path on every platform.
+ */
+function html_assets_deep( $dir ) {
+	$out     = array();
+	$entries = is_dir( $dir ) ? scandir( $dir ) : false;
+	if ( false === $entries ) {
+		return $out;
+	}
+	sort( $entries, SORT_STRING );
+	foreach ( $entries as $entry ) {
+		if ( '.' === $entry || '..' === $entry ) {
+			continue;
+		}
+		$path = $dir . '/' . $entry;
+		if ( is_dir( $path ) ) {
+			$out = array_merge( $out, html_assets_deep( $path ) );
+		} elseif ( preg_match( '/\.html$/i', $entry ) ) {
+			$out[] = $path;
+		}
+	}
+	return $out;
 }
 
 /**
@@ -1342,17 +1401,8 @@ foreach ( $PROOF_MOCKUPS as $anchor => $rel ) {
 }
 if ( $proof_all_here && 2 === count( $proof_sigs ) ) {
 	$anchors = array_keys( $proof_sigs );
-	$a       = $proof_sigs[ $anchors[0] ];
-	$b       = $proof_sigs[ $anchors[1] ];
-	$same    = array();
-	$labels  = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest', 'composition' => 'composition marker' );
-	foreach ( $labels as $axis => $label ) {
-		if ( $a[ $axis ] === $b[ $axis ] ) {
-			$shown  = ( '' === $a[ $axis ] ) ? 'neither declares it' : 'both `' . $a[ $axis ] . '`';
-			$same[] = $axis . ' (' . $label . ': ' . $shown . ')';
-		}
-	}
-	$differ = 5 - count( $same );
+	$same    = axis_matches( $proof_sigs[ $anchors[0] ], $proof_sigs[ $anchors[1] ] );
+	$differ  = 5 - count( $same );
 	if ( $differ < 4 ) {
 		/* Naming the matching axes is the whole point of the message. "not different enough" sends
 		   the reader back to diff two 300-line files; "both use --sp-scale: 1.0" is a one-line fix. */
@@ -1435,15 +1485,19 @@ if ( $proof_all_here && 2 === count( $proof_copy ) ) {
    the prefix, and naming it made the rule look load-bearing where it does nothing. What the skip
    actually buys is that splitting a shared band out of the two production mockups stays a one-file
    move instead of a new FAIL. tests/test-framework-audit.php covers it with `_shared-copy.html`,
-   which is that shape: an `.html` file with no axis declarations at all. */
-$mockup_assets = glob( $root . '/skills/html-mockup/assets/*.html' );
-if ( ! is_array( $mockup_assets ) ) {
-	$mockup_assets = array();
-}
-sort( $mockup_assets );
+   which is that shape: an `.html` file with no axis declarations at all.
+
+   RECURSIVE, and it was not. `glob($root.'/skills/html-mockup/assets/*.html')` does not descend,
+   so `assets/gallery/` — a whole page of anchors, added later, exactly the "third production asset"
+   this row's glob exists to catch — sat outside it: a gallery could have shipped with no axis
+   declaration at all and this row would have stayed green. The walk below is a directory walk, and
+   the message names the path RELATIVE to assets/ rather than the basename, because two files called
+   `index.html` in two subdirectories are one message otherwise. */
+$mockup_asset_root = $root . '/skills/html-mockup/assets';
+$mockup_assets     = html_assets_deep( $mockup_asset_root );
 foreach ( $mockup_assets as $mockup_path ) {
-	$mockup_name = basename( $mockup_path );
-	if ( '_' === substr( $mockup_name, 0, 1 ) ) {
+	$mockup_name = substr( $mockup_path, strlen( $mockup_asset_root ) + 1 );
+	if ( '_' === substr( basename( $mockup_path ), 0, 1 ) ) {
 		continue;
 	}
 	/* Only the `:root` block is read, for the same reason proof_axis_signature() reads only it:
@@ -1478,6 +1532,381 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'html-mockup',
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
+		);
+	}
+}
+
+/* ------------------------------------------------------------------- the gallery
+ *
+ * A gallery is one page holding many `TPL-* × PERS-*` cards, and its whole claim is that two cards
+ * read as two different SITES. The rows above cannot make that claim: RT_MOCKUP_NO_AXES asks each
+ * FILE whether it can express an axis, and RT_PROOF_NOT_DISTINCT compares exactly two hardcoded
+ * files. Add thirty cards to one document and neither row learns anything — which is the gap these
+ * two close, because the failure mode of a catalog is not a missing token, it is forty entries that
+ * turn out to be one entry with a different accent colour.
+ *
+ * WHAT COUNTS AS A GALLERY ASSET, and why the test has two arms. Path: anything under a `gallery/`
+ * directory. Content: anything rendering `<section class="strip">` with `data-tpl`/`data-pers`.
+ * Either arm alone leaves a silent exit — rename the directory and a path-only test stops looking;
+ * delete the two attributes and a content-only test stops looking — and both of those edits would
+ * turn the rows below green by removing their subject rather than by fixing anything.
+ *
+ * WHY THE GENERATED HTML AND NOT `_build-gallery.php`. The generator is where the strip table is
+ * WRITTEN, but the HTML is what is opened, approved and handed on, and `_build-gallery.php` says so
+ * itself beside its own duplicate guard: "RT_GALLERY_NOT_DISTINCT will assert this from outside".
+ * A check that read the generator would pass a hand-edited `index.html`, and would have to parse
+ * PHP array literals to do it.
+ */
+
+/** One row of a markdown table, cells trimmed, outer pipes dropped. */
+function gallery_cells( $line ) {
+	$line = preg_replace( '/^\|/', '', trim( $line ) );
+	$line = preg_replace( '/\|$/', '', $line );
+	return array_map( 'trim', explode( '|', $line ) );
+}
+
+/** `|---|:--|` and friends: a row that is only alignment, never data. */
+function gallery_is_separator( array $cells ) {
+	if ( array() === $cells ) {
+		return false;
+	}
+	foreach ( $cells as $c ) {
+		if ( ! preg_match( '/^:?-{3,}:?$/', $c ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * The image table out of `_gallery-images.md`: its rows, and whether it has a licence column.
+ *
+ * COLUMNS ARE READ FROM THE HEADER, never counted from the left. The manifest carries more than one
+ * table (a "Registers" table sits above the image set), and a cell index hardcoded here would break
+ * the moment a column is inserted — quietly, by reading the wrong cell, which is worse than
+ * breaking loudly. The table selected is the first whose header carries a cell reading exactly
+ * `Slug`; "Slugs" (the Registers table's own column) is deliberately not a match.
+ *
+ * Returns null when NO table carries a Slug column — which is a different finding from a table
+ * whose rows are wrong, and gets its own message.
+ */
+function gallery_manifest_table( $md ) {
+	$blocks = array();
+	$cur    = array();
+	foreach ( explode( "\n", $md ) as $i => $line ) {
+		$t = trim( $line );
+		if ( '' !== $t && '|' === $t[0] ) {
+			$cur[] = array( $i + 1, $t );
+			continue;
+		}
+		if ( array() !== $cur ) {
+			$blocks[] = $cur;
+			$cur      = array();
+		}
+	}
+	if ( array() !== $cur ) {
+		$blocks[] = $cur;
+	}
+
+	foreach ( $blocks as $block ) {
+		$slug_col = null;
+		$lic_col  = null;
+		foreach ( gallery_cells( $block[0][1] ) as $ci => $cell ) {
+			$name = strtolower( trim( $cell, " \t`*" ) );
+			if ( 'slug' === $name ) {
+				$slug_col = $ci;
+			}
+			if ( 'licence' === $name || 'license' === $name ) {
+				$lic_col = $ci;
+			}
+		}
+		if ( null === $slug_col ) {
+			continue;
+		}
+		$rows = array();
+		foreach ( array_slice( $block, 1 ) as $r ) {
+			$cells = gallery_cells( $r[1] );
+			if ( gallery_is_separator( $cells ) ) {
+				continue;
+			}
+			$rows[] = array(
+				'line'    => $r[0],
+				'slug'    => isset( $cells[ $slug_col ] ) ? trim( $cells[ $slug_col ], " \t`" ) : '',
+				'licence' => ( null !== $lic_col && isset( $cells[ $lic_col ] ) ) ? trim( $cells[ $lic_col ], " \t`" ) : '',
+			);
+		}
+		return array( 'rows' => $rows, 'licence_col' => $lic_col );
+	}
+	return null;
+}
+
+/** Every `<section class="strip">` a gallery renders, with the pair it declares, in document order. */
+function gallery_strips( $src ) {
+	$out = array();
+	if ( ! preg_match_all( '/<section\b[^>]*>/i', $src, $m ) ) {
+		return $out;
+	}
+	foreach ( $m[0] as $tag ) {
+		if ( ! preg_match( '/\bclass\s*=\s*"[^"]*\bstrip\b[^"]*"/i', $tag ) ) {
+			continue;
+		}
+		$out[] = array(
+			'tpl'  => preg_match( '/\bdata-tpl\s*=\s*"([^"]*)"/i', $tag, $t ) ? trim( $t[1] ) : '',
+			'pers' => preg_match( '/\bdata-pers\s*=\s*"([^"]*)"/i', $tag, $p ) ? trim( $p[1] ) : '',
+		);
+	}
+	return $out;
+}
+
+/**
+ * Every declaration block one anchor's selector opens, CONCATENATED — or null if it opens none.
+ *
+ * preg_match_all and not preg_match, and that is the one lesson this file already paid for once.
+ * RT_MOCKUP_NO_AXES reads only the FIRST `:root{…}` with `/:root\s*\{(.*?)\}/s`, and a COMMENT
+ * spelling that selector out in prose captured a three-byte block and reported all five axes
+ * missing — a verifier cannot tell CSS from a sentence about CSS. Taking every block instead makes
+ * a prose mention contribute nothing rather than shadow the real one, and it is also what the
+ * cascade does: two rules with the same selector both apply, so reading only the first would let a
+ * later override go unseen. `[^{}]*` rather than `.*?` for the same reason from the other side — a
+ * body that would have to cross a brace is not a declaration body.
+ */
+function gallery_anchor_block( $src, $anchor ) {
+	$re = '/\[data-anchor\s*=\s*"' . preg_quote( $anchor, '/' ) . '"\]\s*\{([^{}]*)\}/';
+	if ( ! preg_match_all( $re, $src, $m ) ) {
+		return null;
+	}
+	return implode( "\n", $m[1] );
+}
+
+/** Every slug a gallery hydrates an `<img>` from. Sorted and de-duplicated; `''` survives on purpose. */
+function gallery_used_slugs( $src ) {
+	$out = array();
+	if ( preg_match_all( '/\bdata-img\s*=\s*"([^"]*)"/i', $src, $m ) ) {
+		foreach ( $m[1] as $s ) {
+			$out[ trim( $s ) ] = true;
+		}
+	}
+	ksort( $out, SORT_STRING );
+	return array_keys( $out );
+}
+
+function gallery_slug_label( $s ) {
+	return ( '' === $s ) ? 'an empty data-img=""' : '`' . $s . '`';
+}
+
+$gallery_manifests_seen = array();
+foreach ( $mockup_assets as $gal_path ) {
+	$gal_name = substr( $gal_path, strlen( $mockup_asset_root ) + 1 );
+	if ( '_' === substr( basename( $gal_path ), 0, 1 ) ) {
+		continue;
+	}
+	$gal_src    = slurp( $gal_path );
+	$gal_strips = gallery_strips( $gal_src );
+	if ( ! preg_match( '#(^|/)gallery/#', $gal_name ) && array() === $gal_strips ) {
+		continue;
+	}
+	$gal_where = 'assets/' . $gal_name;
+
+	/* ---- RT_GALLERY_NOT_DISTINCT ---- */
+
+	if ( array() === $gal_strips ) {
+		add(
+			'RT_GALLERY_NOT_DISTINCT',
+			'FAIL',
+			'html-mockup',
+			$gal_where . ' is a gallery asset that renders no <section class="strip"> — with nothing to compare, every rule below'
+				. ' passes over an empty set, which is a gate reporting green on the absence of its own subject'
+		);
+	}
+
+	$gal_pairs = array();
+	$gal_cards = array();
+	foreach ( $gal_strips as $gal_ix => $gal_st ) {
+		$gal_gaps = array();
+		if ( '' === $gal_st['tpl'] ) {
+			$gal_gaps[] = 'data-tpl';
+		}
+		if ( '' === $gal_st['pers'] ) {
+			$gal_gaps[] = 'data-pers';
+		}
+		if ( array() !== $gal_gaps ) {
+			add(
+				'RT_GALLERY_NOT_DISTINCT',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' strip #' . ( $gal_ix + 1 ) . ' declares no ' . implode( ' and no ', $gal_gaps )
+					. ' — a strip that does not say which archetype and which anchor it renders is a card the pair and axis rules below never see'
+			);
+			continue;
+		}
+		$gal_pair = $gal_st['tpl'] . ' × ' . $gal_st['pers'];
+		if ( isset( $gal_pairs[ $gal_pair ] ) ) {
+			add(
+				'RT_GALLERY_NOT_DISTINCT',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' renders the pair ' . $gal_pair . ' twice, at strips #' . $gal_pairs[ $gal_pair ] . ' and #' . ( $gal_ix + 1 )
+					. ' — one card per TPL × PERS pair, so two strips sharing an anchor have to declare different archetypes or they are one card printed twice'
+			);
+			continue;
+		}
+		$gal_pairs[ $gal_pair ] = $gal_ix + 1;
+		$gal_cards[]            = array( 'tpl' => $gal_st['tpl'], 'pers' => $gal_st['pers'], 'pair' => $gal_pair );
+	}
+
+	/* The axes come from the anchor's own `[data-anchor]` block and not from the strip's markup:
+	   that block is what actually PAINTS the strip, so an eyebrow claiming an anchor the stylesheet
+	   never declares is a card that reads as whatever `:root` happened to leave behind. */
+	$gal_sigs = array();
+	foreach ( $gal_cards as $gal_c ) {
+		if ( array_key_exists( $gal_c['pers'], $gal_sigs ) ) {
+			continue;
+		}
+		$gal_blk = gallery_anchor_block( $gal_src, $gal_c['pers'] );
+		$gal_sig = ( null === $gal_blk ) ? null : axis_signature_of_block( $gal_blk );
+		/* "no block" and "a block declaring not one of the five axes" are the same finding, and
+		   collapsing them is what stops the comment above from becoming a loophole: taking EVERY
+		   matching block means a CSS comment quoting the selector also matches, so a file whose real
+		   block was deleted would otherwise report a declaration that is three bytes of prose — and
+		   an empty signature against a real one reads as five axes apart, which passes. */
+		if ( null === $gal_sig || array( '', '', '', '', '' ) === array_values( $gal_sig ) ) {
+			add(
+				'RT_GALLERY_NOT_DISTINCT',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' has a strip at anchor `' . $gal_c['pers'] . '` but no [data-anchor="' . $gal_c['pers'] . '"] block declares its axes'
+					. ' — the card is labelled with an anchor the stylesheet never paints, so what the reader compares is not what the eyebrow says'
+			);
+			continue;
+		}
+		$gal_sigs[ $gal_c['pers'] ] = $gal_sig;
+	}
+
+	/* ≥4 of 5, the same bar RT_PERS_TOO_SIMILAR and RT_PROOF_NOT_DISTINCT hold, and
+	   design-personalities.md states the reason in as many words: two anchors that agree on two or
+	   more axes are the same site with a different accent colour, not two personalities. Only
+	   same-archetype pairs are compared — two cards of DIFFERENT archetypes are already separated by
+	   their section inventory, which is the axis the five perceptual ones do not carry. */
+	$gal_compared = array();
+	foreach ( $gal_cards as $gal_x ) {
+		foreach ( $gal_cards as $gal_y ) {
+			if ( $gal_x['tpl'] !== $gal_y['tpl'] || $gal_x['pers'] === $gal_y['pers'] ) {
+				continue;
+			}
+			if ( ! isset( $gal_sigs[ $gal_x['pers'] ] ) || ! isset( $gal_sigs[ $gal_y['pers'] ] ) ) {
+				continue;
+			}
+			$gal_key = ( strcmp( $gal_x['pers'], $gal_y['pers'] ) < 0 )
+				? $gal_x['tpl'] . '|' . $gal_x['pers'] . '|' . $gal_y['pers']
+				: $gal_x['tpl'] . '|' . $gal_y['pers'] . '|' . $gal_x['pers'];
+			if ( isset( $gal_compared[ $gal_key ] ) ) {
+				continue;
+			}
+			$gal_compared[ $gal_key ] = true;
+			$gal_same                 = axis_matches( $gal_sigs[ $gal_x['pers'] ], $gal_sigs[ $gal_y['pers'] ] );
+			$gal_differ               = 5 - count( $gal_same );
+			if ( $gal_differ < 4 ) {
+				add(
+					'RT_GALLERY_NOT_DISTINCT',
+					'FAIL',
+					'html-mockup',
+					$gal_where . ': ' . $gal_x['pair'] . ' and ' . $gal_y['pair'] . ' share an archetype and their anchors differ on only '
+						. $gal_differ . ' of 5 axes — they match on ' . implode( ', ', $gal_same )
+						. '. Same sections under two anchors have to read as two sites, or the catalog is one card with a different accent colour'
+				);
+			}
+		}
+	}
+
+	/* ---- RT_GALLERY_NO_MANIFEST ---- */
+
+	$gal_used     = gallery_used_slugs( $gal_src );
+	$gal_manifest = dirname( $gal_path ) . '/_gallery-images.md';
+	if ( ! is_file( $gal_manifest ) ) {
+		if ( array() !== $gal_used ) {
+			add(
+				'RT_GALLERY_NO_MANIFEST',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' renders ' . count( $gal_used ) . ' image slug(s) and no _gallery-images.md sits beside it'
+					. ' — es_photo() resolves a WordPress ATTACHMENT SLUG, not a URL and not a data: URI, so an image with no row is a promise'
+					. ' the native build cannot keep and the client gets the grey box the mockup told them they would not get'
+			);
+		}
+		continue;
+	}
+
+	$gal_man_rel = substr( $gal_manifest, strlen( $mockup_asset_root ) + 1 );
+	$gal_table   = gallery_manifest_table( slurp( $gal_manifest ) );
+	if ( null === $gal_table ) {
+		add(
+			'RT_GALLERY_NO_MANIFEST',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' carries no table with a `Slug` column, so none of the ' . count( $gal_used )
+				. ' image slug(s) ' . $gal_where . ' renders can be matched to anything — the manifest is prose, not a contract'
+		);
+		continue;
+	}
+
+	$gal_by_slug = array();
+	foreach ( $gal_table['rows'] as $gal_r ) {
+		if ( '' !== $gal_r['slug'] ) {
+			$gal_by_slug[ $gal_r['slug'] ] = $gal_r;
+		}
+	}
+	$gal_unlisted = array();
+	foreach ( $gal_used as $gal_s ) {
+		if ( ! isset( $gal_by_slug[ $gal_s ] ) ) {
+			$gal_unlisted[] = gallery_slug_label( $gal_s );
+		}
+	}
+	if ( array() !== $gal_unlisted ) {
+		add(
+			'RT_GALLERY_NO_MANIFEST',
+			'FAIL',
+			'html-mockup',
+			$gal_where . ' renders ' . implode( ', ', $gal_unlisted ) . ' with no row in ' . basename( $gal_man_rel )
+				. ' — the file name IS the attachment slug, so an image the manifest does not carry is one the operator cannot upload and es_photo() cannot resolve'
+		);
+	}
+
+	/* Row hygiene is a property of the MANIFEST, not of the asset that reads it, so two galleries in
+	   one directory report it once rather than twice. */
+	if ( isset( $gallery_manifests_seen[ $gal_manifest ] ) ) {
+		continue;
+	}
+	$gallery_manifests_seen[ $gal_manifest ] = true;
+
+	$gal_no_slug = array();
+	$gal_no_lic  = array();
+	foreach ( $gal_table['rows'] as $gal_r ) {
+		if ( '' === $gal_r['slug'] ) {
+			$gal_no_slug[] = 'line ' . $gal_r['line'];
+			continue;
+		}
+		if ( '' === $gal_r['licence'] ) {
+			$gal_no_lic[] = '`' . $gal_r['slug'] . '` (line ' . $gal_r['line'] . ')';
+		}
+	}
+	if ( array() !== $gal_no_slug ) {
+		add(
+			'RT_GALLERY_NO_MANIFEST',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' has ' . count( $gal_no_slug ) . ' row(s) with an empty Slug cell — ' . implode( ', ', $gal_no_slug )
+				. '. A row without a slug names no attachment, so it documents an image the build has no way to ask for'
+		);
+	}
+	if ( array() !== $gal_no_lic ) {
+		add(
+			'RT_GALLERY_NO_MANIFEST',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' has ' . count( $gal_no_lic ) . ' row(s) with no licence — ' . implode( ', ', $gal_no_lic )
+				. ( null === $gal_table['licence_col'] ? '. The table carries no Licence column at all' : '' )
+				. '. This repository is public under Apache-2.0 and its LICENSE hands every reader the right to redistribute what it contains;'
+				. ' an image whose terms are recorded nowhere is a right nobody checked we had to give'
 		);
 	}
 }

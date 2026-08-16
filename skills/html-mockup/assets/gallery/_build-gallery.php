@@ -56,10 +56,11 @@ if ( ! is_file( $MANIFEST ) ) {
 
 $manifest_rows = array();
 foreach ( explode( "\n", file_get_contents( $MANIFEST ) ) as $line ) {
-	// Exactly six cells, first one a backticked slug. The "Registers" table three headings up has
-	// three cells and the derived-token tables have five, so neither can be swallowed by accident.
+	// Exactly SEVEN cells, first one a backticked slug and the sixth the licence
+	// `RT_GALLERY_NO_MANIFEST` reads per row. The "Registers" table three headings up has three
+	// cells, so it cannot be swallowed by accident.
 	if ( ! preg_match(
-		'/^\|\s*`([a-z0-9\-]+)`\s*\|\s*([^|]+?)\s*\|\s*(\d+)×(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/u',
+		'/^\|\s*`([a-z0-9\-]+)`\s*\|\s*([^|]+?)\s*\|\s*(\d+)×(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/u',
 		$line,
 		$m
 	) ) {
@@ -70,7 +71,7 @@ foreach ( explode( "\n", file_get_contents( $MANIFEST ) ) as $line ) {
 		'role' => $m[2],
 		'w'    => (int) $m[3],
 		'h'    => (int) $m[4],
-		'alt'  => $m[7],
+		'alt'  => $m[8],
 	);
 }
 

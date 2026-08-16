@@ -429,6 +429,128 @@ function fx_mockup( array $omit = array(), array $outside = array() ) {
 }
 
 /**
+ * One GALLERY asset — the shape RT_GALLERY_NOT_DISTINCT and RT_GALLERY_NO_MANIFEST read.
+ *
+ * A gallery is many `TPL-* x PERS-*` cards in ONE document, so its axis tokens cannot live in
+ * `:root` (one `:root` cannot hold four values of --c-bg): each anchor gets a `[data-anchor="key"]`
+ * block, and `:root` still carries a real default, exactly as the production file does. The `:root`
+ * half is what RT_MOCKUP_NO_AXES reads and $root_omit is how a scenario takes one axis out of it.
+ *
+ * $strips is the card list, in document order: each entry sets 'tpl' and/or 'pers', and OMITTING a
+ * key is how the "declares no data-tpl" scenario is written. $anchors maps a pers key to its five
+ * axis values, or to null to emit no block at all for it.
+ *
+ * Three pieces are scenery that must NOT be read, and each one kills a plausible mis-implementation:
+ *   · a `<section class="sec">` inside every strip — a check counting every <section> would report
+ *     it as a strip with no data-tpl, so the conforming scenario turns red;
+ *   · a `[data-anchor="key"] .card{…}` descendant rule after every block — the selector matches but
+ *     the brace does not follow the bracket, and a looser regex would read a card recipe as an
+ *     anchor's axis declarations;
+ *   · $decoy, a CSS COMMENT quoting each anchor's selector followed by `{…}`. That is the trap this
+ *     repo has already paid for once on `:root`: the ellipsis is three UTF-8 bytes, so a check that
+ *     took only the FIRST matching block would read a three-byte body, find no axes in it, and
+ *     report two anchors as identical. With every block concatenated the comment contributes
+ *     nothing. The comment quotes EVERY anchor on purpose — quoting one would leave that anchor
+ *     empty against a real one, which still reads as five axes apart and would let the mutant live.
+ */
+function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
+	$o = array_merge(
+		array(
+			'root_omit' => array(),
+			'images'    => array(),
+			'decoy'     => true,
+		),
+		$opts
+	);
+	$root_decl = array(
+		'--type-ratio' => '--type-ratio: 1.200;',
+		'--display-lh' => '--display-lh: 1.25;',
+		'--fs-h1-max'  => '--fs-h1-max: 48;',
+		'--sp-scale'   => '--sp-scale: 1.0;',
+		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;',
+		'composition'  => '/* composition: LP-CENTERED */',
+	);
+	$root = '';
+	foreach ( $root_decl as $root_key => $root_line ) {
+		if ( ! in_array( $root_key, $o['root_omit'], true ) ) {
+			$root .= '    ' . $root_line . "\n";
+		}
+	}
+
+	$css = '';
+	if ( $o['decoy'] ) {
+		$css .= "  /* Editing note: an anchor's tokens are scoped rather than declared in :root —\n";
+		foreach ( array_keys( $anchors ) as $decoy_key ) {
+			$css .= '     [data-anchor="' . $decoy_key . '"]{…} carries its own ground, ' . "\n";
+		}
+		$css .= "     because one :root cannot hold several values of --c-bg. */\n";
+	}
+	foreach ( $anchors as $anchor_key => $axes ) {
+		if ( null === $axes ) {
+			continue;
+		}
+		list( $scale, $ground, $density, $elevation, $composition ) = $axes;
+		/* --c-bg-alt sits beside --c-bg exactly as it does in the real file, so every gallery
+		   scenario also exercises the (?![\w-]) boundary that stops the ground axis reading its
+		   longer neighbour. */
+		$css .= '  [data-anchor="' . $anchor_key . '"]{' . "\n"
+			. "    --type-ratio: $scale; --display-lh: 1.10; --fs-h1-max: 64;\n"
+			. "    --c-bg: $ground; --c-bg-alt: #F6F7F8; --c-text: #15181A;\n"
+			. "    --sp-scale: $density;\n"
+			. "    --elev-rest: $elevation; --elev-hover: none;\n"
+			. "    /* composition: $composition */\n"
+			. "  }\n"
+			. '  [data-anchor="' . $anchor_key . '"] .card{border-radius:0;box-shadow:var(--elev-rest)}' . "\n";
+	}
+
+	$body = '';
+	foreach ( $strips as $strip_ix => $st ) {
+		$attrs = '';
+		if ( isset( $st['tpl'] ) ) {
+			$attrs .= ' data-tpl="' . $st['tpl'] . '"';
+		}
+		if ( isset( $st['pers'] ) ) {
+			$attrs .= ' data-pers="' . $st['pers'] . '"';
+		}
+		$body .= '<section class="strip" id="s' . $strip_ix . '"' . $attrs . '>' . "\n"
+			. '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' ) . '">' . "\n"
+			. "    <section class=\"sec\"><h2>Seccion</h2></section>\n"
+			. "  </div>\n</section>\n";
+	}
+	foreach ( $o['images'] as $img_slug ) {
+		$body .= '<figure class="frame"><img data-img="' . $img_slug . '" alt="fixture"></figure>' . "\n";
+	}
+
+	return "<!-- gallery fixture -->\n<style>\n  :root{\n" . $root . "  }\n" . $css . "</style>\n" . $body;
+}
+
+/**
+ * One `_gallery-images.md`, reduced to what RT_GALLERY_NO_MANIFEST reads.
+ *
+ * $rows maps slug => licence cell; the empty-string KEY writes a row with an empty Slug cell, and an
+ * empty VALUE writes a row with an empty Licence cell. $licence_col false drops the column entirely,
+ * which is a different finding and gets its own sentence in the message.
+ *
+ * The "Registers" table above the set is not decoration: its header carries `Slugs`, and the real
+ * manifest has one. The check selects a table by a header cell reading exactly `Slug`, so this
+ * fixture is what proves the plural does not match — a parser that counted columns from the left, or
+ * matched a substring, would read three prose cells as an image row.
+ */
+function fx_gallery_manifest( array $rows, $licence_col = true ) {
+	$out = "# Gallery image manifest fixture\n\n## Registers\n\n"
+		. "| Register | Slugs | What it says |\n|---|---|---|\n"
+		. '| Workshop | ' . implode( ' ', array_keys( $rows ) ) . " | fixture |\n\n## The set\n\n"
+		. ( $licence_col
+			? "| Slug | Role | Freepik | Licence | `alt` |\n|---|---|---|---|---|\n"
+			: "| Slug | Role | Freepik | `alt` |\n|---|---|---|---|\n" );
+	foreach ( $rows as $slug => $lic ) {
+		$cell = ( '' === $slug ) ? ' ' : ' `' . $slug . '` ';
+		$out .= '|' . $cell . '| card 4:3 | 1 |' . ( $licence_col ? ' ' . $lic . ' |' : '' ) . " alt fixture |\n";
+	}
+	return $out;
+}
+
+/**
  * One BUILDER asset — the shape RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN read — reduced
  * to the three things the region boundary depends on: an es_tokens() block, a visual helper below
  * it, and the "end of the visual layer" marker with save-pipeline code underneath.
@@ -2543,6 +2665,375 @@ ok( array() !== fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', 'composition
    failure from a file with no axes at all. */
 ok( array() === fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y no acusa a los que si estan en :root', $out105 );
 fx_rrmdir( $r105 );
+
+/* ---------------------------------------------------------------------------
+   RT_GALLERY_NOT_DISTINCT / RT_GALLERY_NO_MANIFEST, and the RECURSIVE glob the first of them
+   needed. A gallery is many TPL-* x PERS-* cards in ONE document: RT_MOCKUP_NO_AXES asks each FILE
+   whether it can express an axis and RT_PROOF_NOT_DISTINCT compares exactly two hardcoded files,
+   so neither learns anything from a thirtieth card. The failure mode of a catalog is not a missing
+   token — it is forty entries that turn out to be one entry with a different accent colour.
+
+   EVERY FIXTURE HERE LIVES IN assets/gallery/, WHICH IS THE POINT. The glob RT_MOCKUP_NO_AXES used
+   was `assets/*.html`, which does not descend, so a gallery could have shipped with no axis
+   declaration at all and the row would have stayed green. This repo has already "confirmed green" a
+   widened glob with fixtures that all sat in the one directory the narrow glob covered, which is a
+   suite that cannot tell widened from narrow. Scenario r202 below is the one that can: narrow the
+   walk back to a flat glob and it goes red on a named assertion.
+   --------------------------------------------------------------------------- */
+
+/* Two anchors five axes apart — the conforming case, and the same distance the real catalog holds. */
+$FX_GAL_FAR = array(
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
+	'direct'    => array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ),
+);
+/* Two archetypes x two anchors: four cards, no repeated pair. */
+$FX_GAL_STRIPS = array(
+	array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+	array( 'tpl' => 'TPL-E-02', 'pers' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-02', 'pers' => 'direct' ),
+);
+$FX_GAL_IMGS = array( 'hero-taller', 'card-veta' );
+$FX_GAL_MAN  = fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ) );
+
+/** Writes a gallery where the real one lives: a SUBDIRECTORY of assets/, which the old glob missed. */
+function fx_gal( $root, $html, $manifest = null ) {
+	fx( $root, 'skills/html-mockup/assets/gallery/index.html', $html );
+	if ( null !== $manifest ) {
+		fx( $root, 'skills/html-mockup/assets/gallery/_gallery-images.md', $manifest );
+	}
+}
+
+echo "--- una galeria conforme en un SUBDIRECTORIO no produce ninguna fila de galeria ---\n";
+$r200 = fx_tmp_root();
+fx_base( $r200 );
+/* The positive control, and it carries every piece of scenery at once: the decoy CSS comment that
+   quotes both anchor selectors followed by `{…}`, the `[data-anchor] .card` descendant rules, the
+   inner `<section class="sec">` in every strip, and a Registers table whose header says `Slugs`.
+   Each of those is a plausible mis-read; if any of them were read, this scenario turns red. */
+fx_gal( $r200, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( $code200, $out200 ) = fx_run_ok( $audit, $r200 );
+ok( array() === fx_lines_with( $out200, array( 'RT_GALLERY_' ) ), 'una galeria conforme no produce fila de galeria', $out200 );
+ok( array() === fx_lines_with( $out200, array( 'RT_MOCKUP_NO_AXES' ) ), 'ni fila de ejes: su :root los declara', $out200 );
+ok( 0 === $code200, 'y el arbol conforme sale con codigo 0', $code200 );
+fx_rrmdir( $r200 );
+
+echo "--- EL GLOB RECURSA: una galeria sin --sp-scale en :root FALLA aunque viva en assets/gallery/ ---\n";
+$r202 = fx_tmp_root();
+fx_base( $r202 );
+/* THE WIDENING SCENARIO, and the only one in this file that can tell a recursive walk from a flat
+   glob. Everything else about this gallery conforms; the single defect is one axis missing from
+   `:root`, one directory down. Under `glob(assets/*.html)` the file is never opened, no row is
+   emitted, and all three assertions below go red — which is what "confirmed green" failed to do
+   the last time a glob in this repo was widened. */
+fx_gal(
+	$r202,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS, 'root_omit' => array( '--sp-scale' ) ) ),
+	$FX_GAL_MAN
+);
+list( , $out202 ) = fx_run_ok( $audit, $r202 );
+ok( 'FAIL' === fx_row_level( $out202, array( 'RT_MOCKUP_NO_AXES' ) ), 'un asset en un subdirectorio SI se audita', fx_row_level( $out202, array( 'RT_MOCKUP_NO_AXES' ) ) );
+ok( array() !== fx_lines_with( $out202, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y nombra el token que falta', $out202 );
+/* The path, not the basename: two files called index.html in two subdirectories are one message
+   otherwise, and the reader cannot tell which one to open. */
+ok( array() !== fx_lines_with( $out202, array( 'RT_MOCKUP_NO_AXES', 'assets/gallery/index.html' ) ), 'y nombra la RUTA con su subdirectorio, no solo el basename', $out202 );
+fx_rrmdir( $r202 );
+
+echo "--- repetir un par TPL x PERS FALLA, nombrando el par y las dos tiras ---\n";
+$r203 = fx_tmp_root();
+fx_base( $r203 );
+/* "Two strips sharing an anchor must declare different archetypes" is the SAME event as a repeated
+   pair — sharing both coordinates is what a duplicate is — so it is one rule with one message. */
+fx_gal(
+	$r203,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+		),
+		$FX_GAL_FAR,
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( , $out203 ) = fx_run_ok( $audit, $r203 );
+ok( 'FAIL' === fx_row_level( $out203, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'un par repetido FALLA', fx_row_level( $out203, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out203, array( 'RT_GALLERY_NOT_DISTINCT', 'renders the pair TPL-C-01' ) ), 'y nombra el par repetido', $out203 );
+ok( array() !== fx_lines_with( $out203, array( 'RT_GALLERY_NOT_DISTINCT', 'twice, at strips #1 and #3' ) ), 'y dice QUE DOS tiras son, no solo que hay una repeticion', $out203 );
+fx_rrmdir( $r203 );
+
+echo "--- dos tiras del MISMO arquetipo separadas por solo TRES ejes FALLAN, nombrando los que coinciden ---\n";
+$r204 = fx_tmp_root();
+fx_base( $r204 );
+/* scale, ground and composition differ; density and elevation are identical. Three of five, and the
+   same shape RT_PROOF_NOT_DISTINCT reports, through the same axis_matches() list. */
+$fx_gal_near = array(
+	'editorial' => array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC' ),
+	'direct'    => array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID' ),
+);
+fx_gal(
+	$r204,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+		),
+		$fx_gal_near,
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( , $out204 ) = fx_run_ok( $audit, $r204 );
+ok( 'FAIL' === fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'tres ejes de cinco entre dos tiras del mismo arquetipo FALLA', fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'only 3 of 5 axes' ) ), 'y dice CUANTOS ejes los separan', $out204 );
+ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'density (--sp-scale: both `1.0`)' ) ), 'y nombra el eje density con su valor compartido', $out204 );
+ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'elevation (--elev-rest: both `none`)' ) ), 'y nombra tambien el eje elevation', $out204 );
+ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'share an archetype' ) ), 'y dice que lo que comparten es el arquetipo', $out204 );
+fx_rrmdir( $r204 );
+
+echo "--- cuatro ejes YA bastan tambien en la galeria: no hay fila ---\n";
+$r205 = fx_tmp_root();
+fx_base( $r205 );
+/* Only elevation matches. Four is the bar, the same one RT_PERS_TOO_SIMILAR holds, and the real
+   catalog sits exactly on it: PERS-MATTER and PERS-INSTITUTIONAL both stand at density `standard`,
+   so a threshold of five would fail the shipped gallery. Raise the bar and this scenario goes red;
+   lower it and r204 above goes red. */
+$fx_gal_four = array(
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
+	'direct'    => array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID' ),
+);
+fx_gal(
+	$r205,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+		),
+		$fx_gal_four,
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( $code205, $out205 ) = fx_run_ok( $audit, $r205 );
+ok( array() === fx_lines_with( $out205, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'cuatro ejes distintos no producen fila', $out205 );
+ok( 0 === $code205, 'y el arbol sale con codigo 0', $code205 );
+fx_rrmdir( $r205 );
+
+echo "--- dos ARQUETIPOS distintos no se comparan entre si, ni con anclas identicas ---\n";
+$r206 = fx_tmp_root();
+fx_base( $r206 );
+/* The scoping half of the rule. Two cards of different archetypes are already separated by their
+   section inventory, which is the one axis the five perceptual ones do not carry — so comparing
+   them would demand a distance the taxonomy never promised. Both anchors here are IDENTICAL on all
+   five axes: a check that compared every pair would report this, and it must not. */
+$fx_gal_same = array(
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
+	'direct'    => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
+);
+fx_gal(
+	$r206,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-E-02', 'pers' => 'direct' ),
+		),
+		$fx_gal_same,
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( $code206, $out206 ) = fx_run_ok( $audit, $r206 );
+ok( array() === fx_lines_with( $out206, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'arquetipos distintos no se comparan por ejes', $out206 );
+ok( 0 === $code206, 'y el arbol sale con codigo 0', $code206 );
+fx_rrmdir( $r206 );
+
+echo "--- una tira sin data-pers FALLA, nombrando el atributo y el numero de tira ---\n";
+$r207 = fx_tmp_root();
+fx_base( $r207 );
+/* Sin este arm, una tira a la que se le cae un atributo se queda FUERA de las comparaciones y el
+   resto de reglas la dan por buena: el hueco silencioso, no el ruidoso. */
+fx_gal(
+	$r207,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+		),
+		$FX_GAL_FAR,
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( , $out207 ) = fx_run_ok( $audit, $r207 );
+ok( 'FAIL' === fx_row_level( $out207, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'una tira sin data-pers FALLA', fx_row_level( $out207, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out207, array( 'RT_GALLERY_NOT_DISTINCT', 'strip #1 declares no data-pers' ) ), 'y nombra el atributo y la tira', $out207 );
+fx_rrmdir( $r207 );
+
+echo "--- un ancla que solo aparece en un COMENTARIO no cuenta como declarada ---\n";
+$r208 = fx_tmp_root();
+fx_base( $r208 );
+/* THE COMMENT TRAP, from the side that matters. The decoy comment fx_gallery() writes quotes
+   [data-anchor="direct"]{…} in prose; the real block for `direct` is omitted here. Taking every
+   matching block is what stops a three-byte comment body from SHADOWING a real declaration — and it
+   is also what would let a deleted block pass as declared, because an empty signature against a
+   real one reads as five axes apart. So an anchor whose block declares not one of the five axes is
+   the same finding as an anchor with no block at all, and this is the fixture that says so. */
+fx_gal(
+	$r208,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+		),
+		array(
+			'editorial' => $FX_GAL_FAR['editorial'],
+			'direct'    => null,
+		),
+		array( 'images' => $FX_GAL_IMGS )
+	),
+	$FX_GAL_MAN
+);
+list( , $out208 ) = fx_run_ok( $audit, $r208 );
+ok( 'FAIL' === fx_row_level( $out208, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'un ancla sin bloque real FALLA', fx_row_level( $out208, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out208, array( 'RT_GALLERY_NOT_DISTINCT', 'no [data-anchor="direct"] block declares its axes' ) ), 'y nombra el ancla que el CSS nunca pinta', $out208 );
+ok( array() === fx_lines_with( $out208, array( 'RT_GALLERY_NOT_DISTINCT', 'editorial"] block' ) ), 'y no acusa al ancla que si esta declarada', $out208 );
+fx_rrmdir( $r208 );
+
+echo "--- un asset de galeria SIN tiras FALLA: un gate no puede darse verde sobre un conjunto vacio ---\n";
+$r209 = fx_tmp_root();
+fx_base( $r209 );
+/* Sin este arm la ruta entera es opcional: borra las tiras y las cuatro reglas de arriba recorren
+   una lista vacia y no dicen nada. Es exactamente la forma de los siete checks que esta rama
+   produjo pasando sin comprobar nada. */
+fx_gal( $r209, fx_mockup() );
+list( , $out209 ) = fx_run_ok( $audit, $r209 );
+ok( 'FAIL' === fx_row_level( $out209, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'una galeria sin tiras FALLA', fx_row_level( $out209, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out209, array( 'RT_GALLERY_NOT_DISTINCT', 'renders no <section class="strip">' ) ), 'y dice que lo que falta son las tiras', $out209 );
+fx_rrmdir( $r209 );
+
+echo "--- una galeria FUERA de gallery/ tambien se audita: la deteccion tiene dos brazos ---\n";
+$r210 = fx_tmp_root();
+fx_base( $r210 );
+/* El brazo por CONTENIDO. Con deteccion solo por ruta, renombrar el directorio apaga las dos filas
+   sin tocar una sola regla; con deteccion solo por contenido, borrar los dos data-* hace lo mismo.
+   Los dos brazos existen para que ninguna de esas dos ediciones vuelva verde el gate quitandole el
+   sujeto en vez de arreglando algo. */
+fx(
+	$r210,
+	'skills/html-mockup/assets/catalog.html',
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out210 ) = fx_run_ok( $audit, $r210 );
+ok( 'FAIL' === fx_row_level( $out210, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'un fichero con tiras fuera de gallery/ tambien se audita', fx_row_level( $out210, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out210, array( 'RT_GALLERY_NOT_DISTINCT', 'assets/catalog.html' ) ), 'y la fila nombra ese fichero', $out210 );
+fx_rrmdir( $r210 );
+
+echo "--- imagenes sin manifiesto al lado FALLAN, contandolas ---\n";
+$r211 = fx_tmp_root();
+fx_base( $r211 );
+fx_gal( $r211, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ) );
+list( , $out211 ) = fx_run_ok( $audit, $r211 );
+ok( 'FAIL' === fx_row_level( $out211, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'sin _gallery-images.md al lado, FALLA', fx_row_level( $out211, array( 'RT_GALLERY_NO_MANIFEST' ) ) );
+ok( array() !== fx_lines_with( $out211, array( 'RT_GALLERY_NO_MANIFEST', 'renders 2 image slug(s) and no _gallery-images.md' ) ), 'y cuenta las imagenes que quedan sin contrato', $out211 );
+/* El POR QUE tiene que viajar en el mensaje: es_photo() resuelve un slug de adjunto, no una URL. */
+ok( array() !== fx_lines_with( $out211, array( 'RT_GALLERY_NO_MANIFEST', 'ATTACHMENT SLUG' ) ), 'y dice por que importa: es_photo resuelve un slug', $out211 );
+fx_rrmdir( $r211 );
+
+echo "--- un manifiesto SIN tabla de slugs FALLA: `Slugs` en plural no es la columna `Slug` ---\n";
+$r212 = fx_tmp_root();
+fx_base( $r212 );
+/* La tabla se elige por una celda de cabecera que diga exactamente `Slug`. El manifiesto real lleva
+   una tabla "Registers" cuya cabecera dice `Slugs`, y un parser por subcadena — o por posicion de
+   columna — leeria tres celdas de prosa como filas de imagen. */
+fx_gal(
+	$r212,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	"# Manifiesto sin tabla de imagenes\n\n| Register | Slugs | What it says |\n|---|---|---|\n| Workshop | hero-taller card-veta | fixture |\n"
+);
+list( , $out212 ) = fx_run_ok( $audit, $r212 );
+ok( 'FAIL' === fx_row_level( $out212, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'un manifiesto sin columna Slug FALLA', fx_row_level( $out212, array( 'RT_GALLERY_NO_MANIFEST' ) ) );
+ok( array() !== fx_lines_with( $out212, array( 'RT_GALLERY_NO_MANIFEST', 'carries no table with a `Slug` column' ) ), 'y dice que lo que falta es la tabla, no una fila', $out212 );
+fx_rrmdir( $r212 );
+
+echo "--- una imagen sin fila en el manifiesto FALLA, nombrandola y sin acusar a las que si estan ---\n";
+$r213 = fx_tmp_root();
+fx_base( $r213 );
+fx_gal(
+	$r213,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	fx_gallery_manifest( array( 'hero-taller' => 'Freepik free' ) )
+);
+list( , $out213 ) = fx_run_ok( $audit, $r213 );
+ok( 'FAIL' === fx_row_level( $out213, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'un slug sin fila FALLA', fx_row_level( $out213, array( 'RT_GALLERY_NO_MANIFEST' ) ) );
+ok( array() !== fx_lines_with( $out213, array( 'RT_GALLERY_NO_MANIFEST', 'renders `card-veta` with no row' ) ), 'y nombra el slug que falta', $out213 );
+ok( array() === fx_lines_with( $out213, array( 'RT_GALLERY_NO_MANIFEST', '`hero-taller`' ) ), 'y no acusa al que si tiene fila', $out213 );
+fx_rrmdir( $r213 );
+
+echo "--- una fila con la celda Slug vacia FALLA, nombrando su linea ---\n";
+$r214 = fx_tmp_root();
+fx_base( $r214 );
+/* "El nombre del fichero ES el slug": una fila sin slug documenta una imagen que el build no tiene
+   forma de pedir, y que el operador no sabe con que nombre subir. */
+$fx_man214 = fx_gallery_manifest(
+	array(
+		'hero-taller' => 'Freepik free',
+		'card-veta'   => 'Freepik free',
+		''            => 'Freepik free',
+	)
+);
+fx_gal( $r214, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man214 );
+list( , $out214 ) = fx_run_ok( $audit, $r214 );
+ok( 'FAIL' === fx_row_level( $out214, array( 'RT_GALLERY_NO_MANIFEST', 'empty Slug cell' ) ), 'una fila sin slug FALLA', fx_row_level( $out214, array( 'RT_GALLERY_NO_MANIFEST', 'empty Slug cell' ) ) );
+ok(
+	array() !== fx_lines_with( $out214, array( 'RT_GALLERY_NO_MANIFEST', 'line ' . fx_line_of( $fx_man214, '| | card 4:3' ) ) ),
+	'y nombra la LINEA de la fila, no solo que hay una',
+	$out214
+);
+fx_rrmdir( $r214 );
+
+echo "--- una fila sin licencia FALLA, nombrando el slug y su linea ---\n";
+$r215 = fx_tmp_root();
+fx_base( $r215 );
+/* La licencia va POR FILA y no en un parrafo: un "todas estas son de licencia libre" es cierto
+   hasta la decimoquinta imagen, y deja de serlo en silencio porque la fila nueva no se distingue
+   de las viejas. */
+$fx_man215 = fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => '' ) );
+fx_gal( $r215, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man215 );
+list( , $out215 ) = fx_run_ok( $audit, $r215 );
+ok( 'FAIL' === fx_row_level( $out215, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'una fila sin licencia FALLA', fx_row_level( $out215, array( 'RT_GALLERY_NO_MANIFEST' ) ) );
+ok(
+	/* The needle is the BACKTICKED cell: `card-veta` also appears bare in the Registers table above,
+	   and pinning on the plain slug would report that line instead. */
+	array() !== fx_lines_with( $out215, array( 'RT_GALLERY_NO_MANIFEST', '1 row(s) with no licence — `card-veta` (line ' . fx_line_of( $fx_man215, '| `card-veta` |' ) . ')' ) ),
+	'y nombra el slug y la linea, y cuenta UNA sola',
+	$out215
+);
+ok( array() === fx_lines_with( $out215, array( 'RT_GALLERY_NO_MANIFEST', 'no Licence column at all' ) ), 'y no dice que falte la columna, porque esta', $out215 );
+fx_rrmdir( $r215 );
+
+echo "--- un manifiesto sin columna Licence FALLA una vez, diciendo que la columna entera falta ---\n";
+$r216 = fx_tmp_root();
+fx_base( $r216 );
+/* Dos causas distintas, dos mensajes distintos: una celda vacia se arregla escribiendo en ella, una
+   columna ausente se arregla cambiando la tabla. Sin la frase final el lector busca una celda que
+   no existe. */
+fx_gal(
+	$r216,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ), false )
+);
+list( , $out216 ) = fx_run_ok( $audit, $r216 );
+ok( 'FAIL' === fx_row_level( $out216, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'sin columna Licence, FALLA', fx_row_level( $out216, array( 'RT_GALLERY_NO_MANIFEST' ) ) );
+ok( array() !== fx_lines_with( $out216, array( 'RT_GALLERY_NO_MANIFEST', '2 row(s) with no licence' ) ), 'y las cuenta todas', $out216 );
+ok( array() !== fx_lines_with( $out216, array( 'RT_GALLERY_NO_MANIFEST', 'carries no Licence column at all' ) ), 'y dice que la causa es la columna, no la celda', $out216 );
+fx_rrmdir( $r216 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of
