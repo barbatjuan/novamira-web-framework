@@ -101,6 +101,7 @@ const ROW_TYPES = array(
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
+	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
@@ -1330,6 +1331,90 @@ function html_assets_deep( $dir ) {
 }
 
 /**
+ * The typefaces a stylesheet ASKS FOR, as opposed to the ones it settles for.
+ *
+ * THE RULE IS FIRST-IN-STACK, and it is the stack's own semantics rather than a list somebody has
+ * to maintain. `font-family: A, B, C` means "A, and if you cannot serve A, then B". A is the
+ * design; B and C are the safety net. So A is the one that has to exist.
+ *
+ * The alternative — an allowlist of "fonts the system already has" — was rejected because it has
+ * to know that `'Segoe UI'`, `'Times New Roman'`, `'Helvetica Neue'` and `'Arial Black'` are
+ * quoted FALLBACKS in these files and not requests, while `'DM Sans'` and `'Inter Tight'` are
+ * requests. Quoting does not separate them; position does. `RT_FONT_NO_SERVING_PATH` maintains
+ * such a list ($builder_system_faces) because it scans PHP that emits one family at a time with no
+ * stack to read the position from — the two rows look at different shapes, so they do not share.
+ *
+ * Two sources, because these files write the stack once into a token and reference it everywhere:
+ * custom properties whose name starts `--font`, and literal `font-family` declarations. A stack
+ * beginning with `var(…)` is skipped — it aliases a token this same scan already read, and
+ * following it would report the same family twice or, worse, report `var` as a family.
+ *
+ * DELIBERATELY WHOLE-FILE, unlike the `:root`-only axis scan above. An axis token is DECLARED once
+ * and USED everywhere, so a whole-file scan there would count a use as a declaration. A font stack
+ * is the opposite: `font-family:` in a media query or a `[data-anchor]` block is a real request
+ * that a browser will really try to serve, and reading only `:root` would miss every one of them.
+ */
+function mockup_fonts_asked_for( $css ) {
+	$generic = array(
+		'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'system-ui', 'ui-serif',
+		'ui-sans-serif', 'ui-monospace', 'ui-rounded', 'inherit', 'initial', 'unset', 'revert',
+		'revert-layer', 'math', 'emoji', 'fangsong', 'none',
+	);
+	/* @font-face blocks are the ANSWER, never the question. Leaving them in would make every
+	   embedded family look like a request for itself — harmless today, and it would silently turn
+	   the row into a tautology the moment a face were declared for a family nothing asks for. */
+	$css    = preg_replace( '/@font-face\s*\{[^}]*\}/i', '', $css );
+	$stacks = array();
+	if ( preg_match_all( '/--font[\w-]*\s*:\s*([^;}]+)/i', $css, $m ) ) {
+		$stacks = array_merge( $stacks, $m[1] );
+	}
+	if ( preg_match_all( '/(?<![\w-])font-family\s*:\s*([^;}]+)/i', $css, $m ) ) {
+		$stacks = array_merge( $stacks, $m[1] );
+	}
+	$out = array();
+	foreach ( $stacks as $stack ) {
+		$parts = explode( ',', trim( $stack ) );
+		$first = trim( $parts[0] );
+		if ( '' === $first || 0 === stripos( $first, 'var(' ) ) {
+			continue;
+		}
+		$first = trim( $first, "\"'" );
+		if ( '' === $first || in_array( strtolower( $first ), $generic, true ) ) {
+			continue;
+		}
+		$out[ $first ] = true;
+	}
+	$out = array_keys( $out );
+	sort( $out );
+	return $out;
+}
+
+/**
+ * The families a stylesheet actually SERVES: every `@font-face` family name mapped to its `src`.
+ *
+ * The `src` comes back because declaring the face is only half of serving it. An `@font-face`
+ * pointing at `url(https://fonts.gstatic.com/…)` satisfies "is there a face for this family?"
+ * while being the exact thing the Artifact CSP blocks, so the caller checks the scheme too.
+ */
+function mockup_font_faces_served( $css ) {
+	$out = array();
+	if ( ! preg_match_all( '/@font-face\s*\{([^}]*)\}/i', $css, $blocks ) ) {
+		return $out;
+	}
+	foreach ( $blocks[1] as $block ) {
+		if ( ! preg_match( '/(?<![\w-])font-family\s*:\s*([^;]+)/i', $block, $fm ) ) {
+			continue;
+		}
+		$fam = trim( trim( $fm[1] ), "\"'" );
+		$src = preg_match( '/(?<![\w-])src\s*:\s*([^;]+)/i', $block, $sm ) ? trim( $sm[1] ) : '';
+		if ( '' !== $fam ) {
+			$out[ $fam ] = $src;
+		}
+	}
+	return $out;
+}
+
+/**
  * Every human-visible string a proof mockup renders, in document order, as a MULTISET.
  *
  * Comments, `<style>`/`<script>` bodies and every tag — attribute values with them — are replaced
@@ -1532,6 +1617,65 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'html-mockup',
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
+		);
+	}
+
+	/* ---- RT_MOCKUP_FONT_NOT_EMBEDDED ----
+	 *
+	 * A declared typeface nobody serves. Every mockup here named real families — Fraunces, Inter
+	 * Tight, Archivo Expanded, Instrument Serif, DM Sans, Source Sans 3 — and embedded none of
+	 * them, and none of the six is installed on an ordinary machine. So `'Fraunces', Georgia,
+	 * serif` rendered GEORGIA, the DIRECT anchor rendered Arial Black, and every visual judgement
+	 * anyone made about this framework was a judgement of the fallback stack. The axes were all
+	 * green throughout: a token chain resolves perfectly into a face the machine does not have.
+	 *
+	 * THIS IS THE MOCKUP-SIDE TWIN OF es_font_serving_check(), NOT A DUPLICATE OF IT. That one
+	 * warns when a WordPress BUILD names a family nothing on the site serves — no `@font-face`, no
+	 * enqueue, no registration. This one asks whether the static HTML a project is copied FROM
+	 * carries the bytes. Different surfaces, different serving mechanisms, and fixing one would
+	 * have left the other exactly as broken.
+	 *
+	 * TWO ARMS, because either alone is trivially satisfiable in a way that ships the defect:
+	 *   1. a family asked for with no `@font-face` at all — the original bug;
+	 *   2. an `@font-face` whose `src` is a URL rather than a `data:` URI. That satisfies arm 1
+	 *      while being precisely what the Artifact CSP blocks, and a blocked face falls back to
+	 *      the same Georgia. The old comments in these files were right that a URL is unusable
+	 *      here; their mistake was concluding that `@font-face` itself had to go.
+	 */
+	$mockup_css   = slurp( $mockup_path );
+	$mockup_asked = mockup_fonts_asked_for( $mockup_css );
+	$mockup_serve = mockup_font_faces_served( $mockup_css );
+
+	$mockup_bare = array();
+	$mockup_url  = array();
+	foreach ( $mockup_asked as $mockup_fam ) {
+		if ( ! isset( $mockup_serve[ $mockup_fam ] ) ) {
+			$mockup_bare[] = '`' . $mockup_fam . '`';
+			continue;
+		}
+		if ( false === stripos( $mockup_serve[ $mockup_fam ], 'data:' ) ) {
+			$mockup_url[] = '`' . $mockup_fam . '`';
+		}
+	}
+	if ( array() !== $mockup_bare ) {
+		add(
+			'RT_MOCKUP_FONT_NOT_EMBEDDED',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $mockup_name . ' names ' . implode( ', ', $mockup_bare )
+				. ' first in a font stack and declares no @font-face for it — the file renders its FALLBACK,'
+				. ' so everyone who reviews it reviews a typeface nobody chose. Embed the woff2 as a data: URI:'
+				. ' assets/fonts/_embed-fonts.php does it, assets/fonts/_fonts.md says under what licence'
+		);
+	}
+	if ( array() !== $mockup_url ) {
+		add(
+			'RT_MOCKUP_FONT_NOT_EMBEDDED',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $mockup_name . ' serves ' . implode( ', ', $mockup_url )
+				. ' from a URL rather than a data: URI — the Artifact CSP blocks the request, so the face never'
+				. ' arrives and the file renders the same fallback it would with no @font-face at all'
 		);
 	}
 }

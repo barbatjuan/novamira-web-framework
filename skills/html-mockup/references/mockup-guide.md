@@ -120,6 +120,37 @@ one inline `<style>`. No external anything.
 </style>
 ```
 
+## Typefaces — name it AND embed it
+
+A mockup that names a family it does not carry renders the fallback, and everyone who looks at it
+reviews the fallback while believing they reviewed the design. That is not hypothetical: every
+mockup in this skill named real families and shipped none of them, so the EDITORIAL anchor was
+judged as Georgia and DIRECT as Arial Black for as long as they existed. **No craft layer rescues
+the wrong typeface.**
+
+The bytes live in `assets/fonts/` — one `latin` woff2 per family, each with the `OFL.txt` its
+licence requires beside it. `_fonts.md` is the manifest: family, file, axes, licence, copyright,
+sha256 and source URL per row, and the reasoning behind each. Read it before adding a family.
+
+- `_fonts.php` holds the registry and emits the `@font-face` block.
+- `_embed-fonts.php` writes that block into the four static mockups, between `NM-FONTS:BEGIN` and
+  `NM-FONTS:END`. Re-runnable; `--check` reports staleness without writing.
+- `../gallery/_build-gallery.php` calls the same registry when it generates its page.
+
+Rules that are checked rather than trusted (`RT_MOCKUP_FONT_NOT_EMBEDDED`):
+
+- **Embed as a `data:` URI, never a URL.** The Artifact CSP blocks external requests; a `data:`
+  URI makes no request, so there is nothing to block. The older instruction here — "never
+  `@font-face` at a URL" — was right about `url(https://…)` and was misread as forbidding
+  `@font-face` at all.
+- **First in the stack is the design; the rest are the safety net.** `font-family: A, B, C` has to
+  embed A. B and C are honest fallbacks and need nothing.
+- **Only the `latin` subset.** It covers `U+0000-00FF`, which is all of Spanish. Fetch it with a
+  current-browser user agent or Google serves TTF at roughly four times the size.
+- **Declare the weight range the font actually holds.** A wider range silently suppresses the
+  browser's synthetic bold, hiding a heading that asks for a weight nobody drew. Watch for this:
+  synthetic bold does not change advance width, so measuring width detects none of it.
+
 ## Placeholder recipe
 - Images: `<div class="ph" style="aspect-ratio:16/9">imagen</div>` — never a real client photo.
 - Copy: short neutral placeholders ("Título de sección", "Categoría", "0,00 €" — euros, house

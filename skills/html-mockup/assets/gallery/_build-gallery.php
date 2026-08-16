@@ -530,6 +530,34 @@ foreach ( $STRIPS as $s ) {
 
 $css = array();
 
+// ── the typefaces, before any rule that uses them ──────────────────────────────────────────────
+//
+// This page renders all four anchors, so it is the one file that pays for every family the
+// framework names. Until these were embedded it rendered four anchors in Georgia, Arial Black and
+// system-ui, and the gallery's entire claim — that these are four distinguishable design systems —
+// was being made by the fallback stack.
+//
+// The list is DERIVED from the anchors rather than typed, so adding a fifth anchor with a new
+// family cannot leave the page naming a face it does not carry. nm_font_faces() dies on a family
+// with no registry entry, which is the failure worth having: a build that stops beats a page that
+// silently renders Georgia.
+require_once $DIR . '/../fonts/_fonts.php';
+
+$font_families = array();
+foreach ( $ANCHORS as $fa ) {
+	foreach ( nm_font_families_asked_for( '--font-1:' . $fa['font_1'] . ';--font-2:' . $fa['font_2'] . ';' ) as $fa_name ) {
+		$font_families[ $fa_name ] = true;
+	}
+}
+$font_families = array_keys( $font_families );
+sort( $font_families );
+$font_cost = nm_font_bytes( $font_families );
+$css[]     = "/* ── Typefaces. Embedded as data: woff2, generated from ../fonts/_fonts.php; the\n"
+	. "      licence and provenance for each is in ../fonts/_fonts.md. A data: URI issues no\n"
+	. "      request, so the Artifact CSP has nothing to block — the rule these files used to\n"
+	. "      state was about url(https://…) and never reached this. ── */\n"
+	. nm_font_faces( $font_families );
+
 // ── the deviation, written down where it applies ───────────────────────────────────────────────
 $css[] = <<<'CSS'
 /* ══════════════════════════════════════════════════════════════════════════════════════════════
@@ -1894,6 +1922,9 @@ file_put_contents( $OUT, $html );
 printf( "build-gallery: %d strip(s), %d image(s) used of %d in the manifest\n", $n_strip, count( $only_used ), count( $IMAGES ) );
 printf( "               images %s KB raw → %s KB base64, paid once\n",
 	number_format( $raw_bytes / 1024, 1 ), number_format( $b64_bytes / 1024, 1 ) );
+printf( "               fonts  %s KB raw → %s KB base64 across %d face(s): %s\n",
+	number_format( $font_cost['raw'] / 1024, 1 ), number_format( $font_cost['b64'] / 1024, 1 ),
+	count( $font_families ), implode( ', ', $font_families ) );
 printf( "               index.html %s KB (%.2f%% of the 16 MB Artifact ceiling)\n",
 	number_format( strlen( $html ) / 1024, 1 ), 100 * strlen( $html ) / 16777216 );
 foreach ( $ACCENT as $g => $a ) {

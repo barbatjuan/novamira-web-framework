@@ -31,8 +31,8 @@ Its approved output is the visual contract `qa-review` checks the build against.
   the native build. Keep it flat: `section > grid|row > element`. Detail:
   `references/mockup-guide.md` § "Container hygiene".
 - Declare the tokens as CSS variables in `:root` ONCE — the same tokens the native build uses.
-- Self-contained: inline `<style>`, no external CSS/JS/fonts/CDNs, no remote images (Artifact
-  CSP). Placeholder blocks only, no client photos or final copy.
+- Self-contained: inline `<style>`, no CDNs or remote images (Artifact CSP). Fonts EMBEDDED as
+  `data:` woff2 — naming one renders the fallback. Placeholders only, no client photos or copy.
 - Mirror `ux-design-system`: one accent for CTAs, calm motion (`cubic-bezier(.22,1,.36,1)`,
   ~.35–.7s), two button families, one card recipe.
 - **Do not proceed to builder-core until the user approves.** Capture changes, iterate, republish.
@@ -60,14 +60,14 @@ iteration, report what changed.
 - `assets/corporate-mockup.html` — no commerce; 6 pages (home · services · service detail
   `TPL-SERVICE-01` · about · cases · contact). Hero carries a CTA only; the lead form lives in
   the closing band.
-- `references/mockup-guide.md` — governing detail: HTML shell, token block, the multi-page
-  contract, section blueprints, placeholder recipes, responsive rules.
+- `references/mockup-guide.md` — governing detail: HTML shell, token block, typefaces +
+  `assets/fonts/`, multi-page contract, section blueprints, placeholders, responsive rules.
 - `assets/_axis-proof-content.md` — one copy set, rendered by both proof files below: the
   constant that makes the axis comparison honest.
 - `assets/proof-editorial-mockup.html` — `PERS-EDITORIAL` over that copy: paper ground, editorial
   scale, `LP-ASYMMETRIC`, no elevation.
 - `assets/proof-direct-mockup.html` — `PERS-DIRECT` over the SAME copy: ink ground, monumental
   scale, `LP-BROKEN-GRID`, accent glow. Same strings (`RT_PROOF_COPY_DIFFERS` gates it); every
-  difference is the anchor, and each file's own head lists them.
+  difference is the anchor, listed in each file's head.
 - `assets/gallery/` — internal gallery, one strip per `TPL-* × PERS-*`, generated from
   `assets/gallery/img/`. Regenerate via `_build-gallery.php`; never hand-edit its `index.html`.

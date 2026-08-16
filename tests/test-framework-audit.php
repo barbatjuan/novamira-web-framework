@@ -385,8 +385,18 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
  * `prefers-color-scheme: dark` cannot express that axis at all in the light default every project
  * ships. The `.card` line stays because a real file has one; it is scenery, and it is labelled
  * scenery now.
+ *
+ * $fonts drives RT_MOCKUP_FONT_NOT_EMBEDDED and DEFAULTS TO EMPTY — no `--font-primary`, no
+ * `font-family`, no `@font-face` — so every scenario above stays exactly as green as it was. That
+ * default is load-bearing rather than lazy: the row fires on a family ASKED FOR and not served, so
+ * a fixture that asks for nothing can never emit it, and the axis scenarios keep testing axes.
+ *
+ *   'stack'  — the `--font-primary` value written into `:root`
+ *   'rule'   — a `font-family` written into a `@media` block, OUTSIDE `:root`, which is how the
+ *              whole-file half of the scan gets a fixture; a `:root`-only reader misses it
+ *   'faces'  — family => src, emitted as `@font-face` ahead of `:root`, exactly as production does
  */
-function fx_mockup( array $omit = array(), array $outside = array() ) {
+function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array() ) {
 	/* One source for every declaration so `:root` and $outside emit byte-identical text — a
 	   fixture whose two copies differed could pass the scoping test for the wrong reason. */
 	$axis_decl = array(
@@ -422,8 +432,21 @@ function fx_mockup( array $omit = array(), array $outside = array() ) {
 		$rule_decl  .= '  .panel{' . $axis_decl[ $axis_key ] . "}\n";
 	}
 	$outside_block = ( '' === $theme_decl ) ? '' : "  :root[data-theme=\"dark\"]{\n" . $theme_decl . "  }\n";
-	return "<!-- production mockup fixture -->\n<style>\n  :root{\n" . $decl . "  }\n"
-		. $outside_block . $rule_decl . $loose
+
+	/* The faces go ahead of `:root`, where production puts them. `@font-face{…}` carries braces but
+	   no `:root`, so the axis scan's `/:root\s*\{(.*?)\}/s` still lands on the real block. */
+	$face_block = '';
+	foreach ( ( isset( $fonts['faces'] ) ? $fonts['faces'] : array() ) as $face_fam => $face_src ) {
+		$face_block .= "  @font-face{font-family:'" . $face_fam . "';font-style:normal;font-weight:400 700;"
+			. 'src:url(' . $face_src . ") format('woff2')}\n";
+	}
+	$font_decl = isset( $fonts['stack'] ) ? '    --font-primary: ' . $fonts['stack'] . ";\n" : '';
+	$font_rule = isset( $fonts['rule'] )
+		? "  @media(min-width:768px){ .hero h1{font-family:" . $fonts['rule'] . "} }\n"
+		: '';
+
+	return "<!-- production mockup fixture -->\n<style>\n" . $face_block . "  :root{\n" . $decl . $font_decl . "  }\n"
+		. $outside_block . $rule_decl . $loose . $font_rule
 		. "  .card{box-shadow:var(--elev-rest)}\n"
 		. "</style>\n<h1>Maqueta</h1>\n";
 }
@@ -2665,6 +2688,208 @@ ok( array() !== fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', 'composition
    failure from a file with no axes at all. */
 ok( array() === fx_lines_with( $out105, array( 'RT_MOCKUP_NO_AXES', '--sp-scale' ) ), 'y no acusa a los que si estan en :root', $out105 );
 fx_rrmdir( $r105 );
+
+/* ---------------------------------------------------------------------------
+   RT_MOCKUP_FONT_NOT_EMBEDDED — a declared typeface nobody serves.
+
+   THE BUG THIS BAND EXISTS FOR SHIPPED, and every row above was green while it did. All four
+   production mockups named real families — Fraunces, Inter Tight, Archivo Expanded, Instrument
+   Serif, DM Sans, Source Sans 3 — and embedded none of them, and none of the six is installed on
+   an ordinary machine. So `'Fraunces', Georgia, serif` rendered GEORGIA. The axis rows could not
+   see it, because a token chain resolves perfectly into a face the machine does not have: the
+   file declares five axes correctly and still renders a typeface nobody chose.
+
+   The scenarios below kill four distinct mutants, which is why there are six of them rather than
+   one pair:
+     - dropping the `data:` arm      (r107: a URL satisfies "is there a face?" and is CSP-blocked)
+     - reading only the first family (r108: quoted FALLBACKS must never be accused)
+     - reading only `:root`          (r109: a `font-family` in a media query is a real request)
+     - accusing generic keywords     (r110: `system-ui, sans-serif` names no file and never can)
+   ------------------------------------------------------------------------ */
+
+echo "--- una maqueta que NOMBRA una familia y no la incrusta FALLA ---\n";
+$r106 = fx_tmp_root();
+fx_base( $r106 );
+fx(
+	$r106,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup( array(), array(), array( 'stack' => "'Fraunces', Georgia, 'Times New Roman', serif" ) )
+);
+list( , $out106 ) = fx_run_ok( $audit, $r106 );
+ok( 'FAIL' === fx_row_level( $out106, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'nombrar una familia sin @font-face FALLA', fx_row_level( $out106, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ) );
+ok( array() !== fx_lines_with( $out106, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Fraunces' ) ), 'y nombra la familia que no se sirve', $out106 );
+/* Naming the FALLBACK would send the reader to delete Georgia, which is the one part that is
+   doing its job. */
+ok( array() === fx_lines_with( $out106, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Georgia' ) ), 'y no acusa al fallback declarado', $out106 );
+fx_rrmdir( $r106 );
+
+echo "--- incrustada como data: URI NO produce fila ---\n";
+$r106b = fx_tmp_root();
+fx_base( $r106b );
+fx(
+	$r106b,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Fraunces', Georgia, serif",
+			'faces' => array( 'Fraunces' => 'data:font/woff2;base64,d09GMgABAAAAAA' ),
+		)
+	)
+);
+list( $code106b, $out106b ) = fx_run_ok( $audit, $r106b );
+ok( array() === fx_lines_with( $out106b, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una familia incrustada no produce fila', $out106b );
+ok( 0 === $code106b, 'y el arbol conforme sale con codigo 0', $code106b );
+fx_rrmdir( $r106b );
+
+echo "--- @font-face que apunta a una URL FALLA: el CSP del Artifact la bloquea ---\n";
+$r107 = fx_tmp_root();
+fx_base( $r107 );
+/* THE MUTANT THIS KILLS: drop the `data:` half of the check and this fixture passes. A face
+   served from `https://fonts.gstatic.com/…` answers "does this family have an @font-face?" with
+   yes, and then never arrives, because the Artifact CSP blocks the request — leaving the reader
+   looking at the same Georgia they would have seen with no @font-face at all. This is the exact
+   shape the old head comments in the four mockups warned about, and they were right about it;
+   their mistake was concluding that @font-face itself had to go. */
+fx(
+	$r107,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Fraunces', Georgia, serif",
+			'faces' => array( 'Fraunces' => 'https://fonts.gstatic.com/s/fraunces/v38/x.woff2' ),
+		)
+	)
+);
+list( , $out107 ) = fx_run_ok( $audit, $r107 );
+ok( 'FAIL' === fx_row_level( $out107, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una @font-face con URL FALLA', fx_row_level( $out107, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ) );
+ok( array() !== fx_lines_with( $out107, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'data: URI' ) ), 'y dice que el CSP bloquea la peticion', $out107 );
+fx_rrmdir( $r107 );
+
+echo "--- los fallbacks ENTRECOMILLADOS no se acusan: manda la POSICION, no las comillas ---\n";
+$r108 = fx_tmp_root();
+fx_base( $r108 );
+/* THE MUTANT THIS KILLS: check every family in the stack instead of the first. `'Segoe UI'`,
+   `'Helvetica Neue'` and `'Arial Black'` are quoted exactly like `'Source Sans 3'`, so quoting
+   cannot separate a request from a fallback — position does, and it is the stack's own semantics:
+   `font-family: A, B, C` means "A, else B". Under the mutant this fixture produces three extra
+   rows demanding that Segoe UI be embedded, and the row becomes noise nobody reads. */
+fx(
+	$r108,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Source Sans 3',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
+			'faces' => array( 'Source Sans 3' => 'data:font/woff2;base64,d09GMgABAAAAAA' ),
+		)
+	)
+);
+list( $code108, $out108 ) = fx_run_ok( $audit, $r108 );
+ok( array() === fx_lines_with( $out108, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'un stack con fallbacks entrecomillados no produce fila', $out108 );
+ok( array() === fx_lines_with( $out108, array( 'Segoe UI' ) ), 'y en ninguna fila aparece Segoe UI', $out108 );
+ok( 0 === $code108, 'y el arbol sale con codigo 0', $code108 );
+fx_rrmdir( $r108 );
+
+echo "--- una font-family FUERA de :root tambien cuenta: la maqueta FALLA ---\n";
+$r109 = fx_tmp_root();
+fx_base( $r109 );
+/* THE MUTANT THIS KILLS: scope the font scan to `:root` the way the axis scan is scoped. The two
+   are opposite shapes and this suite has to say so. An axis token is DECLARED once and USED
+   everywhere, so reading the whole file would count a use as a declaration — that is why
+   RT_MOCKUP_NO_AXES reads `:root` only. A `font-family` inside a media query is not a use of
+   anything: it is a fresh request the browser will really try to serve, and a `:root`-only reader
+   would call this file clean while it renders Arial Black at every width over 768px. */
+fx(
+	$r109,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Source Sans 3', system-ui, sans-serif",
+			'rule'  => "'Archivo Expanded', 'Arial Black', sans-serif",
+			'faces' => array( 'Source Sans 3' => 'data:font/woff2;base64,d09GMgABAAAAAA' ),
+		)
+	)
+);
+list( , $out109 ) = fx_run_ok( $audit, $r109 );
+ok( 'FAIL' === fx_row_level( $out109, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una familia pedida en un @media sin incrustar FALLA', fx_row_level( $out109, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ) );
+ok( array() !== fx_lines_with( $out109, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Archivo Expanded' ) ), 'y nombra la familia del @media', $out109 );
+/* La que SI esta incrustada no puede aparecer, o no se distingue que falta de que sobra. */
+ok( array() === fx_lines_with( $out109, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Source Sans 3' ) ), 'y no acusa a la que si esta incrustada', $out109 );
+fx_rrmdir( $r109 );
+
+echo "--- un stack SOLO generico no produce fila: system-ui no nombra ningun archivo ---\n";
+$r110 = fx_tmp_root();
+fx_base( $r110 );
+/* THE MUTANT THIS KILLS: treat the first entry as a family without asking whether it is a generic
+   keyword. `system-ui`, `sans-serif` and `serif` name no file and can never be embedded, so
+   demanding an @font-face for them is a row nobody can ever satisfy — and references/mockup-guide.md
+   ships exactly this stack in its base shell, so the mutant would fail the guide's own example. */
+fx(
+	$r110,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup( array(), array(), array( 'stack' => 'system-ui, sans-serif' ) )
+);
+list( $code110, $out110 ) = fx_run_ok( $audit, $r110 );
+ok( array() === fx_lines_with( $out110, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'un stack generico no produce fila', $out110 );
+ok( 0 === $code110, 'y el arbol sale con codigo 0', $code110 );
+fx_rrmdir( $r110 );
+
+echo "--- la galeria GENERADA esta sujeta a la misma fila, a cualquier profundidad ---\n";
+$r111 = fx_tmp_root();
+fx_base( $r111 );
+/* The same recursion argument RT_MOCKUP_NO_AXES needed. `assets/gallery/index.html` renders all
+   four anchors, so it is the one file that names EVERY family the framework has — and a glob that
+   does not descend would leave the worst offender unchecked. */
+fx(
+	$r111,
+	'skills/html-mockup/assets/gallery/index.html',
+	fx_mockup( array(), array(), array( 'stack' => "'Inter Tight', system-ui, sans-serif" ) )
+);
+list( , $out111 ) = fx_run_ok( $audit, $r111 );
+ok( array() !== fx_lines_with( $out111, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'gallery/index.html' ) ), 'la galeria en un subdirectorio tambien produce la fila', $out111 );
+ok( array() !== fx_lines_with( $out111, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Inter Tight' ) ), 'y nombra su familia sin incrustar', $out111 );
+fx_rrmdir( $r111 );
+
+echo "--- una @font-face que nadie usa no es una PETICION: no produce fila ---\n";
+$r112 = fx_tmp_root();
+fx_base( $r112 );
+/* THE MUTANT THIS KILLS: stop stripping `@font-face` blocks before reading the font stacks. A
+   face declares `font-family:` too, so leaving the blocks in makes every embedded family look
+   like a request FOR ITSELF — the row starts answering its own question. It survives on the
+   fixtures above, because there every declared face is also asked for, so the tautology is
+   invisible. This is the file where the two readings part: `Ghost` has a face and nothing uses
+   it, and a browser never fetches a face nothing uses, so there is no blocked request and no
+   fallback and nothing to report. Under the mutant `Ghost` becomes an asked-for family served
+   from a URL and the row fires on a file that is correct.
+
+   Found by mutating, not by review: this was the one survivor of ten. */
+fx(
+	$r112,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Fraunces', Georgia, serif",
+			'faces' => array(
+				'Fraunces' => 'data:font/woff2;base64,d09GMgABAAAAAA',
+				'Ghost'    => 'https://fonts.gstatic.com/s/ghost/v1/x.woff2',
+			),
+		)
+	)
+);
+list( $code112, $out112 ) = fx_run_ok( $audit, $r112 );
+ok( array() === fx_lines_with( $out112, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una cara declarada que nadie pide no produce fila', $out112 );
+ok( array() === fx_lines_with( $out112, array( 'Ghost' ) ), 'y Ghost no aparece en ninguna fila', $out112 );
+ok( 0 === $code112, 'y el arbol sale con codigo 0', $code112 );
+fx_rrmdir( $r112 );
 
 /* ---------------------------------------------------------------------------
    RT_GALLERY_NOT_DISTINCT / RT_GALLERY_NO_MANIFEST, and the RECURSIVE glob the first of them
