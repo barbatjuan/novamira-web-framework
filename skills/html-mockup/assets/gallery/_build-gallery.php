@@ -780,7 +780,22 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .btn-outline{background:transparent;color:var(--c-text);border-color:var(--c-border)}
 .btn-outline:hover{border-color:var(--c-accent);transform:translateY(var(--lift))}
 .btn-sm{padding:.55rem 1.05rem;font-size:var(--fs-nav)}
-.ctas{display:flex;flex-wrap:wrap;gap:var(--sp-s)}
+/* A BUTTON TAKES ITS CONTENT HEIGHT, NOT ITS CONTAINER'S — the other half of the rule above, and
+   the half that rule is blind to. `.btn` centres its label with `align-items:center`, so a button
+   stretched to 147px renders its label perfectly centred in 147px: the label check measures ~0px
+   of offset and passes, while the box is three times the size of the thing inside it. Measured in
+   `proof-direct-mockup.html`, where `.ctas` is a direct grid item of `.canvas` and the row is as
+   tall as the hero media beside it: 91px at 1440x900 and 147px at 1920x1200 against a 49.2px
+   content height, growing with the viewport because the hero image does.
+
+   `flex-start` and not `center`. Both collapse the button to 49px, so the defect dies either way;
+   the difference is where the slack goes when the CONTAINER is still stretched. Centred, the
+   buttons float in the middle of the leftover space and the gap between the lede and the CTA
+   changes with viewport height — the reading order eyebrow → h1 → lede → CTA comes apart at the
+   last step, and it comes apart by a different amount on every screen. Top-aligned, the CTA stays
+   welded to the lede and the slack falls to the bottom of the hero, where the image is already
+   bleeding into it. */
+.ctas{display:flex;flex-wrap:wrap;align-items:flex-start;gap:var(--sp-s)}
 
 /* ── chrome shared by every strip: if the header differed, part of the "unmistakably different"
       verdict would come from the chrome rather than from the axes. ── */
@@ -838,7 +853,13 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
       a search bar that is never hidden behind an icon, and a hero that refuses to be big. ── */
 .announce{background:var(--c-surface-inverse);color:var(--c-on-inverse);text-align:center}
 .announce p{padding-block:.5rem}
-.searchbar{flex:1 1 260px;min-width:0;display:flex;gap:.5rem}
+/* `align-items:stretch` WRITTEN DOWN, because here the stretch is the point: the Buscar button is
+   meant to match the input beside it, and it measures 42px against a 37.84px content height —
+   4.16px of deliberate slack. Left implicit it is indistinguishable from the `.ctas` bug, so the
+   next reader either "fixes" it and breaks the search bar, or sees the two cases agree and leaves
+   both. This container is safe because `.nav` above it centres, so `.searchbar` is content-height
+   and its children stretch to an input, never to a hero. */
+.searchbar{flex:1 1 260px;min-width:0;display:flex;align-items:stretch;gap:.5rem}
 .searchbar input{flex:1 1 auto;min-width:0;font:inherit;font-size:var(--fs-nav);
   color:var(--c-text);background:var(--c-bg);border:1px solid var(--c-border);
   border-radius:var(--radius-input);padding:.5rem .75rem}

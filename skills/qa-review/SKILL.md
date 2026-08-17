@@ -34,7 +34,7 @@ work?" / "verify".
 2. **House rules**: run `references/house-rules.md` end to end (currency, cart icon + badge, theme,
    logo → home, ONE menu, no dead links, header everywhere, sticky, header/footer verbatim, mobile
    3-zone, the approved mockup's axis positions). One verdict per row, skip none silently.
-   The approved `html-mockup` output is the visual contract: row 30 compares its `:root` axis
+   The approved `html-mockup` output is the visual contract: row 31 compares its `:root` axis
    positions against what the build resolved, and states plainly which axes it proved — scale and
    elevation twice, ground and density once, composition never, that one being the user's eyes.
 3. **Responsive**: the per-device rules exist (mobile centering, 2-col grids, header one row on
