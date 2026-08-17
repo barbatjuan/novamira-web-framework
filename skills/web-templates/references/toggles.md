@@ -9,7 +9,7 @@ Los defaults llegan precargados desde el intake de referencias (CAPA 2). El clie
 
 | ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
 |----|--------------------|----------|--------|-----------|
-| `TGL-HERO-TYPE` | ¿Hero con slider o imagen fija? | slider / imagen fija | COMP-HERO | TPL-E-01, TPL-E-03 (fija-only) |
+| `TGL-HERO-TYPE` | ¿Hero con slider o imagen fija? | slider / imagen fija | COMP-HERO | TPL-E-01, TPL-E-03 (fija-only), TPL-C-01, TPL-C-02, TPL-C-03, TPL-C-05 |
 | `TGL-HERO-HEIGHT` | ¿Qué tan alto el hero? | full 60vh / medio 45vh / bajo 35vh | COMP-HERO | TPL-E-01, TPL-E-04, TPL-E-05 |
 | `TGL-CARD-STYLE` | ¿Cards con imagen grande o compactas? | imagen grande / compacta con datos | COMP-PRODUCT-CARD | todas ecommerce |
 | `TGL-CARD-IMG` | ¿Las cards muestran imagen? | sí / no (solo texto+precio) | COMP-PRODUCT-CARD | todas ecommerce |

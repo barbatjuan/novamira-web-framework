@@ -369,11 +369,337 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 	);
 }
 
+// ─────────────────────────────────────────────────────────────── 5b · the toggles, and their bar
+//
+// CAPA 3. `web-templates/references/toggles.md` catalogues 39 of these and the gallery rendered
+// exactly zero of them: archetype and anchor varied, CONFIGURATION never did. Every strip shipped
+// all 39 at their default, which is a whole dimension the framework models and the page had never
+// shown — and part of why eight strips read as more alike than the framework claims they are.
+//
+// TRANSCRIBED FROM EACH `TPL-*` DOC's § "Toggles admitidos", not from toggles.md's catalogue.
+// That is the same authority toggles.md itself names ("Cada `TPL-*` declara en su doc qué toggles
+// admite y con qué default"), and the two disagreed: toggles.md's "Aplica en" column listed
+// TGL-HERO-TYPE against TPL-E-01 and TPL-E-03 only, while SIX template docs declare it — the four
+// corporate ones included. toggles.md was the wrong file and has been corrected; this table reads
+// the templates so it cannot inherit that class of error again.
+//
+// An archetype with an EMPTY list is a claim, not an omission: TPL-E-02 admits no hero toggle
+// because its mini banner is ADN, and `TGL-HERO-TYPE` appears nowhere in its doc.
+
+$TOGGLES = array(
+	'TPL-C-01' => array(
+		// TPL-C-01-services-leadgen.md § 4: `TGL-HERO-TYPE` | imagen/color fija | slider opcional
+		'TGL-HERO-TYPE' => array(
+			'ask'     => '¿Hero con slider o imagen fija?',
+			'default' => 'imagen fija',
+			'options' => array( 'imagen fija', 'slider' ),
+		),
+	),
+	'TPL-E-02' => array(),
+);
+
+// ─────────────────────────────────────────────────────────────── 5c · the slider's scrim, MEASURED
+//
+// `TGL-HERO-TYPE: slider` puts the photograph BEHIND the copy instead of beside it, which is the
+// one move on this page that puts body text over an image the build does not control. The scrim
+// that makes that legible is measured here against the real pixels, by the same rule the accent
+// above follows: the build dies rather than shipping a number somebody typed.
+//
+// WHAT IS MEASURED, AND WHY IT IS THE WHOLE SOURCE FRAME AND NOT THE TEXT BOX. An earlier scrim on
+// this page (LP-BROKEN-GRID's hero, § COMPOSITION LAYERS) faded to fully transparent at one edge
+// and LOOKED fine in a screenshot; sampling the actual pixels put the worst case at 1.95:1 where
+// the headline crossed a pale rock face. The lesson taken from that was a FLOOR — an alpha the
+// gradient never drops below — and the floor is what makes the measurement viewport-proof:
+//
+//   `object-fit:cover` crops vertically when the box is wider than 16:9 and HORIZONTALLY when it
+//   is narrower, and this hero is full-bleed, so its box is wider than the frame at 1440 and
+//   narrower at 390. Under a horizontal crop the gradient's 0→1 runs across the VISIBLE window,
+//   not the source, so a source pixel that sits at x=0.9 on desktop can sit at x=0.4 on a phone.
+//   There is therefore no pixel that is permanently safe under a weaker part of the gradient, and
+//   the only honest bar is: EVERY pixel of EVERY frame, composited at the gradient's WEAKEST
+//   alpha. That is strictly stronger than sampling one viewport's crop, and it cannot go stale
+//   when somebody changes the hero's height.
+//
+// THE CROSS-FADE NEEDS NO SEPARATE MEASUREMENT, and this is a proof rather than an omission. Mid
+// fade the photo layer is a per-channel convex blend of two frames over an opaque `--c-bg-alt`.
+// `srgb_lum()` is monotonic per channel, so the blend's luminance lies between the two frames'
+// and above neither — and with a PAPER scrim the failing direction is a composite that is too
+// DARK. A blend is never darker than its darker input, and its darker input is already asserted.
+//
+// PAPER SCRIM AND NOT AN INK ONE, decided on the measurement and not on taste. Probed against
+// these three frames, an ink veil under white type needs alpha .59 to clear 4.5:1 and a paper
+// veil under the anchor's own ink type needs .51. The paper veil is the cheaper one AND the
+// honest one: the strip's data bar reports `fondo: paper — #FFFFFF · #F6F7F8 · #15181A`, and a
+// hero that inverted to white-on-near-black would make that readout false exactly where the
+// reader is looking.
+
+/**
+ * Luminance of an r/g/b triple. `srgb_lum()` takes hex; the pixel loop below has integers.
+ *
+ * The coefficients are the VALUES and the channels the keys, not the other way round: PHP casts a
+ * float array key to int, so `array( 0.2126 => $r, 0.7152 => $g, 0.0722 => $b )` is one entry at
+ * key 0 holding the blue channel, and this function would have returned 7% of the blue channel
+ * for every colour on the page while still looking like the WCAG formula.
+ */
+function srgb_lum_rgb( $r, $g, $b ) {
+	$l = 0.0;
+	foreach ( array( array( 0.2126, $r ), array( 0.7152, $g ), array( 0.0722, $b ) ) as $pair ) {
+		$c  = $pair[1] / 255;
+		$c  = ( $c <= 0.04045 ) ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+		$l += $pair[0] * $c;
+	}
+	return $l;
+}
+
+/**
+ * The worst contrast any pixel of `$slug` can reach under a `$alpha` veil of `$scrim`, against
+ * `$text`. Every second pixel on both axes: a 4× cheaper sweep over a 1440×810 frame that cannot
+ * miss a REGION, only a lone pixel inside one — and a lone pixel is not what text lands on. The
+ * stride is stated here rather than hidden because it is the one approximation in this file.
+ *
+ * RETURNS THE SURFACE AS WELL AS THE RATIO, and that is not a convenience. The per-ink checks
+ * below need the composited surface, and the first version of this file RE-DERIVED it algebraically
+ * from the ratio — which mutation testing killed: setting that one line to a constant deleted every
+ * ink override and no check noticed, because the tripwire guarding it compared against a bound the
+ * constant happened to sit exactly on. Two numbers out of one sweep, with the identity between them
+ * asserted at the call site, is a thing that cannot be quietly rewritten.
+ */
+function worst_pixel( $slug, $scrim, $alpha, $text ) {
+	global $IMG_DIR;
+	if ( ! function_exists( 'imagecreatefromwebp' ) ) {
+		fail( 'PHP has no GD WebP support — the slider scrim cannot be measured, and an unmeasured'
+			. ' scrim over a photograph is the 1.95:1 defect this build already shipped once' );
+	}
+	$im = @imagecreatefromwebp( $IMG_DIR . '/' . $slug . '.webp' );
+	if ( false === $im ) {
+		fail( "cannot decode img/$slug.webp to measure the slider scrim" );
+	}
+	$sr    = hexdec( substr( ltrim( $scrim, '#' ), 0, 2 ) );
+	$sg    = hexdec( substr( ltrim( $scrim, '#' ), 2, 2 ) );
+	$sb    = hexdec( substr( ltrim( $scrim, '#' ), 4, 2 ) );
+	$l_txt = srgb_lum( $text );
+	$w       = imagesx( $im );
+	$hgt     = imagesy( $im );
+	$worst   = INF;
+	$surface = INF;
+	for ( $y = 0; $y < $hgt; $y += 2 ) {
+		for ( $x = 0; $x < $w; $x += 2 ) {
+			$p   = imagecolorat( $im, $x, $y );
+			$l   = srgb_lum_rgb(
+				( ( $p >> 16 ) & 0xFF ) * ( 1 - $alpha ) + $sr * $alpha,
+				( ( $p >> 8 ) & 0xFF ) * ( 1 - $alpha ) + $sg * $alpha,
+				( $p & 0xFF ) * ( 1 - $alpha ) + $sb * $alpha
+			);
+			$hi  = max( $l, $l_txt );
+			$lo  = min( $l, $l_txt );
+			$rat = ( $hi + 0.05 ) / ( $lo + 0.05 );
+			if ( $rat < $worst ) {
+				$worst   = $rat;
+				$surface = $l;
+			}
+		}
+	}
+	imagedestroy( $im );
+	return array( 'ratio' => $worst, 'surface_l' => $surface );
+}
+
+/** `color-mix(in srgb, $a $p%, $b)`, in PHP, so a token derived in CSS can be measured here. */
+function css_mix( $a, $p, $b ) {
+	$a   = ltrim( $a, '#' );
+	$b   = ltrim( $b, '#' );
+	$out = '';
+	for ( $i = 0; $i < 3; $i++ ) {
+		$out .= sprintf(
+			'%02X',
+			(int) round( hexdec( substr( $a, $i * 2, 2 ) ) * $p + hexdec( substr( $b, $i * 2, 2 ) ) * ( 1 - $p ) )
+		);
+	}
+	return '#' . $out;
+}
+
+/* TWO FORMULAS, ONE ANSWER, CHECKED. `srgb_lum_rgb()` is a second implementation of a formula this
+   file already has, which is exactly the shape of thing that drifts silently — the float-key bug
+   above returned plausible numbers, not obviously broken ones. So the two are made to agree on the
+   four ground extremes before either is trusted with a pixel. 1e-12 is float noise, not tolerance. */
+foreach ( array( '#FFFFFF', '#15181A', '#0E1113', '#8C3A1F' ) as $lum_probe ) {
+	$lum_hex = srgb_lum( $lum_probe );
+	$lum_rgb = srgb_lum_rgb(
+		hexdec( substr( $lum_probe, 1, 2 ) ),
+		hexdec( substr( $lum_probe, 3, 2 ) ),
+		hexdec( substr( $lum_probe, 5, 2 ) )
+	);
+	if ( abs( $lum_hex - $lum_rgb ) > 1e-12 ) {
+		fail( "srgb_lum_rgb() disagrees with srgb_lum() on $lum_probe ($lum_rgb vs $lum_hex)"
+			. ' — the scrim would be measured with a formula that is not the one the rest of the file uses' );
+	}
+}
+
+/* The three `hero 16:9` frames the manifest carries — the whole role, in manifest order, so the
+   slider cannot quietly become two frames or reach for a card crop. */
+$SLIDER_FRAMES = array( 'hero-cantera', 'hero-taller', 'hero-encimera' );
+
+/* 4.5:1 AND NOT 3:1. The h1 clears "large text" at every anchor, but the eyebrow and the lede do
+   not, and they sit on the same photograph. The bar is set by the smallest text over the image. */
+$SCRIM_BAR   = 4.5;
+$SCRIM_FLOOR = 0.55;
+$SCRIM_WORST = array();
+
+$SCRIM_SURFACE = array();
+
+foreach ( $SLIDER_FRAMES as $sl_slug ) {
+	$sl_row    = img( $sl_slug );   // the manifest owes a row and img/ owes a file before a pixel is read
+	$sl_ground = $GROUND[ $ANCHORS['editorial']['ground'] ];
+
+	/* THE FRAME HAS TO BE A HERO FRAME. Found by mutation: swapping `hero-encimera` for the
+	   `sq-marmol` swatch passed every check here, because a bright image has no dark pixels and a
+	   PAPER veil only ever fails on dark ones — so the contrast gate got easier while the hero
+	   quietly became a 1:1 crop of a marble sample stretched across a 2.3:1 box. The role cell in
+	   the manifest is the thing that knew, and nothing was asking it. */
+	if ( 0 !== strpos( $sl_row['role'], 'hero' ) ) {
+		fail( "slider frame `$sl_slug` has manifest role `{$sl_row['role']}`, not a hero role — a"
+			. ' non-hero crop behind a full-bleed hero is a stretched thumbnail, and the contrast'
+			. ' measurement below will not object because brightness is not the defect' );
+	}
+
+	$sl = worst_pixel( $sl_slug, $sl_ground['bg'], $SCRIM_FLOOR, $sl_ground['text'] );
+
+	/* THE IDENTITY BETWEEN THE TWO NUMBERS THE SWEEP RETURNED. `ratio` and `surface_l` come from
+	   the same pixel, so WCAG's own definition has to hold between them. This is what stops either
+	   from being replaced by a constant: the per-ink checks consume `surface_l`, the frame gate
+	   consumes `ratio`, and neither can drift without breaking this line. */
+	$sl_check = ( max( $sl['surface_l'], srgb_lum( $sl_ground['text'] ) ) + 0.05 )
+		/ ( min( $sl['surface_l'], srgb_lum( $sl_ground['text'] ) ) + 0.05 );
+	if ( abs( $sl_check - $sl['ratio'] ) > 1e-9 ) {
+		fail( sprintf(
+			'frame `%s` reports a worst ratio of %.6f and a surface of L=%.6f, which are not the same'
+				. ' pixel (that surface gives %.6f) — one of the two has stopped coming from the sweep',
+			$sl_slug,
+			$sl['ratio'],
+			$sl['surface_l'],
+			$sl_check
+		) );
+	}
+
+	if ( $sl['ratio'] < $SCRIM_BAR ) {
+		fail( sprintf(
+			'slider frame `%s` measures %.2f:1 at the scrim floor of %d%% — below the %s:1 the lede'
+				. ' needs. Either the floor rises or the frame goes; a headline that is legible over'
+				. ' THIS photograph by luck is not a design.',
+			$sl_slug,
+			$sl['ratio'],
+			(int) round( $SCRIM_FLOOR * 100 ),
+			$SCRIM_BAR
+		) );
+	}
+	$SCRIM_WORST[ $sl_slug ]   = $sl['ratio'];
+	$SCRIM_SURFACE[ $sl_slug ] = $sl['surface_l'];
+}
+
+// ── EVERY INK THAT LANDS ON THE PHOTOGRAPH, not just the one the h1 uses ───────────────────────
+//
+// THIS BLOCK EXISTS BECAUSE THE MEASUREMENT ABOVE WAS RIGHT AND INCOMPLETE, and only looking found
+// it. The floor was measured against `--c-text` and the hero cleared it — and then the rendered
+// strip showed a lede that was hard to read, because `.lede` carries `.muted` and paints
+// `--c-text-muted`, not `--c-text`. The eyebrow paints `--c-accent`. The outline button's border
+// paints `--c-border`. Three inks the assertion never asked about, on the same photograph.
+//
+// What they measure at the floor, over a worst-case pixel, re-derived below on every build:
+//
+//   --c-text        #15181A   5.32:1   the h1, and the only one that holds
+//   --c-accent      #8C3A1F   2.29:1   needs a veil of ~82% before it clears 4.5
+//   --c-text-muted  #6B6D6E   1.55:1   needs ~95% — a veil that has erased the photograph
+//   --c-border      #E5E6E6   2.68:1   never clears 3:1 at ANY alpha, and gets WORSE as the veil
+//                                      lightens, because the border is itself nearly white
+//
+// So a photographic hero gets ONE ink, and hierarchy comes from size and weight instead of from a
+// weaker grey — which is what a muted tone is for on a flat surface and cannot do on a picture.
+// The accent is not lost from the hero: it still fills the primary button, which is opaque and
+// carries its own measured label contrast.
+//
+// The overrides are GENERATED from this table rather than typed into the stylesheet, so the
+// measurement and the fix cannot come apart: an ink that starts passing stops being overridden,
+// and an ink that starts failing and has no override stops the build.
+
+$SCRIM_INK       = $GROUND[ $ANCHORS['editorial']['ground'] ]['text'];
+$SCRIM_INK_WORST = min( $SCRIM_WORST );
+
+/* The bar is per ROLE, not one number: 4.5:1 for text, and 3:1 for the outline button's border,
+   which is a UI component boundary under WCAG 1.4.11 rather than a glyph. */
+$SCRIM_ELEMENTS = array(
+	array(
+		'sel'  => '.hero-slides .eyebrow',
+		'was'  => '--c-accent',
+		'hex'  => $ACCENT_BY_GROUND[ $ANCHORS['editorial']['ground'] ],
+		'bar'  => 4.5,
+		'prop' => 'color',
+	),
+	array(
+		'sel'  => '.hero-slides .lede',
+		'was'  => '--c-text-muted',
+		'hex'  => css_mix( $SCRIM_INK, 0.634, $GROUND[ $ANCHORS['editorial']['ground'] ]['bg'] ),
+		'bar'  => 4.5,
+		'prop' => 'color',
+	),
+	array(
+		'sel'  => '.hero-slides .btn-outline',
+		'was'  => '--c-border',
+		'hex'  => css_mix( $SCRIM_INK, 0.11, $GROUND[ $ANCHORS['editorial']['ground'] ]['bg'] ),
+		'bar'  => 3.0,
+		'prop' => 'border-color',
+	),
+);
+
+/* The darkest composited surface any frame produces at the floor — READ OFF THE SWEEP, at the same
+   pixel that produced the worst ratio, and tied to it by the identity asserted above. The inks
+   below are measured against this, so every one of them is being held to the worst place on the
+   worst frame rather than to an average nobody's eye will ever meet. */
+$SCRIM_SURFACE_L = min( $SCRIM_SURFACE );
+
+/* THE RANGE TRIPWIRE, which catches the low side the identity cannot: a surface darker than the
+   veil over a pure-black pixel is a surface no photograph can produce under this scrim. */
+$scrim_floor_black = srgb_lum_rgb(
+	hexdec( substr( $GROUND[ $ANCHORS['editorial']['ground'] ]['bg'], 1, 2 ) ) * $SCRIM_FLOOR,
+	hexdec( substr( $GROUND[ $ANCHORS['editorial']['ground'] ]['bg'], 3, 2 ) ) * $SCRIM_FLOOR,
+	hexdec( substr( $GROUND[ $ANCHORS['editorial']['ground'] ]['bg'], 5, 2 ) ) * $SCRIM_FLOOR
+);
+if ( $SCRIM_SURFACE_L < $scrim_floor_black - 1e-9 ) {
+	fail( sprintf(
+		'the composited surface reads L=%.4f, below the %.4f a %d%% veil produces over pure black'
+			. ' — the ink checks would be measuring against a surface that cannot exist',
+		$SCRIM_SURFACE_L,
+		$scrim_floor_black,
+		(int) round( $SCRIM_FLOOR * 100 )
+	) );
+}
+
+$SCRIM_OVERRIDE = array();
+$SCRIM_REPORT   = array();
+foreach ( $SCRIM_ELEMENTS as $se ) {
+	$se_l   = srgb_lum( $se['hex'] );
+	$se_hi  = max( $SCRIM_SURFACE_L, $se_l );
+	$se_lo  = min( $SCRIM_SURFACE_L, $se_l );
+	$se_rat = ( $se_hi + 0.05 ) / ( $se_lo + 0.05 );
+
+	$SCRIM_REPORT[] = sprintf( '%s %s %.2f:1%s', $se['was'], $se['hex'], $se_rat,
+		( $se_rat < $se['bar'] ) ? ' → --c-text' : ' (kept)' );
+
+	if ( $se_rat < $se['bar'] ) {
+		$SCRIM_OVERRIDE[] = $se['sel'] . '{' . $se['prop'] . ':var(--c-text)'
+			. ( 'border-color' === $se['prop'] ? ';color:var(--c-text)' : '' ) . '}';
+	}
+}
+
 // ─────────────────────────────────────────────────────────────── 6 · the copy, one set per archetype
 //
 // The same discipline `_axis-proof-content.md` states for the proof pair: the copy is the
-// CONSTANT. All four anchors of an archetype render these exact strings in this exact order, so
-// every visible difference between them is the anchor and nothing else.
+// CONSTANT. All four anchors of an archetype render these exact strings in this exact order.
+//
+// WHAT THAT LICENSES THE READER TO CONCLUDE, stated exactly, because the sentence that used to
+// stand here — "every visible difference between them is the anchor and nothing else" — stopped
+// being true the moment one strip declared a toggle. Two strips of one archetype differ by their
+// ANCHOR and by any TOGGLE whose value they do not share, and by nothing else. Both are printed
+// on the strip's own data bar, so both remain attributable; an unlabelled toggle is what would
+// turn this catalogue into a set of one-offs.
 
 $BRAND = 'PIEDRA VALDÉS';
 
@@ -492,8 +818,11 @@ $CONTENT = array(
 // One entry per `TPL-* x PERS-*` pair. Phase 1 proves the machinery; the order here is the order
 // on the page, and it is fixed rather than derived so the output cannot move under a sort.
 
+// A strip's `tgl` is the toggles it moves OFF their default. Absent means every toggle its
+// archetype admits sits at the default the template doc states — which is what all eight strips
+// did before this, silently. It is not silent now: the bar prints the resolved value either way.
 $STRIPS = array(
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'institutional' ),
@@ -519,6 +848,74 @@ foreach ( $STRIPS as $s ) {
 	if ( ! isset( $ANCHORS[ $s['anchor'] ] ) ) {
 		fail( "no anchor `{$s['anchor']}` in design-personalities.md" );
 	}
+	if ( ! isset( $TOGGLES[ $s['tpl'] ] ) ) {
+		fail( "no toggle table for {$s['tpl']} — an archetype that has not declared which toggles it"
+			. ' admits cannot be checked against one, and `todas` is not a declaration' );
+	}
+}
+
+/* THE TOGGLE, RESOLVED AND CHECKED AGAINST THE TEMPLATE'S OWN §4. toggles.md § Notas: "Los toggles
+   nunca rompen el ADN … si el cliente lo pide, sugerir cambiar de plantilla, no deformar la
+   actual." A generator that will set any toggle on any archetype is exactly that deformation, and
+   it is the machine half of the contradiction this pass found in the docs — so a strip asking for
+   a toggle its archetype does not declare, or for a value outside that toggle's stated options,
+   stops the build here rather than rendering a page that quietly invents a capability. */
+$RESOLVED = array();
+foreach ( $STRIPS as $s ) {
+	$r_admit = $TOGGLES[ $s['tpl'] ];
+	$r_set   = isset( $s['tgl'] ) ? $s['tgl'] : array();
+	foreach ( $r_set as $r_id => $r_val ) {
+		if ( ! isset( $r_admit[ $r_id ] ) ) {
+			fail( "{$s['tpl']} × {$s['anchor']} sets `$r_id`, which {$s['tpl']}'s § \"Toggles admitidos\""
+				. ' does not list — a toggle applied to an archetype that never offered it is a deformed'
+				. ' template, not a configured one' );
+		}
+		if ( ! in_array( $r_val, $r_admit[ $r_id ]['options'], true ) ) {
+			fail( "{$s['tpl']} × {$s['anchor']} sets `$r_id` to `$r_val`, which is not one of "
+				. implode( ' / ', $r_admit[ $r_id ]['options'] ) );
+		}
+	}
+	// Every ADMITTED toggle resolves, not just the ones a strip moved: the default is a position
+	// the reader is entitled to see, and an unprinted default is the silent configuration this
+	// whole section exists to end.
+	$r_rows = array();
+	foreach ( $r_admit as $r_id => $r_def ) {
+		$r_rows[] = array(
+			'id'         => $r_id,
+			'value'      => isset( $r_set[ $r_id ] ) ? $r_set[ $r_id ] : $r_def['default'],
+			'is_default' => ! isset( $r_set[ $r_id ] ),
+			'default'    => $r_def['default'],
+		);
+	}
+	$RESOLVED[ $s['tpl'] . '×' . $s['anchor'] ] = $r_rows;
+}
+
+/* THE SLIDER'S FIRST FRAME IS THE FIXED HERO'S OWN IMAGE, on every archetype that can resolve
+   `TGL-HERO-TYPE` to `slider`. That agreement is the entire content of the reduced-motion promise
+   — "shows one frame" is worth little if the frame is arbitrary — and it is exactly the kind of
+   agreement between two tables that holds until somebody edits one of them. Asserted rather than
+   commented, because a comment saying two things agree is not a thing that notices when they stop. */
+foreach ( $TOGGLES as $t_tpl => $t_admit ) {
+	if ( ! isset( $t_admit['TGL-HERO-TYPE'] ) || ! in_array( 'slider', $t_admit['TGL-HERO-TYPE']['options'], true ) ) {
+		continue;
+	}
+	if ( $SLIDER_FRAMES[0] !== $CONTENT[ $t_tpl ]['hero']['img'] ) {
+		fail( "the slider's first frame is `{$SLIDER_FRAMES[0]}` and {$t_tpl}'s fixed hero is"
+			. " `{$CONTENT[ $t_tpl ]['hero']['img']}` — under prefers-reduced-motion the slider strip"
+			. ' would settle on a different photograph than the same strip shows at `imagen fija`, so'
+			. ' the toggle would be changing the image as well as the behaviour, and neither the data'
+			. ' bar nor the pasted spec would say so' );
+	}
+}
+
+/** The resolved value of one toggle on one strip, or the empty string if the archetype has none. */
+function tgl_of( $rows, $id ) {
+	foreach ( $rows as $r ) {
+		if ( $r['id'] === $id ) {
+			return $r['value'];
+		}
+	}
+	return '';
 }
 
 // Only the anchors and blueprints actually rendered get a CSS block. Dead CSS for an anchor no
@@ -758,6 +1155,108 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .hero .frame{aspect-ratio:var(--ratio-hero)}
 .frame.sq{aspect-ratio:1/1}
 .card:hover .frame > img{transform:scale(1.045)}
+CSS;
+
+// ── COMP-HERO under `TGL-HERO-TYPE: slider` ────────────────────────────────────────────────────
+//
+// Emitted from PHP rather than as a literal because the scrim floor and the frame count are
+// MEASURED values from § 5c: writing `.55` here by hand would be the second copy of a number the
+// build already owns, and the copy nobody re-measures.
+$css[] = '/* ══════════════════ COMP-HERO · TGL-HERO-TYPE: slider ══════════════════
+   Three frames cross-fading BEHIND the copy. The whole thing is CSS — no script, no library, no
+   `setInterval` racing the paint — which is also why it survives the `<noscript>` path this page
+   already ships: with JS off the hydration map never runs, every `<img>` stays sourceless, and
+   what the reader gets is the scrim over `--c-bg-alt` with the copy fully legible on top. A
+   slideshow that needs a script to not be broken is a worse hero than one that does not.
+
+   THE SCRIM FLOOR IS ' . (int) round( $SCRIM_FLOOR * 100 ) . '%, MEASURED, and the gradient never drops below it. § 5c
+   proves the number against every pixel of all three frames; the shape below is hierarchy on top
+   of a floor that already holds, not the thing doing the holding. That ordering is the lesson
+   from LP-BROKEN-GRID\'s hero, whose first scrim reached transparent at one edge and measured
+   1.95:1 under the headline while looking perfectly fine in a screenshot.
+
+   `color-mix(… var(--c-bg) …)` and not `rgba(255,255,255,…)`: the veil is the ANCHOR\'s own paper,
+   so a strip whose ground moved would move its scrim with it — and § 5c asserts against that same
+   token, so the measurement and the paint cannot drift apart. ══════════════════ */
+.hero-slides{position:relative;isolation:isolate;overflow:hidden;
+             display:grid;align-content:center;
+             min-height:clamp(420px,66vh,560px)}
+.hero-slides > .canvas{position:relative;z-index:3}
+.hero-slides .slides{position:absolute;inset:0;z-index:0}
+
+/* The slide fills the section instead of taking `--ratio-hero`: at full bleed the SECTION is the
+   frame, and an aspect-ratio here would letterbox it. `.frame`\'s own `background:var(--c-bg-alt)`
+   is kept and is load-bearing — it is the opaque floor the cross-fade blends over, so a fade never
+   reveals the page behind the hero. */
+.hero-slides .slide{position:absolute;inset:0;width:100%;height:100%;
+                    aspect-ratio:auto;border-radius:0}
+
+/* THE STATIC OPACITY IS THE REDUCED-MOTION STATE, not a starting value the animation happens to
+   overwrite. Frame 1 opaque and 2–3 transparent means that the instant `animation` is cancelled —
+   by the media query below, by the global `*{animation:none!important}`, or by a browser that
+   never ran it — what remains on screen is ONE frame, and it is the strip\'s own hero image. Had
+   these all started at 0, cancelling the animation would have left an empty hero. */
+.hero-slides .slide{opacity:0}
+.hero-slides .slide:first-child{opacity:1}
+
+@keyframes nm-hero-crossfade{
+  0%     {opacity:1}
+  27.7%  {opacity:1}
+  33.3%  {opacity:0}
+  94.4%  {opacity:0}
+  100%   {opacity:1}
+}
+/* 18s / 3 frames = 6s each: ~5s held, ~1s of overlap. The NEGATIVE delays start frames 2 and 3
+   part-way through one shared cycle rather than queueing them, so the three never drift apart the
+   way three independently-timed animations do. Order on screen is 1 → 2 → 3. */
+.hero-slides .slide{animation:nm-hero-crossfade 18s linear infinite}
+.hero-slides .slide:nth-child(2){animation-delay:-12s}
+.hero-slides .slide:nth-child(3){animation-delay:-6s}
+
+/* PAUSE ON HOVER OR FOCUS. `:focus-within` fires when the keyboard reaches either hero CTA, so a
+   reader tabbing through gets the same stillness a reader with a mouse gets by hovering. Nothing
+   inside `.slides` is focusable — no buttons, no dots, no `tabindex` — so there is nothing here
+   for focus to be trapped in; the tab order through the hero is exactly the two CTAs it always
+   was. */
+.hero-slides:hover .slide,
+.hero-slides:focus-within .slide{animation-play-state:paused}
+
+.hero-slides .slides::after{content:"";position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to right,
+    color-mix(in srgb,var(--c-bg) 90%,transparent) 0%,
+    color-mix(in srgb,var(--c-bg) 74%,transparent) 34%,
+    color-mix(in srgb,var(--c-bg) ' . (int) round( $SCRIM_FLOOR * 100 ) . '%,transparent) 62%,
+    color-mix(in srgb,var(--c-bg) ' . (int) round( $SCRIM_FLOOR * 100 ) . '%,transparent) 100%)}
+
+/* Below the desktop breakpoint the copy is a full-width column over the photograph rather than a
+   left band, so the gradient turns vertical to match where the text actually is. Its floor is the
+   same measured ' . (int) round( $SCRIM_FLOOR * 100 ) . '%, so the assertion in § 5c covers this direction too. */
+@media(max-width:1023px){
+  .hero-slides .slides::after{background:linear-gradient(to bottom,
+    color-mix(in srgb,var(--c-bg) 82%,transparent) 0%,
+    color-mix(in srgb,var(--c-bg) ' . (int) round( $SCRIM_FLOOR * 100 ) . '%,transparent) 55%,
+    color-mix(in srgb,var(--c-bg) ' . (int) round( $SCRIM_FLOOR * 100 ) . '%,transparent) 100%)}
+}
+
+/* RESTATED LOCALLY, and deliberately not only as a restatement. `base` already carries
+   `*{animation:none!important}` under this query, which alone would leave frame 1 showing by the
+   static rule above. This block does not rely on that: it sets the opacities OUTRIGHT, so the
+   reduced-motion state survives someone deleting the global rule, and it survives the static
+   values being changed for some future reason. Two independent routes to one frame. */
+@media(prefers-reduced-motion:reduce){
+  .hero-slides .slide{animation:none;opacity:0}
+  .hero-slides .slide:first-child{opacity:1}
+}
+
+/* ONE INK ON THE PHOTOGRAPH. Generated from § 5c\'s per-element measurement, not typed: each rule
+   below exists because that ink measured under its bar against the composited surface, and would
+   disappear from this stylesheet if it stopped doing so. The anchor keeps its accent and its muted
+   grey everywhere else on the strip — this is the hero, and only the hero, where a picture is
+   underneath. Hierarchy here is 88px against 17px, which needs no second colour. */
+' . implode( "\n", $SCRIM_OVERRIDE ) . '
+';
+
+$css[] = <<<'CSS'
 
 /* A BUTTON CENTRES ITS OWN LABEL ON BOTH AXES. `text-align:center` is only the horizontal half —
    it says nothing about the vertical, so a button stretched taller than its own line box renders
@@ -971,6 +1470,22 @@ $css[] = <<<'CSS'
 .meta-pair .x{color:var(--c-accent);font-weight:700;padding-inline:.4ch}
 .meta-sub{margin-top:.35rem;font-size:var(--fs-small);color:var(--c-text-muted)}
 .meta-sub code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em}
+
+/* ── the toggle readout (CAPA 3). Deliberately NOT styled like an `.axis`: a toggle is a
+      configuration the client answered, not one of the five perceptual positions, and giving it
+      the same accent rule would read as a sixth axis. A changed toggle takes the accent border so
+      the eye finds it across eight strips; a default stays quiet, which is what a default is. ── */
+.meta-tgl{margin-top:.45rem;display:flex;flex-wrap:wrap;gap:.4rem .6rem;align-items:baseline;
+          font-size:var(--fs-small);color:var(--c-text-muted)}
+.meta-tgl .tgl{display:inline-flex;align-items:baseline;gap:.5ch;
+               border:1px solid var(--c-border);border-radius:999px;padding:.15rem .7rem;
+               color:var(--c-text)}
+.meta-tgl .tgl-set{border-color:var(--c-accent);font-weight:700}
+.meta-tgl code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+               font-size:.9em;color:var(--c-text-muted);font-weight:400}
+.meta-tgl i{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.12em;
+            text-transform:uppercase;color:var(--c-text-muted);font-weight:400}
+.meta-tgl .tgl-set i{color:var(--c-accent)}
 .axes{margin-top:var(--sp-s);display:grid;gap:.5rem;grid-template-columns:minmax(0,1fr)}
 @media(min-width:600px){.axes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){.axes{grid-template-columns:repeat(5,minmax(0,1fr))}}
@@ -1331,11 +1846,46 @@ function card_html( $anchor_key, $c ) {
 	return $out;
 }
 
+/**
+ * COMP-HERO under `TGL-HERO-TYPE: slider` — the photograph BEHIND the copy, three frames
+ * cross-fading, instead of one frame beside it.
+ *
+ * THREE REAL `<img>` ELEMENTS AND NOT A `background-image`, for the reason mockup-guide.md § 251
+ * gives and one this page adds: `RT_GALLERY_NO_MANIFEST` finds images by `data-img`, so a CSS
+ * background is an image with no licence row that no gate can see. The bytes are not paid three
+ * more times either — all three slugs are already in the one hydration map at the foot of the
+ * page, and `hero-taller` and `hero-encimera` were already being rendered by TPL-E-02's carousel.
+ * The slider costs markup, not pixels.
+ *
+ * THE FIRST FRAME IS THE FIXED HERO'S OWN IMAGE, asserted below rather than assumed. That is what
+ * makes `prefers-reduced-motion` honest here: a reader who has asked the platform to stop things
+ * moving sees the exact hero the same strip would have shown at `imagen fija`, not slide three of
+ * a carousel frozen wherever the CSS happened to leave it.
+ *
+ * ONLY THE FIRST CARRIES THE `alt`. Slides two and three are the same hero photographed three
+ * ways; three descriptions of one hero is a screen-reader user hearing the section three times.
+ * `alt=""` is the standard mark for a decorative duplicate, and it is the honest one — the hero
+ * HAS a real alt, and it is the frame that is on screen when nothing is moving.
+ */
+function hero_slider_html( $frames ) {
+	$o = array( '<div class="slides">' );
+	foreach ( $frames as $ix => $slug ) {
+		$im  = img( $slug );
+		$alt = ( 0 === $ix ) ? $im['alt'] : '';
+		$o[] = '<figure class="frame slide"><img data-img="' . h( $im['slug'] ) . '"'
+			. ' alt="' . h( $alt ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure>';
+	}
+	$o[] = '</div>';
+	return implode( '', $o );
+}
+
 /** TPL-C-01 — Services / Lead-Gen. Renders the three `[fijo · ADN]` sections plus COMP-CASES. */
-function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
+function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	global $SLIDER_FRAMES;
+	$hero    = $C['hero'];
+	$im      = img( $hero['img'] );
+	$slider  = ( 'slider' === tgl_of( $tgl_rows, 'TGL-HERO-TYPE' ) );
+	$o       = array();
 
 	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
@@ -1348,8 +1898,15 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
 
 	$o[] = '<main>';
 
-	// 1 · COMP-HERO  [fijo · ADN]
-	$o[] = '<section class="sec hero" aria-label="Propuesta de valor"><div class="canvas">'
+	// 1 · COMP-HERO  [fijo · ADN] · TGL-HERO-TYPE
+	//
+	// The SECTION differs between the two hero types and the COPY does not — same eyebrow, same
+	// h1, same lede, same two CTAs, in the same order. That is what keeps the toggle readable as a
+	// toggle: a reader comparing this strip with its three siblings is looking at one changed
+	// setting, not at a second design.
+	$o[] = '<section class="sec hero' . ( $slider ? ' hero-slides' : '' ) . '" aria-label="Propuesta de valor">'
+		. ( $slider ? hero_slider_html( $SLIDER_FRAMES ) : '' )
+		. '<div class="canvas">'
 		. '<div class="head stack">'
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
@@ -1357,8 +1914,8 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid ) {
 		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
 		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
 		. '</div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
 		. '</div></section>';
 
 	// 2 · COMP-SERVICES  [fijo · ADN]
@@ -1589,7 +2146,7 @@ function pad( $s, $n ) {
  * anchor id is the pointer, which is the same discipline the axis VALUES follow in reverse — those
  * are transcribed because a pasted spec that says "read another file for the numbers" is not a spec.
  */
-function handoff_text( $C, $A, $rows ) {
+function handoff_text( $C, $A, $rows, $tgl_rows ) {
 	$L   = array();
 	$L[] = 'NovaMira · precarga de galería — ' . $C['tpl'] . ' × ' . $A['id'];
 	$L[] = '';
@@ -1603,24 +2160,64 @@ function handoff_text( $C, $A, $rows ) {
 	foreach ( $rows as $r ) {
 		$L[] = '  ' . pad( $r['axis'], 12 ) . pad( $r['pos'], 13 ) . $r['spec'];
 	}
+
+	// CAPA 3 travels with CAPA 1 and 2 or it does not travel at all: the spec is what precharges
+	// the dialogue, and a hero the client picked BECAUSE it was a slider would otherwise arrive at
+	// the build as `imagen fija` — the template's default, silently restored by the handoff.
+	if ( array() !== $tgl_rows ) {
+		$L[] = '';
+		$L[] = 'toggles (CAPA 3) que esta tira resuelve:';
+		foreach ( $tgl_rows as $t ) {
+			$L[] = '  ' . pad( $t['id'], 20 ) . pad( $t['value'], 13 )
+				. ( $t['is_default'] ? '(default de ' . $C['tpl'] . ')' : '(cambiado — default: ' . $t['default'] . ')' );
+		}
+	}
+
 	$L[] = '';
 	$L[] = 'Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.';
 	$L[] = '';
 	$L[] = 'PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra';
 	$L[] = '"el sector": el diálogo sigue preguntando en términos de negocio y el cliente confirma o';
 	$L[] = 'sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo';
-	$L[] = 'default silencioso que esa regla existe para impedir.';
+	$L[] = 'default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el';
+	$L[] = 'valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.';
 	return implode( "\n", $L );
 }
 
+/**
+ * The toggle readout. On the strip beside the five axes, and for the same reason those are there:
+ * a card whose hero differs and does not say WHY is not a comparison, it is a one-off, and the
+ * reader cannot attribute what they are looking at.
+ *
+ * PRINTED EVEN WHEN NOTHING MOVED, which is the half that makes it work. If only the changed strip
+ * carried a line, its three siblings would say nothing and the reader would have to guess whether
+ * they are at a default or simply do not have the setting. Here `imagen fija · default` on three
+ * strips and `slider · cambiado` on one is a legible four-way comparison of one setting. An
+ * archetype that admits no toggles prints nothing, and that is also true: TPL-E-02's hero is ADN.
+ */
+function tgl_html( $tgl_rows ) {
+	if ( array() === $tgl_rows ) {
+		return '';
+	}
+	$o = '<p class="meta-tgl">Toggles: ';
+	$b = array();
+	foreach ( $tgl_rows as $t ) {
+		$b[] = '<span class="tgl' . ( $t['is_default'] ? '' : ' tgl-set' ) . '">'
+			. '<code>' . h( $t['id'] ) . '</code> ' . h( $t['value'] )
+			. ' <i>' . ( $t['is_default'] ? 'default' : 'cambiado' ) . '</i></span>';
+	}
+	return $o . implode( ' ', $b ) . '</p>';
+}
+
 /** The data bar: TPL id, PERS id, and all five axis positions WITH their values, as checkable data. */
-function meta_html( $C, $A, $rows, $uid ) {
+function meta_html( $C, $A, $rows, $uid, $tgl_rows ) {
 	$spec_id = 'spec-' . $uid;
 	$o       = array();
 	$o[]     = '<div class="meta"><div class="gal-wrap">'
 		. '<p class="meta-pair"><b>' . h( $C['tpl'] ) . '</b> ' . h( $C['tpl_name'] )
 		. ' <span class="x">×</span> <b>' . h( $A['id'] ) . '</b> ' . h( $A['name'] ) . '</p>'
 		. '<p class="meta-sub">' . h( $C['site_es'] ) . ' · ADN fijo: <code>' . h( $C['dna'] ) . '</code></p>'
+		. tgl_html( $tgl_rows )
 		. '<dl class="axes">';
 	foreach ( $rows as $r ) {
 		$o[] = '<div class="axis"><dt>' . h( $r['axis'] ) . '</dt>'
@@ -1635,7 +2232,7 @@ function meta_html( $C, $A, $rows, $uid ) {
 		. '<button class="handoff-copy" type="button" hidden data-copy="' . h( $spec_id ) . '">Copiar</button>'
 		. '<span class="handoff-said" role="status" aria-live="polite" data-said="' . h( $spec_id ) . '"></span>'
 		. '</div>'
-		. '<pre id="' . h( $spec_id ) . '" tabindex="0">' . h( handoff_text( $C, $A, $rows ) ) . '</pre>'
+		. '<pre id="' . h( $spec_id ) . '" tabindex="0">' . h( handoff_text( $C, $A, $rows, $tgl_rows ) ) . '</pre>'
 		. '</details>';
 
 	$o[] = '</div></div>';
@@ -1658,8 +2255,10 @@ foreach ( $STRIPS as $s ) {
 	$lp  = strtolower( $COMPOSITION[ $A['composition'] ]['lp'] );
 	$uid = strip_uid( $C, $s['anchor'] );
 
+	$tgl = $RESOLVED[ $C['tpl'] . '×' . $s['anchor'] ];
+
 	if ( 'corporate' === $C['site'] ) {
-		$inner = strip_corporate( $s['anchor'], $C, $BRAND, $uid );
+		$inner = strip_corporate( $s['anchor'], $C, $BRAND, $uid, $tgl );
 	} elseif ( 'ecommerce' === $C['site'] ) {
 		$inner = strip_ecommerce( $s['anchor'], $C, $BRAND, $uid );
 	} else {
@@ -1671,7 +2270,7 @@ foreach ( $STRIPS as $s ) {
 		. ' data-tpl="' . h( $C['tpl'] ) . '"'
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
-	$body[] = meta_html( $C, $A, axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ), $uid );
+	$body[] = meta_html( $C, $A, axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ), $uid, $tgl );
 	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
 	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
@@ -1747,14 +2346,22 @@ $head = '<!--
      está reportado como hueco preexistente, no lo introduce este fichero. -->
 <meta name="viewport" content="width=device-width, initial-scale=1">';
 
+/* THE PAGE'S OWN CLAIM ABOUT ITSELF, and it had to change the day a strip declared a toggle. The
+   note used to end "la diferencia es el ancla — no la foto ni el texto", which a reader could check
+   against strip 1 in about two seconds and find false: it renders three photographs where its three
+   siblings render one. A stale sentence on the page is worse than a stale comment in the source,
+   because the reader believes it and has no way to know it is out of date. */
 $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. '<span class="eyebrow">NovaMira · uso interno</span>'
 	. '<h1>Galería de plantillas</h1>'
 	. '<p>Cada tira es un par <b>arquetipo × ancla</b>: el <code>TPL-*</code> decide qué secciones existen '
 	. 'y en qué orden, el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. '
 	. 'Elegir una tira precarga las dos cosas.</p>'
-	. '<p class="gal-note">El copy y las fotografías son los mismos en todas las tiras del mismo arquetipo. '
-	. 'Si dos tiras se distinguen, la diferencia es el ancla — no la foto ni el texto.</p>'
+	. '<p class="gal-note">El copy y el juego de fotos son los mismos en todas las tiras del mismo '
+	. 'arquetipo. Si dos tiras se distinguen, la diferencia es el <b>ancla</b> o un <b>toggle</b> '
+	. '(CAPA 3) — nunca el copy, y nunca una foto que una tira tenga y otra no. Cada tira imprime '
+	. 'los toggles que resuelve encima de sus cinco ejes, así que las dos causas se leen en la '
+	. 'propia tarjeta.</p>'
 	. '</div></header>';
 
 // ── the sticky filter: by site type and by anchor ──────────────────────────────────────────────
@@ -1938,6 +2545,62 @@ foreach ( $STRIPS as $s ) {
 				. ' is an axis the dialogue never gets asked to confirm or override' );
 		}
 	}
+
+	// CAPA 3, asserted over the assembled page for the same reason CAPA 1 and 2 are: the bar and the
+	// spec are two renderings of one `$RESOLVED` row, and dropping the toggle from ONE of them
+	// desyncs them in silence. A strip whose bar says `slider` and whose spec says nothing hands the
+	// build a hero the client never picked — the precharge failing exactly where it is least
+	// visible, since the spec sits behind a `<details>` most readers never open.
+	foreach ( $RESOLVED[ $C['tpl'] . '×' . $s['anchor'] ] as $tgl_need ) {
+		if ( false === strpos( $spec_blocks[ $key ], $tgl_need['id'] ) ) {
+			fail( "handoff block `#$key` does not carry `{$tgl_need['id']}` — the strip resolves it to"
+				. " `{$tgl_need['value']}` and the pasted spec would restore the template default" );
+		}
+		if ( false === strpos( $spec_blocks[ $key ], $tgl_need['value'] ) ) {
+			fail( "handoff block `#$key` does not carry the value `{$tgl_need['value']}` for {$tgl_need['id']}" );
+		}
+	}
+}
+
+/* THE VISIBLE HALF. `RT_GALLERY_NOT_DISTINCT` and the axis assertion above both read a strip's
+   ARCHETYPE and ANCHOR; neither knows a toggle exists, so nothing outside this file would notice
+   the readout vanishing. One `.meta-tgl` per strip whose archetype admits at least one toggle, and
+   none for the archetypes that admit none — COUNTED, because "it renders" is the claim eleven
+   checks in this repository have made while testing nothing. */
+$tgl_bars = substr_count( $html, '<p class="meta-tgl">' );
+$tgl_want = 0;
+foreach ( $STRIPS as $s ) {
+	if ( array() !== $RESOLVED[ $s['tpl'] . '×' . $s['anchor'] ] ) {
+		++$tgl_want;
+	}
+}
+if ( $tgl_bars !== $tgl_want ) {
+	fail( "the page carries $tgl_bars toggle readout(s) for $tgl_want strip(s) that resolve at least one"
+		. ' toggle — a strip whose hero differs because of a setting it does not print is not a'
+		. ' comparison, it is a one-off whose difference the reader cannot attribute' );
+}
+
+/* And the one that would catch the whole feature being a label over nothing: the strip that
+   resolves `TGL-HERO-TYPE: slider` has to actually render three slides, and no other strip may
+   render any. Per strip, over the assembled page, so a renderer that ignored its toggle argument
+   or a CSS class that drifted from the markup both stop the build. */
+foreach ( $STRIPS as $s ) {
+	$tgl_is  = tgl_of( $RESOLVED[ $s['tpl'] . '×' . $s['anchor'] ], 'TGL-HERO-TYPE' );
+	$tgl_uid = strip_uid( $CONTENT[ $s['tpl'] ], $s['anchor'] );
+	if ( ! preg_match(
+		'#<section class="strip" id="' . preg_quote( $tgl_uid, '#' ) . '".*?(?=<section class="strip"|</main>)#s',
+		$html,
+		$tgl_m
+	) ) {
+		fail( "cannot isolate strip `$tgl_uid` to check its hero against its own toggle readout" );
+	}
+	$tgl_slides = substr_count( $tgl_m[0], 'class="frame slide"' );
+	$tgl_expect = ( 'slider' === $tgl_is ) ? count( $SLIDER_FRAMES ) : 0;
+	if ( $tgl_slides !== $tgl_expect ) {
+		fail( "strip `$tgl_uid` resolves TGL-HERO-TYPE to `" . ( '' === $tgl_is ? 'n/a' : $tgl_is )
+			. "` and renders $tgl_slides slide(s) where $tgl_expect were owed — the readout and the"
+			. ' hero disagree, and the readout is the half the reader believes' );
+	}
 }
 
 file_put_contents( $OUT, $html );
@@ -1952,6 +2615,20 @@ printf( "               fonts  %s KB raw → %s KB base64 across %d face(s): %s\
 	count( $font_families ), implode( ', ', $font_families ) );
 printf( "               index.html %s KB (%.2f%% of the 16 MB Artifact ceiling)\n",
 	number_format( strlen( $html ) / 1024, 1 ), 100 * strlen( $html ) / 16777216 );
+printf( "               scrim  %d%% floor over %s → worst pixel %s, bar %s:1\n",
+	(int) round( $SCRIM_FLOOR * 100 ),
+	$GROUND[ $ANCHORS['editorial']['ground'] ]['bg'],
+	implode( ' · ', array_map(
+		function ( $s, $r ) {
+			return $s . ' ' . number_format( $r, 2, '.', '' ) . ':1';
+		},
+		array_keys( $SCRIM_WORST ),
+		$SCRIM_WORST
+	) ),
+	$SCRIM_BAR
+);
+printf( "               inks   --c-text %s %.2f:1 (kept) · %s\n",
+	$SCRIM_INK, $SCRIM_INK_WORST, implode( ' · ', $SCRIM_REPORT ) );
 foreach ( $ACCENT as $g => $a ) {
 	printf( "               accent %s on %-5s → %s bg · %s bg-alt · label %s %s\n",
 		$a['hex'], $g, $a['r_bg'], $a['r_alt'], $a['on_is'], $a['r_on'] );

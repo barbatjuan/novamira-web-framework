@@ -212,6 +212,101 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .hero .frame{aspect-ratio:var(--ratio-hero)}
 .frame.sq{aspect-ratio:1/1}
 .card:hover .frame > img{transform:scale(1.045)}
+/* ══════════════════ COMP-HERO · TGL-HERO-TYPE: slider ══════════════════
+   Three frames cross-fading BEHIND the copy. The whole thing is CSS — no script, no library, no
+   `setInterval` racing the paint — which is also why it survives the `<noscript>` path this page
+   already ships: with JS off the hydration map never runs, every `<img>` stays sourceless, and
+   what the reader gets is the scrim over `--c-bg-alt` with the copy fully legible on top. A
+   slideshow that needs a script to not be broken is a worse hero than one that does not.
+
+   THE SCRIM FLOOR IS 55%, MEASURED, and the gradient never drops below it. § 5c
+   proves the number against every pixel of all three frames; the shape below is hierarchy on top
+   of a floor that already holds, not the thing doing the holding. That ordering is the lesson
+   from LP-BROKEN-GRID's hero, whose first scrim reached transparent at one edge and measured
+   1.95:1 under the headline while looking perfectly fine in a screenshot.
+
+   `color-mix(… var(--c-bg) …)` and not `rgba(255,255,255,…)`: the veil is the ANCHOR's own paper,
+   so a strip whose ground moved would move its scrim with it — and § 5c asserts against that same
+   token, so the measurement and the paint cannot drift apart. ══════════════════ */
+.hero-slides{position:relative;isolation:isolate;overflow:hidden;
+             display:grid;align-content:center;
+             min-height:clamp(420px,66vh,560px)}
+.hero-slides > .canvas{position:relative;z-index:3}
+.hero-slides .slides{position:absolute;inset:0;z-index:0}
+
+/* The slide fills the section instead of taking `--ratio-hero`: at full bleed the SECTION is the
+   frame, and an aspect-ratio here would letterbox it. `.frame`'s own `background:var(--c-bg-alt)`
+   is kept and is load-bearing — it is the opaque floor the cross-fade blends over, so a fade never
+   reveals the page behind the hero. */
+.hero-slides .slide{position:absolute;inset:0;width:100%;height:100%;
+                    aspect-ratio:auto;border-radius:0}
+
+/* THE STATIC OPACITY IS THE REDUCED-MOTION STATE, not a starting value the animation happens to
+   overwrite. Frame 1 opaque and 2–3 transparent means that the instant `animation` is cancelled —
+   by the media query below, by the global `*{animation:none!important}`, or by a browser that
+   never ran it — what remains on screen is ONE frame, and it is the strip's own hero image. Had
+   these all started at 0, cancelling the animation would have left an empty hero. */
+.hero-slides .slide{opacity:0}
+.hero-slides .slide:first-child{opacity:1}
+
+@keyframes nm-hero-crossfade{
+  0%     {opacity:1}
+  27.7%  {opacity:1}
+  33.3%  {opacity:0}
+  94.4%  {opacity:0}
+  100%   {opacity:1}
+}
+/* 18s / 3 frames = 6s each: ~5s held, ~1s of overlap. The NEGATIVE delays start frames 2 and 3
+   part-way through one shared cycle rather than queueing them, so the three never drift apart the
+   way three independently-timed animations do. Order on screen is 1 → 2 → 3. */
+.hero-slides .slide{animation:nm-hero-crossfade 18s linear infinite}
+.hero-slides .slide:nth-child(2){animation-delay:-12s}
+.hero-slides .slide:nth-child(3){animation-delay:-6s}
+
+/* PAUSE ON HOVER OR FOCUS. `:focus-within` fires when the keyboard reaches either hero CTA, so a
+   reader tabbing through gets the same stillness a reader with a mouse gets by hovering. Nothing
+   inside `.slides` is focusable — no buttons, no dots, no `tabindex` — so there is nothing here
+   for focus to be trapped in; the tab order through the hero is exactly the two CTAs it always
+   was. */
+.hero-slides:hover .slide,
+.hero-slides:focus-within .slide{animation-play-state:paused}
+
+.hero-slides .slides::after{content:"";position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to right,
+    color-mix(in srgb,var(--c-bg) 90%,transparent) 0%,
+    color-mix(in srgb,var(--c-bg) 74%,transparent) 34%,
+    color-mix(in srgb,var(--c-bg) 55%,transparent) 62%,
+    color-mix(in srgb,var(--c-bg) 55%,transparent) 100%)}
+
+/* Below the desktop breakpoint the copy is a full-width column over the photograph rather than a
+   left band, so the gradient turns vertical to match where the text actually is. Its floor is the
+   same measured 55%, so the assertion in § 5c covers this direction too. */
+@media(max-width:1023px){
+  .hero-slides .slides::after{background:linear-gradient(to bottom,
+    color-mix(in srgb,var(--c-bg) 82%,transparent) 0%,
+    color-mix(in srgb,var(--c-bg) 55%,transparent) 55%,
+    color-mix(in srgb,var(--c-bg) 55%,transparent) 100%)}
+}
+
+/* RESTATED LOCALLY, and deliberately not only as a restatement. `base` already carries
+   `*{animation:none!important}` under this query, which alone would leave frame 1 showing by the
+   static rule above. This block does not rely on that: it sets the opacities OUTRIGHT, so the
+   reduced-motion state survives someone deleting the global rule, and it survives the static
+   values being changed for some future reason. Two independent routes to one frame. */
+@media(prefers-reduced-motion:reduce){
+  .hero-slides .slide{animation:none;opacity:0}
+  .hero-slides .slide:first-child{opacity:1}
+}
+
+/* ONE INK ON THE PHOTOGRAPH. Generated from § 5c's per-element measurement, not typed: each rule
+   below exists because that ink measured under its bar against the composited surface, and would
+   disappear from this stylesheet if it stopped doing so. The anchor keeps its accent and its muted
+   grey everywhere else on the strip — this is the hero, and only the hero, where a picture is
+   underneath. Hierarchy here is 88px against 17px, which needs no second colour. */
+.hero-slides .eyebrow{color:var(--c-text)}
+.hero-slides .lede{color:var(--c-text)}
+.hero-slides .btn-outline{border-color:var(--c-text);color:var(--c-text)}
+
 
 /* A BUTTON CENTRES ITS OWN LABEL ON BOTH AXES. `text-align:center` is only the horizontal half —
    it says nothing about the vertical, so a button stretched taller than its own line box renders
@@ -421,6 +516,22 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .meta-pair .x{color:var(--c-accent);font-weight:700;padding-inline:.4ch}
 .meta-sub{margin-top:.35rem;font-size:var(--fs-small);color:var(--c-text-muted)}
 .meta-sub code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95em}
+
+/* ── the toggle readout (CAPA 3). Deliberately NOT styled like an `.axis`: a toggle is a
+      configuration the client answered, not one of the five perceptual positions, and giving it
+      the same accent rule would read as a sixth axis. A changed toggle takes the accent border so
+      the eye finds it across eight strips; a default stays quiet, which is what a default is. ── */
+.meta-tgl{margin-top:.45rem;display:flex;flex-wrap:wrap;gap:.4rem .6rem;align-items:baseline;
+          font-size:var(--fs-small);color:var(--c-text-muted)}
+.meta-tgl .tgl{display:inline-flex;align-items:baseline;gap:.5ch;
+               border:1px solid var(--c-border);border-radius:999px;padding:.15rem .7rem;
+               color:var(--c-text)}
+.meta-tgl .tgl-set{border-color:var(--c-accent);font-weight:700}
+.meta-tgl code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+               font-size:.9em;color:var(--c-text-muted);font-weight:400}
+.meta-tgl i{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.12em;
+            text-transform:uppercase;color:var(--c-text-muted);font-weight:400}
+.meta-tgl .tgl-set i{color:var(--c-accent)}
 .axes{margin-top:var(--sp-s);display:grid;gap:.5rem;grid-template-columns:minmax(0,1fr)}
 @media(min-width:600px){.axes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){.axes{grid-template-columns:repeat(5,minmax(0,1fr))}}
@@ -751,12 +862,12 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 </style>
 
 <noscript><div class="noscript"><div class="gal-wrap">Las fotografías se hidratan con una pasada de JavaScript desde un único mapa de <code>data:</code> URIs. Sin JS el texto, la maquetación y los ejes se ven enteros; las fotos no. El bloque de precarga se lee y se selecciona igual: sólo el botón «Copiar» necesita JS.</div></div></noscript>
-<header class="gal-head"><div class="gal-wrap"><span class="eyebrow">NovaMira · uso interno</span><h1>Galería de plantillas</h1><p>Cada tira es un par <b>arquetipo × ancla</b>: el <code>TPL-*</code> decide qué secciones existen y en qué orden, el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. Elegir una tira precarga las dos cosas.</p><p class="gal-note">El copy y las fotografías son los mismos en todas las tiras del mismo arquetipo. Si dos tiras se distinguen, la diferencia es el ancla — no la foto ni el texto.</p></div></header>
+<header class="gal-head"><div class="gal-wrap"><span class="eyebrow">NovaMira · uso interno</span><h1>Galería de plantillas</h1><p>Cada tira es un par <b>arquetipo × ancla</b>: el <code>TPL-*</code> decide qué secciones existen y en qué orden, el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. Elegir una tira precarga las dos cosas.</p><p class="gal-note">El copy y el juego de fotos son los mismos en todas las tiras del mismo arquetipo. Si dos tiras se distinguen, la diferencia es el <b>ancla</b> o un <b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tira tenga y otra no. Cada tira imprime los toggles que resuelve encima de sus cinco ejes, así que las dos causas se leen en la propia tarjeta.</p></div></header>
 <div class="gal-filter"><div class="gal-wrap"><div class="fgroup" role="group" aria-label="Tipo"><span class="flabel">Tipo</span><button class="fbtn" type="button" data-filter="site" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="site" data-value="corporate" aria-pressed="false">Corporativa</button><button class="fbtn" type="button" data-filter="site" data-value="ecommerce" aria-pressed="false">Ecommerce</button></div><div class="fgroup" role="group" aria-label="Ancla"><span class="flabel">Ancla</span><button class="fbtn" type="button" data-filter="pers" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="pers" data-value="editorial" aria-pressed="false">Editorial</button><button class="fbtn" type="button" data-filter="pers" data-value="direct" aria-pressed="false">Direct</button><button class="fbtn" type="button" data-filter="pers" data-value="matter" aria-pressed="false">Matter</button><button class="fbtn" type="button" data-filter="pers" data-value="institutional" aria-pressed="false">Institutional</button></div><p class="fcount" id="gal-count" role="status" aria-live="polite">8 tiras</p></div></div>
 
 <main class="gal-strips">
 <section class="strip" id="tplc01-editorial" data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial" aria-label="TPL-C-01 × PERS-EDITORIAL">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-EDITORIAL</b> Editorial</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-EDITORIAL</b> Editorial</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="meta-tgl">Toggles: <span class="tgl tgl-set"><code>TGL-HERO-TYPE</code> slider <i>cambiado</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>paper</b><span>#FFFFFF · #F6F7F8 · #15181A</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>generous</b><span>--sp-scale ×1.35</span></dd></div>
@@ -778,12 +889,16 @@ los cinco ejes, con el valor de sus tokens:
   composición asymmetric   LP-ASYMMETRIC — copy en 7 de 12 columnas, una imagen sangra un borde
   elevación   none         --elev-rest none · --elev-hover none
 
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-HERO-TYPE       slider       (cambiado — default: imagen fija)
+
 Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
 
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
@@ -793,7 +908,7 @@ default silencioso que esa regla existe para impedir.</pre></details>
 <a href="#">Contacto</a>
 </nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
-<section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
+<section class="sec hero hero-slides" aria-label="Propuesta de valor"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div></div></section>
 <section class="sec services grid-sec" aria-label="Servicios"><div class="canvas"><div class="head stack"><span class="eyebrow">Servicios</span><h2>Lo que hacemos</h2></div><div class="items cols-3">
 <article class="card"><figure class="frame"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Encimeras y baños</h3><p class="muted small">Medición láser en obra, corte a medida y colocación en una sola visita.</p></div></article>
 <article class="card"><figure class="frame"><img data-img="card-patio" alt="Pulidora de disco repasando el canto de una placa clara" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Fachadas y sillería</h3><p class="muted small">Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.</p></div></article>
@@ -812,7 +927,7 @@ default silencioso que esa regla existe para impedir.</pre></details>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div></section>
 <section class="strip" id="tplc01-direct" data-site="corporate" data-tpl="TPL-C-01" data-pers="direct" aria-label="TPL-C-01 × PERS-DIRECT">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-DIRECT</b> Direct</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-DIRECT</b> Direct</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>monumental</b><span>ratio 1.618 · lh 0.82 · h1 120px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>ink</b><span>#0E1113 · #171B1E · #F4F6F7</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>compact</b><span>--sp-scale ×0.8</span></dd></div>
@@ -834,12 +949,16 @@ los cinco ejes, con el valor de sus tokens:
   composición broken-grid  LP-BROKEN-GRID — un elemento por sección cruza la retícula
   elevación   accent-glow  --elev-rest 0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent) · --elev-hover 0 14px 34px -10px color-mix(in srgb,var(--c-accent) 40%,transparent)
 
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-HERO-TYPE       imagen fija  (default de TPL-C-01)
+
 Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
 
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
@@ -868,7 +987,7 @@ default silencioso que esa regla existe para impedir.</pre></details>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div></section>
 <section class="strip" id="tplc01-matter" data-site="corporate" data-tpl="TPL-C-01" data-pers="matter" aria-label="TPL-C-01 × PERS-MATTER">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-MATTER</b> Matter</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-MATTER</b> Matter</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>classic</b><span>ratio 1.333 · lh 1.10 · h1 64px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>warm</b><span>#FFF3E3 · #F7E8D4 · #241C14</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
@@ -890,12 +1009,16 @@ los cinco ejes, con el valor de sus tokens:
   composición strict-grid  LP-STRICT-GRID — todo empieza y termina en una línea de columna
   elevación   hairline     --elev-rest 0 0 0 1px var(--c-border) · --elev-hover 0 0 0 1px var(--c-text)
 
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-HERO-TYPE       imagen fija  (default de TPL-C-01)
+
 Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
 
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
@@ -924,7 +1047,7 @@ default silencioso que esa regla existe para impedir.</pre></details>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div></section>
 <section class="strip" id="tplc01-institutional" data-site="corporate" data-tpl="TPL-C-01" data-pers="institutional" aria-label="TPL-C-01 × PERS-INSTITUTIONAL">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-INSTITUTIONAL</b> Institutional</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-C-01</b> Services / Lead-Gen <span class="x">×</span> <b>PERS-INSTITUTIONAL</b> Institutional</p><p class="meta-sub">Corporativa · ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>contained</b><span>ratio 1.200 · lh 1.25 · h1 48px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>cool</b><span>#F2F5F8 · #E8EDF3 · #141C24</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
@@ -946,12 +1069,16 @@ los cinco ejes, con el valor de sus tokens:
   composición centered     LP-CENTERED — un eje simétrico, nada sangra
   elevación   soft-shadow  --elev-rest 0 1px 2px rgba(0,0,0,.04) · --elev-hover 0 18px 40px -12px rgba(21,24,26,.16)
 
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-HERO-TYPE       imagen fija  (default de TPL-C-01)
+
 Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
 
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
@@ -1007,7 +1134,8 @@ Tipografía y motion del ancla: ux-design-system/references/design-personalities
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
@@ -1076,7 +1204,8 @@ Tipografía y motion del ancla: ux-design-system/references/design-personalities
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
@@ -1145,7 +1274,8 @@ Tipografía y motion del ancla: ux-design-system/references/design-personalities
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
@@ -1214,7 +1344,8 @@ Tipografía y motion del ancla: ux-design-system/references/design-personalities
 PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
 &quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
 sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
-default silencioso que esa regla existe para impedir.</pre></details>
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
 <div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>

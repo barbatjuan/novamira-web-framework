@@ -24,8 +24,18 @@ build, silently, in a way no gate here can see.
 `_axis-proof-content.md` makes the same argument about copy: it is the constant,
 so any visible difference between two renderings is the axes and nothing else.
 Images are the other half of that. Every strip in the gallery draws from these
-thirteen, so when two strips look different, the difference is the anchor —
-never the photograph.
+thirteen, so when two strips look different, the difference is the anchor or a
+**declared toggle** — never a photograph one strip had and another did not.
+
+That second clause is not hedging, and it was added the day it stopped being
+optional. `TPL-C-01 × PERS-EDITORIAL` resolves `TGL-HERO-TYPE` to `slider` and
+renders three of these frames where its three siblings render one, so the older
+sentence here — "the difference is the anchor, never the photograph" — became
+false for that strip. The set is still shared and no strip has imagery of its
+own; what changed is that CONFIGURATION is now a second declared dimension, and
+a strip that resolves a toggle prints it on its own data bar beside the five
+axes. The claim survives only because of that printing: an unlabelled toggle
+would make this paragraph a lie the page had no way to correct.
 
 It is also what makes the gallery fit. Unique imagery per strip is ~300 slots at
 40+ KB, which is over the Artifact's 16 MB ceiling once base64 adds its third.
