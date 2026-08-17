@@ -32,6 +32,19 @@ $MANIFEST = $DIR . '/_gallery-images.md';
 $IMG_DIR  = $DIR . '/img';
 $OUT      = $DIR . '/index.html';
 
+/* THE SIBLING SKILLS, so a rule this file quotes can be READ rather than remembered. `$SKILLS` is
+   `skills/`, four levels up from `assets/gallery/`. Asserted rather than assumed: a build run from
+   a copy of this directory outside the repository would otherwise fail much later, inside a regex
+   that came back empty, and an empty quotation reads exactly like a rule nobody wrote. */
+$SKILLS = dirname( $DIR, 3 );
+foreach ( array( 'ux-design-system/references/design-tokens.md', 'ux-design-system/references/design-personalities.md' ) as $ref_rel ) {
+	if ( ! is_file( $SKILLS . '/' . $ref_rel ) ) {
+		fail( "cannot find $ref_rel from $SKILLS — this file quotes that reference for rules it does"
+			. ' not get to invent, and a quotation whose source is missing is an invention with a'
+			. ' citation on it' );
+	}
+}
+
 /** Die loudly. A generator that limps produces a page whose defects look like design. */
 function fail( $msg ) {
 	fwrite( STDERR, "build-gallery: FAIL — $msg\n" );
@@ -407,65 +420,377 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 
 // ─────────────────────────────────────────────────────────────── 5a · THE HOUSE INK
 //
-// ONE INK PER PAGE, AND THE INK IS THE GROUND'S OWN. `_gallery-images.md` § Registers declares
-// four registers on purpose and the set delivers them: a cold aerial quarry with a turquoise
-// pool, six sunlit workshop frames, four warm finished interiors and two material swatches. That
-// diversity is the right call about SUBJECT and it is the defect about COLOUR — LOOKED AT, the
-// eight strips read as a page assembled from three stock searches, because they are. The quarry's
-// turquoise is the loudest thing on the editorial hero and it belongs to no palette on the page.
+// A GRADE, NOT A DUOTONE — AND THIS BLOCK IS A RETRACTION. What stood here was a per-anchor
+// duotone (luminance, then two inks) justified by a defect in the asset set: six photographs in
+// three incompatible registers "reading as a page assembled from three stock searches". THAT
+// JUSTIFICATION EXPIRED AND NOBODY NOTICED. The set was rebuilt afterwards — thirteen images
+// across ELEVEN shoots, replacements sourced deliberately, and `_gallery-images.md` § Shoots
+// records the repair and the check that now guards it. The duotone outlived its reason by three
+// commits and was still being applied as a floor.
 //
-// A duotone is what makes them one page — `craft-probe-2026-08-16.html` § CRAFT-GALLERY, whose
-// central claim is that this move REPAIRS a real defect in the asset set rather than exposing
-// one, which is the property a shared floor needs.
+// MEASURED ON THE SET AS IT STANDS, mean CIELAB chroma runs 0.0–13.2 and eleven of the thirteen
+// sit inside a 63° hue arc (44°–107°, the warm yellow-orange band). Only the aerial quarry falls
+// outside it. The set's AVERAGE colour is already one page.
 //
-// THE ENDPOINTS ARE DERIVED FROM THE ANCHOR, NOT SHARED, and that is the whole reason a shared
-// floor does not flatten four anchors into one. The probe ran a single neutral ink because it
-// rendered a single anchor. Here each ground already owns two extremes — `--c-bg` and `--c-text`
-// — so the ink is simply "this page's dark to this page's light":
-//     paper → #232628 to #F6F6F6   neutral
-//     warm  → #312920 to #F6EADB   a warm sepia, on the anchor whose imagery line is "graduado cálido"
-//     cool  → #212931 to #E9ECF0   a cool blue-grey, on the B2B anchor
-//     ink   → #1C1F21 to #EBEDEE   near-black on the dark page
-// Four different inks out of one rule. The photographs stop fighting each other WITHIN a strip and
-// start carrying the anchor's temperature BETWEEN strips, which is more anchor separation than the
-// page had before, not less.
+// WHAT IS STILL OUT OF FAMILY IS LOCAL, NOT GLOBAL. The top 5% of pixels reach chroma 40 on the
+// red angle grinder, 34 on the quarry's turquoise pool, 34 on the blue sky behind the Lecce
+// facade, 27 on the green foliage behind the labra. Four loud objects in four frames. A duotone
+// deletes ALL chroma to repair a defect that lives in 5% of the pixels.
 //
-// THE 94/96 PULL is what keeps it a duotone and not a threshold. Mapping straight to `--c-text`
-// and `--c-bg` clips: every shadow lands on one value and every highlight on another, and the
-// frame loses the tonal separation that makes a photograph readable at thumbnail size. Pulling
-// each endpoint 6% and 4% back toward the other keeps a shadow that is still darker than the next
-// shadow. The two numbers are asymmetric because the eye is: crushed shadows read as a printing
-// fault, blown highlights read as light.
+// AND IT COULD NEVER HAVE BEEN A DUOTONE, by construction. The endpoints were derived from the
+// anchor's own ground, and a ground is near-black and near-white BY DEFINITION — `--c-bg` and
+// `--c-text` are picked for contrast, which is the property that makes them neutral. Two inks
+// derived from two neutrals are one ink. Measured as the R−B spread of the shadow ink that
+// shipped: paper 5, ink 5, cool 16, warm 17. Three of the four were greyscale with a whisper, and
+// `warm` read as a designed treatment only because it was the one with any hue in it at all.
+//
+// IT WAS NOT SEPARATING THE ANCHORS EITHER, which is the claim it was kept for. The same
+// photograph under the four inks landed at a MINIMUM pairwise distance of 0.35–0.42 in a*b*:
+// `paper` and `ink` were the same grey. The grade below measures 1.15–1.20 on the same three
+// frames — the ink tells the anchors apart nearly three times better now that it carries colour.
+//
+// AND ON A PRODUCT GRID IT WAS NOT A TREATMENT, IT WAS A BUG. TPL-E-02 renders eight tiles; two
+// were exempt swatches in full colour and six were greyscale, so the catalogue read as a rendering
+// error. One of the six is headed "Panel de veta DORADA" and had no gold in it. The build had
+// already written the principle down — "a photograph that ILLUSTRATES takes the house ink; a
+// photograph that IS the merchandise does not" — and a product grid is merchandise all the way
+// across.
+//
+// SO THE INK BIASES THE PHOTOGRAPH INSTEAD OF REPLACING IT. Two primitives, and they are the two
+// a colourist reaches for:
+//   · A CHROMA RESTRAINT — `feColorMatrix type="saturate"`, which pulls the loud objects toward the
+//     set's own body without pulling the stone to grey. Measured on `editorial`, p95 chroma
+//     33.6 / 40.4 / 34.2 / 27.4 → 22.3 / 26.9 / 21.3 / 20.2.
+//   · A SPLIT TONE — one `feComponentTransfer` whose per-channel `tableValues` are a five-point
+//     curve: the blacks land on the anchor's SHADOW INK, the whites on its HIGHLIGHT INK, and the
+//     midtones pass through nearly untouched, which is what makes it a tone rather than a wash.
+//
+// WHERE THE TWO INKS COME FROM, because "derived from the ground" is the thing that produced grey:
+//   · THE HIGHLIGHT INK is still the ground's own light extreme, pulled off the clip. That end was
+//     never the problem: `warm`'s #F6EADB is a cream and `cool`'s #E9ECF0 is a cold white, and they
+//     carry the ground's own temperature, which is exactly what should reach the photograph.
+//   · THE SHADOW INK IS THE ANCHOR'S ACCENT, laid onto the ground's dark extreme. The accent is the
+//     one thing on this page that HAS chroma and is already per-ground — `#8C3A1F` on three grounds
+//     and re-derived to `#FF6A1A` on `ink`, because design-system.md makes it re-derive there. Cut
+//     face orange in the shadows of a stone workshop is the material's own colour; it puts the
+//     page's single hue into the photographs without spending an accent MARK on them, which is the
+//     distinction the accent budget one section down is about.
+//   · THE TINT NEVER CHANGES THE SHADOW'S WEIGHT — `ink_tint()` puts the tinted ink back on the
+//     luminance of the neutral endpoint it replaced. The first version of this did not, drove the
+//     paper shadow from #232628 to #432C25, and washed the dark kitchen frame out: a shadow ink
+//     that got LIGHTER is a lifted black, and a lifted black is a faded print. Measured R−B spread
+//     of the shadow ink now: 31 / 38 / 41 / 28, against 5 / 5 / 16 / 17 before.
+//
+// HOW MUCH OF EACH IS READ OFF THE ANCHOR, NOT CHOSEN HERE. `design-personalities.md` § Imagery
+// names a treatment for exactly two of the four, in as many words:
+//     PERS-DIRECT         "high-contrast, tightly cropped"             → the deepest curve
+//     PERS-MATTER         "the product shot straight on, WARM-GRADED"  → the most colour kept
+//     PERS-INSTITUTIONAL  "SOBER photography of real work contexts"    → the shallowest curve
+//     PERS-EDITORIAL      names only the CROP — "dramatically cropped photo-editorial framing"
+// `editorial` therefore takes the shared default, which is this file's own stated rule for
+// anything the reference does not tighten (see the wordmark-tracking note in § 4). An anchor added
+// tomorrow gets the default too, and earns a deviation only by having a treatment written into its
+// own § Imagery. THE INSTITUTIONAL READING IS RECORDED AS A READING: "sobria" is taken as *least
+// treated* rather than *most muted*, which is the ordinary sense of the word and the one that fits
+// "real work contexts", but the reference does not say which and this file does not get to pretend
+// it does.
+//
+// NOTHING ASKED FOR A MONOCHROME. "Alto contraste" is a claim about TONALITY and "recorte cerrado"
+// about FRAMING; neither says "no colour", and the retired duotone read them as though they did.
+// The duotone therefore survives on ZERO anchors — not on one, and not as a floor.
+
+/* THE ACCENT'S SHARE OF THE SHADOW INK. One number for all four anchors, because the per-anchor
+   difference is meant to come from the ground and the accent, which already differ, rather than
+   from a fifth table of hand-set weights. Its floor is asserted below rather than trusted. */
+$INK_TINT = 0.45;
+
+/* HOW MUCH GRADE, PER ANCHOR — transcribed from design-personalities.md § Imagery. `sat` is the
+   `feColorMatrix type="saturate"` value and it is about HOW MUCH COLOUR; `gamma` is the depth of
+   the S-curve the table describes and it is about TONALITY. `default` is not an anchor: it is what
+   an anchor whose § Imagery says nothing gets.
+   EACH DEVIATION MOVES EXACTLY THE AXIS ITS OWN WORD IS ABOUT, and nothing else. The first cut of
+   this table did not, and looking is what caught it: `institutional` had been given MORE colour
+   than the default on a reading of "sobria" as "least treated", which put a bright turquoise
+   quarry lake — the single most saturated object in the whole set — at the top of the anchor whose
+   personality is credibility before enthusiasm. "Sober" is a word about colour. It goes on `sat`,
+   downward, and `gamma` goes back to the default because nothing in that sentence is about
+   tonality. `direct` moves the other one for the same reason: "high-contrast" is a word about
+   tonality, so it moves `gamma` and leaves `sat` alone. */
+$INK_GRADE = array(
+	'default'       => array( 'sat' => 0.72, 'gamma' => 0.12 ),
+	'direct'        => array( 'sat' => 0.72, 'gamma' => 0.30 ),  // "high-contrast" — tonality only
+	'matter'        => array( 'sat' => 0.86, 'gamma' => 0.12 ),  // "warm-graded"   — colour only
+	'institutional' => array( 'sat' => 0.62, 'gamma' => 0.12 ),  // "sober"         — colour only
+);
+
+/* THE CURVE'S STOP COUNT. Five, because two cannot bend: a two-entry `tableValues` is a straight
+   line from shadow ink to highlight ink, which tints the midtones as hard as it tints the ends and
+   is the "faded" look this grade exists to avoid. Five interior stops is enough for the split tone
+   to fall off before the midtones and for `gamma` to have somewhere to put an S. */
+define( 'INK_STOPS', 5 );
 
 /**
- * The house ink for one ground: its own two extremes, pulled back off the clip.
+ * `$base`, pushed toward `$accent`, then put back on `$base`'s own luminance.
  *
- * THE PULL IS ASSERTED, not merely applied, and the assertion is about the PAGE rather than about
- * the photograph. An endpoint that lands exactly on `--c-bg` or `--c-text` welds the frame to the
- * surface it sits on: a shadow the same value as the page's own black has no boundary, so the
+ * THE LUMINANCE IS THE POINT. Mixing a bright accent into a near-black endpoint raises it, and a
+ * raised black endpoint is a lifted black — the photograph goes milky and the page reads as a cheap
+ * filter. The binary search is over a single scalar multiplier, so the result keeps the mix's hue
+ * and loses only its weight.
+ *
+ * RETURNS THE UNROUNDED TRIPLE AS WELL, because the two assertions it feeds are different
+ * assertions. The search itself has to land on the target to float precision — that is arithmetic,
+ * and 1e-9 is the bar. What comes out the other side is an 8-BIT HEX, and 8-bit rounding moves
+ * luminance by an amount nobody chose: on these shadow values it is ~1.4e-4, which is a hundred
+ * times 1e-6. Checking the rounded value against a tolerance somebody typed would mean picking a
+ * number until it passed. The caller derives the bound from the quantisation instead.
+ */
+function ink_tint( $base, $accent, $w ) {
+	$mixed  = css_mix( $base, 1 - $w, $accent );
+	$src    = array( hexdec( substr( $mixed, 1, 2 ) ), hexdec( substr( $mixed, 3, 2 ) ), hexdec( substr( $mixed, 5, 2 ) ) );
+	$target = srgb_lum( $base );
+	$lo     = 0.0;
+	$hi     = 2.0;
+	for ( $i = 0; $i < 64; $i++ ) {
+		$k   = ( $lo + $hi ) / 2;
+		$lum = srgb_lum_rgb( min( 255, $src[0] * $k ), min( 255, $src[1] * $k ), min( 255, $src[2] * $k ) );
+		if ( $lum < $target ) {
+			$lo = $k;
+		} else {
+			$hi = $k;
+		}
+	}
+	$k     = ( $lo + $hi ) / 2;
+	$exact = array( min( 255, $src[0] * $k ), min( 255, $src[1] * $k ), min( 255, $src[2] * $k ) );
+	return array(
+		'hex'   => sprintf( '#%02X%02X%02X', (int) round( $exact[0] ), (int) round( $exact[1] ), (int) round( $exact[2] ) ),
+		'exact' => $exact,
+	);
+}
+
+/**
+ * The most an 8-bit rounding of `$hex` can have moved its luminance: half a step on every channel.
+ *
+ * DERIVED RATHER THAN TYPED, which is the whole reason this function exists instead of a constant.
+ * The bound is a property of WHERE the colour sits — the sRGB transfer curve is flat near black and
+ * steep near white, so the same half-step is worth ~1.4e-4 in a shadow ink and ~7e-4 in a highlight
+ * one. A single tolerance covering both would be loose enough at the dark end to hide a real lift.
+ */
+function ink_quant_bound( $hex ) {
+	$c = array( hexdec( substr( $hex, 1, 2 ) ), hexdec( substr( $hex, 3, 2 ) ), hexdec( substr( $hex, 5, 2 ) ) );
+	$hi = srgb_lum_rgb( min( 255, $c[0] + 0.5 ), min( 255, $c[1] + 0.5 ), min( 255, $c[2] + 0.5 ) );
+	$lo = srgb_lum_rgb( max( 0, $c[0] - 0.5 ), max( 0, $c[1] - 0.5 ), max( 0, $c[2] - 0.5 ) );
+	return ( $hi - $lo ) / 2;
+}
+
+/**
+ * The two inks for one ground: the accent in the shadows, the ground's own light in the highlights.
+ *
+ * THE 94/96 PULL IS ASSERTED, not merely applied, and the assertion is about the PAGE rather than
+ * about the photograph. An endpoint that lands exactly on `--c-bg` or `--c-text` welds the frame to
+ * the surface it sits on: a shadow the same value as the page's own black has no boundary, so the
  * photograph stops having an edge and starts being a stain. Found by mutation — removing the pull
  * moved the measured contrast from 6.64 to 6.15 and failed nothing, because contrast is not the
  * property the pull is protecting.
  */
-function ink_ends( $gr ) {
+function ink_ends( $gr, $accent, $tint ) {
 	$dark_src  = ( srgb_lum( $gr['bg'] ) < srgb_lum( $gr['text'] ) ) ? $gr['bg'] : $gr['text'];
 	$light_src = ( $dark_src === $gr['bg'] ) ? $gr['text'] : $gr['bg'];
+	$neutral   = css_mix( $dark_src, 0.94, $light_src );
+	$tinted    = ink_tint( $neutral, $accent, $tint );
 	$ends      = array(
-		'dark'  => css_mix( $dark_src, 0.94, $light_src ),
-		'light' => css_mix( $light_src, 0.96, $dark_src ),
+		'dark'    => $tinted['hex'],
+		'light'   => css_mix( $light_src, 0.96, $dark_src ),
+		'neutral' => $neutral,
 	);
+
+	/* THE TINT CHANGED THE HUE AND NOT THE WEIGHT, asserted twice because it is two claims.
+	   First the search: it either solved for the neutral endpoint's own luminance or it did not,
+	   and that is arithmetic. Then the hex: 8-bit rounding moves luminance by an amount nobody
+	   chose, so the bound comes from `ink_quant_bound()` — the half-step this colour is actually
+	   worth — rather than from a tolerance picked until it passed. Set `$INK_TINT` high enough that
+	   the mix clips a channel and the second one fires. */
+	$ink_target = srgb_lum( $neutral );
+	if ( abs( srgb_lum_rgb( $tinted['exact'][0], $tinted['exact'][1], $tinted['exact'][2] ) - $ink_target ) > 1e-9 ) {
+		fail( sprintf(
+			'the tint search for the shadow ink over %s did not converge on its own luminance'
+				. ' (%.12f against %.12f) — a channel clipped, so there is no scalar that puts this'
+				. ' mix back where the neutral endpoint was, and the shadow would ship lifted',
+			$neutral,
+			srgb_lum_rgb( $tinted['exact'][0], $tinted['exact'][1], $tinted['exact'][2] ),
+			$ink_target
+		) );
+	}
+	$ink_bound = ink_quant_bound( $ends['dark'] );
+	if ( abs( srgb_lum( $ends['dark'] ) - $ink_target ) > $ink_bound ) {
+		fail( sprintf(
+			'the shadow ink %s sits at L=%.8f where the neutral endpoint %s it replaced is L=%.8f, a'
+				. ' gap of %.2e against the %.2e an 8-bit rounding of this colour can explain — the tint'
+				. ' moved the shadow\'s WEIGHT, not just its hue, and a shadow ink that got lighter is a'
+				. ' lifted black. That is the faded-print defect, which is what a cheap filter looks like.',
+			$ends['dark'],
+			srgb_lum( $ends['dark'] ),
+			$neutral,
+			$ink_target,
+			abs( srgb_lum( $ends['dark'] ) - $ink_target ),
+			$ink_bound
+		) );
+	}
+
+	/* THE SHADOW INK HAS TO CARRY HUE, which is the whole retraction above stated as a number. The
+	   retired duotone's shadow inks measured 5 / 5 / 16 / 17 on this spread, and the complaint that
+	   started this pass — "no se ven colores" — was made about all four of them. 20 is above every
+	   one of them, so a regression to any endpoint the duotone would have produced fails here. */
+	$ink_spread = max( hexdec( substr( $ends['dark'], 1, 2 ) ), hexdec( substr( $ends['dark'], 3, 2 ) ), hexdec( substr( $ends['dark'], 5, 2 ) ) )
+		- min( hexdec( substr( $ends['dark'], 1, 2 ) ), hexdec( substr( $ends['dark'], 3, 2 ) ), hexdec( substr( $ends['dark'], 5, 2 ) ) );
+	if ( $ink_spread < 20 ) {
+		fail( sprintf(
+			'the shadow ink %s has a channel spread of %d, which is a neutral — the retired duotone'
+				. ' measured 5 / 5 / 16 / 17 here and read as greyscale on all four anchors. A two-colour'
+				. ' map whose dark ink is grey is not a two-colour map.',
+			$ends['dark'],
+			$ink_spread
+		) );
+	}
+
 	foreach ( array( 'dark', 'light' ) as $ink_which ) {
 		foreach ( array( 'bg', 'text' ) as $ink_extreme ) {
 			if ( strtoupper( $ends[ $ink_which ] ) === strtoupper( $gr[ $ink_extreme ] ) ) {
 				fail( "the house ink's $ink_which endpoint resolves to {$ends[ $ink_which ]}, which IS"
 					. " this ground's --c-$ink_extreme. An endpoint on the page's own extreme gives the"
 					. ' photograph a shadow (or a highlight) indistinguishable from the surface behind'
-					. ' it, so the frame loses its edge. The 94/96 pull is what keeps a duotone a'
-					. ' duotone instead of a threshold' );
+					. ' it, so the frame loses its edge' );
 			}
 		}
 	}
 	return $ends;
+}
+
+/**
+ * The per-channel curve, as the exact strings the browser will parse.
+ *
+ * `$gamma` bends the input before the tone is applied: `s(x)` pushes quarter-tones down and
+ * three-quarter-tones up by an amount that vanishes at both ends, so the endpoints stay exactly the
+ * two inks no matter how deep the curve. The split tone then falls off as (1−s)² toward the shadow
+ * ink and s² toward the highlight ink, which is why a midtone comes through nearly unchanged and a
+ * black comes through as the ink itself.
+ *
+ * RETURNED AS STRINGS BECAUSE THE STRING IS WHAT THE BROWSER GETS. The sweep below re-parses these
+ * with `floatval()` rather than recomputing the floats, so PHP cannot measure a curve at a
+ * precision the emitted `tableValues` does not have. The retired code formatted to 4 decimals for
+ * the page and measured at full double precision — a gap of one part in 20,000, harmless here and
+ * exactly the shape of thing that stops being harmless.
+ */
+function ink_curve( $ends, $gamma ) {
+	$rows = array();
+	for ( $ch = 0; $ch < 3; $ch++ ) {
+		$s   = hexdec( substr( $ends['dark'], 1 + $ch * 2, 2 ) ) / 255;
+		$h   = hexdec( substr( $ends['light'], 1 + $ch * 2, 2 ) ) / 255;
+		$row = array();
+		for ( $i = 0; $i < INK_STOPS; $i++ ) {
+			$x  = $i / ( INK_STOPS - 1 );
+			$sx = 0.5 + ( $x - 0.5 ) * ( 1 + $gamma * ( 1 - pow( 2 * $x - 1, 2 ) ) );
+			$sx = max( 0.0, min( 1.0, $sx ) );
+			$v  = $sx + $s * pow( 1 - $sx, 2 ) + ( $h - 1 ) * pow( $sx, 2 );
+			$row[] = rtrim( rtrim( sprintf( '%.5f', max( 0.0, min( 1.0, $v ) ) ), '0' ), '.' );
+		}
+		$rows[] = implode( ' ', $row );
+	}
+	return $rows;
+}
+
+/**
+ * Everything the browser and the sweep both need for one anchor, resolved once.
+ *
+ * ONE TABLE, READ BY BOTH. The retired code called `ink_ends()` separately at the sweep and at the
+ * stylesheet and relied on the two calls agreeing; this returns the `tableValues` strings
+ * themselves, so the certificate and the filter are not two derivations of one intent but one
+ * artefact used twice.
+ */
+function ink_of( $anchor_key, $anchors, $grounds, $accents, $grades, $tint ) {
+	if ( ! isset( $anchors[ $anchor_key ] ) ) {
+		fail( "no anchor `$anchor_key` to resolve a house ink for" );
+	}
+	$ground_key = $anchors[ $anchor_key ]['ground'];
+	$grade      = isset( $grades[ $anchor_key ] ) ? $grades[ $anchor_key ] : $grades['default'];
+	$ends       = ink_ends( $grounds[ $ground_key ], $accents[ $ground_key ], $tint );
+	return array(
+		'ends'   => $ends,
+		'sat'    => rtrim( rtrim( sprintf( '%.4f', $grade['sat'] ), '0' ), '.' ),
+		'gamma'  => $grade['gamma'],
+		'named'  => isset( $grades[ $anchor_key ] ),
+		'table'  => ink_curve( $ends, $grade['gamma'] ),
+	);
+}
+
+/* RESOLVED FOR EVERY ANCHOR, HERE, BEFORE ANYTHING MEASURES OR PRINTS ONE. Both consumers — the
+   contrast sweep in § 6 and the stylesheet in § 5a's CSS block — index this array. */
+$INK = array();
+foreach ( $ANCHORS as $ink_ak => $ink_av ) {
+	$INK[ $ink_ak ] = ink_of( $ink_ak, $ANCHORS, $GROUND, $ACCENT_BY_GROUND, $INK_GRADE, $INK_TINT );
+}
+
+/* IT IS ONLY A SPLIT TONE IF THE MIDDLE MOVES LESS THAN THE ENDS, AND MUTATION IS WHY THIS EXISTS.
+   Dropping `INK_STOPS` from 5 to 2 collapses the curve to a straight line from shadow ink to
+   highlight ink, which tints the midtones exactly as hard as it tints the ends — a WASH, the faded
+   look the five stops were introduced to avoid. Every other check passed: the ENDPOINTS are
+   unchanged, so the hue check, the luminance check and the swatch check all read the same numbers,
+   and a different picture shipped in green. The endpoints were guarded and the CURVE was not.
+
+   THE FIRST VERSION OF THIS CHECK MEASURED THE WRONG THING and looking at the failure is what said
+   so: an absolute bar on midtone drift fired on `matter` at 17/255, because `warm`'s highlight ink
+   is a real cream and a warm anchor is SUPPOSED to move its midtones somewhat. A bar that fails the
+   anchor whose personality says "warm-graded" for being warm is a bar measuring warmth, not shape.
+
+   The property is a RATIO, and it is anchor-independent by construction. Per channel, the curve's
+   deviation from the identity line at black is the shadow ink itself, at white it is 1 − the
+   highlight ink, and the falloff makes the midpoint carry a quarter of their difference. So:
+     five stops with the (1−s)²/s² falloff → midpoint deviation ≤ 0.25 × (both ends), always
+     two stops, a straight line                → 0.50 × their difference, which on these four inks
+                                                 lands at 0.37–0.42
+   0.30 sits between them and belongs to neither implementation. A tint that happened to be exactly
+   symmetric at both ends would pass this at two stops — and would deserve to, because a symmetric
+   straight line genuinely does leave the midtone where it found it. The check is about the shape of
+   the curve, not about the number of stops that produced it. */
+$INK_MID_RATIO = 0.30;
+foreach ( $INK as $ink_mk => $ink_mv ) {
+	foreach ( array( 0, 1, 2 ) as $ink_ch ) {
+		$ink_vals = array_map( 'floatval', explode( ' ', $ink_mv['table'][ $ink_ch ] ) );
+		$ink_d0   = abs( fe_table( 0.0, $ink_vals ) - 0.0 );
+		$ink_d1   = abs( fe_table( 1.0, $ink_vals ) - 1.0 );
+		$ink_dm   = abs( fe_table( 0.5, $ink_vals ) - 0.5 );
+		$ink_ends_dev = $ink_d0 + $ink_d1;
+		if ( $ink_ends_dev < 1e-9 ) {
+			continue;   // an untinted channel has no tone to fall off
+		}
+		$ink_ratio = $ink_dm / $ink_ends_dev;
+		if ( $ink_ratio > $INK_MID_RATIO ) {
+			fail( sprintf(
+				'the `%s` ink moves a midtone by %.4f on channel %s where its two ends move by %.4f and'
+					. ' %.4f — a ratio of %.3f against the %.3f a split tone is allowed. A tone that moves'
+					. ' the MIDDLE as much as it moves the ends is a wash: the photograph goes uniformly'
+					. ' warm and lifted, which is what a cheap filter looks like, and it is what a curve'
+					. ' with no bend in it does.',
+				$ink_mk,
+				$ink_dm,
+				substr( 'RGB', $ink_ch, 1 ),
+				$ink_d0,
+				$ink_d1,
+				$ink_ratio,
+				$INK_MID_RATIO
+			) );
+		}
+	}
+}
+
+/* A GRADE TABLE ENTRY THAT MATCHES NO ANCHOR IS A TYPO, AND A SILENT ONE. `$INK_GRADE['drect']`
+   would leave `direct` on the default and nothing anywhere would say so — the page would simply
+   stop being the page design-personalities.md describes. */
+foreach ( $INK_GRADE as $ink_gk => $ink_gv ) {
+	if ( 'default' !== $ink_gk && ! isset( $ANCHORS[ $ink_gk ] ) ) {
+		fail( "\$INK_GRADE names `$ink_gk`, which is not an anchor — a grade keyed to a name no"
+			. ' anchor has is a deviation that silently never applies, and the anchor it was meant'
+			. ' for keeps the default with nothing to say so' );
+	}
 }
 
 // ─────────────────────────────────────────────────────────────── 5b · the toggles, and their bar
@@ -564,32 +889,62 @@ function srgb_lum_rgb( $r, $g, $b ) {
  * asserted at the call site, is a thing that cannot be quietly rewritten.
  */
 /**
+ * `feFunc* type="table"`, per the SVG spec: piecewise-linear over n entries.
+ *
+ * For n values v0…v(n−1) and an input C in 0..1, with k = floor(C·(n−1)) clamped to n−2:
+ *   C' = v[k] + (C·(n−1) − k) × (v[k+1] − v[k])
+ * Two entries collapse to the straight line the retired duotone used, so this is the same
+ * primitive that was here, generalised to a curve that can bend.
+ */
+function fe_table( $c, $values ) {
+	$n = count( $values );
+	if ( $n < 2 ) {
+		fail( 'a `tableValues` with fewer than two entries is not a transfer function' );
+	}
+	$c = max( 0.0, min( 1.0, $c ) );
+	$k = (int) floor( $c * ( $n - 1 ) );
+	if ( $k > $n - 2 ) {
+		$k = $n - 2;
+	}
+	return $values[ $k ] + ( $c * ( $n - 1 ) - $k ) * ( $values[ $k + 1 ] - $values[ $k ] );
+}
+
+/**
  * The SVG filter, in PHP, so the sweep below measures the pixels the browser will actually paint.
  *
- * THIS IS THE HALF THAT MAKES THE DUOTONE SAFE. `filter` runs at PAINT time — after `object-fit`,
- * under the scrim, invisible to every DOM measurement — so a build that inked the photographs and
- * kept measuring the originals would be reporting the contrast of an image nobody sees. The two
- * stages match the two SVG primitives exactly:
- *   feColorMatrix → luminance, with the WCAG coefficients, on sRGB-ENCODED values. The filter
- *     carries `color-interpolation-filters="sRGB"` for this reason: in the default linearRGB the
- *     shadows crush, and the PHP here would then be measuring a different image from the browser.
- *   feComponentTransfer → a two-entry `type="table"`, which the spec defines as linear
- *     interpolation between the two values. So C' = dark + L × (light − dark), per channel.
- * `$k` is the feComposite `arithmetic` mix back toward the source: k=1 is the full ink.
+ * THIS IS THE HALF THAT MAKES THE INK SAFE. `filter` runs at PAINT time — after `object-fit`, under
+ * the scrim, invisible to every DOM measurement — so a build that graded the photographs and kept
+ * measuring the originals would be reporting the contrast of an image nobody sees. The two stages
+ * match the two SVG primitives exactly:
+ *   feColorMatrix type="saturate" → THE SPEC'S OWN COEFFICIENTS, 0.213 / 0.715 / 0.072, which are
+ *     NOT the WCAG 0.2126 / 0.7152 / 0.0722 this file uses for luminance everywhere else. The two
+ *     triples differ in the third decimal and the difference is not rounding: it is the difference
+ *     between measuring the image the browser paints and measuring a nearby one. The filter carries
+ *     `color-interpolation-filters="sRGB"` for the same class of reason — in the default linearRGB
+ *     the shadows crush, and PHP would again be describing a different picture.
+ *   feComponentTransfer → a five-entry `type="table"` per channel, applied to THAT CHANNEL'S OWN
+ *     value rather than to a luminance. That one word is the whole retraction: mapping luminance
+ *     through two inks replaces the colour, mapping each channel through its own curve biases it.
+ *
+ * `$ink['table']` arrives as the emitted STRINGS and is parsed here, so the measurement cannot run
+ * at a precision the page does not have.
  */
-function ink_pixel( $r, $g, $b, $ends, $k ) {
-	$l   = ( 0.2126 * $r + 0.7152 * $g + 0.0722 * $b ) / 255;
+function ink_pixel( $r, $g, $b, $ink ) {
+	$s = (float) $ink['sat'];
+	$p = array(
+		( 0.213 + 0.787 * $s ) * $r + ( 0.715 - 0.715 * $s ) * $g + ( 0.072 - 0.072 * $s ) * $b,
+		( 0.213 - 0.213 * $s ) * $r + ( 0.715 + 0.285 * $s ) * $g + ( 0.072 - 0.072 * $s ) * $b,
+		( 0.213 - 0.213 * $s ) * $r + ( 0.715 - 0.715 * $s ) * $g + ( 0.072 + 0.928 * $s ) * $b,
+	);
 	$out = array();
 	for ( $i = 0; $i < 3; $i++ ) {
-		$d     = hexdec( substr( ltrim( $ends['dark'], '#' ), $i * 2, 2 ) );
-		$li    = hexdec( substr( ltrim( $ends['light'], '#' ), $i * 2, 2 ) );
-		$v     = $d + $l * ( $li - $d );
-		$out[] = $v * $k + array( $r, $g, $b )[ $i ] * ( 1 - $k );
+		$values = array_map( 'floatval', explode( ' ', $ink['table'][ $i ] ) );
+		$out[]  = 255 * fe_table( max( 0.0, min( 255.0, $p[ $i ] ) ) / 255, $values );
 	}
 	return $out;
 }
 
-function worst_pixel( $slug, $scrim, $alpha, $text, $ends = null, $k = 1.0 ) {
+function worst_pixel( $slug, $scrim, $alpha, $text, $ink = null ) {
 	global $IMG_DIR;
 	if ( ! function_exists( 'imagecreatefromwebp' ) ) {
 		fail( 'PHP has no GD WebP support — the slider scrim cannot be measured, and an unmeasured'
@@ -611,8 +966,8 @@ function worst_pixel( $slug, $scrim, $alpha, $text, $ends = null, $k = 1.0 ) {
 		for ( $x = 0; $x < $w; $x += 2 ) {
 			$p  = imagecolorat( $im, $x, $y );
 			$px = array( ( $p >> 16 ) & 0xFF, ( $p >> 8 ) & 0xFF, $p & 0xFF );
-			if ( null !== $ends ) {
-				$px = ink_pixel( $px[0], $px[1], $px[2], $ends, $k );
+			if ( null !== $ink ) {
+				$px = ink_pixel( $px[0], $px[1], $px[2], $ink );
 			}
 			$l   = srgb_lum_rgb(
 				$px[0] * ( 1 - $alpha ) + $sr * $alpha,
@@ -630,6 +985,40 @@ function worst_pixel( $slug, $scrim, $alpha, $text, $ends = null, $k = 1.0 ) {
 	}
 	imagedestroy( $im );
 	return array( 'ratio' => $worst, 'surface_l' => $surface );
+}
+
+/**
+ * The mean r/g/b of `$slug` under `$ink`, which is the number the swatch complaint was made in.
+ *
+ * MEAN AND NOT p95, deliberately. The retired exemption's evidence is a sentence in this file —
+ * "their mean colours are (183,184,185) and (196,196,197)" — and the check that replaces it has to
+ * be answerable in the same units, or it is a different claim wearing the old one's clothes.
+ */
+function ink_mean( $slug, $ink ) {
+	global $IMG_DIR;
+	$im = @imagecreatefromwebp( $IMG_DIR . '/' . $slug . '.webp' );
+	if ( false === $im ) {
+		fail( "cannot decode img/$slug.webp to measure the house ink against it" );
+	}
+	$w   = imagesx( $im );
+	$h   = imagesy( $im );
+	$sum = array( 0.0, 0.0, 0.0 );
+	$n   = 0;
+	for ( $y = 0; $y < $h; $y += 2 ) {
+		for ( $x = 0; $x < $w; $x += 2 ) {
+			$p  = imagecolorat( $im, $x, $y );
+			$px = ink_pixel( ( $p >> 16 ) & 0xFF, ( $p >> 8 ) & 0xFF, $p & 0xFF, $ink );
+			for ( $i = 0; $i < 3; $i++ ) {
+				$sum[ $i ] += max( 0.0, min( 255.0, $px[ $i ] ) );
+			}
+			$n++;
+		}
+	}
+	imagedestroy( $im );
+	if ( 0 === $n ) {
+		fail( "img/$slug.webp decoded to zero pixels" );
+	}
+	return array( $sum[0] / $n, $sum[1] / $n, $sum[2] / $n );
 }
 
 /** `color-mix(in srgb, $a $p%, $b)`, in PHP, so a token derived in CSS can be measured here. */
@@ -691,13 +1080,16 @@ foreach ( $SLIDER_FRAMES as $sl_slug ) {
 	}
 
 	/* MEASURED THROUGH THE INK, because the ink is what the browser paints. `filter` runs at paint
-	   time and no DOM measurement can see it, so a build that added a duotone and kept sweeping the
-	   original file would be certifying the contrast of an image that is no longer on the page. It
-	   happens to help here — the duotone compresses the tonal range, so the worst pixel gets
-	   BETTER — but "it happens to help" is a thing you only know once you have measured it, and the
-	   direction is not guaranteed for the next photograph or the next ground. */
+	   time and no DOM measurement can see it, so a build that graded the photographs and kept
+	   sweeping the original file would be certifying the contrast of an image that is no longer on
+	   the page. It happens to help here — the shadow ink is a floor no pixel can fall below, so the
+	   worst pixel gets BETTER — but "it happens to help" is a thing you only know once you have
+	   measured it, and the direction is not guaranteed for the next photograph or the next ground.
+	   RE-MEASURED WHEN THE DUOTONE WAS RETIRED, which is the point of it being a sweep and not a
+	   constant: the duotone read 6.64 / 6.67 / 6.59 here and the grade reads 6.59 / 6.61 / 6.55.
+	   Removing a filter changes contrast everywhere, and the bar is 4.5. */
 	$sl = worst_pixel( $sl_slug, $sl_ground['bg'], $SCRIM_FLOOR, $sl_ground['text'],
-		ink_ends( $sl_ground ), 1.0 );
+		$INK['editorial'] );
 
 	/* THE IDENTITY BETWEEN THE TWO NUMBERS THE SWEEP RETURNED. `ratio` and `surface_l` come from
 	   the same pixel, so WCAG's own definition has to hold between them. This is what stops either
@@ -1021,15 +1413,17 @@ $CONTENT = array(
 // thing that made the slider's floor trustworthy is that it is a bound over THIS photograph. The
 // bar exists because a hero measured 1.95:1 in this project once while looking fine in a capture.
 //
-// Adding a duotone is what forced this: the ink moves every pixel in the frame, so a bound derived
+// Adding an ink is what forced this: the ink moves every pixel in the frame, so a bound derived
 // from `255` stops describing anything on the page. Measured, over `hero-cantera` under the ink,
-// at the gradient's own floor, against the ink ground's own `--c-text`.
+// at the gradient's own floor, against the ink ground's own `--c-text`. Re-measured when the
+// duotone became a grade: 5.82:1 under both, because on a dark veil the binding pixel is the
+// brightest one and both inks cap the highlights at the same #EBEDEE.
 $BG_FLOOR      = 0.64;
 $BG_ANCHOR     = 'direct';
 $BG_SLUG       = $CONTENT['TPL-C-01']['hero']['img'];
 $bg_ground     = $GROUND[ $ANCHORS[ $BG_ANCHOR ]['ground'] ];
 $BG_HERO       = worst_pixel( $BG_SLUG, $bg_ground['bg'], $BG_FLOOR, $bg_ground['text'],
-	ink_ends( $bg_ground ), 1.0 );
+	$INK[ $BG_ANCHOR ] );
 if ( $BG_HERO['ratio'] < $SCRIM_BAR ) {
 	fail( sprintf(
 		'the LP-BROKEN-GRID hero photograph `%s` measures %.2f:1 under its own %d%% scrim against'
@@ -1041,6 +1435,31 @@ if ( $BG_HERO['ratio'] < $SCRIM_BAR ) {
 		(int) round( $BG_FLOOR * 100 ),
 		$bg_ground['text'],
 		$SCRIM_BAR
+	) );
+}
+
+/* THIS SWEEP NEEDS THE SAME TRIPWIRE THE SLIDER HAS, AND IT DID NOT HAVE ONE. Found by mutation:
+   replacing `$INK[$BG_ANCHOR]` with `null` here — one argument — left a build that passed every
+   gate and printed a plausible 5.27:1 while certifying the contrast of an UNGRADED photograph. The
+   slider's probe, written the day the ink arrived, guards the slider's call and nothing else; this
+   second call site was added afterwards and inherited none of it. A tripwire written for a call
+   site rather than for a PROPERTY protects exactly one line, and the next line to need it is the
+   one nobody remembers to wire up.
+
+   So the probe is per call site by construction: two sweeps, two probes, and the margin is stated
+   the same way. .25 is far below the 0.55 this frame moves under its own ink and far above any
+   rounding — and unlike the slider's, this one is a bound in the SAFE direction if it ever
+   inverts, because here the ink RAISES the ratio too. */
+$BG_PROBE_PLAIN = worst_pixel( $BG_SLUG, $bg_ground['bg'], $BG_FLOOR, $bg_ground['text'] );
+if ( abs( $BG_HERO['ratio'] - $BG_PROBE_PLAIN['ratio'] ) < 0.25 ) {
+	fail( sprintf(
+		'the LP-BROKEN-GRID hero sweep reads %.2f:1 with the house ink and %.2f:1 without it on `%s`'
+			. ' — the two agree, so the ink is not in THIS measurement path. The slider sweep has had a'
+			. ' probe for this since the ink landed; this call site was added later and had none, which'
+			. ' is how a one-argument deletion certified an ungraded photograph in a green build.',
+		$BG_HERO['ratio'],
+		$BG_PROBE_PLAIN['ratio'],
+		$BG_SLUG
 	) );
 }
 
@@ -1986,7 +2405,21 @@ $css[] = <<<'CSS'
   border-radius:999px;color:var(--c-text-soft);transition:border-color var(--dur-color) var(--ease)}
 .cats a:hover{border-color:var(--c-accent);color:var(--c-text)}
 .price{font-size:var(--fs-price);font-weight:700;line-height:1.2}
-.card.prod .body{gap:.35rem;align-items:flex-start}
+/* The price and the button sit at the BOTTOM of the card, not under the title.
+
+   A catalogue row whose titles wrap to different line counts otherwise lands its prices and
+   its buttons on different baselines. MEASURED at 1440 before this rule, `.grid-prod` first
+   row, all four anchors: 29 / 33 / 26 / 24px of button spread, and institutional carried it
+   on BOTH rows. It had been there all along and read as nothing while the buttons were
+   hairline outlines; it became a defect the moment they turned into solid accent, because
+   forty-eight solid rectangles at ragged heights read as a mistake.
+
+   `margin-top:auto` on the PRICE and not on the button, because the pair travels together:
+   pinning only the button aligns the buttons and leaves the prices ragged, which is the same
+   defect one row up. And auto rather than a two-line `min-height` on the title, because a
+   fixed line count only moves the raggedness to the first title that wraps to three. */
+.card.prod .body{gap:.35rem;align-items:flex-start;flex:1}
+.card.prod .price{margin-top:auto}
 .card.prod .btn{margin-top:.25rem}
 /* A wide block scrolls inside its OWN container rather than pushing the page (SKILL.md).
 
@@ -2268,76 +2701,114 @@ foreach ( $ANCHORS as $k => $A ) {
 
 // ── block 5a · the house ink, one filter per anchor ────────────────────────────────────────────
 //
-// GENERATED FROM `ink_ends()`, THE SAME FUNCTION THE CONTRAST SWEEP READS. That is the whole
-// safety property: the endpoints the browser paints and the endpoints PHP measured cannot be two
-// different pairs of numbers, because they are one call. Typing the `tableValues` into a heredoc
-// would have made the measurement a statement about a filter that no longer exists — which is the
-// exact shape of the 1.95:1 defect, one level further back.
+// EMITTED FROM `$INK`, THE SAME ARRAY THE CONTRAST SWEEP READS — and it emits the very strings the
+// sweep parsed. The retired code called `ink_ends()` here and again at the sweep and relied on two
+// calls agreeing; this is one artefact used twice, so the filter the browser runs and the filter
+// PHP measured cannot be two different things even in the fifth decimal.
 //
 // `color-interpolation-filters="sRGB"` IS LOAD-BEARING. The default is linearRGB, where the same
-// matrix crushes the shadows, and `ink_pixel()` computes in sRGB. Drop this attribute and the page
-// and its certificate stop describing the same image.
+// saturate matrix crushes the shadows, and `ink_pixel()` computes in sRGB. Drop this attribute and
+// the page and its certificate stop describing the same image.
 //
-// THE `@supports` FALLBACK IS GREYSCALE AND NOT NOTHING. A browser without `filter:url()` on an
-// `<img>` would otherwise show the unrepaired set — four colour temperatures — which is the defect
-// this whole block exists for. Greyscale is the same repair with a worse ink.
+// THE `@supports` FALLBACK IS THE SATURATE ALONE AND NOT GREYSCALE. It used to be
+// `grayscale(1) contrast(1.04)` — the retired duotone approximated with a CSS function — and
+// carrying that forward would have left one class of browser looking at exactly the page this pass
+// exists to undo. What survives without `filter:url()` is the chroma restraint, which is the half
+// of the grade that does the unifying; the split tone is the half that needs the table.
 $INK_ENDS = array();
 $ink_defs = array();
-$ink_css  = array( '/* ══════════ THE HOUSE INK — one duotone per anchor, endpoints derived from that'
-	. "\n      anchor's own ground. See § 5a for why this is four inks and not one. ══════════ */" );
+$ink_css  = array( '/* ══════════ THE HOUSE INK — one GRADE per anchor: a chroma restraint and a'
+	. "\n      split tone. Shadow ink = that anchor's accent at the neutral endpoint's own"
+	. "\n      luminance; highlight ink = that anchor's own light extreme. See § 5a. ══════════ */" );
 foreach ( $ANCHORS as $ink_k => $ink_a ) {
 	if ( ! isset( $used_anchors[ $ink_k ] ) ) {
 		continue;
 	}
-	$ink_e                 = ink_ends( $GROUND[ $ink_a['ground'] ] );
-	$INK_ENDS[ $ink_k ]    = $ink_e;
-	$ink_t                 = array();
+	$ink_o              = $INK[ $ink_k ];
+	$INK_ENDS[ $ink_k ] = $ink_o;
+	$ink_t              = array();
 	foreach ( array( 'R', 'G', 'B' ) as $ink_i => $ink_ch ) {
 		$ink_t[] = sprintf(
-			'<feFunc%s type="table" tableValues="%s %s"/>',
+			'<feFunc%s type="table" tableValues="%s"/>',
 			$ink_ch,
-			rtrim( rtrim( sprintf( '%.4f', hexdec( substr( $ink_e['dark'], 1 + $ink_i * 2, 2 ) ) / 255 ), '0' ), '.' ),
-			rtrim( rtrim( sprintf( '%.4f', hexdec( substr( $ink_e['light'], 1 + $ink_i * 2, 2 ) ) / 255 ), '0' ), '.' )
+			$ink_o['table'][ $ink_i ]
 		);
 	}
 	$ink_defs[] = '<filter id="nm-ink-' . $ink_k . '" color-interpolation-filters="sRGB">'
-		. '<feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 '
-		. '0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/>'
+		. '<feColorMatrix type="saturate" values="' . $ink_o['sat'] . '"/>'
 		. '<feComponentTransfer>' . implode( '', $ink_t ) . '</feComponentTransfer></filter>';
 	$ink_css[]  = '[data-anchor="' . $ink_k . '"] .frame > img{filter:url(#nm-ink-' . $ink_k . ')}'
-		. '   /* ' . $ink_e['dark'] . ' → ' . $ink_e['light'] . ' */';
+		. '   /* ' . $ink_o['ends']['dark'] . ' → ' . $ink_o['ends']['light']
+		. ' · saturate ' . $ink_o['sat'] . ' · gamma ' . $ink_o['gamma']
+		. ( $ink_o['named'] ? ', named by § Imagery' : ', the default' ) . ' */';
+	$ink_css[]  = '@supports not (filter:url(#nm-ink-' . $ink_k . ')){[data-anchor="' . $ink_k
+		. '"] .frame > img{filter:saturate(' . $ink_o['sat'] . ')}}';
 }
-$ink_css[] = '@supports not (filter:url(#nm-ink-' . array_key_first( $INK_ENDS ) . ')){'
-	. '.frame > img{filter:grayscale(1) contrast(1.04)}}';
 
-/* THE ONE EXEMPTION, AND IT IS DERIVED FROM THE MANIFEST RATHER THAN CHOSEN. `_gallery-images.md`
-   § Registers names a `Material` register — `sq-marmol`, `sq-pizarra` — and calls it "The swatch";
-   § "Weights are measured" gives those two a byte budget twice the portraits' with the reason
-   written down: "that carve-out is for the swatch, which is the PRODUCT". A swatch is the one
-   photograph on this page where the COLOUR IS THE SPECIFICATION. "Mármol Crema Levante" rendered
-   as a neutral grey square beside "Granito Gris Quintana" as a slightly lighter neutral grey
-   square is not a unified catalogue, it is two products the page can no longer tell apart —
-   MEASURED at full ink, their mean colours are (183,184,185) and (196,196,197), a chroma of 2 on
-   a swatch whose own name is a colour.
+/* THE SWATCH EXEMPTION IS RETIRED, AND WHAT REPLACES IT IS THE MEASUREMENT IT WAS STANDING IN FOR.
+   The carve-out existed for one written-down reason: at full duotone the two swatches' mean
+   colours were (183,184,185) and (196,196,197) — "a chroma of 2 on a swatch whose own name is a
+   colour". That is a fact about a DUOTONE, and the duotone is gone. Keeping the exemption after it
+   would have been the same defect this pass came to fix one level up: a rule outliving its cause.
+   It also had a visible cost — on TPL-E-02 it put two full-colour tiles among six inked ones, and a
+   product grid where two cells are treated differently reads as a rendering error, not as a
+   decision.
 
-   So the rule is one sentence: a photograph that ILLUSTRATES takes the house ink; a photograph
-   that IS the merchandise does not. It is applied by slug and the slugs come from the register
-   table, so adding a third swatch to that table is what admits it — not an edit here. */
-$INK_EXEMPT = array();
+   The `Material` row is still read from the manifest and still fails the build if it disappears,
+   but it now names the pair the ink must keep APART — which is the PROPERTY — rather than the pair
+   the ink must not touch, which was only ever the MECHANISM. A property check cannot be satisfied
+   by moving the mechanism somewhere else.
+
+   MEASURED, mean chroma (max−min of the mean RGB) of the two swatches under each anchor's ink:
+   `sq-marmol` 28.0 / 25.6 / 45.4 / 24.6 against `sq-pizarra` 2.6 / 1.0 / 20.4 / 2.0. Under the
+   retired duotone on `editorial` they were 1.5 and 1.2 — the two products the page could no longer
+   tell apart. Raw, they are 38.4 and 0.0, which is the truth the ink now has to preserve: one of
+   these stones is warm and the other really is grey. */
+$INK_SWATCH = array();
 foreach ( $IMAGES as $ink_slug => $ink_row ) {
 	if ( 0 === strpos( $ink_row['role'], 'square' ) && isset( $MATERIAL_SLUGS[ $ink_slug ] ) ) {
-		$INK_EXEMPT[] = $ink_slug;
+		$INK_SWATCH[] = $ink_slug;
 	}
 }
-sort( $INK_EXEMPT, SORT_STRING );
-if ( array() === $INK_EXEMPT ) {
-	fail( '_gallery-images.md § Registers no longer names a Material register, so the house ink has'
-		. ' no swatch to exempt — either the table changed shape or the parser stopped reading it,'
-		. ' and both end with a catalogue whose two stone colours render as one grey' );
+sort( $INK_SWATCH, SORT_STRING );
+if ( count( $INK_SWATCH ) < 2 ) {
+	fail( '_gallery-images.md § Registers no longer names a Material register with at least two'
+		. ' slugs, so there is no swatch PAIR to measure the house ink against — either the table'
+		. ' changed shape or the parser stopped reading it, and both end with an ink nothing is'
+		. ' asking to keep two stone colours apart' );
 }
-$ink_css[] = '/* the swatches keep their own colour — see § 5a, and _gallery-images.md § Registers */';
-foreach ( $INK_EXEMPT as $ink_slug ) {
-	$ink_css[] = '.frame > img[data-img="' . $ink_slug . '"]{filter:none}';
+
+/* 10 IS ABOVE EVERY NUMBER THE DUOTONE PRODUCED AND FAR BELOW EVERY NUMBER THE GRADE DOES. The
+   duotone separated this pair by 0.3 / 0.1 / 0.6 / 0.5 across the four anchors; the grade separates
+   it by 25.4 / 24.6 / 25.0 / 22.6. A bar in between is a bar that a regression to ANY monochrome
+   treatment trips, and that no honest grade comes near. */
+$INK_SWATCH_BAR    = 10.0;
+$INK_SWATCH_REPORT = array();
+foreach ( $INK as $ink_ak => $ink_av ) {
+	if ( ! isset( $used_anchors[ $ink_ak ] ) ) {
+		continue;
+	}
+	$ink_ch = array();
+	foreach ( $INK_SWATCH as $ink_slug ) {
+		$ink_m         = ink_mean( $ink_slug, $ink_av );
+		$ink_ch[ $ink_slug ] = max( $ink_m ) - min( $ink_m );
+	}
+	$ink_gap = max( $ink_ch ) - min( $ink_ch );
+	$INK_SWATCH_REPORT[] = sprintf( '%s %.1f', $ink_ak, $ink_gap );
+	if ( $ink_gap < $INK_SWATCH_BAR ) {
+		fail( sprintf(
+			'under the `%s` ink the material swatches %s measure chroma %s — a spread of %.1f, below'
+				. ' the %.1f this page needs to sell two different stones. That is what the retired'
+				. ' duotone did: "Mármol Crema Levante" and "Granito Gris Quintana" arrived as two'
+				. ' neutral greys a shade apart, and a catalogue that cannot tell its own products'
+				. ' apart is not a unified catalogue.',
+			$ink_ak,
+			implode( ' / ', $INK_SWATCH ),
+			implode( ' / ', array_map( function ( $c ) { return number_format( $c, 1 ); }, $ink_ch ) ),
+			$ink_gap,
+			$INK_SWATCH_BAR
+		) );
+	}
 }
 $css[] = implode( "\n", $ink_css ) . "\n";
 
@@ -3044,7 +3515,21 @@ function footer_html( $f ) {
 	return $o . '</div><p class="legal">' . h( $f['legal'] ) . '</p></div></footer>';
 }
 
-/** One product card: the same `.card` recipe, plus the € price TPL-E-02 requires. */
+/**
+ * One product card: the same `.card` recipe, plus the € price TPL-E-02 requires.
+ *
+ * `ADD TO CART` IS A CTA AND IT IS PAINTED LIKE ONE. It shipped as `.btn-outline` — a neutral
+ * border and neutral label — on a template whose own name is `Catalog / Product-First`, so the
+ * single most commercial control on the archetype was the quietest thing in its own tile. That was
+ * a COUNT talking: eight tiles would have been eight accent marks, and eight is a number that looks
+ * alarming next to "one spend on the resting page".
+ *
+ * It is not eight marks, it is ONE ROLE eight times, and the distinction is the whole reason
+ * design-tokens.md writes the rule as "CTAs, action icons, important links" rather than as a
+ * budget. A catalogue with eight products has eight add-to-cart buttons the same way it has eight
+ * prices; a rule that gets quieter as the shop gets bigger is a rule that punishes the shop for
+ * selling. See design-system.md § "The accent has a BUDGET, and the budget is a whitelist".
+ */
 function product_html( $anchor_key, $c ) {
 	$im  = img( $c['img'] );
 	$out = '<article class="card prod">'
@@ -3055,7 +3540,7 @@ function product_html( $anchor_key, $c ) {
 	}
 	$out .= '<div class="body"><h3>' . h( $c['h3'] ) . '</h3>'
 		. '<p class="price">' . h( $c['p'] ) . '</p>'
-		. '<button class="btn btn-outline btn-sm" type="button">Añadir</button>'
+		. '<button class="btn btn-primary btn-sm" type="button">Añadir</button>'
 		. '</div></article>';
 	return $out;
 }
@@ -3724,33 +4209,44 @@ foreach ( $STRIPS as $s ) {
 	}
 }
 
-// ── THE ACCENT BUDGET ──────────────────────────────────────────────────────────────────────────
+// ── THE ACCENT: A ROLE WHITELIST ───────────────────────────────────────────────────────────────
 //
-// `design-system.md` says the accent is not an axis and then says nothing at all about how often
-// it may be painted, which is how this page came to spend it twelve times on a resting corporate
-// strip and sixteen on an ecommerce one. `craft-probe-2026-08-16.html` § CRAFT-PRINT is the
-// measured argument for the other position — one spend on the resting page, against 4 for the two
-// directions beside it — and it is right for a reason that generalises past this asset: a hue that
-// appears a dozen times is not an accent, it is a second text colour, and two text colours is what
-// a theme looks like.
+// `design-tokens.md` has the rule in one line and it names ROLES: "ONE color. CTAs, action icons,
+// important links, active states. Never body text, never decoration." Everything below is that
+// sentence, made enforceable.
 //
-// A WHITELIST, NOT A COUNT, and the shape is deliberate — it is the same shape as
-// RT_MOCKUP_BLEED_NOT_MEDIA one file over. A number can be met by moving a spend somewhere the
-// counter cannot see; a whitelist forces every new accent mark to be named and argued for here.
-// Each entry below had to justify itself:
-//   .btn-primary   the one control. This IS the commercial moment the probe reserves it for.
-//   .cart b        TPL-E-02 DNA: html-mockup/SKILL.md step 2 names the cart badge, and a badge
-//                  that does not stand out is a badge that has failed at its only job.
-//   .chip          design-personalities.md gives PERS-INSTITUTIONAL "chip de icono en accent"
-//                  in as many words. An anchor's own card recipe outranks a budget written here.
-//   .sec.closing   the field itself, on PERS-DIRECT — the biggest single spend on the page, which
-//                  is the whole point of having a budget to spend.
-// Interaction states are excluded because a budget is about the RESTING page: a colour that
-// appears when you touch something is feedback, and feedback is supposed to be findable.
+// A ROLE, NOT A COUNT — AND THE DIFFERENCE COST THIS PAGE A ROUND. The previous pass read the
+// probe's "one spend on the resting page" as a NUMBER and spent the budget down to it: the four
+// ticks in the benefits bar lost their colour, and its own honest note afterwards was "the benefits
+// bar is now too quiet — I took the accent off the ticks and did not give it anything back". Both
+// halves of that were wrong in different directions, and only the role list separates them:
+//   · Taking the accent off the ticks was RIGHT, and not because four was too many. A tick beside
+//     "Envío en 72 h" is a confirmation mark, which is decoration, and decoration is the one thing
+//     the sentence above forbids outright. It does not come back.
+//   · What made the bar feel quiet was not the ticks. It was that every photograph on the page had
+//     been turned to greyscale in the same round — see § 5a, which is where that is repaired.
+//     A colour complaint answered by repainting the nearest small object is a symptom treated at
+//     the wrong site.
+// And a count gets a third case wrong that a role list gets right for free: TPL-E-02's eight
+// add-to-cart buttons. Under a budget of one they stayed neutral outlines on an archetype called
+// `Product-First`; under the role list they are one ROLE eight times, which is what a catalogue
+// with eight products has. A rule that grows quieter as the shop grows bigger is a rule that
+// punishes the shop for selling.
 //
-// MEASURED IN THE BROWSER after this landed, counting elements whose computed color, background
-// or visible border IS the accent: 2 / 4 / 3 / 3 on the corporate strips and 2 / 4 / 3 / 3 on the
-// ecommerce ones, against 12 and 16 before. Every remaining mark is a control.
+// THE WHITELIST IS KEYED BY ROLE so the check enforces the sentence rather than a bag of names: a
+// new mark cannot be added without claiming one of design-tokens.md's four roles out loud, and a
+// mark that claims none has nowhere to go. This is the same shape as RT_MOCKUP_BLEED_NOT_MEDIA one
+// file over, for the same reason — a number can be met by moving a spend somewhere the counter
+// cannot see.
+//
+// TWO ROLES ARE EMPTY ON THIS PAGE, AND THEY ARE NAMED RATHER THAN DROPPED. There is no "important
+// link" here that is not already a button, and no "active state" because no `.cats` chip is marked
+// current. An empty role is a claim — that the page has none of those — and it is a claim the next
+// person can check. Deleting the key would have made it unfalsifiable.
+//
+// Interaction states are excluded from the scan because a whitelist is about the RESTING page: a
+// colour that appears when you touch something is feedback, and feedback is supposed to be
+// findable. design-tokens.md lists "active states" as an accent role for exactly that reason.
 //
 // THIS CHECK SHIPPED BROKEN FOR ONE BUILD AND THE MUTATIONS ARE THE ONLY REASON ANYBODY KNOWS.
 // Run over the whole 1.7 MB document — which is mostly base64 `@font-face` payload — the pattern
@@ -3766,13 +4262,86 @@ if ( null === $accent_src ) {
 	fail( 'stripping the font payload out of the stylesheet failed — the accent budget would then'
 		. ' be measured against 1.4 MB of base64 and would report whatever PCRE gave up on' );
 }
-$accent_ok = array( 'btn-primary', 'cart', 'chip', 'closing',
-	/* the shell — a tool's own chrome is not one of its samples, and it is painted from `:root`
-	   rather than from any anchor. Named rather than skipped, for the same reason the bleed
-	   whitelist names things: a check that silently ignores half the file is half a check. */
-	'gal-head', 'gal-note', 'fbtn', 'handoff-copy', 'handoff', 'x', 'tgl-set', 'axis', 'noscript' );
+/* KEYED BY design-tokens.md's OWN FOUR ROLES, plus the one carve-out that is not about the samples
+   at all. Every class here claims a role; a class that claims none has nowhere to be written. */
+$ACCENT_ROLES = array(
+
+	/* "CTAs". `.btn-primary` is the solid control wherever it appears — the corporate hero's
+	   `Pedir presupuesto`, the search-first header's `Buscar`, and TPL-E-02's eight `Añadir`
+	   buttons, which are eight instances of one role and not eight marks. */
+	'CTAs'             => array( 'btn-primary' ),
+
+	/* "action icons". One class, and it is not this file's decision: design-personalities.md gives
+	   PERS-INSTITUTIONAL "chip de icono en accent" in as many words, and an anchor's own card
+	   recipe outranks a rule written here. `.cart b` is the badge on the cart control —
+	   html-mockup/SKILL.md step 2 names it as TPL-E-02 DNA, and a badge that does not stand out
+	   has failed at its only job. `.bicon`, the benefits-bar tick, is NOT here: a confirmation
+	   mark beside a label is decoration, which the sentence forbids by name. */
+	'action icons'     => array( 'chip', 'cart' ),
+
+	/* "important links". EMPTY, and stated: every link on these eight strips that is important
+	   enough to qualify is already rendered as a button and counted under CTAs. The key stays so
+	   that the claim is visible and falsifiable. */
+	'important links'  => array(),
+
+	/* "active states". EMPTY for the resting page by construction — no `.cats` chip on TPL-E-02 is
+	   marked current, so there is no active state to paint. The `:hover`/`:focus`/`:active`/
+	   `:checked` selectors the scan skips below are the same role, and they are skipped rather
+	   than listed because a whitelist is a statement about the page AT REST. */
+	'active states'    => array(),
+
+	/* NOT A ROLE, AND THAT IS THE POINT: the closing band is a whole SURFACE painted in the accent
+	   on PERS-DIRECT, not a mark on one. layout-patterns.md § "The close is a designed moment"
+	   gives it that spend deliberately — a budget is only interesting because it lets you spend
+	   loudly somewhere. */
+	'the close'        => array( 'closing' ),
+
+	/* NOT SAMPLES AT ALL — the gallery's own chrome, painted from `:root` rather than from any
+	   anchor. A tool is not one of the things it displays. Named rather than skipped, for the same
+	   reason the bleed whitelist names things: a check that silently ignores half the file is half
+	   a check. */
+	'the tool itself'  => array( 'gal-head', 'gal-note', 'fbtn', 'handoff-copy', 'handoff', 'x',
+		'tgl-set', 'axis', 'noscript' ),
+);
+$accent_ok = array();
+foreach ( $ACCENT_ROLES as $acc_role => $acc_classes ) {
+	foreach ( $acc_classes as $acc_class ) {
+		if ( isset( $accent_ok[ $acc_class ] ) ) {
+			fail( "`.$acc_class` claims both `{$accent_ok[ $acc_class ]}` and `$acc_role` in the accent"
+				. ' role whitelist — one mark, one role, or the whitelist stops being a statement about'
+				. ' what the colour is FOR' );
+		}
+		$accent_ok[ $acc_class ] = $acc_role;
+	}
+}
+
+/* THE ROLE NAMES ARE THE REFERENCE'S, CHECKED AGAINST IT. design-tokens.md's accent row is the
+   authority for this list, and a role renamed there while this file keeps the old word would leave
+   a whitelist that no longer quotes anything. Read from the file rather than trusted. */
+$acc_row = '';
+foreach ( explode( "\n", file_get_contents( $SKILLS . '/ux-design-system/references/design-tokens.md' ) ) as $acc_line ) {
+	if ( preg_match( '/^\|\s*Accent\s*\|\s*`--c-accent`\s*\|\s*(.+?)\s*\|\s*$/u', $acc_line, $acc_rm ) ) {
+		$acc_row = $acc_rm[1];
+	}
+}
+if ( '' === $acc_row ) {
+	fail( 'design-tokens.md has no `Accent | --c-accent |` row — the role whitelist below quotes that'
+		. ' row for its four role names, and a quotation with no source is an invention' );
+}
+foreach ( array( 'CTAs', 'action icons', 'important links', 'active states' ) as $acc_role ) {
+	if ( ! isset( $ACCENT_ROLES[ $acc_role ] ) ) {
+		fail( "design-tokens.md's accent row names the role `$acc_role` and the whitelist here has no"
+			. ' key for it — a role the reference allows and this file cannot express is a mark with'
+			. ' nowhere legal to go' );
+	}
+	if ( false === stripos( $acc_row, $acc_role ) ) {
+		fail( "the accent role whitelist claims `$acc_role`, which design-tokens.md's accent row does"
+			. " not say. That row reads: \"$acc_row\". A role invented here is a second design system." );
+	}
+}
 $accent_css      = preg_replace( '#/\*.*?\*/#s', '', $accent_src );
 $accent_offences = array();
+$ACCENT_CLAIMED  = array();
 $acc_n           = preg_match_all( '/([^{}]*)\{([^{}]*)\}/s', $accent_css, $acc_m, PREG_SET_ORDER );
 if ( false === $acc_n ) {
 	fail( 'the accent-budget scan could not run: ' . preg_last_error_msg()
@@ -3782,21 +4351,62 @@ if ( 0 === $acc_n ) {
 	fail( 'the accent-budget scan parsed zero CSS rules — the stylesheet shape changed under it,'
 		. ' and a check with nothing to check is a check that always passes' );
 }
+/* THE ACCENT IS ALSO SPELLED AS A LITERAL, AND THE SCAN WAS BLIND TO IT. A closing field RESOLVES
+   its tokens, so PERS-DIRECT's band writes `background:#FF6A1A` and not `background:var(--c-accent)`
+   — the biggest single accent spend on the page, in a spelling the gate did not know.
+
+   SO THE SCAN LOOKS FOR THE TOKEN OR ANY HEX `$ACCENT_BY_GROUND` RESOLVES TO. The hexes are derived
+   from that table rather than typed, so re-deriving the accent on a new ground extends the scan on
+   the same build.
+
+   THIS ARM'S PROOF IS ITS OWN MUTATION, and saying so precisely matters because the first draft of
+   this comment credited it with something it does not do. Painting `--c-accent`'s literal on a
+   class that claims no role — `.price{color:#8C3A1F}` — is caught here and nowhere else. What it
+   does NOT do is revive `.closing`: that entry was dead for a different reason, one property list
+   down. Measured by disabling each arm alone: literal arm off → `.closing` still claimed; property
+   list narrowed → `.closing` dead. Two holes, two arms, and neither covers the other. */
+$acc_literals = array();
+foreach ( $ACCENT_BY_GROUND as $acc_hex ) {
+	$acc_literals[] = strtoupper( $acc_hex );
+}
+$acc_literals = array_values( array_unique( $acc_literals ) );
+
 foreach ( $acc_m as $acc_rule ) {
-	/* The declaration block, one property at a time, so a value containing `--c-accent` is only
-	   an offence when the PROPERTY is one that paints. `--c-accent:#8C3A1F` is a token
-	   declaration and `--elev-rest:0 0 0 1px …accent…` is a shadow the elevation axis owns. */
+	/* The declaration block, one property at a time, so a value carrying the accent is only an
+	   offence when the PROPERTY is one that paints. `--c-accent:#8C3A1F` is a token declaration and
+	   `--elev-rest:0 0 0 1px …accent…` is a shadow the elevation axis owns. */
 	$acc_paints = false;
 	foreach ( explode( ';', $acc_rule[2] ) as $acc_decl ) {
 		$acc_parts = explode( ':', $acc_decl, 2 );
 		if ( count( $acc_parts ) < 2 ) {
 			continue;
 		}
-		$acc_prop = strtolower( trim( $acc_parts[0] ) );
-		if ( false === strpos( $acc_parts[1], '--c-accent' ) ) {
+		$acc_prop  = strtolower( trim( $acc_parts[0] ) );
+		$acc_val   = strtoupper( $acc_parts[1] );
+		$acc_bears = ( false !== strpos( $acc_parts[1], '--c-accent' ) );
+		foreach ( $acc_literals as $acc_lit ) {
+			if ( false !== strpos( $acc_val, $acc_lit ) ) {
+				$acc_bears = true;
+				break;
+			}
+		}
+		if ( ! $acc_bears ) {
 			continue;
 		}
-		if ( preg_match( '/^(color|background|background-color|border-color|border-[a-z]+-color)$/', $acc_prop ) ) {
+		/* THE PROPERTY LIST HAD A SECOND HOLE AND THE SAME CHECK FOUND IT. It read
+		   `border-[a-z]+-color`, which does not match `border-top` — and `.axis` paints
+		   `border-top:2px solid var(--c-accent)`, a 2px accent rule visible at rest on every strip
+		   header, which the gate reported as no mark at all. A shorthand is how anybody actually
+		   writes a border. `fill` and `stroke` are here for the same reason one level over: the
+		   icon chips are SVG, and an accent-filled icon is an accent mark whatever property carries
+		   it. `box-shadow` is deliberately NOT here — `--elev-rest: 0 0 0 1px …accent…` is the
+		   elevation axis spending its own token, which design-system.md tables as `accent-glow`. */
+		if ( preg_match(
+			'/^(color|background|background-color|background-image|border|border-color'
+				. '|border-(top|right|bottom|left|block|inline)([a-z-]*)|outline|outline-color'
+				. '|fill|stroke|text-decoration-color|caret-color|accent-color)$/',
+			$acc_prop
+		) ) {
 			$acc_paints = true;
 			break;
 		}
@@ -3817,7 +4427,8 @@ foreach ( $acc_m as $acc_rule ) {
 				$acc_names = $acc_c[1];
 			}
 			foreach ( $acc_names as $acc_name ) {
-				if ( in_array( $acc_name, $accent_ok, true ) ) {
+				if ( isset( $accent_ok[ $acc_name ] ) ) {
+					$ACCENT_CLAIMED[ $accent_ok[ $acc_name ] ][ $acc_name ] = true;
 					continue 2;
 				}
 			}
@@ -3826,12 +4437,38 @@ foreach ( $acc_m as $acc_rule ) {
 	}
 }
 if ( array() !== $accent_offences ) {
-	fail( 'these paint --c-accent on the RESTING page and are not in the accent budget: '
-		. implode( ', ', array_unique( $accent_offences ) )
-		. '. The accent is the page\'s one commercial moment; a hue that appears a dozen times is a'
-		. ' second text colour, and two text colours is what a theme looks like. Either the mark is'
-		. ' a control — in which case add it to $accent_ok with the reason — or it wants'
-		. ' --c-text-muted, which is what a label is for.' );
+	fail( 'these paint --c-accent on the RESTING page and claim none of design-tokens.md\'s accent'
+		. ' roles: ' . implode( ', ', array_unique( $accent_offences ) )
+		. '. That row reads "' . $acc_row . '". Either the mark IS one of those roles — in which case'
+		. ' add it under that role in $ACCENT_ROLES, and the role is the argument — or it is'
+		. ' decoration, and decoration wants --c-text-muted, which is what a label is for.' );
+}
+
+/* A PERMISSION THAT NEVER FIRES IS A DEAD PERMISSION, and dead permissions are how a whitelist
+   turns back into a bag of names nobody reads. Asserted PER CLASS rather than per role, and its
+   first run is what found the property list above was too narrow: BOTH `.closing` and `.axis` had
+   been sitting here for a whole round without ever matching, because both paint the accent through
+   a border SHORTHAND — `.axis` a 2px rule on every strip header, `.sec.closing` on PERS-MATTER a
+   hairline mixed from `var(--c-accent)`. Two whitelist entries that looked like decisions and were
+   really blind spots. (The literal-hex arm above is a SEPARATE hole with a separate mutation; it
+   is not what revived these two, and the first version of this comment said it was.)
+
+   The two roles declared EMPTY are exempt, because emptiness is their claim. A NAMED class that
+   matched nothing is a claim that turned out to be false — either the mark went away and the
+   permission should follow it, or the scan cannot see the mark, and that second case is the one
+   worth failing a build over. */
+foreach ( $ACCENT_ROLES as $acc_role => $acc_classes ) {
+	foreach ( $acc_classes as $acc_class ) {
+		if ( isset( $ACCENT_CLAIMED[ $acc_role ][ $acc_class ] ) ) {
+			continue;
+		}
+		fail( "`.$acc_class` is whitelisted under the accent role `$acc_role` and paints the accent"
+			. ' NOWHERE on the resting page. Either the mark is gone — in which case the permission'
+			. ' goes with it — or the scan cannot see it, which is how a 2px accent rule on every'
+			. ' strip header and a hairline on the closing band both went uncounted for a round,'
+			. ' because the gate looked for `border-*-color` and the stylesheet wrote `border-top`'
+			. ' and `border`.' );
+	}
 }
 
 // ── ANYTHING THAT REDECLARES THE GROUND MUST ALSO RESOLVE THE CHAIN ────────────────────────────
@@ -3945,11 +4582,27 @@ printf( "               inks   --c-text %s %.2f:1 (kept) · %s\n",
 printf( "               hero   LP-BROKEN-GRID %s at %d%% over %s → worst pixel %.2f:1, bar %s:1\n",
 	$BG_SLUG, (int) round( $BG_FLOOR * 100 ), $GROUND[ $ANCHORS[ $BG_ANCHOR ]['ground'] ]['bg'],
 	$BG_HERO['ratio'], $SCRIM_BAR );
-printf( "               house ink %s, %d anchor(s), swatches exempt: %s\n",
-	'one duotone per ground', count( $INK_ENDS ), implode( ' · ', $INK_EXEMPT ) );
+printf( "               house ink one GRADE per anchor, %d anchor(s); swatch spread %s (bar %.1f)\n",
+	count( $INK_ENDS ), implode( ' · ', $INK_SWATCH_REPORT ), $INK_SWATCH_BAR );
 foreach ( $INK_ENDS as $ink_rk => $ink_re ) {
-	printf( "                 %-14s %s → %s\n", $ink_rk, $ink_re['dark'], $ink_re['light'] );
+	printf( "                 %-14s %s → %s  saturate %s · gamma %s (%s)\n",
+		$ink_rk, $ink_re['ends']['dark'], $ink_re['ends']['light'], $ink_re['sat'],
+		$ink_re['gamma'], $ink_re['named'] ? '§ Imagery' : 'default' );
 }
+printf( "               accent roles (design-tokens.md): %s\n", implode( ' · ', array_map(
+	function ( $r, $c ) use ( $ACCENT_CLAIMED ) {
+		return $r . ' ' . ( array() === $c
+			? '—'
+			: implode( '/', array_map(
+				function ( $one ) use ( $r, $ACCENT_CLAIMED ) {
+					return '.' . $one . ( isset( $ACCENT_CLAIMED[ $r ][ $one ] ) ? '' : ' (unused)' );
+				},
+				$c
+			) ) );
+	},
+	array_keys( $ACCENT_ROLES ),
+	$ACCENT_ROLES
+) ) );
 foreach ( $ACCENT as $g => $a ) {
 	printf( "               accent %s on %-5s → %s bg · %s bg-alt · label %s %s\n",
 		$a['hex'], $g, $a['r_bg'], $a['r_alt'], $a['on_is'], $a['r_on'] );

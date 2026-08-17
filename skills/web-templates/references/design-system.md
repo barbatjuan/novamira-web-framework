@@ -397,49 +397,132 @@ before this token was derived too (white on `#0C8A55` is 4.39:1), so it is a pre
 moved rather than one that opened. The fix is not a second on-colour: it is that `accent_hover`
 darkens unconditionally, when a button whose label is dark needs its hover to go *lighter*.
 
-#### The accent has a BUDGET, and the budget is a whitelist
+#### The accent is spent by ROLE, and the whitelist is a list of roles
 
-This file said the accent is not an axis, tabled its value, derived its label and measured its
-hover — and said nothing at all about **how often it may be painted**. That silence has a
-measured cost. Counting elements whose computed `color`, `background` or visible border IS the
-accent, at rest, on the template gallery before this rule: **12 marks on a corporate strip and 16
-on an ecommerce one** — an eyebrow on every section, four ticks in a benefits bar, a disclosure
-triangle per FAQ row, and the buttons. A hue that appears a dozen times is not an accent. It is a
-second text colour, and a page with two text colours reads as a theme rather than as a design —
-which is the whole of the complaint the gallery exists to answer.
+`ux-design-system/references/design-tokens.md` has the whole rule in one line and it names roles:
+*"ONE color. CTAs, action icons, important links, active states. Never body text, never
+decoration."* This section is that sentence made enforceable. It said nothing at all for a long
+time, and the silence had a measured cost: counting elements whose computed `color`, `background`
+or visible border IS the accent, at rest, on the template gallery before any rule — **12 marks on
+a corporate strip and 16 on an ecommerce one**, an eyebrow on every section, four ticks in a
+benefits bar, a disclosure triangle per FAQ row, and the buttons. A hue that appears a dozen times
+is not an accent. It is a second text colour, and a page with two text colours reads as a theme.
 
-`craft-probe-2026-08-16.html` rendered one archetype and one anchor three ways to isolate exactly
-this class of question. Its `CRAFT-PRINT` direction spends the accent **once** on the resting page
-— the submit button, the single commercial moment — against 4 for the two directions beside it,
-and it is the direction that reads as printed rather than as generated.
+**The rule.** On the resting page the accent may be painted only by something filling one of
+design-tokens.md's four roles, plus anything an anchor's own recipe names. Everything else that
+wanted colour wants `--c-text-muted`: a label's job is to be read before the heading and then get
+out of the way, which is what a muted tone does and what a saturated hue cannot.
 
-**The rule.** On the resting page the accent may be painted only by things a reader is meant to
-press, plus anything an anchor's own recipe names. Everything else that wanted colour wants
-`--c-text-muted`: a label's job is to be read before the heading and then get out of the way,
-which is what a muted tone does and what a saturated hue cannot.
+**A ROLE, never a count — and the difference is not pedantry, it cost the gallery a round.** The
+first attempt at this rule read `craft-probe-2026-08-16.html`'s "one spend on the resting page" as
+a *number* and spent the budget down to it. Three things went wrong at once, and only a role list
+separates them:
 
-**Write it as a whitelist, never as a count.** A number is satisfied by moving a spend somewhere
-the counter cannot see; a whitelist forces every new mark to be named and argued for. This is the
-same shape as `RT_MOCKUP_BLEED_NOT_MEDIA`, and for the same reason. Two exclusions are part of the
-rule rather than holes in it:
+- **The ticks were right to lose the accent, and for the wrong stated reason.** A tick beside
+  "Envío en 72 h" is a confirmation mark. That is *decoration*, which the sentence above forbids
+  outright — not "a fourth mark over budget". The distinction matters because the first reading
+  invites putting it back when the page feels quiet, and the second never does.
+- **The page then felt quiet, and the cause was somewhere else entirely.** Every photograph had
+  been turned to greyscale in the same round (see "One treatment for the photographs" below). A
+  colour complaint answered by repainting the nearest small object is a symptom treated at the
+  wrong site.
+- **A count gets a third case wrong that a role list gets right for free.** `TPL-E-02` renders
+  eight product tiles, each with an add-to-cart button. Under a budget of one they stayed neutral
+  outlines on an archetype called *Product-First*; under the role list they are **one role eight
+  times**, which is what a catalogue with eight products has. A rule that grows quieter as the shop
+  grows bigger is a rule that punishes the shop for selling.
+
+**Key the whitelist by role.** A mark cannot be added without claiming one of the four roles out
+loud, and a mark that claims none has nowhere to be written. This is the same shape as
+`RT_MOCKUP_BLEED_NOT_MEDIA`, and for the same reason: a number is satisfied by moving a spend
+somewhere the counter cannot see.
+
+**Name the empty roles rather than dropping them.** A role with no members is a claim — that this
+page has no important links outside its buttons, that no chip is marked current — and a claim the
+next reader can check. Deleting the key makes it unfalsifiable.
+
+Three exclusions are part of the rule rather than holes in it:
 
 - **Interaction states are exempt** — `:hover`, `:focus`, `:active`, `:checked`. A colour that
   appears when you touch something is feedback, and feedback is supposed to be findable.
 - **`::marker` and other resting pseudo-elements are NOT exempt.** A disclosure triangle is on
   screen at rest, so an accent-coloured one is a spend. It sat in the exempt list for one revision
   of the gallery's own gate and mutation is what found it.
+- **`box-shadow` is not a mark.** `--elev-rest: 0 0 0 1px …accent…` is the elevation axis spending
+  its own token, which this file tables as `accent-glow`.
 
-**An anchor's card recipe outranks this budget.** `design-personalities.md` gives
+**An anchor's card recipe outranks this whitelist.** `design-personalities.md` gives
 `PERS-INSTITUTIONAL` "chip de icono en accent" in as many words; a rule written here does not get
-to overrule a personality's own definition. Name the exception in the whitelist and move on.
+to overrule a personality's own definition. Name the exception under a role and move on.
 
-**Where the biggest spend goes: the close.** A budget is only interesting because it lets you spend
-loudly somewhere. The closing band is that somewhere — see `ux-design-system/references/layout-patterns.md`
-§ "The close is a designed moment".
+**Where the biggest spend goes: the close.** A whitelist is only interesting because it lets you
+spend loudly somewhere. The closing band is that somewhere — see
+`ux-design-system/references/layout-patterns.md` § "The close is a designed moment".
 
-Measured on the gallery after the rule: **2 / 4 / 3 / 3** marks on the four corporate strips and
-**2 / 4 / 3 / 3** on the four ecommerce ones, and every remaining mark is a control, a cart badge,
-or a closing field that is itself painted in the accent.
+##### Two ways a gate for this rule reports marks that are really there as no marks at all
+
+Both were found in the gallery by asserting that **every whitelisted class must match something**,
+per class, and both had been sitting in a green build. A permission that never fires and a spend
+that never registers are the same bug seen from its two ends:
+
+- **Nobody writes `border-top-color`.** A gate matching `border-*-color` misses
+  `border-top: 2px solid var(--c-accent)` and `border: 1px solid color-mix(…var(--c-accent)…)`,
+  which is how a 2px rule on every strip header AND the hairline on the closing band both went
+  uncounted for a round. Match the shorthands, and `fill`/`stroke` too — an accent-filled SVG icon
+  is an accent mark whatever property carries it.
+- **The accent is also spelled as a literal.** A band that resolves its tokens writes
+  `background:#FF6A1A`, not `background:var(--c-accent)`. Derive the literal hexes from the accent
+  table and look for both.
+
+The two arms cover different holes and neither substitutes for the other — verified by disabling
+each alone and re-running. Say which mutation proves which arm, or the second one becomes a story
+told about the first.
+
+#### One treatment for the photographs, and it BIASES rather than REPLACES
+
+A page whose photographs come from different shoots wants one treatment over all of them; that
+much is ordinary. What is not ordinary, and what this framework got wrong for three commits, is
+**which** treatment and **for how long**.
+
+**Do not derive a duotone from a ground.** A duotone maps luminance onto two inks, so the two inks
+have to be genuinely two colours or it is a greyscale with a tint. Deriving them from `--c-bg` and
+`--c-text` cannot produce that: a ground's two extremes are chosen for *contrast*, which is the
+property that makes them neutral. Measured on the gallery's four grounds, as the R−B spread of the
+dark ink: **5, 5, 16, 17** — three of the four were grey, and the client's report was four words
+long: *"ahora no se ven colores"*. If a duotone is genuinely wanted, take its inks from something
+that HAS chroma — the accent, or a stated warm/cool bias — and say what they were taken from.
+
+**Prefer a grade.** Two primitives do the job and both are exactly expressible in SVG, so the same
+arithmetic can run in the generator and be asserted:
+
+- a **chroma restraint** (`feColorMatrix type="saturate"`), which pulls the loud objects toward the
+  set's own body without pulling the subject to grey;
+- a **split tone** (`feComponentTransfer`, a per-channel `tableValues` curve applied to each
+  channel's own value), so the blacks land on a shadow ink, the whites on a highlight ink, and the
+  midtones pass through.
+
+**Tint the shadow, never lift it.** Mixing a bright accent into a near-black endpoint raises its
+luminance, and a raised black is a faded print. Put the tinted ink back on the luminance of the
+neutral endpoint it replaced and assert it — the gallery's first cut drove its paper shadow from
+`#232628` to `#432C25` and washed out every dark frame on the page.
+
+**Never take colour off the merchandise.** A photograph that ILLUSTRATES can take a treatment; a
+photograph that IS the product cannot lose the thing being sold. The gallery learned this twice:
+first as a carve-out for two stone swatches, then again when the carve-out put two full-colour
+tiles among six greyscale ones and the catalogue read as a rendering error. A product grid is
+merchandise all the way across. A treatment that keeps colour needs no carve-out at all.
+
+**Check the property, not the mechanism.** The swatch carve-out existed because two stones measured
+a chroma of 2 apart under the duotone. When the treatment changed, the right move was not to keep
+the carve-out but to assert the thing it was protecting: *the two swatches must stay distinguishable*
+— measured at 22–26 apart under the grade, against 0.1–0.6 under the duotone. A property check
+cannot be satisfied by moving the mechanism somewhere else.
+
+**And put an expiry on it.** The gallery's duotone was justified by a real defect — six photographs
+in three incompatible registers. The asset set was then rebuilt to eleven distinct shoots and the
+justification expired, but the treatment stayed for three more commits because nothing tied the two
+together. **Whenever a treatment exists to repair an asset set, write down which measurement
+justifies it**, so the next person can re-take it and find out it no longer does.
 
 ### Elevation (`--elev-rest`, `--elev-hover`)
 | Position | `--elev-rest` | `--elev-hover` |

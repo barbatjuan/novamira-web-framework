@@ -61,6 +61,26 @@ dies silently on exactly the two anchors whose small type needed it most, and ev
 renders, and a screenshot looks correct. `PERS-MATTER` and `PERS-INSTITUTIONAL` are the two anchors
 this applies to.
 
+### The `Imagery` line is read, not just read about
+
+Each anchor below carries an **Imagery** line, and a generator is entitled to resolve a photographic
+treatment from it — see `web-templates/references/design-system.md` § "One treatment for the
+photographs". Two consequences follow, and both are the reason this note exists rather than living
+in whichever build discovered them:
+
+- **A word about colour moves colour; a word about tone moves tone.** `PERS-MATTER`'s *warm-graded*
+  and `PERS-INSTITUTIONAL`'s *sober* are claims about saturation. `PERS-DIRECT`'s *high-contrast*
+  is a claim about tonality. Reading one as the other is how the gallery briefly gave its most
+  restrained anchor the loudest photograph on the page.
+- **Silence means the default, and silence is not a gap to fill.** `PERS-EDITORIAL`'s line names
+  only the crop, so `PERS-EDITORIAL` takes whatever the shared default is. A generator that invents
+  a colour claim for it has stopped transcribing this file and started competing with it. Same rule
+  as the wordmark tracking above.
+
+**And no line here asks for a monochrome.** *High-contrast* is about tonality, *tightly cropped* is
+about framing; neither says "no colour". A build that reads them as licence to desaturate has
+over-read them, which is exactly what happened once.
+
 ### `PERS-EDITORIAL` — Editorial
 
 **Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` · elevation `none`
