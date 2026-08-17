@@ -895,6 +895,23 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
          now appears twice on the section instead of once, and no cell is empty. ── */
   [data-comp="lp-asymmetric"] .services .items > :nth-child(2) .frame{
     aspect-ratio:auto;flex:1 1 auto;min-height:0}
+
+  /* ── THE ALTERNATION REACHES THE CAPTION. `layout-patterns.md` already asks this blueprint to
+        alternate -- "two columns at 7/5 or 5/7, alternating direction section to section" -- and
+        the file's own § "Page rhythm" heading is "alternate to avoid monotony". Card 2 carries its
+        caption ABOVE its photograph while 1 and 3 keep it below, which is that rhythm applied to a
+        second axis rather than a one-off on one card: three cards in a row that all stack the same
+        way read as one card printed three times, and the eye finds the repetition before it finds
+        the work.
+
+        `order` and not `flex-direction:column-reverse`, because reversing the axis would also carry
+        `.rule` to the far side. The hairline divides the photograph from its caption and belongs
+        BETWEEN them whichever is on top, so it moves with the body rather than staying put. The
+        body's padding flips with it for the same reason -- `--sp-s` opens the gap toward the
+        photograph, and toward is a different edge once the caption is above it. ── */
+  [data-comp="lp-asymmetric"] .services .items > :nth-child(2) > .body{
+    order:-2;padding:0 0 var(--sp-s)}
+  [data-comp="lp-asymmetric"] .services .items > :nth-child(2) > .rule{order:-1}
   [data-comp="lp-asymmetric"] .services .items > :last-child{
     grid-column:1/-1;display:grid;grid-template-columns:7fr 5fr;
     gap:var(--sp-m);align-items:center}
