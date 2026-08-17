@@ -41,6 +41,8 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
 - Ask the client for 2–4 references BEFORE recommending. Confirm the recommended template
   with the user before continuing.
 - Mobile-first: every section carries mobile / tablet / desktop behavior.
+- Two archetypes of one family share at most HALF their sections, and every wireframe row
+  carries a `COMP-*` id: a section written as prose is invisible to `RT_TPL_TOO_SIMILAR`.
 
 ## Execution Steps
 1. Determine **site type**: `ecommerce` | `corporate`. Ask (AskUserQuestion) if unknown.

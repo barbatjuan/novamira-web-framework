@@ -11,7 +11,7 @@
 | Nivel de contenido | Bajo (todo apunta a la conversión) |
 | Protagonismo del producto | Alto — ofertas visibles de inmediato |
 | Protagonismo de la marca | Bajo |
-| ADN | Hero promo con countdown + CTA fuerte, urgencia en toda la página. Única plantilla con countdown. |
+| ADN | Hero promo con countdown + CTA fuerte, urgencia en toda la página, y cierra con la última llamada y sus bases. Única plantilla con countdown. |
 
 ## 2. Wireframe (top → bottom)
 
@@ -20,15 +20,17 @@ COMP-ANNOUNCEMENT (urgencia) [fijo · ADN] · cupón / cuenta regresiva / envío
 COMP-HEADER              [fijo]
 COMP-HERO (promo ~50vh + countdown) [fijo · ADN]
 COMP-PRODUCT-GRID (ofertas) [fijo · ADN] · productos en descuento con badge
-COMP-PROMO-BANNER (x2–3)  [fijo] · bloques de promoción secundarios
+COMP-PROMO-BANNER (x2–3)  [fijo · ADN] · bloques de promoción secundarios
 COMP-PRODUCT-CAROUSEL (más ofertas) [toggle]
-COMP-CATEGORY-CARD       [toggle] · "comprá por descuento %"
 COMP-TRUST-BADGES        [toggle] · pago seguro (reduce fricción)
+COMP-CTA                 [fijo · ADN] · banda de cierre: última llamada + bases
 COMP-NEWSLETTER (cupón)  [toggle]
 COMP-FOOTER              [fijo]
 ```
 
-Todo grita conversión. Ausencia intencional: sin storytelling, sin editorial lento, sin aire.
+Todo grita conversión. Ausencia intencional: sin storytelling, sin editorial lento, sin aire, y
+**sin bloque de categorías**: navegar por rubro es la lógica de TPL-E-04 y baja la temperatura de
+una campaña; acá se navega por descuento y eso ya lo hacen los `COMP-PROMO-BANNER`.
 
 ## 3. Secciones
 
@@ -55,20 +57,31 @@ Objetivo: venta inmediata de productos en descuento (venta). Grilla de `COMP-PRO
 Mobile: 2 columnas. Desktop: 3–4. Reutilizable: GLOBAL (card variante sale). Elementor: Loop Grid
 Woo filtrando on-sale. Divi: Woo Products on-sale.
 
-### COMP-PROMO-BANNER — bloques promo `[fijo]`
+### COMP-PROMO-BANNER — bloques promo `[fijo · ADN]`
 Objetivo: empujar promociones específicas (venta). 2–3 banners (ej: "2x1", "hasta -70%", "solo
 hoy") imagen + texto + CTA. Mobile: apilados full-width. Desktop: 2–3 en fila o banda ancha.
-Reutilizable: GLOBAL (`COMP-PROMO-BANNER`).
+Reutilizable: GLOBAL (`COMP-PROMO-BANNER`). Estos banners son también el acceso "por nivel de
+descuento" que reemplaza al bloque de categorías.
 
 ### COMP-PRODUCT-CAROUSEL — más ofertas `[toggle]`
 Objetivo: seguir mostrando descuentos (venta). Carrusel de ofertas. Reutilizable: GLOBAL.
 
-### COMP-CATEGORY-CARD — por descuento `[toggle TGL-CATEGORIES]`
-Objetivo: navegar por nivel de descuento (venta). Cards "hasta -30/50/70%". Reutilizable: GLOBAL.
-
 ### COMP-TRUST-BADGES `[toggle TGL-TRUST]`
 Objetivo: reducir fricción en compra impulsiva (confianza). Pago seguro, medios, devolución.
 Fila compacta. Reutilizable: GLOBAL.
+
+### COMP-CTA — última llamada `[fijo · ADN] · TGL-CTA-STRENGTH`
+Objetivo: cerrar la campaña con la oferta repetida y sin ambigüedad legal (conversión). Banda final
+sobre `--c-sale`: el claim de campaña otra vez, el countdown replicado o la fecha de fin en texto,
+el cupón y el CTA más fuerte de la página. Debajo, en `--fs-small`, qué incluye y qué no, stock
+sujeto a disponibilidad y el link a bases y condiciones. Mobile: countdown + CTA full-width, letra
+chica plegada. Desktop: claim y contador en una línea, CTA sólido a la derecha.
+Reutilizable: GLOBAL (`COMP-CTA`, variante sale).
+
+**Por qué la letra chica es parte del cierre y no del footer.** Es el único arquetipo de la familia
+que promete un precio con fecha de vencimiento, y una campaña que repite la oferta sin decir hasta
+cuándo ni sobre qué genera exactamente la fricción que la banda venía a quitar. Es también donde
+`priceValidUntil` del schema `Offer` tiene su fuente visible.
 
 ### COMP-NEWSLETTER — cupón `[toggle TGL-NEWSLETTER]`
 Objetivo: captar con incentivo ("10% en tu primera compra"). CTA fuerte. Reutilizable: GLOBAL.
@@ -85,16 +98,16 @@ Desktop: 3–4 columnas + link a "términos de la promoción". Reutilizable: GLO
 | `TGL-HERO-HEIGHT` | 50vh (45vh mobile) | |
 | `TGL-CARD-STYLE` | imagen grande con badge | |
 | `TGL-CARD-IMG` | sí | |
-| `TGL-CATEGORIES` | off | opcional (por descuento) |
 | `TGL-TRUST` | on | reduce fricción |
 | `TGL-NEWSLETTER` | on | con cupón |
 | `TGL-CTA-STRENGTH` | fuerte | ADN |
 
 **Fijos:** COMP-ANNOUNCEMENT (urgencia), COMP-HEADER, COMP-HERO (promo+countdown),
-COMP-PRODUCT-GRID (ofertas), COMP-PROMO-BANNER, COMP-FOOTER.
-**Ausencias de ADN:** storytelling, editorial, lookbook, mucho aire → si el cliente los pide,
-sugerir TPL-E-01 o TPL-E-03.
+COMP-PRODUCT-GRID (ofertas), COMP-PROMO-BANNER, COMP-CTA (cierre), COMP-FOOTER.
+**Ausencias de ADN:** storytelling, editorial, lookbook, mucho aire, bloque de categorías por rubro
+→ si el cliente los pide, sugerir TPL-E-01, TPL-E-03 o TPL-E-04.
 
 ## 5. SEO / semántica
-1 `H1` (campaña). `H2` por bloque de promo. Cuidar que el countdown no bloquee LCP. Marcar precios
-con schema `Offer`/`priceValidUntil` (ver `wordpress-seo`). `header` > `main` > `footer`.
+1 `H1` (campaña). `H2` por bloque de promo y en la banda de cierre. Cuidar que el countdown no
+bloquee LCP. Marcar precios con schema `Offer`/`priceValidUntil` (ver `wordpress-seo`), tomando la
+fecha de la banda de cierre. `header` > `main` > `footer`.

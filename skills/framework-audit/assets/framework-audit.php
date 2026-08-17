@@ -93,6 +93,8 @@ const ROW_TYPES = array(
 	'RT_PERS_DUPLICATE_ID'       => 'FAIL  — design-personalities.md declares the same personality ID twice',
 	'RT_PERS_TOO_SIMILAR'        => 'FAIL  — two personality anchors share more than one axis position',
 	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
+	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
+	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
 	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
@@ -1099,6 +1101,156 @@ if ( ! file_exists( $pers_file ) ) {
 	foreach ( $PERS_IDS as $pid ) {
 		if ( ! isset( $found[ $pid ] ) ) {
 			add( 'RT_PERS_ID_MISSING', 'FAIL', 'ux-design-system', 'design-personalities.md is missing personality "' . $pid . '"' );
+		}
+	}
+}
+
+/**
+ * The COMP-* section inventory one `TPL-*.md` declares, deduped, in first-appearance order.
+ *
+ * Read from the FENCED BLOCK under "## 2. Wireframe" and nowhere else. That narrowness is the
+ * point: § 3 expands each section in prose and names components it is merely comparing against,
+ * and § 4's "Fijos:" line restates a subset — counting either would let a doc's commentary decide
+ * its architecture. The wireframe block is the archetype's declaration of what exists.
+ *
+ * A section the block names in PROSE rather than as a `COMP-*` id is invisible here, and that is
+ * why naming every wireframe row is a rule rather than a nicety: two archetypes whose only
+ * difference was an unnamed "Editorial / Lookbook" against an unnamed "Brand Story" measured as
+ * 89% identical, and the difference the reader could see was the one the comparison could not.
+ *
+ * So the ROWS are checked one by one, not just the block as a whole. Proven by mutation: turning
+ * TPL-E-01's `COMP-GALLERY (lookbook)` back into the prose row it used to be left the whole tree
+ * at 0 FAIL, because the block still held nine other ids and the pair it pulled together landed
+ * exactly ON the half rather than past it. A rule that only fires when EVERY row is prose is a
+ * rule the one-row-at-a-time version of the defect walks straight through.
+ *
+ * Returns null when there is no wireframe block at all; otherwise array( comps, prose ) where
+ * `prose` is every non-empty row that carries no id.
+ */
+function tpl_wireframe_comps( $src ) {
+	/* `m` so `^` finds the heading on its own LINE, `s` so the capture can run past newlines. `m`
+	   alone leaves the heading unfindable and every archetype reads as wireframe-less; `s` alone
+	   anchors `^` to byte 0 and does the same. Both, or the row reports the wrong failure — which
+	   is what the first run of this check did, on all ten files at once. */
+	if ( ! preg_match( '/^##\s*2\.\s*Wireframe[^\n]*\n(.*)/ms', $src, $m ) ) {
+		return null;
+	}
+	if ( ! preg_match( '/```[^\n]*\n(.*?)```/s', $m[1], $f ) ) {
+		return null;
+	}
+	$comps = array();
+	$prose = array();
+	foreach ( explode( "\n", $f[1] ) as $line ) {
+		$line = trim( $line );
+		if ( '' === $line ) {
+			continue;
+		}
+		if ( ! preg_match_all( '/COMP-[A-Z0-9-]+/', $line, $cm ) ) {
+			$prose[] = $line;
+			continue;
+		}
+		foreach ( $cm[0] as $id ) {
+			$comps[ $id ] = true;
+		}
+	}
+
+	return array( array_keys( $comps ), $prose );
+}
+
+/* ------------------------------------------------- archetypes of one family must be five designs
+ *
+ * web-templates/SKILL.md promises "five different architectures", and the personality catalog
+ * already has to earn its equivalent claim: `RT_PERS_TOO_SIMILAR` above lets two anchors share at
+ * most one of five axes, "or they ship as the same site with a different accent colour". The
+ * archetypes made the same promise with nothing checking it, and the ecommerce family had drifted
+ * to where TPL-E-01 and TPL-E-03 shared eight of their nine sections.
+ *
+ * THE BAR IS MEASURED, NOT CHOSEN. The corporate family is the control — five architectures nobody
+ * disputes are different. Over its ten pairs the shared fraction runs from a half down to about a
+ * quarter, and the FLOOR is exactly a half, hit twice: TPL-C-01/TPL-C-03 and TPL-C-02/TPL-C-03 each
+ * share 6 of 12. So "at most half" is not a round number picked to be lenient; it is the closest two
+ * genuinely different architectures in this repo have ever stood, with no pair to spare.
+ *
+ * Compared in INTEGERS — 2·|A∩B| > |A∪B| — so the bar cannot drift with float representation, and
+ * so the message can name the two counts a reader has to act on rather than a ratio they must
+ * reverse-engineer.
+ *
+ * WITHIN a family only. Ecommerce and corporate archetypes are never offered to the same client:
+ * `recommender.md` § 0 bifurcates on site type before any archetype is on the table, so a
+ * cross-family resemblance costs nobody a choice. A family directory that vanished entirely emits
+ * nothing here, and is caught one level up: SKILL.md points at both directories, so
+ * `RT_BROKEN_REFERENCE` fires on the missing path.
+ */
+foreach ( array( 'ecommerce', 'corporate' ) as $tpl_family ) {
+	$tpl_dir = $root . '/skills/web-templates/references/templates/' . $tpl_family;
+	if ( ! is_dir( $tpl_dir ) ) {
+		continue;
+	}
+	$tpl_files = glob( $tpl_dir . '/TPL-*.md' );
+	if ( ! is_array( $tpl_files ) ) {
+		$tpl_files = array();
+	}
+	/* Sorted, so the pair a row names is the same pair on every filesystem. glob() order is not
+	   guaranteed, and a row whose subject depends on the host is a row nobody can reproduce. */
+	sort( $tpl_files );
+
+	$tpl_inv = array();
+	foreach ( $tpl_files as $tpl_file ) {
+		$tpl_base = basename( $tpl_file );
+		$tpl_id   = preg_match( '/^(TPL-[A-Z]+-\d+)/', $tpl_base, $im ) ? $im[1] : $tpl_base;
+		/* Every name in this block carries the `tpl_` prefix, and that is a rule here rather than a
+		   style: this file is 2,900 lines of top-level procedural code sharing one global scope,
+		   and an unprefixed `$prose` in this loop silently overwrote the concatenated-markdown
+		   blob assigned ~1,300 lines above and read ~1,500 lines below, killing the whole audit
+		   with a fatal at a preg_match that had nothing to do with templates. */
+		$tpl_parsed = tpl_wireframe_comps( slurp( $tpl_file ) );
+		/* An archetype the parser cannot read is NOT skipped quietly. Dropping it would remove it
+		   from every pair it belongs to, so a botched heading or an unclosed fence would be a
+		   silent off switch for the check — the same shape `RT_PERS_DUPLICATE_ID` exists to close
+		   one level up, where a duplicated heading switched RT_PERS_TOO_SIMILAR off for the real
+		   anchor. Report it, then leave it out: comparing an empty inventory would invent a
+		   distance nobody wrote. */
+		if ( null === $tpl_parsed ) {
+			add( 'RT_TPL_NO_WIREFRAME', 'FAIL', 'web-templates', $tpl_family . '/' . $tpl_base . ' has no fenced block under "## 2. Wireframe" — its section inventory cannot be read, so it leaves the ' . $tpl_family . ' similarity comparison entirely' );
+			continue;
+		}
+		list( $tpl_comps, $tpl_prose ) = $tpl_parsed;
+		/* Three causes, three messages, one row id — the shape RT_GALLERY_NOT_DISTINCT already
+		   uses. The causes are EXCLUSIVE and ordered widest-first: a block with no ids anywhere is
+		   one finding about the file, not one finding per line plus a summary, which is what the
+		   first version printed (four rows for a three-line block). */
+		if ( array() === $tpl_comps ) {
+			add( 'RT_TPL_NO_WIREFRAME', 'FAIL', 'web-templates', $tpl_family . '/' . $tpl_base . ' has a wireframe block that names no COMP-* section at all — there is no declared architecture here to compare' );
+			continue;
+		}
+		/* The dangerous cause, and the one worth a row PER LINE: the block still parses and the
+		   archetype still enters the comparison, carrying one section fewer than it really has.
+		   Each row names the exact text to fix. */
+		if ( array() !== $tpl_prose ) {
+			foreach ( $tpl_prose as $tpl_prose_row ) {
+				add( 'RT_TPL_NO_WIREFRAME', 'FAIL', 'web-templates', $tpl_family . '/' . $tpl_base . ' wireframe row "' . $tpl_prose_row . '" carries no COMP-* id — that section is invisible to the similarity comparison, which is exactly how two archetypes whose only difference was an unnamed section measured as near-identical' );
+			}
+			continue;
+		}
+		$tpl_inv[ $tpl_id ] = $tpl_comps;
+	}
+
+	$tpl_ids = array_keys( $tpl_inv );
+	foreach ( $tpl_ids as $tpl_i => $tpl_a ) {
+		foreach ( array_slice( $tpl_ids, $tpl_i + 1 ) as $tpl_b ) {
+			$tpl_shared = array_values( array_intersect( $tpl_inv[ $tpl_a ], $tpl_inv[ $tpl_b ] ) );
+			$tpl_union  = array_unique( array_merge( $tpl_inv[ $tpl_a ], $tpl_inv[ $tpl_b ] ) );
+			sort( $tpl_shared );
+			if ( 2 * count( $tpl_shared ) > count( $tpl_union ) ) {
+				add(
+					'RT_TPL_TOO_SIMILAR',
+					'FAIL',
+					'web-templates',
+					$tpl_a . ' and ' . $tpl_b . ' share ' . count( $tpl_shared ) . ' of ' . count( $tpl_union )
+						. ' sections (' . implode( ', ', $tpl_shared )
+						. ') — two archetypes of one family may share at most half, the distance the corporate family already holds, or they ship as the same site with a different accent'
+				);
+			}
 		}
 	}
 }

@@ -300,6 +300,43 @@ function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
 }
 
 /**
+ * One home archetype, reduced to what RT_TPL_TOO_SIMILAR reads: the fenced block under
+ * "## 2. Wireframe" and the COMP-* ids inside it.
+ *
+ * $comps is the wireframe inventory as bare suffixes ('HEADER', 'HERO', …). $decoy is a run of
+ * COMP-* ids planted in § 3, OUTSIDE the block — the parser must ignore them, because § 3 names
+ * components a section is merely compared against and § 4 restates a subset, and counting either
+ * would let a doc's commentary decide its architecture.
+ *
+ * $wire === null writes the heading with no fenced block; $wire === 'prose' writes a block whose
+ * rows are ALL prose; $wire === 'mixed' writes the ids plus ONE prose row, which is the dangerous
+ * shape — the block still parses and the archetype still enters the comparison, one section
+ * lighter than it really is. Three causes, one row id: RT_TPL_NO_WIREFRAME.
+ */
+function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
+	$out = "# $id — Fixture\n\n## 1. Identidad\n\nFixture archetype.\n\n## 2. Wireframe (top → bottom)\n\n";
+	if ( 'fenced' === $wire || 'mixed' === $wire ) {
+		$out .= "```\n";
+		foreach ( $comps as $c ) {
+			$out .= 'COMP-' . $c . "        [fijo]\n";
+		}
+		if ( 'mixed' === $wire ) {
+			$out .= "Editorial / Lookbook     [fijo]\n";
+		}
+		$out .= "```\n\n";
+	} elseif ( 'prose' === $wire ) {
+		$out .= "```\nCabecera        [fijo]\nBanda editorial [fijo]\nPie de pagina   [fijo]\n```\n\n";
+	}
+	$out .= "## 3. Secciones\n\n";
+	foreach ( $decoy as $d ) {
+		$out .= "### COMP-$d `[fijo]`\nObjetivo: fixture prose that names an id the wireframe does not carry.\n\n";
+	}
+	$out .= "## 4. Toggles admitidos\n\n**Fijos:** fixture.\n\n## 5. SEO / semántica\n\nFixture.\n";
+
+	return $out;
+}
+
+/**
  * One proof mockup, reduced to the only thing RT_PROOF_NOT_DISTINCT reads: a `:root` block
  * carrying the five axis signatures. Everything a real proof file also has — the copy, the
  * layout, the placeholder recipe — is deliberately absent, so a fixture that fails fails on the
@@ -4134,6 +4171,69 @@ fx_builder_skill( $r125, fx_builder( array( 'font_family' => 'Georgia, serif', '
 list( , $out125 ) = fx_run_ok( $audit, $r125 );
 ok( array() === fx_lines_with( $out125, array( 'RT_FONT_NO_SERVING_PATH' ) ), 'Georgia no produce fila: el navegador ya la tiene', $out125 );
 fx_rrmdir( $r125 );
+
+echo "--- dos arquetipos de una familia no pueden ser el mismo esqueleto ---\n";
+$r127 = fx_tmp_root();
+fx_base( $r127 );
+$fx_tpl_dir = 'skills/web-templates/references/templates/';
+/* E-01 y E-02 comparten 6 de 10: mas de la mitad, tiene que FALLAR. */
+fx( $r127, $fx_tpl_dir . 'ecommerce/TPL-E-01-fixture.md', fx_tpl( 'TPL-E-01', array( 'HEADER', 'HERO', 'CATEGORY-CARD', 'PRODUCT-CAROUSEL', 'GALLERY', 'BENEFITS', 'NEWSLETTER', 'FOOTER' ) ) );
+fx( $r127, $fx_tpl_dir . 'ecommerce/TPL-E-02-fixture.md', fx_tpl( 'TPL-E-02', array( 'HEADER', 'HERO', 'CATEGORY-CARD', 'PRODUCT-CAROUSEL', 'GALLERY', 'BENEFITS', 'PRODUCT-GRID', 'FAQ' ) ) );
+/* E-03 comparte SOLO header+hero en su wireframe, pero su § 3 nombra en prosa los seis ids que le
+   faltarian para colisionar con E-01 (8 de 12 -> FALLA). Si el parser leyera mas alla del bloque
+   cercado, este arbol traeria una fila de mas -- que es la mutacion que convierte "arquitectura
+   declarada" en "cualquier COMP que el documento mencione de paso". */
+fx(
+	$r127,
+	$fx_tpl_dir . 'ecommerce/TPL-E-03-fixture.md',
+	fx_tpl(
+		'TPL-E-03',
+		array( 'HEADER', 'HERO', 'ABOUT', 'VALUES', 'TESTIMONIAL', 'CTA' ),
+		array( 'CATEGORY-CARD', 'PRODUCT-CAROUSEL', 'GALLERY', 'BENEFITS', 'NEWSLETTER', 'FOOTER' )
+	)
+);
+/* C-01 y C-02 comparten EXACTAMENTE la mitad -- 6 de 12 -- que es donde se para el par mas
+   parecido de la familia corporate real (TPL-C-01/TPL-C-03 y TPL-C-02/TPL-C-03). Es legal, y esta
+   aqui porque es el borde: un `>` que se convierta en `>=` deja verde este escenario en la fila de
+   arriba y pone en rojo la familia corporate del repo, que no cambio nada. */
+fx( $r127, $fx_tpl_dir . 'corporate/TPL-C-01-fixture.md', fx_tpl( 'TPL-C-01', array( 'HEADER', 'HERO', 'SERVICES', 'CTA', 'FOOTER', 'LOGOS', 'PROCESS', 'CASES', 'TESTIMONIAL', 'LEAD-FORM' ) ) );
+fx( $r127, $fx_tpl_dir . 'corporate/TPL-C-02-fixture.md', fx_tpl( 'TPL-C-02', array( 'HEADER', 'HERO', 'SERVICES', 'CTA', 'FOOTER', 'LOGOS', 'PORTFOLIO-GRID', 'ABOUT' ) ) );
+/* C-03 es IDENTICO a E-01, seccion por seccion, y no puede producir fila: el recomendador bifurca
+   por tipo de sitio antes de poner un arquetipo sobre la mesa, asi que un parecido entre familias
+   no le cuesta una eleccion a nadie. Quitar el bucle por familia y comparar todo contra todo hace
+   aparecer exactamente esta fila. */
+fx( $r127, $fx_tpl_dir . 'corporate/TPL-C-03-fixture.md', fx_tpl( 'TPL-C-03', array( 'HEADER', 'HERO', 'CATEGORY-CARD', 'PRODUCT-CAROUSEL', 'GALLERY', 'BENEFITS', 'NEWSLETTER', 'FOOTER' ) ) );
+list( , $out127 ) = fx_run_ok( $audit, $r127 );
+ok( 'FAIL' === fx_row_level( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-E-01 and TPL-E-02' ) ), 'dos arquetipos que comparten mas de la mitad de su inventario FALLAN', fx_row_level( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-E-01 and TPL-E-02' ) ) );
+ok( array() !== fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'share 6 of 10 sections' ) ), 'y la fila dice CUANTAS comparten sobre CUANTAS hay, que es lo accionable', $out127 );
+ok( array() !== fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'COMP-GALLERY' ) ), 'y nombra las secciones compartidas, no solo el conteo', $out127 );
+ok( array() === fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-E-03' ) ), 'el § 3 en prosa NO cuenta: la arquitectura es el bloque cercado del § 2 y nada mas', $out127 );
+ok( array() === fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-C-01 and TPL-C-02' ) ), 'compartir EXACTAMENTE la mitad es legal: el limite es mas de la mitad', $out127 );
+ok( array() === fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-C-03' ) ), 'y un arquetipo corporate identico a uno ecommerce no produce fila: se compara dentro de la familia', $out127 );
+fx_rrmdir( $r127 );
+
+echo "--- un arquetipo que el parser no puede leer no se cae de la comparacion en silencio ---\n";
+$r128 = fx_tmp_root();
+fx_base( $r128 );
+/* Las dos caras del mismo agujero. Sin esta fila, cualquiera de las dos saca al arquetipo de todos
+   los pares a los que pertenece y RT_TPL_TOO_SIMILAR se calla justo donde la documentacion empeoro
+   -- la forma que RT_PERS_DUPLICATE_ID cierra un nivel mas arriba. */
+fx( $r128, $fx_tpl_dir . 'ecommerce/TPL-E-01-fixture.md', fx_tpl( 'TPL-E-01', array( 'HEADER', 'HERO', 'FOOTER' ), array(), null ) );
+fx( $r128, $fx_tpl_dir . 'ecommerce/TPL-E-02-fixture.md', fx_tpl( 'TPL-E-02', array(), array(), 'prose' ) );
+fx( $r128, $fx_tpl_dir . 'ecommerce/TPL-E-03-fixture.md', fx_tpl( 'TPL-E-03', array( 'HEADER', 'HERO', 'ABOUT', 'VALUES', 'TESTIMONIAL', 'CTA', 'FOOTER' ) ) );
+/* La tercera causa, y la unica que NO rompe el parseo: el bloque tiene ids y ademas UNA fila en
+   prosa. Sin este arm, la fila solo dispara cuando TODAS las filas son prosa, y la version
+   fila-a-fila del mismo defecto pasa de largo -- comprobado por mutacion sobre el arbol real:
+   devolver `COMP-GALLERY (lookbook)` de TPL-E-01 a la prosa que era dejaba el arbol en 0 FAIL. */
+fx( $r128, $fx_tpl_dir . 'ecommerce/TPL-E-04-fixture.md', fx_tpl( 'TPL-E-04', array( 'HEADER', 'HERO', 'CATEGORY-GRID', 'PRODUCT-TABS', 'FOOTER' ), array(), 'mixed' ) );
+list( , $out128 ) = fx_run_ok( $audit, $r128 );
+ok( 'FAIL' === fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-01-fixture.md' ) ), 'un TPL sin bloque cercado bajo "## 2. Wireframe" FALLA, nombrando el archivo', fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-01-fixture.md' ) ) );
+ok( 'FAIL' === fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-02-fixture.md' ) ), 'y un bloque cuyas filas son prosa sin ningun COMP-* tambien FALLA', fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-02-fixture.md' ) ) );
+ok( array() !== fx_lines_with( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-02-fixture.md', 'no COMP-* section at all' ) ), 'y las causas no dan el mismo mensaje: una es el bloque ausente, la otra el bloque sin ningun id', $out128 );
+ok( 'FAIL' === fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-04-fixture.md' ) ), 'UNA sola fila en prosa dentro de un bloque que por lo demas parsea tambien FALLA', fx_row_level( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-04-fixture.md' ) ) );
+ok( array() !== fx_lines_with( $out128, array( 'RT_TPL_NO_WIREFRAME', 'Editorial / Lookbook' ) ), 'y la fila cita el texto exacto de la fila sin id, que es lo que hay que arreglar', $out128 );
+ok( array() === fx_lines_with( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-03-fixture.md' ) ), 'el arquetipo legible no se acusa de nada', $out128 );
+fx_rrmdir( $r128 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

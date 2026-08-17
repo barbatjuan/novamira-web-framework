@@ -762,8 +762,8 @@ $CONTENT = array(
 		'tpl_name' => 'Catalog / Product-First',
 		'site'     => 'ecommerce',
 		'site_es'  => 'Ecommerce',
-		'dna'      => 'COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL',
-		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER',
+		'dna'      => 'COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT',
+		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER',
 		'announce' => 'Envío en 72 h a península · Corte a medida sin coste',
 		'search'   => 'Buscar mármol, granito, pizarra…',
 		'tools'    => array( 'Cuenta' ),
@@ -804,6 +804,30 @@ $CONTENT = array(
 			array( 'Corte a medida', 'Sin coste sobre el precio de tabla.' ),
 			array( 'Pago en 3 plazos', 'Sin intereses desde 200 €.' ),
 			array( 'Devolución 30 días', 'En piezas de catálogo sin cortar.' ),
+		),
+		/* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair, both `[fijo · ADN]` in the
+		   template doc, so both are rendered rather than treated as optional furniture. The
+		   questions are the ones a stone buyer actually asks: plazo, medida, factura, devolución. */
+		'faq'      => array(
+			'eyebrow' => 'Antes de pedir',
+			'h2'      => 'Lo que preguntan siempre',
+			'rows'    => array(
+				array( '¿Cuánto tarda una pieza cortada a medida?', 'De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.' ),
+				array( '¿Cómo mando las medidas?', 'Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.' ),
+				array( '¿Hacéis factura con IVA desglosado?', 'Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.' ),
+				array( '¿Puedo devolver una pieza cortada?', 'No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.' ),
+				array( '¿Sirven muestras?', 'Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.' ),
+			),
+		),
+		'close'    => array(
+			'eyebrow' => 'Mostrador',
+			'h2'      => '¿No encontraste tu pieza?',
+			'lede'    => 'Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.',
+			'chans'   => array(
+				array( 'Teléfono', '965 60 41 22', 'Lun a vie, 8:00–18:00' ),
+				array( 'WhatsApp', '+34 600 41 22 08', 'Mandá el croquis y te presupuestamos' ),
+				array( 'Email', 'mostrador@piedravaldes.es', 'Respuesta el mismo día laborable' ),
+			),
 		),
 		'footer'   => array(
 			'tag'   => 'Tienda de piedra natural · Novelda, Alicante',
@@ -1557,9 +1581,27 @@ $css[] = <<<'CSS'
      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
 .ben b{font-size:var(--fs-small)}
 .bicon{color:var(--c-accent);display:block;line-height:0;margin-bottom:.15rem}
+/* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair.
+   Built out of the SAME primitives the benefits bar already uses (`.items` grid, `--c-border`
+   rules, `--fs-small`) rather than a new layout system, so the pair inherits every blueprint's
+   container geometry without any of the four `[data-comp]` blocks needing a rule for it. That is
+   also why neither section is `.band`: `.band` is placed column by column in the grid blueprints
+   and a new child class there would land unplaced. */
+.faqlist{border-top:1px solid var(--c-border);max-width:72ch}
+.faqlist > details{border-bottom:1px solid var(--c-border)}
+.faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
+  font-weight:600;color:var(--c-text)}
+.faqlist summary::marker{color:var(--c-accent)}
+.faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-small);color:var(--c-text-soft);
+  max-width:66ch}
+.chans{gap:var(--sp-s)}
+.chan{display:flex;flex-direction:column;gap:.15rem;min-width:0;
+      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
+.chan b{font-size:var(--fs-small);overflow-wrap:anywhere}
 @media(min-width:600px){.bens{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){
   .bens{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .chans{grid-template-columns:repeat(3,minmax(0,1fr))}
   .rail{grid-auto-columns:minmax(0,1fr);overflow-x:visible}
 }
 CSS;
@@ -2359,6 +2401,38 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 			. ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
 			. '<path d="M20 6 9 17l-5-5"/></svg></span>'
 			. '<b>' . h( $b[0] ) . '</b><span class="muted small">' . h( $b[1] ) . '</span></div>';
+	}
+	$o[] = '</div></div></section>';
+
+	// 6 · COMP-FAQ — dudas operativas  [fijo · ADN]
+	//
+	// `<details>/<summary>`, which is `mockup-guide.md`'s recipe for COMP-FAQ and the same choice
+	// the handoff block below makes: the platform's own disclosure widget, no script, and it stays
+	// open-able with JS off. A panel built from divs would need state this generator cannot ship.
+	$fq  = $C['faq'];
+	$o[] = '<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="faqlist">';
+	foreach ( $fq['rows'] as $r ) {
+		$o[] = '<details><summary>' . h( $r[0] ) . '</summary><p>' . h( $r[1] ) . '</p></details>';
+	}
+	$o[] = '</div></div></section>';
+
+	// 7 · COMP-CONTACT-DIRECT — "¿no lo encontraste?"  [fijo · ADN] — the closing band
+	//
+	// The ecommerce close, and deliberately NOT the corporate one: TPL-C-01 above ends in a
+	// COMP-LEAD-FORM that takes a name and answers in 48 h. A catalogue whose whole DNA is FINDING
+	// closes on what happens when finding failed, at counter speed — three channels, each with the
+	// one fact that makes it usable (hours, what to send, how fast the reply comes).
+	$cl  = $C['close'];
+	$o[] = '<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cl['h2'] ) . '</h2>'
+		. '<p class="lede muted">' . h( $cl['lede'] ) . '</p></div><div class="items chans">';
+	foreach ( $cl['chans'] as $c ) {
+		$o[] = '<div class="chan"><span class="muted small">' . h( $c[0] ) . '</span>'
+			. '<b>' . h( $c[1] ) . '</b>'
+			. '<span class="muted small">' . h( $c[2] ) . '</span></div>';
 	}
 	$o[] = '</div></div></section>';
 

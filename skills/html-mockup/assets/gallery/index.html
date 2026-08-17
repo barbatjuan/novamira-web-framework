@@ -607,9 +607,27 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
 .ben b{font-size:var(--fs-small)}
 .bicon{color:var(--c-accent);display:block;line-height:0;margin-bottom:.15rem}
+/* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair.
+   Built out of the SAME primitives the benefits bar already uses (`.items` grid, `--c-border`
+   rules, `--fs-small`) rather than a new layout system, so the pair inherits every blueprint's
+   container geometry without any of the four `[data-comp]` blocks needing a rule for it. That is
+   also why neither section is `.band`: `.band` is placed column by column in the grid blueprints
+   and a new child class there would land unplaced. */
+.faqlist{border-top:1px solid var(--c-border);max-width:72ch}
+.faqlist > details{border-bottom:1px solid var(--c-border)}
+.faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
+  font-weight:600;color:var(--c-text)}
+.faqlist summary::marker{color:var(--c-accent)}
+.faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-small);color:var(--c-text-soft);
+  max-width:66ch}
+.chans{gap:var(--sp-s)}
+.chan{display:flex;flex-direction:column;gap:.15rem;min-width:0;
+      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
+.chan b{font-size:var(--fs-small);overflow-wrap:anywhere}
 @media(min-width:600px){.bens{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){
   .bens{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .chans{grid-template-columns:repeat(3,minmax(0,1fr))}
   .rail{grid-auto-columns:minmax(0,1fr);overflow-x:visible}
 }
 /* ══ THE SHELL — the gallery's own chrome, painted from `:root` and never from an anchor. It is
@@ -1404,7 +1422,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div></section>
 <section class="strip" id="tple02-editorial" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial" aria-label="TPL-E-02 × PERS-EDITORIAL">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-EDITORIAL</b> Editorial</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-EDITORIAL</b> Editorial</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>paper</b><span>#FFFFFF · #F6F7F8 · #15181A</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>generous</b><span>--sp-scale ×1.35</span></dd></div>
@@ -1415,8 +1433,8 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 
 tipo de sitio : ecommerce (Ecommerce)
 arquetipo     : TPL-E-02 — Catalog / Product-First
-  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL
-  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER
+  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT
+  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER
 ancla         : PERS-EDITORIAL — Editorial
 
 los cinco ejes, con el valor de sus tokens:
@@ -1470,11 +1488,23 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Pago en 3 plazos</b><span class="muted small">Sin intereses desde 200 €.</span></div>
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Devolución 30 días</b><span class="muted small">En piezas de catálogo sin cortar.</span></div>
 </div></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack"><span class="eyebrow">Antes de pedir</span><h2>Lo que preguntan siempre</h2></div><div class="faqlist">
+<details><summary>¿Cuánto tarda una pieza cortada a medida?</summary><p>De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.</p></details>
+<details><summary>¿Cómo mando las medidas?</summary><p>Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.</p></details>
+<details><summary>¿Hacéis factura con IVA desglosado?</summary><p>Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.</p></details>
+<details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
+<details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
+</div></div></section>
+<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
+<div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
+<div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
+</div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div></section>
 <section class="strip" id="tple02-direct" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="direct" aria-label="TPL-E-02 × PERS-DIRECT">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-DIRECT</b> Direct</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-DIRECT</b> Direct</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>monumental</b><span>ratio 1.618 · lh 0.82 · h1 120px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>ink</b><span>#0E1113 · #171B1E · #F4F6F7</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>compact</b><span>--sp-scale ×0.8</span></dd></div>
@@ -1485,8 +1515,8 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 
 tipo de sitio : ecommerce (Ecommerce)
 arquetipo     : TPL-E-02 — Catalog / Product-First
-  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL
-  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER
+  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT
+  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER
 ancla         : PERS-DIRECT — Direct
 
 los cinco ejes, con el valor de sus tokens:
@@ -1540,11 +1570,23 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Pago en 3 plazos</b><span class="muted small">Sin intereses desde 200 €.</span></div>
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Devolución 30 días</b><span class="muted small">En piezas de catálogo sin cortar.</span></div>
 </div></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack"><span class="eyebrow">Antes de pedir</span><h2>Lo que preguntan siempre</h2></div><div class="faqlist">
+<details><summary>¿Cuánto tarda una pieza cortada a medida?</summary><p>De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.</p></details>
+<details><summary>¿Cómo mando las medidas?</summary><p>Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.</p></details>
+<details><summary>¿Hacéis factura con IVA desglosado?</summary><p>Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.</p></details>
+<details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
+<details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
+</div></div></section>
+<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
+<div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
+<div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
+</div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div></section>
 <section class="strip" id="tple02-matter" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="matter" aria-label="TPL-E-02 × PERS-MATTER">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-MATTER</b> Matter</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-MATTER</b> Matter</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>classic</b><span>ratio 1.333 · lh 1.10 · h1 64px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>warm</b><span>#FFF3E3 · #F7E8D4 · #241C14</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
@@ -1555,8 +1597,8 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 
 tipo de sitio : ecommerce (Ecommerce)
 arquetipo     : TPL-E-02 — Catalog / Product-First
-  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL
-  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER
+  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT
+  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER
 ancla         : PERS-MATTER — Matter
 
 los cinco ejes, con el valor de sus tokens:
@@ -1610,11 +1652,23 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Pago en 3 plazos</b><span class="muted small">Sin intereses desde 200 €.</span></div>
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Devolución 30 días</b><span class="muted small">En piezas de catálogo sin cortar.</span></div>
 </div></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack"><span class="eyebrow">Antes de pedir</span><h2>Lo que preguntan siempre</h2></div><div class="faqlist">
+<details><summary>¿Cuánto tarda una pieza cortada a medida?</summary><p>De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.</p></details>
+<details><summary>¿Cómo mando las medidas?</summary><p>Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.</p></details>
+<details><summary>¿Hacéis factura con IVA desglosado?</summary><p>Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.</p></details>
+<details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
+<details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
+</div></div></section>
+<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
+<div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
+<div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
+</div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div></section>
 <section class="strip" id="tple02-institutional" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="institutional" aria-label="TPL-E-02 × PERS-INSTITUTIONAL">
-<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-INSTITUTIONAL</b> Institutional</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL</code></p><dl class="axes">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>TPL-E-02</b> Catalog / Product-First <span class="x">×</span> <b>PERS-INSTITUTIONAL</b> Institutional</p><p class="meta-sub">Ecommerce · ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>contained</b><span>ratio 1.200 · lh 1.25 · h1 48px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>cool</b><span>#F2F5F8 · #E8EDF3 · #141C24</span></dd></div>
 <div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
@@ -1625,8 +1679,8 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 
 tipo de sitio : ecommerce (Ecommerce)
 arquetipo     : TPL-E-02 — Catalog / Product-First
-  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL
-  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FOOTER
+  ADN fijo    : COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT
+  secciones   : COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER
 ancla         : PERS-INSTITUTIONAL — Institutional
 
 los cinco ejes, con el valor de sus tokens:
@@ -1679,6 +1733,18 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Corte a medida</b><span class="muted small">Sin coste sobre el precio de tabla.</span></div>
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Pago en 3 plazos</b><span class="muted small">Sin intereses desde 200 €.</span></div>
 <div class="ben"><span class="bicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Devolución 30 días</b><span class="muted small">En piezas de catálogo sin cortar.</span></div>
+</div></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack"><span class="eyebrow">Antes de pedir</span><h2>Lo que preguntan siempre</h2></div><div class="faqlist">
+<details><summary>¿Cuánto tarda una pieza cortada a medida?</summary><p>De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.</p></details>
+<details><summary>¿Cómo mando las medidas?</summary><p>Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.</p></details>
+<details><summary>¿Hacéis factura con IVA desglosado?</summary><p>Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.</p></details>
+<details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
+<details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
+</div></div></section>
+<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
+<div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
+<div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
 </div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>

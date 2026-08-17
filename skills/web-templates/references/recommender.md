@@ -52,13 +52,19 @@ defaults sugeridos, no en blanco).
 
 ## 3. Mapa señal → plantilla (ecommerce)
 
-| Perfil dominante | Recomienda |
-|------------------|-----------|
-| Marca visual, pocos SKUs, foto protagonista, descubrimiento | **TPL-E-01 Visual Brand** |
-| Catálogo grande, precio/producto manda, venta directa, search | **TPL-E-02 Catalog / Product-First** |
-| Marca de autor/premium, storytelling, confianza, poco catálogo | **TPL-E-03 Brand Story** |
-| Muchas familias de producto, navegación por categoría | **TPL-E-04 Categories-First** |
-| Outlet/campaña/estacional, urgencia, descuentos protagonistas | **TPL-E-05 Promo / Campaign** |
+| Perfil dominante | Recomienda | Cierra con |
+|------------------|-----------|------------|
+| Marca visual, pocos SKUs, foto protagonista, descubrimiento | **TPL-E-01 Visual Brand** | cita de estilismo / medición (`COMP-BOOKING`) |
+| Catálogo grande, precio/producto manda, venta directa, search | **TPL-E-02 Catalog / Product-First** | dudas operativas + "¿no lo encontraste?" (`COMP-FAQ` + `COMP-CONTACT-DIRECT`) |
+| Marca de autor/premium, storytelling, confianza, poco catálogo | **TPL-E-03 Brand Story** | la palabra del taller: garantía y reposición (`COMP-CTA`) |
+| Muchas familias de producto, navegación por categoría | **TPL-E-04 Categories-First** | el índice completo del catálogo (`COMP-CTA` + `COMP-CATEGORY-CARD`) |
+| Outlet/campaña/estacional, urgencia, descuentos protagonistas | **TPL-E-05 Promo / Campaign** | última llamada + bases y condiciones (`COMP-CTA`) |
+
+La columna de cierre no es decorativa: **las cinco cierran, y cada una con una banda distinta**.
+Si el cliente pide un cierre que no es el de la plantilla candidata — un formulario de contacto en
+una tienda de catálogo, un cupón en una marca de autor — eso es señal de que el arquetipo elegido
+es otro, no de que haya que añadirle una banda. Ninguna de las cinco cierra con `COMP-LEAD-FORM`:
+ese es el ADN de TPL-C-01 y en una tienda pide un dato sin devolver nada.
 
 ## 3b. Mapa señal → plantilla (corporate)
 
