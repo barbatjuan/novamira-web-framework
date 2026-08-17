@@ -452,7 +452,23 @@ function fx_mockup( array $omit = array(), array $outside = array(), array $font
 	   bleed with a fluid band (also correct). Those are the two mis-implementations that would turn
 	   this into a row failing every centred mockup in the framework. */
 	$band_decl = isset( $band['width'] ) ? '    --content-width: ' . $band['width'] . ";\n" : '';
-	$band_rule = empty( $band['bleed'] ) ? '' : "  .hero .media{grid-column:c 8/full-end}\n";
+	/* $band['sel'] drives RT_MOCKUP_BLEED_NOT_MEDIA and DEFAULTS TO `.hero .media`, which is media
+	   and therefore silent — so every scenario that only wanted a bleed for the FIXED_BAND row
+	   above keeps exactly the verdict it had. A scenario that wants to bleed something else names
+	   it. `full-end` in a comment is `$band['comment']`, which must NOT count: the first version of
+	   the row stripped comments after splitting the selector list on `,` and reported two fragments
+	   of English prose as offending selectors. */
+	$bleed_sel = isset( $band['sel'] ) ? $band['sel'] : '.hero .media';
+	/* THE COMMENT HAS TO SIT IMMEDIATELY ABOVE THE BLEEDING RULE OR IT TESTS NOTHING. The first
+	   version of this fixture put it above a rule that did NOT bleed, so the extraction regex —
+	   which requires `full-start|full-end` INSIDE the braces — never matched, and the scenario
+	   passed whether comments were stripped or not. It was caught by mutating the strip out of
+	   framework-audit.php and watching the suite stay green. Here the prose carries two commas and
+	   the word `full-end`, so an implementation that splits the selector list before stripping
+	   comments reports two fragments of English as offending selectors. */
+	$bleed_note = empty( $band['comment'] ) ? ''
+		: "  /* the one bleed per section, always the same edge, all the way down to full-end */\n";
+	$band_rule = empty( $band['bleed'] ) ? '' : $bleed_note . "  {$bleed_sel}{grid-column:c 8/full-end}\n";
 	return "<!-- production mockup fixture -->\n<style>\n" . $face_block . "  :root{\n" . $decl . $font_decl . $band_decl . "  }\n"
 		. $outside_block . $rule_decl . $loose . $font_rule . $band_rule
 		. "  .card{box-shadow:var(--elev-rest)}\n"
@@ -2724,6 +2740,89 @@ list( $code101d, $out101d ) = fx_run_ok( $audit, $r101d );
 ok( array() === fx_lines_with( $out101d, array( 'RT_MOCKUP_BLEED_FIXED_BAND' ) ), 'una banda fluida junto a un sangrado no produce fila', $out101d );
 ok( 0 === $code101d, 'y el arbol sale con codigo 0', $code101d );
 fx_rrmdir( $r101d );
+
+/* ---------------------------------------------------------------------------
+   RT_MOCKUP_BLEED_NOT_MEDIA — WHAT reaches the glass, where FIXED_BAND above reads only the
+   relationship between the band and a bleed and is blind to the element.
+
+   The three defects this row exists for all shipped with FIXED_BAND green: card rows at
+   `c 1 / full-end` whose last card was half bled (frame right 2000.0, body ink 1968.0), a copy
+   block claiming a gutter its ink never entered, and — the one that made the page unusable —
+   `.band .formwrap`, a FORM, whose submit button's right border sat on x=2560.0 with a 1453.3px
+   name input beside it. `scrollWidth === clientWidth` throughout all three.
+
+   The controls matter as much as the failure. "Anything at full-end is bad" turns every bleeding
+   mockup in the framework red and deletes the blueprint; "only `.media` literally" fails the day
+   someone writes `.hero .frame`. So: one non-media FAIL, two media controls, one unknown-subject
+   FAIL proving the row fails CLOSED, one comment control, and one mixed selector list proving the
+   message names the offender and not its innocent neighbour.
+   --------------------------------------------------------------------------- */
+
+echo "--- un FORMULARIO enviado a full-end FALLA, y la fila lo nombra ---\n";
+$r101e = fx_tmp_root();
+fx_base( $r101e );
+fx( $r101e, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true, 'sel' => '.band .formwrap' ) ) );
+list( , $out101e ) = fx_run_ok( $audit, $r101e );
+ok( 'FAIL' === fx_row_level( $out101e, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'un .formwrap contra el cristal FALLA', fx_row_level( $out101e, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ) );
+ok( array() !== fx_lines_with( $out101e, array( 'RT_MOCKUP_BLEED_NOT_MEDIA', '.band .formwrap' ) ), 'y cita el selector culpable', $out101e );
+ok( array() !== fx_lines_with( $out101e, array( 'RT_MOCKUP_BLEED_NOT_MEDIA', 'corporate-mockup.html' ) ), 'y nombra el fichero', $out101e );
+fx_rrmdir( $r101e );
+
+echo "--- .hero .media contra el cristal NO produce fila: eso es el plano funcionando ---\n";
+$r101f = fx_tmp_root();
+fx_base( $r101f );
+/* The control that stops this row deleting the blueprint. Byte-identical to the scenario above
+   except for the subject of the declaration. */
+fx( $r101f, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true ) ) );
+list( $code101f, $out101f ) = fx_run_ok( $audit, $r101f );
+ok( array() === fx_lines_with( $out101f, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'una imagen sangrando no produce fila', $out101f );
+ok( 0 === $code101f, 'y el arbol sale con codigo 0', $code101f );
+fx_rrmdir( $r101f );
+
+echo "--- .hero .frame tampoco: la lista blanca es de MEDIA, no de un literal ---\n";
+$r101g = fx_tmp_root();
+fx_base( $r101g );
+fx( $r101g, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true, 'sel' => '.hero .frame' ) ) );
+list( $code101g, $out101g ) = fx_run_ok( $audit, $r101g );
+ok( array() === fx_lines_with( $out101g, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'otro nombre de media tampoco produce fila', $out101g );
+ok( 0 === $code101g, 'y el arbol sale con codigo 0', $code101g );
+fx_rrmdir( $r101g );
+
+echo "--- un sujeto DESCONOCIDO FALLA: la fila cierra en rojo, no en silencio ---\n";
+$r101h = fx_tmp_root();
+fx_base( $r101h );
+/* The arm that decides whether this row is worth having. A whitelist that skips what it has not
+   seen is the same blind spot as FIXED_BAND one level up: the next wrapper nobody thought of goes
+   to the glass and the audit stays green. `.mystery-box` is not media and is not known, and both
+   facts must produce the same verdict. */
+fx( $r101h, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true, 'sel' => '.hero .mystery-box' ) ) );
+list( , $out101h ) = fx_run_ok( $audit, $r101h );
+ok( 'FAIL' === fx_row_level( $out101h, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'un sujeto que la lista no reconoce FALLA', fx_row_level( $out101h, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ) );
+ok( array() !== fx_lines_with( $out101h, array( 'RT_MOCKUP_BLEED_NOT_MEDIA', '.mystery-box' ) ), 'y lo nombra en vez de callarselo', $out101h );
+fx_rrmdir( $r101h );
+
+echo "--- `full-end` dentro de un COMENTARIO no es un sangrado ---\n";
+$r101i = fx_tmp_root();
+fx_base( $r101i );
+/* The regression the first implementation of this row shipped: comments stripped AFTER splitting
+   the selector list on `,`, so the prose above a rule — which contains commas — was reported as
+   two offending selectors. The message was unreadable, and a check nobody can act on is a check
+   nobody acts on. The comment here carries both `full-end` and two commas. */
+fx( $r101i, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true, 'comment' => true ) ) );
+list( $code101i, $out101i ) = fx_run_ok( $audit, $r101i );
+ok( array() === fx_lines_with( $out101i, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'prosa citando full-end no produce fila', $out101i );
+ok( 0 === $code101i, 'y el arbol sale con codigo 0', $code101i );
+fx_rrmdir( $r101i );
+
+echo "--- en una lista de selectores, la fila nombra al culpable y no a su vecino ---\n";
+$r101j = fx_tmp_root();
+fx_base( $r101j );
+fx( $r101j, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'bleed' => true, 'sel' => '.hero .media,' . "\n" . '  .cases .items' ) ) );
+list( , $out101j ) = fx_run_ok( $audit, $r101j );
+ok( 'FAIL' === fx_row_level( $out101j, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'una lista con un no-media FALLA', fx_row_level( $out101j, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ) );
+ok( array() !== fx_lines_with( $out101j, array( 'RT_MOCKUP_BLEED_NOT_MEDIA', '.cases .items' ) ), 'y nombra la tarjeta', $out101j );
+ok( array() === fx_lines_with( $out101j, array( 'RT_MOCKUP_BLEED_NOT_MEDIA', '.hero .media`' ) ), 'y NO nombra la imagen inocente de la misma regla', $out101j );
+fx_rrmdir( $r101j );
 
 echo "--- una maqueta SIN --sp-scale FALLA, nombrando ese token ---\n";
 $r102 = fx_tmp_root();

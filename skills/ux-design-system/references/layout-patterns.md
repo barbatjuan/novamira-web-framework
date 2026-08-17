@@ -45,13 +45,14 @@ above, the header, motion) is shared and does not change with the position.
 ### `LP-ASYMMETRIC`
 - Grid: 12 columns declared with named lines so an edge is a line, not a margin:
   `[full-start] minmax(pad,1fr) [wide-start] repeat(12,[c] minmax(0,var(--col))) [wide-end c] minmax(pad,1fr) [full-end]`.
-- **`--content-width` must be FLUID for this grid to hold, and this is the half the blueprint used
-  to leave out.** The tracks have to sum to the viewport, so with the 12 columns capped by a fixed
-  band the only track that can absorb a wider screen is the `1fr` gutter — and nothing bounds it.
-  The bleeding edge still reaches the glass, so the composition's optical centre drifts right by
-  half the gutter, without limit. Measured on a fixed `1140px` band: gutter 150 / 390 / **710px**
-  at 1440 / 1920 / 2560, i.e. 10.4% → 27.7% of the viewport, and at 2560 the left quarter of every
-  section was empty. `design-system.md` § Contenedores carries the fluid value and its derivation.
+- **`--content-width` must be a PROPORTION of the viewport for this grid to hold, and getting
+  that backwards has shipped twice.** The tracks have to sum to the viewport, so capping the 12
+  columns leaves the `1fr` gutter as the only track that can absorb a wider screen — and nothing
+  bounds a `1fr`. A fixed `1140px` band measured 150 / 390 / **710px** of gutter at 1440 / 1920 /
+  2560; the fluid-but-capped band that replaced it still grew, 15.3% → 25.0% → 37.5% of total
+  margin at 1440 / 2000 / 2560, because a cap only changes how fast the margin runs away, never
+  that it does. `clamp(1140px, 85vw, 100vw)` holds it flat at 15% at every width above 1341px.
+  `design-system.md` § Contenedores carries the value, its derivation and what it costs.
 - Hero: copy left at ~58% width, ONE image bleeding the right viewport edge —
   `grid-column: c 8 / full-end`. **Not** `margin-right: calc(50% - 50vw)`: percentage margins on a
   grid item resolve against that item's own grid area, not the container, so the bleed overshoots
@@ -59,7 +60,17 @@ above, the header, motion) is shared and does not change with the position.
 - Section headings: left-aligned, never centred; the eyebrow sits above and left.
 - Images: exactly one bleed per section, always on the same edge down the whole page.
 - Grids: two columns at 7/5 or 5/7, alternating direction section to section. Never 50/50.
-- **A photograph touching the screen edge is a bleed; a paragraph touching it is an amputation.**
+- **ONLY MEDIA MAY REACH `full-start` / `full-end`.** A photograph touching the screen edge is a
+  bleed. A paragraph touching it is an amputation. A CARD touching it is sliced — a card is a
+  bordered surface carrying a heading and a paragraph, and the reader parses it as one object, so
+  bleeding its image while insetting its copy does not make it a bleed, it makes it a card with a
+  printing error (measured: frame right 2000.0, body ink 1968.0, and the reader called it cut off
+  across two rounds of fixes). A FORM CONTROL touching it is a broken page: no hit-slop on one
+  side, the border that says where the control ends coincident with the edge of the screen, and a
+  name field 1453.3px wide at 2560. Card rows, copy blocks and forms end at the band — `c 13`,
+  which is the same line as `wide-end`. `framework-audit.php`'s `RT_MOCKUP_BLEED_NOT_MEDIA` decides
+  this from the selector's subject; `documentElement.scrollWidth === clientWidth` throughout every
+  case above, so no overflow gate can see any of it.
   A rail that ends at `full-end` keeps the bleed on its images and steps its last card's TEXT back
   by the page padding. Measured on the gallery at 2560: the last case study's title sat at right
   `2560.0` on a 2560 viewport with `scrollWidth === clientWidth`, so nothing overflowed, no

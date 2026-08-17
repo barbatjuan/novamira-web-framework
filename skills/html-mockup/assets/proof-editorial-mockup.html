@@ -140,13 +140,15 @@
 
     /* ── Containers / radius / buttons / motion — shared chrome, unchanged by the axes ── */
     --container-max:1280px;
-    /* FLUID, not the flat `1140px` this line used to carry. This file bleeds to `full-end`, which
-       IS the viewport edge, so its 12 capped columns leave the outer `1fr` gutter as the only track
-       that can absorb a wider screen — and nothing bounds it. Measured on the gallery that shares
-       this grid: 150 / 390 / 710px of dead margin at 1440 / 1920 / 2560, the composition drifting
-       right by half of it. Floor, slope and cap are derived in
-       `web-templates/references/design-system.md` § Contenedores. */
-    --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
+    /* A PROPORTION OF THE VIEWPORT, not a capped band and not the flat `1140px` this line first
+       carried. This file bleeds to `full-end`, which IS the viewport edge, so its 12 columns and
+       two `1fr` gutters must sum to the SCREEN: cap the columns and the gutter is the only track
+       left to absorb a wider display, and nothing bounds a `1fr`. A cap only changes how fast the
+       margin runs away — measured on the gallery that shares this grid, total outer margin went
+       15.3% / 25.0% / 37.5% at 1440 / 2000 / 2560 WITH the cap in place. `85vw` holds it at 15%
+       flat above the 1341px knee; the 1140px floor leaves everything at or below 1280 unmoved.
+       Derived, with what it costs, in `web-templates/references/design-system.md` § Contenedores. */
+    --content-width:clamp(1140px, 85vw, 100vw);
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
     --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
@@ -290,9 +292,16 @@
     .g12 > *{grid-column:wide-start/wide-end;min-width:0}
     .c1-7{grid-column:c 1/c 8} .c8-12{grid-column:c 8/c 13}
     .c1-5{grid-column:c 1/c 6} .c6-12{grid-column:c 6/c 13} .c1-12{grid-column:c 1/c 13}
-    /* the one bleed per section, always the right edge, all the way down the page */
-    .c8-12.bleed{grid-column:c 8/full-end}
-    .c6-12.bleed{grid-column:c 6/full-end}
+    /* the one bleed per section, always the right edge, all the way down the page.
+       THE HOOK IS `.media`, NOT `.bleed`, AND THE RENAME IS THE POINT. `bleed` named the ACT —
+       "this element goes to the glass" — which says nothing about WHAT goes there, and a class
+       that names an act is one careless copy-paste away from sending a form to the viewport edge.
+       That is not hypothetical: the gallery shipped exactly that, and its submit button ended on
+       x=2560.0. `media` names the CONTENT, so the rule reads as the invariant it is and
+       RT_MOCKUP_BLEED_NOT_MEDIA can decide it from the selector alone. Both elements already
+       wrapped a `.ph` photo placeholder; only the label was wrong. */
+    .c8-12.media{grid-column:c 8/full-end}
+    .c6-12.media{grid-column:c 6/full-end}
   }
 
   /* ── chrome: header + footer are SHARED structure across both proof files, on purpose.
@@ -385,7 +394,7 @@
           <a class="btn btn-outline" href="#">Ver el taller</a>
         </div>
       </div>
-      <div class="c8-12 bleed"><div class="ph heroimg">Bloque en el patio de corte</div></div>
+      <div class="c8-12 media"><div class="ph heroimg">Bloque en el patio de corte</div></div>
     </div>
   </section>
 
@@ -430,7 +439,7 @@
           <li class="step"><b>03</b><div><h3>Colocación y sellado</h3><p class="muted small">Montamos, sellamos las juntas y dejamos la obra limpia el mismo día.</p></div></li>
         </ol>
       </div>
-      <div class="c6-12 bleed"><div class="ph procimg">Sierra de puente en el taller</div></div>
+      <div class="c6-12 media"><div class="ph procimg">Sierra de puente en el taller</div></div>
     </div>
   </section>
 

@@ -75,13 +75,17 @@ one inline `<style>`. No external anything.
                         calc(var(--n-sec-cap) * 1px));
 
     --container-max:1280px;
-    /* FLUID, and a flat `1140px` here is a defect, not a simplification — design-system.md
-       § Contenedores has the measurement. A blueprint that bleeds to `full-end` puts the viewport
-       edge on one side of the content and an UNBOUNDED gutter on the other, so a fixed band drifts
-       the whole composition right as the screen grows: measured 150 / 390 / 710px of dead margin at
-       1440 / 1920 / 2560. Floor 1140 at the 1280 reference, cap 1600 — the smallest cap that holds
-       the margin under a fifth of the viewport at 2560. */
-    --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
+    /* A PROPORTION OF THE VIEWPORT, and neither a flat `1140px` nor a capped band — design-system.md
+       § Contenedores has the measurements and the derivation. A blueprint that bleeds to `full-end`
+       puts the viewport edge on one side of the content and an UNBOUNDED gutter on the other, so a
+       capped band drifts the whole composition right as the screen grows. A cap only changes how
+       fast: 150/390/710px of dead margin on a flat 1140, then 15.3%/25.0%/37.5% of total margin at
+       1440/2000/2560 on the capped one. `85vw` holds the margin at 7.5% per side at every width
+       above the 1341px knee, and the 1140px floor keeps everything at or below 1280 unmoved. The
+       cap protected line length; cap the MEASURE instead — `.lede{max-width:66ch}` — because at
+       2560 the lede was the only run on the page that outgrew it (103.1ch; everything else 78.2ch
+       at 1440 and at 2560 alike). */
+    --content-width:clamp(1140px, 85vw, 100vw);
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
     --ease:cubic-bezier(.22,1,.36,1);

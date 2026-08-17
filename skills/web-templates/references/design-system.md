@@ -136,27 +136,48 @@ Interpola su propio suelo hasta su propio tope entre 430 y 1280, los dos multipl
 | Token | Valor | Nota |
 |-------|-------|------|
 | `--container-max` | `1280px` | ancho máximo |
-| `--content-width` | `clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px)` | ancho de contenido, **fluido** |
+| `--content-width` | `clamp(1140px, 85vw, 100vw)` | ancho de contenido, **proporcional** |
 | `--pad-x-desktop` | `5%` | padding horizontal desktop |
 | `--pad-x-tablet` | `32px` | padding horizontal tablet |
 | `--pad-x-mobile` | `20px` | padding horizontal mobile |
 
-`--content-width` ERA `1140px` fijo, y ese literal es un defecto medido, no una simplificación.
-Dos de las cuatro composiciones (`LP-ASYMMETRIC`, `LP-BROKEN-GRID`) sangran hasta `full-end`, que
-ES el borde del viewport. Su rejilla es `minmax(pad,1fr)` + 12 columnas topadas + `minmax(pad,1fr)`,
-así que las pistas tienen que sumar el ancho de la pantalla: con las columnas topadas por una banda
-FIJA, lo único que puede absorber una pantalla más ancha es el margen, y el margen no tiene tope.
-Medido en la galería antes del arreglo, el margen izquierdo bajo `LP-BROKEN-GRID` iba de 150.1px a
-1440 → 390.1px a 1920 → **710.1px a 2560**, es decir del 10.4% al 27.7% del viewport, mientras el
-borde que sangra siempre llegaba a la pantalla: el centro óptico de la composición se desplazaba a
-la derecha +75 / +195 / +355px y a 2560 el cuarto izquierdo de la página era tinta muerta bajo
-todas las secciones. El suelo `1140px` mantiene intacto todo lo medido hasta 1280 (el ancho de
-referencia); la pendiente `0.5` reparte cada píxel extra entre la banda y los dos márgenes; el tope
-`1600px` es el MÍNIMO que deja el margen por debajo de un quinto del viewport a 2560 (medido: tope
-1440 → 21.9% ✗, tope 1600 → 18.0% ✓, tope 1800 → 15.2% ✓ pero ensancha cada fila de tarjetas sin
-necesidad). Por encima de ~2200 el tope entra y el margen vuelve a crecer: ninguna banda topada
-aguanta la proporción para siempre, y ésta es honesta hasta 2560, el tope del rango que mide
-`qa-review/references/house-rules.md` fila 32.
+**EL MARGEN ES UNA PROPORCIÓN DE LA PANTALLA; LA BANDA ES LO QUE SOBRA.** Ese orden es toda la
+regla, e invertirlo se ha entregado dos veces.
+
+`--content-width` fue primero `1140px` fijo y después
+`clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px)`. Las dos versiones tienen el mismo
+defecto de fondo. Dos de las cuatro composiciones (`LP-ASYMMETRIC`, `LP-BROKEN-GRID`) sangran hasta
+`full-end`, que ES el borde del viewport, y su rejilla es `minmax(pad,1fr)` + 12 columnas + otro
+`minmax(pad,1fr)`: las pistas tienen que sumar la pantalla, así que si topas las columnas lo único
+que puede absorber una pantalla más ancha es el margen — y nada acota un `1fr`. Medido en la
+galería, margen exterior total como fracción del viewport:
+
+| banda | 1440 | 2000 | 2560 |
+|-------|------|------|------|
+| `1140px` fijo | 20.8% | — | 55.5% |
+| `clamp(1140, +0.5, 1600)` | 15.3% | 25.0% | 37.5% |
+| **`clamp(1140px, 85vw, 100vw)`** | **15%** | **15%** | **15%** |
+
+La segunda fila fue el arreglo anterior: mejoró el NÚMERO a 2560 y dejó intacta la DIRECCIÓN, así
+que una pantalla mayor seguía recibiendo un diseño proporcionalmente menor. El lector lo miró a
+2000px, donde marca 25%, y lo volvió a decir: *"de 2560px para abajo tiene que ser responsive, con
+márgenes reales"*. Tenía razón las dos veces.
+
+`85vw` deja el margen en 7.5% por lado, **constante** por encima de la rodilla (1341px) y también a
+3440 y a 5120: una banda proporcional aguanta su ratio para siempre por construcción, y ninguna
+banda topada puede. **El 85 está DERIVADO, no elegido**: es la banda constante más grande — el
+margen más pequeño — que nunca deja la página más estrecha que la fórmula anterior en el rango que
+mide `qa-review/references/house-rules.md` fila 32 por encima de 1280. El ancho que ata es 1440,
+donde la banda vieja era 1220 de 1440 = 84.72%. El suelo `1140px` mantiene intacto todo lo medido
+hasta 1280.
+
+**Lo que cuesta, medido.** Una banda sin tope deja crecer una columna de texto con la pantalla, y
+por eso existía el tope. Recorriendo cada nodo de texto de la galería a 2560 y dividiendo cada
+línea renderizada por el avance de su propio `0`, exactamente UNA corrida se pasa de medida:
+`.lede`, 68.4ch a 1440 → 103.1ch a 2560. Todo lo demás está acotado por su contenedor y marca
+78.2ch a 1440 y 78.2ch a 2560, plano. El trato honesto es topar la COLUMNA DE TEXTO y dejar crecer
+la banda y las imágenes: `.lede{max-width:66ch}`, una declaración. Topar la banda para proteger un
+párrafo era pagar ese párrafo con la página entera.
 
 ## Border radius
 

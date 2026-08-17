@@ -1032,8 +1032,49 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
   --fs-base:16;
   --container-max:1280px;
 
-  /* ── THE CONTENT BAND IS FLUID ABOVE THE DESKTOP REFERENCE, and a flat `1140px` here is the
-        defect that shipped. Two of the four blueprints bleed to `full-end`, which IS the layout
+  /* ── THE MARGIN IS A PROPORTION OF THE SCREEN. THE BAND IS WHAT IS LEFT OVER. That ordering is
+        the whole rule, and getting it backwards is what shipped twice.
+
+        A CAPPED BAND BESIDE AN UNCAPPED GUTTER INVERTS THE RATIO. Two of the four blueprints bleed
+        to `full-end`, which IS the layout viewport edge, so the 14 named tracks must sum to the
+        SCREEN: cap the twelve columns and the outer `1fr` is the only track left to absorb a wider
+        display. Nothing bounds a `1fr`.
+
+        MEASURED on this page, outer margin as a fraction of the viewport, BOTH sides together:
+          flat 1140px band       1440 → 20.8%   1920 → 40.6%   2560 → 55.5%
+          clamp(1140,+0.5,1600)  1440 → 15.3%   2000 → 25.0%   2560 → 37.5%
+        The second line is the previous fix. It improved the NUMBER at 2560 and left the DIRECTION
+        alone: the margin still grows monotonically with the screen, so a bigger display still gets
+        a proportionally smaller design. The reader looked at 2000px, where it reads 25%, and said
+        it again — "de 2560px para abajo tiene que ser responsive, con márgenes reales". He was
+        right both times; only the second half of the defect had been fixed.
+
+        THE FIX BOUNDS THE THING THE READER EXPERIENCES AS MARGIN. `85vw` makes the gutter 7.5% per
+        side, 15% total, CONSTANT at every width above the knee — and at 3440 and 5120 too. A
+        proportional band holds its ratio forever by construction; no cap can.
+
+        THE 85 IS DERIVED, NOT CHOSEN. It is the largest constant band — the SMALLEST margin — that
+        never renders the page narrower than the formula it replaces, anywhere in the range
+        `house-rules.md` row 32 measures above the 1280 reference. The binding width is 1440, where
+        the old band was 1220 of 1440 = 84.72%; 85 is that rounded to the design\'s own precision,
+        and every width above clears by more:
+          1440 → 1224 ≥ 1220   1600 → 1360 ≥ 1300   1800 → 1530 ≥ 1400
+          2000 → 1700 ≥ 1500   2200 → 1870 ≥ 1600   2560 → 2176 ≥ 1600
+        FLOOR 1140px: below the 1341px knee the floor wins, so 1280 resolves to exactly 1140 and
+        NOTHING at or below the desktop reference moves — every measurement in this repo taken at
+        or under 1280 still holds to the pixel.
+
+        WHAT IT COSTS, MEASURED, because the cap existed for a reason and the reason was line
+        length. An uncapped band lets a text column grow with the screen. Walking every text node
+        at 2560 and dividing each rendered line by its own element\'s `0` advance, exactly ONE run
+        outgrows its measure: `.lede`, 68.4ch at 1440 → 103.1ch at 2560. Every other prose run is
+        bounded by its container and reads 78.2ch at 1440 AND at 2560 alike — card copy, band copy,
+        the footer legal line, all flat. So the honest trade is to cap the TEXT COLUMN and let the
+        band and the media keep growing: `.lede{max-width:66ch}` costs one declaration and buys the
+        ratio at every width. Capping the band to protect one paragraph was paying for that
+        paragraph with the whole page.
+
+        THE OLD DERIVATION, kept because it is why the cap looked right: Two of the four blueprints bleed to `full-end`, which IS the layout
         viewport edge. Their grid is `minmax(pad,1fr)` gutter + 12 capped columns + `minmax(pad,1fr)`
         gutter, so the tracks must sum to the viewport: with the columns capped by a FIXED band,
         the only track left to absorb a wider screen is the gutter, and the gutter is unbounded.
@@ -1060,7 +1101,7 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
         Above ~2200px the cap engages and the gutter starts growing again; at 3440 it is back to
         26%. No band cap can hold the ratio forever, and this one is honest to 2560 — the top of
         the range `house-rules.md` row 32 measures. ── */
-  --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
+  --content-width:clamp(1140px, 85vw, 100vw);
   --pad-x-mobile:20px; --pad-x-tablet:32px;
   --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
   --btn-padding:.875rem 1.75rem; --btn-border-width:1.5px;
@@ -1353,6 +1394,18 @@ $css[] = <<<'CSS'
    welded to the lede and the slack falls to the bottom of the hero, where the image is already
    bleeding into it. */
 .ctas{display:flex;flex-wrap:wrap;align-items:flex-start;gap:var(--sp-s)}
+
+/* THE MEASURE IS CAPPED HERE SO THE BAND DOES NOT HAVE TO BE. `--content-width` is a proportion of
+   the viewport (`85vw`), which is the only shape that holds the page margin at one ratio on every
+   screen — see the derivation on the token. The price of an uncapped band is that a text column
+   grows with the display, and the page was audited for exactly that: every text node walked at
+   2560, each rendered line divided by its own element's `0` advance. ONE run crossed a comfortable
+   measure — this one, 68.4ch at 1440 and 103.1ch at 2560. Everything else is bounded by its own
+   container and reads 78.2ch at 1440 and 78.2ch at 2560, flat.
+   66ch is the ceiling design-system.md already names for body copy, so the number is transcribed,
+   not invented. LP-BROKEN-GRID tightens it to 44ch over its hero photograph and that rule still
+   wins — this is a ceiling, not a width. */
+.lede{max-width:66ch}
 
 /* ── chrome shared by every strip: if the header differed, part of the "unmistakably different"
       verdict would come from the chrome rather than from the axes. ── */
@@ -1782,7 +1835,16 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      the buttons — and it GREW with the viewport (484.9 / 534.6 / 714.6 at 1440 / 1920 / 2560)
      because of the `height:100%` removed below. Both halves are the fix: the row stops running
      away, and what is left of it frames the copy instead of stranding it. */
-  [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/full-end;grid-row:1;
+  /* `c 1 / c 13`, NOT `full-end`, AND THE OVERLAP IS UNTOUCHED. What makes this hero the broken
+     one is that the copy and the photograph share `grid-row:1` and the copy sits ON the picture
+     from `c 7` onward — that is the crossing, and `c 13` keeps every pixel of it. The last gutter
+     was never used by anything: MEASURED with the head still at `full-end`, the h1's own ink
+     stopped at 1773.1 on a 2000 viewport and 1815.2 on a 2560 one — 227px and 745px short of the
+     edge the box was claiming — and the lede and both CTAs were shorter still. The bleed bought
+     nothing and cost the one thing worth having: an invariant simple enough to check. After this
+     line the page has exactly three elements reaching `full-start`/`full-end` and all three are
+     `.media`. See RT_MOCKUP_BLEED_NOT_MEDIA in framework-audit.php. */
+  [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/c 13;grid-row:1;
     position:relative;z-index:2;justify-content:center}
   [data-comp="lp-broken-grid"] .hero .media{grid-column:c 7/full-end;grid-row:1;
     z-index:0;align-self:stretch}
@@ -1811,7 +1873,28 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
   /* EVERY OTHER SECTION: the heading crosses a column line, the grid is deliberately uneven,
      and one card is offset vertically by --sp-l. */
   [data-comp="lp-broken-grid"] .grid-sec .head{grid-column:c 1/c 9}
-  /* `minmax(min-content, …)` AND NOT A BARE `3fr`. The uneven rail is the blueprint and it stays,
+  /* `c 1 / c 13` AND NOT `c 1 / full-end`. THIS ROW USED TO BLEED AND THAT WAS THE DEFECT THE
+     READER DREW A LINE THROUGH. `c 13` is the same line as `wide-end` — the band's right edge — so
+     the row now ends where the section head ends and the page has a margin on BOTH sides.
+
+     WHY THE PREVIOUS FIX DID NOT WORK. The rule below used to keep the bleed and step only the
+     last card's TEXT back by `--pad-x-tablet`, on the principle that a photograph at the glass is
+     a bleed and a paragraph at the glass is an amputation. The principle is right; the application
+     split one object across the boundary. MEASURED at 2000: `.services .items > :last-child` had
+     its frame at right 2000.0 and its body ink stopping at 1968.0 — a 32px inset no reader can
+     read as intentional beside a 250px margin on the other side of the same row. He looked at that
+     exact render and called the card cut off. A CARD IS NOT A PHOTOGRAPH: it is a bordered surface
+     carrying a heading and a paragraph, parsed as one thing, and bleeding its image while insetting
+     its text does not make it a bleed — it makes it a card with a printing error. Either the whole
+     object crosses the glass or none of it does, and for a card the answer is none of it.
+
+     WHAT THE BLUEPRINT KEEPS. "Un elemento por sección cruza la retícula" is not "the card row
+     reaches the screen edge". This row still crosses the reference grid — 4/5/3 tracks against
+     twelve equal columns, and card 2 pushed down by `--sp-l`, neither of which any reading of the
+     12-col grid would produce. The strip still bleeds where a bleed is legible AS a bleed: the
+     hero media, the mini media on two edges — photographs, not cards.
+
+     `minmax(min-content, …)` AND NOT A BARE `3fr`. The uneven rail is the blueprint and it stays,
      but a free-space fraction has no floor: between 1024 and 1279 the desktop grid is on while the
      viewport is still narrower than the band, and the 3fr track fell under the width of the one
      word its own h3 has to hold. MEASURED at 1024: "Restauración" 4.9px past the right edge of a
@@ -1821,7 +1904,7 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      it must carry, and above ~1280 the fractions are all wider than min-content so nothing binds
      and the 4/5/3 rhythm is exactly what it was. */
   [data-comp="lp-broken-grid"] .services .items,
-  [data-comp="lp-broken-grid"] .cases .items{grid-column:c 1/full-end;
+  [data-comp="lp-broken-grid"] .cases .items{grid-column:c 1/c 13;
     grid-template-columns:minmax(min-content,4fr) minmax(min-content,5fr) minmax(min-content,3fr)}
   [data-comp="lp-broken-grid"] .cases .items{
     grid-template-columns:minmax(min-content,5fr) minmax(min-content,7fr)}
@@ -1832,17 +1915,23 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
   [data-comp="lp-broken-grid"] .services .items > :nth-child(2),
   [data-comp="lp-broken-grid"] .cases .items > :nth-child(2){margin-top:var(--sp-l)}
   [data-comp="lp-broken-grid"] .band .head{grid-column:c 1/c 10}
-  [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/full-end}
-  /* A PHOTOGRAPH TOUCHING THE SCREEN EDGE IS A BLEED; A PARAGRAPH TOUCHING IT IS AN AMPUTATION.
-     The rails above end at `full-end` on purpose, and the card SURFACE reaching the edge is the
-     blueprint working. What is not the blueprint is the last card's title and body sitting hard
-     against the glass with zero padding — measured `.services .items > :last-child` at right
-     2560.0 on a 2560 viewport, with `documentElement.scrollWidth === clientWidth`, so nothing
-     overflowed and no overflow gate could ever have seen it. It reads as clipped because the ink
-     runs out of paper, not because the box does. The image keeps the bleed; the text steps back
-     by the page's own padding. Shared with LP-ASYMMETRIC's one bleeding rail below. */
-  [data-comp="lp-broken-grid"] .services .items > :last-child .body,
-  [data-comp="lp-broken-grid"] .cases .items > :last-child .body{padding-right:var(--pad-x-tablet)}
+  /* A FORM NEVER BLEEDS. THIS ONE DID, AND IT WAS THE WORST THING ON THE PAGE — not a styling
+     complaint but a control the reader cannot use. MEASURED at `c 6 / full-end`: every field and
+     the submit button ended at exactly x=2000.0 on a 2000 viewport and x=2560.0 on a 2560 one,
+     their right border ON the glass with zero paper beside it, and the name field was 1133.7px
+     wide at 2000 and 1453.3px at 2560 — a single-line input more than half the screen across.
+     `documentElement.scrollWidth === clientWidth` the whole time, so nothing overflowed and no
+     overflow gate could see any of it. The reader's words were "esto no puede pasar bajo ningún
+     concepto" and he is right. A photograph at the glass is a bleed. A paragraph at the glass is
+     an amputation. A SUBMIT BUTTON AT THE GLASS IS A BROKEN PAGE: no hit-slop on one side, and the
+     border that tells you where the control ends is coincident with the edge of the screen. */
+  [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/c 13}
+  /* THE `padding-right:var(--pad-x-tablet)` ON THE LAST CARD'S BODY IS GONE, and its absence is
+     the point rather than an omission. It existed to give a bleeding card's text some paper; with
+     the row ending at `c 13` there is no bleeding card, and leaving it would inset the last card's
+     copy 32px further than its two neighbours for no reason a reader could name — the same
+     internal inconsistency in the opposite direction. A rule that is only correct because of a
+     bleed has to leave with the bleed. */
 }
 CSS;
 
@@ -1879,21 +1968,55 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   /* two columns at 7/5, never 50/50 — a 3-card grid becomes 2 + 1, which is the point */
   [data-comp="lp-asymmetric"] .services .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .services .items{grid-column:c 1/c 13;grid-template-columns:7fr 5fr}
+
+  /* ── THE TWO THINGS THE READER RINGED ON THIS STRIP, and they are one shape: an uneven grid
+        holding three ratio-locked cards cannot line anything up by itself.
+
+     (1) THE CAPTION DID NOT SHARE AN EDGE WITH ITS OWN PHOTOGRAPH. `.frame` carries
+         `aspect-ratio:var(--ratio-card)`, so two frames at the SAME ratio in tracks of DIFFERENT
+         widths are different heights, and each caption starts wherever its own image happens to
+         end. MEASURED at 2000 before this rule: frame 1 bottom 2393.9, frame 2 bottom 2225.8 —
+         "Fachadas y sillería" sat 168.1px higher than "Encimeras y baños" on a row the grid had
+         already stretched to a common height, so the shorter card also carried 168px of dead paper
+         under its own text. Two captions on one row, on two different lines, is what he drew an
+         arrow at.
+         The fix hands the row's slack to the narrower FRAME instead of leaving it under the copy:
+         card 1 keeps its ratio and therefore still sets the row height, card 2 drops the ratio and
+         absorbs what is left. Both images now end on one line and both captions start on it —
+         measured 2474.0 / 2475.0 for both cards at 2000. The cost is that card 2's photograph is
+         cropped harder than `--ratio-card` asks; `object-fit:cover` already centres it, and a crop
+         is a smaller lie than a caption that has come unstuck from its picture.
+
+     (2) THE THIRD CARD LEFT A DEAD HALF-TRACK. Three cards in two tracks put card 3 alone on row
+         2, filling the 7fr and leaving the 5fr empty — measured at 2000 as a 611.5 x 680.5 hole of
+         blank paper, which is what he boxed. "A 3-card grid becomes 2 + 1" is still the point;
+         what it must not become is 2 + 1 + a void. So the `1` spans the full row and repeats the
+         strip's own 7/5 inside itself, image beside copy. The asymmetry that names this blueprint
+         now appears twice on the section instead of once, and no cell is empty. ── */
+  [data-comp="lp-asymmetric"] .services .items > :nth-child(2) .frame{
+    aspect-ratio:auto;flex:1 1 auto;min-height:0}
+  [data-comp="lp-asymmetric"] .services .items > :last-child{
+    grid-column:1/-1;display:grid;grid-template-columns:7fr 5fr;
+    gap:var(--sp-m);align-items:center}
+  /* The hairline divides a stacked image from its caption. Side by side there is nothing for it to
+     divide, and as a third grid item it would claim a cell and push the copy out of the row. */
+  [data-comp="lp-asymmetric"] .services .items > :last-child .rule{display:none}
+  [data-comp="lp-asymmetric"] .services .items > :last-child .body{padding:0}
   [data-comp="lp-asymmetric"] .cases .head{grid-column:c 1/c 6}
-  [data-comp="lp-asymmetric"] .cases .items{grid-column:c 6/full-end;grid-template-columns:7fr 5fr}
-  /* Same rule, same reason, as the rails at the end of LP-BROKEN-GRID: the image bleeds, the text
-     does not. Measured here as "Cocina en Vallmoll" with its right edge at 2560.0 on a 2560
-     viewport — the second thing the reader called cut off. */
-  [data-comp="lp-asymmetric"] .cases .items > :last-child .body{padding-right:var(--pad-x-tablet)}
+  /* `c 6 / c 13` and `c 3 / c 13` below, NOT `full-end`. Same reversal as LP-BROKEN-GRID's card
+     rows and for the same reason: these two rails also ended at the glass, and each carried a
+     `padding-right` on its last card's body to keep the TEXT off the edge while that card's own
+     image stayed on it. Three rails, three copies of a rule that left every last card internally
+     inconsistent — image bleeding, copy inset 32px — and the reader read all of it as cut off.
+     Cards end at the band. The blueprint's one bleeding image is the hero's, which is what "una
+     imagen sangra un borde" says: an IMAGE, singular, and `.hero .media` is a bare frame with no
+     copy in it to amputate. Before this the strip bled at five places and the line had stopped
+     meaning anything. */
+  [data-comp="lp-asymmetric"] .cases .items{grid-column:c 6/c 13;grid-template-columns:7fr 5fr}
   /* the catalogue grid keeps its dense equal columns — see the note in strip_ecommerce() */
   [data-comp="lp-asymmetric"] .prods .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .carousel .head{grid-column:c 1/c 6}
-  [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/full-end}
-  /* The page's THIRD bleeding rail, and the one that proves the rule was not written wide enough
-     the first time. Padding only `.cases` left this one touching the glass — measured "Kit de
-     sellado mineral 1L" with 2.7px of paper at 1920, found by widening the probe from card bodies
-     to every run of text on the strip rather than by looking at the sections I had already fixed. */
-  [data-comp="lp-asymmetric"] .carousel .items > :last-child .body{padding-right:var(--pad-x-tablet)}
+  [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/c 13}
   [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}

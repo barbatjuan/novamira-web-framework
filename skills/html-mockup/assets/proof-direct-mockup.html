@@ -154,13 +154,15 @@
 
     /* ── Containers / radius / buttons / motion ── */
     --container-max:1280px;
-    /* FLUID, not the flat `1140px` this line used to carry. This file bleeds to `full-end`, which
-       IS the viewport edge, so its 12 capped columns leave the outer `1fr` gutter as the only track
-       that can absorb a wider screen — and nothing bounds it. Measured on the gallery that shares
-       this grid: 150 / 390 / 710px of dead margin at 1440 / 1920 / 2560, the composition drifting
-       right by half of it. Floor, slope and cap are derived in
-       `web-templates/references/design-system.md` § Contenedores. */
-    --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
+    /* A PROPORTION OF THE VIEWPORT, not a capped band and not the flat `1140px` this line first
+       carried. This file bleeds to `full-end`, which IS the viewport edge, so its 12 columns and
+       two `1fr` gutters must sum to the SCREEN: cap the columns and the gutter is the only track
+       left to absorb a wider display, and nothing bounds a `1fr`. A cap only changes how fast the
+       margin runs away — measured on the gallery that shares this grid, total outer margin went
+       15.3% / 25.0% / 37.5% at 1440 / 2000 / 2560 WITH the cap in place. `85vw` holds it at 15%
+       flat above the 1341px knee; the 1140px floor leaves everything at or below 1280 unmoved.
+       Derived, with what it costs, in `web-templates/references/design-system.md` § Contenedores. */
+    --content-width:clamp(1140px, 85vw, 100vw);
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
     --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
@@ -412,7 +414,11 @@
     /* 1 · HERO — oversized H1 crossing the container's RIGHT edge, image BEHIND it and offset */
     .hero .canvas{grid-template-rows:auto auto auto auto}
     .hero .eyebrow{grid-column:c 1/c 8;  grid-row:1;position:relative;z-index:2}
-    .hero h1     {grid-column:c 1/full-end; grid-row:2;position:relative;z-index:2}
+    /* `c 13`, NOT `full-end`. The h1 crosses the CONTAINER and sits on the photograph from
+       `c 7` — that overlap is the composition and it is untouched. Reaching the glass on top of
+       it was a heading with nothing but screen edge beside it, i.e. the amputation this file
+       teaches against three sections further down. Media bleeds here; copy stops at the band. */
+    .hero h1     {grid-column:c 1/c 13; grid-row:2;position:relative;z-index:2}
     .hero .lede  {grid-column:c 1/c 7;  grid-row:3;position:relative;z-index:2}
     .hero .ctas  {grid-column:c 1/c 8;  grid-row:4;position:relative;z-index:2}
     .hero .shot  {grid-column:c 7/full-end; grid-row:2/5;z-index:0;align-self:stretch;
@@ -437,7 +443,11 @@
     /* 3 · TRABAJOS — uneven 5/7 then 8/4; card 2 crosses the container edge AND is offset by --sp-l */
     .jobs .head {grid-column:c 1/c 9;  grid-row:1}
     .jobs .w1   {grid-column:c 1/c 6;  grid-row:2}
-    .jobs .w2   {grid-column:c 6/full-end; grid-row:2;margin-top:var(--sp-l)}
+    /* A CARD IS NOT A PHOTOGRAPH. `.w2` is an `<article class="work">` carrying an h3 and a
+       paragraph; ending it at the glass slices a bordered object whose left neighbour has a full
+       page margin. This is the same defect the gallery shipped twice and the reader drew a line
+       through both times — see RT_MOCKUP_BLEED_NOT_MEDIA. */
+    .jobs .w2   {grid-column:c 6/c 13; grid-row:2;margin-top:var(--sp-l)}
     .jobs .w3   {grid-column:c 1/c 9;  grid-row:3}
     .jobs .w4   {grid-column:c 9/c 13; grid-row:3}
 
@@ -476,7 +486,8 @@
     .test .canvas{grid-template-rows:auto auto}
     .test .quote {grid-column:c 1/c 10; grid-row:1;position:relative;z-index:1;
                   padding-bottom:calc(var(--sp-m) + var(--sp-xl))}
-    .test .attrib{grid-column:c 8/full-end; grid-row:2;position:relative;z-index:2;
+    /* An attribution is a person''s name. It ends at the band. */
+    .test .attrib{grid-column:c 8/c 13; grid-row:2;position:relative;z-index:2;
                   margin-top:calc((var(--sp-xl) + var(--sp-m)) * -1)}
 
     /* 6 · BANDA — the H2 crosses onto an accent slab that bleeds the right edge */

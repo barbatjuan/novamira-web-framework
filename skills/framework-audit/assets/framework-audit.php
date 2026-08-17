@@ -103,6 +103,7 @@ const ROW_TYPES = array(
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_MOCKUP_BLEED_FIXED_BAND' => 'FAIL  — a mockup bleeds to `full-end` but pins --content-width at a fixed length, leaving the gutter beside the bleed unbounded',
+	'RT_MOCKUP_BLEED_NOT_MEDIA'  => 'FAIL  — a mockup sends something other than media to the viewport glass: a card, a run of copy or, worst, a form control',
 	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
@@ -1663,6 +1664,108 @@ foreach ( $mockup_assets as $mockup_path ) {
 					. ' margin at 2560 on a 1140px band). See design-system.md § Contenedores for the fluid value'
 			);
 		}
+	}
+
+	/* ---- RT_MOCKUP_BLEED_NOT_MEDIA ----
+	 *
+	 * WHAT REACHES THE GLASS, not how wide the band beside it is. RT_MOCKUP_BLEED_FIXED_BAND above
+	 * reads the RELATIONSHIP between the band and a bleed and is blind to WHICH element bleeds; it
+	 * was green on every build described below.
+	 *
+	 * THE THREE THINGS THAT SHIPPED THROUGH THAT BLIND SPOT, in the order the reader found them:
+	 *   1. `.services .items` / `.cases .items` / `.carousel .items` at `c 1 / full-end` — CARD
+	 *      rows. The last card's surface ended on the glass while its copy was inset 32px by a
+	 *      rule added to "keep the text off the edge", so one object was half bled and half not.
+	 *      Measured at 2000: frame right 2000.0, body ink right 1968.0. The reader called it cut
+	 *      off, twice, across two rounds of fixes.
+	 *   2. `.hero .head` at `c 1 / full-end` — a copy block claiming a gutter its own ink never
+	 *      entered (h1 ink stopped 227px short at 2000, 745px short at 2560).
+	 *   3. `.band .formwrap` at `c 6 / full-end` — a FORM. Every field and the submit button ended
+	 *      at exactly x=2560.0 on a 2560 viewport, and the name input was 1453.3px wide. That is
+	 *      not a styling defect, it is a control the reader cannot use: "esto no puede pasar bajo
+	 *      ningún concepto".
+	 * `documentElement.scrollWidth === clientWidth` throughout all three. Nothing overflowed. Every
+	 * overflow gate in this repo was green, which is exactly why this row is not an overflow gate.
+	 *
+	 * THE RULE, AND IT IS A WHITELIST RATHER THAN A MEASUREMENT. An element may resolve to
+	 * `full-start` / `full-end` only if it is MEDIA — a figure, an image, a picture, a video, or a
+	 * container whose whole job is to hold one. Media at the glass is the blueprint working: it is
+	 * why `layout-patterns.md` gives LP-ASYMMETRIC and LP-BROKEN-GRID named grid lines at all.
+	 * Anything else at the glass is a defect whose severity only goes up as the element gets more
+	 * interactive — copy is amputated, a card is sliced, a control is broken.
+	 *
+	 * WHY STATIC AND NOT GEOMETRIC. The geometry is house-rules.md row 32's and it is the better
+	 * check, but it needs a browser and a host; this audit runs offline in a second on every
+	 * commit. The subject of a `grid-column` declaration is decidable from the text, so this row
+	 * decides it there. It reads the LAST simple selector — the element the rule actually styles —
+	 * because `.hero .media` is a bleed and `.media .btn` would not be.
+	 *
+	 * FAIL-CLOSED ON THE UNKNOWN. A subject this row does not recognise is reported, not skipped.
+	 * A whitelist that silently passes what it has never seen is the same blind spot one level up,
+	 * and the whole reason this row exists is that the previous gate passed things it could not
+	 * see. Adding a genuinely new media wrapper means adding it to $bleed_media_ok on purpose.
+	 */
+	/* MEDIA, PLUS ONE THING THAT IS NOT MEDIA AND IS STILL ALLOWED: an empty decorative panel.
+	   `proof-direct-mockup.html`'s `.band .slab` is `<div class="slab"></div>` — no text, no
+	   control, nothing to amputate, sitting at `z-index:0` behind the copy as a coloured ground.
+	   A slab at the glass is the same act as a photograph at the glass. `.ph` is the mockup
+	   vocabulary's photo PLACEHOLDER and `.shot` its photo container; both are media by role.
+	   Every name here had to be justified out loud, which is the point of a whitelist. */
+	$bleed_media_ok = array( 'media', 'frame', 'figure', 'img', 'picture', 'video',
+		'slides', 'slide', 'hero-slides', 'shot', 'ph', 'slab' );
+	$bleed_offences = array();
+	/* COMMENTS COME OUT FIRST, AND THE ORDER IS THE WHOLE OF IT. Stripping them after splitting the
+	   selector list on `,` reported `/* the one bleed per section` and `always the SAME edge` as two
+	   separate offending selectors, because the prose above the rule contains commas and lands in
+	   the same `[^{}]+` run as the selector. The first version of this row did exactly that and its
+	   output was gibberish — a check whose failure message is unreadable is a check nobody acts on. */
+	$bleed_css = preg_replace( '#/\*.*?\*/#s', '', $mockup_src );
+	/* The declaration, not the whole rule: `grid-column:<something> full-start|full-end`. Capturing
+	   the selector list means everything from the previous `}` or `{`-less start up to the `{`. */
+	if ( preg_match_all( '/([^{}]+)\{[^{}]*grid-column\s*:[^;}]*full-(?:start|end)[^;}]*[;}]/i', $bleed_css, $bm, PREG_SET_ORDER ) ) {
+		foreach ( $bm as $bleed_rule ) {
+			foreach ( explode( ',', $bleed_rule[1] ) as $bleed_sel ) {
+				$bleed_sel = trim( $bleed_sel );
+				if ( '' === $bleed_sel ) {
+					continue;
+				}
+				/* The subject is the last compound selector; strip its attribute/pseudo tail and
+				   take the element name or the last class on it. */
+				$bleed_parts   = preg_split( '/\s+|>/', $bleed_sel, -1, PREG_SPLIT_NO_EMPTY );
+				$bleed_subject = (string) end( $bleed_parts );
+				$bleed_subject = preg_replace( '/:{1,2}[\w-]+(\([^)]*\))?/', '', $bleed_subject );
+				$bleed_subject = preg_replace( '/\[[^\]]*\]/', '', $bleed_subject );
+				$bleed_names   = array();
+				if ( preg_match_all( '/\.([\w-]+)/', $bleed_subject, $bcm ) ) {
+					$bleed_names = $bcm[1];
+				} elseif ( preg_match( '/^([a-z][\w-]*)/i', $bleed_subject, $btm ) ) {
+					$bleed_names = array( strtolower( $btm[1] ) );
+				}
+				if ( array() === $bleed_names ) {
+					continue;
+				}
+				foreach ( $bleed_names as $bleed_name ) {
+					if ( in_array( $bleed_name, $bleed_media_ok, true ) ) {
+						continue 2;
+					}
+				}
+				$bleed_offences[] = '`' . $bleed_sel . '`';
+			}
+		}
+	}
+	if ( array() !== $bleed_offences ) {
+		add(
+			'RT_MOCKUP_BLEED_NOT_MEDIA',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $mockup_name . ' sends ' . implode( ', ', array_unique( $bleed_offences ) )
+				. ' to `full-start`/`full-end`, which IS the layout viewport edge, and none of them is media.'
+				. ' A photograph at the glass is a bleed; a card is sliced, a paragraph is amputated and a form'
+				. ' control is unusable — measured on this gallery as a submit button whose right border sat on'
+				. ' x=2560.0 with a 1453px name field beside it, while scrollWidth === clientWidth throughout.'
+				. ' End the row at the band (`c 13` / `wide-end`) and let only `.media` reach `full-end`.'
+				. ' See layout-patterns.md § Sangrado'
+		);
 	}
 
 	/* ---- RT_MOCKUP_FONT_NOT_EMBEDDED ----
