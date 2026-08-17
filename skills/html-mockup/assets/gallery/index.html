@@ -224,9 +224,23 @@
       if this sits on `:root` alone.
 
       `--fs-h1-max` carries no unit on purpose: calc() cannot divide a length by a length, so the
-      coefficient multiplying --fluid must arrive unitless. --fs-base is the bridge back. ══ */
+      coefficient multiplying --fluid must arrive unitless. --fs-base is the bridge back.
+
+      THE CLOSING FIELDS ARE IN THIS SELECTOR LIST, AND THAT IS THE ONLY CORRECT PLACE FOR THEM.
+      Two anchors close on a ground that is not the page's — an inverted spread and a field of
+      accent — and a band that changes `--c-bg` and `--c-text` needs `--c-text-muted`,
+      `--c-border` and `--c-surface-inverse` to change WITH it. They do not: substitution happens
+      at computed-value time on the element that DECLARES the custom property, so re-declaring
+      `--c-bg` on the band alone leaves every derived neutral still carrying the value it resolved
+      to up on `[data-anchor]` — a muted grey mixed toward white, painted on near-black. That is
+      the same trap the deviation note at the top of this stylesheet describes, one level down,
+      and it is invisible in DevTools because every token reads correctly.
+      The fix is the same fix: name the field in the selector, so the chain RESOLVES a second time
+      against the field's own two colours. One transcription, nine resolutions. ══ */
 :root,
-[data-anchor]{
+[data-anchor],
+[data-anchor="editorial"] .sec.closing,
+[data-anchor="direct"] .sec.closing{
   --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
 
   --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
@@ -1234,6 +1248,94 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
      internal inconsistency in the opposite direction. A rule that is only correct because of a
      bleed has to leave with the bleed. */
 }
+/* ══════════ THE CLOSE — shared floor ══════════ */
+/* The void under the heading, which is in every before-capture of this page: `.band .head` is a
+   short column beside a four-field form, so on three of four blueprints the head's own cell ran
+   400px taller than its ink and the band read as a half-empty row. Centring the head against the
+   form is one declaration and it is the whole fix. */
+@media(min-width:1024px){
+  .band .head{justify-content:center}
+}
+/* ONE CONTROL, AND IT IS SIZED LIKE ONE. A submit button that is the same size as an `Añadir` in a
+   product card is not a close, it is a form control that happens to be last. */
+.band .leadform > .btn,.close .btn-close{align-self:start;padding:1.05rem 2.4rem;font-size:1.05rem}
+/* TPL-E-02's close had NO control. `.chans` stays — a counter still answers the phone — but the
+   band now asks for the thing before it lists the ways to ask for it. */
+.close .closecta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s);margin-top:var(--sp-m)}
+.close .chans{margin-top:var(--sp-l)}
+/* ══════════ THE CLOSE — one voice per anchor ══════════ */
+/* editorial: the back cover — type 17.84:1, control 17.84:1, label 17.84:1 */
+[data-anchor="editorial"] .sec.closing{--c-bg:#15181A;--c-bg-alt:#282A2C;--c-text:#FFFFFF;--c-accent:#FFFFFF;--c-on-accent:#15181A;--c-border:#7E8081;background:#15181A;color:#FFFFFF}   /* overridden: --c-border:#7E8081 */
+/* direct: a field of accent — type 6.61:1, control 6.61:1, label 6.61:1 */
+[data-anchor="direct"] .sec.closing{--c-bg:#FF6A1A;--c-bg-alt:#E76119;--c-text:#0E1113;--c-accent:#0E1113;--c-on-accent:#FF6A1A;--c-text-muted:#0E1113;--c-border:#934217;background:#FF6A1A;color:#0E1113}   /* overridden: --c-text-muted:#0E1113 · --c-border:#934217 */
+/* EDITORIAL — the back cover. Elevation `none` means this anchor owns no shadow and no fill, so
+   the only mark of an ending available to it is turning the paper over. The h2 is the one section
+   heading on this page allowed to reach the h1 step: at `editorial` scale that is 88px of Fraunces
+   on near-black, which is quiet in colour and unmistakable in size — the whole point of the
+   anchor. Nothing lifts, nothing glows; the ending is a change of stock. */
+[data-anchor="editorial"] .sec.closing{border-top:none}
+[data-anchor="editorial"] .sec.closing .head h2{font-size:var(--fs-h1);letter-spacing:var(--track-h1)}
+[data-anchor="editorial"] .sec.closing .eyebrow{color:var(--c-text-muted)}
+[data-anchor="editorial"] .sec.closing .field input,
+[data-anchor="editorial"] .sec.closing .field textarea{background:transparent;border-radius:0;
+  border-width:0 0 1px}
+[data-anchor="editorial"] .sec.closing .btn-primary:hover{transform:none;
+  background:var(--c-text);border-color:var(--c-text);color:var(--c-bg)}
+
+/* DIRECT — the field. `ground: ink` and `elevation: accent-glow`, on the anchor whose brief is
+   "marcas que ganan por ser inconfundibles": the close floods with the accent and the control
+   inverts to the page's own ink, because an accent button on an accent field is a button nobody
+   can find. At `monumental` scale the h2 caps at 74px on orange, which is the loudest thing on
+   any of the eight strips and is meant to be. */
+[data-anchor="direct"] .sec.closing .eyebrow{color:var(--c-text)}
+[data-anchor="direct"] .sec.closing .field input,
+[data-anchor="direct"] .sec.closing .field textarea{background:color-mix(in srgb,var(--c-text) 8%,transparent);
+  border-color:color-mix(in srgb,var(--c-text) 28%,transparent)}
+[data-anchor="direct"] .sec.closing .btn-primary:hover{box-shadow:none;
+  background:transparent;color:var(--c-text);border-color:var(--c-text)}
+[data-anchor="direct"] .sec.closing .btn-outline{border-color:color-mix(in srgb,var(--c-text) 45%,transparent)}
+
+/* MATTER — the plaque. `elevation: hairline` says the border is all the chrome this anchor gets,
+   and `LP-STRICT-GRID` says everything starts and ends on a column line, so the close is a panel
+   set into the section: the page's own paper inside a 1px accent-tinted frame, on the alt ground.
+   Milled, not floated — there is no shadow anywhere in this anchor's vocabulary. */
+[data-anchor="matter"] .sec.closing{background:var(--c-bg-alt)}
+[data-anchor="matter"] .sec.closing .head,
+[data-anchor="matter"] .sec.closing .formwrap{background:var(--c-bg);
+  border:1px solid color-mix(in srgb,var(--c-accent) 26%,var(--c-bg));
+  border-radius:var(--radius-container);padding:var(--sp-l) var(--sp-m)}
+/* ONE PLAQUE, NOT TWO. `LP-STRICT-GRID` places the head and the form as separate grid items with
+   `column-gap:var(--sp-m)` between them, so bordering each one produced two boxes with a 32px slot
+   down the middle — a panel that had come apart, which is the opposite of milled. Closing the gap
+   and dropping the inner edges makes the two halves one object; the outer radius then belongs to
+   the object rather than to each half. Caught by looking at it. */
+/* `.band` ONLY, and the scope is the fix rather than tidying. The corporate close is a head
+   BESIDE a form, so the plaque is two halves butted together. The ecommerce close has no form —
+   its head is the whole panel — and these rules applied there produced one box with its right
+   border removed and its right corners squared: a plaque milled to fit a neighbour that does not
+   exist. */
+@media(min-width:1024px){
+  [data-anchor="matter"] .band.closing .canvas{column-gap:0}
+  [data-anchor="matter"] .band.closing .head{border-right:none;
+    border-radius:var(--radius-container) 0 0 var(--radius-container)}
+  [data-anchor="matter"] .band.closing .formwrap{border-left:none;
+    border-radius:0 var(--radius-container) var(--radius-container) 0}
+}
+
+/* INSTITUTIONAL — the panel. `elevation: soft-shadow` and `LP-CENTERED`: this anchor already
+   presents everything as a centred card that lifts, so its close is the same gesture at page
+   scale — one bounded panel on the page's own paper, over the alt ground, with the anchor's own
+   resting shadow. Formal, which is the axis position doing its job. */
+[data-anchor="institutional"] .sec.closing{background:var(--c-bg-alt)}
+[data-anchor="institutional"] .sec.closing .canvas{max-width:min(var(--content-width),58rem)}
+[data-anchor="institutional"] .sec.closing .head,
+[data-anchor="institutional"] .sec.closing .formwrap{background:var(--c-bg);
+  box-shadow:var(--elev-rest);border-radius:var(--radius-container);padding:var(--sp-l) var(--sp-m)}
+@media(min-width:1024px){
+  [data-anchor="institutional"] .sec.closing .head,
+  [data-anchor="institutional"] .sec.closing .formwrap{padding:var(--sp-xl) var(--sp-l)}
+}
+
 </style>
 
 <svg class="ink-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><filter id="nm-ink-editorial" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.1373 0.9647"/><feFuncG type="table" tableValues="0.149 0.9647"/><feFuncB type="table" tableValues="0.1569 0.9647"/></feComponentTransfer></filter><filter id="nm-ink-direct" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.1098 0.9216"/><feFuncG type="table" tableValues="0.1216 0.9294"/><feFuncB type="table" tableValues="0.1294 0.9333"/></feComponentTransfer></filter><filter id="nm-ink-matter" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.1922 0.9647"/><feFuncG type="table" tableValues="0.1608 0.9176"/><feFuncB type="table" tableValues="0.1255 0.8588"/></feComponentTransfer></filter><filter id="nm-ink-institutional" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.1294 0.9137"/><feFuncG type="table" tableValues="0.1608 0.9255"/><feFuncB type="table" tableValues="0.1922 0.9412"/></feComponentTransfer></filter></defs></svg>
@@ -1294,7 +1396,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Palacio de Miraflores</h3><p class="muted small">142 sillares repuestos sin cerrar el edificio al público.</p></div></article>
 <article class="card"><figure class="frame"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Cocina en Vallmoll</h3><p class="muted small">Encimera de una sola pieza, 3,4 m sin junta visible.</p></div></article>
 </div></div></section>
-<section class="sec band" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
 <div class="field"><label for="tplc01-editorial-name">Nombre</label><input id="tplc01-editorial-name" name="name" type="text"></div>
 <div class="field"><label for="tplc01-editorial-mail">Email</label><input id="tplc01-editorial-mail" name="mail" type="email"></div>
 <div class="field"><label for="tplc01-editorial-tel">Teléfono</label><input id="tplc01-editorial-tel" name="tel" type="tel"></div>
@@ -1354,7 +1456,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><h3>Palacio de Miraflores</h3><p class="muted small">142 sillares repuestos sin cerrar el edificio al público.</p></div></article>
 <article class="card"><figure class="frame"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure><div class="body"><h3>Cocina en Vallmoll</h3><p class="muted small">Encimera de una sola pieza, 3,4 m sin junta visible.</p></div></article>
 </div></div></section>
-<section class="sec band" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
 <div class="field"><label for="tplc01-direct-name">Nombre</label><input id="tplc01-direct-name" name="name" type="text"></div>
 <div class="field"><label for="tplc01-direct-mail">Email</label><input id="tplc01-direct-mail" name="mail" type="email"></div>
 <div class="field"><label for="tplc01-direct-tel">Teléfono</label><input id="tplc01-direct-tel" name="tel" type="tel"></div>
@@ -1414,7 +1516,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><h3>Palacio de Miraflores</h3><p class="muted small">142 sillares repuestos sin cerrar el edificio al público.</p></div></article>
 <article class="card"><figure class="frame"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure><div class="body"><h3>Cocina en Vallmoll</h3><p class="muted small">Encimera de una sola pieza, 3,4 m sin junta visible.</p></div></article>
 </div></div></section>
-<section class="sec band" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
 <div class="field"><label for="tplc01-matter-name">Nombre</label><input id="tplc01-matter-name" name="name" type="text"></div>
 <div class="field"><label for="tplc01-matter-mail">Email</label><input id="tplc01-matter-mail" name="mail" type="email"></div>
 <div class="field"><label for="tplc01-matter-tel">Teléfono</label><input id="tplc01-matter-tel" name="tel" type="tel"></div>
@@ -1474,7 +1576,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Palacio de Miraflores</h3><p class="muted small">142 sillares repuestos sin cerrar el edificio al público.</p></div></article>
 <article class="card"><figure class="frame"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Cocina en Vallmoll</h3><p class="muted small">Encimera de una sola pieza, 3,4 m sin junta visible.</p></div></article>
 </div></div></section>
-<section class="sec band" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
 <div class="field"><label for="tplc01-institutional-name">Nombre</label><input id="tplc01-institutional-name" name="name" type="text"></div>
 <div class="field"><label for="tplc01-institutional-mail">Email</label><input id="tplc01-institutional-mail" name="mail" type="email"></div>
 <div class="field"><label for="tplc01-institutional-tel">Teléfono</label><input id="tplc01-institutional-tel" name="tel" type="tel"></div>
@@ -1556,7 +1658,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
 <details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
 </div></div></section>
-<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<section class="sec close closing" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p><div class="closecta"><a class="btn btn-primary btn-close" href="#">Pedir presupuesto a medida</a><span class="muted small">Respuesta el mismo día laborable</span></div></div><div class="items chans">
 <div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
 <div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
 <div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
@@ -1638,7 +1740,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
 <details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
 </div></div></section>
-<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<section class="sec close closing" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p><div class="closecta"><a class="btn btn-primary btn-close" href="#">Pedir presupuesto a medida</a><span class="muted small">Respuesta el mismo día laborable</span></div></div><div class="items chans">
 <div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
 <div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
 <div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
@@ -1720,7 +1822,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
 <details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
 </div></div></section>
-<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<section class="sec close closing" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p><div class="closecta"><a class="btn btn-primary btn-close" href="#">Pedir presupuesto a medida</a><span class="muted small">Respuesta el mismo día laborable</span></div></div><div class="items chans">
 <div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
 <div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
 <div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>
@@ -1802,7 +1904,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <details><summary>¿Puedo devolver una pieza cortada?</summary><p>No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.</p></details>
 <details><summary>¿Sirven muestras?</summary><p>Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.</p></details>
 </div></div></section>
-<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p></div><div class="items chans">
+<section class="sec close closing" aria-label="Contacto directo"><div class="canvas"><div class="head stack"><span class="eyebrow">Mostrador</span><h2>¿No encontraste tu pieza?</h2><p class="lede muted">Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.</p><div class="closecta"><a class="btn btn-primary btn-close" href="#">Pedir presupuesto a medida</a><span class="muted small">Respuesta el mismo día laborable</span></div></div><div class="items chans">
 <div class="chan"><span class="muted small">Teléfono</span><b>965 60 41 22</b><span class="muted small">Lun a vie, 8:00–18:00</span></div>
 <div class="chan"><span class="muted small">WhatsApp</span><b>+34 600 41 22 08</b><span class="muted small">Mandá el croquis y te presupuestamos</span></div>
 <div class="chan"><span class="muted small">Email</span><b>mostrador@piedravaldes.es</b><span class="muted small">Respuesta el mismo día laborable</span></div>

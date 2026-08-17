@@ -990,6 +990,14 @@ $CONTENT = array(
 			'eyebrow' => 'Mostrador',
 			'h2'      => '¿No encontraste tu pieza?',
 			'lede'    => 'Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.',
+			/* THE CONTROL THIS BAND NEVER HAD. TPL-C-01 closes on a form and TPL-E-02 closed on
+			   three phone numbers — help, not an ask. The channels stay, because a counter still
+			   answers the phone and § "COMP-CONTACT-DIRECT" is right that a catalogue closes on
+			   what happens when finding failed; what was missing is that the band never ASKED for
+			   anything before listing the ways to ask. One control, one line of reassurance beside
+			   it, and the three channels underneath it rather than instead of it. */
+			'cta'     => 'Pedir presupuesto a medida',
+			'cta_sub' => 'Respuesta el mismo día laborable',
 			'chans'   => array(
 				array( 'Teléfono', '965 60 41 22', 'Lun a vie, 8:00–18:00' ),
 				array( 'WhatsApp', '+34 600 41 22 08', 'Mandá el croquis y te presupuestamos' ),
@@ -1374,6 +1382,140 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
   --fs-price:clamp(1.1rem, 1.6vw, 1.35rem);
 }';
 
+// ── block 1b · THE TWO CLOSING FIELDS, and every colour on them MEASURED ───────────────────────
+//
+// Two of the four anchors close on a ground that is not the page's. Which two is not a free
+// choice: it is the `elevation` and `ground` axes deciding how loudly this personality is allowed
+// to end. `PERS-EDITORIAL` — elevation `none`, ground `paper` — has no shadow and no fill in its
+// whole vocabulary, so the only way it can mark an ending is to turn the paper over: an inverted
+// spread, the back cover. `PERS-DIRECT` — ground `ink`, elevation `accent-glow`, the anchor whose
+// one-line brief is "marcas que ganan por ser inconfundibles" — ends on a field of its own accent.
+// The other two have a fill and a shadow already and close with those, in block 7; nothing here.
+//
+// EVERY COLOUR BELOW IS MEASURED AND THE BUILD DIES ON A FAILURE, because a painted band is where
+// contrast quietly goes wrong: `--c-accent` is #8C3A1F on three grounds and measures 2.47:1 on
+// near-black, which this file already says out loud. An inverted editorial band painted with the
+// paper accent would be an eyebrow nobody can read, and it would look deliberate.
+$FIELD = array();
+$FIELD_DEF = array(
+	/* the back cover: the anchor's own ink becomes the ground, its own paper becomes the type. */
+	'editorial' => array( 'kind' => 'inverse' ),
+	/* the accent IS the ground. The control on it then has to be the page's ink — an accent
+	   button on an accent field is a button nobody can find. */
+	'direct'    => array( 'kind' => 'accent' ),
+);
+foreach ( $FIELD_DEF as $fld_k => $fld_d ) {
+	$fld_gr = $GROUND[ $ANCHORS[ $fld_k ]['ground'] ];
+	if ( 'inverse' === $fld_d['kind'] ) {
+		$fld_bg   = $fld_gr['text'];
+		$fld_text = $fld_gr['bg'];
+		$fld_alt  = css_mix( $fld_gr['text'], 0.92, $fld_gr['bg'] );
+	} else {
+		$fld_bg   = $ACCENT[ $ANCHORS[ $fld_k ]['ground'] ]['hex'];
+		$fld_text = $ACCENT[ $ANCHORS[ $fld_k ]['ground'] ]['on'];
+		$fld_alt  = css_mix( $fld_bg, 0.90, $fld_text );
+	}
+
+	/* THE CONTROL'S FILL IS CHOSEN THE WAY `--c-on-accent` IS: by measuring the candidates the page
+	   already owns and taking the STRONGEST that clears AA, never by picking one that looks right.
+	   The candidates are the two accents this build has derived plus the field's own two extremes,
+	   which is the whole palette in play — nothing new is invented for a band.
+
+	   STRONGEST AND NOT FIRST-THAT-CLEARS, and the difference is visible. First-that-clears put
+	   `#FF6A1A` on the editorial back cover at 6.22:1 — legal, and a second orange on a page whose
+	   accent is `#8C3A1F`, so the close introduced a colour the rest of the strip does not have.
+	   Strongest picks the field's own type colour at 17.84:1: a white bar on black, which is the
+	   loudest control an anchor with `elevation: none` can make and costs the palette nothing.
+	   On `direct` both rules agree on the page's ink, so the change is free there. */
+	$fld_pick = '';
+	$fld_best = 0.0;
+	foreach ( array_merge( array_values( $ACCENT_BY_GROUND ), array( $fld_text, $fld_gr['bg'] ) ) as $fld_cand ) {
+		$fld_r = contrast( $fld_cand, $fld_bg );
+		if ( $fld_r >= 4.5 && $fld_r > $fld_best ) {
+			$fld_pick = $fld_cand;
+			$fld_best = $fld_r;
+		}
+	}
+	if ( '' === $fld_pick ) {
+		fail( "no colour in this build's palette clears 4.5:1 on the `$fld_k` closing field ($fld_bg)"
+			. ' — a closing band whose one control cannot be read is worse than the band that had none' );
+	}
+	$fld_on = ( contrast( $fld_text, $fld_pick ) >= contrast( $fld_bg, $fld_pick ) ) ? $fld_text : $fld_bg;
+
+	/* THE MUTED TONE IS CHECKED AND IT IS THE ONE THAT ALMOST GOT AWAY. `.lede` on both closing
+	   bands carries `.muted`, so it paints `--c-text-muted` — which now re-resolves against the
+	   FIELD's own two colours, 63.4% of the field's type mixed toward the field's ground. On a
+	   `#FF6A1A` field that is a brown on orange, and it is the exact shape of the defect § 5c
+	   records for the slider hero: the headline was measured, the lede was not, and the lede is
+	   the run that was hard to read. Measured here rather than discovered in a capture. */
+	$fld_muted = css_mix( $fld_text, 0.634, $fld_bg );
+	$fld_bord  = css_mix( $fld_text, 0.11, $fld_bg );
+
+	/* MEASURED FIRST, THEN CAUGHT: `#663216 on #FF6A1A` — 3.61:1, and it was live in a render
+	   before this check existed. The remedy is the one § 5c already established for a photographic
+	   hero and it generalises for the same reason: A FIELD GETS ONE INK. A muted grey is a device
+	   for putting a second voice on a NEUTRAL surface; on a saturated or inverted ground it stops
+	   being quieter and starts being unreadable, and hierarchy has to come from size and weight
+	   instead. The override is GENERATED from the measurement rather than typed, so a field whose
+	   ink starts passing stops being overridden and one that starts failing cannot be forgotten. */
+	$fld_over = array();
+	if ( contrast( $fld_muted, $fld_bg ) < 4.5 ) {
+		$fld_over[]  = '--c-text-muted:' . $fld_text;
+		$fld_muted_r = ratio_str( $fld_muted, $fld_bg ) . ' → --c-text';
+	} else {
+		$fld_muted_r = ratio_str( $fld_muted, $fld_bg ) . ' (kept)';
+	}
+	/* 3:1 and not 4.5: an input's border is a UI component boundary under WCAG 1.4.11, not a glyph. */
+	if ( contrast( $fld_bord, $fld_bg ) < 3.0 ) {
+		$fld_over[] = '--c-border:' . css_mix( $fld_text, 0.45, $fld_bg );
+	}
+
+	foreach ( array(
+		'type on the field'    => array( $fld_text, $fld_bg, 4.5 ),
+		'type on its alt'      => array( $fld_text, $fld_alt, 4.5 ),
+		'the control fill'     => array( $fld_pick, $fld_bg, 4.5 ),
+		'the control label'    => array( $fld_on, $fld_pick, 4.5 ),
+	) as $fld_what => $fld_pair ) {
+		if ( contrast( $fld_pair[0], $fld_pair[1] ) < $fld_pair[2] ) {
+			fail( "on the `$fld_k` closing field, $fld_what measures "
+				. ratio_str( $fld_pair[0], $fld_pair[1] ) . " ({$fld_pair[0]} on {$fld_pair[1]}), below "
+				. $fld_pair[2] . ':1' );
+		}
+	}
+
+	/* THE OVERRIDE HAS TO LAND. Generating a fix and then not emitting it is the same as not having
+	   measured, and it is a failure no render would show — the band would simply be a little hard
+	   to read, which is what it already was. */
+	$fld_border_r = ratio_str( $fld_bord, $fld_bg );
+	if ( contrast( $fld_muted, $fld_bg ) < 4.5 && ! in_array( '--c-text-muted:' . $fld_text, $fld_over, true ) ) {
+		fail( "the `$fld_k` closing field needs a muted-tone override and did not get one" );
+	}
+
+	$FIELD[ $fld_k ] = array(
+		'kind'    => $fld_d['kind'],
+		'bg'      => $fld_bg,
+		'alt'     => $fld_alt,
+		'text'    => $fld_text,
+		'accent'  => $fld_pick,
+		'on'      => $fld_on,
+		'over'    => $fld_over,
+		'r_text'  => ratio_str( $fld_text, $fld_bg ),
+		'r_ctrl'  => ratio_str( $fld_pick, $fld_bg ),
+		'r_lbl'   => ratio_str( $fld_on, $fld_pick ),
+		'r_muted' => $fld_muted_r,
+		'r_bord'  => $fld_border_r,
+	);
+}
+
+/* The selector list the shared chain resolves on: `:root`, every anchor, and every closing field.
+   BUILT FROM THE SAME TABLE that paints the fields, so a field can never exist as a painted band
+   without also being a resolution site for the derived neutrals. That pairing is the bug this
+   whole mechanism exists to make impossible, and two lists would let them drift apart. */
+$FIELD_SELECTORS = array( ':root', '[data-anchor]' );
+foreach ( $FIELD as $fld_k => $fld_v ) {
+	$FIELD_SELECTORS[] = '[data-anchor="' . $fld_k . '"] .sec.closing';
+}
+
 // ── block 2 · THE SHARED DERIVED CHAIN — written once, resolved per anchor ─────────────────────
 $css[] = <<<'CSS'
 /* ══ THE SHARED LAYER. Transcribed VERBATIM from design-system.md § Scale and § Density, and
@@ -1386,9 +1528,20 @@ $css[] = <<<'CSS'
       if this sits on `:root` alone.
 
       `--fs-h1-max` carries no unit on purpose: calc() cannot divide a length by a length, so the
-      coefficient multiplying --fluid must arrive unitless. --fs-base is the bridge back. ══ */
-:root,
-[data-anchor]{
+      coefficient multiplying --fluid must arrive unitless. --fs-base is the bridge back.
+
+      THE CLOSING FIELDS ARE IN THIS SELECTOR LIST, AND THAT IS THE ONLY CORRECT PLACE FOR THEM.
+      Two anchors close on a ground that is not the page's — an inverted spread and a field of
+      accent — and a band that changes `--c-bg` and `--c-text` needs `--c-text-muted`,
+      `--c-border` and `--c-surface-inverse` to change WITH it. They do not: substitution happens
+      at computed-value time on the element that DECLARES the custom property, so re-declaring
+      `--c-bg` on the band alone leaves every derived neutral still carrying the value it resolved
+      to up on `[data-anchor]` — a muted grey mixed toward white, painted on near-black. That is
+      the same trap the deviation note at the top of this stylesheet describes, one level down,
+      and it is invisible in DevTools because every token reads correctly.
+      The fix is the same fix: name the field in the selector, so the chain RESOLVES a second time
+      against the field's own two colours. One transcription, nine resolutions. ══ */
+%%FIELD_SELECTORS%%{
   --fluid: clamp(0px, calc((100vw - 430px) / 850), 1px);
 
   --n-h1: calc(var(--fs-base) * var(--type-ratio) * var(--type-ratio) * var(--type-ratio));
@@ -1462,6 +1615,18 @@ $css[] = <<<'CSS'
   --c-on-inverse:      var(--c-bg);
 }
 CSS;
+
+/* The placeholder is replaced rather than the heredoc being concatenated, so the chain stays ONE
+   readable block of CSS in the source and the only generated part is the selector list. */
+$css[ count( $css ) - 1 ] = str_replace(
+	'%%FIELD_SELECTORS%%',
+	implode( ",\n", $FIELD_SELECTORS ),
+	$css[ count( $css ) - 1 ]
+);
+if ( false !== strpos( $css[ count( $css ) - 1 ], '%%FIELD' ) ) {
+	fail( 'the shared chain still carries its selector placeholder — every derived neutral would'
+		. ' resolve nowhere and the whole stylesheet would fall back to initial values' );
+}
 
 // ── block 3 · base + shared components ─────────────────────────────────────────────────────────
 $css[] = <<<'CSS'
@@ -2486,6 +2651,141 @@ foreach ( $COMPOSITION as $pos => $meta ) {
 	}
 }
 
+// ── block 7 · THE CLOSE ────────────────────────────────────────────────────────────────────────
+//
+// "No veo los call to action en las home." Checked before answering, and he is half wrong and
+// entirely right: the closing sections exist in all eight — four COMP-LEAD-FORM bands on TPL-C-01,
+// four COMP-FAQ + COMP-CONTACT-DIRECT pairs on TPL-E-02. THEY EXIST AND NONE OF THEM READS AS A
+// CALL TO ACTION. A form is a form. An accordion is help. Three phone numbers under a heading are
+// a footer that has not admitted it yet — TPL-E-02's close carried no control at all, so the page
+// ended by listing ways to leave it.
+//
+// WHAT A CLOSING BAND OWES, and it is the same three things at every anchor:
+//   1. Its own ground. A close painted the same white as the section above it is furniture.
+//   2. Exactly ONE control carrying weight — the biggest single spend of the accent budget.
+//   3. An edge. Something that says the page is ending and is asking for something.
+//
+// WHAT IT MUST NOT BE is one recipe pasted four times. `PERS-DIRECT` closing loud and
+// `PERS-EDITORIAL` closing quiet IS the axis system working; both closing invisibly is the defect.
+// So the three obligations above are the FLOOR and each anchor discharges them in its own language,
+// out of tokens it already owns — elevation, ground, density, scale. Nothing below invents a
+// colour or a shadow that is not already this anchor's.
+//
+// AFTER THE COMPOSITION LAYERS ON PURPOSE. `[data-anchor]` and `[data-comp]` are the same
+// specificity, so source order decides ties, and the blueprint owns PLACEMENT — which column the
+// head and the form sit in. This block owns SURFACE. Emitted last so a surface rule cannot be
+// silently outranked by a blueprint that only meant to place something.
+
+$css[] = <<<'CSS'
+/* ══════════ THE CLOSE — shared floor ══════════ */
+/* The void under the heading, which is in every before-capture of this page: `.band .head` is a
+   short column beside a four-field form, so on three of four blueprints the head's own cell ran
+   400px taller than its ink and the band read as a half-empty row. Centring the head against the
+   form is one declaration and it is the whole fix. */
+@media(min-width:1024px){
+  .band .head{justify-content:center}
+}
+/* ONE CONTROL, AND IT IS SIZED LIKE ONE. A submit button that is the same size as an `Añadir` in a
+   product card is not a close, it is a form control that happens to be last. */
+.band .leadform > .btn,.close .btn-close{align-self:start;padding:1.05rem 2.4rem;font-size:1.05rem}
+/* TPL-E-02's close had NO control. `.chans` stays — a counter still answers the phone — but the
+   band now asks for the thing before it lists the ways to ask for it. */
+.close .closecta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-s);margin-top:var(--sp-m)}
+.close .chans{margin-top:var(--sp-l)}
+CSS;
+
+// ── the four voices ────────────────────────────────────────────────────────────────────────────
+//
+// Same three obligations, four languages, and each one spends only tokens its own anchor already
+// owns. Read them side by side: EDITORIAL turns the paper over, DIRECT floods the page with its
+// accent, MATTER sets a plaque into the surface, INSTITUTIONAL presents a panel. Nothing here is
+// the same recipe with a different colour — the closes differ in KIND, which is what stops a
+// shared floor from flattening the set at the one place a reader is most likely to compare.
+$close_css = array( '/* ══════════ THE CLOSE — one voice per anchor ══════════ */' );
+
+foreach ( $FIELD as $fld_k => $fld_v ) {
+	$close_css[] = '/* ' . $fld_k . ': ' . ( 'inverse' === $fld_v['kind'] ? 'the back cover' : 'a field of accent' )
+		. ' — type ' . $fld_v['r_text'] . ', control ' . $fld_v['r_ctrl'] . ', label ' . $fld_v['r_lbl'] . ' */';
+	$close_css[] = '[data-anchor="' . $fld_k . '"] .sec.closing{'
+		. '--c-bg:' . $fld_v['bg'] . ';--c-bg-alt:' . $fld_v['alt'] . ';--c-text:' . $fld_v['text'] . ';'
+		. '--c-accent:' . $fld_v['accent'] . ';--c-on-accent:' . $fld_v['on'] . ';'
+		. ( $fld_v['over'] ? implode( ';', $fld_v['over'] ) . ';' : '' )
+		. 'background:' . $fld_v['bg'] . ';color:' . $fld_v['text'] . '}'
+		. ( $fld_v['over'] ? '   /* overridden: ' . implode( ' · ', $fld_v['over'] ) . ' */' : '' );
+}
+
+$close_css[] = <<<'CSS'
+/* EDITORIAL — the back cover. Elevation `none` means this anchor owns no shadow and no fill, so
+   the only mark of an ending available to it is turning the paper over. The h2 is the one section
+   heading on this page allowed to reach the h1 step: at `editorial` scale that is 88px of Fraunces
+   on near-black, which is quiet in colour and unmistakable in size — the whole point of the
+   anchor. Nothing lifts, nothing glows; the ending is a change of stock. */
+[data-anchor="editorial"] .sec.closing{border-top:none}
+[data-anchor="editorial"] .sec.closing .head h2{font-size:var(--fs-h1);letter-spacing:var(--track-h1)}
+[data-anchor="editorial"] .sec.closing .eyebrow{color:var(--c-text-muted)}
+[data-anchor="editorial"] .sec.closing .field input,
+[data-anchor="editorial"] .sec.closing .field textarea{background:transparent;border-radius:0;
+  border-width:0 0 1px}
+[data-anchor="editorial"] .sec.closing .btn-primary:hover{transform:none;
+  background:var(--c-text);border-color:var(--c-text);color:var(--c-bg)}
+
+/* DIRECT — the field. `ground: ink` and `elevation: accent-glow`, on the anchor whose brief is
+   "marcas que ganan por ser inconfundibles": the close floods with the accent and the control
+   inverts to the page's own ink, because an accent button on an accent field is a button nobody
+   can find. At `monumental` scale the h2 caps at 74px on orange, which is the loudest thing on
+   any of the eight strips and is meant to be. */
+[data-anchor="direct"] .sec.closing .eyebrow{color:var(--c-text)}
+[data-anchor="direct"] .sec.closing .field input,
+[data-anchor="direct"] .sec.closing .field textarea{background:color-mix(in srgb,var(--c-text) 8%,transparent);
+  border-color:color-mix(in srgb,var(--c-text) 28%,transparent)}
+[data-anchor="direct"] .sec.closing .btn-primary:hover{box-shadow:none;
+  background:transparent;color:var(--c-text);border-color:var(--c-text)}
+[data-anchor="direct"] .sec.closing .btn-outline{border-color:color-mix(in srgb,var(--c-text) 45%,transparent)}
+
+/* MATTER — the plaque. `elevation: hairline` says the border is all the chrome this anchor gets,
+   and `LP-STRICT-GRID` says everything starts and ends on a column line, so the close is a panel
+   set into the section: the page's own paper inside a 1px accent-tinted frame, on the alt ground.
+   Milled, not floated — there is no shadow anywhere in this anchor's vocabulary. */
+[data-anchor="matter"] .sec.closing{background:var(--c-bg-alt)}
+[data-anchor="matter"] .sec.closing .head,
+[data-anchor="matter"] .sec.closing .formwrap{background:var(--c-bg);
+  border:1px solid color-mix(in srgb,var(--c-accent) 26%,var(--c-bg));
+  border-radius:var(--radius-container);padding:var(--sp-l) var(--sp-m)}
+/* ONE PLAQUE, NOT TWO. `LP-STRICT-GRID` places the head and the form as separate grid items with
+   `column-gap:var(--sp-m)` between them, so bordering each one produced two boxes with a 32px slot
+   down the middle — a panel that had come apart, which is the opposite of milled. Closing the gap
+   and dropping the inner edges makes the two halves one object; the outer radius then belongs to
+   the object rather than to each half. Caught by looking at it. */
+/* `.band` ONLY, and the scope is the fix rather than tidying. The corporate close is a head
+   BESIDE a form, so the plaque is two halves butted together. The ecommerce close has no form —
+   its head is the whole panel — and these rules applied there produced one box with its right
+   border removed and its right corners squared: a plaque milled to fit a neighbour that does not
+   exist. */
+@media(min-width:1024px){
+  [data-anchor="matter"] .band.closing .canvas{column-gap:0}
+  [data-anchor="matter"] .band.closing .head{border-right:none;
+    border-radius:var(--radius-container) 0 0 var(--radius-container)}
+  [data-anchor="matter"] .band.closing .formwrap{border-left:none;
+    border-radius:0 var(--radius-container) var(--radius-container) 0}
+}
+
+/* INSTITUTIONAL — the panel. `elevation: soft-shadow` and `LP-CENTERED`: this anchor already
+   presents everything as a centred card that lifts, so its close is the same gesture at page
+   scale — one bounded panel on the page's own paper, over the alt ground, with the anchor's own
+   resting shadow. Formal, which is the axis position doing its job. */
+[data-anchor="institutional"] .sec.closing{background:var(--c-bg-alt)}
+[data-anchor="institutional"] .sec.closing .canvas{max-width:min(var(--content-width),58rem)}
+[data-anchor="institutional"] .sec.closing .head,
+[data-anchor="institutional"] .sec.closing .formwrap{background:var(--c-bg);
+  box-shadow:var(--elev-rest);border-radius:var(--radius-container);padding:var(--sp-l) var(--sp-m)}
+@media(min-width:1024px){
+  [data-anchor="institutional"] .sec.closing .head,
+  [data-anchor="institutional"] .sec.closing .formwrap{padding:var(--sp-xl) var(--sp-l)}
+}
+CSS;
+
+$css[] = implode( "\n", $close_css ) . "\n";
+
 // ═══════════════════════════════════════════════════════════════ HTML
 
 /** One card, in the DOM its anchor's recipe calls for. */
@@ -2602,7 +2902,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 
 	// 4 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN] — the form exists and dominates the close
 	$b   = $C['band'];
-	$o[] = '<section class="sec band" aria-label="Contacto"><div class="canvas">'
+	$o[] = '<section class="sec band closing" aria-label="Contacto"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p></div>'
 		. '<div class="formwrap"><form class="leadform" onsubmit="return false">';
@@ -2748,10 +3048,17 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 	// closes on what happens when finding failed, at counter speed — three channels, each with the
 	// one fact that makes it usable (hours, what to send, how fast the reply comes).
 	$cl  = $C['close'];
-	$o[] = '<section class="sec close bg-alt" aria-label="Contacto directo"><div class="canvas">'
+	$o[] = '<section class="sec close closing" aria-label="Contacto directo"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $cl['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $cl['h2'] ) . '</h2>'
-		. '<p class="lede muted">' . h( $cl['lede'] ) . '</p></div><div class="items chans">';
+		. '<p class="lede muted">' . h( $cl['lede'] ) . '</p>'
+		/* INSIDE `.head`, NOT BESIDE IT. `.canvas > *` is placed column by column under three of
+		   the four blueprints, so a third child here would land unplaced — the same trap the note
+		   on `.faqlist` records for `.band`. The control belongs to the ask, so it belongs in the
+		   block that makes it. */
+		. '<div class="closecta"><a class="btn btn-primary btn-close" href="#">' . h( $cl['cta'] ) . '</a>'
+		. '<span class="muted small">' . h( $cl['cta_sub'] ) . '</span></div>'
+		. '</div><div class="items chans">';
 	foreach ( $cl['chans'] as $c ) {
 		$o[] = '<div class="chan"><span class="muted small">' . h( $c[0] ) . '</span>'
 			. '<b>' . h( $c[1] ) . '</b>'
@@ -3305,6 +3612,49 @@ foreach ( $STRIPS as $s ) {
 	}
 }
 
+// ── ANYTHING THAT REDECLARES THE GROUND MUST ALSO RESOLVE THE CHAIN ────────────────────────────
+//
+// FOUND BY MUTATION, and it is the most expensive failure this stylesheet can have because it is
+// completely invisible. Deleting the closing fields from the shared chain's selector list leaves a
+// page that builds, passes every gate and renders: the two bands are still painted, every custom
+// property still reads correctly in DevTools, and `--c-text-muted` on the orange field is still
+// the grey it resolved to up on `[data-anchor]` — mixed toward WHITE, painted on orange. The
+// stylesheet's own opening note describes this trap for `[data-anchor]` versus `:root`; the
+// closing fields made it possible one level further down, so the invariant is worth stating as a
+// rule rather than as a paragraph.
+//
+// THE RULE: a selector that declares `--c-bg` is claiming a ground, and a ground with no chain
+// resolved against it has five stale neutrals hanging off it. So every such selector must appear
+// in the chain's own selector list — verbatim, or as the un-valued form of an attribute selector,
+// since `[data-anchor="direct"]` is matched by the chain's `[data-anchor]`.
+$ground_decls = array();
+if ( preg_match_all( '/([^{}]+)\{[^{}]*--c-bg\s*:/', preg_replace( '#/\*.*?\*/#s', '', $html ), $gd_m, PREG_SET_ORDER ) ) {
+	foreach ( $gd_m as $gd_rule ) {
+		foreach ( explode( ',', $gd_rule[1] ) as $gd_sel ) {
+			$gd_sel = trim( preg_replace( '/\s+/', ' ', $gd_sel ) );
+			if ( '' !== $gd_sel ) {
+				$ground_decls[ $gd_sel ] = true;
+			}
+		}
+	}
+}
+$chain_list = array();
+foreach ( $FIELD_SELECTORS as $gd_one ) {
+	$chain_list[ trim( preg_replace( '/\s+/', ' ', $gd_one ) ) ] = true;
+}
+foreach ( array_keys( $ground_decls ) as $gd_sel ) {
+	$gd_generic = preg_replace( '/\[([\w-]+)=("[^"]*"|\'[^\']*\')\]/', '[$1]', $gd_sel );
+	if ( isset( $chain_list[ $gd_sel ] ) || isset( $chain_list[ $gd_generic ] ) ) {
+		continue;
+	}
+	fail( "`$gd_sel` declares --c-bg but is not a resolution site for the shared derived chain."
+		. ' Custom properties substitute on the element that DECLARES them, so every neutral under'
+		. ' this selector — --c-text-muted, --c-border, --c-surface-inverse — still carries the'
+		. " value it resolved to on its ancestor, mixed toward a ground this rule just replaced."
+		. ' It renders, it reads correctly in DevTools, and it is wrong. Add the selector to'
+		. ' $FIELD_SELECTORS' );
+}
+
 // ── THE TRACKING RAMP HAS TO BE A RAMP ─────────────────────────────────────────────────────────
 //
 // Two failures, and only the second is visible in a render. The first is a ramp that stops being
@@ -3381,4 +3731,9 @@ foreach ( $INK_ENDS as $ink_rk => $ink_re ) {
 foreach ( $ACCENT as $g => $a ) {
 	printf( "               accent %s on %-5s → %s bg · %s bg-alt · label %s %s\n",
 		$a['hex'], $g, $a['r_bg'], $a['r_alt'], $a['on_is'], $a['r_on'] );
+}
+foreach ( $FIELD as $fld_rk => $fld_rv ) {
+	printf( "               close  %-14s %-8s %s → type %s · muted %s · border %s · control %s %s\n",
+		$fld_rk, $fld_rv['kind'], $fld_rv['bg'], $fld_rv['r_text'], $fld_rv['r_muted'],
+		$fld_rv['r_bord'], $fld_rv['accent'], $fld_rv['r_ctrl'] );
 }
