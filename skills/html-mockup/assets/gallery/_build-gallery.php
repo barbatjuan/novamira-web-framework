@@ -83,6 +83,31 @@ if ( array() === $manifest_rows ) {
 	fail( '_gallery-images.md parsed to zero rows — the table shape changed under the parser' );
 }
 
+/* ── THE REGISTER TABLE, PARSED RATHER THAN PARAPHRASED, for the same reason the row table is.
+      `RT_GALLERY_ONE_SHOOT` already reads this table for its row COUNT; § 5a reads it for its
+      Material row, because that is where the house ink's one exemption comes from. Two consumers
+      of one table beats a second hand-kept list of "the swatches", which is a list that goes stale
+      the day somebody adds a third swatch and edits only the table.
+
+      The `Material` row is matched by NAME and its cell is split on backticks, so a register
+      renamed in that file fails here loudly instead of quietly exempting nothing. */
+$MATERIAL_SLUGS = array();
+foreach ( explode( "\n", file_get_contents( $MANIFEST ) ) as $reg_line ) {
+	if ( ! preg_match( '/^\|\s*Material\s*\|\s*([^|]+?)\s*\|/u', $reg_line, $reg_m ) ) {
+		continue;
+	}
+	if ( preg_match_all( '/`([a-z0-9\-]+)`/', $reg_m[1], $reg_s ) ) {
+		foreach ( $reg_s[1] as $reg_slug ) {
+			$MATERIAL_SLUGS[ $reg_slug ] = true;
+		}
+	}
+}
+if ( array() === $MATERIAL_SLUGS ) {
+	fail( '_gallery-images.md § Registers has no `Material` row carrying slugs — the house ink'
+		. ' exemption is derived from that row, and an empty derivation would ink the two swatches'
+		. ' whose colour is their specification' );
+}
+
 // Both directions. A file with no row is unlicensed weight; a row with no file is a promise the
 // build cannot keep. `img/` is read through a sorted glob so the order never depends on the
 // filesystem — see the reproducibility note in the header.
@@ -380,6 +405,69 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 	);
 }
 
+// ─────────────────────────────────────────────────────────────── 5a · THE HOUSE INK
+//
+// ONE INK PER PAGE, AND THE INK IS THE GROUND'S OWN. `_gallery-images.md` § Registers declares
+// four registers on purpose and the set delivers them: a cold aerial quarry with a turquoise
+// pool, six sunlit workshop frames, four warm finished interiors and two material swatches. That
+// diversity is the right call about SUBJECT and it is the defect about COLOUR — LOOKED AT, the
+// eight strips read as a page assembled from three stock searches, because they are. The quarry's
+// turquoise is the loudest thing on the editorial hero and it belongs to no palette on the page.
+//
+// A duotone is what makes them one page — `craft-probe-2026-08-16.html` § CRAFT-GALLERY, whose
+// central claim is that this move REPAIRS a real defect in the asset set rather than exposing
+// one, which is the property a shared floor needs.
+//
+// THE ENDPOINTS ARE DERIVED FROM THE ANCHOR, NOT SHARED, and that is the whole reason a shared
+// floor does not flatten four anchors into one. The probe ran a single neutral ink because it
+// rendered a single anchor. Here each ground already owns two extremes — `--c-bg` and `--c-text`
+// — so the ink is simply "this page's dark to this page's light":
+//     paper → #232628 to #F6F6F6   neutral
+//     warm  → #312920 to #F6EADB   a warm sepia, on the anchor whose imagery line is "graduado cálido"
+//     cool  → #212931 to #E9ECF0   a cool blue-grey, on the B2B anchor
+//     ink   → #1C1F21 to #EBEDEE   near-black on the dark page
+// Four different inks out of one rule. The photographs stop fighting each other WITHIN a strip and
+// start carrying the anchor's temperature BETWEEN strips, which is more anchor separation than the
+// page had before, not less.
+//
+// THE 94/96 PULL is what keeps it a duotone and not a threshold. Mapping straight to `--c-text`
+// and `--c-bg` clips: every shadow lands on one value and every highlight on another, and the
+// frame loses the tonal separation that makes a photograph readable at thumbnail size. Pulling
+// each endpoint 6% and 4% back toward the other keeps a shadow that is still darker than the next
+// shadow. The two numbers are asymmetric because the eye is: crushed shadows read as a printing
+// fault, blown highlights read as light.
+
+/**
+ * The house ink for one ground: its own two extremes, pulled back off the clip.
+ *
+ * THE PULL IS ASSERTED, not merely applied, and the assertion is about the PAGE rather than about
+ * the photograph. An endpoint that lands exactly on `--c-bg` or `--c-text` welds the frame to the
+ * surface it sits on: a shadow the same value as the page's own black has no boundary, so the
+ * photograph stops having an edge and starts being a stain. Found by mutation — removing the pull
+ * moved the measured contrast from 6.64 to 6.15 and failed nothing, because contrast is not the
+ * property the pull is protecting.
+ */
+function ink_ends( $gr ) {
+	$dark_src  = ( srgb_lum( $gr['bg'] ) < srgb_lum( $gr['text'] ) ) ? $gr['bg'] : $gr['text'];
+	$light_src = ( $dark_src === $gr['bg'] ) ? $gr['text'] : $gr['bg'];
+	$ends      = array(
+		'dark'  => css_mix( $dark_src, 0.94, $light_src ),
+		'light' => css_mix( $light_src, 0.96, $dark_src ),
+	);
+	foreach ( array( 'dark', 'light' ) as $ink_which ) {
+		foreach ( array( 'bg', 'text' ) as $ink_extreme ) {
+			if ( strtoupper( $ends[ $ink_which ] ) === strtoupper( $gr[ $ink_extreme ] ) ) {
+				fail( "the house ink's $ink_which endpoint resolves to {$ends[ $ink_which ]}, which IS"
+					. " this ground's --c-$ink_extreme. An endpoint on the page's own extreme gives the"
+					. ' photograph a shadow (or a highlight) indistinguishable from the surface behind'
+					. ' it, so the frame loses its edge. The 94/96 pull is what keeps a duotone a'
+					. ' duotone instead of a threshold' );
+			}
+		}
+	}
+	return $ends;
+}
+
 // ─────────────────────────────────────────────────────────────── 5b · the toggles, and their bar
 //
 // CAPA 3. `web-templates/references/toggles.md` catalogues 39 of these and the gallery rendered
@@ -475,7 +563,33 @@ function srgb_lum_rgb( $r, $g, $b ) {
  * constant happened to sit exactly on. Two numbers out of one sweep, with the identity between them
  * asserted at the call site, is a thing that cannot be quietly rewritten.
  */
-function worst_pixel( $slug, $scrim, $alpha, $text ) {
+/**
+ * The SVG filter, in PHP, so the sweep below measures the pixels the browser will actually paint.
+ *
+ * THIS IS THE HALF THAT MAKES THE DUOTONE SAFE. `filter` runs at PAINT time — after `object-fit`,
+ * under the scrim, invisible to every DOM measurement — so a build that inked the photographs and
+ * kept measuring the originals would be reporting the contrast of an image nobody sees. The two
+ * stages match the two SVG primitives exactly:
+ *   feColorMatrix → luminance, with the WCAG coefficients, on sRGB-ENCODED values. The filter
+ *     carries `color-interpolation-filters="sRGB"` for this reason: in the default linearRGB the
+ *     shadows crush, and the PHP here would then be measuring a different image from the browser.
+ *   feComponentTransfer → a two-entry `type="table"`, which the spec defines as linear
+ *     interpolation between the two values. So C' = dark + L × (light − dark), per channel.
+ * `$k` is the feComposite `arithmetic` mix back toward the source: k=1 is the full ink.
+ */
+function ink_pixel( $r, $g, $b, $ends, $k ) {
+	$l   = ( 0.2126 * $r + 0.7152 * $g + 0.0722 * $b ) / 255;
+	$out = array();
+	for ( $i = 0; $i < 3; $i++ ) {
+		$d     = hexdec( substr( ltrim( $ends['dark'], '#' ), $i * 2, 2 ) );
+		$li    = hexdec( substr( ltrim( $ends['light'], '#' ), $i * 2, 2 ) );
+		$v     = $d + $l * ( $li - $d );
+		$out[] = $v * $k + array( $r, $g, $b )[ $i ] * ( 1 - $k );
+	}
+	return $out;
+}
+
+function worst_pixel( $slug, $scrim, $alpha, $text, $ends = null, $k = 1.0 ) {
 	global $IMG_DIR;
 	if ( ! function_exists( 'imagecreatefromwebp' ) ) {
 		fail( 'PHP has no GD WebP support — the slider scrim cannot be measured, and an unmeasured'
@@ -495,11 +609,15 @@ function worst_pixel( $slug, $scrim, $alpha, $text ) {
 	$surface = INF;
 	for ( $y = 0; $y < $hgt; $y += 2 ) {
 		for ( $x = 0; $x < $w; $x += 2 ) {
-			$p   = imagecolorat( $im, $x, $y );
+			$p  = imagecolorat( $im, $x, $y );
+			$px = array( ( $p >> 16 ) & 0xFF, ( $p >> 8 ) & 0xFF, $p & 0xFF );
+			if ( null !== $ends ) {
+				$px = ink_pixel( $px[0], $px[1], $px[2], $ends, $k );
+			}
 			$l   = srgb_lum_rgb(
-				( ( $p >> 16 ) & 0xFF ) * ( 1 - $alpha ) + $sr * $alpha,
-				( ( $p >> 8 ) & 0xFF ) * ( 1 - $alpha ) + $sg * $alpha,
-				( $p & 0xFF ) * ( 1 - $alpha ) + $sb * $alpha
+				$px[0] * ( 1 - $alpha ) + $sr * $alpha,
+				$px[1] * ( 1 - $alpha ) + $sg * $alpha,
+				$px[2] * ( 1 - $alpha ) + $sb * $alpha
 			);
 			$hi  = max( $l, $l_txt );
 			$lo  = min( $l, $l_txt );
@@ -572,7 +690,14 @@ foreach ( $SLIDER_FRAMES as $sl_slug ) {
 			. ' measurement below will not object because brightness is not the defect' );
 	}
 
-	$sl = worst_pixel( $sl_slug, $sl_ground['bg'], $SCRIM_FLOOR, $sl_ground['text'] );
+	/* MEASURED THROUGH THE INK, because the ink is what the browser paints. `filter` runs at paint
+	   time and no DOM measurement can see it, so a build that added a duotone and kept sweeping the
+	   original file would be certifying the contrast of an image that is no longer on the page. It
+	   happens to help here — the duotone compresses the tonal range, so the worst pixel gets
+	   BETTER — but "it happens to help" is a thing you only know once you have measured it, and the
+	   direction is not guaranteed for the next photograph or the next ground. */
+	$sl = worst_pixel( $sl_slug, $sl_ground['bg'], $SCRIM_FLOOR, $sl_ground['text'],
+		ink_ends( $sl_ground ), 1.0 );
 
 	/* THE IDENTITY BETWEEN THE TWO NUMBERS THE SWEEP RETURNED. `ratio` and `surface_l` come from
 	   the same pixel, so WCAG's own definition has to hold between them. This is what stops either
@@ -605,6 +730,37 @@ foreach ( $SLIDER_FRAMES as $sl_slug ) {
 	$SCRIM_WORST[ $sl_slug ]   = $sl['ratio'];
 	$SCRIM_SURFACE[ $sl_slug ] = $sl['surface_l'];
 }
+
+/* ── THE SWEEP HAS TO BE LOOKING THROUGH THE INK, AND THIS IS THE ONLY THING THAT KNOWS.
+      FOUND BY MUTATION, and it is the worst class of failure this file can have. Dropping the ink
+      from the `worst_pixel()` call above — one argument — leaves a build that passes every check,
+      prints a plausible 5.38:1, and is certifying the contrast of the ORIGINAL photograph while
+      the browser paints a duotone. It fails quiet, and it fails quiet in the direction that reads
+      as safe, because here the ink happens to raise the ratio: the number goes DOWN when the check
+      breaks, so it looks more conservative, not less.
+
+      Nothing about the composited result can detect this — both numbers are legitimate contrast
+      ratios of a real image. What distinguishes them is that they are DIFFERENT, so the check is
+      that they must be: one more sweep, on one frame, with the ink switched off, asserted to
+      disagree with the inked one. A margin rather than `!=` because two floats that differ in the
+      ninth decimal would satisfy inequality while telling nobody anything; .25 is far below the
+      1.26 this frame actually moves and far above any rounding. */
+$ink_probe_ground = $GROUND[ $ANCHORS['editorial']['ground'] ];
+$INK_PROBE_PLAIN  = worst_pixel( $SLIDER_FRAMES[0], $ink_probe_ground['bg'], $SCRIM_FLOOR,
+	$ink_probe_ground['text'] );
+$INK_PROBE_INKED  = $SCRIM_WORST[ $SLIDER_FRAMES[0] ];
+if ( abs( $INK_PROBE_INKED - $INK_PROBE_PLAIN['ratio'] ) < 0.25 ) {
+	fail( sprintf(
+		'the scrim sweep reads %.2f:1 with the house ink and %.2f:1 without it on `%s` — the two'
+			. ' agree, so the ink is not in the measurement path. `filter` runs at PAINT time and no'
+			. ' DOM measurement can see it: a sweep over the unfiltered file is a contrast'
+			. ' certificate for a photograph that is not on the page.',
+		$INK_PROBE_INKED,
+		$INK_PROBE_PLAIN['ratio'],
+		$SLIDER_FRAMES[0]
+	) );
+}
+
 
 // ── EVERY INK THAT LANDS ON THE PHOTOGRAPH, not just the one the h1 uses ───────────────────────
 //
@@ -847,6 +1003,38 @@ $CONTENT = array(
 		),
 	),
 );
+
+// ── THE SECOND PHOTOGRAPH WITH TEXT ON IT, WHICH NOTHING HAD EVER SWEPT ────────────────────────
+//
+// `LP-BROKEN-GRID`'s corporate hero puts the h1 ON the picture, exactly as the slider does, and
+// its floor has been carried since it was written by an ALGEBRAIC bound rather than a measurement:
+// "over a worst-case pure-white pixel, 255 − 241×0.64 composites to 100, which is 5.4:1". The
+// arithmetic is right and the bound is real — but it is a bound over a hypothetical pixel, and the
+// thing that made the slider's floor trustworthy is that it is a bound over THIS photograph. The
+// bar exists because a hero measured 1.95:1 in this project once while looking fine in a capture.
+//
+// Adding a duotone is what forced this: the ink moves every pixel in the frame, so a bound derived
+// from `255` stops describing anything on the page. Measured, over `hero-cantera` under the ink,
+// at the gradient's own floor, against the ink ground's own `--c-text`.
+$BG_FLOOR      = 0.64;
+$BG_ANCHOR     = 'direct';
+$BG_SLUG       = $CONTENT['TPL-C-01']['hero']['img'];
+$bg_ground     = $GROUND[ $ANCHORS[ $BG_ANCHOR ]['ground'] ];
+$BG_HERO       = worst_pixel( $BG_SLUG, $bg_ground['bg'], $BG_FLOOR, $bg_ground['text'],
+	ink_ends( $bg_ground ), 1.0 );
+if ( $BG_HERO['ratio'] < $SCRIM_BAR ) {
+	fail( sprintf(
+		'the LP-BROKEN-GRID hero photograph `%s` measures %.2f:1 under its own %d%% scrim against'
+			. ' %s — below the %s:1 the eyebrow and the lede on top of it need. This is the frame'
+			. ' whose floor used to be an algebraic bound over a pixel value rather than a sweep'
+			. ' over these pixels.',
+		$BG_SLUG,
+		$BG_HERO['ratio'],
+		(int) round( $BG_FLOOR * 100 ),
+		$bg_ground['text'],
+		$SCRIM_BAR
+	) );
+}
 
 // ─────────────────────────────────────────────────────────────── 7 · the strips
 //
@@ -1895,6 +2083,81 @@ foreach ( $ANCHORS as $k => $A ) {
 	}
 }
 
+// ── block 5a · the house ink, one filter per anchor ────────────────────────────────────────────
+//
+// GENERATED FROM `ink_ends()`, THE SAME FUNCTION THE CONTRAST SWEEP READS. That is the whole
+// safety property: the endpoints the browser paints and the endpoints PHP measured cannot be two
+// different pairs of numbers, because they are one call. Typing the `tableValues` into a heredoc
+// would have made the measurement a statement about a filter that no longer exists — which is the
+// exact shape of the 1.95:1 defect, one level further back.
+//
+// `color-interpolation-filters="sRGB"` IS LOAD-BEARING. The default is linearRGB, where the same
+// matrix crushes the shadows, and `ink_pixel()` computes in sRGB. Drop this attribute and the page
+// and its certificate stop describing the same image.
+//
+// THE `@supports` FALLBACK IS GREYSCALE AND NOT NOTHING. A browser without `filter:url()` on an
+// `<img>` would otherwise show the unrepaired set — four colour temperatures — which is the defect
+// this whole block exists for. Greyscale is the same repair with a worse ink.
+$INK_ENDS = array();
+$ink_defs = array();
+$ink_css  = array( '/* ══════════ THE HOUSE INK — one duotone per anchor, endpoints derived from that'
+	. "\n      anchor's own ground. See § 5a for why this is four inks and not one. ══════════ */" );
+foreach ( $ANCHORS as $ink_k => $ink_a ) {
+	if ( ! isset( $used_anchors[ $ink_k ] ) ) {
+		continue;
+	}
+	$ink_e                 = ink_ends( $GROUND[ $ink_a['ground'] ] );
+	$INK_ENDS[ $ink_k ]    = $ink_e;
+	$ink_t                 = array();
+	foreach ( array( 'R', 'G', 'B' ) as $ink_i => $ink_ch ) {
+		$ink_t[] = sprintf(
+			'<feFunc%s type="table" tableValues="%s %s"/>',
+			$ink_ch,
+			rtrim( rtrim( sprintf( '%.4f', hexdec( substr( $ink_e['dark'], 1 + $ink_i * 2, 2 ) ) / 255 ), '0' ), '.' ),
+			rtrim( rtrim( sprintf( '%.4f', hexdec( substr( $ink_e['light'], 1 + $ink_i * 2, 2 ) ) / 255 ), '0' ), '.' )
+		);
+	}
+	$ink_defs[] = '<filter id="nm-ink-' . $ink_k . '" color-interpolation-filters="sRGB">'
+		. '<feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 '
+		. '0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/>'
+		. '<feComponentTransfer>' . implode( '', $ink_t ) . '</feComponentTransfer></filter>';
+	$ink_css[]  = '[data-anchor="' . $ink_k . '"] .frame > img{filter:url(#nm-ink-' . $ink_k . ')}'
+		. '   /* ' . $ink_e['dark'] . ' → ' . $ink_e['light'] . ' */';
+}
+$ink_css[] = '@supports not (filter:url(#nm-ink-' . array_key_first( $INK_ENDS ) . ')){'
+	. '.frame > img{filter:grayscale(1) contrast(1.04)}}';
+
+/* THE ONE EXEMPTION, AND IT IS DERIVED FROM THE MANIFEST RATHER THAN CHOSEN. `_gallery-images.md`
+   § Registers names a `Material` register — `sq-marmol`, `sq-pizarra` — and calls it "The swatch";
+   § "Weights are measured" gives those two a byte budget twice the portraits' with the reason
+   written down: "that carve-out is for the swatch, which is the PRODUCT". A swatch is the one
+   photograph on this page where the COLOUR IS THE SPECIFICATION. "Mármol Crema Levante" rendered
+   as a neutral grey square beside "Granito Gris Quintana" as a slightly lighter neutral grey
+   square is not a unified catalogue, it is two products the page can no longer tell apart —
+   MEASURED at full ink, their mean colours are (183,184,185) and (196,196,197), a chroma of 2 on
+   a swatch whose own name is a colour.
+
+   So the rule is one sentence: a photograph that ILLUSTRATES takes the house ink; a photograph
+   that IS the merchandise does not. It is applied by slug and the slugs come from the register
+   table, so adding a third swatch to that table is what admits it — not an edit here. */
+$INK_EXEMPT = array();
+foreach ( $IMAGES as $ink_slug => $ink_row ) {
+	if ( 0 === strpos( $ink_row['role'], 'square' ) && isset( $MATERIAL_SLUGS[ $ink_slug ] ) ) {
+		$INK_EXEMPT[] = $ink_slug;
+	}
+}
+sort( $INK_EXEMPT, SORT_STRING );
+if ( array() === $INK_EXEMPT ) {
+	fail( '_gallery-images.md § Registers no longer names a Material register, so the house ink has'
+		. ' no swatch to exempt — either the table changed shape or the parser stopped reading it,'
+		. ' and both end with a catalogue whose two stone colours render as one grey' );
+}
+$ink_css[] = '/* the swatches keep their own colour — see § 5a, and _gallery-images.md § Registers */';
+foreach ( $INK_EXEMPT as $ink_slug ) {
+	$ink_css[] = '.frame > img[data-img="' . $ink_slug . '"]{filter:none}';
+}
+$css[] = implode( "\n", $ink_css ) . "\n";
+
 // ── block 6 · one layer per composition blueprint ──────────────────────────────────────────────
 //
 // Shared by every anchor that resolves to that blueprint. Below 1024px — the framework's own
@@ -2905,7 +3168,15 @@ $noscript = '<noscript><div class="noscript"><div class="gal-wrap">'
 	. 'El bloque de precarga se lee y se selecciona igual: sólo el botón «Copiar» necesita JS.'
 	. '</div></div></noscript>';
 
+/* The filters live in the DOM, once, before anything that references them. `width:0;height:0` and
+   not `display:none`: a display:none SVG makes its filters unreachable in some engines, and the
+   symptom is every photograph rendering unfiltered — the exact state this block exists to end,
+   arrived at silently. `aria-hidden` because a filter definition is not content. */
+$ink_svg = '<svg class="ink-defs" width="0" height="0" aria-hidden="true" focusable="false">'
+	. '<defs>' . implode( '', $ink_defs ) . '</defs></svg>';
+
 $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
+	. $ink_svg . "\n"
 	. $noscript . "\n"
 	. $intro . "\n"
 	. $filter . "\n\n"
@@ -3099,6 +3370,14 @@ printf( "               scrim  %d%% floor over %s → worst pixel %s, bar %s:1\n
 );
 printf( "               inks   --c-text %s %.2f:1 (kept) · %s\n",
 	$SCRIM_INK, $SCRIM_INK_WORST, implode( ' · ', $SCRIM_REPORT ) );
+printf( "               hero   LP-BROKEN-GRID %s at %d%% over %s → worst pixel %.2f:1, bar %s:1\n",
+	$BG_SLUG, (int) round( $BG_FLOOR * 100 ), $GROUND[ $ANCHORS[ $BG_ANCHOR ]['ground'] ]['bg'],
+	$BG_HERO['ratio'], $SCRIM_BAR );
+printf( "               house ink %s, %d anchor(s), swatches exempt: %s\n",
+	'one duotone per ground', count( $INK_ENDS ), implode( ' · ', $INK_EXEMPT ) );
+foreach ( $INK_ENDS as $ink_rk => $ink_re ) {
+	printf( "                 %-14s %s → %s\n", $ink_rk, $ink_re['dark'], $ink_re['light'] );
+}
 foreach ( $ACCENT as $g => $a ) {
 	printf( "               accent %s on %-5s → %s bg · %s bg-alt · label %s %s\n",
 		$a['hex'], $g, $a['r_bg'], $a['r_alt'], $a['on_is'], $a['r_on'] );
