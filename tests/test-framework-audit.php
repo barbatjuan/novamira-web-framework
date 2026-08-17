@@ -559,16 +559,74 @@ function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
  * fixture is what proves the plural does not match — a parser that counted columns from the left, or
  * matched a substring, would read three prose cells as an image row.
  */
-function fx_gallery_manifest( array $rows, $licence_col = true ) {
-	$out = "# Gallery image manifest fixture\n\n## Registers\n\n"
-		. "| Register | Slugs | What it says |\n|---|---|---|\n"
-		. '| Workshop | ' . implode( ' ', array_keys( $rows ) ) . " | fixture |\n\n## The set\n\n"
-		. ( $licence_col
-			? "| Slug | Role | Freepik | Licence | `alt` |\n|---|---|---|---|---|\n"
-			: "| Slug | Role | Freepik | `alt` |\n|---|---|---|---|\n" );
+function fx_gallery_manifest( array $rows, $licence_col = true, array $opts = array() ) {
+	$o = array_merge(
+		array(
+			'registers'   => 4,
+			'shoot_col'   => true,
+			'freepik_col' => true,
+			'freepik'     => array(),
+			'shoot'       => array(),
+		),
+		$opts
+	);
+
+	/* Default ids are one per row and 1,000 apart in the BUCKET, so a default fixture has as many
+	   shoots as rows and never trips the concentration bound by accident. A single shared id here
+	   — the literal `1` this fixture used before the Shoot column existed — would have put every
+	   row in `fp-0` and turned the conforming control red, which is how this default got chosen. */
+	$out = "# Gallery image manifest fixture\n\n";
+	if ( 0 < $o['registers'] ) {
+		$out .= "## Registers\n\n| Register | Slugs | What it says |\n|---|---|---|\n"
+			. '| Workshop | ' . implode( ' ', array_keys( $rows ) ) . " | fixture |\n";
+		for ( $i = 1; $i < $o['registers']; $i++ ) {
+			$out .= '| Register ' . $i . " | | fixture |\n";
+		}
+		$out .= "\n";
+	}
+	$out .= "## The set\n\n";
+
+	$head = array( 'Slug', 'Role', 'Freepik', 'Shoot', 'Licence', '`alt`' );
+	if ( ! $o['shoot_col'] ) {
+		unset( $head[3] );
+	}
+	if ( ! $o['freepik_col'] ) {
+		unset( $head[2] );
+	}
+	if ( ! $licence_col ) {
+		unset( $head[4] );
+	}
+	$head  = array_values( $head );
+	$out  .= '| ' . implode( ' | ', $head ) . " |\n|" . str_repeat( '---|', count( $head ) ) . "\n";
+
+	$n = 0;
 	foreach ( $rows as $slug => $lic ) {
-		$cell = ( '' === $slug ) ? ' ' : ' `' . $slug . '` ';
-		$out .= '|' . $cell . '| card 4:3 | 1 |' . ( $licence_col ? ' ' . $lic . ' |' : '' ) . " alt fixture |\n";
+		$id    = isset( $o['freepik'][ $slug ] ) ? (string) $o['freepik'][ $slug ] : (string) ( ( 11000 + $n ) * 1000 + 77 );
+		$shoot = isset( $o['shoot'][ $slug ] ) ? (string) $o['shoot'][ $slug ] : 'fp-' . (string) intdiv( (int) $id, 1000 );
+		++$n;
+		$cells = array( ( '' === $slug ) ? '' : '`' . $slug . '`', 'card 4:3', $id, $shoot, $lic, 'alt fixture' );
+		if ( ! $o['shoot_col'] ) {
+			unset( $cells[3] );
+		}
+		if ( ! $o['freepik_col'] ) {
+			unset( $cells[2] );
+		}
+		if ( ! $licence_col ) {
+			unset( $cells[4] );
+		}
+		/* An EMPTY cell is written as a single space, exactly as this fixture wrote it before the
+		   Shoot column arrived: the empty-Slug scenario pins the reported line number by searching
+		   the fixture for `| | card 4:3`, and padding the empty cell to two spaces would move that
+		   needle without moving the audit's behaviour — a red test reporting a green defect. */
+		$out .= '|' . implode(
+			'|',
+			array_map(
+				function ( $c ) {
+					return ( '' === $c ) ? ' ' : ' ' . $c . ' ';
+				},
+				array_values( $cells )
+			)
+		) . "|\n";
 	}
 	return $out;
 }
@@ -3259,6 +3317,153 @@ ok( 'FAIL' === fx_row_level( $out216, array( 'RT_GALLERY_NO_MANIFEST' ) ), 'sin 
 ok( array() !== fx_lines_with( $out216, array( 'RT_GALLERY_NO_MANIFEST', '2 row(s) with no licence' ) ), 'y las cuenta todas', $out216 );
 ok( array() !== fx_lines_with( $out216, array( 'RT_GALLERY_NO_MANIFEST', 'carries no Licence column at all' ) ), 'y dice que la causa es la columna, no la celda', $out216 );
 fx_rrmdir( $r216 );
+
+/* ---------------------------------------------------------------------------
+   RT_GALLERY_ONE_SHOOT — the register table says what the set is ABOUT; this says how many times a
+   shutter was pressed. The gallery shipped seven of fourteen images from one session and every
+   register read as healthy, which is the gap these scenarios pin.
+   --------------------------------------------------------------------------- */
+
+echo "--- dos filas de UNA sola sesion pasan del tope y FALLAN, con la aritmetica en el mensaje ---\n";
+$r217 = fx_tmp_root();
+fx_base( $r217 );
+/* Los dos ids caen en el mismo cubo de 1.000 (50621286 y 50621783 son exactamente el rango que el
+   lote real ocupaba), asi que las dos filas son una sola sesion: 2 de 2 contra un tope de
+   ceil(2/4) = 1. */
+$fx_man217 = fx_gallery_manifest(
+	array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ),
+	true,
+	array( 'freepik' => array( 'hero-taller' => 50621286, 'card-veta' => 50621783 ) )
+);
+fx_gal( $r217, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man217 );
+list( , $out217 ) = fx_run_ok( $audit, $r217 );
+ok( 'FAIL' === fx_row_level( $out217, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'una sola sesion por encima del tope FALLA', fx_row_level( $out217, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok( array() !== fx_lines_with( $out217, array( 'RT_GALLERY_ONE_SHOOT', 'draws 2 of its 2 images from the one shoot `fp-50621`' ) ), 'y nombra la sesion y cuenta cuantas son', $out217 );
+ok( array() !== fx_lines_with( $out217, array( 'RT_GALLERY_ONE_SHOOT', '`hero-taller`, `card-veta`' ) ), 'y nombra CUALES, no solo cuantas', $out217 );
+/* El tope tiene que viajar con su cuenta: un mensaje que solo diga "demasiadas" deja al lector sin
+   saber cuantas sobran ni de donde sale el numero. */
+ok( array() !== fx_lines_with( $out217, array( 'RT_GALLERY_ONE_SHOOT', 'declares 4 registers, so the cap is ceil(2/4) = 1' ) ), 'y muestra la aritmetica y su divisor', $out217 );
+/* Y tiene que decir lo que NO ve, o la fila se lee como una garantia de variedad que no es. */
+ok( array() !== fx_lines_with( $out217, array( 'RT_GALLERY_ONE_SHOOT', 'WHAT THIS ROW CANNOT SEE' ) ), 'y declara su propio punto ciego', $out217 );
+fx_rrmdir( $r217 );
+
+echo "--- el MISMO manifiesto con un solo registro NO produce fila: el divisor se lee, no se fija ---\n";
+$r218 = fx_tmp_root();
+fx_base( $r218 );
+/* Este es el escenario que mata la version hardcodeada del tope. Las filas y sus ids son identicos
+   al 217; lo unico que cambia es cuantos registros declara la tabla, y ceil(2/1) = 2 ya admite las
+   dos. Si alguien sustituye gallery_register_count() por un 4 literal, 217 sigue verde y este se
+   pone rojo. */
+$fx_man218 = fx_gallery_manifest(
+	array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ),
+	true,
+	array( 'registers' => 1, 'freepik' => array( 'hero-taller' => 50621286, 'card-veta' => 50621783 ) )
+);
+fx_gal( $r218, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man218 );
+list( , $out218 ) = fx_run_ok( $audit, $r218 );
+ok( array() === fx_lines_with( $out218, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'mas registros declarados aflojan el tope y no hay fila', $out218 );
+fx_rrmdir( $r218 );
+
+echo "--- sin tabla de Registers el tope no tiene divisor y FALLA ---\n";
+$r219 = fx_tmp_root();
+fx_base( $r219 );
+/* Un conjunto que no declara estructura de registros no ha afirmado nada sobre cuantas miradas
+   distintas lleva, y una cota medida contra ninguna afirmacion es una fila pasando por encima de
+   su propio sujeto ausente — el mismo argumento que RT_GALLERY_NOT_DISTINCT hace con las tiras. */
+fx_gal(
+	$r219,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ), true, array( 'registers' => 0 ) )
+);
+list( , $out219 ) = fx_run_ok( $audit, $r219 );
+ok( 'FAIL' === fx_row_level( $out219, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'sin tabla de registros, FALLA', fx_row_level( $out219, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok( array() !== fx_lines_with( $out219, array( 'RT_GALLERY_ONE_SHOOT', 'declares no Registers table with rows' ) ), 'y dice que lo que falta es el divisor', $out219 );
+fx_rrmdir( $r219 );
+
+echo "--- sin columna Shoot FALLA: nada registra que imagenes vienen de una misma sesion ---\n";
+$r220 = fx_tmp_root();
+fx_base( $r220 );
+fx_gal(
+	$r220,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ), true, array( 'shoot_col' => false ) )
+);
+list( , $out220 ) = fx_run_ok( $audit, $r220 );
+ok( 'FAIL' === fx_row_level( $out220, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'sin columna Shoot, FALLA', fx_row_level( $out220, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok( array() !== fx_lines_with( $out220, array( 'RT_GALLERY_ONE_SHOOT', 'carries no Shoot column' ) ), 'y dice que la causa es la columna', $out220 );
+ok( array() === fx_lines_with( $out220, array( 'RT_GALLERY_ONE_SHOOT', 'no Freepik column' ) ), 'y no acumula la otra causa de columna', $out220 );
+fx_rrmdir( $r220 );
+
+echo "--- con Shoot y sin Freepik FALLA: una celda que nadie puede contrastar es una etiqueta ---\n";
+$r221 = fx_tmp_root();
+fx_base( $r221 );
+/* Dos causas distintas, dos mensajes distintos, igual que la pareja celda-vacia / columna-ausente
+   de RT_GALLERY_NO_MANIFEST: sin Freepik la celda Shoot no se deriva de nada y vuelve a ser prosa. */
+fx_gal(
+	$r221,
+	fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ), true, array( 'freepik_col' => false ) )
+);
+list( , $out221 ) = fx_run_ok( $audit, $r221 );
+ok( 'FAIL' === fx_row_level( $out221, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'con Shoot y sin Freepik, FALLA', fx_row_level( $out221, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok( array() !== fx_lines_with( $out221, array( 'RT_GALLERY_ONE_SHOOT', 'no Freepik column to derive it from' ) ), 'y dice que lo que falta es la fuente de la derivacion', $out221 );
+ok( array() === fx_lines_with( $out221, array( 'RT_GALLERY_ONE_SHOOT', 'carries no Shoot column' ) ), 'y no acusa de que falte Shoot, porque esta', $out221 );
+fx_rrmdir( $r221 );
+
+echo "--- una celda Shoot que no cuadra con su propio id FALLA, y no acusa a la que si cuadra ---\n";
+$r222 = fx_tmp_root();
+fx_base( $r222 );
+/* Este es el arm que impide arreglar la fila anterior renombrando: si el tope se midiera sobre
+   etiquetas escritas a mano, bastaria teclear otra para poner el gate verde. La celda se RE-DERIVA
+   del id, y el id no se puede retocar sin falsear tambien la fuente que la celda Licence sostiene. */
+$fx_man222 = fx_gallery_manifest(
+	array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ),
+	true,
+	array( 'freepik' => array( 'hero-taller' => 50621286 ), 'shoot' => array( 'hero-taller' => 'fp-99999' ) )
+);
+fx_gal( $r222, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man222 );
+list( , $out222 ) = fx_run_ok( $audit, $r222 );
+ok( 'FAIL' === fx_row_level( $out222, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'una celda Shoot que miente FALLA', fx_row_level( $out222, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok(
+	array() !== fx_lines_with( $out222, array( 'RT_GALLERY_ONE_SHOOT', '`hero-taller` says `fp-99999` for Freepik `50621286` which derives `fp-50621` (line ' . fx_line_of( $fx_man222, '| `hero-taller` |' ) . ')' ) ),
+	'y nombra la fila, lo que dice, lo que deriva y su linea',
+	$out222
+);
+ok( array() === fx_lines_with( $out222, array( 'RT_GALLERY_ONE_SHOOT', '`card-veta` says' ) ), 'y no acusa a la fila cuya celda si deriva', $out222 );
+fx_rrmdir( $r222 );
+echo "--- N es el conjunto ENTERO, no el tamano de la sesion acusada ---\n";
+$r223 = fx_tmp_root();
+fx_base( $r223 );
+/* Tres filas de una sesion y una cuarta de otra: N = 4, R = 4, tope = 1, y solo la primera sesion
+   se pasa. El escenario existe por un mutante que sobrevivio a los otros seis: cambiar `$gal_n +=`
+   por `$gal_n =` deja N valiendo el tamano de la ULTIMA sesion contada, y en cualquier fixture
+   donde todas las sesiones valgan 1 — o donde solo haya una — las dos versiones dan el mismo
+   numero. Aqui no: el mutante informa "3 of its 1 images" y un tope de ceil(1/4), que es un
+   mensaje sin sentido y una cota equivocada. */
+$fx_man223 = fx_gallery_manifest(
+	array(
+		'hero-taller'  => 'Freepik free',
+		'card-veta'    => 'Freepik free',
+		'card-mueble'  => 'Freepik free',
+		'card-detalle' => 'Freepik free',
+	),
+	true,
+	array(
+		'freepik' => array(
+			'hero-taller'  => 50621286,
+			'card-veta'    => 50621483,
+			'card-mueble'  => 50621783,
+			'card-detalle' => 41000077,
+		),
+	)
+);
+fx_gal( $r223, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $fx_man223 );
+list( , $out223 ) = fx_run_ok( $audit, $r223 );
+ok( 'FAIL' === fx_row_level( $out223, array( 'RT_GALLERY_ONE_SHOOT' ) ), 'tres de cuatro en una sesion FALLA', fx_row_level( $out223, array( 'RT_GALLERY_ONE_SHOOT' ) ) );
+ok( array() !== fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', 'draws 3 of its 4 images from the one shoot `fp-50621`' ) ), 'y el denominador es el conjunto entero, no la sesion', $out223 );
+ok( array() !== fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', 'the cap is ceil(4/4) = 1' ) ), 'y el tope se calcula sobre ese mismo N', $out223 );
+ok( array() === fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', '`fp-41000`' ) ), 'y la sesion que no se pasa no se nombra', $out223 );
+fx_rrmdir( $r223 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of

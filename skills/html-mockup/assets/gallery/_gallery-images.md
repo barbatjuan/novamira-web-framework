@@ -24,12 +24,12 @@ build, silently, in a way no gate here can see.
 `_axis-proof-content.md` makes the same argument about copy: it is the constant,
 so any visible difference between two renderings is the axes and nothing else.
 Images are the other half of that. Every strip in the gallery draws from these
-fourteen, so when two strips look different, the difference is the anchor —
+thirteen, so when two strips look different, the difference is the anchor —
 never the photograph.
 
 It is also what makes the gallery fit. Unique imagery per strip is ~300 slots at
 40+ KB, which is over the Artifact's 16 MB ceiling once base64 adds its third.
-Shared, the whole set costs **1,022 KB raw / 1,362 KB base64 — 8.3% of the
+Shared, the whole set costs **900 KB raw / 1,200 KB base64 — 7.3% of the
 ceiling**.
 
 **Paid once because of the MECHANISM, not because the files are shared.** An
@@ -46,7 +46,7 @@ which is strictly more legible than a base64 blob. Only the pixels need the scri
 
 ## Sourcing and licence
 
-All fourteen are Freepik **free-licence** stock, pulled through the connected
+All thirteen are Freepik **free-licence** stock, pulled through the connected
 Freepik/Magnific MCP with `license: free`. None is AI-generated — checked per item
 on the `aiGenerated` flag, because a gallery that sells craftsmanship should not
 illustrate it with a synthesised craftsman.
@@ -62,45 +62,90 @@ a right an Envato subscription does not give us to pass on.
 
 ## Registers
 
-Three, deliberately. A single register would have shipped forty strips of the same
+Four, deliberately. A single register would have shipped forty strips of the same
 man in the same grey shirt, which reads as exactly the cheap template the gallery
 exists to disprove.
 
 | Register | Slugs | What it says |
 |---|---|---|
 | Quarry | `hero-cantera` | Where the material comes from |
-| Workshop | `hero-taller` `hero-banco` `card-cantero` `card-patio` `card-labra` `card-detalle` `sq-manos` | The work itself |
+| Workshop | `hero-taller` `card-cantero` `card-patio` `card-labra` `card-detalle` `sq-manos` | The work itself |
 | Finished | `hero-encimera` `card-veta` `card-mueble` `pan-fachada` | What the client buys |
 | Material | `sq-marmol` `sq-pizarra` | The swatch |
+
+The count in this table is load-bearing, not decoration: `RT_GALLERY_ONE_SHOOT`
+divides the set size by the number of rows here to get the per-shoot cap. Add a
+register and the cap loosens; delete this table and the row fails, because a set
+that declares no register structure has stated no diversity claim to measure a
+shoot against.
+
+## Shoots, and why the column is a proxy
+
+Four registers say what the set is ABOUT. They say nothing about how many times
+a shutter was pressed, and that is the axis this set actually failed on: seven of
+its first fourteen images came from **one photographer's one session** — the same
+bearded man in the same grey shirt, and two pairs among them (`card-patio` /
+`card-labra`, `card-cantero` / `hero-taller`) were the same photograph reframed.
+A register table full of "Workshop" reported that as healthy.
+
+So every row carries a **Shoot** cell. Its value is `fp-` followed by the Freepik
+id with its last three digits dropped, and `RT_GALLERY_ONE_SHOOT` RE-DERIVES it
+from the Freepik cell rather than believing it. That is the whole point of
+deriving instead of labelling: a hand-written shoot label can be edited until the
+check goes green, which is a gate you fix by renaming rather than by fixing, and
+this repository has shipped enough of those. The Freepik id cannot be edited
+without also lying about the source the Licence cell stakes.
+
+**Why the id at all.** Freepik assigns ids in upload order, so one contributor's
+one upload session lands in a contiguous run. Measured on this set: the widest id
+span WITHIN the known batch is 497 (`50621286` → `50621783`), and the narrowest
+gap BETWEEN two different batches is 17,583 (`1033860` → `1051443`). A bucket
+1,000 wide sits between those with 2× headroom under and 17× over.
+
+**What this proxy cannot see, stated plainly:**
+
+- A batch that straddles a multiple of 1,000 splits into two shoot keys and the
+  set looks more diverse than it is. This fails QUIET, which is the bad direction.
+  Nothing here detects it; only the contact sheet does.
+- Two photographs of the same subject from genuinely different shoots — a
+  different photographer, a different day, the same grey shirt and the same
+  chisel — pass with distinct keys and still read as one picture.
+- Two batches landing within 1,000 ids of each other merge into one key and the
+  set looks LESS diverse than it is. That fails loud, which is the safe direction.
+
+Which is to say: this column catches the cause that produced the defect, and it
+is not a substitute for looking. **Look at them** — step 5 of "Adding one".
 
 ## The set
 
 Every row carries its own **Licence** cell rather than leaning on the paragraph
 above it. `RT_GALLERY_NO_MANIFEST` reads that cell per row, and it has to: a
-blanket "all of these are free-licence" is true only until the fifteenth image
+blanket "all of these are free-licence" is true only until the fourteenth image
 arrives from somewhere else, and it becomes false in silence — nothing about the
 new row looks different from the old ones.
 
-| Slug | Role | Size | Weight | Freepik | Licence | `alt` |
-|---|---|---|---|---|---|---|
-| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | Freepik free | Cantero labrando un sillar a maceta y cincel en el taller |
-| `hero-banco` | hero 16:9 | 1440×810 | 119 KB | 50621783 | Freepik free | Cantero puliendo una pieza de piedra entre el polvo del corte |
-| `hero-cantera` | hero 16:9 | 1440×810 | 122 KB | 427777725 | Freepik free | Vista aérea de una cantera a cielo abierto en bancadas |
-| `hero-encimera` | hero 16:9 | 1440×810 | 114 KB | 427392968 | Freepik free | Encimera de piedra natural con grifería negra en una cocina |
-| `card-cantero` | card 4:3 | 800×600 | 45 KB | 50621544 | Freepik free | Cantero golpeando el cincel sobre un bloque de arenisca |
-| `card-patio` | card 4:3 | 800×600 | 43 KB | 50621352 | Freepik free | Cantero trabajando una pieza en el patio del taller |
-| `card-labra` | card 4:3 | 800×600 | 44 KB | 50621286 | Freepik free | Labra de un bloque con herramienta neumática |
-| `card-detalle` | card 4:3 | 800×600 | 44 KB | 50621416 | Freepik free | Detalle del cincel abriendo la superficie de la piedra |
-| `card-veta` | card 4:3 | 800×600 | 43 KB | 425368036 | Freepik free | Panel de piedra con veta dorada junto a un frente de madera |
-| `card-mueble` | card 4:3 | 800×600 | 39 KB | 427487926 | Freepik free | Mueble con frente de piedra y cajones abiertos |
-| `sq-manos` | square 1:1 | 600×600 | 38 KB | 50621643 | Freepik free | Manos de cantero puliendo el canto de una pieza |
-| `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | Freepik free | Superficie de mármol beige con veta natural |
-| `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | Freepik free | Granito gris de grano fino en placa |
-| `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | Freepik free | Fachada barroca en piedra labrada de Lecce |
+| Slug | Role | Size | Weight | Freepik | Shoot | Licence | `alt` |
+|---|---|---|---|---|---|---|---|
+| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | fp-50621 | Freepik free | Cantero labrando un sillar a maceta y cincel en el taller |
+| `hero-cantera` | hero 16:9 | 1440×810 | 122 KB | 427777725 | fp-427777 | Freepik free | Vista aérea de una cantera a cielo abierto en bancadas |
+| `hero-encimera` | hero 16:9 | 1440×810 | 114 KB | 427392968 | fp-427392 | Freepik free | Encimera de piedra natural con grifería negra en una cocina |
+| `card-cantero` | card 4:3 | 800×600 | 46 KB | 24492177 | fp-24492 | Freepik free | Operario cortando una placa de piedra en una tronzadora de raíl |
+| `card-patio` | card 4:3 | 800×600 | 38 KB | 22698676 | fp-22698 | Freepik free | Pulidora de disco repasando el canto de una placa clara |
+| `card-labra` | card 4:3 | 800×600 | 44 KB | 50621286 | fp-50621 | Freepik free | Labra de un bloque con herramienta neumática |
+| `card-detalle` | card 4:3 | 800×600 | 44 KB | 50621416 | fp-50621 | Freepik free | Detalle del cincel abriendo la superficie de la piedra |
+| `card-veta` | card 4:3 | 800×600 | 43 KB | 425368036 | fp-425368 | Freepik free | Panel de piedra con veta dorada junto a un frente de madera |
+| `card-mueble` | card 4:3 | 800×600 | 39 KB | 427487926 | fp-427487 | Freepik free | Mueble con frente de piedra y cajones abiertos |
+| `sq-manos` | square 1:1 | 600×600 | 39 KB | 3762376 | fp-3762 | Freepik free | Manos enguantadas tronzando un bloque de piedra con radial |
+| `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | fp-1051 | Freepik free | Superficie de mármol beige con veta natural |
+| `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | fp-1033 | Freepik free | Granito gris de grano fino en placa |
+| `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | fp-410749 | Freepik free | Fachada barroca en piedra labrada de Lecce |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
-`h2` is a screen-reader user hearing the same sentence twice.
+`h2` is a screen-reader user hearing the same sentence twice. It describes the
+FRAME and not the card's heading, which is why `card-patio` reads "pulidora …
+canto" under a services card headed *Fachadas y sillería*: the heading is the
+axis-proof constant, the photograph is what the reader actually sees.
 
 ## Weights are measured, not chosen
 
@@ -109,18 +154,43 @@ binary search rather than a fixed quality, because these originals differ by
 roughly 8× in detail: one quality setting would blow the budget on the busy frames
 and waste it on the flat ones.
 
+The budgets themselves were unwritten until now, which made "fits its role's
+budget" a procedure with an unstated parameter — reproducible only by whoever ran
+it first. They are:
+
+| Role | Budget | Reached |
+|---|---|---|
+| hero 16:9 | 125 KiB | q-varies, 114–122 KB |
+| card 4:3 | 46 KiB | q85 / q94 on the two new frames |
+| square 1:1 | 40 KiB | q85 |
+| swatch 1:1 | 80 KiB | see below |
+| panoramic 21:9 | 105 KiB | — |
+
 The two material swatches carry a larger budget than the portraits, and that is a
 measurement, not a preference. A full-frame stone texture is fine grain edge to
 edge — the worst case WebP has. At the portrait budget `sq-marmol` floors at
 43.5 KB and `sq-pizarra` at 58.4 KB, so the cap was unreachable rather than merely
 expensive. The cap was wrong, not the image.
 
+That carve-out is for the swatch, which is the PRODUCT. It does not generalise to
+any texture: a stacked-slate frame considered for `card-patio` reached only q10 at
+the card budget and still only q32 at the swatch budget — 78% more bytes than any
+other card, for a services thumbnail. It was dropped on that measurement, not on
+taste.
+
 ## Adding one
 
-1. `stock_search` with `license: free`, then `stock_download`.
+1. `stock_search` with `license: free`, then `stock_download`. Check `aiGenerated`
+   per item.
 2. Centre-crop to the role's ratio **before** scaling — scaling first squashes,
-   cropping after throws away resolution already paid for.
-3. Binary-search the quality against the role budget; do not pick a number.
-4. Add its row here **with the slug**, or `RT_GALLERY_NO_MANIFEST` fails the build.
+   cropping after throws away resolution already paid for. If centre-cropping
+   ruins the frame, the IMAGE is wrong for that role; do not invent an off-centre
+   rule. One candidate here lost its subject to the left edge at 1:1 and was
+   moved to a 4:3 slot instead.
+3. Binary-search the quality against the role budget above; do not pick a number.
+4. Add its row here **with the slug**, or `RT_GALLERY_NO_MANIFEST` fails the build,
+   and **with the Shoot cell**, or `RT_GALLERY_ONE_SHOOT` does.
 5. Look at it. A contact sheet catches the duplicate framing that a file listing
-   cannot — this set lost one hero that way, after it was already converted.
+   cannot — this set lost one hero that way after it was already converted, and
+   later lost three more images to a duplicate-framing pair that every listing,
+   and one perceptual hash, had reported as fine.

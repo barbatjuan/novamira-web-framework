@@ -104,6 +104,7 @@ const ROW_TYPES = array(
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
+	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
@@ -1734,7 +1735,7 @@ function gallery_is_separator( array $cells ) {
  * Returns null when NO table carries a Slug column — which is a different finding from a table
  * whose rows are wrong, and gets its own message.
  */
-function gallery_manifest_table( $md ) {
+function gallery_md_tables( $md ) {
 	$blocks = array();
 	$cur    = array();
 	foreach ( explode( "\n", $md ) as $i => $line ) {
@@ -1751,10 +1752,69 @@ function gallery_manifest_table( $md ) {
 	if ( array() !== $cur ) {
 		$blocks[] = $cur;
 	}
+	return $blocks;
+}
 
-	foreach ( $blocks as $block ) {
-		$slug_col = null;
-		$lic_col  = null;
+/**
+ * The shoot a Freepik id belongs to — the id with its last three digits dropped — or null when
+ * the cell is not a bare id and so derives nothing.
+ *
+ * WHY THE ID AND NOT A WRITTEN LABEL. Freepik hands out ids in upload order, so one
+ * contributor's one session lands in a contiguous run. `_gallery-images.md` records the spans it
+ * measured — 497 ids wide within the batch this set actually shipped, 17,583 to the nearest
+ * other batch — and the 1,000-wide bucket that sits between them with 2x headroom under and 17x
+ * over. The point of DERIVING rather than reading a label is that a label is prose: a
+ * concentration bound over hand-typed shoot names is one you turn green by retyping a name,
+ * which is a gate that tests nothing and this repository has shipped enough of those. A Freepik
+ * id cannot be retyped without also falsifying the source the row's own Licence cell stakes.
+ */
+function gallery_shoot_key( $freepik ) {
+	if ( ! preg_match( '/^\d+$/', $freepik ) ) {
+		return null;
+	}
+	return 'fp-' . (string) intdiv( (int) $freepik, 1000 );
+}
+
+/**
+ * How many registers the manifest declares, or null when it declares no Registers table at all.
+ * Selected by a header cell reading exactly `Register` — the image table's `Role` and the
+ * Registers table's own `Slugs` are both deliberately not matches, the same discipline
+ * gallery_manifest_table() uses to avoid reading one table as the other.
+ *
+ * This is the DIVISOR of the per-shoot cap, which is why it is read and never hardcoded. The
+ * register table is the manifest's own statement of how many distinct looks the set carries, so
+ * the bound it implies has to move when that statement moves: add a register and the cap
+ * loosens, because the set just claimed more variety and has to be allowed to spend it. A number
+ * typed here instead would be this auditor's taste standing in for the file's claim.
+ */
+function gallery_register_count( $md ) {
+	foreach ( gallery_md_tables( $md ) as $block ) {
+		$is_reg = false;
+		foreach ( gallery_cells( $block[0][1] ) as $cell ) {
+			if ( 'register' === strtolower( trim( $cell, " \t`*" ) ) ) {
+				$is_reg = true;
+			}
+		}
+		if ( ! $is_reg ) {
+			continue;
+		}
+		$n = 0;
+		foreach ( array_slice( $block, 1 ) as $r ) {
+			if ( ! gallery_is_separator( gallery_cells( $r[1] ) ) ) {
+				++$n;
+			}
+		}
+		return $n;
+	}
+	return null;
+}
+
+function gallery_manifest_table( $md ) {
+	foreach ( gallery_md_tables( $md ) as $block ) {
+		$slug_col  = null;
+		$lic_col   = null;
+		$shoot_col = null;
+		$fp_col    = null;
 		foreach ( gallery_cells( $block[0][1] ) as $ci => $cell ) {
 			$name = strtolower( trim( $cell, " \t`*" ) );
 			if ( 'slug' === $name ) {
@@ -1762,6 +1822,12 @@ function gallery_manifest_table( $md ) {
 			}
 			if ( 'licence' === $name || 'license' === $name ) {
 				$lic_col = $ci;
+			}
+			if ( 'shoot' === $name ) {
+				$shoot_col = $ci;
+			}
+			if ( 'freepik' === $name ) {
+				$fp_col = $ci;
 			}
 		}
 		if ( null === $slug_col ) {
@@ -1777,9 +1843,11 @@ function gallery_manifest_table( $md ) {
 				'line'    => $r[0],
 				'slug'    => isset( $cells[ $slug_col ] ) ? trim( $cells[ $slug_col ], " \t`" ) : '',
 				'licence' => ( null !== $lic_col && isset( $cells[ $lic_col ] ) ) ? trim( $cells[ $lic_col ], " \t`" ) : '',
+				'shoot'   => ( null !== $shoot_col && isset( $cells[ $shoot_col ] ) ) ? trim( $cells[ $shoot_col ], " \t`" ) : '',
+				'freepik' => ( null !== $fp_col && isset( $cells[ $fp_col ] ) ) ? trim( $cells[ $fp_col ], " \t`" ) : '',
 			);
 		}
-		return array( 'rows' => $rows, 'licence_col' => $lic_col );
+		return array( 'rows' => $rows, 'licence_col' => $lic_col, 'shoot_col' => $shoot_col, 'freepik_col' => $fp_col );
 	}
 	return null;
 }
@@ -1981,7 +2049,8 @@ foreach ( $mockup_assets as $gal_path ) {
 	}
 
 	$gal_man_rel = substr( $gal_manifest, strlen( $mockup_asset_root ) + 1 );
-	$gal_table   = gallery_manifest_table( slurp( $gal_manifest ) );
+	$gal_man_src = slurp( $gal_manifest );
+	$gal_table   = gallery_manifest_table( $gal_man_src );
 	if ( null === $gal_table ) {
 		add(
 			'RT_GALLERY_NO_MANIFEST',
@@ -2052,6 +2121,114 @@ foreach ( $mockup_assets as $gal_path ) {
 				. '. This repository is public under Apache-2.0 and its LICENSE hands every reader the right to redistribute what it contains;'
 				. ' an image whose terms are recorded nowhere is a right nobody checked we had to give'
 		);
+	}
+
+	/* ---- RT_GALLERY_ONE_SHOOT ---- */
+	/*
+	 * WHICH DEFECT THIS IS, and the one it deliberately is not. What a reader SEES is two
+	 * photographs of one shoot rendered side by side; what CAUSES it is one shoot owning half the
+	 * set. Adjacency is the tempting target and it was measured and rejected: this audit reads
+	 * generated HTML, where the only order available is document order, and in the gallery's own
+	 * corporate strip 2 of the 5 consecutive `data-img` pairs cross a `<section>` boundary — the
+	 * hero and the first services card are consecutive in the DOM and a full screen apart on it.
+	 * A 40% false-adjacency rate is not a gate. Scoping to the real grid container would mean
+	 * hardcoding `class="items"` from one builder into the auditor, and a class rename would then
+	 * silently empty the check — the silent exit this file already refuses twice above.
+	 *
+	 * Concentration has neither problem: it counts rows in the manifest, which is the artefact
+	 * that states the claim. It is also the stabler subject — shuffling the card order would
+	 * satisfy an adjacency rule while every strip still showed the same man seven times.
+	 *
+	 * THE BOUND IS ceil(N / R), not a number chosen here. R is the manifest's own register count
+	 * and N its own row count, so the file supplies both halves: a set that declares R registers
+	 * has claimed R distinct looks, and one session holding more than an Rth of the images means
+	 * the set has fewer distinct looks than its own table says. ceil() rather than floor() so a
+	 * set that does not divide evenly is not failed for arithmetic it cannot satisfy.
+	 */
+
+	$gal_reg_n = gallery_register_count( $gal_man_src );
+	if ( null === $gal_reg_n || 0 === $gal_reg_n ) {
+		add(
+			'RT_GALLERY_ONE_SHOOT',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' declares no Registers table with rows, so the per-shoot cap has no divisor'
+				. ' — a set that states no register structure has made no claim about how many distinct looks it carries,'
+				. ' and a concentration bound measured against no claim is a gate passing over its own missing subject'
+		);
+	}
+
+	if ( null === $gal_table['shoot_col'] ) {
+		add(
+			'RT_GALLERY_ONE_SHOOT',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' carries no Shoot column, so nothing records which images came from one session'
+				. ' — four registers say what the set is ABOUT and nothing about how many times a shutter was pressed,'
+				. ' which is exactly the axis this set failed on while every register read as healthy'
+		);
+	} elseif ( null === $gal_table['freepik_col'] ) {
+		add(
+			'RT_GALLERY_ONE_SHOOT',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' carries a Shoot column and no Freepik column to derive it from'
+				. ' — a shoot cell nothing can be checked against is a label, and a label is edited until the check goes green'
+		);
+	} else {
+		$gal_shoots    = array();
+		$gal_bad_shoot = array();
+		foreach ( $gal_table['rows'] as $gal_r ) {
+			if ( '' === $gal_r['slug'] ) {
+				continue;
+			}
+			$gal_want = gallery_shoot_key( $gal_r['freepik'] );
+			if ( null === $gal_want || $gal_want !== $gal_r['shoot'] ) {
+				$gal_bad_shoot[] = '`' . $gal_r['slug'] . '` says `' . $gal_r['shoot'] . '` for Freepik `' . $gal_r['freepik']
+					. '` which derives ' . ( null === $gal_want ? 'nothing' : '`' . $gal_want . '`' ) . ' (line ' . $gal_r['line'] . ')';
+				continue;
+			}
+			$gal_shoots[ $gal_want ][] = $gal_r['slug'];
+		}
+
+		if ( array() !== $gal_bad_shoot ) {
+			add(
+				'RT_GALLERY_ONE_SHOOT',
+				'FAIL',
+				'html-mockup',
+				'assets/' . $gal_man_rel . ' has ' . count( $gal_bad_shoot ) . ' Shoot cell(s) that do not match their own Freepik id — '
+					. implode( ', ', $gal_bad_shoot )
+					. '. The Shoot cell is the Freepik id with its last three digits dropped and it is RE-DERIVED here rather than believed,'
+					. ' because a shoot label nobody checks is one you retype until the concentration bound below goes green'
+			);
+		}
+
+		if ( null !== $gal_reg_n && 0 < $gal_reg_n && array() !== $gal_shoots ) {
+			$gal_n = 0;
+			foreach ( $gal_shoots as $gal_members ) {
+				$gal_n += count( $gal_members );
+			}
+			$gal_cap = (int) ceil( $gal_n / $gal_reg_n );
+			foreach ( $gal_shoots as $gal_key => $gal_members ) {
+				if ( count( $gal_members ) <= $gal_cap ) {
+					continue;
+				}
+				add(
+					'RT_GALLERY_ONE_SHOOT',
+					'FAIL',
+					'html-mockup',
+					'assets/' . $gal_man_rel . ' draws ' . count( $gal_members ) . ' of its ' . $gal_n . ' images from the one shoot `' . $gal_key . '` — '
+						. implode( ', ', array_map( function ( $s ) { return '`' . $s . '`'; }, $gal_members ) )
+						. '. The manifest declares ' . $gal_reg_n . ' registers, so the cap is ceil(' . $gal_n . '/' . $gal_reg_n . ') = ' . $gal_cap
+						. ': a set whose own table claims ' . $gal_reg_n . ' distinct looks cannot take more than a ' . $gal_reg_n . 'th of its images from one session,'
+						. ' or the variety is arithmetic rather than photography.'
+						. ' WHAT THIS ROW CANNOT SEE: it reads the Freepik id and nothing else, so two photographs of the same subject from two'
+						. ' genuinely different shoots — another photographer, another day, the same grey shirt and the same chisel — pass it and'
+						. ' still read to a client as one picture printed twice. Only an eye on a contact sheet catches that, which is step 5 of'
+						. ' the manifest\'s own "Adding one"'
+				);
+			}
+		}
 	}
 }
 

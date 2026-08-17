@@ -56,11 +56,15 @@ if ( ! is_file( $MANIFEST ) ) {
 
 $manifest_rows = array();
 foreach ( explode( "\n", file_get_contents( $MANIFEST ) ) as $line ) {
-	// Exactly SEVEN cells, first one a backticked slug and the sixth the licence
-	// `RT_GALLERY_NO_MANIFEST` reads per row. The "Registers" table three headings up has three
-	// cells, so it cannot be swallowed by accident.
+	// Exactly EIGHT cells: slug, role, size, weight, freepik, SHOOT, licence, alt. The shoot cell
+	// arrived with `RT_GALLERY_ONE_SHOOT` and shifted `alt` from $m[8] to $m[9] — the one edit a
+	// column insertion forces here, and the reason this parser counts cells out loud instead of
+	// grabbing the last one with a greedy match. `RT_GALLERY_NO_MANIFEST` and
+	// `RT_GALLERY_ONE_SHOOT` both read the same table by HEADER NAME, so they survived the
+	// insertion untouched; this regex is positional and did not. The "Registers" table three
+	// headings up has three cells, so it cannot be swallowed by accident.
 	if ( ! preg_match(
-		'/^\|\s*`([a-z0-9\-]+)`\s*\|\s*([^|]+?)\s*\|\s*(\d+)×(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/u',
+		'/^\|\s*`([a-z0-9\-]+)`\s*\|\s*([^|]+?)\s*\|\s*(\d+)×(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/u',
 		$line,
 		$m
 	) ) {
@@ -71,7 +75,7 @@ foreach ( explode( "\n", file_get_contents( $MANIFEST ) ) as $line ) {
 		'role' => $m[2],
 		'w'    => (int) $m[3],
 		'h'    => (int) $m[4],
-		'alt'  => $m[8],
+		'alt'  => $m[9],
 	);
 }
 
