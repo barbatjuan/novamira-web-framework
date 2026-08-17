@@ -2856,13 +2856,17 @@ $close_css[] = <<<'CSS'
    scale — one bounded panel on the page's own paper, over the alt ground, with the anchor's own
    resting shadow. Formal, which is the axis position doing its job. */
 [data-anchor="institutional"] .sec.closing{background:var(--c-bg-alt)}
-[data-anchor="institutional"] .sec.closing .canvas{max-width:min(var(--content-width),58rem)}
-[data-anchor="institutional"] .sec.closing .head,
-[data-anchor="institutional"] .sec.closing .formwrap{background:var(--c-bg);
-  box-shadow:var(--elev-rest);border-radius:var(--radius-container);padding:var(--sp-l) var(--sp-m)}
+/* THE PANEL IS THE CANVAS, NOT ITS CHILDREN, and the difference was visible the moment it
+   rendered. `LP-CENTERED` stacks `.head` and `.formwrap` as separate block children, so panelling
+   each one produced TWO disconnected cards with a gap down the middle — an ask and a form that had
+   come apart, which reads as a rendering fault rather than as a composition. One panel around the
+   whole close is also what this anchor's own card recipe describes, at page scale: a bounded
+   surface on `--c-bg` carrying the resting shadow. Caught by looking at it. */
+[data-anchor="institutional"] .sec.closing .canvas{max-width:min(var(--content-width),58rem);
+  background:var(--c-bg);box-shadow:var(--elev-rest);border-radius:var(--radius-container);
+  padding:var(--sp-l) var(--sp-m)}
 @media(min-width:1024px){
-  [data-anchor="institutional"] .sec.closing .head,
-  [data-anchor="institutional"] .sec.closing .formwrap{padding:var(--sp-xl) var(--sp-l)}
+  [data-anchor="institutional"] .sec.closing .canvas{padding:var(--sp-xl) var(--sp-l)}
 }
 CSS;
 
