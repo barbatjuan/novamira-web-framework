@@ -27,6 +27,40 @@ anchor, so they are identical in both. Weights and radius come from
 `web-templates/references/design-system.md` (type table, radius table); the breakpoint is the
 framework's own `>1024`.
 
+#### The tracking is a RAMP, not a value — and the paragraph above is why
+
+Read that paragraph again: *"tracking that closes the counters at 120px opens holes at 48px."* It
+is used there to decide which **anchors** tighten, by their h1 cap. It was never applied **inside**
+an anchor, and inside an anchor is where the same span lives: at `editorial` the three display
+steps render 88 / 58.7 / 39.1px, at `direct` 120 / 74.2 / 45.8px. One `--track-display` painted on
+h1, h2 and h3 alike is this file's own rule half-applied — the h3 gets tracking chosen for a
+headline three times its size.
+
+**The anchor's number does not move.** It is the **h1** tracking. What the ramp adds is the span:
+how far the tracking opens back up per step down. `craft-probe-2026-08-16.html` § `CRAFT-MATERIAL`
+is the measured source — it ran `h1 -.022 / h2 -.016 / h3 -.006 / lede +.002 / small +.012` against
+the other two directions' flat `-.015em`, and the h3 row is where the difference is visible without
+measuring anything. Its span is what generalises; its absolute values are one anchor's.
+
+| Step | Value | Why |
+|---|---|---|
+| `--track-h1` | `var(--track-display)` | the anchor's own number, unchanged |
+| `--track-h2` | `calc(var(--track-display) + .006em)` | one step down |
+| `--track-h3` | `calc(var(--track-display) + .016em)` | two steps down |
+| `--track-h3-sm` | `calc(var(--track-display) + .024em)` | a card heading renders at `.58` of the h3 step — nearer the small end of the ramp than the h3 end |
+| `--track-lede` | `.002em` | absolute: body copy is not display type, and no anchor asked to be exempt from legible small text |
+| `--track-small` | `.012em` | absolute, same reason |
+
+On `PERS-EDITORIAL` that resolves to `-.015 / -.009 / +.001` — the probe's shape sitting on this
+file's number rather than on the probe's.
+
+**Write `0em`, never `normal`, for an anchor that does not tighten.** They render identically, and
+`calc(normal + .016em)` is a parse error. An invalid custom-property substitution does not warn: it
+falls back to the property's **initial** value, which for `letter-spacing` is `normal` — so the ramp
+dies silently on exactly the two anchors whose small type needed it most, and every heading still
+renders, and a screenshot looks correct. `PERS-MATTER` and `PERS-INSTITUTIONAL` are the two anchors
+this applies to.
+
 ### `PERS-EDITORIAL` — Editorial
 
 **Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` · elevation `none`

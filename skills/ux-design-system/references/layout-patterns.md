@@ -100,6 +100,48 @@ above, the header, motion) is shared and does not change with the position.
 - Grids: deliberately uneven columns (7/5, 4/8), with one card offset vertically by `--sp-l`.
 - Mobile: every overlap collapses to a single stacked column — a broken grid at 430px is just broken.
 
+## The close is a designed moment
+
+A closing section that exists is not a call to action. The template gallery shipped eight of them —
+four `COMP-LEAD-FORM` bands and four `COMP-FAQ` + `COMP-CONTACT-DIRECT` pairs — and the reader's
+report was *"no veo los call to action en las home"*. He was right and the sections were all there.
+**A form is a form. An accordion is help. Three phone numbers under a heading are a footer that has
+not admitted it yet** — and one of those closes carried no control at all, so the page ended by
+listing ways to leave it.
+
+**Three obligations, and they are the floor at every anchor:**
+
+1. **Its own ground.** A close painted the same as the section above it is furniture.
+2. **Exactly one control carrying weight.** This is where the accent budget
+   (`web-templates/references/design-system.md` § "The accent has a BUDGET") makes its biggest
+   single spend.
+3. **An edge** — something that says the page is ending and is asking for something.
+
+**Discharge them in the anchor's own language, never with one recipe four times.** `PERS-DIRECT`
+closing loud and `PERS-EDITORIAL` closing quiet *is* the axis system working; both closing
+invisibly is the defect. Spend only tokens the anchor already owns — its elevation, its ground, its
+scale — so the close is the personality at full volume rather than a band bolted onto it:
+
+| Anchor | Close | Because |
+|---|---|---|
+| `PERS-EDITORIAL` | the back cover — the ground inverts, `h2` steps up to the `h1` size, one high-contrast bar | `elevation: none` owns no fill and no shadow, so the only ending available is turning the paper over |
+| `PERS-DIRECT` | a full-width field of the accent, control inverted to the page's ink | `ground: ink` + `elevation: accent-glow`, on the anchor whose brief is being unmistakable |
+| `PERS-MATTER` | a plaque — the page's own paper inside a hairline frame, set into the alt ground | `elevation: hairline` says the border is all the chrome this anchor gets |
+| `PERS-INSTITUTIONAL` | a bounded panel with the anchor's resting shadow, centred | `soft-shadow` + `LP-CENTERED` — the anchor's own gesture at page scale |
+
+**A band that changes `--c-bg` must also RESOLVE the derived chain.** Custom properties substitute
+at computed-value time on the element that declares them, so re-declaring the ground on the band
+alone leaves `--c-text-muted`, `--c-border` and `--c-surface-inverse` carrying the values they
+resolved to on the ancestor — a muted grey mixed toward white, painted on near-black. It renders,
+it reads correctly in DevTools, and it is wrong. Name the band in the same selector list the chain
+is declared on.
+
+**Measure the muted tone on the field, not just the type.** On a saturated or inverted ground a
+muted tone stops being quieter and starts being unreadable: the gallery's accent field measured
+`#663216 on #FF6A1A` — **3.61:1**, live in a render that had already been looked at. **A field gets
+one ink**, the same rule a photographic hero already follows, and hierarchy comes from size and
+weight instead.
+
 ## Responsive rules
 - Header as a column on mobile: top row (logo · menu · cart, aligned) + a full-width CTA row below.
 - Two-column product grids need equal-height cards (see `motion.md`).

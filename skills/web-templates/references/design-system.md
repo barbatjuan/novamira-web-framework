@@ -397,6 +397,50 @@ before this token was derived too (white on `#0C8A55` is 4.39:1), so it is a pre
 moved rather than one that opened. The fix is not a second on-colour: it is that `accent_hover`
 darkens unconditionally, when a button whose label is dark needs its hover to go *lighter*.
 
+#### The accent has a BUDGET, and the budget is a whitelist
+
+This file said the accent is not an axis, tabled its value, derived its label and measured its
+hover — and said nothing at all about **how often it may be painted**. That silence has a
+measured cost. Counting elements whose computed `color`, `background` or visible border IS the
+accent, at rest, on the template gallery before this rule: **12 marks on a corporate strip and 16
+on an ecommerce one** — an eyebrow on every section, four ticks in a benefits bar, a disclosure
+triangle per FAQ row, and the buttons. A hue that appears a dozen times is not an accent. It is a
+second text colour, and a page with two text colours reads as a theme rather than as a design —
+which is the whole of the complaint the gallery exists to answer.
+
+`craft-probe-2026-08-16.html` rendered one archetype and one anchor three ways to isolate exactly
+this class of question. Its `CRAFT-PRINT` direction spends the accent **once** on the resting page
+— the submit button, the single commercial moment — against 4 for the two directions beside it,
+and it is the direction that reads as printed rather than as generated.
+
+**The rule.** On the resting page the accent may be painted only by things a reader is meant to
+press, plus anything an anchor's own recipe names. Everything else that wanted colour wants
+`--c-text-muted`: a label's job is to be read before the heading and then get out of the way,
+which is what a muted tone does and what a saturated hue cannot.
+
+**Write it as a whitelist, never as a count.** A number is satisfied by moving a spend somewhere
+the counter cannot see; a whitelist forces every new mark to be named and argued for. This is the
+same shape as `RT_MOCKUP_BLEED_NOT_MEDIA`, and for the same reason. Two exclusions are part of the
+rule rather than holes in it:
+
+- **Interaction states are exempt** — `:hover`, `:focus`, `:active`, `:checked`. A colour that
+  appears when you touch something is feedback, and feedback is supposed to be findable.
+- **`::marker` and other resting pseudo-elements are NOT exempt.** A disclosure triangle is on
+  screen at rest, so an accent-coloured one is a spend. It sat in the exempt list for one revision
+  of the gallery's own gate and mutation is what found it.
+
+**An anchor's card recipe outranks this budget.** `design-personalities.md` gives
+`PERS-INSTITUTIONAL` "chip de icono en accent" in as many words; a rule written here does not get
+to overrule a personality's own definition. Name the exception in the whitelist and move on.
+
+**Where the biggest spend goes: the close.** A budget is only interesting because it lets you spend
+loudly somewhere. The closing band is that somewhere — see `ux-design-system/references/layout-patterns.md`
+§ "The close is a designed moment".
+
+Measured on the gallery after the rule: **2 / 4 / 3 / 3** marks on the four corporate strips and
+**2 / 4 / 3 / 3** on the four ecommerce ones, and every remaining mark is a control, a cart badge,
+or a closing field that is itself painted in the accent.
+
 ### Elevation (`--elev-rest`, `--elev-hover`)
 | Position | `--elev-rest` | `--elev-hover` |
 |---|---|---|
