@@ -348,8 +348,26 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .sec{padding-block:var(--sp-section)}
 .bg-alt{background:var(--c-bg-alt)}
 .muted{color:var(--c-text-muted)} .small{font-size:var(--fs-small)}
+/* ── THE ACCENT BUDGET, AND THE EYEBROW IS WHERE IT WAS BEING SPENT WITHOUT COUNTING ──
+   `design-system.md` says the accent is not an axis and says nothing about how OFTEN it may be
+   painted, so the framework has had no rule about spend at all — and the eyebrow, which appears
+   on every section of every strip, was painting it. MEASURED in the rendered page before this
+   line: 12 accent-coloured marks at rest on `TPL-C-01 × PERS-EDITORIAL` and 16 on the ecommerce
+   strip, of which the eyebrows alone were 4 and 6. A colour that appears a dozen times on a
+   resting page is not an accent, it is a second text colour, and a page with two text colours is
+   the single most reliable tell of a theme rather than a design.
+
+   `craft-probe-2026-08-16.html` § CRAFT-PRINT is where this is measured: it spends the accent
+   ONCE on the resting page — the submit button, the one commercial moment — against 4 for the
+   other two directions, and the note beside it is the argument. "Everything else is ink on paper,
+   so the one mark of colour is earned."
+
+   An eyebrow is a LABEL. Its job is to be read before the heading and then to get out of the way,
+   which is what `--c-text-muted` does and what a saturated hue cannot. The accent moves to the
+   controls, where it means "this is the thing to press", and the closing band is now where the
+   biggest single spend lands. The count is asserted at the foot of this file. */
 .eyebrow{display:block;font-family:var(--font-secondary);font-size:var(--fs-eyebrow);font-weight:600;
-         letter-spacing:.24em;text-transform:uppercase;color:var(--c-accent)}
+         letter-spacing:.24em;text-transform:uppercase;color:var(--c-text-muted)}
 .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
 /* A heading takes the width of its own BLOCK, never the width of its longest word. `.stack` is a
    column flex container with `align-items:flex-start`, which sizes children to `fit-content` —
@@ -669,7 +687,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .ben{display:flex;flex-direction:column;gap:.15rem;min-width:0;
      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
 .ben b{font-size:var(--fs-small)}
-.bicon{color:var(--c-accent);display:block;line-height:0;margin-bottom:.15rem}
+.bicon{color:var(--c-text-soft);   /* budget: four ticks in a row is not one commercial moment */display:block;line-height:0;margin-bottom:.15rem}
 /* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair.
    Built out of the SAME primitives the benefits bar already uses (`.items` grid, `--c-border`
    rules, `--fs-small`) rather than a new layout system, so the pair inherits every blueprint's
@@ -680,7 +698,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .faqlist > details{border-bottom:1px solid var(--c-border)}
 .faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
   font-weight:600;color:var(--c-text)}
-.faqlist summary::marker{color:var(--c-accent)}
+.faqlist summary::marker{color:var(--c-text-muted)}   /* budget: a disclosure triangle is furniture */
 .faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-small);color:var(--c-text-soft);
   max-width:66ch}
 .chans{gap:var(--sp-s)}

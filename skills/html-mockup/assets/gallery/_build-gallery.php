@@ -1665,8 +1665,26 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .sec{padding-block:var(--sp-section)}
 .bg-alt{background:var(--c-bg-alt)}
 .muted{color:var(--c-text-muted)} .small{font-size:var(--fs-small)}
+/* ── THE ACCENT BUDGET, AND THE EYEBROW IS WHERE IT WAS BEING SPENT WITHOUT COUNTING ──
+   `design-system.md` says the accent is not an axis and says nothing about how OFTEN it may be
+   painted, so the framework has had no rule about spend at all — and the eyebrow, which appears
+   on every section of every strip, was painting it. MEASURED in the rendered page before this
+   line: 12 accent-coloured marks at rest on `TPL-C-01 × PERS-EDITORIAL` and 16 on the ecommerce
+   strip, of which the eyebrows alone were 4 and 6. A colour that appears a dozen times on a
+   resting page is not an accent, it is a second text colour, and a page with two text colours is
+   the single most reliable tell of a theme rather than a design.
+
+   `craft-probe-2026-08-16.html` § CRAFT-PRINT is where this is measured: it spends the accent
+   ONCE on the resting page — the submit button, the one commercial moment — against 4 for the
+   other two directions, and the note beside it is the argument. "Everything else is ink on paper,
+   so the one mark of colour is earned."
+
+   An eyebrow is a LABEL. Its job is to be read before the heading and then to get out of the way,
+   which is what `--c-text-muted` does and what a saturated hue cannot. The accent moves to the
+   controls, where it means "this is the thing to press", and the closing band is now where the
+   biggest single spend lands. The count is asserted at the foot of this file. */
 .eyebrow{display:block;font-family:var(--font-secondary);font-size:var(--fs-eyebrow);font-weight:600;
-         letter-spacing:.24em;text-transform:uppercase;color:var(--c-accent)}
+         letter-spacing:.24em;text-transform:uppercase;color:var(--c-text-muted)}
 .stack{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-s)}
 /* A heading takes the width of its own BLOCK, never the width of its longest word. `.stack` is a
    column flex container with `align-items:flex-start`, which sizes children to `fit-content` —
@@ -1993,7 +2011,7 @@ $css[] = <<<'CSS'
 .ben{display:flex;flex-direction:column;gap:.15rem;min-width:0;
      border-top:1px solid var(--c-border);padding-top:var(--sp-xs)}
 .ben b{font-size:var(--fs-small)}
-.bicon{color:var(--c-accent);display:block;line-height:0;margin-bottom:.15rem}
+.bicon{color:var(--c-text-soft);   /* budget: four ticks in a row is not one commercial moment */display:block;line-height:0;margin-bottom:.15rem}
 /* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair.
    Built out of the SAME primitives the benefits bar already uses (`.items` grid, `--c-border`
    rules, `--fs-small`) rather than a new layout system, so the pair inherits every blueprint's
@@ -2004,7 +2022,7 @@ $css[] = <<<'CSS'
 .faqlist > details{border-bottom:1px solid var(--c-border)}
 .faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
   font-weight:600;color:var(--c-text)}
-.faqlist summary::marker{color:var(--c-accent)}
+.faqlist summary::marker{color:var(--c-text-muted)}   /* budget: a disclosure triangle is furniture */
 .faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-small);color:var(--c-text-soft);
   max-width:66ch}
 .chans{gap:var(--sp-s)}
@@ -3610,6 +3628,116 @@ foreach ( $STRIPS as $s ) {
 			. "` and renders $tgl_slides slide(s) where $tgl_expect were owed — the readout and the"
 			. ' hero disagree, and the readout is the half the reader believes' );
 	}
+}
+
+// ── THE ACCENT BUDGET ──────────────────────────────────────────────────────────────────────────
+//
+// `design-system.md` says the accent is not an axis and then says nothing at all about how often
+// it may be painted, which is how this page came to spend it twelve times on a resting corporate
+// strip and sixteen on an ecommerce one. `craft-probe-2026-08-16.html` § CRAFT-PRINT is the
+// measured argument for the other position — one spend on the resting page, against 4 for the two
+// directions beside it — and it is right for a reason that generalises past this asset: a hue that
+// appears a dozen times is not an accent, it is a second text colour, and two text colours is what
+// a theme looks like.
+//
+// A WHITELIST, NOT A COUNT, and the shape is deliberate — it is the same shape as
+// RT_MOCKUP_BLEED_NOT_MEDIA one file over. A number can be met by moving a spend somewhere the
+// counter cannot see; a whitelist forces every new accent mark to be named and argued for here.
+// Each entry below had to justify itself:
+//   .btn-primary   the one control. This IS the commercial moment the probe reserves it for.
+//   .cart b        TPL-E-02 DNA: html-mockup/SKILL.md step 2 names the cart badge, and a badge
+//                  that does not stand out is a badge that has failed at its only job.
+//   .chip          design-personalities.md gives PERS-INSTITUTIONAL "chip de icono en accent"
+//                  in as many words. An anchor's own card recipe outranks a budget written here.
+//   .sec.closing   the field itself, on PERS-DIRECT — the biggest single spend on the page, which
+//                  is the whole point of having a budget to spend.
+// Interaction states are excluded because a budget is about the RESTING page: a colour that
+// appears when you touch something is feedback, and feedback is supposed to be findable.
+//
+// MEASURED IN THE BROWSER after this landed, counting elements whose computed color, background
+// or visible border IS the accent: 2 / 4 / 3 / 3 on the corporate strips and 2 / 4 / 3 / 3 on the
+// ecommerce ones, against 12 and 16 before. Every remaining mark is a control.
+//
+// THIS CHECK SHIPPED BROKEN FOR ONE BUILD AND THE MUTATIONS ARE THE ONLY REASON ANYBODY KNOWS.
+// Run over the whole 1.7 MB document — which is mostly base64 `@font-face` payload — the pattern
+// below hits PCRE's backtrack limit, `preg_match_all()` returns FALSE rather than 0, and `if
+// ( preg_match_all(...) )` reads that as "no matches". Three mutations that should have died
+// walked straight through a green build. Two fixes, and both are the rule not the incident:
+//   · the subject is the STYLESHEET WITHOUT ITS FONT PAYLOAD, because a check should be pointed at
+//     the thing it is about, and 1.4 MB of base64 is not CSS anybody wrote;
+//   · `false` is checked EXPLICITLY and fails the build. A regex that could not run is not a
+//     regex that found nothing, and PHP spells both of them the same way in a boolean context.
+$accent_src = preg_replace( '/@font-face\{[^{}]*\}/', '', implode( "\n", $css ) );
+if ( null === $accent_src ) {
+	fail( 'stripping the font payload out of the stylesheet failed — the accent budget would then'
+		. ' be measured against 1.4 MB of base64 and would report whatever PCRE gave up on' );
+}
+$accent_ok = array( 'btn-primary', 'cart', 'chip', 'closing',
+	/* the shell — a tool's own chrome is not one of its samples, and it is painted from `:root`
+	   rather than from any anchor. Named rather than skipped, for the same reason the bleed
+	   whitelist names things: a check that silently ignores half the file is half a check. */
+	'gal-head', 'gal-note', 'fbtn', 'handoff-copy', 'handoff', 'x', 'tgl-set', 'axis', 'noscript' );
+$accent_css      = preg_replace( '#/\*.*?\*/#s', '', $accent_src );
+$accent_offences = array();
+$acc_n           = preg_match_all( '/([^{}]*)\{([^{}]*)\}/s', $accent_css, $acc_m, PREG_SET_ORDER );
+if ( false === $acc_n ) {
+	fail( 'the accent-budget scan could not run: ' . preg_last_error_msg()
+		. '. A regex that gave up is not a regex that found nothing, and both are falsy in PHP' );
+}
+if ( 0 === $acc_n ) {
+	fail( 'the accent-budget scan parsed zero CSS rules — the stylesheet shape changed under it,'
+		. ' and a check with nothing to check is a check that always passes' );
+}
+foreach ( $acc_m as $acc_rule ) {
+	/* The declaration block, one property at a time, so a value containing `--c-accent` is only
+	   an offence when the PROPERTY is one that paints. `--c-accent:#8C3A1F` is a token
+	   declaration and `--elev-rest:0 0 0 1px …accent…` is a shadow the elevation axis owns. */
+	$acc_paints = false;
+	foreach ( explode( ';', $acc_rule[2] ) as $acc_decl ) {
+		$acc_parts = explode( ':', $acc_decl, 2 );
+		if ( count( $acc_parts ) < 2 ) {
+			continue;
+		}
+		$acc_prop = strtolower( trim( $acc_parts[0] ) );
+		if ( false === strpos( $acc_parts[1], '--c-accent' ) ) {
+			continue;
+		}
+		if ( preg_match( '/^(color|background|background-color|border-color|border-[a-z]+-color)$/', $acc_prop ) ) {
+			$acc_paints = true;
+			break;
+		}
+	}
+	if ( $acc_paints ) {
+		foreach ( explode( ',', $acc_rule[1] ) as $acc_sel ) {
+			$acc_sel = trim( $acc_sel );
+			/* INTERACTION STATES ONLY. `::marker` was in this list for one revision and does not
+			   belong: a disclosure triangle is on screen at rest, so an accent-coloured one is a
+			   spend, and mutating it back proved the exclusion was hiding a real mark. What is
+			   excluded is the states a reader has to CAUSE — a colour that appears when you touch
+			   something is feedback, and feedback is supposed to be findable. */
+			if ( '' === $acc_sel || preg_match( '/:hover|:focus|:active|:checked/i', $acc_sel ) ) {
+				continue;
+			}
+			$acc_names = array();
+			if ( preg_match_all( '/\.([\w-]+)/', $acc_sel, $acc_c ) ) {
+				$acc_names = $acc_c[1];
+			}
+			foreach ( $acc_names as $acc_name ) {
+				if ( in_array( $acc_name, $accent_ok, true ) ) {
+					continue 2;
+				}
+			}
+			$accent_offences[] = '`' . $acc_sel . '`';
+		}
+	}
+}
+if ( array() !== $accent_offences ) {
+	fail( 'these paint --c-accent on the RESTING page and are not in the accent budget: '
+		. implode( ', ', array_unique( $accent_offences ) )
+		. '. The accent is the page\'s one commercial moment; a hue that appears a dozen times is a'
+		. ' second text colour, and two text colours is what a theme looks like. Either the mark is'
+		. ' a control — in which case add it to $accent_ok with the reason — or it wants'
+		. ' --c-text-muted, which is what a label is for.' );
 }
 
 // ── ANYTHING THAT REDECLARES THE GROUND MUST ALSO RESOLVE THE CHAIN ────────────────────────────
