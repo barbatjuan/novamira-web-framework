@@ -1101,7 +1101,47 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
         Above ~2200px the cap engages and the gutter starts growing again; at 3440 it is back to
         26%. No band cap can hold the ratio forever, and this one is honest to 2560 — the top of
         the range `house-rules.md` row 32 measures. ── */
-  --content-width:clamp(1140px, 85vw, 100vw);
+
+  /* ── 85 → 68. THE MARGIN WAS RIGHT IN DIRECTION AND WRONG IN SIZE, and the reason is that it is
+        the ONLY thing on this page that grows above 1280.
+
+        MEASURED, one anchor across widths, not four anchors across one width:
+          --fs-h1  (editorial)  88px at 1280, 1440, 2000 AND 2560   — `--fluid` clamps at 1280
+          --fs-h2               58.7px at all four                  — same clamp
+          --fs-body             20px above 1667                     — clamp(1rem,1.2vw,1.25rem)
+          --sp-section          151.2px at all four                 — same clamp, § Density
+          --content-width       1140 → 1224 → 1700 → 2176           — 85vw, unbounded
+        Type is frozen by design and design-system.md § Scale argues that case at length. Rhythm is
+        frozen with it. So every pixel a wider screen brings lands in the band, and from the band in
+        the IMAGERY: `.services .items` card 1 under LP-ASYMMETRIC measured 646px wide at 1280 and
+        973px at 2000 — a service thumbnail the size of a lightbox beside an 88px headline that had
+        not moved. The reader drew two vertical lines inside the content edges and wrote "muy grande
+        todo, necesita más aire". The lines land at x≈310 and x≈1660 on his 2000px screen: a 1350px
+        band, ~16% of the viewport per side against the 7.5% that shipped.
+
+        68vw PUTS THE EDGE ON HIS LINE — measured, not reasoned about: `.services .items` left is
+        320.0px at 2000 against the 310 he drew. It also RESTORES THE RATIO the whole system is
+        drawn at: band ÷ h1 reads 13.0 at the 1280 reference, 19.3 under 85vw at 2000, and 15.5
+        under 68vw. The h1 recovers a third line and reads as a headline again rather than a caption
+        on a photograph.
+
+        THE FLOOR STILL WINS BELOW THE 1676px KNEE, so 1280 resolves to exactly 1140 and every
+        measurement in this repo taken at or under the desktop reference still holds to the pixel.
+        Between them the band is pinned at 1140 — the width the design was drawn at — and the
+        gutters absorb the difference: 10.4% per side at 1440, 14.4% at 1600. LOOKED AT, at 1440,
+        against the 1224 it replaces: nothing crowds and nothing stretches. The 84px is invisible.
+
+        WHY THIS IS NOT THE DEFECT ROW 32 EXISTS TO CATCH, and the row\'s probe has been corrected
+        to say so rather than this value being chosen to fit it. The pathology is a margin that
+        grows WITHOUT BOUND, because a fixed band leaves the outer `1fr` as the only track able to
+        absorb a wider screen: 10.4% → 20.3% → 27.7% at 1440/1920/2560 and rising forever. 68vw
+        rises to a HARD PLATEAU at the 1676 knee and holds 16.0% at 1920, 2000, 2560, 3440 and 5120
+        alike. Row 32(a) sampled 1440 against 2560 — one point inside the pinned segment and one
+        above it — so it read a transition that stops as growth that does not. Its probe now samples
+        1920 against 2560, both above any knee a 1140 floor can produce, and MUTATION CONFIRMS it
+        still fails every historical defect: fixed 1140px scores +7.42pp, the rejected
+        `clamp(1140,+0.5,1600)` scores +6.77pp, 85vw scores 0.00pp, 68vw scores 0.00pp. ── */
+  --content-width:clamp(1140px, 68vw, 100vw);
   --pad-x-mobile:20px; --pad-x-tablet:32px;
   --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
   --btn-padding:.875rem 1.75rem; --btn-border-width:1.5px;
@@ -1493,9 +1533,24 @@ $css[] = <<<'CSS'
 .price{font-size:var(--fs-price);font-weight:700;line-height:1.2}
 .card.prod .body{gap:.35rem;align-items:flex-start}
 .card.prod .btn{margin-top:.25rem}
-/* A wide block scrolls inside its OWN container rather than pushing the page (SKILL.md). */
-.rail{grid-auto-flow:column;grid-auto-columns:minmax(78%,1fr);overflow-x:auto;
-      scroll-snap-type:x mandatory;padding-bottom:.5rem}
+/* A wide block scrolls inside its OWN container rather than pushing the page (SKILL.md).
+
+   `grid-template-columns:none` IS THE RULE, NOT TIDYING. `.items` above declares an EXPLICIT
+   `grid-template-columns:minmax(0,1fr)`, and `grid-auto-flow:column` does not replace an explicit
+   template — it only decides where the tracks the template did not declare come from. So card 1
+   landed in the explicit `1fr` track and cards 2..n in the implicit `minmax(78%,1fr)` ones; in a
+   container that overflows on purpose there is no free space for a `1fr`, and it resolved to ZERO.
+   MEASURED at 430 before this line, every ecommerce strip, all four anchors:
+     grid-template-columns  →  `0px 304.188px 304.188px 304.188px`
+     card 1 border box      →  0px wide — a product nobody on a phone could ever see
+     its `Añadir` button    →  46.6 x 110.8px, because `overflow-wrap:anywhere` (scoped under
+                               1024px, and correctly) then stacked the label ONE LETTER PER LINE
+   house-rules.md row 30 scores that button 1.93 against a 0.5 threshold — the same shape as the
+   defect fixed in 33310e3, still live at 320/430/768 because that pass measured desktop only, and
+   row 30's own text warns in bold that it must be measured at every breakpoint in scope. Clearing
+   the template makes all four tracks implicit, so `grid-auto-columns` sizes all four alike. */
+.rail{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:minmax(78%,1fr);
+      overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.5rem}
 .rail > *{scroll-snap-align:start}
 .bens{gap:var(--sp-s)}
 .ben{display:flex;flex-direction:column;gap:.15rem;min-width:0;
