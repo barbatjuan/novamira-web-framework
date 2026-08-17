@@ -2564,7 +2564,13 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   /* the one bleed per section, always the SAME edge, all the way down the page */
   [data-comp="lp-asymmetric"] .hero .media{grid-column:c 8/full-end}
   [data-comp="lp-asymmetric"] .hero .frame{border-radius:0}
-  [data-comp="lp-asymmetric"] .mini .head{grid-column:c 1/c 7}
+  /* `justify-content:center` — the head is a column flex, so this is VERTICAL centring, and it is
+     the same declaration this blueprint's own `.hero` equivalent and LP-STRICT-GRID both already
+     carry. Without it the mini banner's copy hangs at the top of a row the photograph beside it is
+     sizing. MEASURED at 2560 before this line: row 220px, copy ink 139.4px, the ink centre 53.3px
+     above the row centre — the same shape as the hero void row 32(b) exists to catch, one section
+     over and small enough to have been walked past four times. */
+  [data-comp="lp-asymmetric"] .mini .head{grid-column:c 1/c 7;justify-content:center}
   [data-comp="lp-asymmetric"] .mini .media{grid-column:c 7/full-end}
   [data-comp="lp-asymmetric"] .mini .frame{border-radius:0}
   [data-comp="lp-asymmetric"] .mini .cats{grid-column:c 1/c 11}
@@ -2733,6 +2739,64 @@ foreach ( $FIELD as $fld_k => $fld_v ) {
 }
 
 $close_css[] = <<<'CSS'
+/* ══════════ THE SECTION INDEX — one attribute, four renderings ══════════
+   `content: attr(data-index) / ""` — the SLASH IS LOAD-BEARING. It is the CSS alt-text syntax, and
+   an empty alt is what tells the accessibility tree to skip generated content. Without it a screen
+   reader announces "zero two" before every section heading on the page: an ordinal that exists for
+   the eye becoming noise for the ear. The number is decoration in the strict sense — the sections
+   are already in order and already labelled — so it owes nothing to anybody who cannot see it. */
+.head{position:relative}
+
+/* EDITORIAL — hung in the page margin, which is CRAFT-PRINT's move and needs a margin to hang in.
+   Below 1280 there is not one, so the index sits above the eyebrow instead of overlapping the
+   copy: a number in the gutter at 1024 is a number on top of a word. */
+[data-anchor="editorial"] .head::before{
+  content:attr(data-index) / "";display:block;margin-bottom:var(--sp-s);
+  font-family:var(--font-secondary);font-size:11px;font-weight:600;letter-spacing:.2em;
+  font-variant-numeric:tabular-nums lining-nums;color:var(--c-text-muted)}
+@media(min-width:1280px){
+  [data-anchor="editorial"] .head::before{
+    position:absolute;right:100%;top:.15em;margin:0 var(--sp-m) 0 0;text-align:right}
+}
+
+/* DIRECT — the numeral as graphic, cropped by the section's own top edge. NOT a heading: empty
+   alt text, tinted far below text contrast, and at a size no step of the scale contains, so it
+   reads as a printed mark rather than as type. `z-index` on the head's real children rather than
+   a negative one on the numeral — negative would drop it behind the section's own background and
+   make it vanish on `.bg-alt`. */
+[data-anchor="direct"] .head::before{
+  content:attr(data-index) / "";position:absolute;left:-.06em;top:0;z-index:0;
+  font-family:var(--font-primary);font-weight:700;font-size:clamp(84px,11vw,168px);line-height:.7;
+  letter-spacing:-.05em;font-variant-numeric:lining-nums tabular-nums;
+  color:color-mix(in srgb,var(--c-text) 9%,var(--c-bg));transform:translateY(-54%);
+  pointer-events:none}
+[data-anchor="direct"] .head > *{position:relative;z-index:1}
+[data-anchor="direct"] .sec{overflow:clip}
+[data-anchor="direct"] .head{padding-top:calc(var(--sp-l)*.5)}
+
+/* MATTER — the number, then a hairline that starts at the number's own right edge and stops after
+   2.2rem. That is CRAFT-PRINT's second move — a rule that begins at a text edge rather than at a
+   container edge — and it is the one this anchor can afford: `elevation: hairline` means a 1px
+   line IS this personality's vocabulary, so the index arrives drawn in it.
+   `.head::before` and NOT `.eyebrow::before`: `attr()` reads the attribute of the element its
+   pseudo-element is attached to, and `data-index` is on the head. Pointed at the eyebrow it
+   resolves to the empty string and renders a bare hairline with no number — which looks
+   deliberate, which is why it is worth writing down. */
+[data-anchor="matter"] .head::before{
+  content:attr(data-index) / "";display:flex;align-items:center;gap:.6rem;
+  margin-bottom:var(--sp-xs);font-family:var(--font-secondary);
+  font-size:11px;font-weight:700;letter-spacing:.18em;
+  font-variant-numeric:tabular-nums lining-nums;color:var(--c-text-muted)}
+[data-anchor="matter"] .head::after{
+  content:'';position:absolute;left:2.6rem;top:.55em;width:2.2rem;height:1px;
+  background:var(--c-border)}
+
+/* INSTITUTIONAL — centred above the eyebrow, which is the only place LP-CENTERED allows anything. */
+[data-anchor="institutional"] .head::before{
+  content:attr(data-index) / "";display:block;margin-bottom:var(--sp-xs);
+  font-size:11px;font-weight:700;letter-spacing:.22em;
+  font-variant-numeric:tabular-nums lining-nums;color:var(--c-text-muted)}
+
 /* EDITORIAL — the back cover. Elevation `none` means this anchor owns no shadow and no fill, so
    the only mark of an ending available to it is turning the paper over. The h2 is the one section
    heading on this page allowed to reach the h1 step: at `editorial` scale that is 88px of Fraunces
@@ -2805,6 +2869,32 @@ CSS;
 $css[] = implode( "\n", $close_css ) . "\n";
 
 // ═══════════════════════════════════════════════════════════════ HTML
+
+/**
+ * THE SECTION INDEX — numbered in DOCUMENT ORDER, after the strip is built.
+ *
+ * `craft-probe-2026-08-16.html` § CRAFT-PRINT hangs a numbered index in the page margin, and it is
+ * the cheapest signal on that whole page that somebody composed the thing: a reader cannot say why
+ * a numbered page looks considered, only that it does. What it costs is one attribute; every anchor
+ * then renders it in its own language, or not at all.
+ *
+ * NUMBERED HERE AND NOT AT EACH CALL SITE. Writing `data-index="02"` beside each section is two
+ * facts — the number and the order — kept in two places, and they disagree the first time a section
+ * moves or a toggle removes one. This pass reads the order off the finished markup, so the number
+ * IS the position by construction. A section with no `.head` (the benefits bar) takes no number,
+ * which is correct: it has no heading to hang one on.
+ */
+function number_heads( $markup ) {
+	$n = 0;
+	return preg_replace_callback(
+		'/<div class="head stack"/',
+		function () use ( &$n ) {
+			++$n;
+			return '<div class="head stack" data-index="' . sprintf( '%02d', $n ) . '"';
+		},
+		$markup
+	);
+}
 
 /** One card, in the DOM its anchor's recipe calls for. */
 function card_html( $anchor_key, $c ) {
@@ -2937,7 +3027,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
 
-	return implode( "\n", $o );
+	return number_heads( implode( "\n", $o ) );
 }
 
 /** COMP-FOOTER — `[fijo]` in both archetypes, so it is emitted from one place. */
@@ -3087,7 +3177,7 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
 
-	return implode( "\n", $o );
+	return number_heads( implode( "\n", $o ) );
 }
 
 /**
