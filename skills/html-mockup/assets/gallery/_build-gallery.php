@@ -229,6 +229,17 @@ $COMPOSITION = array(
 //   · wordmark tracking exists only for EDITORIAL (.16em) and DIRECT (.1em). MATTER and
 //     INSTITUTIONAL have none, so they run at `normal` — the tracking the face was drawn with,
 //     which is that file's own stated principle for anything it does not tighten.
+//
+// `track_disp` IS `0em` AND NOT `normal` ON THE TWO ANCHORS THAT DO NOT TIGHTEN, and the change is
+// an encoding, not a value. For `letter-spacing` the two are the same rendered result — `normal`
+// IS zero extra tracking on every engine — but `calc(normal + .016em)` is a parse error, and the
+// optical ramp below adds a per-step offset to this token on all four anchors. Writing `normal`
+// here would have silently dropped the ramp on exactly the two anchors whose h3 needs it most,
+// with no invalid-value warning anywhere: an invalid custom-property substitution falls back to
+// the property's initial value, which for letter-spacing is `normal`, so the two would have kept
+// looking correct while running unramped. Measured after the swap: `getComputedStyle` on the
+// matter h3 reads 0.568px of tracking where `normal` read 0px, and the h1 reads exactly 0px in
+// both. Nothing else in this file reads `--track-display`.
 //   · INSTITUTIONAL's --font-primary is described as "Source Sans 3 semibold", while the same
 //     file says weight "did not earn an anchor" and comes from design-system.md's type table,
 //     which pins h1/h2 at 700. The table wins here; the contradiction is reported, not resolved.
@@ -289,7 +300,7 @@ $ANCHORS = array(
 		'elevation'   => 'hairline',
 		'font_1'      => "'Instrument Serif', Georgia, 'Times New Roman', serif",
 		'font_2'      => "'DM Sans', system-ui, sans-serif",
-		'track_disp'  => 'normal',
+		'track_disp'  => '0em',
 		'track_word'  => 'normal',
 		'dur_color'   => '.35s',
 		'dur_lift'    => '.5s',
@@ -311,7 +322,7 @@ $ANCHORS = array(
 		'elevation'   => 'soft-shadow',
 		'font_1'      => "'Source Sans 3', system-ui, sans-serif",
 		'font_2'      => "'Source Sans 3', system-ui, sans-serif",
-		'track_disp'  => 'normal',
+		'track_disp'  => '0em',
 		'track_word'  => 'normal',
 		'dur_color'   => '.35s',
 		'dur_lift'    => '.5s',
@@ -1222,6 +1233,38 @@ $css[] = <<<'CSS'
      here rather than in `:root` — the same trap, one level down. */
   --col: calc((var(--content-width) - 11 * var(--sp-m)) / 12);
 
+  /* ══ THE OPTICAL TRACKING RAMP — the anchor sets the tracking, the SIZE STEP tunes it.
+        design-personalities.md § "Display tracking" already contains the whole argument and then
+        stops one level short of applying it: "tracking that closes the counters at 120px opens
+        holes at 48px". That sentence is used there to decide which ANCHORS tighten (those whose
+        h1 cap clears ~80px) and which do not. Inside one anchor it is left unapplied — a single
+        `--track-display` is painted on h1, h2 AND h3 alike, and on this page those three span
+        88 / 58.7 / 39.1px at `editorial` and 120 / 74.2 / 45.8px at `direct`. That is the exact
+        range the sentence is about, so the flat value is the file's own rule half-applied.
+
+        THE ANCHOR'S NUMBER IS NOT TOUCHED. `--track-display` is transcribed from that file and
+        stays the h1 tracking, to the digit. What is grafted here is only the SPAN — how far the
+        tracking opens back up per step down — which no reference states for any anchor and which
+        `craft-probe-2026-08-16.html` § CRAFT-MATERIAL is the measured source for: it ran
+        h1 -.022 / h2 -.016 / h3 -.006 / lede +.002 / small +.012 against the other two directions'
+        flat -.015em, and the difference between the two is visible at a glance on the h3 row.
+        Its span h1→h3 is .016em and h1→h2 is .006em; those two deltas are what this table is,
+        added to whatever the anchor declares. On `editorial` the ramp therefore resolves to
+        -.015 / -.009 / +.001, which is the probe's shape sitting on the framework's number
+        rather than on the probe's.
+
+        `--track-h3-sm` IS A SIXTH STEP AND IT IS EARNED, not symmetry. `.card h3` renders at
+        .58 of the h3 step — 22.7px at `editorial`, 26.6px at `direct` — which is nearer the
+        `small` end of the ramp than the h3 end, and giving it the h3 value would be the same
+        one-value-for-every-size mistake one level down. .024em is the ramp continued at its own
+        rate for the size it actually renders at. ══ */
+  --track-h1: var(--track-display);
+  --track-h2: calc(var(--track-display) + .006em);
+  --track-h3: calc(var(--track-display) + .016em);
+  --track-h3-sm: calc(var(--track-display) + .024em);
+  --track-lede: .002em;
+  --track-small: .012em;
+
   /* design-system.md § derived: recipes, not literals, so they are right on a ground nobody has
      thought of yet. Percentages are the "text → bg" mixes that file measures. */
   --c-text-soft:      color-mix(in srgb, var(--c-text) 77%,   var(--c-bg));
@@ -1250,10 +1293,16 @@ body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text
 
 /* Weights are design-system.md's type table (h1/h2 700, h3 600). Only letter-spacing is
    anchor-scoped — design-personalities.md § Typography. */
-h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:var(--track-display)}
+h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance}
 h1,h2{line-height:var(--display-lh)}
-h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)}
-h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
+h1{font-size:var(--fs-h1);letter-spacing:var(--track-h1)}
+h2{font-size:var(--fs-h2);letter-spacing:var(--track-h2)}
+h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600;letter-spacing:var(--track-h3)}
+/* The other end of the ramp. Body copy is not display type, so these two are absolute rather than
+   anchor-relative: opening small text is a legibility move that every face wants and no anchor
+   asked to be exempt from. */
+.lede{letter-spacing:var(--track-lede)}
+.small,.card .body p,.field label,.legal{letter-spacing:var(--track-small)}
 a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:none}
 :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -1507,8 +1556,19 @@ $css[] = <<<'CSS'
    because the ratio is arithmetic about column width and not a personality choice.
    `hyphens:auto` is the second half and the reason `lang="es"` is on every strip: it breaks at a
    Spanish syllable boundary from the hyphenation dictionary, which is ordinary typography — not
-   the mid-stem `overflow-wrap` break that was rejected at desktop widths. */
-.card h3{font-size:calc(var(--fs-h3) * .74);hyphens:auto}
+   the mid-stem `overflow-wrap` break that was rejected at desktop widths.
+
+   .74 → .58, AND THE REASON IS HIERARCHY RATHER THAN OVERFLOW. .74 was derived to stop a card
+   heading overflowing its column and it does that; what it does not do is make the card heading
+   read as a card heading. At .74 a services h3 renders 28.9px against its own section h2 at
+   58.7px — a ratio of 2.03 — and in the render the three card titles compete with the heading
+   above them for the same rank, which is a large part of why the resting page reads as a
+   template: everything is the same size as everything. .58 puts it at 22.7px, ratio 2.58, and
+   the row becomes a caption under a photograph instead of three more headlines.
+   .58 is the probe's measured value (`craft-probe-2026-08-16.html` § CRAFT-GALLERY) and it is
+   also strictly safer on the defect .74 was chosen for: every column that fitted a heading at
+   .74 fits the same heading at .58 with 22% more room. */
+.card h3{font-size:calc(var(--fs-h3) * .58);letter-spacing:var(--track-h3-sm);hyphens:auto}
 @media(min-width:768px){
   .items.cols-2,.items.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -2971,6 +3031,45 @@ foreach ( $STRIPS as $s ) {
 		fail( "strip `$tgl_uid` resolves TGL-HERO-TYPE to `" . ( '' === $tgl_is ? 'n/a' : $tgl_is )
 			. "` and renders $tgl_slides slide(s) where $tgl_expect were owed — the readout and the"
 			. ' hero disagree, and the readout is the half the reader believes' );
+	}
+}
+
+// ── THE TRACKING RAMP HAS TO BE A RAMP ─────────────────────────────────────────────────────────
+//
+// Two failures, and only the second is visible in a render. The first is a ramp that stops being
+// one — somebody consolidates the five tokens back onto a single `--track-display`, every heading
+// keeps rendering, and the only evidence is a page that looks very slightly flatter. The second is
+// the `normal` trap the anchor table now carries a paragraph about: an invalid custom-property
+// substitution does not warn, it falls back to the property's INITIAL value, so a ramp that has
+// silently died renders as `letter-spacing:normal` on exactly the anchors whose small type needed
+// it and looks, in a screenshot, entirely fine.
+//
+// So: the three display steps must read three DIFFERENT tokens, and no anchor may declare a
+// `--track-display` that `calc()` cannot add to. `normal` is the one value that parses as a
+// letter-spacing and not as a length, which is precisely why it is the value that was there.
+//
+// `.card h3` IS IN THE LIST because leaving it out is how the sixth step died in mutation: setting
+// it back to `--track-h3` changed nothing this file could see, and the card heading — the smallest
+// heading on the page, at .58 of the h3 step — is the one the ramp exists for.
+$ramp_steps = array( 'h1' => '--track-h1', 'h2' => '--track-h2', 'h3' => '--track-h3', '\.card h3' => '--track-h3-sm' );
+$ramp_seen  = array();
+foreach ( $ramp_steps as $ramp_tag => $ramp_tok ) {
+	if ( ! preg_match( '/(?:^|\n)' . $ramp_tag . '\{[^}]*letter-spacing:var\(' . preg_quote( $ramp_tok, '/' ) . '\)/', $html ) ) {
+		fail( '`' . str_replace( '\\', '', $ramp_tag ) . "` does not read `$ramp_tok` — the optical ramp has collapsed"
+			. ' back to one value for four sizes, which is design-personalities.md § "Display tracking"'
+			. ' applied to the anchor and then not applied inside it' );
+	}
+	$ramp_seen[ $ramp_tok ] = true;
+}
+if ( count( $ramp_seen ) !== count( $ramp_steps ) ) {
+	fail( 'two ramp steps share a tracking token — that is a flat value wearing a ramp\'s name' );
+}
+foreach ( $ANCHORS as $ramp_k => $ramp_a ) {
+	if ( ! preg_match( '/^-?\d*\.?\d+em$/', $ramp_a['track_disp'] ) ) {
+		fail( "anchor `$ramp_k` declares --track-display `{$ramp_a['track_disp']}`, which calc() cannot"
+			. ' add an offset to. An invalid substitution falls back to the INITIAL value, so every'
+			. ' ramped step on this anchor would silently render at `normal` and look correct.'
+			. ' `0em` is the calc-safe spelling of "this face is not tightened"' );
 	}
 }
 

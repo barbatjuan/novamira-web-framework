@@ -88,7 +88,7 @@
 
   --font-primary:'Source Sans 3', system-ui, sans-serif;
   --font-secondary:'Source Sans 3', system-ui, sans-serif;
-  --track-display:normal; --track-wordmark:normal;
+  --track-display:0em; --track-wordmark:normal;
   --dur-color:.35s; --dur-lift:.5s; --dur-zoom:.7s; --lift:-4px;
   --ratio-hero:16/9; --ratio-card:4/3;
 
@@ -259,6 +259,38 @@
      here rather than in `:root` — the same trap, one level down. */
   --col: calc((var(--content-width) - 11 * var(--sp-m)) / 12);
 
+  /* ══ THE OPTICAL TRACKING RAMP — the anchor sets the tracking, the SIZE STEP tunes it.
+        design-personalities.md § "Display tracking" already contains the whole argument and then
+        stops one level short of applying it: "tracking that closes the counters at 120px opens
+        holes at 48px". That sentence is used there to decide which ANCHORS tighten (those whose
+        h1 cap clears ~80px) and which do not. Inside one anchor it is left unapplied — a single
+        `--track-display` is painted on h1, h2 AND h3 alike, and on this page those three span
+        88 / 58.7 / 39.1px at `editorial` and 120 / 74.2 / 45.8px at `direct`. That is the exact
+        range the sentence is about, so the flat value is the file's own rule half-applied.
+
+        THE ANCHOR'S NUMBER IS NOT TOUCHED. `--track-display` is transcribed from that file and
+        stays the h1 tracking, to the digit. What is grafted here is only the SPAN — how far the
+        tracking opens back up per step down — which no reference states for any anchor and which
+        `craft-probe-2026-08-16.html` § CRAFT-MATERIAL is the measured source for: it ran
+        h1 -.022 / h2 -.016 / h3 -.006 / lede +.002 / small +.012 against the other two directions'
+        flat -.015em, and the difference between the two is visible at a glance on the h3 row.
+        Its span h1→h3 is .016em and h1→h2 is .006em; those two deltas are what this table is,
+        added to whatever the anchor declares. On `editorial` the ramp therefore resolves to
+        -.015 / -.009 / +.001, which is the probe's shape sitting on the framework's number
+        rather than on the probe's.
+
+        `--track-h3-sm` IS A SIXTH STEP AND IT IS EARNED, not symmetry. `.card h3` renders at
+        .58 of the h3 step — 22.7px at `editorial`, 26.6px at `direct` — which is nearer the
+        `small` end of the ramp than the h3 end, and giving it the h3 value would be the same
+        one-value-for-every-size mistake one level down. .024em is the ramp continued at its own
+        rate for the size it actually renders at. ══ */
+  --track-h1: var(--track-display);
+  --track-h2: calc(var(--track-display) + .006em);
+  --track-h3: calc(var(--track-display) + .016em);
+  --track-h3-sm: calc(var(--track-display) + .024em);
+  --track-lede: .002em;
+  --track-small: .012em;
+
   /* design-system.md § derived: recipes, not literals, so they are right on a ground nobody has
      thought of yet. Percentages are the "text → bg" mixes that file measures. */
   --c-text-soft:      color-mix(in srgb, var(--c-text) 77%,   var(--c-bg));
@@ -283,10 +315,16 @@ body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text
 
 /* Weights are design-system.md's type table (h1/h2 700, h3 600). Only letter-spacing is
    anchor-scoped — design-personalities.md § Typography. */
-h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:var(--track-display)}
+h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance}
 h1,h2{line-height:var(--display-lh)}
-h1{font-size:var(--fs-h1)} h2{font-size:var(--fs-h2)}
-h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600}
+h1{font-size:var(--fs-h1);letter-spacing:var(--track-h1)}
+h2{font-size:var(--fs-h2);letter-spacing:var(--track-h2)}
+h3{font-size:var(--fs-h3);line-height:1.25;font-weight:600;letter-spacing:var(--track-h3)}
+/* The other end of the ramp. Body copy is not display type, so these two are absolute rather than
+   anchor-relative: opening small text is a legibility move that every face wants and no anchor
+   asked to be exempt from. */
+.lede{letter-spacing:var(--track-lede)}
+.small,.card .body p,.field label,.legal{letter-spacing:var(--track-small)}
 a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:none}
 :focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -533,8 +571,19 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
    because the ratio is arithmetic about column width and not a personality choice.
    `hyphens:auto` is the second half and the reason `lang="es"` is on every strip: it breaks at a
    Spanish syllable boundary from the hyphenation dictionary, which is ordinary typography — not
-   the mid-stem `overflow-wrap` break that was rejected at desktop widths. */
-.card h3{font-size:calc(var(--fs-h3) * .74);hyphens:auto}
+   the mid-stem `overflow-wrap` break that was rejected at desktop widths.
+
+   .74 → .58, AND THE REASON IS HIERARCHY RATHER THAN OVERFLOW. .74 was derived to stop a card
+   heading overflowing its column and it does that; what it does not do is make the card heading
+   read as a card heading. At .74 a services h3 renders 28.9px against its own section h2 at
+   58.7px — a ratio of 2.03 — and in the render the three card titles compete with the heading
+   above them for the same rank, which is a large part of why the resting page reads as a
+   template: everything is the same size as everything. .58 puts it at 22.7px, ratio 2.58, and
+   the row becomes a caption under a photograph instead of three more headlines.
+   .58 is the probe's measured value (`craft-probe-2026-08-16.html` § CRAFT-GALLERY) and it is
+   also strictly safer on the defect .74 was chosen for: every column that fitted a heading at
+   .74 fits the same heading at .58 with 22% more room. */
+.card h3{font-size:calc(var(--fs-h3) * .58);letter-spacing:var(--track-h3-sm);hyphens:auto}
 @media(min-width:768px){
   .items.cols-2,.items.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -836,7 +885,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   --c-accent:#8C3A1F; --c-on-accent:#FFF3E3;
   --font-primary:'Instrument Serif', Georgia, 'Times New Roman', serif;
   --font-secondary:'DM Sans', system-ui, sans-serif;
-  --track-display:normal; --track-wordmark:normal;
+  --track-display:0em; --track-wordmark:normal;
   --dur-color:.35s; --dur-lift:.5s; --dur-zoom:.7s; --lift:-4px;
   --ratio-hero:4/3; --ratio-card:4/3;        /* imagery: el producto de frente, graduado cálido, a sangre dentro de la retícula */
 }
@@ -861,7 +910,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   --c-accent:#8C3A1F; --c-on-accent:#F2F5F8;
   --font-primary:'Source Sans 3', system-ui, sans-serif;
   --font-secondary:'Source Sans 3', system-ui, sans-serif;
-  --track-display:normal; --track-wordmark:normal;
+  --track-display:0em; --track-wordmark:normal;
   --dur-color:.35s; --dur-lift:.5s; --dur-zoom:.7s; --lift:-4px;
   --ratio-hero:16/9; --ratio-card:4/3;        /* imagery: fotografía sobria de contextos de trabajo reales */
 }
