@@ -136,10 +136,27 @@ Interpola su propio suelo hasta su propio tope entre 430 y 1280, los dos multipl
 | Token | Valor | Nota |
 |-------|-------|------|
 | `--container-max` | `1280px` | ancho máximo |
-| `--content-width` | `1140px` | ancho de contenido |
+| `--content-width` | `clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px)` | ancho de contenido, **fluido** |
 | `--pad-x-desktop` | `5%` | padding horizontal desktop |
 | `--pad-x-tablet` | `32px` | padding horizontal tablet |
 | `--pad-x-mobile` | `20px` | padding horizontal mobile |
+
+`--content-width` ERA `1140px` fijo, y ese literal es un defecto medido, no una simplificación.
+Dos de las cuatro composiciones (`LP-ASYMMETRIC`, `LP-BROKEN-GRID`) sangran hasta `full-end`, que
+ES el borde del viewport. Su rejilla es `minmax(pad,1fr)` + 12 columnas topadas + `minmax(pad,1fr)`,
+así que las pistas tienen que sumar el ancho de la pantalla: con las columnas topadas por una banda
+FIJA, lo único que puede absorber una pantalla más ancha es el margen, y el margen no tiene tope.
+Medido en la galería antes del arreglo, el margen izquierdo bajo `LP-BROKEN-GRID` iba de 150.1px a
+1440 → 390.1px a 1920 → **710.1px a 2560**, es decir del 10.4% al 27.7% del viewport, mientras el
+borde que sangra siempre llegaba a la pantalla: el centro óptico de la composición se desplazaba a
+la derecha +75 / +195 / +355px y a 2560 el cuarto izquierdo de la página era tinta muerta bajo
+todas las secciones. El suelo `1140px` mantiene intacto todo lo medido hasta 1280 (el ancho de
+referencia); la pendiente `0.5` reparte cada píxel extra entre la banda y los dos márgenes; el tope
+`1600px` es el MÍNIMO que deja el margen por debajo de un quinto del viewport a 2560 (medido: tope
+1440 → 21.9% ✗, tope 1600 → 18.0% ✓, tope 1800 → 15.2% ✓ pero ensancha cada fila de tarjetas sin
+necesidad). Por encima de ~2200 el tope entra y el margen vuelve a crecer: ninguna banda topada
+aguanta la proporción para siempre, y ésta es honesta hasta 2560, el tope del rango que mide
+`qa-review/references/house-rules.md` fila 32.
 
 ## Border radius
 

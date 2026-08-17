@@ -102,6 +102,7 @@ const ROW_TYPES = array(
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
+	'RT_MOCKUP_BLEED_FIXED_BAND' => 'FAIL  — a mockup bleeds to `full-end` but pins --content-width at a fixed length, leaving the gutter beside the bleed unbounded',
 	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
@@ -1590,8 +1591,9 @@ foreach ( $mockup_assets as $mockup_path ) {
 	   every one of these properties is REFERENCED further down each file (`box-shadow:
 	   var(--elev-rest)` and friends), so a whole-file scan would match a USE and call it a
 	   declaration — and a file that consumes an axis it never defines would pass. */
+	$mockup_src  = slurp( $mockup_path );
 	$mockup_root = '';
-	if ( preg_match( '/:root\s*\{(.*?)\}/s', slurp( $mockup_path ), $mrm ) ) {
+	if ( preg_match( '/:root\s*\{(.*?)\}/s', $mockup_src, $mrm ) ) {
 		$mockup_root = $mrm[1];
 	}
 	$mockup_missing = array();
@@ -1619,6 +1621,48 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
 		);
+	}
+
+	/* ---- RT_MOCKUP_BLEED_FIXED_BAND ----
+	 *
+	 * A FIXED `--content-width` IS ONLY A DEFECT NEXT TO A VIEWPORT-EDGE BLEED, which is why this
+	 * row has two arms and fires on neither alone. LP-CENTERED and LP-STRICT-GRID cap their content
+	 * at a fixed band and centre it, and that is an ordinary, correct desktop layout at any width.
+	 * LP-ASYMMETRIC and LP-BROKEN-GRID declare `[full-start] minmax(pad,1fr) … minmax(pad,1fr)
+	 * [full-end]` where `full-end` IS the layout viewport's right edge, so the 14 tracks have to sum
+	 * to the SCREEN. Cap the twelve columns with a fixed band and the only track left to absorb a
+	 * wider screen is the `1fr` gutter — and nothing bounds a `1fr`.
+	 *
+	 * MEASURED on assets/gallery/index.html at `--content-width:1140px`, left gutter under
+	 * LP-BROKEN-GRID: 150.1px at 1440, 390.1px at 1920, 710.1px at 2560 — 10.4% of the viewport
+	 * growing to 27.7%. The bleeding edge always reached the glass, so the composition's optical
+	 * centre drifted right by half of that (+75 / +195 / +355px) and at 2560 the left quarter of
+	 * every section was dead ink. The reader's words were "los márgenes están todos muy mal".
+	 *
+	 * WHY A TEXT CHECK AND NOT A GEOMETRY ONE. The geometry is house-rules.md row 32's, measured in
+	 * a browser at eight widths, and it is the better check — but it needs a browser and a host, and
+	 * this audit runs offline in a second on every commit. What a text check CAN decide is whether
+	 * the token is a bare literal, and a bare literal beside a `full-end` is the defect with no
+	 * further measurement needed. It caught nothing new when it was written — all three assets had
+	 * just been fixed — which is the point: it exists so the next fixed literal cannot land.
+	 *
+	 * `clamp(`/`min(`/`max(`, `vw`, `vmin`, `%` — any one of them means the band tracks the
+	 * viewport somehow, and deciding whether it tracks it WELL is row 32's job, not this one's.
+	 */
+	if ( false !== strpos( $mockup_src, 'full-end' )
+		&& preg_match( '/--content-width\s*:\s*([^;}]+)/', $mockup_root, $cwm ) ) {
+		$cw_value = trim( $cwm[1] );
+		if ( ! preg_match( '/clamp\(|min\(|max\(|\d\s*vw|\d\s*vmin|\d\s*%/i', $cw_value ) ) {
+			add(
+				'RT_MOCKUP_BLEED_FIXED_BAND',
+				'FAIL',
+				'html-mockup',
+				'assets/' . $mockup_name . ' bleeds to `full-end` but pins --content-width at `' . $cw_value
+					. '` — the named-line grid must sum to the viewport, so a fixed band leaves the outer 1fr gutter'
+					. ' as the only track that can absorb a wider screen and nothing bounds it (measured 710px of dead'
+					. ' margin at 2560 on a 1140px band). See design-system.md § Contenedores for the fluid value'
+			);
+		}
 	}
 
 	/* ---- RT_MOCKUP_FONT_NOT_EMBEDDED ----

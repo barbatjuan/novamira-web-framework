@@ -94,7 +94,37 @@
 
   /* ── shared chrome: identical at every anchor, so it lives here and nowhere else ── */
   --fs-base:16;
-  --container-max:1280px; --content-width:1140px;
+  --container-max:1280px;
+
+  /* ── THE CONTENT BAND IS FLUID ABOVE THE DESKTOP REFERENCE, and a flat `1140px` here is the
+        defect that shipped. Two of the four blueprints bleed to `full-end`, which IS the layout
+        viewport edge. Their grid is `minmax(pad,1fr)` gutter + 12 capped columns + `minmax(pad,1fr)`
+        gutter, so the tracks must sum to the viewport: with the columns capped by a FIXED band,
+        the only track left to absorb a wider screen is the gutter, and the gutter is unbounded.
+
+        MEASURED on this page before the fix, `.services .items` under LP-BROKEN-GRID:
+          1440 → left gutter 150.1px, right edge 1440   (gutter 10.4% of the viewport)
+          1920 → left gutter 390.1px, right edge 1920   (gutter 20.3%)
+          2560 → left gutter 710.1px, right edge 2560   (gutter 27.7%)
+        The band never grows, the bleeding edge always reaches the screen, so the composition's
+        optical centre drifts right by exactly half the gutter — +75 / +195 / +355px — and at 2560
+        the left QUARTER of the page is dead ink under every section. That is the whole of "los
+        márgenes están todos muy mal", and no check caught it because every width we measured
+        stopped at 1920, where it is bad but not yet obviously broken.
+
+        FLOOR 1140px at ≤1280px: the desktop reference width, so nothing at or below it moves and
+        every measurement taken to date still holds. SLOPE 0.5: the band takes half of each extra
+        pixel and the two gutters split the other half, which keeps the band growing without ever
+        letting it outrun the screen. CAP 1600px is DERIVED, not chosen — it is the smallest cap
+        that holds the outer gutter under one fifth of the viewport at 2560, the width the reader
+        was actually on. Measured at 2560 with the three candidates:
+          cap 1440 → gutter 560px = 21.9% of the viewport  ✗ still reads as a dead band
+          cap 1600 → gutter 461px = 18.0%                  ✓ reads as a page margin
+          cap 1800 → gutter 390px = 15.2%                  ✓ but widens every card row for nothing
+        Above ~2200px the cap engages and the gutter starts growing again; at 3440 it is back to
+        26%. No band cap can hold the ratio forever, and this one is honest to 2560 — the top of
+        the range `house-rules.md` row 32 measures. ── */
+  --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
   --pad-x-mobile:20px; --pad-x-tablet:32px;
   --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
   --btn-padding:.875rem 1.75rem; --btn-border-width:1.5px;
@@ -231,7 +261,19 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .hero-slides{position:relative;isolation:isolate;overflow:hidden;
              display:grid;align-content:center;
              min-height:clamp(420px,66vh,560px)}
-.hero-slides > .canvas{position:relative;z-index:3}
+/* `width:100%` IS LOAD-BEARING, and its absence is exactly the trap LP-ASYMMETRIC's own header
+   comment warns about — "put this canvas inside a padded column and the bleed stops at the column,
+   silently". `.hero-slides` is a GRID container (it has to be, to centre the copy over the
+   photograph), so `.canvas` is a grid ITEM, and `.canvas` carries `margin-inline:auto` from the
+   shared rule. Auto inline margins on a grid item stop it stretching and size it to fit-content —
+   which for a grid container is its max-content, i.e. the sum of its own tracks. MEASURED before
+   this line: 1244.6px wide at 1440, at 1920 AND at 2560, identical, centred, while its parent was
+   the full 2560. `full-start` and `full-end` on that canvas were 657.7 and 1902.3, not 0 and 2560:
+   the named lines were quietly lying, and the hero copy sat in a band 480px narrower than every
+   other section on the same strip. Nothing in this hero bleeds today — `.slides` is absolutely
+   positioned against the SECTION — so it cost only the misalignment, and it would have cost the
+   next person who added a bleed here a very long afternoon. */
+.hero-slides > .canvas{position:relative;z-index:3;width:100%}
 .hero-slides .slides{position:absolute;inset:0;z-index:0}
 
 /* The slide fills the section instead of taking `--ratio-hero`: at full bleed the SECTION is the
@@ -263,13 +305,29 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .hero-slides .slide:nth-child(2){animation-delay:-12s}
 .hero-slides .slide:nth-child(3){animation-delay:-6s}
 
-/* PAUSE ON HOVER OR FOCUS. `:focus-within` fires when the keyboard reaches either hero CTA, so a
-   reader tabbing through gets the same stillness a reader with a mouse gets by hovering. Nothing
-   inside `.slides` is focusable — no buttons, no dots, no `tabindex` — so there is nothing here
-   for focus to be trapped in; the tab order through the hero is exactly the two CTAs it always
-   was. */
-.hero-slides:hover .slide,
+/* PAUSE ON HOVER OR FOCUS, SCOPED TO THE COPY — and the scope is the whole fix. WCAG 2.2.2 wants
+   a mechanism to stop motion that runs past five seconds, and both mechanisms survive: the mouse
+   one is now "rest the pointer on the words you are reading" — `.head`, the copy block itself —
+   and the keyboard one is `:focus-within` firing when tab reaches either hero CTA.
+
+   WHAT IT USED TO BE: `.hero-slides:hover`. That is a full-bleed section, and MEASURED at
+   2560x1400 it covers 750px x 2560px = 54% OF THE VIEWPORT, sitting at the very top of the page
+   where a pointer naturally rests after a click or a scroll. Parking the pointer at the centre of
+   the screen put all three frames in `animation-play-state: paused` and they did not move for the
+   eight seconds measured, opacity `1 / 0 / 0` at both ends. The slideshow was not broken — it was
+   being held still by more than half the screen, which is a hover target nobody can avoid and
+   nobody can see. That is the whole of "el slider no se ve". Off the hero the same three frames
+   hand over at ~4.99s, measured `1.00 / 0.00 / 0.00` → `0.51 / 0.49 / 0.00` → `0.00 / 1.00 /
+   0.00`. Worth knowing when reading a report: the FIRST crossfade begins at 27.7% of an 18s cycle,
+   so even unpaused a reader has to hold still for five seconds before anything moves at all.
+
+   TWO RULES AND NOT ONE SELECTOR LIST, on purpose. `.slides` is written BEFORE `.canvas` in the
+   DOM — the photograph is behind the copy — so no sibling combinator can reach backwards and the
+   mouse rule needs `:has()`. A selector list is all-or-nothing: a browser without `:has()` drops
+   the whole rule, and putting the keyboard mechanism in that list would take WCAG 2.2.2 down with
+   it. Split, the keyboard half never depends on `:has()` at all. */
 .hero-slides:focus-within .slide{animation-play-state:paused}
+.hero-slides:has(.head:hover) .slide{animation-play-state:paused}
 
 .hero-slides .slides::after{content:"";position:absolute;inset:0;z-index:2;
   background:linear-gradient(to right,
@@ -759,10 +817,19 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   [data-comp="lp-asymmetric"] .services .items{grid-column:c 1/c 13;grid-template-columns:7fr 5fr}
   [data-comp="lp-asymmetric"] .cases .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .cases .items{grid-column:c 6/full-end;grid-template-columns:7fr 5fr}
+  /* Same rule, same reason, as the rails at the end of LP-BROKEN-GRID: the image bleeds, the text
+     does not. Measured here as "Cocina en Vallmoll" with its right edge at 2560.0 on a 2560
+     viewport — the second thing the reader called cut off. */
+  [data-comp="lp-asymmetric"] .cases .items > :last-child .body{padding-right:var(--pad-x-tablet)}
   /* the catalogue grid keeps its dense equal columns — see the note in strip_ecommerce() */
   [data-comp="lp-asymmetric"] .prods .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .carousel .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/full-end}
+  /* The page's THIRD bleeding rail, and the one that proves the rule was not written wide enough
+     the first time. Padding only `.cases` left this one touching the glass — measured "Kit de
+     sellado mineral 1L" with 2.7px of paper at 1920, found by widening the probe from card bodies
+     to every run of text on the strip rather than by looking at the sections I had already fixed. */
+  [data-comp="lp-asymmetric"] .carousel .items > :last-child .body{padding-right:var(--pad-x-tablet)}
   [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}
@@ -825,11 +892,26 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
      what makes it safe to swap the photograph later. It also suits this anchor — PERS-DIRECT's
      imagery is "high-contrast, tightly cropped", not a bright open frame. */
   [data-comp="lp-broken-grid"] .hero .canvas{row-gap:var(--sp-s)}
+  /* `justify-content:center` — the head is a column flex, so this is VERTICAL centring, and it is
+     the same declaration LP-STRICT-GRID's hero already carries. Without it the copy hangs at the
+     top of a row the photograph beside it is sizing, and everything below the CTAs is void.
+     MEASURED at 2560 before the fix: row 714.6px, copy ink 484.9px, 229.7px of empty ink under
+     the buttons — and it GREW with the viewport (484.9 / 534.6 / 714.6 at 1440 / 1920 / 2560)
+     because of the `height:100%` removed below. Both halves are the fix: the row stops running
+     away, and what is left of it frames the copy instead of stranding it. */
   [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/full-end;grid-row:1;
-    position:relative;z-index:2}
+    position:relative;z-index:2;justify-content:center}
   [data-comp="lp-broken-grid"] .hero .media{grid-column:c 7/full-end;grid-row:1;
     z-index:0;align-self:stretch}
-  [data-comp="lp-broken-grid"] .hero .frame{height:100%;aspect-ratio:auto;border-radius:0;
+  /* `height:100%` USED TO SIT HERE AND DID NOTHING — worse, it hid what actually sizes this box.
+     A percentage height needs a definite basis; the grid row is auto-sized, so it resolved to
+     `auto`, and with `aspect-ratio:auto` the frame then took its `<img>`'s OWN 16/9 at whatever
+     width the bleed handed it. The bleed is `c 7 / full-end`, i.e. half the viewport, so the hero
+     grew taller as the screen grew wider: media width 710.4 / 950.4 / 1270.4 at 1440 / 1920 /
+     2560, and the row was 9/16 of that to the pixel — 534.6 and 714.6 at the last two. The copy
+     does not grow, so the gap between them was the defect. Say the real rule instead: this frame
+     is sized by its own image, floored so a short hero is still a hero. */
+  [data-comp="lp-broken-grid"] .hero .frame{aspect-ratio:auto;border-radius:0;
     min-height:min(58vh,460px)}
   [data-comp="lp-broken-grid"] .hero .frame::after{content:"";position:absolute;inset:0;
     background:linear-gradient(to right,var(--c-bg) 0%,var(--c-bg) 22%,
@@ -846,10 +928,20 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   /* EVERY OTHER SECTION: the heading crosses a column line, the grid is deliberately uneven,
      and one card is offset vertically by --sp-l. */
   [data-comp="lp-broken-grid"] .grid-sec .head{grid-column:c 1/c 9}
+  /* `minmax(min-content, …)` AND NOT A BARE `3fr`. The uneven rail is the blueprint and it stays,
+     but a free-space fraction has no floor: between 1024 and 1279 the desktop grid is on while the
+     viewport is still narrower than the band, and the 3fr track fell under the width of the one
+     word its own h3 has to hold. MEASURED at 1024: "Restauración" 4.9px past the right edge of a
+     1024 viewport, which is also the whole of `documentElement.scrollWidth` reading 1029 — one
+     defect wearing two hats, and the overflow gate could see only the hat that was 5px wide.
+     Flooring the track at its content's min-content means a column is never narrower than the word
+     it must carry, and above ~1280 the fractions are all wider than min-content so nothing binds
+     and the 4/5/3 rhythm is exactly what it was. */
   [data-comp="lp-broken-grid"] .services .items,
   [data-comp="lp-broken-grid"] .cases .items{grid-column:c 1/full-end;
-    grid-template-columns:4fr 5fr 3fr}
-  [data-comp="lp-broken-grid"] .cases .items{grid-template-columns:5fr 7fr}
+    grid-template-columns:minmax(min-content,4fr) minmax(min-content,5fr) minmax(min-content,3fr)}
+  [data-comp="lp-broken-grid"] .cases .items{
+    grid-template-columns:minmax(min-content,5fr) minmax(min-content,7fr)}
   /* "one card offset vertically by --sp-l" — on a CONTENT grid only. Applied to the catalogue it
      nudged product #2 down out of an otherwise dense 4-column row, which reads as a rendering
      bug rather than a composition choice, and TPL-E-02's density is ADN the blueprint does not
@@ -858,6 +950,16 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   [data-comp="lp-broken-grid"] .cases .items > :nth-child(2){margin-top:var(--sp-l)}
   [data-comp="lp-broken-grid"] .band .head{grid-column:c 1/c 10}
   [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/full-end}
+  /* A PHOTOGRAPH TOUCHING THE SCREEN EDGE IS A BLEED; A PARAGRAPH TOUCHING IT IS AN AMPUTATION.
+     The rails above end at `full-end` on purpose, and the card SURFACE reaching the edge is the
+     blueprint working. What is not the blueprint is the last card's title and body sitting hard
+     against the glass with zero padding — measured `.services .items > :last-child` at right
+     2560.0 on a 2560 viewport, with `documentElement.scrollWidth === clientWidth`, so nothing
+     overflowed and no overflow gate could ever have seen it. It reads as clipped because the ink
+     runs out of paper, not because the box does. The image keeps the bleed; the text steps back
+     by the page's own padding. Shared with LP-ASYMMETRIC's one bleeding rail below. */
+  [data-comp="lp-broken-grid"] .services .items > :last-child .body,
+  [data-comp="lp-broken-grid"] .cases .items > :last-child .body{padding-right:var(--pad-x-tablet)}
 }
 </style>
 

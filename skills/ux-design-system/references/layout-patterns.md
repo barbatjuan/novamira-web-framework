@@ -45,6 +45,13 @@ above, the header, motion) is shared and does not change with the position.
 ### `LP-ASYMMETRIC`
 - Grid: 12 columns declared with named lines so an edge is a line, not a margin:
   `[full-start] minmax(pad,1fr) [wide-start] repeat(12,[c] minmax(0,var(--col))) [wide-end c] minmax(pad,1fr) [full-end]`.
+- **`--content-width` must be FLUID for this grid to hold, and this is the half the blueprint used
+  to leave out.** The tracks have to sum to the viewport, so with the 12 columns capped by a fixed
+  band the only track that can absorb a wider screen is the `1fr` gutter — and nothing bounds it.
+  The bleeding edge still reaches the glass, so the composition's optical centre drifts right by
+  half the gutter, without limit. Measured on a fixed `1140px` band: gutter 150 / 390 / **710px**
+  at 1440 / 1920 / 2560, i.e. 10.4% → 27.7% of the viewport, and at 2560 the left quarter of every
+  section was empty. `design-system.md` § Contenedores carries the fluid value and its derivation.
 - Hero: copy left at ~58% width, ONE image bleeding the right viewport edge —
   `grid-column: c 8 / full-end`. **Not** `margin-right: calc(50% - 50vw)`: percentage margins on a
   grid item resolve against that item's own grid area, not the container, so the bleed overshoots
@@ -52,6 +59,11 @@ above, the header, motion) is shared and does not change with the position.
 - Section headings: left-aligned, never centred; the eyebrow sits above and left.
 - Images: exactly one bleed per section, always on the same edge down the whole page.
 - Grids: two columns at 7/5 or 5/7, alternating direction section to section. Never 50/50.
+- **A photograph touching the screen edge is a bleed; a paragraph touching it is an amputation.**
+  A rail that ends at `full-end` keeps the bleed on its images and steps its last card's TEXT back
+  by the page padding. Measured on the gallery at 2560: the last case study's title sat at right
+  `2560.0` on a 2560 viewport with `scrollWidth === clientWidth`, so nothing overflowed, no
+  overflow gate could see it, and the reader read it as cut off — which it was, of paper.
 
 ### `LP-STRICT-GRID`
 - Grid: 12 columns, one gutter (`--sp-m`), zero bleeds — every element starts and ends on a column line.
@@ -61,10 +73,16 @@ above, the header, motion) is shared and does not change with the position.
 - Grids: 3 or 4 equal columns, equal gutters, equal card heights. Rows must visibly align.
 
 ### `LP-BROKEN-GRID`
-- Grid: the same named-line 12 columns as `LP-ASYMMETRIC`, kept as a reference the page
-  deliberately violates. Crossing the container is `grid-column: c 1 / full-end`; bleeding two
-  edges is `full-start / full-end`. Naming a line is what makes the violation safe.
-- Hero: oversized H1 crossing the container's right edge; the image sits BEHIND it, offset.
+- Grid: the same named-line 12 columns as `LP-ASYMMETRIC` — including its fluid `--content-width`,
+  for the same reason — kept as a reference the page deliberately violates. Crossing the container
+  is `grid-column: c 1 / full-end`; bleeding two edges is `full-start / full-end`. Naming a line is
+  what makes the violation safe.
+- Hero: oversized H1 crossing the container's right edge; the image sits BEHIND it, offset. **The
+  copy is vertically centred in the hero row** (`justify-content:center` on the column-flex head),
+  because the bleeding image sizes that row and the copy does not: measured, the row grew 484.9 →
+  534.6 → 714.6px across 1440 / 1920 / 2560 while the copy ink stayed 399.5px, and everything
+  under the CTAs was void. Do not give that frame `height:100%` and think it fills the row — the
+  row is auto-sized, a percentage height has no definite basis, and it silently computes to `auto`.
 - Every section: at least one element crossing a column line or overlapping its neighbour by ~`--sp-m`.
 - Images: at least one per page bleeding two edges; overlaps stack with `z-index` in a shared grid
   row, never with negative margins that collapse on small screens.
@@ -75,4 +93,10 @@ above, the header, motion) is shared and does not change with the position.
 - Header as a column on mobile: top row (logo · menu · cart, aligned) + a full-width CTA row below.
 - Two-column product grids need equal-height cards (see `motion.md`).
 - Never let a nested container force `content_width:full`/100% and push siblings to a new row.
-- Test at ~430 (phone), 768 (tablet), 1280 (desktop). Verify the header stays one row on desktop.
+- Test at 320, ~430 (phone), 768 (tablet), 1024, 1280 (desktop), 1440, 1920 **and 2560**. Verify
+  the header stays one row on desktop. **2560 is not optional and it is not a luxury**: stopping at
+  1280 is why a fixed `--content-width` beside a viewport-edge bleed shipped, and stopping at 1920
+  is why it shipped twice. Every defect in this file's measured notes is invisible at 1280 and
+  obvious at 2560. 1024 belongs on the list too — it is the first width where the desktop grid is
+  on while the viewport is still narrower than the band, which is where an uneven `fr` rail falls
+  under the width of the word it has to carry (fix: `minmax(min-content, <n>fr)`, not a bare `fr`).

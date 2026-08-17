@@ -74,7 +74,14 @@ one inline `<style>`. No external anything.
                         calc(var(--n-sec) / var(--fs-base) * 1rem + (var(--n-sec-cap) - var(--n-sec)) * var(--fluid)),
                         calc(var(--n-sec-cap) * 1px));
 
-    --container-max:1280px; --content-width:1140px;
+    --container-max:1280px;
+    /* FLUID, and a flat `1140px` here is a defect, not a simplification — design-system.md
+       § Contenedores has the measurement. A blueprint that bleeds to `full-end` puts the viewport
+       edge on one side of the content and an UNBOUNDED gutter on the other, so a fixed band drifts
+       the whole composition right as the screen grows: measured 150 / 390 / 710px of dead margin at
+       1440 / 1920 / 2560. Floor 1140 at the 1280 reference, cap 1600 — the smallest cap that holds
+       the margin under a fifth of the viewport at 2560. */
+    --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
     --ease:cubic-bezier(.22,1,.36,1);

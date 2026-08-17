@@ -396,7 +396,7 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
  *              whole-file half of the scan gets a fixture; a `:root`-only reader misses it
  *   'faces'  — family => src, emitted as `@font-face` ahead of `:root`, exactly as production does
  */
-function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array() ) {
+function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array(), array $band = array() ) {
 	/* One source for every declaration so `:root` and $outside emit byte-identical text — a
 	   fixture whose two copies differed could pass the scoping test for the wrong reason. */
 	$axis_decl = array(
@@ -445,8 +445,16 @@ function fx_mockup( array $omit = array(), array $outside = array(), array $font
 		? "  @media(min-width:768px){ .hero h1{font-family:" . $fonts['rule'] . "} }\n"
 		: '';
 
-	return "<!-- production mockup fixture -->\n<style>\n" . $face_block . "  :root{\n" . $decl . $font_decl . "  }\n"
-		. $outside_block . $rule_decl . $loose . $font_rule
+	/* $band drives RT_MOCKUP_BLEED_FIXED_BAND and DEFAULTS TO NEITHER HALF, so every scenario above
+	   stays exactly as green as it was: no `--content-width` at all, and no `full-end` anywhere. The
+	   row needs BOTH arms to fire and each key writes one of them, so a scenario can pin the band
+	   WITHOUT a bleed (correct — LP-CENTERED does exactly that, and the row must stay silent) or
+	   bleed with a fluid band (also correct). Those are the two mis-implementations that would turn
+	   this into a row failing every centred mockup in the framework. */
+	$band_decl = isset( $band['width'] ) ? '    --content-width: ' . $band['width'] . ";\n" : '';
+	$band_rule = empty( $band['bleed'] ) ? '' : "  .hero .media{grid-column:c 8/full-end}\n";
+	return "<!-- production mockup fixture -->\n<style>\n" . $face_block . "  :root{\n" . $decl . $font_decl . $band_decl . "  }\n"
+		. $outside_block . $rule_decl . $loose . $font_rule . $band_rule
 		. "  .card{box-shadow:var(--elev-rest)}\n"
 		. "</style>\n<h1>Maqueta</h1>\n";
 }
@@ -2671,6 +2679,51 @@ list( $code101, $out101 ) = fx_run_ok( $audit, $r101 );
 ok( array() === fx_lines_with( $out101, array( 'RT_MOCKUP_NO_AXES' ) ), 'una maqueta completa no produce fila', $out101 );
 ok( 0 === $code101, 'y el arbol conforme sale con codigo 0', $code101 );
 fx_rrmdir( $r101 );
+
+/* ---------------------------------------------------------------------------
+   RT_MOCKUP_BLEED_FIXED_BAND — a fixed content band is only a defect NEXT TO A BLEED.
+
+   Two arms, so the three scenarios below are one FAIL and two controls. The obvious wrong
+   implementation — "a fixed --content-width is bad" — turns every LP-CENTERED and LP-STRICT-GRID
+   mockup in the framework red, and those are correct: they cap the band and centre it and never
+   bleed. What makes a fixed band a defect is `full-end`, because the named-line grid must sum to
+   the VIEWPORT, so capping the twelve columns leaves the outer `1fr` gutter as the only track that
+   can absorb a wider screen and a `1fr` has no ceiling. Measured on assets/gallery/index.html at
+   1140px: 150.1 / 390.1 / 710.1px of dead margin at 1440 / 1920 / 2560.
+   --------------------------------------------------------------------------- */
+
+echo "--- una maqueta que sangra a full-end con --content-width fijo FALLA ---\n";
+$r101b = fx_tmp_root();
+fx_base( $r101b );
+fx( $r101b, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'width' => '1140px', 'bleed' => true ) ) );
+list( , $out101b ) = fx_run_ok( $audit, $r101b );
+ok( 'FAIL' === fx_row_level( $out101b, array( 'RT_MOCKUP_BLEED_FIXED_BAND' ) ), 'banda fija junto a un sangrado FALLA', fx_row_level( $out101b, array( 'RT_MOCKUP_BLEED_FIXED_BAND' ) ) );
+ok( array() !== fx_lines_with( $out101b, array( 'RT_MOCKUP_BLEED_FIXED_BAND', '1140px' ) ), 'y cita el valor fijo que encontro', $out101b );
+ok( array() !== fx_lines_with( $out101b, array( 'RT_MOCKUP_BLEED_FIXED_BAND', 'corporate-mockup.html' ) ), 'y nombra el fichero', $out101b );
+fx_rrmdir( $r101b );
+
+echo "--- la MISMA banda fija SIN sangrado no produce fila: LP-CENTERED es correcto ---\n";
+$r101c = fx_tmp_root();
+fx_base( $r101c );
+/* The control that stops this row becoming "fixed width is bad". Byte-identical to the scenario
+   above except that nothing says `full-end`. If it ever goes red the row has stopped reading the
+   bleed and started reading the token alone, and half the framework fails with it. */
+fx( $r101c, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'width' => '1140px' ) ) );
+list( $code101c, $out101c ) = fx_run_ok( $audit, $r101c );
+ok( array() === fx_lines_with( $out101c, array( 'RT_MOCKUP_BLEED_FIXED_BAND' ) ), 'sin full-end una banda fija no produce fila', $out101c );
+ok( 0 === $code101c, 'y el arbol sale con codigo 0', $code101c );
+fx_rrmdir( $r101c );
+
+echo "--- sangrado con banda FLUIDA tampoco produce fila ---\n";
+$r101d = fx_tmp_root();
+fx_base( $r101d );
+/* The other control, and the one proving the row reads the VALUE rather than the presence of the
+   token: same bleed as the failing scenario, same declaration, only the value moves. */
+fx( $r101d, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array( 'width' => 'clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px)', 'bleed' => true ) ) );
+list( $code101d, $out101d ) = fx_run_ok( $audit, $r101d );
+ok( array() === fx_lines_with( $out101d, array( 'RT_MOCKUP_BLEED_FIXED_BAND' ) ), 'una banda fluida junto a un sangrado no produce fila', $out101d );
+ok( 0 === $code101d, 'y el arbol sale con codigo 0', $code101d );
+fx_rrmdir( $r101d );
 
 echo "--- una maqueta SIN --sp-scale FALLA, nombrando ese token ---\n";
 $r102 = fx_tmp_root();

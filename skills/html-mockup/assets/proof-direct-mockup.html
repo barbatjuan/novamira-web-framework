@@ -153,7 +153,14 @@
     --c-border:     color-mix(in srgb, var(--c-text) 16%, var(--c-bg));
 
     /* ── Containers / radius / buttons / motion ── */
-    --container-max:1280px; --content-width:1140px;
+    --container-max:1280px;
+    /* FLUID, not the flat `1140px` this line used to carry. This file bleeds to `full-end`, which
+       IS the viewport edge, so its 12 capped columns leave the outer `1fr` gutter as the only track
+       that can absorb a wider screen — and nothing bounds it. Measured on the gallery that shares
+       this grid: 150 / 390 / 710px of dead margin at 1440 / 1920 / 2560, the composition drifting
+       right by half of it. Floor, slope and cap are derived in
+       `web-templates/references/design-system.md` § Contenedores. */
+    --content-width:clamp(1140px, calc(1140px + (100vw - 1280px) * 0.5), 1600px);
     --pad-x-mobile:20px; --pad-x-tablet:32px; --pad-x-desktop:5%;
     --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
     --btn-padding:.875rem 1.75rem; --btn-radius:var(--radius-button); --btn-font:var(--fs-button);
