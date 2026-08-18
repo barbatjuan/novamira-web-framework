@@ -818,6 +818,30 @@ $TOGGLES = array(
 			'default' => 'imagen fija',
 			'options' => array( 'imagen fija', 'slider' ),
 		),
+		/* THESE THREE WERE NOT "OFF". THEY DID NOT EXIST.
+		   TPL-C-01's wireframe declares nine sections and this file rendered six; the missing three
+		   are these, and a reader comparing the archetype doc with the strip would have concluded
+		   the toggles were resolved to `no`. They were not resolved at all, which is the silent
+		   configuration the resolver one section down exists to end.
+		   `toggles.md` states no default for any of them — its table carries no default column — so
+		   `sí` is a CHOICE this file makes, not a value it transcribes. Which is exactly why they are
+		   declared here instead of being rendered unconditionally: an admitted toggle resolves and
+		   PRINTS on every strip's data bar, so the choice is on the page where it can be argued with. */
+		'TGL-LOGOS'        => array(
+			'ask'     => '¿Logos de clientes / credenciales?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-PROCESS'      => array(
+			'ask'     => '¿Bloque "cómo trabajamos" / pasos?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-TESTIMONIALS' => array(
+			'ask'     => '¿Testimonios / social proof?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
 	),
 	'TPL-E-02' => array(),
 );
@@ -1289,6 +1313,40 @@ $CONTENT = array(
 				array( 'img' => 'card-cantero', 'h3' => 'Encimeras y baños', 'p' => 'Medición láser en obra, corte a medida y colocación en una sola visita.' ),
 				array( 'img' => 'card-patio', 'h3' => 'Fachadas y sillería', 'p' => 'Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.' ),
 				array( 'img' => 'card-labra', 'h3' => 'Restauración', 'p' => 'Reposición de piezas dañadas con la misma cantera y la misma herramienta.' ),
+			),
+		),
+		/* COMP-LOGOS · invented studios and institutions, like `Piedra Valdés` itself. Named
+		   plausibly but not after anyone real: a public repository is not the place to put a
+		   fabricated client list of actual companies. */
+		'logos'    => array(
+			'eyebrow' => 'Confían en el taller',
+			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
+				'Fundació Sant Roc', 'Vallmoll Interiors', 'Colegio de Aparejadores' ),
+		),
+		/* COMP-PROCESS · four steps. The archetype asks for 3–5 and for what the method is; each
+		   step here names a thing that is refused as much as a thing that is done, because that is
+		   what a process block is for on a lead-gen page. */
+		'process'  => array(
+			'eyebrow' => 'Cómo trabajamos',
+			'h2'      => 'Cuatro pasos y un solo interlocutor',
+			'steps'   => array(
+				array( 'Medición en obra', 'Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.' ),
+				array( 'Despiece y presupuesto', 'Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.' ),
+				array( 'Corte y labra', 'En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.' ),
+				array( 'Colocación', 'El mismo equipo que la labró la monta. Quien responde es quien la hizo.' ),
+			),
+		),
+		/* COMP-TESTIMONIAL · three quotes, each tied to a job named elsewhere on the page. */
+		'quotes'   => array(
+			'eyebrow' => 'Lo que dicen',
+			'h2'      => 'Tres obras, tres encargantes',
+			'items'   => array(
+				array( '142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.',
+					'Marta Vilanova', 'Gerencia · Palacio de Miraflores' ),
+				array( 'Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.',
+					'Jordi Camps', 'Cocina en Vallmoll' ),
+				array( 'Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.',
+					'Estudio Arnau', 'Dirección facultativa' ),
 			),
 		),
 		'cases'    => array(
@@ -2536,6 +2594,82 @@ $css[] = <<<'CSS'
 }
 
 
+/* ── COMP-LOGOS · prueba social ──────────────────────────────────────────────────────────────
+   Quiet by construction. TPL-C-01 §3 asks for "logos de clientes/partners EN GRIS", and the
+   accent whitelist would refuse them anyway: a client list is credibility, not a call to action.
+   Wordmarks in type rather than images, because we have no client logos and inventing six
+   logotypes would put fabricated brands in a public repository. */
+.logos .canvas{padding-block:calc(var(--sp-l) * .6)}
+.logos ul{list-style:none;margin:var(--sp-s) 0 0;padding:0;display:flex;flex-wrap:wrap;
+          align-items:center;gap:var(--sp-s) var(--sp-l)}
+.logos li{font-family:var(--font-primary);font-size:var(--fs-small);
+          letter-spacing:.1em;text-transform:uppercase;color:var(--c-text-muted);
+          white-space:nowrap}
+/* NO `text-align:center` HERE. The first cut had one, and it made this the only section on the
+   page that ignored the composition axis: centred under LP-ASYMMETRIC, centred under
+   LP-BROKEN-GRID, centred everywhere, which is what a bolted-on band looks like. It uses the
+   same `.head stack` wrapper as every sibling instead, so the blueprint layer places it. */
+[data-comp="lp-centered"] .logos ul{justify-content:center}
+
+/* ── COMP-PROCESS · cómo trabajamos ──────────────────────────────────────────────────────────
+   TPL-C-01 §3: "3–5 pasos numerados. Mobile: vertical con línea. Desktop: fila horizontal con
+   conectores."
+
+   THE CONNECTOR IS A TOP RULE ON EACH STEP, not a line drawn between neighbours. A step that has
+   to know where the next one starts breaks the moment one column wraps to two lines or the grid
+   drops to one column — and it is the kind of break that looks deliberate, so nobody reports it.
+   A rule that belongs to the step travels with the step at every width. */
+.process .steps{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+                grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.process .steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.process .steps{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* SUBGRID, NOT A GUESSED `min-height`. The titles wrap to different line counts — "Medición en
+   obra" takes two lines where "Colocación" takes one — so without this the four paragraphs start
+   at four different heights and the row reads as sloppy typesetting. A two-line `min-height` would
+   only move the raggedness to the first title that wraps to three, which is the same mistake the
+   product card avoided by pinning its price. Subgrid makes the four steps share the ROWS, whatever
+   each one puts in them. Where subgrid is unsupported the steps simply fall back to today's
+   behaviour: ragged, not broken. */
+.process .step{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+@supports (grid-template-rows:subgrid){
+  @media(min-width:768px){
+    .process .steps{grid-template-rows:repeat(3,auto)}
+    .process .step{display:grid;grid-template-rows:subgrid;grid-row:span 3}
+  }
+}
+.process .step .n{display:block;font-family:var(--font-primary);
+                  font-size:var(--fs-h2);line-height:1;color:var(--c-text-muted);
+                  letter-spacing:var(--track-h1)}
+/* MEASURED BREAK, NOT A GUESS. Under PERS-DIRECT the display face is condensed and set at the
+   monumental step, and "presupuesto" alone is wider than a quarter-canvas column at 1440: step 2's
+   second line ran straight across step 3's title. `min-width:0` because a grid item defaults to
+   `min-width:auto` and will not shrink below its longest word; `hyphens:auto` because the sample
+   carries `lang="es"` and a hyphenated break is the typographically correct one; `break-word` as
+   the floor for the words Chrome's Spanish dictionary declines to divide. */
+.process .step h3{margin:.4rem 0 .25rem;min-width:0;hyphens:auto;overflow-wrap:break-word}
+.process .step p{color:var(--c-text-soft)}
+
+/* ── COMP-TESTIMONIAL · social proof ─────────────────────────────────────────────────────────
+   The quote mark is a HANGING glyph — it sits in the margin so the first line of the quote keeps
+   the same left edge as every other paragraph on the page. A quote mark that pushes its own text
+   in by half a character is the tell that separates a typeset page from a template. */
+.quotes .items{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+               grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.quotes .items{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.quotes figure{margin:0;min-width:0;display:flex;flex-direction:column;height:100%}
+.quotes blockquote{margin:0;position:relative;font-family:var(--font-primary);
+                   font-size:var(--fs-h3);line-height:1.35;letter-spacing:var(--track-h3,0)}
+.quotes blockquote::before{content:"\201C";position:absolute;right:100%;top:-.1em;
+                           margin-right:.06em;color:var(--c-text-muted);
+                           font-size:1.6em;line-height:1}
+/* Below the tablet breakpoint there is no margin to hang into: a glyph at `right:100%` would sit
+   outside the canvas and be clipped, so it comes back into the flow instead of disappearing. */
+@media(max-width:767px){
+  .quotes blockquote::before{position:static;display:block;margin:0 0 -.35em}
+}
+.quotes figcaption{margin-top:auto;padding-top:var(--sp-s);font-size:var(--fs-small)}
+.quotes figcaption b{display:block}
+.quotes figcaption span{color:var(--c-text-muted)}
 /* ── EL MARKETPLACE: una vista índice y una página por plantilla ────────────────────────────────
 
    Un scroll infinito de cuarenta tiras a ancho completo no es un catálogo, es un documento. La
@@ -3625,7 +3759,18 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
 		. '</div></section>';
 
-	// 2 · COMP-SERVICES  [fijo · ADN]
+	// 2 · COMP-LOGOS  [toggle TGL-LOGOS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
+		$lg  = $C['logos'];
+		$o[] = '<section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
+		foreach ( $lg['items'] as $l ) {
+			$o[] = '<li>' . h( $l ) . '</li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 3 · COMP-SERVICES  [fijo · ADN]
 	$sv  = $C['services'];
 	$o[] = '<section class="sec services grid-sec" aria-label="Servicios"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
@@ -3635,9 +3780,22 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	}
 	$o[] = '</div></div></section>';
 
-	// 3 · COMP-CASES  [toggle TGL-CASES, default on]
+	// 4 · COMP-PROCESS  [toggle TGL-PROCESS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROCESS' ) ) {
+		$pr  = $C['process'];
+		$o[] = '<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $pr['h2'] ) . '</h2></div><ol class="steps">';
+		foreach ( $pr['steps'] as $i => $st ) {
+			$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+				. '<h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
+		}
+		$o[] = '</ol></div></section>';
+	}
+
+	// 5 · COMP-CASES  [toggle TGL-CASES, default on]
 	$cs  = $C['cases'];
-	$o[] = '<section class="sec cases grid-sec bg-alt" aria-label="Casos"><div class="canvas">'
+	$o[] = '<section class="sec cases grid-sec" aria-label="Casos"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $cs['h2'] ) . '</h2></div><div class="items cols-2">';
 	foreach ( $cs['cards'] as $c ) {
@@ -3645,7 +3803,21 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	}
 	$o[] = '</div></div></section>';
 
-	// 4 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN] — the form exists and dominates the close
+	// 6 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 7 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN] — the form exists and dominates the close
 	$b   = $C['band'];
 	$o[] = '<section class="sec band closing" aria-label="Contacto"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
