@@ -4605,22 +4605,41 @@ $mk_js = "<script>\n"
 	. "    return want;\n"
 	. "  }\n"
 	. "  var wasIndex=true;\n"
-	. "  function route(){\n"
-	. "    var q=parseHash(), id=q.tpl, target=document.getElementById(id?('p-'+id):('p-'+INDEX));\n"
-	// Remember where the catalogue was left. A marketplace that dumps you at the top of the grid
-	// every time you back out of a template is a marketplace you stop browsing.
-	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }\n"
-	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }\n"
-	. "    back.hidden=!id;\n"
-	. "    if(id){\n"
-	. "      var pers=selectVariant(target,q.pers);\n"
-	. "      var hd=target.querySelector('.tpl-head h2');\n"
-	. "      var ch=target.querySelector('.sbtn[data-pers='+pers+']');\n"
-	. "      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');\n"
-	. "    } else { here.textContent=''; }\n"
-	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }\n"
-	. "    wasIndex=!id;\n"
-	. "  }\n"
+	// `render` does the work and `route` only reads the hash. Splitting them is what lets a click
+	// route the page WITHOUT waiting for a `hashchange` the artifact shell might never deliver.
+	. "  function render(id,pers){
+"
+	. "    if(id && !document.getElementById('p-'+id)){ id=''; }
+"
+	. "    var target=document.getElementById(id?('p-'+id):('p-'+INDEX));
+"
+	. "    if(!target){ return; }
+"
+	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }
+"
+	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }
+"
+	. "    back.hidden=!id;
+"
+	. "    if(id){
+"
+	. "      var pr=selectVariant(target,pers);
+"
+	. "      var hd=target.querySelector('.tpl-head h2');
+"
+	. "      var ch=target.querySelector('.sbtn[data-pers='+pr+']');
+"
+	. "      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');
+"
+	. "    } else { here.textContent=''; }
+"
+	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }
+"
+	. "    wasIndex=!id;
+"
+	. "  }
+"
+	. "  function route(){ var q=parseHash(); render(q.tpl,q.pers); }\n"
 	. "\n"
 	. "  var thumbs=[].slice.call(document.querySelectorAll('.thumb'));\n"
 	. "  function vw(){ return document.documentElement.clientWidth; }\n"
@@ -4670,6 +4689,51 @@ $mk_js = "<script>\n"
 	. "    var pg=b.closest('.page'); if(!pg){ return; }\n"
 	. "    location.hash=pg.id.replace(/^p-/,'')+'/'+b.getAttribute('data-pers');\n"
 	. "  });\n"
+	// NAVIGATION DOES NOT DEPEND ON `hashchange` FIRING. The gallery is published into a sandboxed
+	// artifact frame whose shell installs its own capturing click listener and its own
+	// scroll-restore logic keyed on `location.hash`; a fragment navigation that the shell swallows
+	// would leave every card looking inert, and it would fail EXACTLY where it cannot be debugged
+	// -- in the viewer, not on this machine. So the click routes the page itself and the hash is
+	// written afterwards as an enhancement: shareable links keep working, and the catalogue keeps
+	// working even if nothing ever listens to the hash again.
+	. "  function go(t,pr){
+"
+	. "    var h=t?(t+(pr?('/'+pr):'')):INDEX;
+"
+	. "    try{ if((location.hash||'').replace(/^#/,'')!==h){ location.hash=h; } }catch(e){}
+"
+	. "    render(t,pr);
+"
+	. "  }
+"
+	. "  document.addEventListener('click',function(e){
+"
+	. "    if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey){ return; }
+"
+	. "    var el=e.target&&e.target.closest?e.target:null; if(!el){ return; }
+"
+	. "    var b=el.closest('.sbtn[data-pers]');
+"
+	. "    if(b){ var pg=b.closest('.page');
+"
+	. "      if(pg){ e.preventDefault(); go(pg.id.replace(/^p-/,''),b.getAttribute('data-pers')); } return; }
+"
+	. "    var a=el.closest('a[href^=\"#\"]');
+"
+	. "    if(!a){ return; }
+"
+	. "    var raw=a.getAttribute('href').slice(1);
+"
+	. "    if(raw!==INDEX && !document.getElementById('p-'+raw.split('/')[0])){ return; }
+"
+	. "    e.preventDefault();
+"
+	. "    var bits=raw.split('/');
+"
+	. "    go(raw===INDEX?'':bits[0], bits[1]||'');
+"
+	. "  });
+"
 	. "  window.addEventListener('hashchange',route);\n"
 	. "  route();\n"
 	. "})();\n"
@@ -4689,6 +4753,74 @@ $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
 	. $script . "\n"
 	. $mk_js . "\n";
 
+// ── every emitted <script> must PARSE ───────────────────────────────────────────────────────────
+//
+// This file writes JavaScript as PHP string concatenation, one `. "…\n"` per line, and a line that
+// loses its closing quote silently swallows the next one. That is not hypothetical: a line-based
+// edit left one orphan `}` here, the whole router threw on load, and the symptom was a catalogue
+// whose cards did nothing and whose thumbnails never appeared — a page that LOOKS finished. PHP's
+// own `php -l` cannot see it, because to PHP the broken JavaScript is a perfectly valid string.
+//
+// `node --check` is the real parser and it is used when it is on PATH. When it is not, the build
+// falls back to a brace/bracket/paren balance count with string and regex literals removed, which
+// catches exactly the class that bit here. The fallback is NOT silent: it says which one ran, so
+// nobody reads "scripts OK" as "a parser agreed".
+
+/* EXTRACTED WITH `strpos`, NOT WITH A REGEX, and that is not a style preference. The first cut of
+   this gate used `preg_match_all('#<script>(.*?)</script>#s', $html, …)`. On a 1.8 MB subject the
+   lazy quantifier blows PCRE's backtrack limit, `preg_match_all` returns FALSE, and `if (false)`
+   reads exactly like "no matches" — so the gate reported zero scripts and would have passed a
+   document with none. This repository has already lost three mutations to that precise trap. A
+   scan that cannot fail loudly is not a scan. */
+$js_blocks = array();
+$js_at     = 0;
+while ( false !== ( $js_open = strpos( $html, '<script>', $js_at ) ) ) {
+	$js_close = strpos( $html, '</script>', $js_open );
+	if ( false === $js_close ) {
+		fail( 'an emitted <script> is never closed — the document is truncated or malformed' );
+	}
+	$js_blocks[] = substr( $html, $js_open + 8, $js_close - $js_open - 8 );
+	$js_at       = $js_close + 9;
+}
+if ( count( $js_blocks ) < 3 ) {
+	fail( 'expected at least 3 emitted <script> blocks, found ' . count( $js_blocks )
+		. ' — the syntax gate would be scanning almost nothing' );
+}
+
+$node_ok = false;
+$probe   = array();
+exec( 'node --version 2>&1', $probe, $probe_rc );
+if ( 0 === $probe_rc ) {
+	$node_ok = true;
+	foreach ( $js_blocks as $bi => $js ) {
+		$tmp = sys_get_temp_dir() . '/nm-gallery-js-' . $bi . '.js';
+		file_put_contents( $tmp, $js );
+		$out = array();
+		exec( 'node --check ' . escapeshellarg( $tmp ) . ' 2>&1', $out, $rc );
+		unlink( $tmp );
+		if ( 0 !== $rc ) {
+			fail( "emitted <script> block #$bi does not parse:\n  " . implode( "\n  ", array_slice( $out, 0, 6 ) ) );
+		}
+	}
+} else {
+	foreach ( $js_blocks as $bi => $js ) {
+		/* Strip what can legally hold an unbalanced brace: string literals and regex literals. The
+		   regex arm only has to handle the shapes this file emits (`/^#/`, `/^p-/`), and it runs
+		   AFTER strings are gone so a slash inside a string cannot start a false literal. */
+		$stripped = preg_replace( array( '/\'(?:\\.|[^\'\\])*\'/', '/"(?:\\.|[^"\\])*"/' ), "''", $js );
+		$stripped = preg_replace( '#/(?:\\.|[^/\\\n])+/[gimsuy]*#', '//', $stripped );
+		foreach ( array( '{' => '}', '(' => ')', '[' => ']' ) as $open => $close ) {
+			$n_open  = substr_count( $stripped, $open );
+			$n_close = substr_count( $stripped, $close );
+			if ( $n_open !== $n_close ) {
+				fail( "emitted <script> block #$bi is unbalanced: $n_open `$open` against $n_close `$close`"
+					. ' — a line that lost its closing quote swallows the next one' );
+			}
+		}
+	}
+}
+printf( "build-gallery: %d emitted script(s) checked with %s\n", count( $js_blocks ),
+	$node_ok ? '`node --check`' : 'the balance fallback (node not on PATH)' );
 // ── the handoff is asserted over the ASSEMBLED PAGE, not over the function that wrote it ───────
 //
 // The claim this build makes is that picking a strip LANDS: every strip leaves a block carrying

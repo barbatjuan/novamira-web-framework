@@ -2439,20 +2439,23 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
     return want;
   }
   var wasIndex=true;
-  function route(){
-    var q=parseHash(), id=q.tpl, target=document.getElementById(id?('p-'+id):('p-'+INDEX));
+  function render(id,pers){
+    if(id && !document.getElementById('p-'+id)){ id=''; }
+    var target=document.getElementById(id?('p-'+id):('p-'+INDEX));
+    if(!target){ return; }
     if(wasIndex && id){ idxScroll=window.pageYOffset||0; }
     for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }
     back.hidden=!id;
     if(id){
-      var pers=selectVariant(target,q.pers);
+      var pr=selectVariant(target,pers);
       var hd=target.querySelector('.tpl-head h2');
-      var ch=target.querySelector('.sbtn[data-pers='+pers+']');
+      var ch=target.querySelector('.sbtn[data-pers='+pr+']');
       here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');
     } else { here.textContent=''; }
     if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }
     wasIndex=!id;
   }
+  function route(){ var q=parseHash(); render(q.tpl,q.pers); }
 
   var thumbs=[].slice.call(document.querySelectorAll('.thumb'));
   function vw(){ return document.documentElement.clientWidth; }
@@ -2495,6 +2498,25 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
     if(!b){ return; }
     var pg=b.closest('.page'); if(!pg){ return; }
     location.hash=pg.id.replace(/^p-/,'')+'/'+b.getAttribute('data-pers');
+  });
+  function go(t,pr){
+    var h=t?(t+(pr?('/'+pr):'')):INDEX;
+    try{ if((location.hash||'').replace(/^#/,'')!==h){ location.hash=h; } }catch(e){}
+    render(t,pr);
+  }
+  document.addEventListener('click',function(e){
+    if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey){ return; }
+    var el=e.target&&e.target.closest?e.target:null; if(!el){ return; }
+    var b=el.closest('.sbtn[data-pers]');
+    if(b){ var pg=b.closest('.page');
+      if(pg){ e.preventDefault(); go(pg.id.replace(/^p-/,''),b.getAttribute('data-pers')); } return; }
+    var a=el.closest('a[href^="#"]');
+    if(!a){ return; }
+    var raw=a.getAttribute('href').slice(1);
+    if(raw!==INDEX && !document.getElementById('p-'+raw.split('/')[0])){ return; }
+    e.preventDefault();
+    var bits=raw.split('/');
+    go(raw===INDEX?'':bits[0], bits[1]||'');
   });
   window.addEventListener('hashchange',route);
   route();
