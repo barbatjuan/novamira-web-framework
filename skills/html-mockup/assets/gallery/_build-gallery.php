@@ -896,6 +896,18 @@ $TOGGLES = array(
 			'options' => array( 'sí', 'no' ),
 		),
 	),
+	'TPL-E-03' => array(
+		'TGL-TESTIMONIALS' => array(
+			'ask'     => '¿Testimonios / social proof?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-NEWSLETTER'   => array(
+			'ask'     => '¿Bloque de boletín?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
 	'TPL-E-02' => array(),
 );
 
@@ -1648,6 +1660,89 @@ $CONTENT = array(
 		),
 	),
 
+	/* TPL-E-03 · Brand Story. Its doc: "la marca y el relato venden; el producto ilustra". The
+	   catalogue is deliberately thin here — one carousel, no grid, no search-first header — and
+	   that thinness is the archetype, not an omission. TPL-E-02 is the shop that hides its brand;
+	   this is the brand that sells a shop. */
+	'TPL-E-03' => array(
+		'tpl'      => 'TPL-E-03',
+		'tpl_name' => 'Brand Story',
+		'site'     => 'ecommerce',
+		'site_es'  => 'Ecommerce',
+		/* `Ecommerce ideal`, transcribed from TPL-E-03-brand-story.md §1. */
+		'fits'     => 'Marcas de autor, artesanía, cosmética natural, café de especialidad, moda lenta',
+		'dna'      => 'COMP-HERO relato · COMP-VALUES · COMP-ABOUT · COMP-NEWSLETTER',
+		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-VALUES · COMP-ABOUT · COMP-PRODUCT-CAROUSEL · COMP-TESTIMONIAL · COMP-CTA · COMP-NEWSLETTER · COMP-FOOTER',
+		'nav'      => array( 'La piedra', 'Catálogo', 'El taller' ),
+		'cart'     => 'Cesta',
+		'cart_n'   => '1',
+		'hero'     => array(
+			'eyebrow' => 'Alcarràs, Lleida',
+			'h1'      => 'La piedra sale de un sitio, y ese sitio importa',
+			'lede'    => 'Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.',
+			'cta_1'   => 'Ver el catálogo',
+			'cta_2'   => 'Cómo trabajamos',
+			'img'     => 'hero-cantera',
+		),
+		'values'   => array(
+			'eyebrow' => 'Lo que defendemos',
+			'h2'      => 'Tres cosas que no negociamos',
+			'items'   => array(
+				array( 'Una sola cantera', 'Todo lo que vendemos sale del mismo frente de Alcarràs. Si se acaba, se acaba: no lo sustituimos por otra piedra parecida.' ),
+				array( 'Corte propio', 'No compramos tabla cortada. El despiece lo decide quien conoce el bloque.' ),
+				array( 'Un nombre detrás', 'Cada pedido lleva la firma del oficial que lo cortó. Si algo falla, sabe quién es.' ),
+			),
+		),
+		'about'    => array(
+			'eyebrow' => 'El taller',
+			'h2'      => 'Tres generaciones sin cambiar de manos',
+			'body'    => array(
+				'Ramon Valdés abrió el taller en 1978 con dos oficiales y una tronzadora de raíl. Su nieta lleva hoy la oficina técnica.',
+				'Vendemos poco y despacio, porque cortamos a medida y porque una cantera no da más de lo que da.',
+			),
+			'img'     => 'sq-manos',
+		),
+		'carousel' => array(
+			'eyebrow' => 'Del frente a tu casa',
+			'h2'      => 'Lo que hay ahora mismo',
+			'cards'   => array(
+				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',        'p' => '189 €/m²' ),
+				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',        'p' => '164 €/m²' ),
+				array( 'img' => 'card-veta',   'h3' => 'Veta dorada',          'p' => '236 €/m²' ),
+				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble',     'p' => '412 €' ),
+			),
+		),
+		'quotes'   => array(
+			'eyebrow' => 'Quien la tiene en casa',
+			'h2'      => 'Tres cocinas y una fachada',
+			'items'   => array(
+				array( 'Nos dijeron que esperáramos tres semanas a que saliera el bloque bueno. Esperamos. Acertaron.', 'Jordi Camps', 'Vallmoll' ),
+				array( 'Es la única piedra de la casa que no he tenido que explicar a nadie.', 'Marta Vilanova', 'Lleida' ),
+				array( 'Me mandaron la muestra con el nombre del que la cortó escrito detrás.', 'Aina Roca', 'Barcelona' ),
+			),
+		),
+		'band'     => array(
+			'eyebrow' => 'Empezar',
+			'h2'      => 'Pida una muestra física',
+			'lede'    => 'Gratuita y sin compromiso. Llega en cuatro días con su ficha técnica.',
+			'cta_1'   => 'Pedir muestra',
+			'cta_2'   => 'Ver el catálogo',
+		),
+		'news'     => array(
+			'eyebrow' => 'Boletín',
+			'h2'      => 'Le avisamos cuando salga bloque nuevo',
+			'lede'    => 'Un correo cada dos o tres meses, sólo cuando abrimos frente. Nunca ofertas.',
+			'label'   => 'Su correo',
+			'cta'     => 'Avisarme',
+			'small'   => 'Puede darse de baja en cualquier correo. No cedemos el dato.',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · cantera y taller · Alcarràs, Lleida',
+			'links' => array( 'Envíos', 'Devoluciones', 'Privacidad' ),
+			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
 	'TPL-E-02' => array(
 		'tpl'      => 'TPL-E-02',
 		'tpl_name' => 'Catalog / Product-First',
@@ -1879,6 +1974,11 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'institutional' ),
+	/* TPL-E-03 · el segundo arquetipo de ecommerce. */
+	array( 'tpl' => 'TPL-E-03', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-03', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-03', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-E-03', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
@@ -3114,6 +3214,23 @@ $css[] = <<<'CSS'
 .tgo::after{content:"→";display:inline-block;margin-left:.35rem;
             transition:transform var(--dur-color) var(--ease)}
 
+
+/* ── COMP-NEWSLETTER · declared by four archetypes ──────────────────────────────────────────
+   One field and one button on a row, and the consent line UNDER them rather than beside: a
+   sentence about what happens to somebody's email address is not a caption, and putting it in
+   6px grey next to the button is how it gets ignored. */
+.newsform{display:grid;gap:var(--sp-xs);align-items:end;max-width:38rem}
+@media(min-width:600px){
+  .newsform{grid-template-columns:minmax(0,1fr) auto}
+  .newsform .btn{grid-column:2}
+  .news-small{grid-column:1/-1}
+}
+.news-small{margin-top:.1rem}
+
+/* ── COMP-VALUES · numbered, on the same rails as COMP-PROCESS ─────────────────────────────
+   It reuses `.steps`/`.step` rather than growing a parallel implementation: two things that must
+   stay visually identical and are written twice start to drift on the first edit to one of them.
+   A value that cannot be counted is a slogan, so they are counted. */
 
 /* ── TPL-C-03 · Portfolio / Showcase ──────────────────────────────────────────────────────── */
 
@@ -4759,6 +4876,139 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return number_heads( implode( "\n", $o ) );
 }
 
+/**
+ * COMP-NEWSLETTER · four archetypes declare it, so it is emitted from one place.
+ *
+ * It takes the SAMPLE's uid: the field carries an id a `<label for>` points at, and four
+ * archetypes on one page means four live newsletter forms.
+ */
+function newsletter_html( $n, $uid ) {
+	return '<section class="sec news bg-alt" aria-label="Boletín"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $n['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $n['h2'] ) . '</h2><p class="muted">' . h( $n['lede'] ) . '</p></div>'
+		. '<form class="newsform" onsubmit="return false">'
+		. '<div class="field"><label for="' . $uid . '-mail">' . h( $n['label'] ) . '</label>'
+		. '<input id="' . $uid . '-mail" name="mail" type="email"></div>'
+		. '<button class="btn btn-primary" type="submit">' . h( $n['cta'] ) . '</button>'
+		. '<p class="small muted news-small">' . h( $n['small'] ) . '</p>'
+		. '</form></div></section>';
+}
+
+/**
+ * A PLAIN SHOP HEADER — no announcement bar, no search field.
+ *
+ * TPL-E-02's header IS its DNA: search-first, because a catalogue is something you search. TPL-E-03
+ * declares neither COMP-ANNOUNCEMENT nor a search field, because a brand-story shop is something
+ * you READ before you search. Giving it TPL-E-02's header would erase the difference between the
+ * two archetypes in the first hundred pixels of the page.
+ */
+function head_shop_plain( $C, $BRAND ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o .= '<a href="#">' . h( $n ) . '</a>';
+	}
+	return $o . '</nav><a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+		. '</div></div></header>';
+}
+
+/**
+ * TPL-E-03 · Brand Story.
+ *
+ * The catalogue is deliberately thin: one carousel, no grid, no search. TPL-E-02 is the shop that
+ * hides its brand; this is the brand that sells a shop, and the difference has to be visible before
+ * the reader has scrolled.
+ */
+function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_shop_plain( $C, $BRAND );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO — imagen fija ~40vh  [fijo]
+	$o[] = '<section class="sec hero" aria-label="La marca"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	/* 2 · COMP-VALUES  [fijo · ADN]
+	   Numbered, because a value that cannot be counted is a slogan. Three is the count the doc
+	   names, and three is also what fits on one line without becoming a wall of virtue. */
+	$vl  = $C['values'];
+	$o[] = '<section class="sec values grid-sec" aria-label="Valores"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $vl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $vl['h2'] ) . '</h2></div><ol class="steps">';
+	foreach ( $vl['items'] as $i => $it ) {
+		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></li>';
+	}
+	$o[] = '</ol></div></section>';
+
+	// 3 · COMP-ABOUT  [fijo]
+	$ab  = $C['about'];
+	$ai  = img( $ab['img'] );
+	$o[] = '<section class="sec about bg-alt" aria-label="El taller"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ab['h2'] ) . '</h2>';
+	foreach ( $ab['body'] as $para ) {
+		$o[] = '<p class="muted">' . h( $para ) . '</p>';
+	}
+	$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
+		. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 4 · COMP-PRODUCT-CAROUSEL — the ONLY catalogue on this page
+	$cr  = $C['carousel'];
+	$o[] = '<section class="sec carousel grid-sec" aria-label="Catálogo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
+	foreach ( $cr['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 5 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 6 · COMP-CTA  [fijo]
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Muestra"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
+		$o[] = newsletter_html( $C['news'], $uid );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
 function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	global $SLIDER_FRAMES;
 	$hero    = $C['hero'];
@@ -5268,6 +5518,9 @@ $PAGES = array(
 	'TPL-C-03' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-03' ),
 	),
+	'TPL-E-03' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-03' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -5287,6 +5540,9 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	}
 	if ( 'TPL-C-03' === $tpl && 'home' === $page_key ) {
 		return strip_showcase( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-03' === $tpl && 'home' === $page_key ) {
+		return strip_story( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
@@ -5902,6 +6158,40 @@ $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
    reads exactly like "no matches" — so the gate reported zero scripts and would have passed a
    document with none. This repository has already lost three mutations to that precise trap. A
    scan that cannot fail loudly is not a scan. */
+/* ── NO LITERAL UNICODE ESCAPE REACHES THE PAGE ──────────────────────────────
+
+   An escape written for a Python or JavaScript string and pasted into a PHP single-quoted one
+   stays literal, and the page renders the six characters instead of the letter. It shipped that
+   way once inside an `aria-label` — the one place a sighted reader would never have caught it,
+   and the only place a screen-reader user would have heard every time.
+
+   THE SCRIPT BLOCKS ARE EXEMPT and that exemption is the whole difficulty: inside JavaScript the
+   same six characters ARE a real escape and the browser resolves them, so a gate that scanned
+   the whole document would fire on correct code. They are cut out before the scan.
+
+   Base64 payloads contain the letters `u00` constantly — six times in this document — but never
+   preceded by a backslash, because the base64 alphabet has no backslash. The needle is the
+   backslash, not the letters. */
+$esc_body = $html;
+$esc_at   = 0;
+while ( false !== ( $esc_open = strpos( $esc_body, '<script>', $esc_at ) ) ) {
+	$esc_close = strpos( $esc_body, '</script>', $esc_open );
+	if ( false === $esc_close ) { break; }
+	$esc_body = substr_replace( $esc_body, '', $esc_open, $esc_close - $esc_open + 9 );
+	$esc_at   = $esc_open;
+}
+$esc_needle = chr( 92 ) . 'u00';
+$esc_hits   = array();
+$esc_seek   = 0;
+while ( false !== ( $esc_seek = strpos( $esc_body, $esc_needle, $esc_seek ) ) ) {
+	$esc_hits[] = substr( $esc_body, max( 0, $esc_seek - 30 ), 54 );
+	$esc_seek  += 4;
+}
+if ( $esc_hits ) {
+	fail( 'a literal unicode escape reached the page in ' . count( $esc_hits ) . ' place(s): '
+		. implode( "\n  … ", array_slice( $esc_hits, 0, 3 ) ) );
+}
+
 $js_blocks = array();
 $js_at     = 0;
 while ( false !== ( $js_open = strpos( $html, '<script>', $js_at ) ) ) {
