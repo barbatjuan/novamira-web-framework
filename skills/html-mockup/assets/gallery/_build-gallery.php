@@ -1266,6 +1266,8 @@ $CONTENT = array(
 	'TPL-C-01' => array(
 		'tpl'      => 'TPL-C-01',
 		'tpl_name' => 'Services / Lead-Gen',
+		/* `Ideal para`, transcribed from TPL-C-01-services-leadgen.md §1. */
+		'fits'     => 'Consultoras, agencias, estudios, desarrollo, marketing, servicios profesionales',
 		'site'     => 'corporate',
 		'site_es'  => 'Corporativa',
 		'dna'      => 'COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM',
@@ -1319,6 +1321,8 @@ $CONTENT = array(
 	'TPL-E-02' => array(
 		'tpl'      => 'TPL-E-02',
 		'tpl_name' => 'Catalog / Product-First',
+		/* `Ecommerce ideal`, transcribed from TPL-E-02-catalog-product-first.md §1. */
+		'fits'     => 'Electrónica, repuestos, librería, ferretería, insumos',
 		'site'     => 'ecommerce',
 		'site_es'  => 'Ecommerce',
 		'dna'      => 'COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT',
@@ -2633,6 +2637,57 @@ $css[] = <<<'CSS'
 .tgo::after{content:"→";display:inline-block;margin-left:.35rem;
             transition:transform var(--dur-color) var(--ease)}
 
+
+/* ── the template page: identity, switcher, variants ────────────────────────────────────────── */
+
+.tpl-head{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);
+          padding-block:var(--sp-m)}
+.tpl-head h2{font-family:var(--font-primary);font-size:var(--fs-h2);line-height:1.1;
+             margin:.15rem 0 .4rem}
+.tpl-head .eyebrow{color:var(--c-text-muted)}
+.tpl-dna,.tpl-wire{font-size:var(--fs-small);color:var(--c-text-soft);margin-top:.2rem}
+.tpl-wire code,.tpl-dna code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+                             font-size:.92em;color:var(--c-text-muted)}
+
+/* Same recipe and the same reasons as `.gal-filter`: sticky rather than fixed so the first
+   variant does not start underneath it, and one horizontally-scrollable row below the tablet
+   breakpoint so a wrapping chip set cannot eat a quarter of a phone screen. `top` clears the
+   chrome bar above it, which is the one difference — that bar is sticky too. */
+.switch{position:sticky;top:2.9rem;z-index:40;background:var(--c-bg);
+        border-bottom:1px solid var(--c-border)}
+.switch .gal-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;
+                  padding-block:var(--sp-xs)}
+.sbtn{display:inline-flex;align-items:center;justify-content:center;
+      font:inherit;font-size:var(--fs-small);line-height:1.2;padding:.3rem .7rem;
+      border:1px solid var(--c-border);border-radius:999px;background:transparent;
+      color:var(--c-text-soft);cursor:pointer;white-space:nowrap;
+      transition:background var(--dur-color) var(--ease),color var(--dur-color) var(--ease),
+                 border-color var(--dur-color) var(--ease)}
+.sbtn:hover{border-color:var(--c-accent);color:var(--c-text)}
+/* Colour AND weight, never colour alone — a chip set that reads only by hue is invisible to a
+   monochrome reader and to most colour-blind ones. */
+.sbtn[aria-pressed="true"]{background:var(--c-accent);border-color:var(--c-accent);
+                           color:var(--c-on-accent);font-weight:700}
+@media(max-width:767px){
+  .switch{top:2.7rem}
+  .switch .gal-wrap{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .switch .gal-wrap::-webkit-scrollbar{display:none}
+  .sbtn{flex:0 0 auto}
+}
+
+/* ── the anchor swatches on a card ───────────────────────────────────────────────────────────
+   Two colours per anchor: the ground it paints on and the accent that lands on it. A name alone
+   ("Direct") tells a reader nothing they can SEE, and this is a catalogue browsed with the eyes.
+   The colours are inline because they are DATA — the value of that anchor's `--c-bg` and
+   `--c-accent` — and not a decision this stylesheet gets to make. */
+.tsws{gap:.4rem}
+.tsw{display:inline-flex;align-items:center;gap:.3rem;
+     font-size:.68rem;line-height:1.4;letter-spacing:.03em;white-space:nowrap;
+     border:1px solid var(--c-border);border-radius:999px;padding:.12rem .5rem .12rem .2rem;
+     color:var(--c-text-muted)}
+.tsw-g,.tsw-a{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;
+              border:1px solid color-mix(in srgb,var(--c-text) 22%,transparent)}
+.tsw-a{margin-left:-.45rem}
 @media(prefers-reduced-motion:reduce){
   .tcard,.tgo::after{transition:none}
   .tcard:hover{transform:none}
@@ -3919,9 +3974,12 @@ function meta_html( $C, $A, $rows, $uid, $tgl_rows ) {
 	$spec_id = 'spec-' . $uid;
 	$o       = array();
 	$o[]     = '<div class="meta"><div class="gal-wrap">'
-		. '<p class="meta-pair"><b>' . h( $C['tpl'] ) . '</b> ' . h( $C['tpl_name'] )
-		. ' <span class="x">×</span> <b>' . h( $A['id'] ) . '</b> ' . h( $A['name'] ) . '</p>'
-		. '<p class="meta-sub">' . h( $C['site_es'] ) . ' · ADN fijo: <code>' . h( $C['dna'] ) . '</code></p>'
+		/* The TEMPLATE half of this line moved up to `.tpl-head`, which prints it once for all four
+		   variants. What stays is what actually changes between them: the anchor, its toggles and
+		   its five axes. Repeating the archetype above every variant made the page read as four
+		   documents stacked rather than one template with four settings. */
+		. '<p class="meta-pair"><b>' . h( $A['id'] ) . '</b> ' . h( $A['name'] )
+		. ' <span class="x">·</span> ' . h( $A['fits'] ) . '</p>'
 		. tgl_html( $tgl_rows )
 		. '<dl class="axes">';
 	foreach ( $rows as $r ) {
@@ -3963,28 +4021,43 @@ function strip_uid( $C, $anchor ) {
  * axis positions. So the catalogue survives with JavaScript off, and grep, `RT_GALLERY_*` and a
  * screen reader read the same rows a sighted user does — only the pixels need the script.
  */
-function template_card_html( $C, $A, $anchor_key, $uid, $rows ) {
-	$chips = '';
-	foreach ( $rows as $r ) {
-		$chips .= '<li class="tax">' . h( $r['axis'] ) . ' <b>' . h( $r['pos'] ) . '</b></li>';
+function template_card_html( $tpl, $T, $tpl_slug, $GROUND, $ACCENT ) {
+	$C     = $T['content'];
+	$keys  = array_keys( $T['anchors'] );
+	$first = $T['anchors'][ $keys[0] ];
+
+	// One swatch per anchor: the ground it paints on and the accent that lands on it. Two colours
+	// are the honest summary of what changes between variants — a name alone ("Direct") tells a
+	// reader nothing they can see, and this is a catalogue you browse with your eyes.
+	$sw = '';
+	foreach ( $keys as $k ) {
+		$A   = $T['anchors'][ $k ]['A'];
+		$g   = $GROUND[ $A['ground'] ];
+		$acc = $ACCENT[ $A['ground'] ]['hex'];
+		$sw .= '<li class="tsw" title="' . h( $A['name'] ) . '">'
+			. '<span class="tsw-g" style="background:' . h( $g['bg'] ) . '"></span>'
+			. '<span class="tsw-a" style="background:' . h( $acc ) . '"></span>'
+			. '<span class="tsw-n">' . h( $A['name'] ) . '</span></li>';
 	}
 
-	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $C['tpl'] ) . '"'
-		. ' data-pers="' . h( $anchor_key ) . '">'
-		. '<a class="tcard" href="#' . h( $uid ) . '">'
-		. '<span class="thumb" data-of="' . h( $uid ) . '">'
+	$n = count( $keys );
+
+	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $tpl ) . '">'
+		. '<a class="tcard" href="#' . h( $tpl_slug ) . '">'
+		. '<span class="thumb" data-of="' . h( $first['uid'] ) . '">'
 		. '<span class="thumb-wait">' . h( $C['site_es'] ) . '</span></span>'
 		. '<span class="tbody">'
-		. '<span class="tpair">' . h( $C['tpl'] . ' × ' . $A['id'] ) . '</span>'
-		. '<span class="tname">' . h( $C['tpl_name'] ) . ' · ' . h( $A['name'] ) . '</span>'
-		. '<span class="tsub">' . h( $A['fits'] ) . '</span>'
-		. '<ul class="taxes">' . $chips . '</ul>'
-		. '<span class="tgo">Ver la plantilla</span>'
+		. '<span class="tpair">' . h( $tpl ) . ' · ' . h( $C['site_es'] ) . '</span>'
+		. '<span class="tname">' . h( $C['tpl_name'] ) . '</span>'
+		. '<span class="tsub">' . h( $C['fits'] ) . '</span>'
+		. '<ul class="taxes tsws">' . $sw . '</ul>'
+		. '<span class="tgo">' . $n . ' ' . ( 1 === $n ? 'variante' : 'variantes' ) . '</span>'
 		. '</span></a></li>';
 }
 
 $body    = array();
 $cards   = array();
+$by_tpl  = array();
 $n_strip = count( $STRIPS );
 
 foreach ( $STRIPS as $s ) {
@@ -4005,24 +4078,84 @@ foreach ( $STRIPS as $s ) {
 
 	$rows = axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION );
 
-	$cards[] = template_card_html( $C, $A, $s['anchor'], $uid, $rows );
+	// The variant is collected under its TEMPLATE rather than emitted as a loose page. A catalogue
+	// entry is a TEMPLATE; the anchor is a choice you make INSIDE it, the way a kit is one product
+	// with variants and not four products that happen to share a wireframe.
+	$by_tpl[ $C['tpl'] ]['content'] = $C;
+	$by_tpl[ $C['tpl'] ]['anchors'][ $s['anchor'] ] = array(
+		'A'    => $A,
+		'uid'  => $uid,
+		'rows' => $rows,
+	);
 
-	// One `.page` per template — the detail view. `hidden` is set by the router on load rather
-	// than baked in here, so with JavaScript off every strip stays readable end to end instead of
-	// the catalogue collapsing to a card grid whose links go nowhere.
-	$body[] = '<div class="page" id="p-' . h( $uid ) . '">';
-	$body[] = '<section class="strip" id="' . h( $uid ) . '"'
+	$variant = array();
+	$variant[] = '<section class="strip" id="' . h( $uid ) . '"'
 		. ' data-site="' . h( $C['site'] ) . '"'
 		. ' data-tpl="' . h( $C['tpl'] ) . '"'
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
-	$body[] = meta_html( $C, $A, $rows, $uid, $tgl );
+	$variant[] = meta_html( $C, $A, $rows, $uid, $tgl );
 	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
 	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
-	$body[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
-	$body[] = $inner;
-	$body[] = '</div></section></div>';
+	$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
+	$variant[] = $inner;
+	$variant[] = '</div></section>';
+
+	$by_tpl[ $C['tpl'] ]['anchors'][ $s['anchor'] ]['html'] = implode( "\n", $variant );
+}
+
+/**
+ * One template page: identity, the switcher, and its variants.
+ *
+ * The FIRST anchor declared for a template is its default — the one the card's thumbnail shows and
+ * the one a bare `#tplc01` opens on. Order in $STRIPS is therefore meaningful and not incidental.
+ *
+ * The page switcher is NOT rendered while a template has a single page. A control that offers one
+ * choice is not a control, it is a promise; this catalogue has shipped enough of those.
+ */
+function template_page_html( $tpl, $T, $tpl_slug ) {
+	$C    = $T['content'];
+	$keys = array_keys( $T['anchors'] );
+
+	$chips = '';
+	foreach ( $keys as $i => $k ) {
+		$chips .= '<button class="sbtn" type="button" data-pers="' . h( $k ) . '"'
+			. ' aria-pressed="' . ( 0 === $i ? 'true' : 'false' ) . '">'
+			. h( $T['anchors'][ $k ]['A']['name'] ) . '</button>';
+	}
+
+	$vars = '';
+	foreach ( $keys as $i => $k ) {
+		$vars .= '<div class="variant" data-pers="' . h( $k ) . '"'
+			. ( 0 === $i ? '' : ' hidden' ) . '>' . $T['anchors'][ $k ]['html'] . '</div>';
+	}
+
+	return '<div class="page" id="p-' . h( $tpl_slug ) . '" data-site="' . h( $C['site'] ) . '">'
+		. '<header class="tpl-head"><div class="gal-wrap">'
+		. '<span class="eyebrow">' . h( $C['site_es'] ) . '</span>'
+		. '<h2><b>' . h( $tpl ) . '</b> ' . h( $C['tpl_name'] ) . '</h2>'
+		. '<p class="tpl-dna">ADN fijo: <code>' . h( $C['dna'] ) . '</code></p>'
+		. '<p class="tpl-wire"><code>' . h( $C['wire'] ) . '</code></p>'
+		. '</div></header>'
+		. '<nav class="switch" aria-label="Variantes de ' . h( $tpl ) . '"><div class="gal-wrap">'
+		. '<span class="flabel">Ancla</span>' . $chips
+		. '</div></nav>'
+		. '<div class="variants">' . $vars . '</div>'
+		. '</div>';
+}
+
+/* A template's route slug: `TPL-C-01` → `tplc01`. Deliberately the same transformation
+   `strip_uid()` applies before it appends the anchor, so a variant id is always its template's
+   slug plus `-anchor` and the two can never need translating between. */
+function tpl_slug( $tpl ) {
+	return strtolower( str_replace( '-', '', $tpl ) );
+}
+
+foreach ( $by_tpl as $bt_tpl => $bt_T ) {
+	$bt_slug = tpl_slug( $bt_tpl );
+	$cards[] = template_card_html( $bt_tpl, $bt_T, $bt_slug, $GROUND, $ACCENT );
+	$body[]  = template_page_html( $bt_tpl, $bt_T, $bt_slug );
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -4100,27 +4233,29 @@ $head = '<!--
 $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. '<span class="eyebrow">NovaMira · uso interno</span>'
 	. '<h1>Galería de plantillas</h1>'
-	. '<p>Cada tira es un par <b>arquetipo × ancla</b>: el <code>TPL-*</code> decide qué secciones existen '
-	. 'y en qué orden, el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. '
-	. 'Elegir una tira precarga las dos cosas.</p>'
-	. '<p class="gal-note">El copy y el juego de fotos son los mismos en todas las tiras del mismo '
-	. 'arquetipo. Si dos tiras se distinguen, la diferencia es el <b>ancla</b> o un <b>toggle</b> '
-	. '(CAPA 3) — nunca el copy, y nunca una foto que una tira tenga y otra no. Cada tira imprime '
-	. 'los toggles que resuelve encima de sus cinco ejes, así que las dos causas se leen en la '
-	. 'propia tarjeta.</p>'
+	. '<p>Cada tarjeta es un <b>arquetipo</b>: el <code>TPL-*</code> decide qué secciones existen y en '
+	. 'qué orden. Dentro de cada una están sus <b>anclas</b> — el <code>PERS-*</code> decide cómo se '
+	. 'ven los cinco ejes perceptuales. Elegir plantilla y ancla precarga las dos cosas.</p>'
+	. '<p class="gal-note">El copy y el juego de fotos son los mismos en todas las variantes de una '
+	. 'misma plantilla. Si dos variantes se distinguen, la diferencia es el <b>ancla</b> o un '
+	. '<b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tenga y otra no. Cada '
+	. 'variante imprime los toggles que resuelve encima de sus cinco ejes.</p>'
 	. '</div></header>';
 
-// ── the sticky filter: by site type and by anchor ──────────────────────────────────────────────
+// ── the sticky filter: by site type ───────────────────────────────────────────────────
 //
 // Built from the strips that actually exist rather than from a hardcoded list, so a filter can
 // never offer a value nothing matches — and adding a ninth strip needs no edit here.
 
-$sites_present  = array();
-$anchors_present = array();
+$sites_present = array();
 foreach ( $STRIPS as $s ) {
 	$sites_present[ $CONTENT[ $s['tpl'] ]['site'] ] = $CONTENT[ $s['tpl'] ]['site_es'];
-	$anchors_present[ $s['anchor'] ]                = $ANCHORS[ $s['anchor'] ]['name'];
 }
+
+/* THERE IS NO ANCHOR FILTER, and its absence is the point. A card is now a TEMPLATE and every
+   template carries all four anchors, so an anchor filter would match every card at every setting
+   — a control that narrows nothing, which is worse than no control because it reads as broken.
+   The anchor is chosen INSIDE the template, where it is a real choice. */
 
 function filter_group( $key, $label, $options ) {
 	$o = '<div class="fgroup" role="group" aria-label="' . h( $label ) . '">'
@@ -4136,9 +4271,8 @@ function filter_group( $key, $label, $options ) {
 
 $filter = '<div class="gal-filter"><div class="gal-wrap">'
 	. filter_group( 'site', 'Tipo', $sites_present )
-	. filter_group( 'pers', 'Ancla', $anchors_present )
 	. '<p class="fcount" id="gal-count" role="status" aria-live="polite">'
-	. $n_strip . ' plantillas</p>'
+	. count( $cards ) . ' plantillas</p>'
 	. '</div></div>';
 
 // Plain JS, no library. `hidden` rather than a class: it is the platform's own "not rendered and
@@ -4213,7 +4347,10 @@ $copy_js = "<script>\n"
 	. "</script>";
 
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
-	. '<p>' . $n_strip . ' ' . ( 1 === $n_strip ? 'plantilla' : 'plantillas' ) . ' · '
+	/* $n_strip counts VARIANTS, which stopped being the same thing as templates the day the
+	   catalogue grouped them. The footer said "8 plantillas" over a grid of two. */
+	. '<p>' . count( $cards ) . ' ' . ( 1 === count( $cards ) ? 'plantilla' : 'plantillas' )
+	. ' · ' . $n_strip . ' ' . ( 1 === $n_strip ? 'variante' : 'variantes' ) . ' · '
 	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
 	. 'desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p>'
 	. '</div></footer>';
@@ -4272,21 +4409,43 @@ $mk_js = "<script>\n"
 	// the FIRST CLICK on "Todas las plantillas" landed on a grid with eight empty thumbnails.
 	// Measured before the fix: `thumbsBuilt=0/8` at `#index` against `8/8` with no hash.
 	. "  var INDEX='index';\n"
-	. "  function currentId(){\n"
-	. "    var id=(location.hash||'').replace(/^#/,'');\n"
-	. "    if(id===INDEX){ return ''; }\n"
-	. "    return (id && document.getElementById('p-'+id)) ? id : '';\n"
+	// The hash carries TWO levels: `#tplc01` opens the template on its default anchor and
+	// `#tplc01/direct` opens it on that one, so a link that names a variant keeps the variant.
+	. "  function parseHash(){\n"
+	. "    var raw=(location.hash||'').replace(/^#/,'');\n"
+	. "    if(!raw||raw===INDEX){ return {tpl:'',pers:''}; }\n"
+	. "    var bits=raw.split('/'), t=bits[0], pr=bits[1]||'';\n"
+	. "    if(!document.getElementById('p-'+t)){ return {tpl:'',pers:''}; }\n"
+	. "    return {tpl:t,pers:pr};\n"
+	. "  }\n"
+	// An unknown anchor falls back to the template's FIRST variant rather than to nothing: a
+	// stale link naming a renamed anchor should still land on the template it names.
+	. "  function selectVariant(page,pers){\n"
+	. "    var vars=page.querySelectorAll('.variant'), btns=page.querySelectorAll('.sbtn[data-pers]');\n"
+	. "    if(!vars.length){ return ''; }\n"
+	. "    var want='',i;\n"
+	. "    for(i=0;i<vars.length;i++){ if(vars[i].getAttribute('data-pers')===pers){ want=pers; } }\n"
+	. "    if(!want){ want=vars[0].getAttribute('data-pers'); }\n"
+	. "    for(i=0;i<vars.length;i++){ vars[i].hidden=(vars[i].getAttribute('data-pers')!==want); }\n"
+	. "    for(i=0;i<btns.length;i++){\n"
+	. "      btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-pers')===want?'true':'false');\n"
+	. "    }\n"
+	. "    return want;\n"
 	. "  }\n"
 	. "  var wasIndex=true;\n"
 	. "  function route(){\n"
-	. "    var id=currentId(), target=document.getElementById(id?('p-'+id):('p-'+INDEX));\n"
+	. "    var q=parseHash(), id=q.tpl, target=document.getElementById(id?('p-'+id):('p-'+INDEX));\n"
 	// Remember where the catalogue was left. A marketplace that dumps you at the top of the grid
 	// every time you back out of a template is a marketplace you stop browsing.
 	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }\n"
 	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }\n"
 	. "    back.hidden=!id;\n"
-	. "    var strip=id?document.getElementById(id):null;\n"
-	. "    here.textContent=strip?strip.getAttribute('aria-label'):'';\n"
+	. "    if(id){\n"
+	. "      var pers=selectVariant(target,q.pers);\n"
+	. "      var hd=target.querySelector('.tpl-head h2');\n"
+	. "      var ch=target.querySelector('.sbtn[data-pers='+pers+']');\n"
+	. "      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');\n"
+	. "    } else { here.textContent=''; }\n"
 	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }\n"
 	. "    wasIndex=!id;\n"
 	. "  }\n"
@@ -4331,6 +4490,14 @@ $mk_js = "<script>\n"
 	. "\n"
 	. "  var rt;\n"
 	. "  window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(paint,150); });\n"
+	// The switcher writes the HASH instead of flipping the DOM, so exactly one place decides
+	// which variant is on screen. Two writers drift the moment the back button joins in.
+	. "  document.addEventListener('click',function(e){\n"
+	. "    var b=e.target&&e.target.closest?e.target.closest('.sbtn[data-pers]'):null;\n"
+	. "    if(!b){ return; }\n"
+	. "    var pg=b.closest('.page'); if(!pg){ return; }\n"
+	. "    location.hash=pg.id.replace(/^p-/,'')+'/'+b.getAttribute('data-pers');\n"
+	. "  });\n"
 	. "  window.addEventListener('hashchange',route);\n"
 	. "  route();\n"
 	. "})();\n"
@@ -4557,8 +4724,13 @@ $ACCENT_ROLES = array(
 	/* NOT SAMPLES AT ALL — the gallery's own chrome, painted from `:root` rather than from any
 	   anchor. A tool is not one of the things it displays. Named rather than skipped, for the same
 	   reason the bleed whitelist names things: a check that silently ignores half the file is half
-	   a check. */
-	'the tool itself'  => array( 'gal-head', 'gal-note', 'fbtn', 'handoff-copy', 'handoff', 'x',
+	   a check.
+	   `.sbtn` is the anchor switcher on a template page and it is here rather than under "active
+	   states" for one reason: it is the SAME control as `.fbtn` one level down, and splitting two
+	   identical chips across two roles would make the whitelist describe where a class happens to
+	   sit rather than what it does. Its pressed state IS an active state — but it is an active
+	   state of the TOOL, and the roles in design-tokens.md are about the page being sold. */
+	'the tool itself'  => array( 'gal-head', 'gal-note', 'fbtn', 'sbtn', 'handoff-copy', 'handoff', 'x',
 		'tgl-set', 'axis', 'noscript' ),
 );
 $accent_ok = array();
