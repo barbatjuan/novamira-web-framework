@@ -965,6 +965,38 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
             transition:transform var(--dur-color) var(--ease)}
 
 
+/* ── TPL-C-02 · Institutional Trust ───────────────────────────────────────────────────────── */
+
+/* COMP-ABOUT — a head/media pair, so it is placed by whatever the blueprint does with the hero
+   rather than by a grid this section invents. The paragraphs keep a measure: an about text set to
+   the full canvas at 1920 runs to 140 characters a line, which nobody reads. */
+.about .head p{max-width:64ch}
+.about .head p + p{margin-top:var(--sp-s)}
+
+/* COMP-STATS — the figures. A definition list, because that is exactly what it is: a number and
+   what the number counts. The FIGURE is the term and the label is the description, which is also
+   the order a screen reader should hear them in. */
+.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);margin:0}
+@media(min-width:1024px){.figs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fig{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+.fig dt{font-family:var(--font-primary);font-size:var(--fs-h1);line-height:1;
+        letter-spacing:var(--track-h1);font-variant-numeric:tabular-nums}
+.fig dd{margin:.35rem 0 0;font-size:var(--fs-small);color:var(--c-text-soft)}
+
+/* COMP-TEAM — a face, a name, a role. No social icon row: the reference kits hang four of them
+   under every member, and a link to somebody's personal profile is not a credential of the firm. */
+.team .items{list-style:none;margin:0;padding:0}
+.member{min-width:0;display:flex;flex-direction:column;gap:.2rem}
+.member .frame{margin-bottom:var(--sp-xs)}
+.member b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;font-weight:600}
+.member span{font-size:var(--fs-small);color:var(--c-text-muted)}
+
+/* COMP-CTA sobrio — the close WITHOUT a form. It keeps the closing band's ground and its weight,
+   because the close is still a designed moment; what it drops is the lead capture, which is the
+   one thing that separates this archetype's DNA from TPL-C-01's. */
+.band.sober .canvas{justify-items:start}
+[data-comp="lp-centered"] .band.sober .canvas{justify-items:center}
+
 /* ── INTERIOR PAGES ──────────────────────────────────────────────────────────────────────────
    A template is a page set. Everything below belongs to pages that are NOT the home, and every
    one of them wears the home's header, footer, tokens and blueprint, because that is the whole
@@ -1350,6 +1382,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 @media(min-width:1024px){
   /* "Images: always inside the container, equal margins left and right. Nothing bleeds, ever." */
   [data-comp="lp-centered"] .hero .media,
+  [data-comp="lp-centered"] .about .media,
   [data-comp="lp-centered"] .mini .media{max-width:var(--content-width);margin-inline:auto}
   [data-comp="lp-centered"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-comp="lp-centered"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1379,7 +1412,8 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   /* headings left-aligned, never centred; the eyebrow sits above and left */
   [data-comp="lp-asymmetric"] .head{grid-column:c 1/c 8}
   /* the one bleed per section, always the SAME edge, all the way down the page */
-  [data-comp="lp-asymmetric"] .hero .media{grid-column:c 8/full-end}
+  [data-comp="lp-asymmetric"] .hero .media,
+  [data-comp="lp-asymmetric"] .about .media{grid-column:c 8/full-end}
   [data-comp="lp-asymmetric"] .hero .frame{border-radius:0}
   /* `justify-content:center` — the head is a column flex, so this is VERTICAL centring, and it is
      the same declaration this blueprint's own `.hero` equivalent and LP-STRICT-GRID both already
@@ -1479,8 +1513,10 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
     column-gap:var(--sp-m)}
   [data-comp="lp-strict-grid"] .canvas > *{grid-column:1/-1;min-width:0}
   [data-comp="lp-strict-grid"] .hero .head,
+  [data-comp="lp-strict-grid"] .about .head,
   [data-comp="lp-strict-grid"] .mini .head{grid-column:1/7;justify-content:center}
   [data-comp="lp-strict-grid"] .hero .media,
+  [data-comp="lp-strict-grid"] .about .media,
   [data-comp="lp-strict-grid"] .mini .media{grid-column:7/13}
   [data-comp="lp-strict-grid"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-comp="lp-strict-grid"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1542,9 +1578,11 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
      nothing and cost the one thing worth having: an invariant simple enough to check. After this
      line the page has exactly three elements reaching `full-start`/`full-end` and all three are
      `.media`. See RT_MOCKUP_BLEED_NOT_MEDIA in framework-audit.php. */
-  [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/c 13;grid-row:1;
+  [data-comp="lp-broken-grid"] .hero .head,
+  [data-comp="lp-broken-grid"] .about .head{grid-column:c 1/c 13;grid-row:1;
     position:relative;z-index:2;justify-content:center}
-  [data-comp="lp-broken-grid"] .hero .media{grid-column:c 7/full-end;grid-row:1;
+  [data-comp="lp-broken-grid"] .hero .media,
+  [data-comp="lp-broken-grid"] .about .media{grid-column:c 7/full-end;grid-row:1;
     z-index:0;align-self:stretch}
   /* `height:100%` USED TO SIT HERE AND DID NOTHING — worse, it hid what actually sizes this box.
      A percentage height needs a definite basis; the grid row is auto-sized, so it resolved to
@@ -1791,9 +1829,10 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 
 <main class="gal-strips">
 <div class="page" id="p-index">
-<header class="gal-head"><div class="gal-wrap"><span class="eyebrow">NovaMira · uso interno</span><h1>Galería de plantillas</h1><p>Cada tarjeta es un <b>arquetipo</b>: el <code>TPL-*</code> decide qué secciones existen y en qué orden. Dentro de cada una están sus <b>anclas</b> — el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. Elegir plantilla y ancla precarga las dos cosas.</p><p class="gal-note">El copy y el juego de fotos son los mismos en todas las variantes de una misma plantilla. Si dos variantes se distinguen, la diferencia es el <b>ancla</b> o un <b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tenga y otra no. Cada variante imprime los toggles que resuelve encima de sus cinco ejes.</p><p class="gal-progress">2 de los 10 arquetipos que el framework declara están construidos en esta galería. Los 8 restantes existen como especificación y todavía no como maqueta.</p></div></header>
-<div class="gal-filter"><div class="gal-wrap"><div class="fgroup" role="group" aria-label="Tipo"><span class="flabel">Tipo</span><button class="fbtn" type="button" data-filter="site" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="site" data-value="corporate" aria-pressed="false">Corporativa</button><button class="fbtn" type="button" data-filter="site" data-value="ecommerce" aria-pressed="false">Ecommerce</button></div><div class="fgroup" role="group" aria-label="Ancla"><span class="flabel">Ancla</span><button class="fbtn" type="button" data-filter="pers" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="pers" data-value="editorial" aria-pressed="false">Editorial</button><button class="fbtn" type="button" data-filter="pers" data-value="direct" aria-pressed="false">Direct</button><button class="fbtn" type="button" data-filter="pers" data-value="matter" aria-pressed="false">Matter</button><button class="fbtn" type="button" data-filter="pers" data-value="institutional" aria-pressed="false">Institutional</button></div><p class="fcount" id="gal-count" role="status" aria-live="polite">2 plantillas · 8 variantes</p></div></div>
+<header class="gal-head"><div class="gal-wrap"><span class="eyebrow">NovaMira · uso interno</span><h1>Galería de plantillas</h1><p>Cada tarjeta es un <b>arquetipo</b>: el <code>TPL-*</code> decide qué secciones existen y en qué orden. Dentro de cada una están sus <b>anclas</b> — el <code>PERS-*</code> decide cómo se ven los cinco ejes perceptuales. Elegir plantilla y ancla precarga las dos cosas.</p><p class="gal-note">El copy y el juego de fotos son los mismos en todas las variantes de una misma plantilla. Si dos variantes se distinguen, la diferencia es el <b>ancla</b> o un <b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tenga y otra no. Cada variante imprime los toggles que resuelve encima de sus cinco ejes.</p><p class="gal-progress">3 de los 10 arquetipos que el framework declara están construidos en esta galería. Los 7 restantes existen como especificación y todavía no como maqueta.</p></div></header>
+<div class="gal-filter"><div class="gal-wrap"><div class="fgroup" role="group" aria-label="Tipo"><span class="flabel">Tipo</span><button class="fbtn" type="button" data-filter="site" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="site" data-value="corporate" aria-pressed="false">Corporativa</button><button class="fbtn" type="button" data-filter="site" data-value="ecommerce" aria-pressed="false">Ecommerce</button></div><div class="fgroup" role="group" aria-label="Ancla"><span class="flabel">Ancla</span><button class="fbtn" type="button" data-filter="pers" data-value="all" aria-pressed="true">Todas</button><button class="fbtn" type="button" data-filter="pers" data-value="editorial" aria-pressed="false">Editorial</button><button class="fbtn" type="button" data-filter="pers" data-value="direct" aria-pressed="false">Direct</button><button class="fbtn" type="button" data-filter="pers" data-value="matter" aria-pressed="false">Matter</button><button class="fbtn" type="button" data-filter="pers" data-value="institutional" aria-pressed="false">Institutional</button></div><p class="fcount" id="gal-count" role="status" aria-live="polite">3 plantillas · 12 variantes</p></div></div>
 <div class="gal-wrap"><section class="tgroup" data-site="corporate" data-tpl="TPL-C-01"><header class="tgroup-head"><span class="eyebrow">Corporativa</span><h2><a href="#tplc01"><b>TPL-C-01</b> Services / Lead-Gen</a></h2><p class="tgroup-fits">Consultoras, agencias, estudios, desarrollo, marketing, servicios profesionales</p><p class="tgroup-count">4 anclas</p></header><ul class="tgrid"><li data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial"><a class="tcard" href="#tplc01/editorial"><span class="thumb" data-of="tplc01-editorial"><span class="thumb-wait">Editorial</span></span><span class="tbody"><span class="tpair">PERS-EDITORIAL</span><span class="tname">Editorial</span><span class="tsub">Herencia, prestigio, una historia que merece ir despacio</span><ul class="taxes"><li class="tax">escala <b>editorial</b></li><li class="tax">fondo <b>paper</b></li><li class="tax">densidad <b>generous</b></li><li class="tax">composición <b>asymmetric</b></li><li class="tax">elevación <b>none</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="direct"><a class="tcard" href="#tplc01/direct"><span class="thumb" data-of="tplc01-direct"><span class="thumb-wait">Direct</span></span><span class="tbody"><span class="tpair">PERS-DIRECT</span><span class="tname">Direct</span><span class="tsub">Marcas que ganan por ser inconfundibles</span><ul class="taxes"><li class="tax">escala <b>monumental</b></li><li class="tax">fondo <b>ink</b></li><li class="tax">densidad <b>compact</b></li><li class="tax">composición <b>broken-grid</b></li><li class="tax">elevación <b>accent-glow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="matter"><a class="tcard" href="#tplc01/matter"><span class="thumb" data-of="tplc01-matter"><span class="thumb-wait">Matter</span></span><span class="tbody"><span class="tpair">PERS-MATTER</span><span class="tname">Matter</span><span class="tsub">Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</span><ul class="taxes"><li class="tax">escala <b>classic</b></li><li class="tax">fondo <b>warm</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>strict-grid</b></li><li class="tax">elevación <b>hairline</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="institutional"><a class="tcard" href="#tplc01/institutional"><span class="thumb" data-of="tplc01-institutional"><span class="thumb-wait">Institutional</span></span><span class="tbody"><span class="tpair">PERS-INSTITUTIONAL</span><span class="tname">Institutional</span><span class="tsub">B2B y servicios profesionales: credibilidad antes que entusiasmo</span><ul class="taxes"><li class="tax">escala <b>contained</b></li><li class="tax">fondo <b>cool</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>centered</b></li><li class="tax">elevación <b>soft-shadow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li></ul></section>
+<section class="tgroup" data-site="corporate" data-tpl="TPL-C-02"><header class="tgroup-head"><span class="eyebrow">Corporativa</span><h2><a href="#tplc02"><b>TPL-C-02</b> Institutional Trust</a></h2><p class="tgroup-fits">Despachos, industria, sanidad, educación, instituciones y empresas consolidadas</p><p class="tgroup-count">4 anclas</p></header><ul class="tgrid"><li data-site="corporate" data-tpl="TPL-C-02" data-pers="institutional"><a class="tcard" href="#tplc02/institutional"><span class="thumb" data-of="tplc02-institutional"><span class="thumb-wait">Institutional</span></span><span class="tbody"><span class="tpair">PERS-INSTITUTIONAL</span><span class="tname">Institutional</span><span class="tsub">B2B y servicios profesionales: credibilidad antes que entusiasmo</span><ul class="taxes"><li class="tax">escala <b>contained</b></li><li class="tax">fondo <b>cool</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>centered</b></li><li class="tax">elevación <b>soft-shadow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-02" data-pers="editorial"><a class="tcard" href="#tplc02/editorial"><span class="thumb" data-of="tplc02-editorial"><span class="thumb-wait">Editorial</span></span><span class="tbody"><span class="tpair">PERS-EDITORIAL</span><span class="tname">Editorial</span><span class="tsub">Herencia, prestigio, una historia que merece ir despacio</span><ul class="taxes"><li class="tax">escala <b>editorial</b></li><li class="tax">fondo <b>paper</b></li><li class="tax">densidad <b>generous</b></li><li class="tax">composición <b>asymmetric</b></li><li class="tax">elevación <b>none</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-02" data-pers="matter"><a class="tcard" href="#tplc02/matter"><span class="thumb" data-of="tplc02-matter"><span class="thumb-wait">Matter</span></span><span class="tbody"><span class="tpair">PERS-MATTER</span><span class="tname">Matter</span><span class="tsub">Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</span><ul class="taxes"><li class="tax">escala <b>classic</b></li><li class="tax">fondo <b>warm</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>strict-grid</b></li><li class="tax">elevación <b>hairline</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-02" data-pers="direct"><a class="tcard" href="#tplc02/direct"><span class="thumb" data-of="tplc02-direct"><span class="thumb-wait">Direct</span></span><span class="tbody"><span class="tpair">PERS-DIRECT</span><span class="tname">Direct</span><span class="tsub">Marcas que ganan por ser inconfundibles</span><ul class="taxes"><li class="tax">escala <b>monumental</b></li><li class="tax">fondo <b>ink</b></li><li class="tax">densidad <b>compact</b></li><li class="tax">composición <b>broken-grid</b></li><li class="tax">elevación <b>accent-glow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li></ul></section>
 <section class="tgroup" data-site="ecommerce" data-tpl="TPL-E-02"><header class="tgroup-head"><span class="eyebrow">Ecommerce</span><h2><a href="#tple02"><b>TPL-E-02</b> Catalog / Product-First</a></h2><p class="tgroup-fits">Electrónica, repuestos, librería, ferretería, insumos</p><p class="tgroup-count">4 anclas</p></header><ul class="tgrid"><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial"><a class="tcard" href="#tple02/editorial"><span class="thumb" data-of="tple02-editorial"><span class="thumb-wait">Editorial</span></span><span class="tbody"><span class="tpair">PERS-EDITORIAL</span><span class="tname">Editorial</span><span class="tsub">Herencia, prestigio, una historia que merece ir despacio</span><ul class="taxes"><li class="tax">escala <b>editorial</b></li><li class="tax">fondo <b>paper</b></li><li class="tax">densidad <b>generous</b></li><li class="tax">composición <b>asymmetric</b></li><li class="tax">elevación <b>none</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="direct"><a class="tcard" href="#tple02/direct"><span class="thumb" data-of="tple02-direct"><span class="thumb-wait">Direct</span></span><span class="tbody"><span class="tpair">PERS-DIRECT</span><span class="tname">Direct</span><span class="tsub">Marcas que ganan por ser inconfundibles</span><ul class="taxes"><li class="tax">escala <b>monumental</b></li><li class="tax">fondo <b>ink</b></li><li class="tax">densidad <b>compact</b></li><li class="tax">composición <b>broken-grid</b></li><li class="tax">elevación <b>accent-glow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="matter"><a class="tcard" href="#tple02/matter"><span class="thumb" data-of="tple02-matter"><span class="thumb-wait">Matter</span></span><span class="tbody"><span class="tpair">PERS-MATTER</span><span class="tname">Matter</span><span class="tsub">Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</span><ul class="taxes"><li class="tax">escala <b>classic</b></li><li class="tax">fondo <b>warm</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>strict-grid</b></li><li class="tax">elevación <b>hairline</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="institutional"><a class="tcard" href="#tple02/institutional"><span class="thumb" data-of="tple02-institutional"><span class="thumb-wait">Institutional</span></span><span class="tbody"><span class="tpair">PERS-INSTITUTIONAL</span><span class="tname">Institutional</span><span class="tsub">B2B y servicios profesionales: credibilidad antes que entusiasmo</span><ul class="taxes"><li class="tax">escala <b>contained</b></li><li class="tax">fondo <b>cool</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>centered</b></li><li class="tax">elevación <b>soft-shadow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li></ul></section></div>
 </div>
 <div class="page" id="p-tplc01" data-site="corporate"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Corporativa</span><h2><b>TPL-C-01</b> Services / Lead-Gen</h2><p class="tpl-dna">ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="tpl-wire"><code>COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-CASES · COMP-CTA + COMP-LEAD-FORM · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-C-01"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button><span class="flabel flabel-2">Página</span><button class="sbtn" type="button" data-page="home" title="TPL-C-01" aria-pressed="true">Home</button><button class="sbtn" type="button" data-page="servicio" title="TPL-SERVICE-01" aria-pressed="false">Servicio</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tplc01-editorial" data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial" aria-label="TPL-C-01 × PERS-EDITORIAL">
@@ -2257,6 +2296,307 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div>
 </section></div></div></div>
+<div class="page" id="p-tplc02" data-site="corporate"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Corporativa</span><h2><b>TPL-C-02</b> Institutional Trust</h2><p class="tpl-dna">ADN fijo: <code>COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA</code></p><p class="tpl-wire"><code>COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-C-02"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="institutional" aria-pressed="true">Institutional</button><button class="sbtn" type="button" data-pers="editorial" aria-pressed="false">Editorial</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button></div></nav><div class="variants"><div class="variant" data-pers="institutional"><section class="strip" id="tplc02-institutional" data-site="corporate" data-tpl="TPL-C-02" data-pers="institutional" aria-label="TPL-C-02 × PERS-INSTITUTIONAL">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-INSTITUTIONAL</b> Institutional <span class="x">·</span> B2B y servicios profesionales: credibilidad antes que entusiasmo</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-CREDENTIALS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TEAM</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
+<div class="axis"><dt>escala</dt><dd><b>contained</b><span>ratio 1.200 · lh 1.25 · h1 48px</span></dd></div>
+<div class="axis"><dt>fondo</dt><dd><b>cool</b><span>#F2F5F8 · #E8EDF3 · #141C24</span></dd></div>
+<div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
+<div class="axis"><dt>composición</dt><dd><b>centered</b><span>LP-CENTERED</span></dd></div>
+<div class="axis"><dt>elevación</dt><dd><b>soft-shadow</b><span>0 1px 2px → 0 18px 40px -12px</span></dd></div>
+</dl>
+<details class="handoff"><summary>Precarga para el diálogo — el spec de esta tira</summary><div class="handoff-bar"><button class="handoff-copy" type="button" hidden data-copy="spec-tplc02-institutional">Copiar</button><span class="handoff-said" role="status" aria-live="polite" data-said="spec-tplc02-institutional"></span></div><pre id="spec-tplc02-institutional" tabindex="0">NovaMira · precarga de galería — TPL-C-02 × PERS-INSTITUTIONAL
+
+tipo de sitio : corporate (Corporativa)
+arquetipo     : TPL-C-02 — Institutional Trust
+  ADN fijo    : COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA
+  secciones   : COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER
+ancla         : PERS-INSTITUTIONAL — Institutional
+
+los cinco ejes, con el valor de sus tokens:
+  escala      contained    --type-ratio 1.200 · --display-lh 1.25 · --fs-h1-max 48 (sin unidad)
+  fondo       cool         --c-bg #F2F5F8 · --c-bg-alt #E8EDF3 · --c-text #141C24
+  densidad    standard     --sp-scale 1.0
+  composición centered     LP-CENTERED — un eje simétrico, nada sangra
+  elevación   soft-shadow  --elev-rest 0 1px 2px rgba(0,0,0,.04) · --elev-hover 0 18px 40px -12px rgba(21,24,26,.16)
+
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-CREDENTIALS     sí           (default de TPL-C-02)
+  TGL-TEAM            sí           (default de TPL-C-02)
+  TGL-TESTIMONIALS    sí           (default de TPL-C-02)
+
+Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
+
+PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
+&quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
+sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
+</div></div>
+<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
+<main>
+<section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
+<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">La casa</span><h2>Quiénes somos, sin adjetivos</h2>
+<p class="muted">Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.</p>
+<p class="muted">Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.</p>
+</div><div class="media"><figure class="frame"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></div></div></section>
+<section class="sec stats" aria-label="Cifras"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">En cifras</span></div><dl class="figs">
+<div class="fig"><dt>1978</dt><dd>Año de fundación</dd></div>
+<div class="fig"><dt>312</dt><dd>Obras entregadas</dd></div>
+<div class="fig"><dt>26</dt><dd>Personas en plantilla</dd></div>
+<div class="fig"><dt>1</dt><dd>Cantera propia</dd></div>
+</dl></div></section>
+<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Áreas</span><h2>En qué trabajamos</h2></div><div class="items cols-3">
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Patrimonio y rehabilitación</h3><p class="muted small">Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Obra nueva en piedra vista</h3><p class="muted small">Despiece, labra y montaje de fachada y sillería para promotor y constructora.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Suministro de material</h3><p class="muted small">Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.</p></div></article>
+</div></div></section>
+<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Acreditaciones</span><h2>Lo que nos han certificado</h2></div><ul class="feats">
+<li><b>ISO 9001</b><span>Gestión de calidad, recertificada en 2024</span></li>
+<li><b>CE 2+</b><span>Marcado de producto para piedra natural de construcción</span></li>
+<li><b>REA 12-…</b><span>Registro de Empresas Acreditadas del sector de la construcción</span></li>
+<li><b>Gremi de Pedra</b><span>Miembro desde 1981</span></li>
+</ul></div></section>
+<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Quién firma</span><h2>Las personas que responden</h2></div><ul class="items cols-3">
+<li class="member"><figure class="frame sq"><img data-img="sq-manos" alt="Manos enguantadas tronzando un bloque de piedra con radial" width="600" height="600"></figure><b>Ramon Valdés</b><span>Dirección · tercera generación</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure><b>Aina Serra</b><span>Oficina técnica · despiece</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><b>Marc Puig</b><span>Jefe de taller</span></li>
+</ul></div></section>
+<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Referencias</span><h2>Quien ya ha trabajado con nosotros</h2></div><ul class="items">
+<li><figure><blockquote>Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.</blockquote><figcaption><b>Servei de Patrimoni</b><span>Administración autonómica</span></figcaption></figure></li>
+<li><figure><blockquote>Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+<li><figure><blockquote>Es la única cantería de la zona que te dice que no cuando el material no aguanta.</blockquote><figcaption><b>Ribera &amp; Fills</b><span>Constructora</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec band closing sober" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Escríbanos y le contestamos por escrito</h2><p class="muted">Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">973 00 00 00</a></div></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small"></span></div><p class="legal"></p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="editorial" hidden><section class="strip" id="tplc02-editorial" data-site="corporate" data-tpl="TPL-C-02" data-pers="editorial" aria-label="TPL-C-02 × PERS-EDITORIAL">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-EDITORIAL</b> Editorial <span class="x">·</span> Herencia, prestigio, una historia que merece ir despacio</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-CREDENTIALS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TEAM</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
+<div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
+<div class="axis"><dt>fondo</dt><dd><b>paper</b><span>#FFFFFF · #F6F7F8 · #15181A</span></dd></div>
+<div class="axis"><dt>densidad</dt><dd><b>generous</b><span>--sp-scale ×1.35</span></dd></div>
+<div class="axis"><dt>composición</dt><dd><b>asymmetric</b><span>LP-ASYMMETRIC</span></dd></div>
+<div class="axis"><dt>elevación</dt><dd><b>none</b><span>none — la separación es el aire</span></dd></div>
+</dl>
+<details class="handoff"><summary>Precarga para el diálogo — el spec de esta tira</summary><div class="handoff-bar"><button class="handoff-copy" type="button" hidden data-copy="spec-tplc02-editorial">Copiar</button><span class="handoff-said" role="status" aria-live="polite" data-said="spec-tplc02-editorial"></span></div><pre id="spec-tplc02-editorial" tabindex="0">NovaMira · precarga de galería — TPL-C-02 × PERS-EDITORIAL
+
+tipo de sitio : corporate (Corporativa)
+arquetipo     : TPL-C-02 — Institutional Trust
+  ADN fijo    : COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA
+  secciones   : COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER
+ancla         : PERS-EDITORIAL — Editorial
+
+los cinco ejes, con el valor de sus tokens:
+  escala      editorial    --type-ratio 1.500 · --display-lh 0.95 · --fs-h1-max 88 (sin unidad)
+  fondo       paper        --c-bg #FFFFFF · --c-bg-alt #F6F7F8 · --c-text #15181A
+  densidad    generous     --sp-scale 1.35
+  composición asymmetric   LP-ASYMMETRIC — copy en 7 de 12 columnas, una imagen sangra un borde
+  elevación   none         --elev-rest none · --elev-hover none
+
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-CREDENTIALS     sí           (default de TPL-C-02)
+  TGL-TEAM            sí           (default de TPL-C-02)
+  TGL-TESTIMONIALS    sí           (default de TPL-C-02)
+
+Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
+
+PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
+&quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
+sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
+</div></div>
+<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
+<main>
+<section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
+<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">La casa</span><h2>Quiénes somos, sin adjetivos</h2>
+<p class="muted">Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.</p>
+<p class="muted">Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.</p>
+</div><div class="media"><figure class="frame"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></div></div></section>
+<section class="sec stats" aria-label="Cifras"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">En cifras</span></div><dl class="figs">
+<div class="fig"><dt>1978</dt><dd>Año de fundación</dd></div>
+<div class="fig"><dt>312</dt><dd>Obras entregadas</dd></div>
+<div class="fig"><dt>26</dt><dd>Personas en plantilla</dd></div>
+<div class="fig"><dt>1</dt><dd>Cantera propia</dd></div>
+</dl></div></section>
+<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Áreas</span><h2>En qué trabajamos</h2></div><div class="items cols-3">
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Patrimonio y rehabilitación</h3><p class="muted small">Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Obra nueva en piedra vista</h3><p class="muted small">Despiece, labra y montaje de fachada y sillería para promotor y constructora.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Suministro de material</h3><p class="muted small">Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.</p></div></article>
+</div></div></section>
+<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Acreditaciones</span><h2>Lo que nos han certificado</h2></div><ul class="feats">
+<li><b>ISO 9001</b><span>Gestión de calidad, recertificada en 2024</span></li>
+<li><b>CE 2+</b><span>Marcado de producto para piedra natural de construcción</span></li>
+<li><b>REA 12-…</b><span>Registro de Empresas Acreditadas del sector de la construcción</span></li>
+<li><b>Gremi de Pedra</b><span>Miembro desde 1981</span></li>
+</ul></div></section>
+<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Quién firma</span><h2>Las personas que responden</h2></div><ul class="items cols-3">
+<li class="member"><figure class="frame sq"><img data-img="sq-manos" alt="Manos enguantadas tronzando un bloque de piedra con radial" width="600" height="600"></figure><b>Ramon Valdés</b><span>Dirección · tercera generación</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure><b>Aina Serra</b><span>Oficina técnica · despiece</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><b>Marc Puig</b><span>Jefe de taller</span></li>
+</ul></div></section>
+<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Referencias</span><h2>Quien ya ha trabajado con nosotros</h2></div><ul class="items">
+<li><figure><blockquote>Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.</blockquote><figcaption><b>Servei de Patrimoni</b><span>Administración autonómica</span></figcaption></figure></li>
+<li><figure><blockquote>Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+<li><figure><blockquote>Es la única cantería de la zona que te dice que no cuando el material no aguanta.</blockquote><figcaption><b>Ribera &amp; Fills</b><span>Constructora</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec band closing sober" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Escríbanos y le contestamos por escrito</h2><p class="muted">Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">973 00 00 00</a></div></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small"></span></div><p class="legal"></p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="matter" hidden><section class="strip" id="tplc02-matter" data-site="corporate" data-tpl="TPL-C-02" data-pers="matter" aria-label="TPL-C-02 × PERS-MATTER">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-MATTER</b> Matter <span class="x">·</span> Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-CREDENTIALS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TEAM</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
+<div class="axis"><dt>escala</dt><dd><b>classic</b><span>ratio 1.333 · lh 1.10 · h1 64px</span></dd></div>
+<div class="axis"><dt>fondo</dt><dd><b>warm</b><span>#FFF3E3 · #F7E8D4 · #241C14</span></dd></div>
+<div class="axis"><dt>densidad</dt><dd><b>standard</b><span>--sp-scale ×1.0</span></dd></div>
+<div class="axis"><dt>composición</dt><dd><b>strict-grid</b><span>LP-STRICT-GRID</span></dd></div>
+<div class="axis"><dt>elevación</dt><dd><b>hairline</b><span>1px var(--c-border) → var(--c-text)</span></dd></div>
+</dl>
+<details class="handoff"><summary>Precarga para el diálogo — el spec de esta tira</summary><div class="handoff-bar"><button class="handoff-copy" type="button" hidden data-copy="spec-tplc02-matter">Copiar</button><span class="handoff-said" role="status" aria-live="polite" data-said="spec-tplc02-matter"></span></div><pre id="spec-tplc02-matter" tabindex="0">NovaMira · precarga de galería — TPL-C-02 × PERS-MATTER
+
+tipo de sitio : corporate (Corporativa)
+arquetipo     : TPL-C-02 — Institutional Trust
+  ADN fijo    : COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA
+  secciones   : COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER
+ancla         : PERS-MATTER — Matter
+
+los cinco ejes, con el valor de sus tokens:
+  escala      classic      --type-ratio 1.333 · --display-lh 1.10 · --fs-h1-max 64 (sin unidad)
+  fondo       warm         --c-bg #FFF3E3 · --c-bg-alt #F7E8D4 · --c-text #241C14
+  densidad    standard     --sp-scale 1.0
+  composición strict-grid  LP-STRICT-GRID — todo empieza y termina en una línea de columna
+  elevación   hairline     --elev-rest 0 0 0 1px var(--c-border) · --elev-hover 0 0 0 1px var(--c-text)
+
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-CREDENTIALS     sí           (default de TPL-C-02)
+  TGL-TEAM            sí           (default de TPL-C-02)
+  TGL-TESTIMONIALS    sí           (default de TPL-C-02)
+
+Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
+
+PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
+&quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
+sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
+</div></div>
+<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
+<main>
+<section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
+<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">La casa</span><h2>Quiénes somos, sin adjetivos</h2>
+<p class="muted">Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.</p>
+<p class="muted">Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.</p>
+</div><div class="media"><figure class="frame"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></div></div></section>
+<section class="sec stats" aria-label="Cifras"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">En cifras</span></div><dl class="figs">
+<div class="fig"><dt>1978</dt><dd>Año de fundación</dd></div>
+<div class="fig"><dt>312</dt><dd>Obras entregadas</dd></div>
+<div class="fig"><dt>26</dt><dd>Personas en plantilla</dd></div>
+<div class="fig"><dt>1</dt><dd>Cantera propia</dd></div>
+</dl></div></section>
+<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Áreas</span><h2>En qué trabajamos</h2></div><div class="items cols-3">
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><h3>Patrimonio y rehabilitación</h3><p class="muted small">Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><h3>Obra nueva en piedra vista</h3><p class="muted small">Despiece, labra y montaje de fachada y sillería para promotor y constructora.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><h3>Suministro de material</h3><p class="muted small">Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.</p></div></article>
+</div></div></section>
+<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Acreditaciones</span><h2>Lo que nos han certificado</h2></div><ul class="feats">
+<li><b>ISO 9001</b><span>Gestión de calidad, recertificada en 2024</span></li>
+<li><b>CE 2+</b><span>Marcado de producto para piedra natural de construcción</span></li>
+<li><b>REA 12-…</b><span>Registro de Empresas Acreditadas del sector de la construcción</span></li>
+<li><b>Gremi de Pedra</b><span>Miembro desde 1981</span></li>
+</ul></div></section>
+<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Quién firma</span><h2>Las personas que responden</h2></div><ul class="items cols-3">
+<li class="member"><figure class="frame sq"><img data-img="sq-manos" alt="Manos enguantadas tronzando un bloque de piedra con radial" width="600" height="600"></figure><b>Ramon Valdés</b><span>Dirección · tercera generación</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure><b>Aina Serra</b><span>Oficina técnica · despiece</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><b>Marc Puig</b><span>Jefe de taller</span></li>
+</ul></div></section>
+<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Referencias</span><h2>Quien ya ha trabajado con nosotros</h2></div><ul class="items">
+<li><figure><blockquote>Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.</blockquote><figcaption><b>Servei de Patrimoni</b><span>Administración autonómica</span></figcaption></figure></li>
+<li><figure><blockquote>Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+<li><figure><blockquote>Es la única cantería de la zona que te dice que no cuando el material no aguanta.</blockquote><figcaption><b>Ribera &amp; Fills</b><span>Constructora</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec band closing sober" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Escríbanos y le contestamos por escrito</h2><p class="muted">Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">973 00 00 00</a></div></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small"></span></div><p class="legal"></p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="direct" hidden><section class="strip" id="tplc02-direct" data-site="corporate" data-tpl="TPL-C-02" data-pers="direct" aria-label="TPL-C-02 × PERS-DIRECT">
+<div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-DIRECT</b> Direct <span class="x">·</span> Marcas que ganan por ser inconfundibles</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-CREDENTIALS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TEAM</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
+<div class="axis"><dt>escala</dt><dd><b>monumental</b><span>ratio 1.618 · lh 0.82 · h1 120px</span></dd></div>
+<div class="axis"><dt>fondo</dt><dd><b>ink</b><span>#0E1113 · #171B1E · #F4F6F7</span></dd></div>
+<div class="axis"><dt>densidad</dt><dd><b>compact</b><span>--sp-scale ×0.8</span></dd></div>
+<div class="axis"><dt>composición</dt><dd><b>broken-grid</b><span>LP-BROKEN-GRID</span></dd></div>
+<div class="axis"><dt>elevación</dt><dd><b>accent-glow</b><span>aro accent 22% → halo 40%</span></dd></div>
+</dl>
+<details class="handoff"><summary>Precarga para el diálogo — el spec de esta tira</summary><div class="handoff-bar"><button class="handoff-copy" type="button" hidden data-copy="spec-tplc02-direct">Copiar</button><span class="handoff-said" role="status" aria-live="polite" data-said="spec-tplc02-direct"></span></div><pre id="spec-tplc02-direct" tabindex="0">NovaMira · precarga de galería — TPL-C-02 × PERS-DIRECT
+
+tipo de sitio : corporate (Corporativa)
+arquetipo     : TPL-C-02 — Institutional Trust
+  ADN fijo    : COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA
+  secciones   : COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER
+ancla         : PERS-DIRECT — Direct
+
+los cinco ejes, con el valor de sus tokens:
+  escala      monumental   --type-ratio 1.618 · --display-lh 0.82 · --fs-h1-max 120 (sin unidad)
+  fondo       ink          --c-bg #0E1113 · --c-bg-alt #171B1E · --c-text #F4F6F7
+  densidad    compact      --sp-scale 0.8
+  composición broken-grid  LP-BROKEN-GRID — un elemento por sección cruza la retícula
+  elevación   accent-glow  --elev-rest 0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent) · --elev-hover 0 14px 34px -10px color-mix(in srgb,var(--c-accent) 40%,transparent)
+
+toggles (CAPA 3) que esta tira resuelve:
+  TGL-CREDENTIALS     sí           (default de TPL-C-02)
+  TGL-TEAM            sí           (default de TPL-C-02)
+  TGL-TESTIMONIALS    sí           (default de TPL-C-02)
+
+Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.
+
+PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra
+&quot;el sector&quot;: el diálogo sigue preguntando en términos de negocio y el cliente confirma o
+sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el mismo
+default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
+valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
+</div></div>
+<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
+<main>
+<section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
+<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">La casa</span><h2>Quiénes somos, sin adjetivos</h2>
+<p class="muted">Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.</p>
+<p class="muted">Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.</p>
+</div><div class="media"><figure class="frame"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></div></div></section>
+<section class="sec stats" aria-label="Cifras"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">En cifras</span></div><dl class="figs">
+<div class="fig"><dt>1978</dt><dd>Año de fundación</dd></div>
+<div class="fig"><dt>312</dt><dd>Obras entregadas</dd></div>
+<div class="fig"><dt>26</dt><dd>Personas en plantilla</dd></div>
+<div class="fig"><dt>1</dt><dd>Cantera propia</dd></div>
+</dl></div></section>
+<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Áreas</span><h2>En qué trabajamos</h2></div><div class="items cols-3">
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><h3>Patrimonio y rehabilitación</h3><p class="muted small">Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><h3>Obra nueva en piedra vista</h3><p class="muted small">Despiece, labra y montaje de fachada y sillería para promotor y constructora.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure><div class="body"><h3>Suministro de material</h3><p class="muted small">Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.</p></div></article>
+</div></div></section>
+<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Acreditaciones</span><h2>Lo que nos han certificado</h2></div><ul class="feats">
+<li><b>ISO 9001</b><span>Gestión de calidad, recertificada en 2024</span></li>
+<li><b>CE 2+</b><span>Marcado de producto para piedra natural de construcción</span></li>
+<li><b>REA 12-…</b><span>Registro de Empresas Acreditadas del sector de la construcción</span></li>
+<li><b>Gremi de Pedra</b><span>Miembro desde 1981</span></li>
+</ul></div></section>
+<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Quién firma</span><h2>Las personas que responden</h2></div><ul class="items cols-3">
+<li class="member"><figure class="frame sq"><img data-img="sq-manos" alt="Manos enguantadas tronzando un bloque de piedra con radial" width="600" height="600"></figure><b>Ramon Valdés</b><span>Dirección · tercera generación</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure><b>Aina Serra</b><span>Oficina técnica · despiece</span></li>
+<li class="member"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><b>Marc Puig</b><span>Jefe de taller</span></li>
+</ul></div></section>
+<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Referencias</span><h2>Quien ya ha trabajado con nosotros</h2></div><ul class="items">
+<li><figure><blockquote>Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.</blockquote><figcaption><b>Servei de Patrimoni</b><span>Administración autonómica</span></figcaption></figure></li>
+<li><figure><blockquote>Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+<li><figure><blockquote>Es la única cantería de la zona que te dice que no cuando el material no aguanta.</blockquote><figcaption><b>Ribera &amp; Fills</b><span>Constructora</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec band closing sober" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Escríbanos y le contestamos por escrito</h2><p class="muted">Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">973 00 00 00</a></div></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small"></span></div><p class="legal"></p></div></footer>
+</div>
+</section></div></div></div>
 <div class="page" id="p-tple02" data-site="ecommerce"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Ecommerce</span><h2><b>TPL-E-02</b> Catalog / Product-First</h2><p class="tpl-dna">ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><p class="tpl-wire"><code>COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-E-02"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button><span class="flabel flabel-2">Página</span><button class="sbtn" type="button" data-page="home" title="TPL-E-02" aria-pressed="true">Tienda</button><button class="sbtn" type="button" data-page="producto" title="TPL-PDP-01" aria-pressed="false">Producto</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tple02-editorial" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial" aria-label="TPL-E-02 × PERS-EDITORIAL">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-EDITORIAL</b> Editorial <span class="x">·</span> Herencia, prestigio, una historia que merece ir despacio</p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
@@ -2672,7 +3012,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </section></div></div></div>
 </main>
 
-<footer class="gal-foot"><div class="gal-wrap"><p>2 plantillas · 8 variantes · 13 imágenes del set compartido · generado por <code>_build-gallery.php</code> desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p></div></footer>
+<footer class="gal-foot"><div class="gal-wrap"><p>3 plantillas · 12 variantes · 13 imágenes del set compartido · generado por <code>_build-gallery.php</code> desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p></div></footer>
 
 <script>
 (function(){

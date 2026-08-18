@@ -843,6 +843,32 @@ $TOGGLES = array(
 			'options' => array( 'sí', 'no' ),
 		),
 	),
+	/* TPL-C-02 · Institutional Trust. Same firm, institutional register: the archetype's own doc
+	   says "credibilidad antes que entusiasmo", so the page leads with what can be verified — how
+	   long, how many, certified by whom, and who signs — instead of with a claim.
+
+	   THE COUNTERS ARE WRITTEN INTO THE HTML, not animated up from zero. Two of the four reference
+	   kits ship theirs as `0+`, `0+`, `0 M+` in the markup and fill them with script on scroll, so
+	   the page states "0 clients" to anyone whose JS is slow, blocked or still loading — and to
+	   every crawler. A number that only exists after a script is not a credential. */
+
+	'TPL-C-02' => array(
+		'TGL-CREDENTIALS'  => array(
+			'ask'     => '¿Certificaciones / logos / prensa?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-TEAM'         => array(
+			'ask'     => '¿Equipo / directivos?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-TESTIMONIALS' => array(
+			'ask'     => '¿Testimonios / social proof?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
 	'TPL-E-02' => array(),
 );
 
@@ -1427,6 +1453,98 @@ $CONTENT = array(
 		),
 	),
 
+	'TPL-C-02' => array(
+		'tpl'      => 'TPL-C-02',
+		'tpl_name' => 'Institutional Trust',
+		'site'     => 'corporate',
+		'site_es'  => 'Corporativa',
+		/* `Ideal para`, transcribed from TPL-C-02-institutional-trust.md §1. */
+		'fits'     => 'Despachos, industria, sanidad, educación, instituciones y empresas consolidadas',
+		'dna'      => 'COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA',
+		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER',
+		'nav'      => array( 'La casa', 'Áreas', 'Obra', 'Contacto' ),
+		'nav_cta'  => 'Hablar con nosotros',
+		'hero'     => array(
+			'eyebrow' => 'Cantería Piedra Valdés · Lleida · desde 1978',
+			'h1'      => 'Cuarenta y siete años de la misma firma en la misma piedra',
+			'lede'    => 'Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.',
+			'cta_1'   => 'Hablar con nosotros',
+			'cta_2'   => 'Ver la obra',
+			'img'     => 'pan-fachada',
+		),
+		'about'    => array(
+			'eyebrow' => 'La casa',
+			'h2'      => 'Quiénes somos, sin adjetivos',
+			'body'    => array(
+				'Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.',
+				'Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.',
+			),
+			'img'     => 'card-detalle',
+		),
+		'stats'    => array(
+			'eyebrow' => 'En cifras',
+			'items'   => array(
+				array( '1978', 'Año de fundación' ),
+				array( '312', 'Obras entregadas' ),
+				array( '26', 'Personas en plantilla' ),
+				array( '1', 'Cantera propia' ),
+			),
+		),
+		'services' => array(
+			'eyebrow' => 'Áreas',
+			'h2'      => 'En qué trabajamos',
+			'cards'   => array(
+				array( 'img' => 'card-labra', 'h3' => 'Patrimonio y rehabilitación', 'p' => 'Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.' ),
+				array( 'img' => 'card-cantero', 'h3' => 'Obra nueva en piedra vista', 'p' => 'Despiece, labra y montaje de fachada y sillería para promotor y constructora.' ),
+				array( 'img' => 'card-veta', 'h3' => 'Suministro de material', 'p' => 'Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.' ),
+			),
+		),
+		'credentials' => array(
+			'eyebrow' => 'Acreditaciones',
+			'h2'      => 'Lo que nos han certificado',
+			'items'   => array(
+				array( 'ISO 9001', 'Gestión de calidad, recertificada en 2024' ),
+				array( 'CE 2+', 'Marcado de producto para piedra natural de construcción' ),
+				array( 'REA 12-…', 'Registro de Empresas Acreditadas del sector de la construcción' ),
+				array( 'Gremi de Pedra', 'Miembro desde 1981' ),
+			),
+		),
+		'team'     => array(
+			'eyebrow' => 'Quién firma',
+			'h2'      => 'Las personas que responden',
+			'items'   => array(
+				array( 'Ramon Valdés', 'Dirección · tercera generación', 'sq-manos' ),
+				array( 'Aina Serra', 'Oficina técnica · despiece', 'card-detalle' ),
+				array( 'Marc Puig', 'Jefe de taller', 'card-cantero' ),
+			),
+		),
+		'quotes'   => array(
+			'eyebrow' => 'Referencias',
+			'h2'      => 'Quien ya ha trabajado con nosotros',
+			'items'   => array(
+				array( 'Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.', 'Servei de Patrimoni', 'Administración autonómica' ),
+				array( 'Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.', 'Estudio Arnau', 'Dirección facultativa' ),
+				array( 'Es la única cantería de la zona que te dice que no cuando el material no aguanta.', 'Ribera & Fills', 'Constructora' ),
+			),
+		),
+		/* COMP-CTA sobrio · NO lead form. TPL-C-02's wireframe says "COMP-CTA (contacto sobrio)" and
+		   NOT COMP-LEAD-FORM, which is the one place its DNA separates hardest from TPL-C-01: this
+		   archetype does not chase a lead, it opens a conversation. Rendering the form here would
+		   turn two different archetypes into one. */
+		'band'     => array(
+			'eyebrow' => 'Contacto',
+			'h2'      => 'Escríbanos y le contestamos por escrito',
+			'lede'    => 'Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.',
+			'cta_1'   => 'Hablar con nosotros',
+			'cta_2'   => '973 00 00 00',
+		),
+		'footer'   => array(
+			'Piedra Valdés SL · Alcarràs, Lleida',
+			'ISO 9001 · CE 2+ · REA',
+			'Maqueta interna NovaMira',
+		),
+	),
+
 	'TPL-E-02' => array(
 		'tpl'      => 'TPL-E-02',
 		'tpl_name' => 'Catalog / Product-First',
@@ -1610,6 +1728,12 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'institutional' ),
+	/* TPL-C-02 · the second corporate archetype. Its four anchors sit between C-01's and E-02's so
+	   the catalogue reads corporate → corporate → ecommerce rather than jumping. */
+	array( 'tpl' => 'TPL-C-02', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-C-02', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-02', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
@@ -2846,6 +2970,38 @@ $css[] = <<<'CSS'
             transition:transform var(--dur-color) var(--ease)}
 
 
+/* ── TPL-C-02 · Institutional Trust ───────────────────────────────────────────────────────── */
+
+/* COMP-ABOUT — a head/media pair, so it is placed by whatever the blueprint does with the hero
+   rather than by a grid this section invents. The paragraphs keep a measure: an about text set to
+   the full canvas at 1920 runs to 140 characters a line, which nobody reads. */
+.about .head p{max-width:64ch}
+.about .head p + p{margin-top:var(--sp-s)}
+
+/* COMP-STATS — the figures. A definition list, because that is exactly what it is: a number and
+   what the number counts. The FIGURE is the term and the label is the description, which is also
+   the order a screen reader should hear them in. */
+.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);margin:0}
+@media(min-width:1024px){.figs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fig{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+.fig dt{font-family:var(--font-primary);font-size:var(--fs-h1);line-height:1;
+        letter-spacing:var(--track-h1);font-variant-numeric:tabular-nums}
+.fig dd{margin:.35rem 0 0;font-size:var(--fs-small);color:var(--c-text-soft)}
+
+/* COMP-TEAM — a face, a name, a role. No social icon row: the reference kits hang four of them
+   under every member, and a link to somebody's personal profile is not a credential of the firm. */
+.team .items{list-style:none;margin:0;padding:0}
+.member{min-width:0;display:flex;flex-direction:column;gap:.2rem}
+.member .frame{margin-bottom:var(--sp-xs)}
+.member b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;font-weight:600}
+.member span{font-size:var(--fs-small);color:var(--c-text-muted)}
+
+/* COMP-CTA sobrio — the close WITHOUT a form. It keeps the closing band's ground and its weight,
+   because the close is still a designed moment; what it drops is the lead capture, which is the
+   one thing that separates this archetype's DNA from TPL-C-01's. */
+.band.sober .canvas{justify-items:start}
+[data-comp="lp-centered"] .band.sober .canvas{justify-items:center}
+
 /* ── INTERIOR PAGES ──────────────────────────────────────────────────────────────────────────
    A template is a page set. Everything below belongs to pages that are NOT the home, and every
    one of them wears the home's header, footer, tokens and blueprint, because that is the whole
@@ -3306,6 +3462,7 @@ $COMP_CSS['centered'] = <<<'CSS'
 @media(min-width:1024px){
   /* "Images: always inside the container, equal margins left and right. Nothing bleeds, ever." */
   [data-comp="lp-centered"] .hero .media,
+  [data-comp="lp-centered"] .about .media,
   [data-comp="lp-centered"] .mini .media{max-width:var(--content-width);margin-inline:auto}
   [data-comp="lp-centered"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-comp="lp-centered"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3328,8 +3485,10 @@ $COMP_CSS['strict-grid'] = <<<'CSS'
     column-gap:var(--sp-m)}
   [data-comp="lp-strict-grid"] .canvas > *{grid-column:1/-1;min-width:0}
   [data-comp="lp-strict-grid"] .hero .head,
+  [data-comp="lp-strict-grid"] .about .head,
   [data-comp="lp-strict-grid"] .mini .head{grid-column:1/7;justify-content:center}
   [data-comp="lp-strict-grid"] .hero .media,
+  [data-comp="lp-strict-grid"] .about .media,
   [data-comp="lp-strict-grid"] .mini .media{grid-column:7/13}
   [data-comp="lp-strict-grid"] .items.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
   [data-comp="lp-strict-grid"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3394,9 +3553,11 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      nothing and cost the one thing worth having: an invariant simple enough to check. After this
      line the page has exactly three elements reaching `full-start`/`full-end` and all three are
      `.media`. See RT_MOCKUP_BLEED_NOT_MEDIA in framework-audit.php. */
-  [data-comp="lp-broken-grid"] .hero .head{grid-column:c 1/c 13;grid-row:1;
+  [data-comp="lp-broken-grid"] .hero .head,
+  [data-comp="lp-broken-grid"] .about .head{grid-column:c 1/c 13;grid-row:1;
     position:relative;z-index:2;justify-content:center}
-  [data-comp="lp-broken-grid"] .hero .media{grid-column:c 7/full-end;grid-row:1;
+  [data-comp="lp-broken-grid"] .hero .media,
+  [data-comp="lp-broken-grid"] .about .media{grid-column:c 7/full-end;grid-row:1;
     z-index:0;align-self:stretch}
   /* `height:100%` USED TO SIT HERE AND DID NOTHING — worse, it hid what actually sizes this box.
      A percentage height needs a definite basis; the grid row is auto-sized, so it resolved to
@@ -3511,7 +3672,8 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   /* headings left-aligned, never centred; the eyebrow sits above and left */
   [data-comp="lp-asymmetric"] .head{grid-column:c 1/c 8}
   /* the one bleed per section, always the SAME edge, all the way down the page */
-  [data-comp="lp-asymmetric"] .hero .media{grid-column:c 8/full-end}
+  [data-comp="lp-asymmetric"] .hero .media,
+  [data-comp="lp-asymmetric"] .about .media{grid-column:c 8/full-end}
   [data-comp="lp-asymmetric"] .hero .frame{border-radius:0}
   /* `justify-content:center` — the head is a column flex, so this is VERTICAL centring, and it is
      the same declaration this blueprint's own `.hero` equivalent and LP-STRICT-GRID both already
@@ -4168,6 +4330,126 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
 	return number_heads( implode( "\n", $o ) );
 }
 
+/**
+ * TPL-C-02 · Institutional Trust.
+ *
+ * Its DNA separates from TPL-C-01 in one place that matters more than all the section names: it
+ * closes with COMP-CTA and NOT with COMP-LEAD-FORM. C-01 chases a lead and the form dominates its
+ * close; C-02 opens a conversation. Rendering a form here would collapse two archetypes into one,
+ * which is exactly the defect the ecommerce family was rebuilt to fix.
+ */
+function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO — imagen fija + claim institucional  [fijo · ADN]
+	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-ABOUT  [fijo]
+	$ab  = $C['about'];
+	$ai  = img( $ab['img'] );
+	$o[] = '<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ab['h2'] ) . '</h2>';
+	foreach ( $ab['body'] as $para ) {
+		$o[] = '<p class="muted">' . h( $para ) . '</p>';
+	}
+	$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
+		. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	/* 3 · COMP-STATS  [fijo · ADN]
+	   THE NUMBERS ARE IN THE HTML. Two of the four reference kits ship theirs as `0+` and fill them
+	   with script on scroll, so their own live demo reads "0 clients" until the animation runs — and
+	   reads that way for good to anyone with JS blocked, and to every crawler. On an archetype whose
+	   entire job is credibility, a credential that only exists after a script is not a credential. */
+	$st  = $C['stats'];
+	$o[] = '<section class="sec stats" aria-label="Cifras"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $st['eyebrow'] ) . '</span></div>'
+		. '<dl class="figs">';
+	foreach ( $st['items'] as $it ) {
+		$o[] = '<div class="fig"><dt>' . h( $it[0] ) . '</dt><dd>' . h( $it[1] ) . '</dd></div>';
+	}
+	$o[] = '</dl></div></section>';
+
+	// 4 · COMP-SERVICES — áreas / especialidades  [fijo]
+	$sv  = $C['services'];
+	$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
+	foreach ( $sv['cards'] as $c ) {
+		$o[] = card_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 5 · COMP-CREDENTIALS  [toggle TGL-CREDENTIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-CREDENTIALS' ) ) {
+		$cd  = $C['credentials'];
+		$o[] = '<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $cd['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $cd['h2'] ) . '</h2></div><ul class="feats">';
+		foreach ( $cd['items'] as $it ) {
+			$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 6 · COMP-TEAM  [toggle TGL-TEAM]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
+		$tm  = $C['team'];
+		$o[] = '<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="items cols-3">';
+		foreach ( $tm['items'] as $it ) {
+			$ti  = img( $it[2] );
+			$o[] = '<li class="member"><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+				. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure>'
+				. '<b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 7 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 8 · COMP-CTA sobrio  [fijo] — NO lead form; see the note on this archetype's `band` content
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
 function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	global $SLIDER_FRAMES;
 	$hero    = $C['hero'];
@@ -4671,6 +4953,9 @@ $PAGES = array(
 		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
 		array( 'key' => 'servicio', 'label' => 'Servicio', 'doc' => 'TPL-SERVICE-01' ),
 	),
+	'TPL-C-02' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-02' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -4684,6 +4969,9 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	}
 	if ( 'TPL-C-01' === $tpl && 'servicio' === $page_key ) {
 		return page_service( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-02' === $tpl && 'home' === $page_key ) {
+		return strip_institutional( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
