@@ -908,6 +908,71 @@ $TOGGLES = array(
 			'options' => array( 'sí', 'no' ),
 		),
 	),
+	'TPL-C-04' => array(
+		'TGL-LOGOS'   => array(
+			'ask'     => '¿Logos de clientes / credenciales?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-PRICING' => array(
+			'ask'     => '¿Bloque de precios?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
+	'TPL-E-05' => array(
+		'TGL-PROMO-BANNER' => array(
+			'ask'     => '¿Bandas promocionales intercaladas?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-NEWSLETTER'   => array(
+			'ask'     => '¿Bloque de boletín?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
+	'TPL-C-05' => array(
+		'TGL-GALLERY'      => array(
+			'ask'     => '¿Galería del local?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-TESTIMONIALS' => array(
+			'ask'     => '¿Reseñas?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
+	'TPL-E-01' => array(
+		'TGL-HERO-TYPE'  => array(
+			'ask'     => '¿Hero con slider o imagen fija?',
+			'default' => 'slider',
+			'options' => array( 'imagen fija', 'slider' ),
+		),
+		'TGL-GALLERY'    => array(
+			'ask'     => '¿Lookbook?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-NEWSLETTER' => array(
+			'ask'     => '¿Bloque de boletín?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
+	'TPL-E-04' => array(
+		'TGL-BENEFITS'   => array(
+			'ask'     => '¿Barra de garantías?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-NEWSLETTER' => array(
+			'ask'     => '¿Bloque de boletín?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
 	'TPL-E-02' => array(),
 );
 
@@ -1743,6 +1808,436 @@ $CONTENT = array(
 		),
 	),
 
+	/* TPL-C-04 · Landing / Single Offer. One offer, one CTA, and the page repeats it. Its doc's
+	   DNA line is "una sola oferta, un solo CTA repetido, sin navegación que distraiga", so the
+	   header carries ONE link and the nav that every other corporate archetype prints is absent
+	   on purpose — the absence is the archetype. */
+	'TPL-C-04' => array(
+		'tpl'      => 'TPL-C-04',
+		'tpl_name' => 'Landing / Single Offer',
+		'site'     => 'corporate',
+		'site_es'  => 'Corporativa',
+		'fits'     => 'Campañas, lanzamientos, infoproductos, servicios de entrada, captación pagada',
+		'dna'      => 'COMP-HERO oferta única · COMP-PROBLEM · COMP-SOLUTION · COMP-PRICING · COMP-CTA',
+		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-PROBLEM · COMP-SOLUTION · COMP-FEATURES · COMP-LOGOS · COMP-PRICING · COMP-FAQ · COMP-CTA · COMP-FOOTER',
+		'nav'      => array(),
+		'nav_cta'  => 'Reservar medición',
+		'hero'     => array(
+			'eyebrow' => 'Oferta de temporada · hasta el 30 de septiembre',
+			'h1'      => 'Su encimera de piedra natural, medida y colocada en quince días',
+			'lede'    => 'Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.',
+			'cta_1'   => 'Reservar medición',
+			'cta_2'   => 'Ver qué incluye',
+			'img'     => 'hero-encimera',
+		),
+		'problem'  => array(
+			'eyebrow' => 'Por qué importa',
+			'h2'      => 'Lo que sale mal cuando no hay cantero',
+			'items'   => array(
+				array( 'Plazos que se mueven', 'La cocina lleva un mes montada y la encimera sigue "en fábrica". Sin taller propio nadie sabe dónde está la pieza.' ),
+				array( 'La junta que no estaba prevista', 'Se descubre el día del montaje, con los armarios puestos y sin margen para rehacer el despiece.' ),
+				array( 'Nadie responde', 'Cocinista, marmolista y colocador se señalan entre ellos. Usted paga la coordinación.' ),
+			),
+		),
+		'solution' => array(
+			'eyebrow' => 'La oferta',
+			'h2'      => 'Un interlocutor, un precio y una fecha',
+			'lede'    => 'Nosotros extraemos, cortamos y colocamos. No hay cadena en la que perder la pieza ni a quién derivar la culpa.',
+			'items'   => array(
+				array( 'Quince días', 'Desde la medición hasta la colocación, si el material está en stock.' ),
+				array( 'Precio cerrado', 'Por escrito antes de cortar. Si cambia el alcance, se firma otra vez.' ),
+				array( 'Una sola pieza', 'Hasta 3,4 m sin junta a la vista, que es el largo útil de nuestra bancada.' ),
+			),
+			'img'      => 'card-veta',
+		),
+		'features' => array(
+			'eyebrow' => 'Alcance',
+			'h2'      => 'Qué incluye',
+			'items'   => array(
+				array( 'Medición láser en obra', 'Con muebles montados y electrodomésticos presentes.' ),
+				array( 'Corte y pulido de canto', 'Recto, romo o biselado, decidido sobre muestra física.' ),
+				array( 'Seno y grifería', 'Perforaciones hechas en taller, no en su cocina.' ),
+				array( 'Retirada de la encimera vieja', 'Gestionada en punto limpio, incluida en el precio.' ),
+				array( 'Repaso de sellado a los seis meses', 'Una visita más, sin coste.' ),
+			),
+		),
+		'logos'    => array(
+			'eyebrow' => 'Han pasado por aquí',
+			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
+				'Vallmoll Interiors', 'Cuina Lleida', 'Fundació Sant Roc' ),
+		),
+		'pricing'  => array(
+			'eyebrow' => 'Precio',
+			'h2'      => 'Tres materiales, un mismo servicio',
+			'note'    => 'Precios por metro cuadrado, IVA incluido, medición y colocación aparte según metros. El presupuesto cerrado se emite tras la medición.',
+			'plans'   => array(
+				array( 'Granito Gris Quintana', '164 €/m²', array( 'El más duro de los tres', 'No necesita hidrófugo', 'Canto recto o romo' ), 'no' ),
+				array( 'Mármol Crema Levante', '189 €/m²', array( 'Veta continua garantizada', 'Hidrófugo aplicado', 'Cualquier canto' ), 'sí' ),
+				array( 'Veta dorada', '236 €/m²', array( 'Pieza única por bloque', 'Despiece supervisado', 'Canto biselado incluido' ), 'no' ),
+			),
+		),
+		'faq'      => array(
+			'eyebrow' => 'Dudas',
+			'h2'      => 'Antes de reservar',
+			'items'   => array(
+				array( '¿Qué pasa si mi cocina no está terminada?', 'No medimos. Volvemos cuando lo esté, sin coste y sin perder el turno reservado.' ),
+				array( '¿La medición se paga?', 'Se cobra 60 € y se descuentan íntegros del presupuesto si acepta.' ),
+				array( '¿Y si no me gusta la pieza que sale del bloque?', 'La ve antes de cortar. Si no le convence, elegimos otro bloque o le devolvemos la medición.' ),
+			),
+		),
+		'band'     => array(
+			'eyebrow' => 'Último paso',
+			'h2'      => 'Reserve la medición',
+			'lede'    => 'Quedan once turnos antes del 30 de septiembre. Se asignan por orden.',
+			'cta_1'   => 'Reservar medición',
+			'cta_2'   => '973 00 00 00',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · Alcarràs, Lleida',
+			'links' => array( 'Condiciones de la oferta', 'Privacidad' ),
+			'legal' => 'Oferta válida hasta el 30/09. Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* TPL-E-05 · Promo / Campaign. Urgency is the archetype, so the deadline appears four times.
+	   THE DEADLINE IS A DATE IN THE HTML, NOT A COUNTDOWN. A ticking clock is the device the
+	   reference kits reach for, and it renders `00:00:00` until its script runs — on a page whose
+	   entire argument is "this ends soon", a timer that says zero is the worst possible failure
+	   mode, and it fails that way for every crawler permanently. A date needs nothing. */
+	'TPL-E-05' => array(
+		'tpl'      => 'TPL-E-05',
+		'tpl_name' => 'Promo / Campaign',
+		'site'     => 'ecommerce',
+		'site_es'  => 'Ecommerce',
+		'fits'     => 'Rebajas, liquidación de stock, campañas de temporada, outlet, lanzamientos con fecha',
+		'dna'      => 'COMP-ANNOUNCEMENT urgencia · COMP-HERO promo · COMP-PRODUCT-GRID ofertas · COMP-PROMO-BANNER',
+		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO · COMP-PRODUCT-GRID · COMP-PROMO-BANNER · COMP-PRODUCT-CAROUSEL · COMP-TRUST-BADGES · COMP-CTA · COMP-NEWSLETTER · COMP-FOOTER',
+		'announce' => 'Liquidación de bancada · hasta el 30 de septiembre o fin de existencias',
+		'nav'      => array( 'Ofertas', 'Catálogo', 'Cortes a medida' ),
+		'search'   => 'Buscar mármol, granito, pizarra…',
+		'tools'    => array( 'Cuenta' ),
+		'cart'     => 'Carrito',
+		'cart_n'   => '3',
+		'hero'     => array(
+			'eyebrow' => 'Termina el 30 de septiembre',
+			'h1'      => 'Restos de bancada al 40%',
+			'lede'    => 'Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.',
+			'cta_1'   => 'Ver los restos',
+			'cta_2'   => 'Cómo funciona',
+			'img'     => 'card-veta',
+		),
+		'prods'    => array(
+			'eyebrow' => 'Ofertas',
+			'h2'      => 'Lo que queda hoy',
+			'cards'   => array(
+				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante · 1,4 m²',  'p' => '113 €/m²' ),
+				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana · 2,1 m²',  'p' => '98 €/m²' ),
+				array( 'img' => 'card-veta',   'h3' => 'Veta dorada · 0,9 m²',    'p' => '142 €/m²' ),
+				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble',        'p' => '247 €' ),
+				array( 'img' => 'card-detalle','h3' => 'Plaqueta 30×15 · 3 m²',   'p' => '28 €/m²' ),
+				array( 'img' => 'hero-encimera','h3' => 'Peldaño macizo 120 cm',  'p' => '83 €' ),
+			),
+		),
+		'promos'   => array(
+			array( 'Segunda pieza al 50%', 'Sobre la de menor precio, en el mismo pedido y el mismo material.', 'Ver condiciones' ),
+			array( 'Corte a medida sin coste', 'En cualquier resto de más de 1 m². El despiece lo hacemos nosotros.', 'Pedir corte' ),
+		),
+		'carousel' => array(
+			'eyebrow' => 'También rebajado',
+			'h2'      => 'Última bajada de precio',
+			'cards'   => array(
+				array( 'img' => 'card-patio', 'h3' => 'Canto pulido a mano', 'p' => '19 €/ml' ),
+				array( 'img' => 'card-labra', 'h3' => 'Bloque para labra',   'p' => '224 €' ),
+				array( 'img' => 'sq-manos',   'h3' => 'Kit de sellado 1 L',  'p' => '17 €' ),
+				array( 'img' => 'pan-fachada','h3' => 'Sillar de arenisca',  'p' => '67 €' ),
+			),
+		),
+		'badges'   => array( 'Envío en 72 h a península', 'Devolución en 30 días si no se ha cortado', 'Muestra física gratuita' ),
+		'band'     => array(
+			'eyebrow' => 'Antes del 30 de septiembre',
+			'h2'      => 'Cuando se acaba el resto, se acaba',
+			'lede'    => 'No reponemos: son piezas de encargos cerrados. Lo que ve es lo que hay.',
+			'cta_1'   => 'Ver los restos',
+			'cta_2'   => 'Avisarme del próximo lote',
+		),
+		'news'     => array(
+			'eyebrow' => 'Cupón',
+			'h2'      => 'Diez euros en su primer pedido',
+			'lede'    => 'Le mandamos el código al momento y le avisamos cuando entre lote nuevo.',
+			'label'   => 'Su correo',
+			'cta'     => 'Enviarme el código',
+			'small'   => 'Un correo por lote, nunca más de uno al mes. Puede darse de baja en cualquiera.',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · liquidación de bancada · Alcarràs, Lleida',
+			'links' => array( 'Condiciones', 'Envíos', 'Devoluciones' ),
+			'legal' => 'Precios con IVA. Oferta hasta el 30/09 o fin de existencias. Maqueta interna NovaMira.',
+		),
+	),
+
+	/* TPL-C-05 · Local / Booking. The archetype of a place you go to. Its header carries the PHONE
+	   as text, its close carries the address and the hours, and both are DNA: a local business
+	   whose phone number lives only inside a form is a local business you cannot ring from the car. */
+	'TPL-C-05' => array(
+		'tpl'      => 'TPL-C-05',
+		'tpl_name' => 'Local / Booking',
+		'site'     => 'corporate',
+		'site_es'  => 'Corporativa',
+		'fits'     => 'Restaurantes, peluquerías, clínicas, talleres, gimnasios, cualquier negocio con puerta',
+		'dna'      => 'COMP-HEADER con teléfono · COMP-HERO local · COMP-BOOKING · COMP-MAP-NAP',
+		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-BOOKING · COMP-GALLERY · COMP-TESTIMONIAL · COMP-MAP-NAP · COMP-FOOTER',
+		'nav'      => array( 'Showroom', 'Materiales', 'Cómo llegar' ),
+		'nav_cta'  => 'Pedir cita',
+		'phone'    => '973 00 00 00',
+		'hero'     => array(
+			'eyebrow' => 'Showroom en Alcarràs · a 12 min de Lleida',
+			'h1'      => 'Venga a tocar la piedra antes de decidirla',
+			'lede'    => 'Cuatrocientas tablas a la vista y un cantero que le dice cuál aguanta lo que quiere hacer. La visita dura una hora y no se paga.',
+			'cta_1'   => 'Pedir cita',
+			'cta_2'   => '973 00 00 00',
+			'img'     => 'card-veta',
+		),
+		'services' => array(
+			'eyebrow' => 'En la visita',
+			'h2'      => 'Qué se puede hacer aquí',
+			'cards'   => array(
+				array( 'img' => 'sq-marmol',   'h3' => 'Ver tabla entera', 'p' => 'No una muestra de 10 cm: la tabla de la que saldría su pieza.' ),
+				array( 'img' => 'card-detalle','h3' => 'Probar acabados',  'p' => 'Pulido, apomazado y envejecido sobre el mismo material.' ),
+				array( 'img' => 'card-patio',  'h3' => 'Cerrar despiece',  'p' => 'Con su plano encima de la mesa y el oficial que va a cortar.' ),
+			),
+		),
+		'booking'  => array(
+			'eyebrow' => 'Cita',
+			'h2'      => 'Reserve una hora',
+			'lede'    => 'Atendemos de uno en uno para que el cantero esté con usted toda la visita.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl' => 'Día',
+			'days'    => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+			'slot_lbl'=> 'Hora',
+			'slots'   => array( '09:00', '10:30', '12:00', '16:00', '17:30' ),
+			'submit'  => 'Pedir cita',
+			'small'   => 'Le confirmamos por teléfono el mismo día. Si no puede venir, avise y liberamos la hora.',
+		),
+		'gallery'  => array(
+			'eyebrow' => 'El sitio',
+			'h2'      => 'Cómo es por dentro',
+			'items'   => array( 'card-cantero', 'card-labra', 'sq-pizarra', 'card-mueble', 'sq-manos', 'hero-taller' ),
+		),
+		'quotes'   => array(
+			'eyebrow' => 'Reseñas',
+			'h2'      => 'Lo que dicen los que vinieron',
+			'items'   => array(
+				array( 'Fuimos con el plano de la cocina y salimos con el despiece cerrado. Una hora bien empleada.', 'Jordi Camps', 'Vallmoll' ),
+				array( 'Me enseñaron la tabla entera, no un trocito. Se ve la veta de verdad.', 'Aina Roca', 'Barcelona' ),
+				array( 'Nos dijeron que la caliza que queríamos no valía para el exterior. Nos ahorraron el disgusto.', 'Marta Vilanova', 'Lleida' ),
+			),
+		),
+		'nap'      => array(
+			'eyebrow' => 'Cómo llegar',
+			'h2'      => 'Alcarràs, Lleida',
+			'addr'    => array( 'Ctra. de la Cantera, 4', '25180 Alcarràs · Lleida' ),
+			'phone'   => '973 00 00 00',
+			'mail'    => 'showroom@piedravaldes.example',
+			'hours'   => array(
+				array( 'Lunes a jueves', '08:00 – 13:30 · 15:00 – 18:00' ),
+				array( 'Viernes', '08:00 – 14:00' ),
+				array( 'Sábado y domingo', 'Cerrado' ),
+			),
+			'note'    => 'Aparcamiento propio. Entrada por el patio de bloques, no por la nave.',
+			'img'     => 'pan-fachada',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · Ctra. de la Cantera 4, 25180 Alcarràs, Lleida · 973 00 00 00',
+			'links' => array( 'Cómo llegar', 'Horarios', 'Privacidad' ),
+			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* TPL-E-01 · Visual / Brand-Led. The catalogue arrives through CATEGORIES and a lookbook, never
+	   through a grid of SKUs: this is the shop where the reader is browsing a world, not looking up
+	   a part number. TPL-E-02 puts eight products above the fold; this one puts three doors. */
+	'TPL-E-01' => array(
+		'tpl'      => 'TPL-E-01',
+		'tpl_name' => 'Visual / Brand-Led',
+		'site'     => 'ecommerce',
+		'site_es'  => 'Ecommerce',
+		'fits'     => 'Moda, decoración, joyería, mobiliario, cosmética, cualquier compra que entra por el ojo',
+		'dna'      => 'COMP-HERO slider · COMP-CATEGORY-CARD · COMP-GALLERY lookbook · COMP-BOOKING',
+		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO slider · COMP-CATEGORY-CARD · COMP-PRODUCT-CAROUSEL · COMP-GALLERY · COMP-TESTIMONIAL · COMP-BOOKING · COMP-NEWSLETTER · COMP-FOOTER',
+		'announce' => 'Envío en 72 h · muestra física gratuita con cada pedido',
+		'nav'      => array( 'Encimeras', 'Suelos', 'Baño', 'Proyectos' ),
+		'search'   => 'Buscar material, acabado, formato…',
+		'tools'    => array( 'Cuenta' ),
+		'cart'     => 'Cesta',
+		'cart_n'   => '2',
+		'hero'     => array(
+			'eyebrow' => 'Colección 2026',
+			'h1'      => 'Piedra que se elige mirándola',
+			'lede'    => 'Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.',
+			'cta_1'   => 'Ver la colección',
+			'cta_2'   => 'Pedir muestra',
+			/* El MISMO fotograma con el que arranca el slider, y no una foto elegida aparte. La
+			   puerta de arriba lo exige y tiene razon: si `TGL-HERO-TYPE` cambiara tambien la
+			   imagen, dejaria de ser un toggle de COMPORTAMIENTO y nadie podria leer en la barra
+			   de datos que la diferencia entre dos tiras es una sola posicion movida. */
+			'img'     => 'hero-cantera',
+		),
+		'cats'     => array(
+			'eyebrow' => 'Por dónde empezar',
+			'h2'      => 'Tres familias',
+			'items'   => array(
+				array( 'Mármoles', 'Veta viva, para interior', '18 referencias', 'sq-marmol' ),
+				array( 'Granitos', 'Grano cerrado, para todo', '11 referencias', 'sq-pizarra' ),
+				array( 'Piedra labrada', 'Fachada y patrimonio', '6 referencias', 'card-labra' ),
+			),
+		),
+		'carousel' => array(
+			'eyebrow' => 'Se llevan ahora',
+			'h2'      => 'Lo más pedido esta temporada',
+			'cards'   => array(
+				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',    'p' => '189 €/m²' ),
+				array( 'img' => 'card-veta',   'h3' => 'Veta dorada',      'p' => '236 €/m²' ),
+				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',    'p' => '164 €/m²' ),
+				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble', 'p' => '412 €' ),
+			),
+		),
+		'gallery'  => array(
+			'eyebrow' => 'Lookbook',
+			'h2'      => 'Cómo queda puesta',
+			'items'   => array( 'hero-encimera', 'card-mueble', 'card-veta', 'pan-fachada', 'card-detalle', 'card-patio' ),
+		),
+		'quotes'   => array(
+			'eyebrow' => 'Quien ya la tiene',
+			'h2'      => 'Tres casas',
+			'items'   => array(
+				array( 'Elegí por foto y acerté porque me mandaron la tabla entera antes de cortar.', 'Aina Roca', 'Barcelona' ),
+				array( 'La veta sigue de una pieza a la otra. Se nota que salió del mismo bloque.', 'Jordi Camps', 'Vallmoll' ),
+				array( 'Vinieron a medir con la cocina puesta y no hubo sorpresas.', 'Marta Vilanova', 'Lleida' ),
+			),
+		),
+		'booking'  => array(
+			'eyebrow' => 'Asesoramiento',
+			'h2'      => 'Pida una cita de medición',
+			'lede'    => 'Vamos a su obra con láser y muestras. La visita no se cobra si el pedido sale adelante.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl' => 'Día',
+			'days'    => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+			'slot_lbl'=> 'Franja',
+			'slots'   => array( 'Mañana', 'Mediodía', 'Tarde' ),
+			'submit'  => 'Pedir cita',
+			'small'   => 'Le confirmamos por teléfono el mismo día.',
+		),
+		'news'     => array(
+			'eyebrow' => 'Boletín',
+			'h2'      => 'Le avisamos cuando entre material nuevo',
+			'lede'    => 'Un correo por colección. Nunca ofertas.',
+			'label'   => 'Su correo',
+			'cta'     => 'Avisarme',
+			'small'   => 'Puede darse de baja en cualquier correo.',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · colección 2026 · Alcarràs, Lleida',
+			'links' => array( 'Envíos', 'Devoluciones', 'Privacidad' ),
+			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* TPL-E-04 · Categories First. The catalogue is WIDE, so the page routes before it sells: a
+	   dense category grid first, then products organised by tab. TPL-E-02 answers "I know what I
+	   want"; this one answers "I know roughly where to look". */
+	'TPL-E-04' => array(
+		'tpl'      => 'TPL-E-04',
+		'tpl_name' => 'Categories First',
+		'site'     => 'ecommerce',
+		'site_es'  => 'Ecommerce',
+		'fits'     => 'Catálogos amplios: ferretería, suministro industrial, papelería, repuestos, distribución',
+		'dna'      => 'COMP-CATEGORY-GRID · COMP-PRODUCT-TABS · COMP-BENEFITS',
+		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO · COMP-CATEGORY-GRID · COMP-PRODUCT-TABS · COMP-BENEFITS · COMP-CTA · COMP-CATEGORY-CARD · COMP-NEWSLETTER · COMP-FOOTER',
+		'announce' => 'Más de 400 referencias en stock · corte a medida en 72 h',
+		'nav'      => array( 'Catálogo', 'Formatos', 'Profesionales', 'Ayuda' ),
+		'search'   => 'Referencia, material o formato…',
+		'tools'    => array( 'Cuenta', 'Pedidos' ),
+		'cart'     => 'Carrito',
+		'cart_n'   => '5',
+		'hero'     => array(
+			'eyebrow' => 'Catálogo completo',
+			'h1'      => 'Cuatrocientas referencias, ordenadas',
+			'lede'    => 'Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.',
+			'cta_1'   => 'Ver el catálogo',
+			'cta_2'   => 'Cuenta de profesional',
+			'img'     => 'card-veta',
+		),
+		'grid'     => array(
+			'eyebrow' => 'Por dónde empezar',
+			'h2'      => 'Categorías',
+			'items'   => array(
+				array( 'Encimeras', '84' ), array( 'Suelos', '112' ), array( 'Fachada', '46' ),
+				array( 'Baño', '38' ), array( 'Peldaños', '29' ), array( 'Plaqueta', '51' ),
+				array( 'Chimeneas', '17' ), array( 'Restos de bancada', '23' ),
+			),
+		),
+		'tabs'     => array(
+			'eyebrow' => 'Novedades',
+			'h2'      => 'Lo último por familia',
+			'panels'  => array(
+				array( 'Mármoles', array(
+					array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',      'p' => '189 €/m²' ),
+					array( 'img' => 'card-veta',   'h3' => 'Veta dorada',        'p' => '236 €/m²' ),
+					array( 'img' => 'card-detalle','h3' => 'Blanco Macael',      'p' => '212 €/m²' ),
+					array( 'img' => 'card-mueble', 'h3' => 'Travertino romano',  'p' => '178 €/m²' ),
+				) ),
+				array( 'Granitos', array(
+					array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',      'p' => '164 €/m²' ),
+					array( 'img' => 'card-patio',  'h3' => 'Negro Zimbabue',     'p' => '241 €/m²' ),
+					array( 'img' => 'card-labra',  'h3' => 'Rosa Porriño',       'p' => '156 €/m²' ),
+					array( 'img' => 'sq-manos',    'h3' => 'Blanco Cristal',     'p' => '183 €/m²' ),
+				) ),
+				array( 'Labrada', array(
+					array( 'img' => 'pan-fachada', 'h3' => 'Sillar de arenisca', 'p' => '96 €' ),
+					array( 'img' => 'card-labra',  'h3' => 'Capitel liso',       'p' => '340 €' ),
+					array( 'img' => 'hero-taller', 'h3' => 'Moldura corrida',    'p' => '48 €/ml' ),
+					array( 'img' => 'card-cantero','h3' => 'Peldaño macizo',     'p' => '138 €' ),
+				) ),
+			),
+		),
+		'benefits' => array( 'Corte a medida sin coste', 'Envío en 72 h a península', 'Cuenta de profesional con precios netos' ),
+		'band'     => array(
+			'eyebrow' => 'Profesionales',
+			'h2'      => '¿Compra para obra?',
+			'lede'    => 'Abrimos cuenta con precios netos, albarán por obra y pago a treinta días.',
+			'cta_1'   => 'Abrir cuenta',
+			'cta_2'   => 'Hablar con ventas',
+		),
+		'cats'     => array(
+			'eyebrow' => 'También buscan',
+			'h2'      => 'Tres entradas rápidas',
+			'items'   => array(
+				array( 'Restos de bancada', 'Piezas sueltas rebajadas', '23 referencias', 'card-veta' ),
+				array( 'Formato plaqueta', '30×15 y 40×20', '51 referencias', 'card-detalle' ),
+				array( 'Stock inmediato', 'Sale hoy del almacén', '96 referencias', 'sq-marmol' ),
+			),
+		),
+		'news'     => array(
+			'eyebrow' => 'Boletín',
+			'h2'      => 'Entradas de stock y bajadas de precio',
+			'lede'    => 'Un correo al mes con lo que ha entrado y lo que ha bajado.',
+			'label'   => 'Su correo',
+			'cta'     => 'Suscribirme',
+			'small'   => 'Puede darse de baja en cualquier correo.',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · catálogo y suministro · Alcarràs, Lleida',
+			'links' => array( 'Formatos', 'Envíos', 'Profesionales' ),
+			'legal' => 'Precios sin IVA para cuenta profesional. Maqueta interna NovaMira.',
+		),
+	),
+
 	'TPL-E-02' => array(
 		'tpl'      => 'TPL-E-02',
 		'tpl_name' => 'Catalog / Product-First',
@@ -1979,6 +2474,31 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'direct' ),
+	/* TPL-C-04 · la landing de oferta única. */
+	array( 'tpl' => 'TPL-C-04', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-C-04', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-04', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-04', 'anchor' => 'institutional' ),
+	/* TPL-E-05 · la campaña con fecha. */
+	array( 'tpl' => 'TPL-E-05', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-E-05', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-05', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-05', 'anchor' => 'institutional' ),
+	/* TPL-C-05 · el negocio con puerta. */
+	array( 'tpl' => 'TPL-C-05', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-05', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-C-05', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-05', 'anchor' => 'direct' ),
+	/* TPL-E-01 · la tienda que entra por el ojo. */
+	array( 'tpl' => 'TPL-E-01', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-01', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-01', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-E-01', 'anchor' => 'institutional' ),
+	/* TPL-E-04 · el catálogo ancho. */
+	array( 'tpl' => 'TPL-E-04', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-E-04', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-E-04', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-E-04', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
@@ -3162,6 +3682,11 @@ $css[] = <<<'CSS'
        margin:0;padding-block:var(--sp-l)}
 @media(min-width:600px){.tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1100px){.tgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* CUATRO columnas en pantalla ancha, porque un grupo tiene CUATRO anclas. A tres columnas
+   toda plantilla parte 3+1 y la cuarta variante queda sola en una fila, que se lee como un
+   hueco y no como el juego completo que es. El numero de columnas aqui no es una preferencia
+   de rejilla: es el numero de anclas. */
+@media(min-width:1400px){.tgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .tgrid > li{display:flex;min-width:0}
 .tgrid > li[hidden]{display:none}
 
@@ -3231,6 +3756,153 @@ $css[] = <<<'CSS'
    It reuses `.steps`/`.step` rather than growing a parallel implementation: two things that must
    stay visually identical and are written twice start to drift on the first edit to one of them.
    A value that cannot be counted is a slogan, so they are counted. */
+
+/* ── COMP-PRICING · TPL-C-04 ─────────────────────────────────────────────────────────────────
+   THE RECOMMENDED PLAN IS MARKED WITH WEIGHT AND A WORD, never with colour alone. A plan set that
+   reads only by hue is invisible to a monochrome reader and to most colour-blind ones — the same
+   rule the filter chips and the finish options already follow. The word is `El más pedido`, which
+   is a fact about orders and not an adjective about the plan. */
+.plans{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+       grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.plans{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.plan{min-width:0;display:flex;flex-direction:column;gap:.35rem;
+      padding:var(--sp-m);border:1px solid var(--c-border);border-radius:var(--radius-card);
+      background:var(--c-bg)}
+.plan-best{border-color:var(--c-text);border-width:2px;padding:calc(var(--sp-m) - 1px)}
+.plan-tag{align-self:start;font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
+          border:1px solid var(--c-text);border-radius:999px;padding:.1rem .5rem}
+.plan-name{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;font-weight:600}
+.plan-price{font-size:var(--fs-h2);line-height:1;font-variant-numeric:tabular-nums;
+            font-family:var(--font-primary)}
+.plan-list{list-style:none;margin:var(--sp-xs) 0 0;padding:0;display:grid;gap:.25rem;
+           font-size:var(--fs-small);color:var(--c-text-soft)}
+.plan-list li{padding-left:1rem;position:relative}
+.plan-list li::before{content:"·";position:absolute;left:.3rem;color:var(--c-text-muted)}
+/* The button is pinned to the bottom so three plans with different feature counts still line their
+   controls up — the product card learned this first, and for the same reason. */
+.plan .btn{margin-top:auto}
+.plan-note{margin-top:var(--sp-s);max-width:70ch}
+
+/* ── COMP-SOLUTION · the mirror of COMP-PROBLEM ───────────────────────────────────────────── */
+.solution .head .feats{margin-top:var(--sp-s)}
+
+/* ── COMP-PROMO-BANNER · TPL-E-05 ────────────────────────────────────────────────────────────
+   A BAND, NOT A CARD. It interrupts the catalogue instead of joining it, which is the only way an
+   offer reads as an offer rather than as one more product in the grid. Its section has no `.head`,
+   so it also breaks the page's own rhythm of eyebrow-then-heading — deliberately.
+
+   THE ACCENT STAYS OFF IT. A whole surface shouting is the closing band's job, once per page; two
+   more would turn the accent into a texture, which is the tell design-tokens.md forbids and the
+   defect this file spent a whole round undoing. */
+.promo .canvas{padding-block:var(--sp-m)}
+.promo-in{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-xs) var(--sp-m);
+          padding:var(--sp-m);border:1px solid var(--c-border);border-radius:var(--radius-card)}
+.promo-in b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;
+            min-width:0;hyphens:auto}
+.promo-in span{color:var(--c-text-soft);font-size:var(--fs-small);flex:1 1 18ch;min-width:0}
+.promo-in .btn{margin-left:auto;flex:0 0 auto}
+@media(max-width:599px){.promo-in .btn{margin-left:0}}
+
+/* ── TPL-C-05 · Local / Booking ──────────────────────────────────────────────────────────────
+   The phone number in the header is a LINK IN TEXT, not an icon. An icon-only phone is a phone
+   number you cannot copy, cannot read aloud and cannot search for on the page. */
+.tel{font-size:var(--fs-nav);white-space:nowrap;color:var(--c-text);margin-left:auto;
+     margin-right:var(--sp-s)}
+.tel:hover{color:var(--c-accent)}
+@media(max-width:767px){.tel{margin-left:0;margin-right:var(--sp-xs)}}
+
+/* COMP-BOOKING — day and slot as radio ROWS. `.opts-wide` lets a five-slot group breathe on one
+   line where the PDP's three finishes did not need to. */
+.bookform{display:grid;gap:var(--sp-s);max-width:44rem}
+.opts-wide{gap:.35rem}
+.book-small{max-width:52ch}
+
+/* COMP-GALLERY — six frames, no lightbox. A lightbox is script the reader must load before seeing
+   the second photograph, and on a mockup it promises a plugin nobody has chosen yet. */
+.shots{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-xs);
+       grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:768px){.shots{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* COMP-MAP-NAP — address, phone and hours as TEXT. No embedded map: an iframe to a map provider is
+   a remote request the Artifact CSP blocks, and on a real build a third-party cookie set before
+   the visitor consented to anything. */
+.nap-addr{font-style:normal;display:grid;gap:.15rem;margin-top:var(--sp-xs)}
+.nap-addr a{color:var(--c-text);text-decoration:underline;text-underline-offset:.2em}
+.nap-addr a:hover{color:var(--c-accent)}
+.hours{margin:var(--sp-s) 0 0;display:grid;gap:.2rem;font-size:var(--fs-small)}
+.hours > div{display:flex;flex-wrap:wrap;gap:.2rem var(--sp-s);
+             border-top:1px solid var(--c-border);padding-top:.25rem}
+.hours dt{color:var(--c-text-muted);flex:0 0 14ch}
+.hours dd{margin:0;font-variant-numeric:tabular-nums}
+
+/* ── COMP-CATEGORY-CARD · TPL-E-01 and TPL-E-04 ──────────────────────────────────────────────
+   A DOOR, NOT A PRODUCT, so it is deliberately bigger and carries no price. And it carries a
+   COUNT: a category with no number is a promise the reader cannot size, and the second empty room
+   is where people stop clicking. The count sits at the bottom of the card on `margin-top:auto`,
+   which is the third time that trick earns its place here — the product card, the pricing plan,
+   and now this. */
+.catcards{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+          grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.catcards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.catcard{min-width:0}
+.catcard a{display:flex;flex-direction:column;height:100%;color:inherit;text-decoration:none}
+.catcard .frame{overflow:hidden}
+.catcard img{transition:transform var(--dur-lift,.5s) var(--ease)}
+.catcard a:hover img{transform:scale(1.03)}
+.catcard a:focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+.catcard-body{display:flex;flex-direction:column;flex:1;gap:.15rem;padding-top:var(--sp-xs)}
+.catcard-body b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2}
+.catcard-sub{font-size:var(--fs-small);color:var(--c-text-soft)}
+.catcard-n{margin-top:auto;padding-top:var(--sp-xs);font-size:var(--fs-eyebrow);
+           letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted)}
+.catcard a:hover b{color:var(--c-accent)}
+@media(prefers-reduced-motion:reduce){
+  .catcard img{transition:none}
+  .catcard a:hover img{transform:none}
+}
+
+/* ── COMP-CATEGORY-GRID · TPL-E-04 ───────────────────────────────────────────────────────────
+   TEXT TILES, NOT PHOTOGRAPHS. Eight photographic doors are eight more images to decode before the
+   reader can route, and routing is what this archetype is for — here the count is the argument,
+   not the picture. COMP-CATEGORY-CARD lower down does carry photographs, because three doors can
+   afford them and eight cannot. */
+.tiles{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-xs);
+       grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:768px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tiles a{display:flex;flex-direction:column;gap:.1rem;min-width:0;height:100%;
+         padding:var(--sp-s) var(--sp-m);color:inherit;text-decoration:none;
+         border:1px solid var(--c-border);border-radius:var(--radius-card);
+         transition:border-color var(--dur-color) var(--ease)}
+.tiles a:hover{border-color:var(--c-accent)}
+.tiles a:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+.tiles b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;
+         min-width:0;hyphens:auto;overflow-wrap:break-word}
+.tiles span{margin-top:auto;font-size:var(--fs-eyebrow);letter-spacing:.14em;
+            color:var(--c-text-muted);font-variant-numeric:tabular-nums}
+
+/* ── COMP-PRODUCT-TABS · TPL-E-04 ────────────────────────────────────────────────────────────
+   TABS WITHOUT A LINE OF JAVASCRIPT. Radio inputs plus a sibling selector: a tab set that needs
+   script shows one panel and three dead labels until it loads, and shows exactly that forever to a
+   crawler. The inputs are visually hidden but focusable — `clip` and not `display:none`, because a
+   display:none radio is unreachable by keyboard and drops out of the tab order entirely. */
+.tabset{display:flex;flex-wrap:wrap;gap:.4rem}
+.tabin{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+       clip-path:inset(50%);white-space:nowrap}
+.tablab{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+        font-size:var(--fs-small);line-height:1.2;padding:.3rem .8rem;white-space:nowrap;
+        border:1px solid var(--c-border);border-radius:999px;color:var(--c-text-soft);
+        transition:background var(--dur-color) var(--ease),color var(--dur-color) var(--ease),
+                   border-color var(--dur-color) var(--ease)}
+.tablab:hover{border-color:var(--c-text-muted);color:var(--c-text)}
+/* Colour AND weight for the selected tab, never colour alone. */
+.tabin:checked + .tablab{background:var(--c-text);border-color:var(--c-text);
+                         color:var(--c-bg);font-weight:700}
+.tabin:focus-visible + .tablab{outline:2px solid var(--c-accent);outline-offset:2px}
+.tabpanels{flex:1 0 100%;margin-top:var(--sp-m)}
+.tabpanel{display:none}
+.tabin:nth-of-type(1):checked ~ .tabpanels > .tabpanel:nth-child(1),
+.tabin:nth-of-type(2):checked ~ .tabpanels > .tabpanel:nth-child(2),
+.tabin:nth-of-type(3):checked ~ .tabpanels > .tabpanel:nth-child(3){display:block}
 
 /* ── TPL-C-03 · Portfolio / Showcase ──────────────────────────────────────────────────────── */
 
@@ -5009,6 +5681,577 @@ function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return number_heads( implode( "\n", $o ) );
 }
 
+/**
+ * TPL-C-04 · Landing / Single Offer.
+ *
+ * Its doc's DNA is "una sola oferta, un solo CTA repetido, sin navegación que distraiga", so the
+ * header prints NO nav at all — `head_corporate()` already emits an empty `<nav>` when the array
+ * is empty, and the absence is the archetype rather than a missing feature. The same CTA label
+ * appears four times on the page on purpose; on every other archetype that would be a defect.
+ */
+function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO — propuesta única + CTA fuerte  [fijo · ADN]
+	$o[] = '<section class="sec hero" aria-label="Oferta"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-PROBLEM  [fijo · ADN] — same rails as TPL-SERVICE-01's "qué resolvemos"
+	$pb  = $C['problem'];
+	$o[] = '<section class="sec problems grid-sec bg-alt" aria-label="El problema"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pb['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pb['h2'] ) . '</h2></div><ul class="items cols-3">';
+	foreach ( $pb['items'] as $it ) {
+		$o[] = '<li class="prob"><h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	/* 3 · COMP-SOLUTION  [fijo · ADN]
+	   The mirror of COMP-PROBLEM and it has to READ as the mirror: same three-count, same order,
+	   each item answering the problem above it. A solution block whose items do not line up with
+	   the problems is two lists that happen to be adjacent. */
+	$sl  = $C['solution'];
+	$si  = img( $sl['img'] );
+	$o[] = '<section class="sec solution" aria-label="La solución"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sl['h2'] ) . '</h2><p class="muted">' . h( $sl['lede'] ) . '</p>'
+		. '<ul class="feats">';
+	foreach ( $sl['items'] as $it ) {
+		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div><div class="media"><figure class="frame"><img data-img="' . h( $si['slug'] ) . '"'
+		. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 4 · COMP-FEATURES  [fijo]
+	$ft  = $C['features'];
+	$o[] = '<section class="sec features grid-sec bg-alt" aria-label="Alcance"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ft['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ft['h2'] ) . '</h2></div><ul class="feats">';
+	foreach ( $ft['items'] as $it ) {
+		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 5 · COMP-LOGOS  [toggle TGL-LOGOS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
+		$lg  = $C['logos'];
+		$o[] = '<section class="sec logos" aria-label="Clientes"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
+		foreach ( $lg['items'] as $l ) {
+			$o[] = '<li>' . h( $l ) . '</li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	/* 6 · COMP-PRICING  [toggle TGL-PRICING]
+	   The recommended plan is marked with WEIGHT AND A WORD, never with colour alone: a plan set
+	   that reads only by hue is invisible to a monochrome reader and to most colour-blind ones,
+	   which is the same rule the filter chips follow. */
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PRICING' ) ) {
+		$pr  = $C['pricing'];
+		$o[] = '<section class="sec pricing grid-sec" aria-label="Precio"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $pr['h2'] ) . '</h2></div><ul class="plans">';
+		foreach ( $pr['plans'] as $pl ) {
+			$best = ( 'sí' === $pl[3] );
+			$o[]  = '<li class="plan' . ( $best ? ' plan-best' : '' ) . '">'
+				. ( $best ? '<span class="plan-tag">El más pedido</span>' : '' )
+				. '<b class="plan-name">' . h( $pl[0] ) . '</b>'
+				. '<span class="plan-price">' . h( $pl[1] ) . '</span><ul class="plan-list">';
+			foreach ( $pl[2] as $f ) {
+				$o[] = '<li>' . h( $f ) . '</li>';
+			}
+			$o[] = '</ul><a class="btn ' . ( $best ? 'btn-primary' : 'btn-outline' ) . '" href="#">'
+				. h( $C['nav_cta'] ) . '</a></li>';
+		}
+		$o[] = '</ul><p class="small muted plan-note">' . h( $pr['note'] ) . '</p></div></section>';
+	}
+
+	// 7 · COMP-FAQ  [fijo]
+	$fq  = $C['faq'];
+	$o[] = '<section class="sec faq bg-alt" aria-label="Preguntas frecuentes"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="qas">';
+	foreach ( $fq['items'] as $q ) {
+		$o[] = '<details><summary>' . h( $q[0] ) . '</summary><p>' . h( $q[1] ) . '</p></details>';
+	}
+	$o[] = '</div></div></section>';
+
+	// 8 · COMP-CTA cierre final  [fijo · ADN]
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Reservar"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-E-05 · Promo / Campaign.
+ *
+ * THE DEADLINE IS A DATE IN THE HTML AND NOT A COUNTDOWN. A ticking clock is the device the
+ * reference kits reach for, and it renders `00:00:00` until its script runs. On a page whose whole
+ * argument is "this ends soon", a timer reading zero is the worst failure this archetype has — and
+ * it reads that way permanently for every crawler and for anyone whose JS is blocked. A date needs
+ * nothing to be true. It appears four times, which on any other archetype would be repetition and
+ * here is the point.
+ */
+function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_ecommerce( $C, $BRAND, $uid );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO promo  [fijo · ADN]
+	$o[] = '<section class="sec hero" aria-label="Campaña"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-PRODUCT-GRID ofertas  [fijo · ADN]
+	$p   = $C['prods'];
+	$o[] = '<section class="sec prods grid-sec" aria-label="Ofertas"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $p['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $p['h2'] ) . '</h2></div><div class="items grid-prod">';
+	foreach ( $p['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	/* 3 · COMP-PROMO-BANNER ×2  [toggle TGL-PROMO-BANNER]
+	   A band, not a card: it interrupts the catalogue instead of joining it, which is the only way
+	   an offer reads as an offer and not as one more product. The accent stays off it — a whole
+	   surface shouting is the closing band's job once per page, and two more would make the accent
+	   a texture. */
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROMO-BANNER' ) ) {
+		foreach ( $C['promos'] as $i => $pm ) {
+			$o[] = '<section class="sec promo' . ( 0 === $i % 2 ? ' bg-alt' : '' ) . '"'
+				. ' aria-label="' . h( $pm[0] ) . '"><div class="canvas">'
+				. '<div class="promo-in"><b>' . h( $pm[0] ) . '</b>'
+				. '<span>' . h( $pm[1] ) . '</span>'
+				. '<a class="btn btn-outline btn-sm" href="#">' . h( $pm[2] ) . '</a></div>'
+				. '</div></section>';
+		}
+	}
+
+	// 4 · COMP-PRODUCT-CAROUSEL  [fijo]
+	$cr  = $C['carousel'];
+	$o[] = '<section class="sec carousel grid-sec" aria-label="Más ofertas"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
+	foreach ( $cr['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 5 · COMP-TRUST-BADGES  [fijo]
+	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
+	foreach ( $C['badges'] as $b ) {
+		$o[] = '<p class="ben"><span class="bicon" aria-hidden="true">✓</span>' . h( $b ) . '</p>';
+	}
+	$o[] = '</div></div></section>';
+
+	// 6 · COMP-CTA  [fijo]
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Cierre"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	// 7 · COMP-NEWSLETTER cupón  [toggle TGL-NEWSLETTER]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
+		$o[] = newsletter_html( $C['news'], $uid );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * COMP-GALLERY · declared by TPL-C-05 and TPL-E-01, so it is emitted from one place.
+ *
+ * Six frames, no lightbox. A lightbox is script that must load before the reader can see the
+ * second photograph, and on a mockup it would be a promise about a plugin nobody has chosen yet.
+ */
+function gallery_html( $g ) {
+	$o = '<section class="sec gallery grid-sec" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots">';
+	foreach ( $g['items'] as $slug ) {
+		$gi = img( $slug );
+		$o .= '<li><figure class="frame sq"><img data-img="' . h( $gi['slug'] ) . '"'
+			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '"></figure></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * TPL-C-05 · Local / Booking.
+ *
+ * The archetype of a place you go to, and two things are DNA rather than decoration: the PHONE
+ * sits in the header as text, and the close carries the address and the opening hours. A local
+ * business whose number lives only inside a form is one you cannot ring from the car, and hours
+ * that are not on the page are a wasted trip.
+ */
+function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	/* COMP-HEADER con teléfono  [fijo · ADN] — its own header, because the phone number beside the
+	   CTA is the one thing this archetype's doc singles out about it. */
+	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o[] = '<a href="#">' . h( $n ) . '</a>';
+	}
+	$o[] = '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
+		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '</div></div></header>';
+
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO local  [fijo · ADN]
+	$o[] = '<section class="sec hero" aria-label="El showroom"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-SERVICES  [fijo]
+	$sv  = $C['services'];
+	$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Prestaciones"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
+	foreach ( $sv['cards'] as $c ) {
+		$o[] = card_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	/* 3 · COMP-BOOKING  [fijo · ADN]
+	   Day and slot are RADIO GROUPS, not a `<select>`. A select hides every option but one behind
+	   a tap, and on a booking block the available times ARE the argument: five visible slots say
+	   "there is room this week" and a closed dropdown says nothing at all. */
+	$o[] = booking_html( $C['booking'], $uid );
+
+	// 4 · COMP-GALLERY  [toggle TGL-GALLERY]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
+		$o[] = gallery_html( $C['gallery'] );
+	}
+
+	// 5 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Reseñas"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	/* 6 · COMP-MAP-NAP  [fijo · ADN]
+	   NO EMBEDDED MAP. An iframe to a map provider is a remote request the Artifact CSP blocks
+	   outright, and on a real build it is a third-party cookie before the visitor has consented to
+	   anything. What a NAP block owes the reader is the ADDRESS, the PHONE and the HOURS as text —
+	   copyable, searchable, and readable by a screen reader. The photograph stands in for the map. */
+	$np  = $C['nap'];
+	$ni  = img( $np['img'] );
+	$o[] = '<section class="sec nap closing" aria-label="Cómo llegar"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $np['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $np['h2'] ) . '</h2>'
+		. '<address class="nap-addr">';
+	foreach ( $np['addr'] as $line ) {
+		$o[] = '<span>' . h( $line ) . '</span>';
+	}
+	$o[] = '<a href="#">' . h( $np['phone'] ) . '</a><a href="#">' . h( $np['mail'] ) . '</a>'
+		. '</address><dl class="hours">';
+	foreach ( $np['hours'] as $hr ) {
+		$o[] = '<div><dt>' . h( $hr[0] ) . '</dt><dd>' . h( $hr[1] ) . '</dd></div>';
+	}
+	$o[] = '</dl><p class="small muted">' . h( $np['note'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
+		. ' alt="' . h( $ni['alt'] ) . '" width="' . $ni['w'] . '" height="' . $ni['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * COMP-BOOKING · declared by TPL-C-05 and TPL-E-01, so it is emitted from one place.
+ *
+ * DAY AND SLOT ARE RADIO GROUPS, NOT A `<select>`. A select hides every option but one behind a
+ * tap, and on a booking block the available times ARE the argument: five visible slots say "there
+ * is room this week" and a closed dropdown says nothing at all.
+ *
+ * It takes the SAMPLE's uid because every input here carries an id a `<label for>` points at, and
+ * two archetypes on one page means two live booking forms.
+ */
+function booking_html( $bk, $uid ) {
+	$o = '<section class="sec booking" aria-label="Cita"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $bk['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $bk['h2'] ) . '</h2><p class="muted">' . h( $bk['lede'] ) . '</p></div>'
+		. '<form class="bookform" onsubmit="return false">';
+	foreach ( $bk['fields'] as $f ) {
+		$id = $uid . '-bk-' . $f[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+	}
+	foreach ( array(
+		array( 'day', $bk['day_lbl'], $bk['days'] ),
+		array( 'slot', $bk['slot_lbl'], $bk['slots'] ),
+	) as $grp ) {
+		$o .= '<fieldset class="opts opts-wide"><legend>' . h( $grp[1] ) . '</legend>';
+		foreach ( $grp[2] as $i => $opt ) {
+			$oid = $uid . '-' . $grp[0] . $i;
+			$o  .= '<label class="opt" for="' . $oid . '">'
+				. '<input type="radio" id="' . $oid . '" name="' . $uid . '-' . $grp[0] . '"'
+				. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $opt ) . '</span></label>';
+		}
+		$o .= '</fieldset>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $bk['submit'] ) . '</button>'
+		. '<p class="small muted book-small">' . h( $bk['small'] ) . '</p>'
+		. '</form></div></section>';
+}
+
+/**
+ * COMP-CATEGORY-CARD · declared by TPL-E-01 and TPL-E-04.
+ *
+ * A door, not a product. It carries a COUNT because a category with no count is a promise the
+ * reader cannot size: "18 referencias" tells them whether the click is worth it, and a category
+ * card that hides the number is the one people stop clicking after the second empty room.
+ */
+function category_cards_html( $anchor_key, $cs ) {
+	$o = '<section class="sec cats-sec grid-sec" aria-label="' . h( $cs['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cs['h2'] ) . '</h2></div><ul class="catcards">';
+	foreach ( $cs['items'] as $it ) {
+		$ci = img( $it[3] );
+		$o .= '<li class="catcard"><a href="#">'
+			. '<figure class="frame"><img data-img="' . h( $ci['slug'] ) . '"'
+			. ' alt="' . h( $ci['alt'] ) . '" width="' . $ci['w'] . '" height="' . $ci['h'] . '"></figure>'
+			. '<span class="catcard-body"><b>' . h( $it[0] ) . '</b>'
+			. '<span class="catcard-sub">' . h( $it[1] ) . '</span>'
+			. '<span class="catcard-n">' . h( $it[2] ) . '</span></span>'
+			. '</a></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * TPL-E-01 · Visual / Brand-Led.
+ *
+ * The catalogue arrives through CATEGORIES and a lookbook, never through a grid of SKUs. TPL-E-02
+ * puts eight products above the fold because a catalogue shop is something you search; this one
+ * puts three doors, because a brand-led shop is something you browse. Same brand, same photographs,
+ * and the two are not confusable after one screen — which is the only test that matters.
+ */
+function strip_visual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	global $SLIDER_FRAMES;
+	$hero   = $C['hero'];
+	$im     = img( $hero['img'] );
+	$slider = ( 'slider' === tgl_of( $tgl_rows, 'TGL-HERO-TYPE' ) );
+	$o      = array();
+
+	$o[] = head_ecommerce( $C, $BRAND, $uid );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO slider ~60vh  [fijo · ADN] — same toggle, same copy, one changed setting
+	$o[] = '<section class="sec hero' . ( $slider ? ' hero-slides' : '' ) . '" aria-label="Colección">'
+		. ( $slider ? hero_slider_html( $SLIDER_FRAMES ) : '' )
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
+		. '</div></section>';
+
+	// 2 · COMP-CATEGORY-CARD  [fijo · ADN]
+	$o[] = category_cards_html( $anchor_key, $C['cats'] );
+
+	// 3 · COMP-PRODUCT-CAROUSEL  [fijo]
+	$cr  = $C['carousel'];
+	$o[] = '<section class="sec carousel grid-sec bg-alt" aria-label="Destacados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
+	foreach ( $cr['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 4 · COMP-GALLERY lookbook  [toggle TGL-GALLERY]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
+		$o[] = gallery_html( $C['gallery'] );
+	}
+
+	// 5 · COMP-TESTIMONIAL  [fijo]
+	$qt  = $C['quotes'];
+	$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+	foreach ( $qt['items'] as $q ) {
+		$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+			. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+			. '</figure></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 6 · COMP-BOOKING  [fijo · ADN]
+	$o[] = booking_html( $C['booking'], $uid );
+
+	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
+		$o[] = newsletter_html( $C['news'], $uid );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-E-04 · Categories First.
+ *
+ * The catalogue is WIDE, so the page routes before it sells. TPL-E-02 answers "I know what I want"
+ * with eight products above the fold; this one answers "I know roughly where to look" with eight
+ * doors and a count on each.
+ */
+function strip_categories( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_ecommerce( $C, $BRAND, $uid );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO banner medio  [fijo]
+	$o[] = '<section class="sec hero" aria-label="Catálogo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	/* 2 · COMP-CATEGORY-GRID  [fijo · ADN]
+	   TEXT TILES, NOT PHOTOGRAPHS. Eight photographic doors would be eight more images to decode
+	   before the reader can route, and routing is what this archetype is FOR — the picture is not
+	   the argument here, the count is. COMP-CATEGORY-CARD further down does carry photographs,
+	   because three doors can afford them. */
+	$gr  = $C['grid'];
+	$o[] = '<section class="sec catgrid grid-sec bg-alt" aria-label="Categorías"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $gr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $gr['h2'] ) . '</h2></div><ul class="tiles">';
+	foreach ( $gr['items'] as $it ) {
+		$o[] = '<li><a href="#"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></a></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	/* 3 · COMP-PRODUCT-TABS  [fijo · ADN]
+	   TABS WITHOUT A LINE OF JAVASCRIPT — radio inputs and a sibling selector. A tab set that needs
+	   script shows one panel and three dead labels until it loads, and shows exactly that forever
+	   to a crawler. The labels are `<label>` elements, so they are keyboard-reachable and announced
+	   as the radio group they actually are. */
+	$tb  = $C['tabs'];
+	$o[] = '<section class="sec ptabs grid-sec" aria-label="Novedades"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tb['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tb['h2'] ) . '</h2></div><div class="tabset">';
+	foreach ( $tb['panels'] as $i => $pn ) {
+		$tid = $uid . '-tab' . $i;
+		$o[] = '<input class="tabin" type="radio" id="' . $tid . '" name="' . $uid . '-tabs"'
+			. ( 0 === $i ? ' checked' : '' ) . '>'
+			. '<label class="tablab" for="' . $tid . '">' . h( $pn[0] ) . '</label>';
+	}
+	$o[] = '<div class="tabpanels">';
+	foreach ( $tb['panels'] as $pn ) {
+		$o[] = '<div class="tabpanel"><div class="items grid-prod cols-4">';
+		foreach ( $pn[1] as $c ) {
+			$o[] = product_html( $anchor_key, $c );
+		}
+		$o[] = '</div></div>';
+	}
+	$o[] = '</div></div></div></section>';
+
+	// 4 · COMP-BENEFITS  [toggle TGL-BENEFITS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-BENEFITS' ) ) {
+		$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
+		foreach ( $C['benefits'] as $b ) {
+			$o[] = '<p class="ben"><span class="bicon" aria-hidden="true">✓</span>' . h( $b ) . '</p>';
+		}
+		$o[] = '</div></div></section>';
+	}
+
+	// 5 · COMP-CTA  [fijo]
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Profesionales"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	// 6 · COMP-CATEGORY-CARD  [fijo]
+	$o[] = category_cards_html( $anchor_key, $C['cats'] );
+
+	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
+		$o[] = newsletter_html( $C['news'], $uid );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
 function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	global $SLIDER_FRAMES;
 	$hero    = $C['hero'];
@@ -5521,6 +6764,21 @@ $PAGES = array(
 	'TPL-E-03' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-03' ),
 	),
+	'TPL-C-04' => array(
+		array( 'key' => 'home', 'label' => 'Landing', 'doc' => 'TPL-C-04' ),
+	),
+	'TPL-E-05' => array(
+		array( 'key' => 'home', 'label' => 'Campaña', 'doc' => 'TPL-E-05' ),
+	),
+	'TPL-C-05' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-05' ),
+	),
+	'TPL-E-01' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-01' ),
+	),
+	'TPL-E-04' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-04' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -5543,6 +6801,21 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	}
 	if ( 'TPL-E-03' === $tpl && 'home' === $page_key ) {
 		return strip_story( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-04' === $tpl && 'home' === $page_key ) {
+		return strip_landing( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-05' === $tpl && 'home' === $page_key ) {
+		return strip_promo( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-05' === $tpl && 'home' === $page_key ) {
+		return strip_local( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-01' === $tpl && 'home' === $page_key ) {
+		return strip_visual( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-04' === $tpl && 'home' === $page_key ) {
+		return strip_categories( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
