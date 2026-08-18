@@ -2531,6 +2531,113 @@ $css[] = <<<'CSS'
   .fcount{margin-left:0}
 }
 
+
+/* ── EL MARKETPLACE: una vista índice y una página por plantilla ────────────────────────────────
+
+   Un scroll infinito de cuarenta tiras a ancho completo no es un catálogo, es un documento. La
+   decisión que esta herramienta existe para servir — «quiero ESTA para este cliente» — pide ver
+   muchas a la vez y luego entrar en una. Así que la galería pasa a ser index + detalle, con el
+   patrón que html-mockup ya obliga: UN artifact, `.page` conmutadas por JS, chrome fuera de ellas.
+   Nada de enlaces entre artifacts, que en el sandbox están muertos.
+
+   LA MINIATURA ES LA PÁGINA A ESCALA, NO UNA FOTO DE ELLA. Un PNG por tarjeta costaría bytes que
+   ya pagamos (las cuarenta tiras tienen que estar en el DOM igual, porque son la vista de detalle),
+   necesitaría un pipeline de capturas, y — lo que de verdad importa — QUEDA OBSOLETO EN SILENCIO
+   en cuanto alguien toca el generador. Este repo ya perdió una ronda entera a un tratamiento cuya
+   justificación había caducado sin que nadie lo notara. Una miniatura clonada del DOM real no
+   puede mentir sobre el diseño que representa: si la tira cambia, la tarjeta cambia.
+
+   El escenario se dimensiona al ANCHO REAL DEL VIEWPORT y se escala por (ancho de tarjeta ÷ ancho
+   de viewport), no a un 1440 fijo. Los `clamp()` del sistema son fluidos en `vw`, así que un
+   escenario de ancho arbitrario renderizaría tipografía de otro ancho de pantalla: la miniatura
+   mentiría sobre la escala, que es uno de los cinco ejes que la tarjeta anuncia. ── */
+
+.page[hidden]{display:none}
+
+.gal-top{position:sticky;top:0;z-index:60;
+         background:var(--c-surface-inverse);color:var(--c-on-inverse);
+         border-bottom:1px solid color-mix(in srgb,var(--c-on-inverse) 18%,transparent)}
+.gal-top .gal-wrap{display:flex;align-items:center;gap:var(--sp-s);
+                   padding-block:.5rem;min-height:2.9rem}
+.gal-top .mark{font-family:var(--font-primary);font-weight:700;letter-spacing:.03em;
+               white-space:nowrap;flex:0 0 auto}
+.gal-top .here{font-size:var(--fs-small);color:color-mix(in srgb,var(--c-on-inverse) 72%,var(--c-surface-inverse));
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* Same both-axes centring as .btn and .fbtn: this sits in a flex row that can stretch it. */
+.backlink{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+          gap:.4rem;font-size:var(--fs-small);line-height:1.2;color:var(--c-on-inverse);
+          border:1px solid color-mix(in srgb,var(--c-on-inverse) 34%,transparent);
+          border-radius:999px;padding:.3rem .8rem;white-space:nowrap;text-decoration:none;
+          transition:background var(--dur-color) var(--ease),border-color var(--dur-color) var(--ease)}
+/* A page rule with `display` BEATS the UA sheet's `[hidden]{display:none}` — same specificity,
+   later origin. `.strip[hidden]` and `.tgrid > li[hidden]` above exist for exactly this reason;
+   without this line the back link sits on the index pointing at the page you are already on. */
+.backlink[hidden]{display:none}
+.backlink:hover{background:color-mix(in srgb,var(--c-on-inverse) 14%,transparent);
+                border-color:var(--c-on-inverse)}
+.backlink:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+
+.tgrid{display:grid;gap:var(--sp-m);grid-template-columns:minmax(0,1fr);list-style:none;padding:0;
+       margin:0;padding-block:var(--sp-l)}
+@media(min-width:600px){.tgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1100px){.tgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tgrid > li{display:flex;min-width:0}
+.tgrid > li[hidden]{display:none}
+
+.tcard{display:flex;flex-direction:column;flex:1;min-width:0;
+       color:inherit;text-decoration:none;background:var(--c-bg);
+       border:1px solid var(--c-border);border-radius:var(--radius-card);overflow:hidden;
+       transition:box-shadow var(--dur-color) var(--ease),transform var(--dur-color) var(--ease),
+                  border-color var(--dur-color) var(--ease)}
+.tcard:hover{border-color:var(--c-accent);transform:translateY(var(--lift));
+             box-shadow:0 18px 40px -22px color-mix(in srgb,var(--c-text) 55%,transparent)}
+.tcard:focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+
+/* Below the two-column breakpoint the card is nearly as wide as the viewport, so the scale
+   factor approaches 1 and a 16/11 crop shows little more than the navigation. The stage width
+   stays honest — it is still the real viewport — and the WINDOW onto it grows instead. */
+@media(max-width:599px){.thumb{aspect-ratio:4/3}}
+.thumb{display:block;position:relative;aspect-ratio:16/11;overflow:hidden;
+       background:var(--c-bg-alt);border-bottom:1px solid var(--c-border)}
+.thumb-stage{position:absolute;top:0;left:0;transform-origin:top left}
+/* The crop has to read as a crop and not as a page that ends. */
+.thumb::after{content:"";position:absolute;inset:auto 0 0 0;height:26%;pointer-events:none;
+              background:linear-gradient(to bottom,transparent,
+                         color-mix(in srgb,var(--c-bg) 82%,transparent))}
+.thumb-wait{position:absolute;inset:0;display:grid;place-items:center;
+            font-size:var(--fs-eyebrow);letter-spacing:.18em;text-transform:uppercase;
+            color:var(--c-text-muted)}
+
+.tbody{display:flex;flex-direction:column;flex:1;gap:.3rem;
+       padding:var(--sp-s) var(--sp-m) var(--sp-m)}
+.tpair{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+       font-size:var(--fs-eyebrow);letter-spacing:.05em;color:var(--c-text-muted)}
+.tname{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.15;margin:0}
+.tsub{font-size:var(--fs-small);color:var(--c-text-soft)}
+/* `margin-top:auto` on the axis row and not on the "Ver" line, for the same reason the product
+   card pins its price and not its button: the pair travels together, and pinning only the last
+   line would align the last lines and leave the axis rows ragged one row up. */
+.taxes{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:flex;flex-wrap:wrap;gap:.3rem}
+.tax{font-size:.68rem;line-height:1.4;letter-spacing:.03em;white-space:nowrap;
+     border:1px solid var(--c-border);border-radius:999px;padding:.12rem .5rem;
+     color:var(--c-text-muted)}
+/* Neutral AT REST and accent only under the pointer. Forty cards each printing an accent line is
+   a catalogue of accents, which is the tell design-tokens.md forbids by name — and the whitelist
+   gate is what forced the question: `.tgo` claimed the CTA role, and a role claimed forty times on
+   one screen is not a mark, it is a texture. The card is already the control; its hover border and
+   this line arriving together is the affordance. */
+.tgo{margin-top:.6rem;font-size:var(--fs-small);font-weight:700;color:var(--c-text);
+     transition:color var(--dur-color) var(--ease)}
+.tcard:hover .tgo{color:var(--c-accent)}
+.tcard:hover .tgo::after{transform:translateX(.25rem)}
+.tgo::after{content:"→";display:inline-block;margin-left:.35rem;
+            transition:transform var(--dur-color) var(--ease)}
+
+@media(prefers-reduced-motion:reduce){
+  .tcard,.tgo::after{transition:none}
+  .tcard:hover{transform:none}
+  .tcard:hover .tgo::after{transform:none}
+}
 /* ── the strip's data bar. OUTSIDE `[data-anchor]` on purpose: it reports the axes, so it must
       not be painted by them. Its own ground is the shell's. ── */
 .strip{border-top:1px solid var(--c-border);scroll-margin-top:4.5rem}
@@ -3844,7 +3951,40 @@ function strip_uid( $C, $anchor ) {
 	return strtolower( str_replace( '-', '', $C['tpl'] ) ) . '-' . $anchor;
 }
 
+/**
+ * One marketplace card.
+ *
+ * The THUMBNAIL is empty in the static DOM on purpose — it is cloned at runtime from the strip it
+ * points at, so it cannot go on describing a design the generator no longer renders. A raster
+ * screenshot could, and this repository has already lost a round to a treatment whose reason had
+ * expired without anyone noticing.
+ *
+ * The TEXT half is fully static: the pair, the archetype, the anchor, what it fits and all five
+ * axis positions. So the catalogue survives with JavaScript off, and grep, `RT_GALLERY_*` and a
+ * screen reader read the same rows a sighted user does — only the pixels need the script.
+ */
+function template_card_html( $C, $A, $anchor_key, $uid, $rows ) {
+	$chips = '';
+	foreach ( $rows as $r ) {
+		$chips .= '<li class="tax">' . h( $r['axis'] ) . ' <b>' . h( $r['pos'] ) . '</b></li>';
+	}
+
+	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $C['tpl'] ) . '"'
+		. ' data-pers="' . h( $anchor_key ) . '">'
+		. '<a class="tcard" href="#' . h( $uid ) . '">'
+		. '<span class="thumb" data-of="' . h( $uid ) . '">'
+		. '<span class="thumb-wait">' . h( $C['site_es'] ) . '</span></span>'
+		. '<span class="tbody">'
+		. '<span class="tpair">' . h( $C['tpl'] . ' × ' . $A['id'] ) . '</span>'
+		. '<span class="tname">' . h( $C['tpl_name'] ) . ' · ' . h( $A['name'] ) . '</span>'
+		. '<span class="tsub">' . h( $A['fits'] ) . '</span>'
+		. '<ul class="taxes">' . $chips . '</ul>'
+		. '<span class="tgo">Ver la plantilla</span>'
+		. '</span></a></li>';
+}
+
 $body    = array();
+$cards   = array();
 $n_strip = count( $STRIPS );
 
 foreach ( $STRIPS as $s ) {
@@ -3863,18 +4003,26 @@ foreach ( $STRIPS as $s ) {
 		fail( "no renderer for site type `{$C['site']}`" );
 	}
 
+	$rows = axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION );
+
+	$cards[] = template_card_html( $C, $A, $s['anchor'], $uid, $rows );
+
+	// One `.page` per template — the detail view. `hidden` is set by the router on load rather
+	// than baked in here, so with JavaScript off every strip stays readable end to end instead of
+	// the catalogue collapsing to a card grid whose links go nowhere.
+	$body[] = '<div class="page" id="p-' . h( $uid ) . '">';
 	$body[] = '<section class="strip" id="' . h( $uid ) . '"'
 		. ' data-site="' . h( $C['site'] ) . '"'
 		. ' data-tpl="' . h( $C['tpl'] ) . '"'
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
-	$body[] = meta_html( $C, $A, axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION ), $uid, $tgl );
+	$body[] = meta_html( $C, $A, $rows, $uid, $tgl );
 	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
 	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
 	$body[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
 	$body[] = $inner;
-	$body[] = '</div></section>';
+	$body[] = '</div></section></div>';
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -3990,7 +4138,7 @@ $filter = '<div class="gal-filter"><div class="gal-wrap">'
 	. filter_group( 'site', 'Tipo', $sites_present )
 	. filter_group( 'pers', 'Ancla', $anchors_present )
 	. '<p class="fcount" id="gal-count" role="status" aria-live="polite">'
-	. $n_strip . ' tiras</p>'
+	. $n_strip . ' plantillas</p>'
 	. '</div></div>';
 
 // Plain JS, no library. `hidden` rather than a class: it is the platform's own "not rendered and
@@ -3999,17 +4147,21 @@ $filter = '<div class="gal-filter"><div class="gal-wrap">'
 $filter_js = "<script>\n"
 	. "(function(){\n"
 	. "  var state={site:'all',pers:'all'};\n"
-	. "  var strips=[].slice.call(document.querySelectorAll('.strip'));\n"
+	// The filter narrows the CATALOGUE, not the pages. Hiding a detail page would leave a card
+	// whose link opens nothing; hiding the card leaves the page reachable by its own URL, which
+	// is what a shared `#tplc01-editorial` link has to keep doing.
+	. "  var cards=[].slice.call(document.querySelectorAll('.tgrid > li'));\n"
 	. "  var count=document.getElementById('gal-count');\n"
 	. "  function apply(){\n"
 	. "    var n=0;\n"
-	. "    for(var i=0;i<strips.length;i++){\n"
-	. "      var s=strips[i];\n"
+	. "    for(var i=0;i<cards.length;i++){\n"
+	. "      var s=cards[i];\n"
 	. "      var ok=(state.site==='all'||s.getAttribute('data-site')===state.site)\n"
 	. "          && (state.pers==='all'||s.getAttribute('data-pers')===state.pers);\n"
 	. "      s.hidden=!ok; if(ok){n++;}\n"
 	. "    }\n"
-	. "    count.textContent = (n===strips.length) ? n+' tiras' : n+' de '+strips.length+' tiras';\n"
+	. "    count.textContent = (n===cards.length) ? n+' plantillas' : n+' de '+cards.length+' plantillas';\n"
+	. "    if(window.NMthumbs){window.NMthumbs();}\n"
 	. "  }\n"
 	. "  var btns=document.querySelectorAll('.fbtn');\n"
 	. "  for(var i=0;i<btns.length;i++){\n"
@@ -4061,7 +4213,7 @@ $copy_js = "<script>\n"
 	. "</script>";
 
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
-	. '<p>' . $n_strip . ' ' . ( 1 === $n_strip ? 'tira' : 'tiras' ) . ' · '
+	. '<p>' . $n_strip . ' ' . ( 1 === $n_strip ? 'plantilla' : 'plantillas' ) . ' · '
 	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
 	. 'desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p>'
 	. '</div></footer>';
@@ -4079,18 +4231,124 @@ $noscript = '<noscript><div class="noscript"><div class="gal-wrap">'
 $ink_svg = '<svg class="ink-defs" width="0" height="0" aria-hidden="true" focusable="false">'
 	. '<defs>' . implode( '', $ink_defs ) . '</defs></svg>';
 
+// ── the chrome: OUTSIDE every `.page`, so it survives each switch (html-mockup SKILL.md) ───────
+$top = '<div class="gal-top"><div class="gal-wrap">'
+	. '<span class="mark">NovaMira · Galería</span>'
+	. '<span class="here" id="gal-here"></span>'
+	. '<a class="backlink" href="#index" id="gal-back" hidden>← Todas las plantillas</a>'
+	. '</div></div>';
+
+$index = '<div class="page" id="p-index">' . "\n"
+	. $intro . "\n"
+	. $filter . "\n"
+	. '<div class="gal-wrap"><ul class="tgrid">' . implode( "\n", $cards ) . '</ul></div>' . "\n"
+	. '</div>';
+
+/* ── the router, and the miniature that cannot go stale ────────────────────────────────────────
+
+   ROUTER. `hidden` is applied by script and never baked into the markup: with JavaScript off the
+   catalogue would otherwise become a grid of links to nothing, so the no-JS fall-back is the whole
+   document, scrollable, exactly as it read before. The hash IS the strip id, so a link Juan sends
+   himself — `…#tple02-matter` — opens on that template.
+
+   MINIATURE. Cloned from the strip it points at, so it cannot describe a design the generator no
+   longer renders; a raster screenshot could, silently, and this repository has already paid for
+   one treatment whose justification had expired without anyone noticing.
+
+   THE STAGE IS SIZED TO THE REAL VIEWPORT, not to a fixed 1440. Every size in this system is a
+   `clamp()` in `vw`, so a stage of arbitrary width would render type belonging to some other
+   screen — and the card advertises SCALE as one of its five axes, which would make the picture
+   contradict the label under it. Scale factor is therefore card width ÷ viewport width, and it is
+   recomputed on resize. */
+$mk_js = "<script>\n"
+	. "(function(){\n"
+	. "  var pages=[].slice.call(document.querySelectorAll('.page'));\n"
+	. "  var back=document.getElementById('gal-back');\n"
+	. "  var here=document.getElementById('gal-here');\n"
+	. "  var idxScroll=0;\n"
+	// `index` is a NAMED ROUTE and also a real page id, which is the trap: `getElementById`
+	// answers yes for `p-index`, so without this line the catalogue is routed as if it were a
+	// template — back link showing, scroll position discarded, and `paint()` never called, so
+	// the FIRST CLICK on "Todas las plantillas" landed on a grid with eight empty thumbnails.
+	// Measured before the fix: `thumbsBuilt=0/8` at `#index` against `8/8` with no hash.
+	. "  var INDEX='index';\n"
+	. "  function currentId(){\n"
+	. "    var id=(location.hash||'').replace(/^#/,'');\n"
+	. "    if(id===INDEX){ return ''; }\n"
+	. "    return (id && document.getElementById('p-'+id)) ? id : '';\n"
+	. "  }\n"
+	. "  var wasIndex=true;\n"
+	. "  function route(){\n"
+	. "    var id=currentId(), target=document.getElementById(id?('p-'+id):('p-'+INDEX));\n"
+	// Remember where the catalogue was left. A marketplace that dumps you at the top of the grid
+	// every time you back out of a template is a marketplace you stop browsing.
+	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }\n"
+	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }\n"
+	. "    back.hidden=!id;\n"
+	. "    var strip=id?document.getElementById(id):null;\n"
+	. "    here.textContent=strip?strip.getAttribute('aria-label'):'';\n"
+	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }\n"
+	. "    wasIndex=!id;\n"
+	. "  }\n"
+	. "\n"
+	. "  var thumbs=[].slice.call(document.querySelectorAll('.thumb'));\n"
+	. "  function vw(){ return document.documentElement.clientWidth; }\n"
+	. "  function build(t){\n"
+	. "    var src=document.querySelector('#'+t.getAttribute('data-of')+' .sample');\n"
+	. "    if(!src){ return; }\n"
+	. "    var stage=document.createElement('span');\n"
+	. "    stage.className='thumb-stage';\n"
+	. "    stage.setAttribute('inert','');\n"
+	. "    stage.setAttribute('aria-hidden','true');\n"
+	. "    var clone=src.cloneNode(true);\n"
+	// The top of the page is what a catalogue card shows: header, hero, and the first section
+	// under it. Cloning the whole strip would also multiply every `data:` image forty times over.
+	. "    while(clone.children.length>3){ clone.removeChild(clone.lastElementChild); }\n"
+	// A duplicate id breaks getElementById, `label[for]` and `aria-controls` FOR THE ORIGINAL —
+	// that is, for the page the reader is about to click into, not for the copy.
+	. "    var ids=clone.querySelectorAll('[id]');\n"
+	. "    for(var i=0;i<ids.length;i++){ ids[i].removeAttribute('id'); }\n"
+	. "    stage.appendChild(clone);\n"
+	. "    t.appendChild(stage);\n"
+	. "    var w=t.querySelector('.thumb-wait'); if(w&&w.parentNode){ w.parentNode.removeChild(w); }\n"
+	. "    t.__stage=stage;\n"
+	. "  }\n"
+	. "  function fit(t){\n"
+	. "    if(!t.__stage){ return; }\n"
+	. "    var v=vw(), k=t.clientWidth/v;\n"
+	. "    t.__stage.style.width=v+'px';\n"
+	. "    t.__stage.style.transform='scale('+k+')';\n"
+	. "  }\n"
+	. "  function paint(){\n"
+	. "    for(var i=0;i<thumbs.length;i++){\n"
+	. "      var t=thumbs[i];\n"
+	. "      if(!t.clientWidth){ continue; }\n"
+	. "      if(!t.__stage){ build(t); }\n"
+	. "      fit(t);\n"
+	. "    }\n"
+	. "  }\n"
+	. "  window.NMthumbs=paint;\n"
+	. "\n"
+	. "  var rt;\n"
+	. "  window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(paint,150); });\n"
+	. "  window.addEventListener('hashchange',route);\n"
+	. "  route();\n"
+	. "})();\n"
+	. "</script>";
+
 $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
 	. $ink_svg . "\n"
 	. $noscript . "\n"
-	. $intro . "\n"
-	. $filter . "\n\n"
+	. $top . "\n\n"
 	. '<main class="gal-strips">' . "\n"
+	. $index . "\n"
 	. implode( "\n", $body ) . "\n"
 	. '</main>' . "\n\n"
 	. $foot . "\n\n"
 	. $filter_js . "\n"
 	. $copy_js . "\n"
-	. $script . "\n";
+	. $script . "\n"
+	. $mk_js . "\n";
 
 // ── the handoff is asserted over the ASSEMBLED PAGE, not over the function that wrote it ───────
 //
