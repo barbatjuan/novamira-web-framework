@@ -965,6 +965,92 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
             transition:transform var(--dur-color) var(--ease)}
 
 
+/* ── INTERIOR PAGES ──────────────────────────────────────────────────────────────────────────
+   A template is a page set. Everything below belongs to pages that are NOT the home, and every
+   one of them wears the home's header, footer, tokens and blueprint, because that is the whole
+   claim a "kit" makes: these are pages of one site, not mockups sharing a folder. */
+
+/* COMP-BREADCRUMB — every interior page opens with one and the home never has one, which is the
+   cheapest signal a reader has that they went a level down. */
+.crumbs{border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+.crumbs ol{list-style:none;margin:0;padding:var(--sp-xs) 0;display:flex;flex-wrap:wrap;
+           gap:.25rem .5rem;font-size:var(--fs-small);color:var(--c-text-muted)}
+.crumbs li+li::before{content:"/";margin-right:.5rem;color:var(--c-border)}
+.crumbs a{color:var(--c-text-soft)}
+.crumbs a:hover{color:var(--c-text)}
+.crumbs [aria-current]{color:var(--c-text)}
+
+/* "Qué resolvemos" — the problems the service answers. A numbered rule per item, same recipe as
+   COMP-PROCESS: the rule belongs to the item, so it survives any wrap at any width. */
+.problems .items{list-style:none;margin:0;padding:0}
+.problems .prob{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+.problems .prob h3{margin:0 0 .3rem;min-width:0;hyphens:auto;overflow-wrap:break-word}
+.problems .prob p{color:var(--c-text-soft)}
+
+/* COMP-FEATURES — scope. A definition list in all but name: term then gloss, one per row, so the
+   eye reads down the terms and stops only where it wants the detail. */
+.feats{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.feats li{display:grid;gap:.15rem;padding:var(--sp-s) 0;border-top:1px solid var(--c-border);
+          min-width:0}
+.feats li:last-child{border-bottom:1px solid var(--c-border)}
+.feats b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;font-weight:600}
+.feats span{color:var(--c-text-soft);font-size:var(--fs-small)}
+@media(min-width:768px){
+  .feats li{grid-template-columns:minmax(0,22ch) minmax(0,1fr);gap:var(--sp-m);align-items:baseline}
+}
+
+/* COMP-GALLERY + COMP-PRODUCT-INFO — ONE block, never two sections. A section boundary running
+   through a buy box is the difference between a product page and two stacked panels. */
+.pdp .canvas{padding-block:var(--sp-l)}
+.pdp-gal,.pdp-buy{min-width:0}
+.pdp-thumbs{list-style:none;margin:var(--sp-xs) 0 0;padding:0;
+            display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-xs)}
+.pdp-buy{display:flex;flex-direction:column;gap:var(--sp-xs)}
+.pdp-buy h1{margin:0}
+.pdp-price{font-size:var(--fs-h3)}
+.pdp-ship{margin-top:.2rem}
+/* THE BUY BOX IS PLACED ON THE COMPOSITION'S OWN COLUMNS, not on a grid this section invents.
+   The first cut redeclared `.pdp .canvas` as a two-column grid and nothing happened, because every
+   `[data-comp]` block redefines `.canvas` at 1024 and wins on specificity: the section was fighting
+   the blueprint layer instead of using it. `.band` already had this exact shape — a headline half
+   and a form half — so the PDP takes the same lines under each blueprint. Below 1024 the canvas is
+   one column and the gallery stacks above the buy box, which is the order TPL-PDP-01 names:
+   "COMP-GALLERY (izquierda / arriba en mobile)". */
+.pdp-buy{align-self:start}
+/* A BUY BOX BESIDE THE GALLERY IS PDP DNA, NOT A COMPOSITION CHOICE — the same argument this file
+   already makes for catalogue grid density two hundred lines up. Three blueprints place the two
+   halves on their own named lines below; `lp-centered` never redefines `.canvas` at all, so
+   without this rule its product page would stack a full-width stone slab above the price and put
+   the only button on the page a screen and a half down. Where a blueprint DOES place the halves,
+   its `[data-comp]` rule outranks this one and wins. */
+@media(min-width:1024px){
+  .pdp .canvas{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+               column-gap:var(--sp-l);align-items:start}
+}
+
+/* Finish options. A radio group that reads as a row of chips, and the CHECKED state is border
+   weight and ground, never colour alone — the same rule the filter chips follow. */
+.opts{border:0;margin:var(--sp-xs) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
+.opts legend{font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
+             color:var(--c-text-muted);margin-bottom:.35rem;padding:0}
+.opt{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;
+     border:1px solid var(--c-border);border-radius:999px;padding:.3rem .7rem;
+     font-size:var(--fs-small);color:var(--c-text-soft);white-space:nowrap}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt:hover{border-color:var(--c-text-muted);color:var(--c-text)}
+.opt:has(input:checked){border-color:var(--c-text);color:var(--c-text);font-weight:700;
+                        background:var(--c-bg-alt)}
+.opt:has(input:focus-visible){outline:2px solid var(--c-accent);outline-offset:2px}
+.qty{max-width:12rem}
+
+/* COMP-ACCORDION — the same `<details>/<summary>` recipe COMP-FAQ uses, because they are the same
+   control doing the same job, and giving one of them a second implementation is how two things
+   that should stay identical start to drift. */
+.acc .qas{max-width:none}
+
+/* The switcher grows a second label once a template ships more than one page. */
+.flabel-2{margin-left:var(--sp-s)}
+@media(max-width:767px){.flabel-2{margin-left:var(--sp-xs)}}
 /* ── the group: one archetype, its anchors under it ──────────────────────────────────────────
    Grouping was asked for so a template would carry all its parts in one place. It was never asked
    to cost the catalogue its VARIETY, and the first cut did exactly that: eight visibly different
@@ -1376,6 +1462,8 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/c 13}
   [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
+  [data-comp="lp-asymmetric"] .pdp .pdp-gal{grid-column:c 1/c 7}
+  [data-comp="lp-asymmetric"] .pdp .pdp-buy{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}
 }
 /* ══════════ LP-STRICT-GRID — every element starts and ends on a column line ══════════
@@ -1400,6 +1488,8 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
   [data-comp="lp-strict-grid"] .card{height:100%}
   [data-comp="lp-strict-grid"] .band .head{grid-column:1/7}
   [data-comp="lp-strict-grid"] .band .formwrap{grid-column:7/13}
+  [data-comp="lp-strict-grid"] .pdp .pdp-gal{grid-column:1/7}
+  [data-comp="lp-strict-grid"] .pdp .pdp-buy{grid-column:7/13}
 }
 /* ══════════ LP-BROKEN-GRID — one element per section crosses the grid ══════════
    The same named-line 12 columns as LP-ASYMMETRIC, kept as a reference the page deliberately
@@ -1534,6 +1624,8 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
      an amputation. A SUBMIT BUTTON AT THE GLASS IS A BROKEN PAGE: no hit-slop on one side, and the
      border that tells you where the control ends is coincident with the edge of the screen. */
   [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/c 13}
+  [data-comp="lp-broken-grid"] .pdp .pdp-gal{grid-column:c 1/c 10}
+  [data-comp="lp-broken-grid"] .pdp .pdp-buy{grid-column:c 6/c 13}
   /* THE `padding-right:var(--pad-x-tablet)` ON THE LAST CARD'S BODY IS GONE, and its absence is
      the point rather than an omission. It existed to give a bleeding card's text some paper; with
      the row ending at `c 13` there is no bleeding card, and leaving it would inset the last card's
@@ -1704,7 +1796,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 <div class="gal-wrap"><section class="tgroup" data-site="corporate" data-tpl="TPL-C-01"><header class="tgroup-head"><span class="eyebrow">Corporativa</span><h2><a href="#tplc01"><b>TPL-C-01</b> Services / Lead-Gen</a></h2><p class="tgroup-fits">Consultoras, agencias, estudios, desarrollo, marketing, servicios profesionales</p><p class="tgroup-count">4 anclas</p></header><ul class="tgrid"><li data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial"><a class="tcard" href="#tplc01/editorial"><span class="thumb" data-of="tplc01-editorial"><span class="thumb-wait">Editorial</span></span><span class="tbody"><span class="tpair">PERS-EDITORIAL</span><span class="tname">Editorial</span><span class="tsub">Herencia, prestigio, una historia que merece ir despacio</span><ul class="taxes"><li class="tax">escala <b>editorial</b></li><li class="tax">fondo <b>paper</b></li><li class="tax">densidad <b>generous</b></li><li class="tax">composición <b>asymmetric</b></li><li class="tax">elevación <b>none</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="direct"><a class="tcard" href="#tplc01/direct"><span class="thumb" data-of="tplc01-direct"><span class="thumb-wait">Direct</span></span><span class="tbody"><span class="tpair">PERS-DIRECT</span><span class="tname">Direct</span><span class="tsub">Marcas que ganan por ser inconfundibles</span><ul class="taxes"><li class="tax">escala <b>monumental</b></li><li class="tax">fondo <b>ink</b></li><li class="tax">densidad <b>compact</b></li><li class="tax">composición <b>broken-grid</b></li><li class="tax">elevación <b>accent-glow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="matter"><a class="tcard" href="#tplc01/matter"><span class="thumb" data-of="tplc01-matter"><span class="thumb-wait">Matter</span></span><span class="tbody"><span class="tpair">PERS-MATTER</span><span class="tname">Matter</span><span class="tsub">Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</span><ul class="taxes"><li class="tax">escala <b>classic</b></li><li class="tax">fondo <b>warm</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>strict-grid</b></li><li class="tax">elevación <b>hairline</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="corporate" data-tpl="TPL-C-01" data-pers="institutional"><a class="tcard" href="#tplc01/institutional"><span class="thumb" data-of="tplc01-institutional"><span class="thumb-wait">Institutional</span></span><span class="tbody"><span class="tpair">PERS-INSTITUTIONAL</span><span class="tname">Institutional</span><span class="tsub">B2B y servicios profesionales: credibilidad antes que entusiasmo</span><ul class="taxes"><li class="tax">escala <b>contained</b></li><li class="tax">fondo <b>cool</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>centered</b></li><li class="tax">elevación <b>soft-shadow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li></ul></section>
 <section class="tgroup" data-site="ecommerce" data-tpl="TPL-E-02"><header class="tgroup-head"><span class="eyebrow">Ecommerce</span><h2><a href="#tple02"><b>TPL-E-02</b> Catalog / Product-First</a></h2><p class="tgroup-fits">Electrónica, repuestos, librería, ferretería, insumos</p><p class="tgroup-count">4 anclas</p></header><ul class="tgrid"><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial"><a class="tcard" href="#tple02/editorial"><span class="thumb" data-of="tple02-editorial"><span class="thumb-wait">Editorial</span></span><span class="tbody"><span class="tpair">PERS-EDITORIAL</span><span class="tname">Editorial</span><span class="tsub">Herencia, prestigio, una historia que merece ir despacio</span><ul class="taxes"><li class="tax">escala <b>editorial</b></li><li class="tax">fondo <b>paper</b></li><li class="tax">densidad <b>generous</b></li><li class="tax">composición <b>asymmetric</b></li><li class="tax">elevación <b>none</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="direct"><a class="tcard" href="#tple02/direct"><span class="thumb" data-of="tple02-direct"><span class="thumb-wait">Direct</span></span><span class="tbody"><span class="tpair">PERS-DIRECT</span><span class="tname">Direct</span><span class="tsub">Marcas que ganan por ser inconfundibles</span><ul class="taxes"><li class="tax">escala <b>monumental</b></li><li class="tax">fondo <b>ink</b></li><li class="tax">densidad <b>compact</b></li><li class="tax">composición <b>broken-grid</b></li><li class="tax">elevación <b>accent-glow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="matter"><a class="tcard" href="#tple02/matter"><span class="thumb" data-of="tple02-matter"><span class="thumb-wait">Matter</span></span><span class="tbody"><span class="tpair">PERS-MATTER</span><span class="tname">Matter</span><span class="tsub">Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</span><ul class="taxes"><li class="tax">escala <b>classic</b></li><li class="tax">fondo <b>warm</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>strict-grid</b></li><li class="tax">elevación <b>hairline</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li><li data-site="ecommerce" data-tpl="TPL-E-02" data-pers="institutional"><a class="tcard" href="#tple02/institutional"><span class="thumb" data-of="tple02-institutional"><span class="thumb-wait">Institutional</span></span><span class="tbody"><span class="tpair">PERS-INSTITUTIONAL</span><span class="tname">Institutional</span><span class="tsub">B2B y servicios profesionales: credibilidad antes que entusiasmo</span><ul class="taxes"><li class="tax">escala <b>contained</b></li><li class="tax">fondo <b>cool</b></li><li class="tax">densidad <b>standard</b></li><li class="tax">composición <b>centered</b></li><li class="tax">elevación <b>soft-shadow</b></li></ul><span class="tgo">Ver esta variante</span></span></a></li></ul></section></div>
 </div>
-<div class="page" id="p-tplc01" data-site="corporate"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Corporativa</span><h2><b>TPL-C-01</b> Services / Lead-Gen</h2><p class="tpl-dna">ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="tpl-wire"><code>COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-CASES · COMP-CTA + COMP-LEAD-FORM · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-C-01"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tplc01-editorial" data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial" aria-label="TPL-C-01 × PERS-EDITORIAL">
+<div class="page" id="p-tplc01" data-site="corporate"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Corporativa</span><h2><b>TPL-C-01</b> Services / Lead-Gen</h2><p class="tpl-dna">ADN fijo: <code>COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM</code></p><p class="tpl-wire"><code>COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-CASES · COMP-CTA + COMP-LEAD-FORM · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-C-01"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button><span class="flabel flabel-2">Página</span><button class="sbtn" type="button" data-page="home" title="TPL-C-01" aria-pressed="true">Home</button><button class="sbtn" type="button" data-page="servicio" title="TPL-SERVICE-01" aria-pressed="false">Servicio</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tplc01-editorial" data-site="corporate" data-tpl="TPL-C-01" data-pers="editorial" aria-label="TPL-C-01 × PERS-EDITORIAL">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-EDITORIAL</b> Editorial <span class="x">·</span> Herencia, prestigio, una historia que merece ir despacio</p><p class="meta-tgl">Toggles: <span class="tgl tgl-set"><code>TGL-HERO-TYPE</code> slider <i>cambiado</i></span> <span class="tgl"><code>TGL-LOGOS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-PROCESS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>paper</b><span>#FFFFFF · #F6F7F8 · #15181A</span></dd></div>
@@ -1741,13 +1833,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric">
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
-<a href="#">Taller</a>
-<a href="#">Materiales</a>
-<a href="#">Trabajos</a>
-<a href="#">Contacto</a>
-</nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Propuesta de valor"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div></div></section>
 <section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Confían en el taller</span></div><ul>
@@ -1778,14 +1865,53 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
 <li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
 </ul></div></section>
-<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
-<div class="field"><label for="tplc01-editorial-name">Nombre</label><input id="tplc01-editorial-name" name="name" type="text"></div>
-<div class="field"><label for="tplc01-editorial-mail">Email</label><input id="tplc01-editorial-mail" name="mail" type="email"></div>
-<div class="field"><label for="tplc01-editorial-tel">Teléfono</label><input id="tplc01-editorial-tel" name="tel" type="tel"></div>
-<div class="field"><label for="tplc01-editorial-msg">Qué necesitas</label><textarea id="tplc01-editorial-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-editorial-name">Nombre</label><input id="tplc01-editorial-name" name="name" type="text"></div><div class="field"><label for="tplc01-editorial-mail">Email</label><input id="tplc01-editorial-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-editorial-tel">Teléfono</label><input id="tplc01-editorial-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-editorial-msg">Qué necesitas</label><textarea id="tplc01-editorial-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
-</div></section></div><div class="variant" data-pers="direct" hidden><section class="strip" id="tplc01-direct" data-site="corporate" data-tpl="TPL-C-01" data-pers="direct" aria-label="TPL-C-01 × PERS-DIRECT">
+</div>
+<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric" data-page="servicio" hidden>
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
+<main>
+<section class="sec hero svc-head" aria-label="Encimeras y baños en piedra natural"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Servicio</span><h1>Encimeras y baños en piedra natural</h1><p class="lede muted">Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver materiales</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
+<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Qué resolvemos</span><h2>Tres cosas que se tuercen sin un cantero</h2></div><ul class="items cols-3">
+<li class="prob"><h3>La junta que aparece luego</h3><p>Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.</p></li>
+<li class="prob"><h3>La veta que no continúa</h3><p>Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.</p></li>
+<li class="prob"><h3>El fregadero que no encaja</h3><p>El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.</p></li>
+</ul></div></section>
+<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">Alcance</span><h2>Qué incluye</h2></div><ul class="feats">
+<li><b>Medición láser en obra</b><span>Con los muebles montados y los electrodomésticos presentes.</span></li>
+<li><b>Despiece del bloque</b><span>Elegimos de qué parte del bloque sale cada pieza para que la veta siga.</span></li>
+<li><b>Corte y pulido</b><span>Canto recto, romo o biselado, decidido sobre muestra física.</span></li>
+<li><b>Seno y grifería</b><span>Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.</span></li>
+<li><b>Colocación y sellado</b><span>En una sola visita, y el sellado se repasa a los seis meses.</span></li>
+</ul></div></section>
+<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Cómo trabajamos</span><h2>Cuatro pasos y un solo interlocutor</h2></div><ol class="steps">
+<li class="step"><span class="n">01</span><h3>Medición en obra</h3><p>Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.</p></li>
+<li class="step"><span class="n">02</span><h3>Despiece y presupuesto</h3><p>Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.</p></li>
+<li class="step"><span class="n">03</span><h3>Corte y labra</h3><p>En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.</p></li>
+<li class="step"><span class="n">04</span><h3>Colocación</h3><p>El mismo equipo que la labró la monta. Quien responde es quien la hizo.</p></li>
+</ol></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Dudas</span><h2>Lo que nos preguntan siempre</h2></div><div class="qas">
+<details><summary>¿Cuánto tarda desde la medición?</summary><p>Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.</p></details>
+<details><summary>¿Se puede hacer sin junta a la vista?</summary><p>Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.</p></details>
+<details><summary>¿El mármol se mancha?</summary><p>Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.</p></details>
+<details><summary>¿Retiráis la encimera vieja?</summary><p>Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.</p></details>
+</div></div></section>
+<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Lo que dicen</span><h2>Tres obras, tres encargantes</h2></div><ul class="items">
+<li><figure><blockquote>142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.</blockquote><figcaption><b>Marta Vilanova</b><span>Gerencia · Palacio de Miraflores</span></figcaption></figure></li>
+<li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
+<li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec others grid-sec" aria-label="Otros servicios"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Otros servicios</span><h2>Lo demás que hacemos</h2></div><div class="items cols-2">
+<article class="card"><figure class="frame"><img data-img="card-patio" alt="Pulidora de disco repasando el canto de una placa clara" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Fachadas y sillería</h3><p class="muted small">Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Restauración</h3><p class="muted small">Reposición de piezas dañadas con la misma cantera y la misma herramienta.</p></div></article>
+</div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-editorial-servicio-name">Nombre</label><input id="tplc01-editorial-servicio-name" name="name" type="text"></div><div class="field"><label for="tplc01-editorial-servicio-mail">Email</label><input id="tplc01-editorial-servicio-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-editorial-servicio-tel">Teléfono</label><input id="tplc01-editorial-servicio-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-editorial-servicio-msg">Qué necesitas</label><textarea id="tplc01-editorial-servicio-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="direct" hidden><section class="strip" id="tplc01-direct" data-site="corporate" data-tpl="TPL-C-01" data-pers="direct" aria-label="TPL-C-01 × PERS-DIRECT">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-DIRECT</b> Direct <span class="x">·</span> Marcas que ganan por ser inconfundibles</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span> <span class="tgl"><code>TGL-LOGOS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-PROCESS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>monumental</b><span>ratio 1.618 · lh 0.82 · h1 120px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>ink</b><span>#0E1113 · #171B1E · #F4F6F7</span></dd></div>
@@ -1822,13 +1948,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid">
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
-<a href="#">Taller</a>
-<a href="#">Materiales</a>
-<a href="#">Trabajos</a>
-<a href="#">Contacto</a>
-</nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
 <section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Confían en el taller</span></div><ul>
@@ -1859,14 +1980,53 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
 <li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
 </ul></div></section>
-<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
-<div class="field"><label for="tplc01-direct-name">Nombre</label><input id="tplc01-direct-name" name="name" type="text"></div>
-<div class="field"><label for="tplc01-direct-mail">Email</label><input id="tplc01-direct-mail" name="mail" type="email"></div>
-<div class="field"><label for="tplc01-direct-tel">Teléfono</label><input id="tplc01-direct-tel" name="tel" type="tel"></div>
-<div class="field"><label for="tplc01-direct-msg">Qué necesitas</label><textarea id="tplc01-direct-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-direct-name">Nombre</label><input id="tplc01-direct-name" name="name" type="text"></div><div class="field"><label for="tplc01-direct-mail">Email</label><input id="tplc01-direct-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-direct-tel">Teléfono</label><input id="tplc01-direct-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-direct-msg">Qué necesitas</label><textarea id="tplc01-direct-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
-</div></section></div><div class="variant" data-pers="matter" hidden><section class="strip" id="tplc01-matter" data-site="corporate" data-tpl="TPL-C-01" data-pers="matter" aria-label="TPL-C-01 × PERS-MATTER">
+</div>
+<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid" data-page="servicio" hidden>
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
+<main>
+<section class="sec hero svc-head" aria-label="Encimeras y baños en piedra natural"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Servicio</span><h1>Encimeras y baños en piedra natural</h1><p class="lede muted">Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver materiales</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
+<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Qué resolvemos</span><h2>Tres cosas que se tuercen sin un cantero</h2></div><ul class="items cols-3">
+<li class="prob"><h3>La junta que aparece luego</h3><p>Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.</p></li>
+<li class="prob"><h3>La veta que no continúa</h3><p>Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.</p></li>
+<li class="prob"><h3>El fregadero que no encaja</h3><p>El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.</p></li>
+</ul></div></section>
+<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">Alcance</span><h2>Qué incluye</h2></div><ul class="feats">
+<li><b>Medición láser en obra</b><span>Con los muebles montados y los electrodomésticos presentes.</span></li>
+<li><b>Despiece del bloque</b><span>Elegimos de qué parte del bloque sale cada pieza para que la veta siga.</span></li>
+<li><b>Corte y pulido</b><span>Canto recto, romo o biselado, decidido sobre muestra física.</span></li>
+<li><b>Seno y grifería</b><span>Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.</span></li>
+<li><b>Colocación y sellado</b><span>En una sola visita, y el sellado se repasa a los seis meses.</span></li>
+</ul></div></section>
+<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Cómo trabajamos</span><h2>Cuatro pasos y un solo interlocutor</h2></div><ol class="steps">
+<li class="step"><span class="n">01</span><h3>Medición en obra</h3><p>Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.</p></li>
+<li class="step"><span class="n">02</span><h3>Despiece y presupuesto</h3><p>Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.</p></li>
+<li class="step"><span class="n">03</span><h3>Corte y labra</h3><p>En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.</p></li>
+<li class="step"><span class="n">04</span><h3>Colocación</h3><p>El mismo equipo que la labró la monta. Quien responde es quien la hizo.</p></li>
+</ol></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Dudas</span><h2>Lo que nos preguntan siempre</h2></div><div class="qas">
+<details><summary>¿Cuánto tarda desde la medición?</summary><p>Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.</p></details>
+<details><summary>¿Se puede hacer sin junta a la vista?</summary><p>Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.</p></details>
+<details><summary>¿El mármol se mancha?</summary><p>Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.</p></details>
+<details><summary>¿Retiráis la encimera vieja?</summary><p>Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.</p></details>
+</div></div></section>
+<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Lo que dicen</span><h2>Tres obras, tres encargantes</h2></div><ul class="items">
+<li><figure><blockquote>142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.</blockquote><figcaption><b>Marta Vilanova</b><span>Gerencia · Palacio de Miraflores</span></figcaption></figure></li>
+<li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
+<li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec others grid-sec" aria-label="Otros servicios"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Otros servicios</span><h2>Lo demás que hacemos</h2></div><div class="items cols-2">
+<article class="card"><figure class="frame"><img data-img="card-patio" alt="Pulidora de disco repasando el canto de una placa clara" width="800" height="600"></figure><div class="body"><h3>Fachadas y sillería</h3><p class="muted small">Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><h3>Restauración</h3><p class="muted small">Reposición de piezas dañadas con la misma cantera y la misma herramienta.</p></div></article>
+</div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-direct-servicio-name">Nombre</label><input id="tplc01-direct-servicio-name" name="name" type="text"></div><div class="field"><label for="tplc01-direct-servicio-mail">Email</label><input id="tplc01-direct-servicio-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-direct-servicio-tel">Teléfono</label><input id="tplc01-direct-servicio-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-direct-servicio-msg">Qué necesitas</label><textarea id="tplc01-direct-servicio-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="matter" hidden><section class="strip" id="tplc01-matter" data-site="corporate" data-tpl="TPL-C-01" data-pers="matter" aria-label="TPL-C-01 × PERS-MATTER">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-MATTER</b> Matter <span class="x">·</span> Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span> <span class="tgl"><code>TGL-LOGOS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-PROCESS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>classic</b><span>ratio 1.333 · lh 1.10 · h1 64px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>warm</b><span>#FFF3E3 · #F7E8D4 · #241C14</span></dd></div>
@@ -1903,13 +2063,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid">
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
-<a href="#">Taller</a>
-<a href="#">Materiales</a>
-<a href="#">Trabajos</a>
-<a href="#">Contacto</a>
-</nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
 <section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Confían en el taller</span></div><ul>
@@ -1940,14 +2095,53 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
 <li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
 </ul></div></section>
-<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
-<div class="field"><label for="tplc01-matter-name">Nombre</label><input id="tplc01-matter-name" name="name" type="text"></div>
-<div class="field"><label for="tplc01-matter-mail">Email</label><input id="tplc01-matter-mail" name="mail" type="email"></div>
-<div class="field"><label for="tplc01-matter-tel">Teléfono</label><input id="tplc01-matter-tel" name="tel" type="tel"></div>
-<div class="field"><label for="tplc01-matter-msg">Qué necesitas</label><textarea id="tplc01-matter-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-matter-name">Nombre</label><input id="tplc01-matter-name" name="name" type="text"></div><div class="field"><label for="tplc01-matter-mail">Email</label><input id="tplc01-matter-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-matter-tel">Teléfono</label><input id="tplc01-matter-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-matter-msg">Qué necesitas</label><textarea id="tplc01-matter-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
-</div></section></div><div class="variant" data-pers="institutional" hidden><section class="strip" id="tplc01-institutional" data-site="corporate" data-tpl="TPL-C-01" data-pers="institutional" aria-label="TPL-C-01 × PERS-INSTITUTIONAL">
+</div>
+<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="servicio" hidden>
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
+<main>
+<section class="sec hero svc-head" aria-label="Encimeras y baños en piedra natural"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Servicio</span><h1>Encimeras y baños en piedra natural</h1><p class="lede muted">Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver materiales</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
+<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Qué resolvemos</span><h2>Tres cosas que se tuercen sin un cantero</h2></div><ul class="items cols-3">
+<li class="prob"><h3>La junta que aparece luego</h3><p>Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.</p></li>
+<li class="prob"><h3>La veta que no continúa</h3><p>Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.</p></li>
+<li class="prob"><h3>El fregadero que no encaja</h3><p>El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.</p></li>
+</ul></div></section>
+<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">Alcance</span><h2>Qué incluye</h2></div><ul class="feats">
+<li><b>Medición láser en obra</b><span>Con los muebles montados y los electrodomésticos presentes.</span></li>
+<li><b>Despiece del bloque</b><span>Elegimos de qué parte del bloque sale cada pieza para que la veta siga.</span></li>
+<li><b>Corte y pulido</b><span>Canto recto, romo o biselado, decidido sobre muestra física.</span></li>
+<li><b>Seno y grifería</b><span>Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.</span></li>
+<li><b>Colocación y sellado</b><span>En una sola visita, y el sellado se repasa a los seis meses.</span></li>
+</ul></div></section>
+<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Cómo trabajamos</span><h2>Cuatro pasos y un solo interlocutor</h2></div><ol class="steps">
+<li class="step"><span class="n">01</span><h3>Medición en obra</h3><p>Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.</p></li>
+<li class="step"><span class="n">02</span><h3>Despiece y presupuesto</h3><p>Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.</p></li>
+<li class="step"><span class="n">03</span><h3>Corte y labra</h3><p>En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.</p></li>
+<li class="step"><span class="n">04</span><h3>Colocación</h3><p>El mismo equipo que la labró la monta. Quien responde es quien la hizo.</p></li>
+</ol></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Dudas</span><h2>Lo que nos preguntan siempre</h2></div><div class="qas">
+<details><summary>¿Cuánto tarda desde la medición?</summary><p>Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.</p></details>
+<details><summary>¿Se puede hacer sin junta a la vista?</summary><p>Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.</p></details>
+<details><summary>¿El mármol se mancha?</summary><p>Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.</p></details>
+<details><summary>¿Retiráis la encimera vieja?</summary><p>Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.</p></details>
+</div></div></section>
+<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Lo que dicen</span><h2>Tres obras, tres encargantes</h2></div><ul class="items">
+<li><figure><blockquote>142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.</blockquote><figcaption><b>Marta Vilanova</b><span>Gerencia · Palacio de Miraflores</span></figcaption></figure></li>
+<li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
+<li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec others grid-sec" aria-label="Otros servicios"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Otros servicios</span><h2>Lo demás que hacemos</h2></div><div class="items cols-2">
+<article class="card"><figure class="frame"><img data-img="card-patio" alt="Pulidora de disco repasando el canto de una placa clara" width="800" height="600"></figure><div class="body"><h3>Fachadas y sillería</h3><p class="muted small">Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><h3>Restauración</h3><p class="muted small">Reposición de piezas dañadas con la misma cantera y la misma herramienta.</p></div></article>
+</div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-matter-servicio-name">Nombre</label><input id="tplc01-matter-servicio-name" name="name" type="text"></div><div class="field"><label for="tplc01-matter-servicio-mail">Email</label><input id="tplc01-matter-servicio-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-matter-servicio-tel">Teléfono</label><input id="tplc01-matter-servicio-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-matter-servicio-msg">Qué necesitas</label><textarea id="tplc01-matter-servicio-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="institutional" hidden><section class="strip" id="tplc01-institutional" data-site="corporate" data-tpl="TPL-C-01" data-pers="institutional" aria-label="TPL-C-01 × PERS-INSTITUTIONAL">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-INSTITUTIONAL</b> Institutional <span class="x">·</span> B2B y servicios profesionales: credibilidad antes que entusiasmo</p><p class="meta-tgl">Toggles: <span class="tgl"><code>TGL-HERO-TYPE</code> imagen fija <i>default</i></span> <span class="tgl"><code>TGL-LOGOS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-PROCESS</code> sí <i>default</i></span> <span class="tgl"><code>TGL-TESTIMONIALS</code> sí <i>default</i></span></p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>contained</b><span>ratio 1.200 · lh 1.25 · h1 48px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>cool</b><span>#F2F5F8 · #E8EDF3 · #141C24</span></dd></div>
@@ -1984,13 +2178,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered">
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
-<a href="#">Taller</a>
-<a href="#">Materiales</a>
-<a href="#">Trabajos</a>
-<a href="#">Contacto</a>
-</nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
 <section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Confían en el taller</span></div><ul>
@@ -2021,15 +2210,54 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 <li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
 <li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
 </ul></div></section>
-<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false">
-<div class="field"><label for="tplc01-institutional-name">Nombre</label><input id="tplc01-institutional-name" name="name" type="text"></div>
-<div class="field"><label for="tplc01-institutional-mail">Email</label><input id="tplc01-institutional-mail" name="mail" type="email"></div>
-<div class="field"><label for="tplc01-institutional-tel">Teléfono</label><input id="tplc01-institutional-tel" name="tel" type="tel"></div>
-<div class="field"><label for="tplc01-institutional-msg">Qué necesitas</label><textarea id="tplc01-institutional-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-institutional-name">Nombre</label><input id="tplc01-institutional-name" name="name" type="text"></div><div class="field"><label for="tplc01-institutional-mail">Email</label><input id="tplc01-institutional-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-institutional-tel">Teléfono</label><input id="tplc01-institutional-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-institutional-msg">Qué necesitas</label><textarea id="tplc01-institutional-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
-</div></section></div></div></div>
-<div class="page" id="p-tple02" data-site="ecommerce"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Ecommerce</span><h2><b>TPL-E-02</b> Catalog / Product-First</h2><p class="tpl-dna">ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><p class="tpl-wire"><code>COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-E-02"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tple02-editorial" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial" aria-label="TPL-E-02 × PERS-EDITORIAL">
+</div>
+<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="servicio" hidden>
+<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
+<main>
+<section class="sec hero svc-head" aria-label="Encimeras y baños en piedra natural"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Servicio</span><h1>Encimeras y baños en piedra natural</h1><p class="lede muted">Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver materiales</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
+<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas"><div class="head stack" data-index="02"><span class="eyebrow">Qué resolvemos</span><h2>Tres cosas que se tuercen sin un cantero</h2></div><ul class="items cols-3">
+<li class="prob"><h3>La junta que aparece luego</h3><p>Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.</p></li>
+<li class="prob"><h3>La veta que no continúa</h3><p>Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.</p></li>
+<li class="prob"><h3>El fregadero que no encaja</h3><p>El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.</p></li>
+</ul></div></section>
+<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas"><div class="head stack" data-index="03"><span class="eyebrow">Alcance</span><h2>Qué incluye</h2></div><ul class="feats">
+<li><b>Medición láser en obra</b><span>Con los muebles montados y los electrodomésticos presentes.</span></li>
+<li><b>Despiece del bloque</b><span>Elegimos de qué parte del bloque sale cada pieza para que la veta siga.</span></li>
+<li><b>Corte y pulido</b><span>Canto recto, romo o biselado, decidido sobre muestra física.</span></li>
+<li><b>Seno y grifería</b><span>Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.</span></li>
+<li><b>Colocación y sellado</b><span>En una sola visita, y el sellado se repasa a los seis meses.</span></li>
+</ul></div></section>
+<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas"><div class="head stack" data-index="04"><span class="eyebrow">Cómo trabajamos</span><h2>Cuatro pasos y un solo interlocutor</h2></div><ol class="steps">
+<li class="step"><span class="n">01</span><h3>Medición en obra</h3><p>Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.</p></li>
+<li class="step"><span class="n">02</span><h3>Despiece y presupuesto</h3><p>Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.</p></li>
+<li class="step"><span class="n">03</span><h3>Corte y labra</h3><p>En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.</p></li>
+<li class="step"><span class="n">04</span><h3>Colocación</h3><p>El mismo equipo que la labró la monta. Quien responde es quien la hizo.</p></li>
+</ol></div></section>
+<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas"><div class="head stack" data-index="05"><span class="eyebrow">Dudas</span><h2>Lo que nos preguntan siempre</h2></div><div class="qas">
+<details><summary>¿Cuánto tarda desde la medición?</summary><p>Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.</p></details>
+<details><summary>¿Se puede hacer sin junta a la vista?</summary><p>Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.</p></details>
+<details><summary>¿El mármol se mancha?</summary><p>Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.</p></details>
+<details><summary>¿Retiráis la encimera vieja?</summary><p>Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.</p></details>
+</div></div></section>
+<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas"><div class="head stack" data-index="06"><span class="eyebrow">Lo que dicen</span><h2>Tres obras, tres encargantes</h2></div><ul class="items">
+<li><figure><blockquote>142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.</blockquote><figcaption><b>Marta Vilanova</b><span>Gerencia · Palacio de Miraflores</span></figcaption></figure></li>
+<li><figure><blockquote>Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.</blockquote><figcaption><b>Jordi Camps</b><span>Cocina en Vallmoll</span></figcaption></figure></li>
+<li><figure><blockquote>Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.</blockquote><figcaption><b>Estudio Arnau</b><span>Dirección facultativa</span></figcaption></figure></li>
+</ul></div></section>
+<section class="sec others grid-sec" aria-label="Otros servicios"><div class="canvas"><div class="head stack" data-index="07"><span class="eyebrow">Otros servicios</span><h2>Lo demás que hacemos</h2></div><div class="items cols-2">
+<article class="card"><figure class="frame"><img data-img="card-patio" alt="Pulidora de disco repasando el canto de una placa clara" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Fachadas y sillería</h3><p class="muted small">Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.</p></div></article>
+<article class="card"><figure class="frame"><img data-img="card-labra" alt="Labra de un bloque con herramienta neumática" width="800" height="600"></figure><div class="body"><span class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M4 20 12 4 20 20Z"/></svg></span><h3>Restauración</h3><p class="muted small">Reposición de piezas dañadas con la misma cantera y la misma herramienta.</p></div></article>
+</div></div></section>
+<section class="sec band closing" aria-label="Contacto"><div class="canvas"><div class="head stack" data-index="08"><span class="eyebrow">Contacto</span><h2>Cuéntanos qué hay que cortar</h2><p class="muted">Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.</p></div><div class="formwrap"><form class="leadform" onsubmit="return false"><div class="field"><label for="tplc01-institutional-servicio-name">Nombre</label><input id="tplc01-institutional-servicio-name" name="name" type="text"></div><div class="field"><label for="tplc01-institutional-servicio-mail">Email</label><input id="tplc01-institutional-servicio-mail" name="mail" type="email"></div><div class="field"><label for="tplc01-institutional-servicio-tel">Teléfono</label><input id="tplc01-institutional-servicio-tel" name="tel" type="tel"></div><div class="field"><label for="tplc01-institutional-servicio-msg">Qué necesitas</label><textarea id="tplc01-institutional-servicio-msg" name="msg" rows="3"></textarea></div><button class="btn btn-primary" type="submit">Enviar consulta</button></form></div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
+</div>
+</section></div></div></div>
+<div class="page" id="p-tple02" data-site="ecommerce"><header class="tpl-head"><div class="gal-wrap"><span class="eyebrow">Ecommerce</span><h2><b>TPL-E-02</b> Catalog / Product-First</h2><p class="tpl-dna">ADN fijo: <code>COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT</code></p><p class="tpl-wire"><code>COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER</code></p></div></header><nav class="switch" aria-label="Variantes de TPL-E-02"><div class="gal-wrap"><span class="flabel">Ancla</span><button class="sbtn" type="button" data-pers="editorial" aria-pressed="true">Editorial</button><button class="sbtn" type="button" data-pers="direct" aria-pressed="false">Direct</button><button class="sbtn" type="button" data-pers="matter" aria-pressed="false">Matter</button><button class="sbtn" type="button" data-pers="institutional" aria-pressed="false">Institutional</button><span class="flabel flabel-2">Página</span><button class="sbtn" type="button" data-page="home" title="TPL-E-02" aria-pressed="true">Tienda</button><button class="sbtn" type="button" data-page="producto" title="TPL-PDP-01" aria-pressed="false">Producto</button></div></nav><div class="variants"><div class="variant" data-pers="editorial"><section class="strip" id="tple02-editorial" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="editorial" aria-label="TPL-E-02 × PERS-EDITORIAL">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-EDITORIAL</b> Editorial <span class="x">·</span> Herencia, prestigio, una historia que merece ir despacio</p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>editorial</b><span>ratio 1.500 · lh 0.95 · h1 88px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>paper</b><span>#FFFFFF · #F6F7F8 · #15181A</span></dd></div>
@@ -2060,11 +2288,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric">
-<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-editorial-q">Buscar en la tienda</label><input id="tple02-editorial-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools">
-<a href="#">Cuenta</a>
-<a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric" data-page="home">
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-editorial-q">Buscar en la tienda</label><input id="tple02-editorial-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
 <a href="#">Encimeras</a>
@@ -2110,7 +2335,32 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
-</div></section></div><div class="variant" data-pers="direct" hidden><section class="strip" id="tple02-direct" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="direct" aria-label="TPL-E-02 × PERS-DIRECT">
+</div>
+<div class="sample" lang="es" data-anchor="editorial" data-comp="lp-asymmetric" data-page="producto" hidden>
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-editorial-producto-q">Buscar en la tienda</label><input id="tple02-editorial-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
+<main>
+<section class="sec pdp" aria-label="Mármol Crema Levante"><div class="canvas"><div class="pdp-gal"><figure class="frame"><img data-img="sq-marmol" alt="Superficie de mármol beige con veta natural" width="600" height="600"></figure><ul class="pdp-thumbs"><li><figure class="frame sq"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure></li></ul></div><div class="pdp-buy"><h1>Mármol Crema Levante</h1><p class="price pdp-price">189 €/m²</p><p class="muted">Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.</p><fieldset class="opts"><legend>Acabado</legend><label class="opt" for="tple02-editorial-producto-op0"><input type="radio" id="tple02-editorial-producto-op0" name="tple02-editorial-producto-finish" checked><span>Pulido</span></label><label class="opt" for="tple02-editorial-producto-op1"><input type="radio" id="tple02-editorial-producto-op1" name="tple02-editorial-producto-finish"><span>Apomazado</span></label><label class="opt" for="tple02-editorial-producto-op2"><input type="radio" id="tple02-editorial-producto-op2" name="tple02-editorial-producto-finish"><span>Envejecido</span></label></fieldset><div class="field qty"><label for="tple02-editorial-producto-qty">Metros cuadrados</label><input id="tple02-editorial-producto-qty" type="number" value="4" min="1"></div><button class="btn btn-primary" type="button">Añadir al carrito</button><p class="small muted pdp-ship">Corte a medida sin coste · envío en 72 h a península</p></div></div></section>
+<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">
+<details open><summary>Descripción</summary><p>Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.</p></details>
+<details><summary>Envíos</summary><p>Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.</p></details>
+<details><summary>Devoluciones</summary><p>Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.</p></details>
+</div></div></section>
+<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Muestra física gratuita</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Despiece incluido en el precio</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Garantía de veta continua</p>
+</div></div></section>
+<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cross-sell</span><h2>Más vendidos</h2></div><div class="items grid-prod cols-4">
+<article class="card prod"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="rule"></div><div class="body"><h3>Peldaño macizo 120 cm</h3><p class="price">138 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure><div class="rule"></div><div class="body"><h3>Encimera Blanco Macael 3 m</h3><p class="price">890 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><div class="rule"></div><div class="body"><h3>Zócalo pulido 8 cm</h3><p class="price">19 €/ml</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure><div class="rule"></div><div class="body"><h3>Kit de sellado mineral 1 L</h3><p class="price">24 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+</div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="direct" hidden><section class="strip" id="tple02-direct" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="direct" aria-label="TPL-E-02 × PERS-DIRECT">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-DIRECT</b> Direct <span class="x">·</span> Marcas que ganan por ser inconfundibles</p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>monumental</b><span>ratio 1.618 · lh 0.82 · h1 120px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>ink</b><span>#0E1113 · #171B1E · #F4F6F7</span></dd></div>
@@ -2141,11 +2391,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid">
-<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-direct-q">Buscar en la tienda</label><input id="tple02-direct-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools">
-<a href="#">Cuenta</a>
-<a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid" data-page="home">
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-direct-q">Buscar en la tienda</label><input id="tple02-direct-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
 <a href="#">Encimeras</a>
@@ -2191,7 +2438,32 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
-</div></section></div><div class="variant" data-pers="matter" hidden><section class="strip" id="tple02-matter" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="matter" aria-label="TPL-E-02 × PERS-MATTER">
+</div>
+<div class="sample" lang="es" data-anchor="direct" data-comp="lp-broken-grid" data-page="producto" hidden>
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-direct-producto-q">Buscar en la tienda</label><input id="tple02-direct-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
+<main>
+<section class="sec pdp" aria-label="Mármol Crema Levante"><div class="canvas"><div class="pdp-gal"><figure class="frame"><img data-img="sq-marmol" alt="Superficie de mármol beige con veta natural" width="600" height="600"></figure><ul class="pdp-thumbs"><li><figure class="frame sq"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure></li></ul></div><div class="pdp-buy"><h1>Mármol Crema Levante</h1><p class="price pdp-price">189 €/m²</p><p class="muted">Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.</p><fieldset class="opts"><legend>Acabado</legend><label class="opt" for="tple02-direct-producto-op0"><input type="radio" id="tple02-direct-producto-op0" name="tple02-direct-producto-finish" checked><span>Pulido</span></label><label class="opt" for="tple02-direct-producto-op1"><input type="radio" id="tple02-direct-producto-op1" name="tple02-direct-producto-finish"><span>Apomazado</span></label><label class="opt" for="tple02-direct-producto-op2"><input type="radio" id="tple02-direct-producto-op2" name="tple02-direct-producto-finish"><span>Envejecido</span></label></fieldset><div class="field qty"><label for="tple02-direct-producto-qty">Metros cuadrados</label><input id="tple02-direct-producto-qty" type="number" value="4" min="1"></div><button class="btn btn-primary" type="button">Añadir al carrito</button><p class="small muted pdp-ship">Corte a medida sin coste · envío en 72 h a península</p></div></div></section>
+<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">
+<details open><summary>Descripción</summary><p>Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.</p></details>
+<details><summary>Envíos</summary><p>Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.</p></details>
+<details><summary>Devoluciones</summary><p>Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.</p></details>
+</div></div></section>
+<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Muestra física gratuita</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Despiece incluido en el precio</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Garantía de veta continua</p>
+</div></div></section>
+<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cross-sell</span><h2>Más vendidos</h2></div><div class="items grid-prod cols-4">
+<article class="card prod"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><h3>Peldaño macizo 120 cm</h3><p class="price">138 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure><div class="body"><h3>Encimera Blanco Macael 3 m</h3><p class="price">890 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><div class="body"><h3>Zócalo pulido 8 cm</h3><p class="price">19 €/ml</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure><div class="body"><h3>Kit de sellado mineral 1 L</h3><p class="price">24 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+</div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="matter" hidden><section class="strip" id="tple02-matter" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="matter" aria-label="TPL-E-02 × PERS-MATTER">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-MATTER</b> Matter <span class="x">·</span> Quien vende un material o una cosa hecha — piedra, madera, comida, mueble</p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>classic</b><span>ratio 1.333 · lh 1.10 · h1 64px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>warm</b><span>#FFF3E3 · #F7E8D4 · #241C14</span></dd></div>
@@ -2222,11 +2494,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid">
-<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-matter-q">Buscar en la tienda</label><input id="tple02-matter-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools">
-<a href="#">Cuenta</a>
-<a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-matter-q">Buscar en la tienda</label><input id="tple02-matter-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
 <a href="#">Encimeras</a>
@@ -2272,7 +2541,32 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
-</div></section></div><div class="variant" data-pers="institutional" hidden><section class="strip" id="tple02-institutional" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="institutional" aria-label="TPL-E-02 × PERS-INSTITUTIONAL">
+</div>
+<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="producto" hidden>
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-matter-producto-q">Buscar en la tienda</label><input id="tple02-matter-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
+<main>
+<section class="sec pdp" aria-label="Mármol Crema Levante"><div class="canvas"><div class="pdp-gal"><figure class="frame"><img data-img="sq-marmol" alt="Superficie de mármol beige con veta natural" width="600" height="600"></figure><ul class="pdp-thumbs"><li><figure class="frame sq"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure></li></ul></div><div class="pdp-buy"><h1>Mármol Crema Levante</h1><p class="price pdp-price">189 €/m²</p><p class="muted">Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.</p><fieldset class="opts"><legend>Acabado</legend><label class="opt" for="tple02-matter-producto-op0"><input type="radio" id="tple02-matter-producto-op0" name="tple02-matter-producto-finish" checked><span>Pulido</span></label><label class="opt" for="tple02-matter-producto-op1"><input type="radio" id="tple02-matter-producto-op1" name="tple02-matter-producto-finish"><span>Apomazado</span></label><label class="opt" for="tple02-matter-producto-op2"><input type="radio" id="tple02-matter-producto-op2" name="tple02-matter-producto-finish"><span>Envejecido</span></label></fieldset><div class="field qty"><label for="tple02-matter-producto-qty">Metros cuadrados</label><input id="tple02-matter-producto-qty" type="number" value="4" min="1"></div><button class="btn btn-primary" type="button">Añadir al carrito</button><p class="small muted pdp-ship">Corte a medida sin coste · envío en 72 h a península</p></div></div></section>
+<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">
+<details open><summary>Descripción</summary><p>Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.</p></details>
+<details><summary>Envíos</summary><p>Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.</p></details>
+<details><summary>Devoluciones</summary><p>Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.</p></details>
+</div></div></section>
+<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Muestra física gratuita</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Despiece incluido en el precio</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Garantía de veta continua</p>
+</div></div></section>
+<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cross-sell</span><h2>Más vendidos</h2></div><div class="items grid-prod cols-4">
+<article class="card prod"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><h3>Peldaño macizo 120 cm</h3><p class="price">138 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure><div class="body"><h3>Encimera Blanco Macael 3 m</h3><p class="price">890 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><div class="body"><h3>Zócalo pulido 8 cm</h3><p class="price">19 €/ml</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure><div class="body"><h3>Kit de sellado mineral 1 L</h3><p class="price">24 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+</div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
+</div>
+</section></div><div class="variant" data-pers="institutional" hidden><section class="strip" id="tple02-institutional" data-site="ecommerce" data-tpl="TPL-E-02" data-pers="institutional" aria-label="TPL-E-02 × PERS-INSTITUTIONAL">
 <div class="meta"><div class="gal-wrap"><p class="meta-pair"><b>PERS-INSTITUTIONAL</b> Institutional <span class="x">·</span> B2B y servicios profesionales: credibilidad antes que entusiasmo</p><dl class="axes">
 <div class="axis"><dt>escala</dt><dd><b>contained</b><span>ratio 1.200 · lh 1.25 · h1 48px</span></dd></div>
 <div class="axis"><dt>fondo</dt><dd><b>cool</b><span>#F2F5F8 · #E8EDF3 · #141C24</span></dd></div>
@@ -2303,11 +2597,8 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered">
-<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div>
-<header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-institutional-q">Buscar en la tienda</label><input id="tple02-institutional-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools">
-<a href="#">Cuenta</a>
-<a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-institutional-q">Buscar en la tienda</label><input id="tple02-institutional-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
 <a href="#">Encimeras</a>
@@ -2353,7 +2644,32 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
-</div></section></div></div></div>
+</div>
+<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="producto" hidden>
+<div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-institutional-producto-q">Buscar en la tienda</label><input id="tple02-institutional-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
+<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
+<main>
+<section class="sec pdp" aria-label="Mármol Crema Levante"><div class="canvas"><div class="pdp-gal"><figure class="frame"><img data-img="sq-marmol" alt="Superficie de mármol beige con veta natural" width="600" height="600"></figure><ul class="pdp-thumbs"><li><figure class="frame sq"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-detalle" alt="Detalle del cincel abriendo la superficie de la piedra" width="800" height="600"></figure></li><li><figure class="frame sq"><img data-img="card-mueble" alt="Mueble con frente de piedra y cajones abiertos" width="800" height="600"></figure></li></ul></div><div class="pdp-buy"><h1>Mármol Crema Levante</h1><p class="price pdp-price">189 €/m²</p><p class="muted">Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.</p><fieldset class="opts"><legend>Acabado</legend><label class="opt" for="tple02-institutional-producto-op0"><input type="radio" id="tple02-institutional-producto-op0" name="tple02-institutional-producto-finish" checked><span>Pulido</span></label><label class="opt" for="tple02-institutional-producto-op1"><input type="radio" id="tple02-institutional-producto-op1" name="tple02-institutional-producto-finish"><span>Apomazado</span></label><label class="opt" for="tple02-institutional-producto-op2"><input type="radio" id="tple02-institutional-producto-op2" name="tple02-institutional-producto-finish"><span>Envejecido</span></label></fieldset><div class="field qty"><label for="tple02-institutional-producto-qty">Metros cuadrados</label><input id="tple02-institutional-producto-qty" type="number" value="4" min="1"></div><button class="btn btn-primary" type="button">Añadir al carrito</button><p class="small muted pdp-ship">Corte a medida sin coste · envío en 72 h a península</p></div></div></section>
+<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">
+<details open><summary>Descripción</summary><p>Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.</p></details>
+<details><summary>Envíos</summary><p>Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.</p></details>
+<details><summary>Devoluciones</summary><p>Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.</p></details>
+</div></div></section>
+<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Muestra física gratuita</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Despiece incluido en el precio</p>
+<p class="ben"><span class="bicon" aria-hidden="true">✓</span>Garantía de veta continua</p>
+</div></div></section>
+<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cross-sell</span><h2>Más vendidos</h2></div><div class="items grid-prod cols-4">
+<article class="card prod"><figure class="frame sq"><img data-img="card-cantero" alt="Operario cortando una placa de piedra en una tronzadora de raíl" width="800" height="600"></figure><div class="body"><h3>Peldaño macizo 120 cm</h3><p class="price">138 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure><div class="body"><h3>Encimera Blanco Macael 3 m</h3><p class="price">890 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><div class="body"><h3>Zócalo pulido 8 cm</h3><p class="price">19 €/ml</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+<article class="card prod"><figure class="frame sq"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure><div class="body"><h3>Kit de sellado mineral 1 L</h3><p class="price">24 €</p><button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>
+</div></div></section>
+</main>
+<footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
+</div>
+</section></div></div></div>
 </main>
 
 <footer class="gal-foot"><div class="gal-wrap"><p>2 plantillas · 8 variantes · 13 imágenes del set compartido · generado por <code>_build-gallery.php</code> desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p></div></footer>
@@ -2446,10 +2762,10 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
   var INDEX='index';
   function parseHash(){
     var raw=(location.hash||'').replace(/^#/,'');
-    if(!raw||raw===INDEX){ return {tpl:'',pers:''}; }
-    var bits=raw.split('/'), t=bits[0], pr=bits[1]||'';
-    if(!document.getElementById('p-'+t)){ return {tpl:'',pers:''}; }
-    return {tpl:t,pers:pr};
+    if(!raw||raw===INDEX){ return {tpl:'',pers:'',page:''}; }
+    var bits=raw.split('/'), t=bits[0], pr=bits[1]||'', pg=bits[2]||'';
+    if(!document.getElementById('p-'+t)){ return {tpl:'',pers:'',page:''}; }
+    return {tpl:t,pers:pr,page:pg};
   }
   function selectVariant(page,pers){
     var vars=page.querySelectorAll('.variant'), btns=page.querySelectorAll('.sbtn[data-pers]');
@@ -2463,8 +2779,21 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
     }
     return want;
   }
+  function selectPage(page,pk){
+    var all=page.querySelectorAll('.sample[data-page]');
+    var btns=page.querySelectorAll('.sbtn[data-page]');
+    if(!all.length){ return ''; }
+    var want='',i;
+    for(i=0;i<all.length;i++){ if(all[i].getAttribute('data-page')===pk){ want=pk; } }
+    if(!want){ want=all[0].getAttribute('data-page'); }
+    for(i=0;i<all.length;i++){ all[i].hidden=(all[i].getAttribute('data-page')!==want); }
+    for(i=0;i<btns.length;i++){
+      btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-page')===want?'true':'false');
+    }
+    return want;
+  }
   var wasIndex=true;
-  function render(id,pers){
+  function render(id,pers,pgk){
     if(id && !document.getElementById('p-'+id)){ id=''; }
     var target=document.getElementById(id?('p-'+id):('p-'+INDEX));
     if(!target){ return; }
@@ -2473,14 +2802,17 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
     back.hidden=!id;
     if(id){
       var pr=selectVariant(target,pers);
+      var pk=selectPage(target,pgk);
       var hd=target.querySelector('.tpl-head h2');
       var ch=target.querySelector('.sbtn[data-pers='+pr+']');
-      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');
+      var pb=target.querySelector('.sbtn[data-page='+pk+']');
+      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'')
+        +(pb&&pk!=='home'?(' · '+pb.textContent):'');
     } else { here.textContent=''; }
     if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }
     wasIndex=!id;
   }
-  function route(){ var q=parseHash(); render(q.tpl,q.pers); }
+  function route(){ var q=parseHash(); render(q.tpl,q.pers,q.page); }
 
   var thumbs=[].slice.call(document.querySelectorAll('.thumb'));
   function vw(){ return document.documentElement.clientWidth; }
@@ -2524,24 +2856,33 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
     var pg=b.closest('.page'); if(!pg){ return; }
     location.hash=pg.id.replace(/^p-/,'')+'/'+b.getAttribute('data-pers');
   });
-  function go(t,pr){
-    var h=t?(t+(pr?('/'+pr):'')):INDEX;
+  function go(t,pr,pg){
+    var h=t?(t+'/'+(pr||'')+(pg?('/'+pg):'')):INDEX;
     try{ if((location.hash||'').replace(/^#/,'')!==h){ location.hash=h; } }catch(e){}
-    render(t,pr);
+    render(t,pr,pg);
   }
   document.addEventListener('click',function(e){
     if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey){ return; }
     var el=e.target&&e.target.closest?e.target:null; if(!el){ return; }
+    var pgb=el.closest('.sbtn[data-page]');
+    if(pgb){ var pp=pgb.closest('.page');
+      if(pp){ e.preventDefault();
+        var cur=pp.querySelector('.sbtn[data-pers][aria-pressed=true]');
+        go(pp.id.replace(/^p-/,''), cur?cur.getAttribute('data-pers'):'', pgb.getAttribute('data-page'));
+      } return; }
     var b=el.closest('.sbtn[data-pers]');
     if(b){ var pg=b.closest('.page');
-      if(pg){ e.preventDefault(); go(pg.id.replace(/^p-/,''),b.getAttribute('data-pers')); } return; }
+      if(pg){ e.preventDefault();
+        var cp=pg.querySelector('.sbtn[data-page][aria-pressed=true]');
+        go(pg.id.replace(/^p-/,''), b.getAttribute('data-pers'), cp?cp.getAttribute('data-page'):'');
+      } return; }
     var a=el.closest('a[href^="#"]');
     if(!a){ return; }
     var raw=a.getAttribute('href').slice(1);
     if(raw!==INDEX && !document.getElementById('p-'+raw.split('/')[0])){ return; }
     e.preventDefault();
     var bits=raw.split('/');
-    go(raw===INDEX?'':bits[0], bits[1]||'');
+    go(raw===INDEX?'':bits[0], bits[1]||'', bits[2]||'');
   });
   window.addEventListener('hashchange',route);
   route();

@@ -1315,6 +1315,57 @@ $CONTENT = array(
 				array( 'img' => 'card-labra', 'h3' => 'Restauración', 'p' => 'Reposición de piezas dañadas con la misma cantera y la misma herramienta.' ),
 			),
 		),
+		/* TPL-SERVICE-01 · the interior page. Its copy is NOT a second brand: it is the same taller
+		   going one level deeper into one of the three services the home already lists, which is what
+		   a service page IS. `_gallery-images.md`'s rule holds here too — no photograph this page has
+		   and its home does not. */
+		'service'  => array(
+			'crumbs'   => array( 'Inicio', 'Servicios', 'Encimeras y baños' ),
+			'eyebrow'  => 'Servicio',
+			'h1'       => 'Encimeras y baños en piedra natural',
+			'claim'    => 'Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.',
+			'cta_1'    => 'Pedir presupuesto',
+			'cta_2'    => 'Ver materiales',
+			'img'      => 'hero-encimera',
+			'problems' => array(
+				'eyebrow' => 'Qué resolvemos',
+				'h2'      => 'Tres cosas que se tuercen sin un cantero',
+				'items'   => array(
+					array( 'La junta que aparece luego', 'Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.' ),
+					array( 'La veta que no continúa', 'Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.' ),
+					array( 'El fregadero que no encaja', 'El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.' ),
+				),
+			),
+			'features' => array(
+				'eyebrow' => 'Alcance',
+				'h2'      => 'Qué incluye',
+				'items'   => array(
+					array( 'Medición láser en obra', 'Con los muebles montados y los electrodomésticos presentes.' ),
+					array( 'Despiece del bloque', 'Elegimos de qué parte del bloque sale cada pieza para que la veta siga.' ),
+					array( 'Corte y pulido', 'Canto recto, romo o biselado, decidido sobre muestra física.' ),
+					array( 'Seno y grifería', 'Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.' ),
+					array( 'Colocación y sellado', 'En una sola visita, y el sellado se repasa a los seis meses.' ),
+				),
+			),
+			'faq'      => array(
+				'eyebrow' => 'Dudas',
+				'h2'      => 'Lo que nos preguntan siempre',
+				'items'   => array(
+					array( '¿Cuánto tarda desde la medición?', 'Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.' ),
+					array( '¿Se puede hacer sin junta a la vista?', 'Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.' ),
+					array( '¿El mármol se mancha?', 'Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.' ),
+					array( '¿Retiráis la encimera vieja?', 'Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.' ),
+				),
+			),
+			'others'   => array(
+				'eyebrow' => 'Otros servicios',
+				'h2'      => 'Lo demás que hacemos',
+				'items'   => array(
+					array( 'Fachadas y sillería', 'Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.', 'card-patio' ),
+					array( 'Restauración', 'Reposición de piezas dañadas con la misma cantera y la misma herramienta.', 'card-labra' ),
+				),
+			),
+		),
 		/* COMP-LOGOS · invented studios and institutions, like `Piedra Valdés` itself. Named
 		   plausibly but not after anyone real: a public repository is not the place to put a
 		   fabricated client list of actual companies. */
@@ -1409,6 +1460,27 @@ $CONTENT = array(
 				array( 'img' => 'card-patio', 'h3' => 'Sillar de arenisca', 'p' => '96 €' ),
 				array( 'img' => 'sq-manos', 'h3' => 'Canto pulido a mano', 'p' => '28 €/ml' ),
 			),
+		),
+		/* TPL-PDP-01 · the product page for the FIRST tile of the grid on the home, so the two pages
+		   are demonstrably the same shop. Its price and its finish options match that tile. */
+		'pdp'      => array(
+			'crumbs'  => array( 'Inicio', 'Catálogo', 'Mármol Crema Levante' ),
+			'h1'      => 'Mármol Crema Levante',
+			'price'   => '189 €/m²',
+			'lede'    => 'Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.',
+			'main'    => 'sq-marmol',
+			'thumbs'  => array( 'card-veta', 'card-detalle', 'card-mueble' ),
+			'opt_lbl' => 'Acabado',
+			'opts'    => array( 'Pulido', 'Apomazado', 'Envejecido' ),
+			'qty_lbl' => 'Metros cuadrados',
+			'cta'     => 'Añadir al carrito',
+			'ship'    => 'Corte a medida sin coste · envío en 72 h a península',
+			'acc'     => array(
+				array( 'Descripción', 'Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.' ),
+				array( 'Envíos', 'Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.' ),
+				array( 'Devoluciones', 'Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.' ),
+			),
+			'badges'  => array( 'Muestra física gratuita', 'Despiece incluido en el precio', 'Garantía de veta continua' ),
 		),
 		'carousel' => array(
 			'eyebrow' => 'Cross-sell',
@@ -2774,6 +2846,92 @@ $css[] = <<<'CSS'
             transition:transform var(--dur-color) var(--ease)}
 
 
+/* ── INTERIOR PAGES ──────────────────────────────────────────────────────────────────────────
+   A template is a page set. Everything below belongs to pages that are NOT the home, and every
+   one of them wears the home's header, footer, tokens and blueprint, because that is the whole
+   claim a "kit" makes: these are pages of one site, not mockups sharing a folder. */
+
+/* COMP-BREADCRUMB — every interior page opens with one and the home never has one, which is the
+   cheapest signal a reader has that they went a level down. */
+.crumbs{border-bottom:1px solid var(--c-border);background:var(--c-bg)}
+.crumbs ol{list-style:none;margin:0;padding:var(--sp-xs) 0;display:flex;flex-wrap:wrap;
+           gap:.25rem .5rem;font-size:var(--fs-small);color:var(--c-text-muted)}
+.crumbs li+li::before{content:"/";margin-right:.5rem;color:var(--c-border)}
+.crumbs a{color:var(--c-text-soft)}
+.crumbs a:hover{color:var(--c-text)}
+.crumbs [aria-current]{color:var(--c-text)}
+
+/* "Qué resolvemos" — the problems the service answers. A numbered rule per item, same recipe as
+   COMP-PROCESS: the rule belongs to the item, so it survives any wrap at any width. */
+.problems .items{list-style:none;margin:0;padding:0}
+.problems .prob{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
+.problems .prob h3{margin:0 0 .3rem;min-width:0;hyphens:auto;overflow-wrap:break-word}
+.problems .prob p{color:var(--c-text-soft)}
+
+/* COMP-FEATURES — scope. A definition list in all but name: term then gloss, one per row, so the
+   eye reads down the terms and stops only where it wants the detail. */
+.feats{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.feats li{display:grid;gap:.15rem;padding:var(--sp-s) 0;border-top:1px solid var(--c-border);
+          min-width:0}
+.feats li:last-child{border-bottom:1px solid var(--c-border)}
+.feats b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2;font-weight:600}
+.feats span{color:var(--c-text-soft);font-size:var(--fs-small)}
+@media(min-width:768px){
+  .feats li{grid-template-columns:minmax(0,22ch) minmax(0,1fr);gap:var(--sp-m);align-items:baseline}
+}
+
+/* COMP-GALLERY + COMP-PRODUCT-INFO — ONE block, never two sections. A section boundary running
+   through a buy box is the difference between a product page and two stacked panels. */
+.pdp .canvas{padding-block:var(--sp-l)}
+.pdp-gal,.pdp-buy{min-width:0}
+.pdp-thumbs{list-style:none;margin:var(--sp-xs) 0 0;padding:0;
+            display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-xs)}
+.pdp-buy{display:flex;flex-direction:column;gap:var(--sp-xs)}
+.pdp-buy h1{margin:0}
+.pdp-price{font-size:var(--fs-h3)}
+.pdp-ship{margin-top:.2rem}
+/* THE BUY BOX IS PLACED ON THE COMPOSITION'S OWN COLUMNS, not on a grid this section invents.
+   The first cut redeclared `.pdp .canvas` as a two-column grid and nothing happened, because every
+   `[data-comp]` block redefines `.canvas` at 1024 and wins on specificity: the section was fighting
+   the blueprint layer instead of using it. `.band` already had this exact shape — a headline half
+   and a form half — so the PDP takes the same lines under each blueprint. Below 1024 the canvas is
+   one column and the gallery stacks above the buy box, which is the order TPL-PDP-01 names:
+   "COMP-GALLERY (izquierda / arriba en mobile)". */
+.pdp-buy{align-self:start}
+/* A BUY BOX BESIDE THE GALLERY IS PDP DNA, NOT A COMPOSITION CHOICE — the same argument this file
+   already makes for catalogue grid density two hundred lines up. Three blueprints place the two
+   halves on their own named lines below; `lp-centered` never redefines `.canvas` at all, so
+   without this rule its product page would stack a full-width stone slab above the price and put
+   the only button on the page a screen and a half down. Where a blueprint DOES place the halves,
+   its `[data-comp]` rule outranks this one and wins. */
+@media(min-width:1024px){
+  .pdp .canvas{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+               column-gap:var(--sp-l);align-items:start}
+}
+
+/* Finish options. A radio group that reads as a row of chips, and the CHECKED state is border
+   weight and ground, never colour alone — the same rule the filter chips follow. */
+.opts{border:0;margin:var(--sp-xs) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
+.opts legend{font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
+             color:var(--c-text-muted);margin-bottom:.35rem;padding:0}
+.opt{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;
+     border:1px solid var(--c-border);border-radius:999px;padding:.3rem .7rem;
+     font-size:var(--fs-small);color:var(--c-text-soft);white-space:nowrap}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt:hover{border-color:var(--c-text-muted);color:var(--c-text)}
+.opt:has(input:checked){border-color:var(--c-text);color:var(--c-text);font-weight:700;
+                        background:var(--c-bg-alt)}
+.opt:has(input:focus-visible){outline:2px solid var(--c-accent);outline-offset:2px}
+.qty{max-width:12rem}
+
+/* COMP-ACCORDION — the same `<details>/<summary>` recipe COMP-FAQ uses, because they are the same
+   control doing the same job, and giving one of them a second implementation is how two things
+   that should stay identical start to drift. */
+.acc .qas{max-width:none}
+
+/* The switcher grows a second label once a template ships more than one page. */
+.flabel-2{margin-left:var(--sp-s)}
+@media(max-width:767px){.flabel-2{margin-left:var(--sp-xs)}}
 /* ── the group: one archetype, its anchors under it ──────────────────────────────────────────
    Grouping was asked for so a template would carry all its parts in one place. It was never asked
    to cost the catalogue its VARIETY, and the first cut did exactly that: eight visibly different
@@ -3179,6 +3337,8 @@ $COMP_CSS['strict-grid'] = <<<'CSS'
   [data-comp="lp-strict-grid"] .card{height:100%}
   [data-comp="lp-strict-grid"] .band .head{grid-column:1/7}
   [data-comp="lp-strict-grid"] .band .formwrap{grid-column:7/13}
+  [data-comp="lp-strict-grid"] .pdp .pdp-gal{grid-column:1/7}
+  [data-comp="lp-strict-grid"] .pdp .pdp-buy{grid-column:7/13}
 }
 CSS;
 
@@ -3316,6 +3476,8 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      an amputation. A SUBMIT BUTTON AT THE GLASS IS A BROKEN PAGE: no hit-slop on one side, and the
      border that tells you where the control ends is coincident with the edge of the screen. */
   [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/c 13}
+  [data-comp="lp-broken-grid"] .pdp .pdp-gal{grid-column:c 1/c 10}
+  [data-comp="lp-broken-grid"] .pdp .pdp-buy{grid-column:c 6/c 13}
   /* THE `padding-right:var(--pad-x-tablet)` ON THE LAST CARD'S BODY IS GONE, and its absence is
      the point rather than an omission. It existed to give a bleeding card's text some paper; with
      the row ending at `c 13` there is no bleeding card, and leaving it would inset the last card's
@@ -3432,6 +3594,8 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/c 13}
   [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
+  [data-comp="lp-asymmetric"] .pdp .pdp-gal{grid-column:c 1/c 7}
+  [data-comp="lp-asymmetric"] .pdp .pdp-buy{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}
 }
 CSS;
@@ -3741,6 +3905,269 @@ function hero_slider_html( $frames ) {
 }
 
 /** TPL-C-01 — Services / Lead-Gen. Renders the three `[fijo · ADN]` sections plus COMP-CASES. */
+/**
+ * The two site headers, extracted so an INTERIOR page wears the same one its home does.
+ *
+ * A header that drifts between a template's home and its inner pages is the loudest tell that a
+ * "kit" is really several unrelated mockups sharing a folder. Extracting it is not tidying: it is
+ * the thing that makes the page set read as one site.
+ *
+ * The ecommerce header carries an `id` on its search field, so it takes the SAMPLE's uid rather
+ * than the variant's — two pages of the same variant are two live inputs, and a duplicate id
+ * would break `label[for]` for both.
+ */
+function head_corporate( $C, $BRAND ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o .= '<a href="#">' . h( $n ) . '</a>';
+	}
+	return $o . '</nav><a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '</div></div></header>';
+}
+
+function head_ecommerce( $C, $BRAND, $uid ) {
+	$o = '<div class="announce"><div class="canvas"><p class="small">' . h( $C['announce'] ) . '</p></div></div>'
+		. '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<form class="searchbar" role="search" onsubmit="return false">'
+		. '<label class="sr" for="' . $uid . '-q">Buscar en la tienda</label>'
+		. '<input id="' . $uid . '-q" type="search" placeholder="' . h( $C['search'] ) . '">'
+		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
+		. '</form><div class="tools">';
+	foreach ( $C['tools'] as $t ) {
+		$o .= '<a href="#">' . h( $t ) . '</a>';
+	}
+	return $o . '<a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+		. '</div></div></div></header>';
+}
+
+/** Breadcrumb — every interior page opens with one, and the home never has one. */
+function crumbs_html( $trail ) {
+	$o    = '<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol>';
+	$last = count( $trail ) - 1;
+	foreach ( $trail as $i => $t ) {
+		$o .= ( $i === $last )
+			? '<li aria-current="page">' . h( $t ) . '</li>'
+			: '<li><a href="#">' . h( $t ) . '</a></li>';
+	}
+	return $o . '</ol></div></nav>';
+}
+
+/**
+ * COMP-CTA + COMP-LEAD-FORM · the closing band, extracted so the service page closes exactly the
+ * way its home does. TPL-C-01's DNA is that the form EXISTS and dominates the close; a service
+ * page that closed differently would be a different site.
+ *
+ * It takes the SAMPLE's uid and not the variant's, because every field here carries an `id` that a
+ * `<label for>` points at. Two pages of the same variant are two live forms, and a duplicate id
+ * silently breaks the label on BOTH of them — clicking the label focuses the wrong input, or none.
+ */
+function band_closing_html( $b, $uid ) {
+	$o = '<section class="sec band closing" aria-label="Contacto"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p></div>'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">';
+	foreach ( $b['fields'] as $f ) {
+		$id = $uid . '-' . $f[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+	}
+	return $o . '<div class="field"><label for="' . $uid . '-msg">' . h( $b['msg'] ) . '</label>'
+		. '<textarea id="' . $uid . '-msg" name="msg" rows="3"></textarea></div>'
+		. '<button class="btn btn-primary" type="submit">' . h( $b['submit'] ) . '</button>'
+		. '</form></div></div></section>';
+}
+
+/**
+ * TPL-SERVICE-01 · service detail, the interior page of TPL-C-01.
+ *
+ * It REUSES the home's process, testimonials and closing band rather than inventing parallel copy,
+ * because that is what the archetype doc says the page is: the same firm going one level deeper on
+ * one service. Reuse is also what keeps the two pages legible as ONE site rather than as two
+ * mockups that happen to share a folder.
+ *
+ * COMP-PRICING is declared by TPL-SERVICE-01 with default OFF and is therefore not rendered. That
+ * absence is written down here so a reader comparing the doc with the page does not conclude the
+ * section was forgotten — which is precisely the mistake three toggles caused on the home.
+ */
+function page_service( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$S  = $C['service'];
+	$im = img( $S['img'] );
+	$o  = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $S['crumbs'] );
+	$o[] = '<main>';
+
+	// 1 · Encabezado de servicio  [fijo · ADN]
+	$o[] = '<section class="sec hero svc-head" aria-label="' . h( $S['h1'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $S['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $S['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $S['claim'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $S['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $S['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · Qué resolvemos  [fijo · ADN]
+	$pb  = $S['problems'];
+	$o[] = '<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pb['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pb['h2'] ) . '</h2></div><ul class="items cols-3">';
+	foreach ( $pb['items'] as $it ) {
+		$o[] = '<li class="prob"><h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 3 · COMP-FEATURES  [fijo]
+	$ft  = $S['features'];
+	$o[] = '<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ft['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ft['h2'] ) . '</h2></div><ul class="feats">';
+	foreach ( $ft['items'] as $it ) {
+		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 4 · COMP-PROCESS  [toggle TGL-PROCESS] — the home's steps, because it is the same method
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROCESS' ) ) {
+		$pr  = $C['process'];
+		$o[] = '<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $pr['h2'] ) . '</h2></div><ol class="steps">';
+		foreach ( $pr['steps'] as $i => $st ) {
+			$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+				. '<h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
+		}
+		$o[] = '</ol></div></section>';
+	}
+
+	// 5 · COMP-FAQ  [toggle TGL-FAQ, default ON] — `<details>/<summary>`, mockup-guide.md's recipe
+	$fq  = $S['faq'];
+	$o[] = '<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="qas">';
+	foreach ( $fq['items'] as $q ) {
+		$o[] = '<details><summary>' . h( $q[0] ) . '</summary><p>' . h( $q[1] ) . '</p></details>';
+	}
+	$o[] = '</div></div></section>';
+
+	// 6 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 7 · Otros servicios  [fijo · ADN] — the cross-link the archetype requires
+	$ot  = $S['others'];
+	$o[] = '<section class="sec others grid-sec" aria-label="Otros servicios"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ot['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ot['h2'] ) . '</h2></div><div class="items cols-2">';
+	foreach ( $ot['items'] as $it ) {
+		$o[] = card_html( $anchor_key, array( 'img' => $it[2], 'h3' => $it[0], 'p' => $it[1] ) );
+	}
+	$o[] = '</div></div></section>';
+
+	// 8 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN]
+	$o[] = band_closing_html( $C['band'], $uid );
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-PDP-01 · product detail, the interior page of TPL-E-02.
+ *
+ * COMP-GALLERY and COMP-PRODUCT-INFO are ONE block in the archetype's wireframe, not two sections,
+ * and they are emitted that way: a section boundary running through a buy box is the difference
+ * between a product page and two stacked panels.
+ */
+function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
+	$P  = $C['pdp'];
+	$mn = img( $P['main'] );
+	$o  = array();
+
+	$o[] = head_ecommerce( $C, $BRAND, $uid );
+	$o[] = crumbs_html( $P['crumbs'] );
+	$o[] = '<main>';
+
+	$thumbs = '';
+	foreach ( $P['thumbs'] as $t ) {
+		$ti      = img( $t );
+		$thumbs .= '<li><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure></li>';
+	}
+
+	$opts = '';
+	foreach ( $P['opts'] as $i => $op ) {
+		$oid   = $uid . '-op' . $i;
+		$opts .= '<label class="opt" for="' . $oid . '">'
+			. '<input type="radio" id="' . $oid . '" name="' . $uid . '-finish"'
+			. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $op ) . '</span></label>';
+	}
+
+	// COMP-GALLERY + COMP-PRODUCT-INFO — one block  [fijo · ADN]
+	$o[] = '<section class="sec pdp" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
+		. '<div class="pdp-gal">'
+		. '<figure class="frame"><img data-img="' . h( $mn['slug'] ) . '" alt="' . h( $mn['alt'] ) . '"'
+		. ' width="' . $mn['w'] . '" height="' . $mn['h'] . '"></figure>'
+		. '<ul class="pdp-thumbs">' . $thumbs . '</ul>'
+		. '</div>'
+		. '<div class="pdp-buy">'
+		. '<h1>' . h( $P['h1'] ) . '</h1>'
+		. '<p class="price pdp-price">' . h( $P['price'] ) . '</p>'
+		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
+		. '<fieldset class="opts"><legend>' . h( $P['opt_lbl'] ) . '</legend>' . $opts . '</fieldset>'
+		. '<div class="field qty"><label for="' . $uid . '-qty">' . h( $P['qty_lbl'] ) . '</label>'
+		. '<input id="' . $uid . '-qty" type="number" value="4" min="1"></div>'
+		. '<button class="btn btn-primary" type="button">' . h( $P['cta'] ) . '</button>'
+		. '<p class="small muted pdp-ship">' . h( $P['ship'] ) . '</p>'
+		. '</div></div></section>';
+
+	// COMP-ACCORDION  [fijo]
+	$o[] = '<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">';
+	foreach ( $P['acc'] as $i => $a ) {
+		$o[] = '<details' . ( 0 === $i ? ' open' : '' ) . '><summary>' . h( $a[0] ) . '</summary>'
+			. '<p>' . h( $a[1] ) . '</p></details>';
+	}
+	$o[] = '</div></div></section>';
+
+	// COMP-TRUST-BADGES  [toggle] — the tick stays neutral, same reason as the benefits bar
+	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
+	foreach ( $P['badges'] as $b ) {
+		$o[] = '<p class="ben"><span class="bicon" aria-hidden="true">✓</span>' . h( $b ) . '</p>';
+	}
+	$o[] = '</div></div></section>';
+
+	// COMP-PRODUCT-CAROUSEL  [toggle TGL-RELATED] — the home's carousel, because it is one shop
+	$cr  = $C['carousel'];
+	$o[] = '<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
+	foreach ( $cr['cards'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
 function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	global $SLIDER_FRAMES;
 	$hero    = $C['hero'];
@@ -3748,14 +4175,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$slider  = ( 'slider' === tgl_of( $tgl_rows, 'TGL-HERO-TYPE' ) );
 	$o       = array();
 
-	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
-		. '<span class="logo">' . h( $BRAND ) . '</span>'
-		. '<nav class="mainnav" aria-label="Principal">';
-	foreach ( $C['nav'] as $n ) {
-		$o[] = '<a href="#">' . h( $n ) . '</a>';
-	}
-	$o[] = '</nav><a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
-		. '</div></div></header>';
+	$o[] = head_corporate( $C, $BRAND );
 
 	$o[] = '<main>';
 
@@ -3838,20 +4258,7 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	}
 
 	// 7 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN] — the form exists and dominates the close
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing" aria-label="Contacto"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p></div>'
-		. '<div class="formwrap"><form class="leadform" onsubmit="return false">';
-	foreach ( $b['fields'] as $f ) {
-		$id  = $uid . '-' . $f[0];
-		$o[] = '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
-			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
-	}
-	$o[] = '<div class="field"><label for="' . $uid . '-msg">' . h( $b['msg'] ) . '</label>'
-		. '<textarea id="' . $uid . '-msg" name="msg" rows="3"></textarea></div>'
-		. '<button class="btn btn-primary" type="submit">' . h( $b['submit'] ) . '</button>'
-		. '</form></div></div></section>';
+	$o[] = band_closing_html( $C['band'], $uid );
 
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
@@ -3916,22 +4323,8 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 	$im   = img( $hero['img'] );
 	$o    = array();
 
-	// 0 · COMP-ANNOUNCEMENT  [toggle TGL-ANNOUNCEMENT, default on]
-	$o[] = '<div class="announce"><div class="canvas"><p class="small">' . h( $C['announce'] ) . '</p></div></div>';
-
-	// 1 · COMP-HEADER — search protagonista  [fijo]
-	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
-		. '<span class="logo">' . h( $BRAND ) . '</span>'
-		. '<form class="searchbar" role="search" onsubmit="return false">'
-		. '<label class="sr" for="' . $uid . '-q">Buscar en la tienda</label>'
-		. '<input id="' . $uid . '-q" type="search" placeholder="' . h( $C['search'] ) . '">'
-		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
-		. '</form><div class="tools">';
-	foreach ( $C['tools'] as $t ) {
-		$o[] = '<a href="#">' . h( $t ) . '</a>';
-	}
-	$o[] = '<a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
-		. '</div></div></div></header>';
+	// 0 · COMP-ANNOUNCEMENT + 1 · COMP-HEADER
+	$o[] = head_ecommerce( $C, $BRAND, $uid );
 
 	$o[] = '<main>';
 
@@ -4264,6 +4657,43 @@ function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
 		. '</section>';
 }
 
+/* WHICH PAGES EACH ARCHETYPE SHIPS, and which archetype doc each one answers to.
+
+   A template is a PAGE SET, not a home. The home was the only page for as long as it was the only
+   renderer, and a switcher offering one choice was deliberately not printed — a control with one
+   option is a promise, not a control. It prints now because there is a second page to go to.
+
+   `doc` is not decoration: it names the archetype doc the page's inventory was transcribed from,
+   so a reader can check the page against its own spec instead of against this file's memory. The
+   first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
+$PAGES = array(
+	'TPL-C-01' => array(
+		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
+		array( 'key' => 'servicio', 'label' => 'Servicio', 'doc' => 'TPL-SERVICE-01' ),
+	),
+	'TPL-E-02' => array(
+		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
+	),
+);
+
+/** One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample. */
+function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	if ( 'TPL-C-01' === $tpl && 'home' === $page_key ) {
+		return strip_corporate( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-01' === $tpl && 'servicio' === $page_key ) {
+		return page_service( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
+		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
+	}
+	if ( 'TPL-E-02' === $tpl && 'producto' === $page_key ) {
+		return page_pdp( $anchor_key, $C, $BRAND, $suid );
+	}
+	fail( "no renderer for page `$page_key` of `$tpl`" );
+}
+
 $body    = array();
 $cards   = array();
 $by_tpl  = array();
@@ -4277,13 +4707,6 @@ foreach ( $STRIPS as $s ) {
 
 	$tgl = $RESOLVED[ $C['tpl'] . '×' . $s['anchor'] ];
 
-	if ( 'corporate' === $C['site'] ) {
-		$inner = strip_corporate( $s['anchor'], $C, $BRAND, $uid, $tgl );
-	} elseif ( 'ecommerce' === $C['site'] ) {
-		$inner = strip_ecommerce( $s['anchor'], $C, $BRAND, $uid );
-	} else {
-		fail( "no renderer for site type `{$C['site']}`" );
-	}
 
 	$rows = axis_rows( $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION );
 
@@ -4304,12 +4727,23 @@ foreach ( $STRIPS as $s ) {
 		. ' data-pers="' . h( $s['anchor'] ) . '"'
 		. ' aria-label="' . h( $C['tpl'] . ' × ' . $A['id'] ) . '">';
 	$variant[] = meta_html( $C, $A, $rows, $uid, $tgl );
-	// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
-	// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
-	// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
-	$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '" data-comp="' . h( $lp ) . '">';
-	$variant[] = $inner;
-	$variant[] = '</div></section>';
+
+	/* ONE SAMPLE PER PAGE, and each carries its OWN uid suffix. Every form field, radio group and
+	   `<label for>` inside a sample is an id; two pages of the same variant are two live forms, and
+	   a duplicate id silently breaks the label on BOTH — clicking it focuses the wrong control, or
+	   nothing. The suffix is the page key, so the id says which page it belongs to. */
+	foreach ( $PAGES[ $C['tpl'] ] as $pi => $pg ) {
+		$suid = ( 'home' === $pg['key'] ) ? $uid : ( $uid . '-' . $pg['key'] );
+		// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
+		// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
+		// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
+		$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '"'
+			. ' data-comp="' . h( $lp ) . '" data-page="' . h( $pg['key'] ) . '"'
+			. ( 0 === $pi ? '' : ' hidden' ) . '>';
+		$variant[] = render_page( $pg['key'], $C['tpl'], $s['anchor'], $C, $BRAND, $suid, $tgl );
+		$variant[] = '</div>';
+	}
+	$variant[] = '</section>';
 
 	$by_tpl[ $C['tpl'] ]['anchors'][ $s['anchor'] ]['html'] = implode( "\n", $variant );
 }
@@ -4323,7 +4757,7 @@ foreach ( $STRIPS as $s ) {
  * The page switcher is NOT rendered while a template has a single page. A control that offers one
  * choice is not a control, it is a promise; this catalogue has shipped enough of those.
  */
-function template_page_html( $tpl, $T, $tpl_slug ) {
+function template_page_html( $tpl, $T, $tpl_slug, $pages ) {
 	$C    = $T['content'];
 	$keys = array_keys( $T['anchors'] );
 
@@ -4332,6 +4766,20 @@ function template_page_html( $tpl, $T, $tpl_slug ) {
 		$chips .= '<button class="sbtn" type="button" data-pers="' . h( $k ) . '"'
 			. ' aria-pressed="' . ( 0 === $i ? 'true' : 'false' ) . '">'
 			. h( $T['anchors'][ $k ]['A']['name'] ) . '</button>';
+	}
+
+	/* The page switcher is printed only when the archetype ships more than one page. A control
+	   offering a single choice is not a control, it is a promise, and this catalogue has shipped
+	   enough of those. Each chip names the archetype doc its page was transcribed from. */
+	$pages_html = '';
+	if ( count( $pages ) > 1 ) {
+		$pages_html = '<span class="flabel flabel-2">Página</span>';
+		foreach ( $pages as $i => $pg ) {
+			$pages_html .= '<button class="sbtn" type="button" data-page="' . h( $pg['key'] ) . '"'
+				. ' title="' . h( $pg['doc'] ) . '"'
+				. ' aria-pressed="' . ( 0 === $i ? 'true' : 'false' ) . '">'
+				. h( $pg['label'] ) . '</button>';
+		}
 	}
 
 	$vars = '';
@@ -4349,6 +4797,7 @@ function template_page_html( $tpl, $T, $tpl_slug ) {
 		. '</div></header>'
 		. '<nav class="switch" aria-label="Variantes de ' . h( $tpl ) . '"><div class="gal-wrap">'
 		. '<span class="flabel">Ancla</span>' . $chips
+		. $pages_html
 		. '</div></nav>'
 		. '<div class="variants">' . $vars . '</div>'
 		. '</div>';
@@ -4372,7 +4821,7 @@ foreach ( $by_tpl as $bt_tpl => $bt_T ) {
 	}
 	$n_cards  += count( $bt_cards );
 	$groups[]  = template_group_html( $bt_tpl, $bt_T, $bt_slug, $bt_cards );
-	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug );
+	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug, $PAGES[ $bt_tpl ] );
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -4634,9 +5083,7 @@ $top = '<div class="gal-top"><div class="gal-wrap">'
 $index = '<div class="page" id="p-index">' . "\n"
 	. $intro . "\n"
 	. $filter . "\n"
-	. '<div class="gal-wrap">' . implode( "
-", $groups ) . '</div>' . "
-"
+	. '<div class="gal-wrap">' . implode( "\n", $groups ) . '</div>' . "\n"
 	. '</div>';
 
 /* ── the router, and the miniature that cannot go stale ────────────────────────────────────────
@@ -4671,10 +5118,10 @@ $mk_js = "<script>\n"
 	// `#tplc01/direct` opens it on that one, so a link that names a variant keeps the variant.
 	. "  function parseHash(){\n"
 	. "    var raw=(location.hash||'').replace(/^#/,'');\n"
-	. "    if(!raw||raw===INDEX){ return {tpl:'',pers:''}; }\n"
-	. "    var bits=raw.split('/'), t=bits[0], pr=bits[1]||'';\n"
-	. "    if(!document.getElementById('p-'+t)){ return {tpl:'',pers:''}; }\n"
-	. "    return {tpl:t,pers:pr};\n"
+	. "    if(!raw||raw===INDEX){ return {tpl:'',pers:'',page:''}; }\n"
+	. "    var bits=raw.split('/'), t=bits[0], pr=bits[1]||'', pg=bits[2]||'';\n"
+	. "    if(!document.getElementById('p-'+t)){ return {tpl:'',pers:'',page:''}; }\n"
+	. "    return {tpl:t,pers:pr,page:pg};\n"
 	. "  }\n"
 	// An unknown anchor falls back to the template's FIRST variant rather than to nothing: a
 	// stale link naming a renamed anchor should still land on the template it names.
@@ -4690,42 +5137,44 @@ $mk_js = "<script>\n"
 	. "    }\n"
 	. "    return want;\n"
 	. "  }\n"
+	// The PAGE is chosen across every variant, not only the visible one, so switching anchor
+	// keeps you on the page you were reading instead of dropping you back on the home.
+	. "  function selectPage(page,pk){\n"
+	. "    var all=page.querySelectorAll('.sample[data-page]');\n"
+	. "    var btns=page.querySelectorAll('.sbtn[data-page]');\n"
+	. "    if(!all.length){ return ''; }\n"
+	. "    var want='',i;\n"
+	. "    for(i=0;i<all.length;i++){ if(all[i].getAttribute('data-page')===pk){ want=pk; } }\n"
+	. "    if(!want){ want=all[0].getAttribute('data-page'); }\n"
+	. "    for(i=0;i<all.length;i++){ all[i].hidden=(all[i].getAttribute('data-page')!==want); }\n"
+	. "    for(i=0;i<btns.length;i++){\n"
+	. "      btns[i].setAttribute('aria-pressed', btns[i].getAttribute('data-page')===want?'true':'false');\n"
+	. "    }\n"
+	. "    return want;\n"
+	. "  }\n"
 	. "  var wasIndex=true;\n"
 	// `render` does the work and `route` only reads the hash. Splitting them is what lets a click
 	// route the page WITHOUT waiting for a `hashchange` the artifact shell might never deliver.
-	. "  function render(id,pers){
-"
-	. "    if(id && !document.getElementById('p-'+id)){ id=''; }
-"
-	. "    var target=document.getElementById(id?('p-'+id):('p-'+INDEX));
-"
-	. "    if(!target){ return; }
-"
-	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }
-"
-	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }
-"
-	. "    back.hidden=!id;
-"
-	. "    if(id){
-"
-	. "      var pr=selectVariant(target,pers);
-"
-	. "      var hd=target.querySelector('.tpl-head h2');
-"
-	. "      var ch=target.querySelector('.sbtn[data-pers='+pr+']');
-"
-	. "      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'');
-"
-	. "    } else { here.textContent=''; }
-"
-	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }
-"
-	. "    wasIndex=!id;
-"
-	. "  }
-"
-	. "  function route(){ var q=parseHash(); render(q.tpl,q.pers); }\n"
+	. "  function render(id,pers,pgk){\n"
+	. "    if(id && !document.getElementById('p-'+id)){ id=''; }\n"
+	. "    var target=document.getElementById(id?('p-'+id):('p-'+INDEX));\n"
+	. "    if(!target){ return; }\n"
+	. "    if(wasIndex && id){ idxScroll=window.pageYOffset||0; }\n"
+	. "    for(var i=0;i<pages.length;i++){ pages[i].hidden=(pages[i]!==target); }\n"
+	. "    back.hidden=!id;\n"
+	. "    if(id){\n"
+	. "      var pr=selectVariant(target,pers);\n"
+	. "      var pk=selectPage(target,pgk);\n"
+	. "      var hd=target.querySelector('.tpl-head h2');\n"
+	. "      var ch=target.querySelector('.sbtn[data-pers='+pr+']');\n"
+	. "      var pb=target.querySelector('.sbtn[data-page='+pk+']');\n"
+	. "      here.textContent=(hd?hd.textContent:'')+(ch?(' · '+ch.textContent):'')\n"
+	. "        +(pb&&pk!=='home'?(' · '+pb.textContent):'');\n"
+	. "    } else { here.textContent=''; }\n"
+	. "    if(id){ window.scrollTo(0,0); } else { paint(); window.scrollTo(0,idxScroll); }\n"
+	. "    wasIndex=!id;\n"
+	. "  }\n"
+	. "  function route(){ var q=parseHash(); render(q.tpl,q.pers,q.page); }\n"
 	. "\n"
 	. "  var thumbs=[].slice.call(document.querySelectorAll('.thumb'));\n"
 	. "  function vw(){ return document.documentElement.clientWidth; }\n"
@@ -4782,44 +5231,36 @@ $mk_js = "<script>\n"
 	// -- in the viewer, not on this machine. So the click routes the page itself and the hash is
 	// written afterwards as an enhancement: shareable links keep working, and the catalogue keeps
 	// working even if nothing ever listens to the hash again.
-	. "  function go(t,pr){
-"
-	. "    var h=t?(t+(pr?('/'+pr):'')):INDEX;
-"
-	. "    try{ if((location.hash||'').replace(/^#/,'')!==h){ location.hash=h; } }catch(e){}
-"
-	. "    render(t,pr);
-"
-	. "  }
-"
-	. "  document.addEventListener('click',function(e){
-"
-	. "    if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey){ return; }
-"
-	. "    var el=e.target&&e.target.closest?e.target:null; if(!el){ return; }
-"
-	. "    var b=el.closest('.sbtn[data-pers]');
-"
-	. "    if(b){ var pg=b.closest('.page');
-"
-	. "      if(pg){ e.preventDefault(); go(pg.id.replace(/^p-/,''),b.getAttribute('data-pers')); } return; }
-"
-	. "    var a=el.closest('a[href^=\"#\"]');
-"
-	. "    if(!a){ return; }
-"
-	. "    var raw=a.getAttribute('href').slice(1);
-"
-	. "    if(raw!==INDEX && !document.getElementById('p-'+raw.split('/')[0])){ return; }
-"
-	. "    e.preventDefault();
-"
-	. "    var bits=raw.split('/');
-"
-	. "    go(raw===INDEX?'':bits[0], bits[1]||'');
-"
-	. "  });
-"
+	. "  function go(t,pr,pg){\n"
+	. "    var h=t?(t+'/'+(pr||'')+(pg?('/'+pg):'')):INDEX;\n"
+	. "    try{ if((location.hash||'').replace(/^#/,'')!==h){ location.hash=h; } }catch(e){}\n"
+	. "    render(t,pr,pg);\n"
+	. "  }\n"
+	. "  document.addEventListener('click',function(e){\n"
+	. "    if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey){ return; }\n"
+	. "    var el=e.target&&e.target.closest?e.target:null; if(!el){ return; }\n"
+	// A page chip keeps the anchor it was pressed under, and an anchor chip keeps the page.
+	// Either one resetting the other would make the two controls fight over one screen.
+	. "    var pgb=el.closest('.sbtn[data-page]');\n"
+	. "    if(pgb){ var pp=pgb.closest('.page');\n"
+	. "      if(pp){ e.preventDefault();\n"
+	. "        var cur=pp.querySelector('.sbtn[data-pers][aria-pressed=true]');\n"
+	. "        go(pp.id.replace(/^p-/,''), cur?cur.getAttribute('data-pers'):'', pgb.getAttribute('data-page'));\n"
+	. "      } return; }\n"
+	. "    var b=el.closest('.sbtn[data-pers]');\n"
+	. "    if(b){ var pg=b.closest('.page');\n"
+	. "      if(pg){ e.preventDefault();\n"
+	. "        var cp=pg.querySelector('.sbtn[data-page][aria-pressed=true]');\n"
+	. "        go(pg.id.replace(/^p-/,''), b.getAttribute('data-pers'), cp?cp.getAttribute('data-page'):'');\n"
+	. "      } return; }\n"
+	. "    var a=el.closest('a[href^=\"#\"]');\n"
+	. "    if(!a){ return; }\n"
+	. "    var raw=a.getAttribute('href').slice(1);\n"
+	. "    if(raw!==INDEX && !document.getElementById('p-'+raw.split('/')[0])){ return; }\n"
+	. "    e.preventDefault();\n"
+	. "    var bits=raw.split('/');\n"
+	. "    go(raw===INDEX?'':bits[0], bits[1]||'', bits[2]||'');\n"
+	. "  });\n"
 	. "  window.addEventListener('hashchange',route);\n"
 	. "  route();\n"
 	. "})();\n"
