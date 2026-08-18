@@ -2543,6 +2543,8 @@ $css[] = <<<'CSS'
 .gal-head h1{max-width:18ch}
 .gal-head p{max-width:64ch;margin-top:var(--sp-s);color:color-mix(in srgb,var(--c-on-inverse) 78%,var(--c-surface-inverse))}
 .gal-head .eyebrow{color:var(--c-accent)}
+.gal-progress{margin-top:var(--sp-m);font-size:var(--fs-small);
+              color:color-mix(in srgb,var(--c-on-inverse) 62%,var(--c-surface-inverse))}
 .gal-note{margin-top:var(--sp-m);font-size:var(--fs-small);
           border-left:2px solid var(--c-accent);padding-left:var(--sp-s)}
 
@@ -2772,6 +2774,24 @@ $css[] = <<<'CSS'
             transition:transform var(--dur-color) var(--ease)}
 
 
+/* ── the group: one archetype, its anchors under it ──────────────────────────────────────────
+   Grouping was asked for so a template would carry all its parts in one place. It was never asked
+   to cost the catalogue its VARIETY, and the first cut did exactly that: eight visibly different
+   designs collapsed into two cards, and an index you cannot compare at a glance stops being an
+   index. The archetype's identity is printed once, here, and its anchors stay visible as cards. */
+.tgroup{padding-block:var(--sp-l);border-top:1px solid var(--c-border)}
+.tgroup:first-child{border-top:none}
+.tgroup[hidden]{display:none}
+.tgroup-head{display:grid;gap:.15rem;margin-bottom:var(--sp-m)}
+.tgroup-head h2{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.15;margin:0}
+.tgroup-head h2 a{color:inherit;text-decoration:none}
+.tgroup-head h2 a:hover{color:var(--c-accent)}
+.tgroup-head h2 a:focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+.tgroup-fits{font-size:var(--fs-small);color:var(--c-text-soft);max-width:60ch}
+.tgroup-count{font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
+              color:var(--c-text-muted);margin-top:.2rem}
+/* Inside a group the grid carries no block padding of its own — the group owns the rhythm. */
+.tgroup .tgrid{padding-block:0}
 /* ── the template page: identity, switcher, variants ────────────────────────────────────────── */
 
 .tpl-head{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);
@@ -4193,38 +4213,55 @@ function strip_uid( $C, $anchor ) {
  * axis positions. So the catalogue survives with JavaScript off, and grep, `RT_GALLERY_*` and a
  * screen reader read the same rows a sighted user does — only the pixels need the script.
  */
-function template_card_html( $tpl, $T, $tpl_slug, $GROUND, $ACCENT ) {
-	$C     = $T['content'];
-	$keys  = array_keys( $T['anchors'] );
-	$first = $T['anchors'][ $keys[0] ];
-
-	// One swatch per anchor: the ground it paints on and the accent that lands on it. Two colours
-	// are the honest summary of what changes between variants — a name alone ("Direct") tells a
-	// reader nothing they can see, and this is a catalogue you browse with your eyes.
-	$sw = '';
-	foreach ( $keys as $k ) {
-		$A   = $T['anchors'][ $k ]['A'];
-		$g   = $GROUND[ $A['ground'] ];
-		$acc = $ACCENT[ $A['ground'] ]['hex'];
-		$sw .= '<li class="tsw" title="' . h( $A['name'] ) . '">'
-			. '<span class="tsw-g" style="background:' . h( $g['bg'] ) . '"></span>'
-			. '<span class="tsw-a" style="background:' . h( $acc ) . '"></span>'
-			. '<span class="tsw-n">' . h( $A['name'] ) . '</span></li>';
+/**
+ * A GROUP is an archetype; a CARD is one of its anchors.
+ *
+ * The first cut of this collapsed each archetype to a single card, and that was the wrong trade.
+ * Grouping was asked for so a template would carry all its parts in one place -- it was never
+ * asked to cost the CATALOGUE its variety, and it did: eight visibly different designs became two
+ * cards, and a marketplace you cannot compare at a glance is not a marketplace. The anchor moves
+ * ground, scale, density, composition and elevation, so four anchors ARE four things worth
+ * choosing between, and hiding them one click deep hid the only thing the index is for.
+ *
+ * So the grouping stays and the variety comes back: the archetype's identity is printed ONCE on
+ * the group header, and its anchors sit under it as cards.
+ */
+function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
+	$chips = '';
+	foreach ( $rows as $r ) {
+		$chips .= '<li class="tax">' . h( $r['axis'] ) . ' <b>' . h( $r['pos'] ) . '</b></li>';
 	}
 
-	$n = count( $keys );
-
-	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $tpl ) . '">'
-		. '<a class="tcard" href="#' . h( $tpl_slug ) . '">'
-		. '<span class="thumb" data-of="' . h( $first['uid'] ) . '">'
-		. '<span class="thumb-wait">' . h( $C['site_es'] ) . '</span></span>'
+	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $C['tpl'] ) . '"'
+		. ' data-pers="' . h( $anchor_key ) . '">'
+		. '<a class="tcard" href="#' . h( $tpl_slug ) . '/' . h( $anchor_key ) . '">'
+		. '<span class="thumb" data-of="' . h( $uid ) . '">'
+		. '<span class="thumb-wait">' . h( $A['name'] ) . '</span></span>'
 		. '<span class="tbody">'
-		. '<span class="tpair">' . h( $tpl ) . ' · ' . h( $C['site_es'] ) . '</span>'
-		. '<span class="tname">' . h( $C['tpl_name'] ) . '</span>'
-		. '<span class="tsub">' . h( $C['fits'] ) . '</span>'
-		. '<ul class="taxes tsws">' . $sw . '</ul>'
-		. '<span class="tgo">' . $n . ' ' . ( 1 === $n ? 'variante' : 'variantes' ) . '</span>'
+		. '<span class="tpair">' . h( $A['id'] ) . '</span>'
+		. '<span class="tname">' . h( $A['name'] ) . '</span>'
+		. '<span class="tsub">' . h( $A['fits'] ) . '</span>'
+		. '<ul class="taxes">' . $chips . '</ul>'
+		. '<span class="tgo">Ver esta variante</span>'
 		. '</span></a></li>';
+}
+
+/**
+ * The group header: the archetype, printed once for its whole row of anchors.
+ */
+function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
+	$C = $C = $T['content'];
+	$n = count( $cards );
+
+	return '<section class="tgroup" data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $tpl ) . '">'
+		. '<header class="tgroup-head">'
+		. '<span class="eyebrow">' . h( $C['site_es'] ) . '</span>'
+		. '<h2><a href="#' . h( $tpl_slug ) . '"><b>' . h( $tpl ) . '</b> ' . h( $C['tpl_name'] ) . '</a></h2>'
+		. '<p class="tgroup-fits">' . h( $C['fits'] ) . '</p>'
+		. '<p class="tgroup-count">' . $n . ' ' . ( 1 === $n ? 'ancla' : 'anclas' ) . '</p>'
+		. '</header>'
+		. '<ul class="tgrid">' . implode( '', $cards ) . '</ul>'
+		. '</section>';
 }
 
 $body    = array();
@@ -4324,10 +4361,18 @@ function tpl_slug( $tpl ) {
 	return strtolower( str_replace( '-', '', $tpl ) );
 }
 
+$groups  = array();
+$n_cards = 0;
 foreach ( $by_tpl as $bt_tpl => $bt_T ) {
-	$bt_slug = tpl_slug( $bt_tpl );
-	$cards[] = template_card_html( $bt_tpl, $bt_T, $bt_slug, $GROUND, $ACCENT );
-	$body[]  = template_page_html( $bt_tpl, $bt_T, $bt_slug );
+	$bt_slug  = tpl_slug( $bt_tpl );
+	$bt_cards = array();
+	foreach ( $bt_T['anchors'] as $bt_key => $bt_v ) {
+		$bt_cards[] = template_card_html( $bt_T['content'], $bt_v['A'], $bt_key,
+			$bt_v['uid'], $bt_slug, $bt_v['rows'] );
+	}
+	$n_cards  += count( $bt_cards );
+	$groups[]  = template_group_html( $bt_tpl, $bt_T, $bt_slug, $bt_cards );
+	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug );
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -4402,6 +4447,33 @@ $head = '<!--
    against strip 1 in about two seconds and find false: it renders three photographs where its three
    siblings render one. A stale sentence on the page is worse than a stale comment in the source,
    because the reader believes it and has no way to know it is out of date. */
+/* HOW COMPLETE THIS CATALOGUE IS, DERIVED AND PRINTED.
+
+   Two cards on a page that calls itself a gallery reads as broken, and it was read that way. It
+   is not broken; it is INCOMPLETE, and the difference was invisible because nothing on the page
+   said so. That is the same failure this file keeps hitting from the other side -- an unprinted
+   state is a silent configuration -- and the fix is the same one: print it.
+
+   The denominator is COUNTED from the archetype docs rather than typed here, so it cannot drift
+   the way a hand-written "de 10" would the day an eleventh lands. If the directory cannot be read
+   the build fails rather than quietly printing a smaller world. */
+$tpl_docs = array_merge(
+	glob( dirname( __DIR__, 3 ) . '/web-templates/references/templates/corporate/TPL-*.md' ),
+	glob( dirname( __DIR__, 3 ) . '/web-templates/references/templates/ecommerce/TPL-*.md' )
+);
+$tpl_docs = array_values( array_filter( $tpl_docs, function ( $f ) {
+	return false === strpos( basename( $f ), '_README' );
+} ) );
+if ( count( $tpl_docs ) < 2 ) {
+	fail( 'found ' . count( $tpl_docs ) . ' archetype doc(s) under web-templates/references/templates/'
+		. ' — the completeness line would be printing a number nobody measured' );
+}
+$n_declared = count( $tpl_docs );
+$n_built    = count( $by_tpl );
+$built_line = $n_built . ' de los ' . $n_declared . ' arquetipos que el framework declara están '
+	. 'construidos en esta galería. Los ' . ( $n_declared - $n_built ) . ' restantes existen como '
+	. 'especificación y todavía no como maqueta.';
+
 $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. '<span class="eyebrow">NovaMira · uso interno</span>'
 	. '<h1>Galería de plantillas</h1>'
@@ -4412,6 +4484,7 @@ $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. 'misma plantilla. Si dos variantes se distinguen, la diferencia es el <b>ancla</b> o un '
 	. '<b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tenga y otra no. Cada '
 	. 'variante imprime los toggles que resuelve encima de sus cinco ejes.</p>'
+	. '<p class="gal-progress">' . h( $built_line ) . '</p>'
 	. '</div></header>';
 
 // ── the sticky filter: by site type ───────────────────────────────────────────────────
@@ -4419,15 +4492,18 @@ $intro = '<header class="gal-head"><div class="gal-wrap">'
 // Built from the strips that actually exist rather than from a hardcoded list, so a filter can
 // never offer a value nothing matches — and adding a ninth strip needs no edit here.
 
-$sites_present = array();
+$sites_present   = array();
+$anchors_present = array();
 foreach ( $STRIPS as $s ) {
 	$sites_present[ $CONTENT[ $s['tpl'] ]['site'] ] = $CONTENT[ $s['tpl'] ]['site_es'];
+	$anchors_present[ $s['anchor'] ]                = $ANCHORS[ $s['anchor'] ]['name'];
 }
 
-/* THERE IS NO ANCHOR FILTER, and its absence is the point. A card is now a TEMPLATE and every
-   template carries all four anchors, so an anchor filter would match every card at every setting
-   — a control that narrows nothing, which is worse than no control because it reads as broken.
-   The anchor is chosen INSIDE the template, where it is a real choice. */
+/* THE ANCHOR FILTER IS BACK, and the round trip is the lesson. It was removed when a card was a
+   whole template: every template carries all four anchors, so the filter matched everything at
+   every setting and narrowed nothing. That reasoning was correct THEN and expired the moment a
+   card became an anchor again. A rule whose reason has expired is exactly what this session keeps
+   finding, so it is written down rather than quietly restored. */
 
 function filter_group( $key, $label, $options ) {
 	$o = '<div class="fgroup" role="group" aria-label="' . h( $label ) . '">'
@@ -4443,8 +4519,9 @@ function filter_group( $key, $label, $options ) {
 
 $filter = '<div class="gal-filter"><div class="gal-wrap">'
 	. filter_group( 'site', 'Tipo', $sites_present )
+	. filter_group( 'pers', 'Ancla', $anchors_present )
 	. '<p class="fcount" id="gal-count" role="status" aria-live="polite">'
-	. count( $cards ) . ' plantillas</p>'
+	. count( $groups ) . ' plantillas · ' . $n_cards . ' variantes</p>'
 	. '</div></div>';
 
 // Plain JS, no library. `hidden` rather than a class: it is the platform's own "not rendered and
@@ -4466,7 +4543,14 @@ $filter_js = "<script>\n"
 	. "          && (state.pers==='all'||s.getAttribute('data-pers')===state.pers);\n"
 	. "      s.hidden=!ok; if(ok){n++;}\n"
 	. "    }\n"
-	. "    count.textContent = (n===cards.length) ? n+' plantillas' : n+' de '+cards.length+' plantillas';\n"
+	. "    count.textContent = (n===cards.length) ? n+' variantes' : n+' de '+cards.length+' variantes';\n"
+	// A group whose cards are all filtered out hides its heading too. An archetype title standing
+	// over an empty row reads as a rendering fault, not as a filter doing its job.
+	. "    var gs=document.querySelectorAll('.tgroup');\n"
+	. "    for(var k=0;k<gs.length;k++){\n"
+	. "      var live=gs[k].querySelectorAll('.tgrid > li:not([hidden])').length;\n"
+	. "      gs[k].hidden=(live===0);\n"
+	. "    }\n"
 	. "    if(window.NMthumbs){window.NMthumbs();}\n"
 	. "  }\n"
 	. "  var btns=document.querySelectorAll('.fbtn');\n"
@@ -4521,7 +4605,7 @@ $copy_js = "<script>\n"
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 	/* $n_strip counts VARIANTS, which stopped being the same thing as templates the day the
 	   catalogue grouped them. The footer said "8 plantillas" over a grid of two. */
-	. '<p>' . count( $cards ) . ' ' . ( 1 === count( $cards ) ? 'plantilla' : 'plantillas' )
+	. '<p>' . count( $groups ) . ' ' . ( 1 === count( $groups ) ? 'plantilla' : 'plantillas' )
 	. ' · ' . $n_strip . ' ' . ( 1 === $n_strip ? 'variante' : 'variantes' ) . ' · '
 	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
 	. 'desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p>'
@@ -4550,7 +4634,9 @@ $top = '<div class="gal-top"><div class="gal-wrap">'
 $index = '<div class="page" id="p-index">' . "\n"
 	. $intro . "\n"
 	. $filter . "\n"
-	. '<div class="gal-wrap"><ul class="tgrid">' . implode( "\n", $cards ) . '</ul></div>' . "\n"
+	. '<div class="gal-wrap">' . implode( "
+", $groups ) . '</div>' . "
+"
 	. '</div>';
 
 /* ── the router, and the miniature that cannot go stale ────────────────────────────────────────
