@@ -46,6 +46,16 @@ foreach ( array( 'ux-design-system/references/design-tokens.md', 'ux-design-syst
 }
 
 /** Die loudly. A generator that limps produces a page whose defects look like design. */
+set_error_handler( function ( $no, $str, $file, $line ) {
+	fail( "PHP $str  (" . basename( $file ) . ":$line)
+"
+		. '  A warning is not a note. The malformed footer that prompted this rule emitted'
+		. " `Undefined array key` and STILL wrote index.html, in a console that already prints
+"
+		. '  fifty lines of measurement — which is a warning nobody reads. Data that does not fit'
+		. ' the function consuming it is a build failure.' );
+} );
+
 function fail( $msg ) {
 	fwrite( STDERR, "build-gallery: FAIL — $msg\n" );
 	exit( 1 );
@@ -869,6 +879,23 @@ $TOGGLES = array(
 			'options' => array( 'sí', 'no' ),
 		),
 	),
+	'TPL-C-03' => array(
+		'TGL-SERVICES' => array(
+			'ask'     => '¿Bloque breve de servicios?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-ABOUT'    => array(
+			'ask'     => '¿Sobre el estudio?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-LOGOS'    => array(
+			'ask'     => '¿Logos de clientes / credenciales?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
 	'TPL-E-02' => array(),
 );
 
@@ -1539,9 +1566,85 @@ $CONTENT = array(
 			'cta_2'   => '973 00 00 00',
 		),
 		'footer'   => array(
-			'Piedra Valdés SL · Alcarràs, Lleida',
-			'ISO 9001 · CE 2+ · REA',
-			'Maqueta interna NovaMira',
+			'tag'   => 'Cantería Piedra Valdés · Alcarràs, Lleida · desde 1978',
+			'links' => array( 'Aviso legal', 'Privacidad', 'Acreditaciones' ),
+			'legal' => 'Piedra Valdés SL · B-25000000 · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* TPL-C-03 · Portfolio / Showcase. Its doc is blunt about what it refuses: "NO pricing, NO
+	   stats, NO forms largos", and "bajo en texto, alto en visual". So this is the one archetype
+	   here that does NOT get a stats band, does not get a lead form, and carries barely any prose.
+	   What it gets instead is the grid, and the grid is the page.
+
+	   The four reference kits all lean on counters, pricing tables and long service copy. Putting
+	   any of that here because the references do it would be the exact failure the ecommerce family
+	   was rebuilt to fix: five archetypes wearing one skeleton. An archetype earns its place by
+	   what it REFUSES. */
+	'TPL-C-03' => array(
+		'tpl'      => 'TPL-C-03',
+		'tpl_name' => 'Portfolio / Showcase',
+		'site'     => 'corporate',
+		'site_es'  => 'Corporativa',
+		/* `Ideal para`, transcribed from TPL-C-03-portfolio-showcase.md §1. */
+		'fits'     => 'Estudios creativos, arquitectura, fotografía, diseño, productoras, artistas',
+		'dna'      => 'COMP-HERO visual · COMP-PORTFOLIO-GRID · COMP-CTA',
+		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-PORTFOLIO-GRID · COMP-SERVICES · COMP-ABOUT · COMP-LOGOS · COMP-CTA · COMP-FOOTER',
+		'nav'      => array( 'Obra', 'Estudio', 'Contacto' ),
+		'nav_cta'  => 'Encargar',
+		'hero'     => array(
+			'eyebrow' => 'Piedra Valdés · obra 1978—2026',
+			'h1'      => 'La obra',
+			'lede'    => 'Trescientas doce entregas. Estas son doce.',
+			'cta_1'   => 'Encargar',
+			'cta_2'   => 'Sobre el estudio',
+			'img'     => 'hero-taller',
+		),
+		'work'     => array(
+			'eyebrow' => 'Selección',
+			'h2'      => 'Obra reciente',
+			'items'   => array(
+				array( 'Palacio de Miraflores', 'Patrimonio · 2025', 'pan-fachada' ),
+				array( 'Cocina en Vallmoll', 'Interior · 2025', 'hero-encimera' ),
+				array( 'Panel de veta dorada', 'Material · 2024', 'card-veta' ),
+				array( 'Mueble de frente pétreo', 'Interior · 2024', 'card-mueble' ),
+				array( 'Labra de capitel', 'Patrimonio · 2023', 'card-labra' ),
+				array( 'Cantera de Alcarràs', 'Origen · permanente', 'hero-cantera' ),
+			),
+		),
+		'services' => array(
+			'eyebrow' => 'Qué hacemos',
+			'h2'      => 'Tres cosas, bien',
+			'cards'   => array(
+				array( 'img' => 'card-cantero', 'h3' => 'Labra', 'p' => 'A mano y a máquina, sobre bloque propio.' ),
+				array( 'img' => 'card-patio', 'h3' => 'Corte a medida', 'p' => 'Encimera, peldaño, plaqueta y despiece de fachada.' ),
+				array( 'img' => 'card-detalle', 'h3' => 'Restauración', 'p' => 'Reposición con cantera compatible.' ),
+			),
+		),
+		'about'    => array(
+			'eyebrow' => 'El estudio',
+			'h2'      => 'Veintiséis personas y una cantera',
+			'body'    => array(
+				'Trabajamos la piedra de Alcarràs desde 1978. No damos plazos que no podamos cumplir y no subcontratamos la pieza vista.',
+			),
+			'img'     => 'sq-manos',
+		),
+		'logos'    => array(
+			'eyebrow' => 'Han encargado',
+			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
+				'Fundació Sant Roc', 'Vallmoll Interiors', 'Servei de Patrimoni' ),
+		),
+		'band'     => array(
+			'eyebrow' => 'Contacto',
+			'h2'      => 'Cuéntenos la pieza',
+			'lede'    => 'Una foto y una medida bastan para empezar.',
+			'cta_1'   => 'Encargar',
+			'cta_2'   => 'obra@piedravaldes.example',
+		),
+		'footer'   => array(
+			'tag'   => 'Piedra Valdés · obra 1978—2026',
+			'links' => array( 'Obra', 'Estudio', 'Contacto' ),
+			'legal' => 'Piedra Valdés SL · Alcarràs, Lleida · Maqueta interna NovaMira, no publicada.',
 		),
 	),
 
@@ -1723,6 +1826,43 @@ if ( abs( $BG_HERO['ratio'] - $BG_PROBE_PLAIN['ratio'] ) < 0.25 ) {
 // A strip's `tgl` is the toggles it moves OFF their default. Absent means every toggle its
 // archetype admits sits at the default the template doc states — which is what all eight strips
 // did before this, silently. It is not silent now: the bar prints the resolved value either way.
+/* ── TPL-C-03's VISUAL HERO IS A THIRD TEXT-OVER-PHOTOGRAPH CASE, AND IT GETS SWEPT ────────────
+
+   Two such cases existed before this archetype: the slider and the broken-grid hero, each with its
+   own probe. A one-argument deletion once certified an ungraded photograph in a green build, and
+   the repair was to probe PER CALL SITE rather than once for the file. Adding a third call site
+   without adding its sweep would rebuild that exact hole — so it is swept here, before the strips
+   are declared, and the build refuses to write a file it cannot certify.
+
+   THE MEASUREMENT IS TAKEN AT THE GRADIENT'S WEAKEST POINT. `.hero-visual::after` runs
+   62% → 34% → 58% black, and the copy crosses all three; sweeping the 62% end would be measuring
+   the scrim where it is strongest and calling the hero safe. 34% is the number that decides.
+
+   AND ONCE PER ANCHOR, because the ink differs per anchor and the ink is what the browser paints.
+   The text is #FFFFFF on all four — white over a photograph regardless of ground, since an `ink`
+   anchor would otherwise put near-white type on a near-white scrim edge. */
+$VIS_SLUG  = 'hero-taller';
+$VIS_ALPHA = '0.62';
+$VIS_TEXT  = '#FFFFFF';
+$VIS_ROWS  = array();
+foreach ( array_keys( $ANCHORS ) as $vis_k ) {
+	$vis = worst_pixel( $VIS_SLUG, '#000000', $VIS_ALPHA, $VIS_TEXT, $INK[ $vis_k ] );
+	if ( $vis['ratio'] < 4.5 ) {
+		fail( sprintf(
+			'TPL-C-03 visual hero: `%s` under %s ink measures %.2f:1 for %s text at a %s black'
+				. ' scrim — below AA, and this is the weakest point of the gradient, not its average',
+			$VIS_SLUG,
+			$vis_k,
+			$vis['ratio'],
+			$VIS_TEXT,
+			$VIS_ALPHA
+		) );
+	}
+	$VIS_ROWS[] = sprintf( '%-14s %5.2f:1', $vis_k, $vis['ratio'] );
+}
+printf( "  hero visual TPL-C-03 (%s, scrim %s negro, texto %s):\n    %s\n",
+	$VIS_SLUG, $VIS_ALPHA, $VIS_TEXT, implode( "\n    ", $VIS_ROWS ) );
+
 $STRIPS = array(
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
@@ -1734,6 +1874,11 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'direct' ),
+	/* TPL-C-03 · el tercer arquetipo corporativo. */
+	array( 'tpl' => 'TPL-C-03', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-03', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-03', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-C-03', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
@@ -2969,6 +3114,67 @@ $css[] = <<<'CSS'
 .tgo::after{content:"→";display:inline-block;margin-left:.35rem;
             transition:transform var(--dur-color) var(--ease)}
 
+
+/* ── TPL-C-03 · Portfolio / Showcase ──────────────────────────────────────────────────────── */
+
+/* COMP-HERO visual — the copy sits OVER the photograph, which is the one structural difference
+   between this archetype's hero and TPL-C-01's. The scrim is a gradient and not a flat wash: a
+   flat overlay dark enough for the text also flattens the photograph the archetype exists to
+   show. Measured against the worst pixel under the copy, not against the image's average. */
+.hero-visual{position:relative;isolation:isolate}
+.hero-visual .media-full{position:absolute;inset:0;z-index:0}
+.hero-visual .media-full .frame{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+.hero-visual .media-full img{width:100%;height:100%;object-fit:cover}
+/* THE COPY SITS IN THE BOTTOM THIRD AND THE SCRIM IS STRONG ONLY THERE. The first cut spread an
+   even veil over the whole frame and measured 2.55:1 for white text — the build refused it, which
+   is the sweep two hundred lines up doing its job on its first run. The obvious repair was to
+   deepen the veil everywhere, and that is the wrong one: this archetype's doc says "alto en
+   visual", and a wash dark enough for type flattens the photograph the page exists to show.
+   So the photograph keeps its top two thirds clean and the type takes a band that can afford to be
+   dark. The sweep measures the WEAKEST point the copy crosses, not the strongest. */
+.hero-visual::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    color-mix(in srgb,#000 12%,transparent) 42%,
+    color-mix(in srgb,#000 62%,transparent) 66%,
+    color-mix(in srgb,#000 82%,transparent) 100%)}
+.hero-visual > .canvas{position:relative;z-index:2;min-height:min(60vh,34rem);
+  align-content:end;padding-block:var(--sp-l)}
+/* The copy is white on a photograph, so it takes white REGARDLESS of the anchor's ground: an ink
+   anchor would otherwise paint near-white text on a near-white scrim edge. The buttons keep their
+   own tokens, because a CTA that changes colour per anchor is the point of the accent. */
+.hero-visual .head h1,.hero-visual .head .lede,.hero-visual .head .eyebrow{color:#fff}
+.hero-visual .head .lede{opacity:.92}
+/* The SECONDARY button lives on the photograph too, and it was taking `--c-text` from the ground:
+   on `paper` that is near-black type inside a near-black outline, sitting on a dark scrim. The
+   primary keeps its accent — a CTA that changes per anchor is the whole point of the accent — but
+   the outline variant has to belong to the surface it is actually on, which here is an image. */
+.hero-visual .btn-outline{color:#fff;border-color:color-mix(in srgb,#fff 55%,transparent)}
+.hero-visual .btn-outline:hover{border-color:#fff;
+  background:color-mix(in srgb,#fff 14%,transparent)}
+@media(max-width:767px){.hero-visual > .canvas{min-height:50vh}}
+
+/* COMP-PORTFOLIO-GRID — the grid IS the page. Mobile 1, tablet 2, desktop 3, per the doc. */
+.works{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+       grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.works{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.works{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.work-item{min-width:0}
+.work-item a{display:block;color:inherit;text-decoration:none}
+.work-item .frame{overflow:hidden}
+.work-item img{transition:transform var(--dur-lift,.5s) var(--ease)}
+.work-item a:hover img{transform:scale(1.03)}
+.work-item a:focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
+/* THE CAPTION IS ALWAYS THERE and the hover only deepens it. An overlay that is the ONLY place a
+   project's name lives is a project nobody can name on a touch screen, where there is no hover. */
+.work-cap{display:block;padding-top:var(--sp-xs)}
+.work-cap b{display:block;font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2}
+.work-cap span{font-size:var(--fs-small);color:var(--c-text-muted)}
+.work-item a:hover .work-cap b{color:var(--c-accent)}
+@media(prefers-reduced-motion:reduce){
+  .work-item img{transition:none}
+  .work-item a:hover img{transform:none}
+}
 
 /* ── TPL-C-02 · Institutional Trust ───────────────────────────────────────────────────────── */
 
@@ -4450,6 +4656,109 @@ function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return number_heads( implode( "\n", $o ) );
 }
 
+/**
+ * TPL-C-03 · Portfolio / Showcase.
+ *
+ * The archetype doc is blunt about what it refuses — "NO pricing, NO stats, NO forms largos",
+ * "bajo en texto, alto en visual" — and the refusals are the design. So there is no stats band
+ * here even though the four reference kits all have one, no lead form even though TPL-C-01's DNA
+ * is built on one, and barely any prose. What there is, is the grid.
+ */
+function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+
+	/* 1 · COMP-HERO visual  [fijo · ADN]
+	   The photograph is the hero and the words are a caption on it — "título mínimo, sin ruido",
+	   says the doc. `.hero-visual` puts the copy OVER the image instead of beside it, which is the
+	   one structural difference between this archetype's hero and TPL-C-01's. */
+	$o[] = '<section class="sec hero hero-visual" aria-label="Obra"><div class="media-full">'
+		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '</div></div></section>';
+
+	/* 2 · COMP-PORTFOLIO-GRID  [fijo · ADN]
+	   Image large, title, category, and an overlay on hover — the doc's own recipe. The overlay is
+	   a HOVER state, so the accent whitelist never sees it; and it is not the only affordance,
+	   because a hover that is the sole signal is invisible on a touch screen. The caption is always
+	   there and the overlay only deepens it. */
+	$wk  = $C['work'];
+	$o[] = '<section class="sec work grid-sec" aria-label="Obra reciente"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $wk['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $wk['h2'] ) . '</h2></div><ul class="works">';
+	foreach ( $wk['items'] as $it ) {
+		$wi  = img( $it[2] );
+		$o[] = '<li class="work-item"><a href="#">'
+			. '<figure class="frame"><img data-img="' . h( $wi['slug'] ) . '"'
+			. ' alt="' . h( $wi['alt'] ) . '" width="' . $wi['w'] . '" height="' . $wi['h'] . '"></figure>'
+			. '<span class="work-cap"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></span>'
+			. '</a></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 3 · COMP-SERVICES breve  [toggle TGL-SERVICES]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-SERVICES' ) ) {
+		$sv  = $C['services'];
+		$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Servicios"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
+		foreach ( $sv['cards'] as $c ) {
+			$o[] = card_html( $anchor_key, $c );
+		}
+		$o[] = '</div></div></section>';
+	}
+
+	// 4 · COMP-ABOUT  [toggle TGL-ABOUT]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-ABOUT' ) ) {
+		$ab  = $C['about'];
+		$ai  = img( $ab['img'] );
+		$o[] = '<section class="sec about" aria-label="El estudio"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $ab['h2'] ) . '</h2>';
+		foreach ( $ab['body'] as $para ) {
+			$o[] = '<p class="muted">' . h( $para ) . '</p>';
+		}
+		$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
+			. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
+			. '</div></section>';
+	}
+
+	// 5 · COMP-LOGOS  [toggle TGL-LOGOS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
+		$lg  = $C['logos'];
+		$o[] = '<section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
+		foreach ( $lg['items'] as $l ) {
+			$o[] = '<li>' . h( $l ) . '</li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 6 · COMP-CTA contacto directo  [fijo] — no lead form; the doc refuses long ones
+	$b   = $C['band'];
+	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
 function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	global $SLIDER_FRAMES;
 	$hero    = $C['hero'];
@@ -4956,6 +5265,9 @@ $PAGES = array(
 	'TPL-C-02' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-02' ),
 	),
+	'TPL-C-03' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-03' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -4972,6 +5284,9 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	}
 	if ( 'TPL-C-02' === $tpl && 'home' === $page_key ) {
 		return strip_institutional( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-03' === $tpl && 'home' === $page_key ) {
+		return strip_showcase( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
