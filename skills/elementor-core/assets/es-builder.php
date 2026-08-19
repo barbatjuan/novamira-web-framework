@@ -404,15 +404,22 @@ function es_token_contrasts() {
  * paints with it. The measured 36.6% is what ships and what passes, so that file's number is the
  * one that moved.
  *
- * `bg_alt` is deliberately NOT here. It is one of the three the ground table DOCUMENTS per position,
- * so it is an axis INPUT the operator sets, not an output.
+ * `bg_alt` is deliberately not DERIVED here. It is one of the three the ground table DOCUMENTS per
+ * position, so it is an axis INPUT the operator sets, not an output. It does appear as a mix
+ * TARGET for `muted`, which is a different role: an input can be mixed toward without becoming
+ * an output, and `muted` needs it because the alternating band is the surface that band paints.
  */
 function es_token_mixes() {
 	return array(
 		'surface_inverse' => array( 'text', 'bg', 0.00 ),
 		'on_inverse'      => array( 'bg', 'text', 0.00 ),
 		'text_soft'       => array( 'text', 'bg', 0.230 ),
-		'muted'           => array( 'text', 'bg', 0.366 ),
+		/* Hacia `bg_alt`, no hacia `bg`. La banda alterna esta siempre mas cerca del texto que el
+		   fondo base, asi que es la superficie DURA, y un muted que pasa AA sobre ella pasa tambien
+		   sobre `bg`. Medido contra `bg` fallaban cuatro de los once grounds del catalogo en sus
+		   secciones alternas -- warm 4.35:1, b-alinea 4.41:1, b-aranda 4.47:1, b-bergara 4.49:1 --
+		   con todas las filas verdes, porque nada medía contra la superficie que se estaba pintando. */
+		'muted'           => array( 'text', 'bg_alt', 0.366 ),
 		'border'          => array( 'text', 'bg', 0.890 ),
 		/* The two extra hairlines the siblings brought with them. Derived so they follow the ground
 		   like everything else; still three keys for one job, which remains the standing finding

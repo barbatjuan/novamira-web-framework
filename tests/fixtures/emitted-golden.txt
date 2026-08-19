@@ -220,7 +220,7 @@
         "widgetType": "text-editor",
         "settings": {
             "editor": "<p>texto de cuerpo</p>",
-            "text_color": "#6B6D6E",
+            "text_color": "#676A6B",
             "typography_typography": "custom",
             "typography_font_family": "Manrope",
             "typography_font_size": {
@@ -505,7 +505,7 @@
             "text_align": "left",
             "title_size": "h3",
             "title_color": "#15181A",
-            "description_color": "#6B6D6E",
+            "description_color": "#676A6B",
             "title_typography_typography": "custom",
             "title_typography_font_family": "Space Grotesk",
             "title_typography_font_size": {
@@ -599,7 +599,7 @@
             "text_align": "left",
             "title_size": "h3",
             "title_color": "#15181A",
-            "description_color": "#6B6D6E",
+            "description_color": "#676A6B",
             "title_typography_typography": "custom",
             "title_typography_font_family": "Space Grotesk",
             "title_typography_font_size": {
@@ -687,7 +687,7 @@
                 "sizes": []
             },
             "title_color": "#15181A",
-            "description_color": "#6B6D6E",
+            "description_color": "#676A6B",
             "title_typography_typography": "custom",
             "title_typography_font_family": "Space Grotesk",
             "title_typography_font_size": {
@@ -838,7 +838,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>texto</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1140,7 +1140,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>a</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1170,7 +1170,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>b</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1244,7 +1244,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>a</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1318,7 +1318,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>a</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1348,7 +1348,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>b</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1422,7 +1422,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>a</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1493,7 +1493,7 @@
                 "widgetType": "text-editor",
                 "settings": {
                     "editor": "<p>a</p>",
-                    "text_color": "#6B6D6E",
+                    "text_color": "#676A6B",
                     "typography_typography": "custom",
                     "typography_font_family": "Manrope",
                     "typography_font_size": {
@@ -1526,7 +1526,7 @@
         "widgetType": "text-editor",
         "settings": {
             "editor": "<p>a</p>",
-            "text_color": "#6B6D6E",
+            "text_color": "#676A6B",
             "typography_typography": "custom",
             "typography_font_family": "Manrope",
             "typography_font_size": {
@@ -2331,7 +2331,7 @@
                                         "align_items": "center",
                                         "pointer": "underline",
                                         "animation_line": "fade",
-                                        "color_menu_item": "#6B6D6E",
+                                        "color_menu_item": "#676A6B",
                                         "color_menu_item_hover": "#15181A",
                                         "color_menu_item_active": "#15181A",
                                         "pointer_color_menu_item_hover": "#0FA968",
@@ -2574,7 +2574,7 @@
                                                 "product_title_color": "#15181A",
                                                 "product_title_hover_color": "#0FA968",
                                                 "product_price_color": "#15181A",
-                                                "product_quantity_color": "#6B6D6E",
+                                                "product_quantity_color": "#676A6B",
                                                 "subtotal_color": "#15181A",
                                                 "_element_width": "auto"
                                             },
@@ -2819,7 +2819,7 @@
                     "widgetType": "text-editor",
                     "settings": {
                         "editor": "<p>Aceites, frenos, baterías, iluminación, limpieza, accesorios, neumáticos y herramientas. Recogida en taller sin coste o envío a domicilio.</p>",
-                        "text_color": "#6B6D6E",
+                        "text_color": "#676A6B",
                         "typography_typography": "custom",
                         "typography_font_family": "Manrope",
                         "typography_font_size": {
@@ -2976,8 +2976,8 @@
                             "left": "8",
                             "isLinked": false
                         },
-                        "custom_css": "selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);box-shadow:none;border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}selector ul.products li.product:hover img{transform:scale(1.045);}selector ul.products{align-items:stretch;}selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}selector ul.products li.product .button{margin-top:auto;background-color:#0FA968!important;border-color:#0FA968!important;color:#15181A!important;border-radius:6px!important;transition:background-color .3s cubic-bezier(.22,1,.36,1),box-shadow .35s cubic-bezier(.22,1,.36,1)!important;}selector ul.products li.product .button:hover{background-color:#0C8A55!important;box-shadow:0 12px 26px -10px rgba(15,169,104,0.55)!important;}selector ul.products li.product a.added_to_cart{display:none!important;}selector ul.products li.product a.button.added{font-size:0!important;}selector ul.products li.product a.button.added::after{content:\"Añadido ✓\"!important;font-size:13.5px!important;font-weight:600;}selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#6B6D6E!important;border-color:#E5E6E6!important;border-radius:8px!important;transition:color .25s cubic-bezier(.22,1,.36,1),background-color .25s cubic-bezier(.22,1,.36,1),border-color .25s cubic-bezier(.22,1,.36,1);}selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:#0FA968!important;border-color:#0FA968!important;}selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#15181A!important;background-color:#0FA968!important;border-color:#0FA968!important;}",
-                        "pagination_color": "#6B6D6E",
+                        "custom_css": "selector ul.products li.product{transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);box-shadow:none;border-radius:12px;overflow:hidden;padding:10px;will-change:transform;}selector ul.products li.product .woocommerce-loop-product__link img,selector ul.products li.product img{transition:transform .7s cubic-bezier(.22,1,.36,1);border-radius:8px;will-change:transform;}selector ul.products li.product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -12px rgba(21,24,26,0.16);}selector ul.products li.product:hover img{transform:scale(1.045);}selector ul.products{align-items:stretch;}selector ul.products li.product{display:flex!important;flex-direction:column;height:100%;}selector ul.products li.product .button{margin-top:auto;background-color:#0FA968!important;border-color:#0FA968!important;color:#15181A!important;border-radius:6px!important;transition:background-color .3s cubic-bezier(.22,1,.36,1),box-shadow .35s cubic-bezier(.22,1,.36,1)!important;}selector ul.products li.product .button:hover{background-color:#0C8A55!important;box-shadow:0 12px 26px -10px rgba(15,169,104,0.55)!important;}selector ul.products li.product a.added_to_cart{display:none!important;}selector ul.products li.product a.button.added{font-size:0!important;}selector ul.products li.product a.button.added::after{content:\"Añadido ✓\"!important;font-size:13.5px!important;font-weight:600;}selector .woocommerce-pagination .page-numbers,selector .elementor-pagination .page-numbers{color:#676A6B!important;border-color:#E5E6E6!important;border-radius:8px!important;transition:color .25s cubic-bezier(.22,1,.36,1),background-color .25s cubic-bezier(.22,1,.36,1),border-color .25s cubic-bezier(.22,1,.36,1);}selector .woocommerce-pagination a.page-numbers:hover,selector .elementor-pagination a.page-numbers:hover{color:#0FA968!important;border-color:#0FA968!important;}selector .woocommerce-pagination .page-numbers.current,selector .elementor-pagination .page-numbers.current{color:#15181A!important;background-color:#0FA968!important;border-color:#0FA968!important;}",
+                        "pagination_color": "#676A6B",
                         "pagination_color_hover": "#0FA968",
                         "pagination_color_active": "#15181A",
                         "pagination_typography_typography": "custom",
@@ -3102,7 +3102,7 @@
                                     "sizes": []
                                 },
                                 "title_color": "#15181A",
-                                "description_color": "#6B6D6E",
+                                "description_color": "#676A6B",
                                 "title_typography_typography": "custom",
                                 "title_typography_font_family": "Space Grotesk",
                                 "title_typography_font_size": {
@@ -3160,7 +3160,7 @@
                                     "sizes": []
                                 },
                                 "title_color": "#15181A",
-                                "description_color": "#6B6D6E",
+                                "description_color": "#676A6B",
                                 "title_typography_typography": "custom",
                                 "title_typography_font_family": "Space Grotesk",
                                 "title_typography_font_size": {
@@ -3218,7 +3218,7 @@
                                     "sizes": []
                                 },
                                 "title_color": "#15181A",
-                                "description_color": "#6B6D6E",
+                                "description_color": "#676A6B",
                                 "title_typography_typography": "custom",
                                 "title_typography_font_family": "Space Grotesk",
                                 "title_typography_font_size": {
@@ -3276,7 +3276,7 @@
                                     "sizes": []
                                 },
                                 "title_color": "#15181A",
-                                "description_color": "#6B6D6E",
+                                "description_color": "#676A6B",
                                 "title_typography_typography": "custom",
                                 "title_typography_font_family": "Space Grotesk",
                                 "title_typography_font_size": {
@@ -3355,8 +3355,8 @@
                     "elType": "widget",
                     "widgetType": "woocommerce-breadcrumb",
                     "settings": {
-                        "text_color": "#6B6D6E",
-                        "link_color": "#6B6D6E",
+                        "text_color": "#676A6B",
+                        "link_color": "#676A6B",
                         "link_hover_color": "#0FA968",
                         "typography_typography": "custom",
                         "typography_font_family": "Manrope",
@@ -3783,7 +3783,7 @@
                     "elType": "widget",
                     "widgetType": "woocommerce-product-data-tabs",
                     "settings": {
-                        "tabs_title_color": "#6B6D6E",
+                        "tabs_title_color": "#676A6B",
                         "tabs_title_color_active": "#15181A",
                         "tabs_title_typography_typography": "custom",
                         "tabs_title_typography_font_family": "Space Grotesk",

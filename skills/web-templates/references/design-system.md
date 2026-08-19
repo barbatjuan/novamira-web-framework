@@ -335,7 +335,7 @@ follows `design-tokens.md` step 4, which already said to derive neutrals off the
 | Derived token | Recipe | paper | warm | cool | ink |
 |---|---|---|---|---|---|
 | `--c-text-soft` | text → bg, 23% | 8.49:1 | 7.55:1 | 7.71:1 | 10.50:1 |
-| `--c-text-muted` | text → bg, 36.6% | 5.20:1 | 4.78:1 | 4.92:1 | 7.40:1 |
+| `--c-text-muted` | text → **bg-alt**, 36.6% | 5.08:1 | 4.60:1 | 4.78:1 | 7.08:1 |
 | `--c-border` | text → bg, 89% | 1.25:1 | 1.25:1 | 1.25:1 | 1.31:1 |
 | `--c-surface-inverse` | text (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
 | `--c-on-inverse` | bg (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
@@ -353,6 +353,17 @@ here would fail the audit on correct documentation. The verifier for a derived t
 in this file — it is `tests/test-write-path.php`, which recomputes every ratio above on every run
 against all four positions and requires body copy ≥ 4.5:1 and the inverse surface ≥ 3:1. That is
 strictly stronger than a documented literal, which is only ever as true as the day it was typed.
+
+**`--c-text-muted` se mezcla hacia `--c-bg-alt`, y su celda se mide contra `--c-bg-alt`.**
+Es la única fila de esta tabla que no toma `--c-bg` como referencia, y la razón es que es la
+única que llegaba a rozar el límite. La banda alterna está SIEMPRE más cerca del texto que el
+fondo base — más oscura en un ground claro, más clara en uno oscuro — así que es la superficie
+dura: un muted que pasa AA sobre ella pasa también sobre `--c-bg`. Medido al revés, contra
+`--c-bg`, **cuatro de los once grounds del catálogo caían por debajo de 4.5:1 en sus propias
+secciones `.bg-alt`** — warm 4.35:1, `b-alinea` 4.41:1, `b-aranda` 4.47:1, `b-bergara` 4.49:1 —
+con la tabla en verde, porque la celda medía contra una superficie que esas secciones no pintan.
+Ninguna medida baja con el cambio: sobre `--c-bg` los mismos cuatro pasan de 4.78/5.02/5.00/5.08
+a 5.06/5.48/5.39/5.46.
 
 `--c-border` is asserted as a **range** (1.05–2.5:1) rather than against WCAG 1.4.11's 3:1. It is a
 divider, and it has never reached 3:1 on any ground including the white one it was drawn for. What

@@ -4218,7 +4218,12 @@ $css[] = <<<'CSS'
   /* design-system.md § derived: recipes, not literals, so they are right on a ground nobody has
      thought of yet. Percentages are the "text → bg" mixes that file measures. */
   --c-text-soft:      color-mix(in srgb, var(--c-text) 77%,   var(--c-bg));
-  --c-text-muted:     color-mix(in srgb, var(--c-text) 63.4%, var(--c-bg));
+  /* Mezclado hacia --c-bg-alt y no hacia --c-bg: la banda alterna esta SIEMPRE mas cerca del
+     texto que el fondo base -- mas oscura en un ground claro, mas clara en uno oscuro -- asi que
+     es la superficie dura, y derivar contra ella fija el suelo en las dos. Contra --c-bg medido,
+     cuatro de los once grounds caian por debajo de AA en las secciones .bg-alt: warm 4.35:1,
+     b-alinea 4.41:1, b-aranda 4.47:1, b-bergara 4.49:1. Ninguna medida BAJA con este cambio. */
+  --c-text-muted:     color-mix(in srgb, var(--c-text) 63.4%, var(--c-bg-alt));
   --c-border:         color-mix(in srgb, var(--c-text) 11%,   var(--c-bg));
   --c-surface-inverse: var(--c-text);
   --c-on-inverse:      var(--c-bg);
