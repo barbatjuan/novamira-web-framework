@@ -4824,7 +4824,7 @@ $css[] = <<<'CSS'
    a portrait and a voice. A full-bleed split needs MORE inside padding than a contained section,
    not the same amount, because there is no page margin doing the work on that side. */
 .figq .say{background:var(--c-bg-alt);display:grid;align-content:center;gap:var(--sp-m);
-  padding:var(--sp-2xl) clamp(2.5rem,6vw,6rem)}
+  padding:var(--sp-xxl) clamp(2.5rem,6vw,6rem)}
 /* --fs-h2 and not --fs-h3 was the wrong call on a 1200px measure: at the editorial scale it put a
    six-line pull quote at very nearly headline size, which is the "todo muy grande" this pass was
    asked to fix. A quote should be the second-loudest thing in its section, never the loudest. */
@@ -8251,7 +8251,53 @@ $mk_js = "<script>\n"
    without a line here is unchecked. It is still strictly better than nothing, and the failure mode
    is "a new collision slips through" rather than "the check silently passes on everything", which
    is the failure this repository keeps actually having. */
-$c06_all    = implode( "\n", $css );
+/* ── EVERY var() MUST NAME A TOKEN THIS STYLESHEET DECLARES ───────────────────────────────────
+   FOUND BY JUAN, IN A SCREENSHOT WITH A RED BOX AROUND THE GAP THAT WAS NOT THERE. The split
+   quote's panel carried `padding:var(--sp-2xl) clamp(2.5rem,6vw,6rem)` and rendered with NO
+   padding at all — not a small one, none. The token is `--sp-xxl`; `--sp-2xl` never existed.
+
+   AND THE HORIZONTAL VALUE WAS FINE. That is the whole reason this needs a gate rather than a
+   careful reader: an invalid `var()` substitution does not fall back to the rest of the
+   declaration, it makes THE ENTIRE DECLARATION invalid at computed-value time, so the property
+   takes its initial value. One typo in the vertical half deleted a perfectly good `clamp()` in the
+   horizontal half. No warning, no console error, valid CSS, and a design that reads as "the gutter
+   is too small" when in fact there is no gutter and no rule.
+
+   This file already carries a paragraph about the same trap on `letter-spacing` — an invalid
+   substitution falling back to `normal` and leaving four anchors silently unramped. That paragraph
+   was written and the lesson still did not generalise into a check. It does now: the check is
+   three lines, it is total over the emitted stylesheet, and it costs nothing.
+
+   `var(--x, fallback)` is exempt and correctly so: naming a fallback is the author saying the token
+   may be absent, which is a different statement from misspelling one. */
+$vt_all      = implode( "\n", $css );
+$vt_declared = array();
+if ( preg_match_all( '/(--[A-Za-z0-9_-]+)\s*:/', $vt_all, $vt_dm ) ) {
+	foreach ( $vt_dm[1] as $vt_d ) {
+		$vt_declared[ $vt_d ] = true;
+	}
+}
+$vt_missing = array();
+if ( preg_match_all( '/var\(\s*(--[A-Za-z0-9_-]+)\s*\)/', $vt_all, $vt_um ) ) {
+	foreach ( $vt_um[1] as $vt_u ) {
+		if ( ! isset( $vt_declared[ $vt_u ] ) ) {
+			$vt_missing[ $vt_u ] = true;
+		}
+	}
+}
+if ( array() === $vt_declared ) {
+	fail( 'the stylesheet parsed to zero custom-property declarations — the undefined-token check'
+		. ' below would pass on every var() in the file' );
+}
+if ( array() !== $vt_missing ) {
+	fail( 'the stylesheet uses ' . implode( ', ', array_keys( $vt_missing ) ) . ' and declares'
+		. ' neither. An invalid var() does not degrade — it invalidates the WHOLE declaration at'
+		. ' computed-value time, so the property silently takes its initial value and any other value'
+		. ' in the same declaration is lost with it. Use the real token name, or give the var() an'
+		. ' explicit fallback if absence is intended.' );
+}
+
+$c06_all    = $vt_all;
 $c06_marker = '── COMP-HEADER, floating on the photograph';
 $c06_at     = strpos( $c06_all, $c06_marker );
 if ( false === $c06_at ) {
