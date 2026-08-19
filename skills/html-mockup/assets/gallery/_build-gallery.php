@@ -4891,24 +4891,17 @@ $css[] = <<<'CSS'
 /* The switcher grows a second label once a template ships more than one page. */
 .flabel-2{margin-left:var(--sp-s)}
 @media(max-width:767px){.flabel-2{margin-left:var(--sp-xs)}}
-/* ── the group: one archetype, its anchors under it ──────────────────────────────────────────
-   Grouping was asked for so a template would carry all its parts in one place. It was never asked
-   to cost the catalogue its VARIETY, and the first cut did exactly that: eight visibly different
-   designs collapsed into two cards, and an index you cannot compare at a glance stops being an
-   index. The archetype's identity is printed once, here, and its anchors stay visible as cards. */
-.tgroup{padding-block:var(--sp-l);border-top:1px solid var(--c-border)}
-.tgroup:first-child{border-top:none}
-.tgroup[hidden]{display:none}
-.tgroup-head{display:grid;gap:.15rem;margin-bottom:var(--sp-m)}
-.tgroup-head h2{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.15;margin:0}
-.tgroup-head h2 a{color:inherit;text-decoration:none}
-.tgroup-head h2 a:hover{color:var(--c-accent)}
-.tgroup-head h2 a:focus-visible{outline:2px solid var(--c-accent);outline-offset:3px}
-.tgroup-fits{font-size:var(--fs-small);color:var(--c-text-soft);max-width:60ch}
-.tgroup-count{font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
-              color:var(--c-text-muted);margin-top:.2rem}
-/* Inside a group the grid carries no block padding of its own — the group owns the rhythm. */
-.tgroup .tgrid{padding-block:0}
+/* ── the group layer is gone, and so is its CSS ───────────────────────────────────────────────
+   The index shipped three shapes. One card per archetype hid the variety; a group header with its
+   anchors underneath brought the variety back and cost two levels of hierarchy to read before you
+   saw a single design. The index has one job — show every home so you can point at one — and a
+   title over a row of already-titled things earns its space only when the row is long enough to
+   lose track of. Four cards is not that.
+
+   The rules that painted `.tgroup`, `.tgroup-head`, `.tgroup-fits` and `.tgroup-count` are deleted
+   rather than left behind. Dead CSS for a structure the page no longer emits is the same lie as a
+   token nothing reads, and it is the kind that survives for months because everything still
+   renders. */
 /* ── the template page: identity, switcher, variants ────────────────────────────────────────── */
 
 .tpl-head{background:var(--c-bg-alt);border-bottom:1px solid var(--c-border);
@@ -8406,15 +8399,24 @@ function strip_uid( $C, $anchor ) {
 /**
  * A GROUP is an archetype; a CARD is one of its anchors.
  *
- * The first cut of this collapsed each archetype to a single card, and that was the wrong trade.
- * Grouping was asked for so a template would carry all its parts in one place -- it was never
- * asked to cost the CATALOGUE its variety, and it did: eight visibly different designs became two
- * cards, and a marketplace you cannot compare at a glance is not a marketplace. The anchor moves
- * ground, scale, density, composition and elevation, so four anchors ARE four things worth
- * choosing between, and hiding them one click deep hid the only thing the index is for.
+ * ONE FLAT GRID OF EVERY HOME, AND THE GROUP LAYER IS GONE.
  *
- * So the grouping stays and the variety comes back: the archetype's identity is printed ONCE on
- * the group header, and its anchors sit under it as cards.
+ * It went through two wrong shapes first, and both are worth keeping written down. The first
+ * collapsed each archetype to a single card: eight visibly different designs became two, and a
+ * marketplace you cannot compare at a glance is not a marketplace. The second put the archetype on
+ * a group header with its anchors as cards underneath — which fixed the variety and bought a
+ * second problem, because the index then had two levels of hierarchy to read before you saw a
+ * single design.
+ *
+ * The index has ONE job: show every home, so you can point at one. A group header is a title over
+ * a row of things that are already titled; it earns its space only when the row is long enough to
+ * lose track of, and four cards is not that. So: every home is a card, every card is the same
+ * shape, and the archetype survives as text on the card rather than as a level of structure.
+ *
+ * THE CARD NAMES THE BUSINESS WHEN THERE IS ONE. `TPL-C-05 Local / Booking` is what an entry is
+ * BUILT ON; `Casa Terrazza · Restaurante` is what it IS, and only the second answers "quiero la de
+ * restaurante". The anchor rides in the eyebrow beside the sector, because two cards of one
+ * archetype differ by exactly that and nothing else on the card would say so.
  */
 function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
 	$chips = '';
@@ -8422,45 +8424,23 @@ function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
 		$chips .= '<li class="tax">' . h( $r['axis'] ) . ' <b>' . h( $r['pos'] ) . '</b></li>';
 	}
 
+	$is_b = ( '' !== $C['brand'] );
+	$eye  = ( $is_b ? $C['brand_sector'] : $C['site_es'] ) . ' · ' . $A['name'];
+	$name = $is_b ? $C['brand_name'] : ( $C['tpl'] . ' ' . $C['tpl_name'] );
+	$sub  = $is_b ? ( 'Sobre ' . $C['arch'] . ' · ' . $C['tpl_name'] ) : $C['fits'];
+
 	return '<li data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $C['tpl'] ) . '"'
 		. ' data-pers="' . h( $anchor_key ) . '">'
 		. '<a class="tcard" href="#' . h( $tpl_slug ) . '/' . h( $anchor_key ) . '">'
 		. '<span class="thumb" data-of="' . h( $uid ) . '">'
-		. '<span class="thumb-wait">' . h( $A['name'] ) . '</span></span>'
+		. '<span class="thumb-wait">' . h( $name ) . '</span></span>'
 		. '<span class="tbody">'
-		. '<span class="tpair">' . h( $A['id'] ) . '</span>'
-		. '<span class="tname">' . h( $A['name'] ) . '</span>'
-		. '<span class="tsub">' . h( $A['fits'] ) . '</span>'
+		. '<span class="tpair">' . h( $eye ) . '</span>'
+		. '<span class="tname">' . h( $name ) . '</span>'
+		. '<span class="tsub">' . h( $sub ) . '</span>'
 		. '<ul class="taxes">' . $chips . '</ul>'
-		. '<span class="tgo">Ver esta variante</span>'
+		. '<span class="tgo">Ver esta home</span>'
 		. '</span></a></li>';
-}
-
-/**
- * The group header: the archetype, printed once for its whole row of anchors.
- */
-function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
-	$C = $C = $T['content'];
-	$n = count( $cards );
-
-	/* A CARD NAMES THE BUSINESS WHEN THERE IS ONE. `TPL-C-05 Local / Booking` is what the entry is
-	   BUILT ON; `CASA TERRAZZA · Restaurante` is what it IS, and the second is the only one that
-	   answers "quiero la de restaurante". The archetype does not disappear — it moves to the line
-	   underneath, where it belongs, next to who the template fits. */
-	$is_b  = ( '' !== $C['brand'] );
-	$g_eye = $is_b ? $C['brand_sector'] : $C['site_es'];
-	$g_b   = $is_b ? $C['brand_name'] : $tpl;
-	$g_r   = $is_b ? ( 'sobre ' . $C['arch'] . ' · ' . $C['tpl_name'] ) : $C['tpl_name'];
-
-	return '<section class="tgroup" data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $tpl ) . '">'
-		. '<header class="tgroup-head">'
-		. '<span class="eyebrow">' . h( $g_eye ) . '</span>'
-		. '<h2><a href="#' . h( $tpl_slug ) . '"><b>' . h( $g_b ) . '</b> ' . h( $g_r ) . '</a></h2>'
-		. '<p class="tgroup-fits">' . h( $C['fits'] ) . '</p>'
-		. '<p class="tgroup-count">' . $n . ' ' . ( 1 === $n ? 'ancla' : 'anclas' ) . '</p>'
-		. '</header>'
-		. '<ul class="tgrid">' . implode( '', $cards ) . '</ul>'
-		. '</section>';
 }
 
 /* WHICH PAGES EACH ARCHETYPE SHIPS, and which archetype doc each one answers to.
@@ -8719,15 +8699,13 @@ function tpl_slug( $tpl ) {
 $groups  = array();
 $n_cards = 0;
 foreach ( $by_tpl as $bt_tpl => $bt_T ) {
-	$bt_slug  = tpl_slug( $bt_tpl );
-	$bt_cards = array();
+	$bt_slug = tpl_slug( $bt_tpl );
 	foreach ( $bt_T['anchors'] as $bt_key => $bt_v ) {
-		$bt_cards[] = template_card_html( $bt_T['content'], $bt_v['A'], $bt_key,
+		$groups[] = template_card_html( $bt_T['content'], $bt_v['A'], $bt_key,
 			$bt_v['uid'], $bt_slug, $bt_v['rows'] );
+		++$n_cards;
 	}
-	$n_cards  += count( $bt_cards );
-	$groups[]  = template_group_html( $bt_tpl, $bt_T, $bt_slug, $bt_cards );
-	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug, $PAGES[ $bt_T['content']['arch'] ] );
+	$body[] = template_page_html( $bt_tpl, $bt_T, $bt_slug, $PAGES[ $bt_T['content']['arch'] ] );
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -8900,7 +8878,7 @@ $filter = '<div class="gal-filter"><div class="gal-wrap">'
 	. filter_group( 'site', 'Tipo', $sites_present )
 	. filter_group( 'pers', 'Ancla', $anchors_present )
 	. '<p class="fcount" id="gal-count" role="status" aria-live="polite">'
-	. count( $groups ) . ' plantillas · ' . $n_cards . ' variantes</p>'
+	. count( $by_tpl ) . ' plantillas · ' . $n_cards . ' homes</p>'
 	. '</div></div>';
 
 // Plain JS, no library. `hidden` rather than a class: it is the platform's own "not rendered and
@@ -8922,14 +8900,7 @@ $filter_js = "<script>\n"
 	. "          && (state.pers==='all'||s.getAttribute('data-pers')===state.pers);\n"
 	. "      s.hidden=!ok; if(ok){n++;}\n"
 	. "    }\n"
-	. "    count.textContent = (n===cards.length) ? n+' variantes' : n+' de '+cards.length+' variantes';\n"
-	// A group whose cards are all filtered out hides its heading too. An archetype title standing
-	// over an empty row reads as a rendering fault, not as a filter doing its job.
-	. "    var gs=document.querySelectorAll('.tgroup');\n"
-	. "    for(var k=0;k<gs.length;k++){\n"
-	. "      var live=gs[k].querySelectorAll('.tgrid > li:not([hidden])').length;\n"
-	. "      gs[k].hidden=(live===0);\n"
-	. "    }\n"
+	. "    count.textContent = (n===cards.length) ? n+' homes' : n+' de '+cards.length+' homes';\n"
 	. "    if(window.NMthumbs){window.NMthumbs();}\n"
 	. "  }\n"
 	. "  var btns=document.querySelectorAll('.fbtn');\n"
@@ -8984,8 +8955,8 @@ $copy_js = "<script>\n"
 $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 	/* $n_strip counts VARIANTS, which stopped being the same thing as templates the day the
 	   catalogue grouped them. The footer said "8 plantillas" over a grid of two. */
-	. '<p>' . count( $groups ) . ' ' . ( 1 === count( $groups ) ? 'plantilla' : 'plantillas' )
-	. ' · ' . $n_strip . ' ' . ( 1 === $n_strip ? 'variante' : 'variantes' ) . ' · '
+	. '<p>' . count( $by_tpl ) . ' ' . ( 1 === count( $by_tpl ) ? 'plantilla' : 'plantillas' )
+	. ' · ' . $n_strip . ' ' . ( 1 === $n_strip ? 'home' : 'homes' ) . ' · '
 	. count( $only_used ) . ' imágenes · generado por <code>_build-gallery.php</code> '
 	. 'desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p>'
 	. '</div></footer>';
@@ -9013,7 +8984,7 @@ $top = '<div class="gal-top"><div class="gal-wrap">'
 $index = '<div class="page" id="p-index">' . "\n"
 	. $intro . "\n"
 	. $filter . "\n"
-	. '<div class="gal-wrap">' . implode( "\n", $groups ) . '</div>' . "\n"
+	. '<div class="gal-wrap"><ul class="tgrid">' . implode( "\n", $groups ) . '</ul></div>' . "\n"
 	. '</div>';
 
 /* ── the router, and the miniature that cannot go stale ────────────────────────────────────────
