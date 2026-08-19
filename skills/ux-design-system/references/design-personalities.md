@@ -123,6 +123,19 @@ over-read them, which is exactly what happened once.
 
 **Card recipe:** image at the container radius, hairline border, text below. No chips, no fills — the border is the whole chrome.
 
+### `PERS-VITRINE` — Vitrine
+
+**Axes:** scale `editorial` · ground `ink` · density `monumental` · composition `strict-grid` · elevation `soft-shadow`
+
+**Fits:** Lo que se compra mirándolo de cerca y en orden — galerías, joyería, catálogos de producto caro, showrooms, obra fotografiada. La sala a oscuras y el objeto iluminado.
+
+**Typography:** `--font-primary` **DM Sans** at 700; `--font-secondary` **Inter Tight**. Both SIL OFL. Ninguna de las dos es la display de otra ancla, así que el emparejamiento es nuevo aunque las familias ya estén embebidas. Display tracking `-0.02em` (h1–h3), wordmark `.12em`.
+
+**Motion intensity:** el zoom en el tope documentado (`.7s`) y el lift de tarjeta destacada (`-6px`) sobre `.5s`. Es el ancla más lenta en la imagen y la más rápida en el color (`.35s`): el objeto se acerca despacio y la interfaz responde al instante. No se acerca al `-6px` + `scale(1.06)` + `.35s` que `motion.md` marca como barato — el zoom se queda en `1.045` y el lift no baja de `.5s`.
+
+**Imagery:** el objeto aislado y **iluminado contra el fondo oscuro**, con aire alrededor. Nunca a sangre: lo que define esta ancla es el margen negro que rodea la pieza, y una foto que llega hasta el borde lo elimina.
+
+**Card recipe:** superficie elevada —`--c-bg-alt` sobre `--c-bg`— y la sombra guardada para el hover. **La elevación `soft-shadow` sobre un ground `ink` es casi invisible en reposo**, y esto no es un defecto que se disimula sino la razón de la receta: sobre negro una sombra no separa, lo que separa es el escalón de superficie. La sombra entra al levantar la tarjeta, donde sí tiene un borde claro contra el que leerse.
 ### `PERS-INSTITUTIONAL` — Institutional
 
 **Axes:** scale `contained` · ground `cool` · density `standard` · composition `centered` · elevation `soft-shadow`

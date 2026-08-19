@@ -359,6 +359,32 @@ $ANCHORS = array(
 		'imagery'     => 'el producto de frente, graduado cálido, a sangre dentro de la retícula',
 		'card'        => 'imagen al radio del contenedor, borde de filete, texto debajo. El borde es todo el cromo.',
 	),
+	/* VITRINE · la sala a oscuras y el objeto iluminado. Comparte el ground `ink` con DIRECT y NADA
+	   más: donde aquella rompe la rejilla y se pega, ésta la respeta y respira. Es la prueba de que
+	   `oscuro` no es una personalidad sino una posición de un eje — dos anclas pueden ser negras y
+	   no parecerse en nada. */
+	'vitrine'       => array(
+		'id'          => 'PERS-VITRINE',
+		'name'        => 'Vitrine',
+		'fits'        => 'Lo que se compra mirándolo de cerca y en orden',
+		'scale'       => 'editorial',
+		'ground'      => 'ink',
+		'density'     => 'monumental',
+		'composition' => 'strict-grid',
+		'elevation'   => 'soft-shadow',
+		'font_1'      => "'DM Sans', system-ui, sans-serif",
+		'font_2'      => "'Inter Tight', system-ui, sans-serif",
+		'track_disp'  => '-.02em',
+		'track_word'  => '.12em',
+		'dur_color'   => '.35s',
+		'dur_lift'    => '.5s',
+		'dur_zoom'    => '.7s',
+		'lift'        => '-6px',
+		'ratio_hero'  => '16/9',
+		'ratio_card'  => '1/1',
+		'imagery'     => 'el objeto aislado e iluminado contra el fondo, con aire alrededor; nunca a sangre',
+		'card'        => 'superficie elevada (--c-bg-alt sobre --c-bg) y la sombra guardada para el hover: sobre negro una sombra no separa, lo que separa es el escalón de superficie.',
+	),
 	'institutional' => array(
 		'id'          => 'PERS-INSTITUTIONAL',
 		'name'        => 'Institutional',
@@ -673,6 +699,9 @@ $INK_GRADE = array(
 	'direct'        => array( 'sat' => 0.72, 'gamma' => 0.30 ),  // "high-contrast" — tonality only
 	'matter'        => array( 'sat' => 0.86, 'gamma' => 0.12 ),  // "warm-graded"   — colour only
 	'institutional' => array( 'sat' => 0.62, 'gamma' => 0.12 ),  // "sober"         — colour only
+	'vitrine'       => array( 'sat' => 0.94, 'gamma' => 0.16 ),  // "lit object"    — saturación alta y curva algo
+	                                                            //                   más profunda: la pieza es lo
+	                                                            //                   único con color en la sala.
 );
 
 /* THE CURVE'S STOP COUNT. Five, because two cannot bend: a two-entry `tableValues` is a straight
@@ -3469,6 +3498,10 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'institutional' ),
+	/* VITRINE sobre el portfolio: es su caso de uso literal —obra iluminada contra un fondo oscuro,
+	   en rejilla estricta y con aire—. Sirve ademas de contraste directo con la variante `direct` de
+	   arriba: las dos son negras y no se parecen, que es lo que el eje de composicion decide. */
+	array( 'tpl' => 'TPL-C-03', 'anchor' => 'vitrine' ),
 	/* TPL-E-03 · el segundo arquetipo de ecommerce. */
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'editorial' ),
@@ -3494,11 +3527,16 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'institutional' ),
+	/* La marca visual bajo VITRINE: es una tienda que vende mirando, y el ancla la pone en una
+	   sala a oscuras con la pieza iluminada. Tarjeta cuadrada (ratio 1/1) contra el 16/11 de las
+	   demas: el objeto se enseña completo, no recortado a formato editorial. */
+	array( 'tpl' => 'TPL-E-01', 'anchor' => 'vitrine' ),
 	/* TPL-E-04 · el catálogo ancho. */
 	array( 'tpl' => 'TPL-E-04', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-E-04', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-04', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-04', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-04', 'anchor' => 'vitrine' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
@@ -5494,6 +5532,34 @@ CSS;
   overflow:hidden;box-shadow:var(--elev-rest);transition:box-shadow var(--dur-lift) var(--ease)}
 [data-anchor="matter"] .card:hover{box-shadow:var(--elev-hover)}
 [data-anchor="matter"] .card .frame{border-radius:0}
+CSS;
+			break;
+		case 'vitrine':
+			$out .= <<<'CSS'
+/* LA SOMBRA EN REPOSO NO SE VE, Y ESA ES LA RECETA. `soft-shadow` sobre un ground `ink` es
+   `0 1px 2px rgba(0,0,0,.04)` sobre #0E1113: negro sobre negro, invisible por construcción. Sobre
+   un fondo oscuro lo que separa una tarjeta del papel no es una sombra, es el ESCALÓN DE
+   SUPERFICIE — `--c-bg-alt` sobre `--c-bg`. La sombra no se retira por eso: se guarda para el
+   hover, donde la tarjeta ya está levantada y tiene un borde contra el que leerse. */
+[data-anchor="vitrine"] .card{background:var(--c-bg-alt);border-radius:var(--radius-card);
+  overflow:hidden;box-shadow:none;
+  transition:box-shadow var(--dur-lift) var(--ease),transform var(--dur-lift) var(--ease),
+             background var(--dur-color) var(--ease)}
+[data-anchor="vitrine"] .card:hover{box-shadow:var(--elev-hover);transform:translateY(var(--lift))}
+/* El aire alrededor de la pieza es lo que hace la vitrina, así que la imagen NO va a sangre dentro
+   de la tarjeta: respira por los cuatro lados y el marco es del color del fondo base, no del de la
+   tarjeta — un segundo escalón, hacia dentro. */
+[data-anchor="vitrine"] .card .frame{border-radius:var(--radius-image);margin:var(--sp-s);
+  background:var(--c-bg)}
+/* EL ESCALON SE MIDE CONTRA LA SUPERFICIE QUE HAY DEBAJO, NO CONTRA --c-bg. Es exactamente el
+   fallo que --c-text-muted tuvo contra este mismo `.bg-alt`: un token que da por hecho que se
+   pinta sobre el fondo base desaparece en la banda alterna. Aqui la tarjeta pintaba --c-bg-alt
+   dentro de una seccion --c-bg-alt --- el mismo color contra el mismo color, y con `soft-shadow`
+   sobre `ink` invisible en reposo no queda NADA separando la tarjeta del papel. En la banda
+   alterna el escalon se da la vuelta: la tarjeta baja a --c-bg y el marco sube a --c-bg-alt, asi
+   que hay dos escalones en las dos superficies y ninguno depende de que la seccion sea la base. */
+[data-anchor="vitrine"] .bg-alt .card{background:var(--c-bg)}
+[data-anchor="vitrine"] .bg-alt .card .frame{background:var(--c-bg-alt)}
 CSS;
 			break;
 		case 'institutional':
