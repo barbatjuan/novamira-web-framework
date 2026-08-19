@@ -4758,6 +4758,24 @@ $css[] = <<<'CSS'
                 grid-template-columns:minmax(0,1fr)}
 @media(min-width:768px){.process .steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){.process .steps{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* A GRID ITEM IS `min-width:auto`, NOT ZERO, and that is why two steps ran into each other:
+   "Diagnosticamos" is one unbreakable word wider than a quarter of the measure at the classic
+   scale, so its `<li>` refused to shrink below its content and ate the gutter of the step beside
+   it. Rendered, it read as `DiagnosticamosUsted aprueba` — no gap at all, which is not a spacing
+   bug but an overflow one.
+
+   `minmax(0,1fr)` sizes the TRACK and says nothing about the ITEM: the same trap that overflowed
+   the `presupuesto` label by 61px in an earlier round, one component along. The fix is the item,
+   and `hyphens` gives Spanish a legal place to break rather than letting the word ram the next
+   column — which is why the sample carries `lang="es"`. */
+.process .steps > li{min-width:0}
+/* AND THE TITLE FITS INSTEAD OF BREAKING. The first cut added `overflow-wrap:break-word`, which
+   stopped the collision and produced `Diagnosticam / os` — a word split mid-syllable with no
+   hyphen, because `hyphens:auto` needs a hyphenation dictionary the headless renderer does not
+   carry and the hard break wins when it is absent. Breaking a four-word section heading was
+   solving the wrong problem: a list of four across should not be using the full h3 step of the
+   scale. It uses its own, and the longest word fits without asking anything of the renderer. */
+.process .steps > li h3{font-size:clamp(1.05rem,1.55vw,1.3rem);line-height:1.2;text-wrap:balance}
 /* SUBGRID, NOT A GUESSED `min-height`. The titles wrap to different line counts — "Medición en
    obra" takes two lines where "Colocación" takes one — so without this the four paragraphs start
    at four different heights and the row reads as sloppy typesetting. A two-line `min-height` would
@@ -5693,11 +5711,25 @@ $css[] = <<<'CSS'
    question a booking block should not make you scroll back up for. */
 .bookmedia{margin:0;align-self:stretch}
 .bookmedia img{width:100%;height:100%;min-height:22rem;object-fit:cover;display:block}
+/* A PLACEMENT WRITTEN FOR ONE BLUEPRINT IS A PLACEMENT MISSING FOR THREE. The split was only
+   taught `lp-asymmetric`'s named lines, so on `lp-strict-grid` the photograph fell BELOW the form
+   at full width and the section stopped being a split at all — it rendered, it just stopped being
+   the design. Every blueprint that can host this section now says where the photograph goes, and
+   the two that keep it under the form say so on purpose: `lp-centered` forbids bleeds and its
+   whole argument is one symmetric axis, so a photograph beside a centred form would be the
+   blueprint contradicting itself. */
 @media(min-width:1024px){
   [data-comp="lp-asymmetric"] .booking-split .head{grid-column:c 1 / c 7}
   [data-comp="lp-asymmetric"] .booking-split .bookform{grid-column:c 1 / c 7}
   [data-comp="lp-asymmetric"] .booking-split .bookmedia{grid-column:c 8 / wide-end;
     grid-row:1 / span 2}
+  [data-comp="lp-strict-grid"] .booking-split .head,
+  [data-comp="lp-strict-grid"] .booking-split .bookform{grid-column:1 / 8}
+  [data-comp="lp-strict-grid"] .booking-split .bookmedia{grid-column:8 / 13;grid-row:1 / span 2}
+  [data-comp="lp-broken-grid"] .booking-split .bookmedia{grid-column:7 / -1;grid-row:1 / span 2}
+  /* lp-centered keeps it under the form, contained: nothing bleeds and nothing sits off-axis. */
+  [data-comp="lp-centered"] .booking-split .bookmedia{max-width:var(--content-width);
+    margin-inline:auto}
 }
 
 /* ══════════ THE SECTION HEAD, PER TEMPLATE ══════════
@@ -5928,6 +5960,15 @@ $css[] = <<<'CSS'
    head fuera del eje (lp-asymmetric lo lleva a las columnas 1-7, lp-broken-grid lo desplaza a
    proposito) el bloque se devuelve al borde justo debajo, porque alli el eje NO es el centro. */
 .tiform, .ftable, .bookform, .newsform, .faqlist, .pnote, .plan-note{margin-inline:auto}
+/* LP-STRICT-GRID BELONGS IN THIS LIST TOO, and its absence was visible: the blueprint leaves the
+   head full-width and LEFT, so a form centred under it floats in the middle with a column of dead
+   ground to its left — read, correctly, as "the form is not aligned with its own heading". The
+   rule above centres these blocks because most blueprints centre the head; the exception list is
+   for the blueprints that do not, and strict-grid is one of them. */
+[data-comp="lp-strict-grid"] .tiform, [data-comp="lp-strict-grid"] .ftable,
+[data-comp="lp-strict-grid"] .bookform, [data-comp="lp-strict-grid"] .newsform,
+[data-comp="lp-strict-grid"] .faqlist, [data-comp="lp-strict-grid"] .pnote,
+[data-comp="lp-strict-grid"] .plan-note{margin-inline:0}
 [data-comp="lp-asymmetric"] .tiform, [data-comp="lp-asymmetric"] .ftable,
 [data-comp="lp-asymmetric"] .bookform, [data-comp="lp-asymmetric"] .newsform,
 [data-comp="lp-asymmetric"] .faqlist, [data-comp="lp-asymmetric"] .pnote,
