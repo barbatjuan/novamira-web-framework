@@ -429,6 +429,46 @@ $BRANDS = array(
 		'font_2' => "'Source Sans 3', system-ui, sans-serif",
 		'ink'    => array( 'sat' => 0.88, 'gamma' => 0.18 ),
 	),
+
+	/* MOTOR ARANDA · ocasión multimarca. Fondo claro y FRÍO, que es lo contrario de Terrazza a
+	   propósito: un patio de coches se lee de día, en el móvil, comparando cifras. El acento es
+	   verde azulado y no rojo — el rojo en automoción es la señal de "oferta" y aquí lo que se
+	   vende es que los números están claros. */
+	'aranda' => array(
+		'name'   => 'MOTOR ARANDA',
+		'sector' => 'Automoción · ocasión',
+		'ground' => array( 'bg' => '#F3F6F7', 'alt' => '#E4EAED', 'text' => '#111A1F' ),
+		'accent' => '#0B5D6B',
+		'font_1' => "'Archivo', system-ui, sans-serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.68, 'gamma' => 0.14 ),
+	),
+
+	/* AURIA · lanzamiento de un modelo. Casi negro AZULADO, frente al casi negro CÁLIDO de
+	   Terrazza: los dos son oscuros y no se parecen, que es exactamente lo que un catálogo tiene
+	   que poder demostrar. */
+	'auria'  => array(
+		'name'   => 'AURIA',
+		'sector' => 'Automoción · concesión',
+		'ground' => array( 'bg' => '#0A0D12', 'alt' => '#141A23', 'text' => '#EDF1F6' ),
+		'accent' => '#5AA2FF',
+		'font_1' => "'Archivo Expanded', 'Arial Black', system-ui, sans-serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.60, 'gamma' => 0.34 ),
+	),
+
+	/* TALLER BERGARA · tarifa. Papel cálido de taller y naranja de señalización. Es el único de
+	   los tres cuyo argumento es un NÚMERO y no una fotografía, así que su fondo es el más plano
+	   y su acento el más ruidoso: el precio tiene que poder gritar sin ayuda de una imagen. */
+	'bergara' => array(
+		'name'   => 'TALLER BERGARA',
+		'sector' => 'Automoción · taller',
+		'ground' => array( 'bg' => '#FBF8F3', 'alt' => '#EFEAE1', 'text' => '#1B1815' ),
+		'accent' => '#A63D12',
+		'font_1' => "'Archivo', system-ui, sans-serif",
+		'font_2' => "'DM Sans', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.80, 'gamma' => 0.16 ),
+	),
 );
 
 $ACCENT_BY_GROUND = array(
@@ -899,6 +939,23 @@ foreach ( $INK_GRADE as $ink_gk => $ink_gv ) {
 // because its mini banner is ADN, and `TGL-HERO-TYPE` appears nowhere in its doc.
 
 $TOGGLES = array(
+	/* TPL-C-07 · Stock / Ocasión — de su propio § "Toggles admitidos". */
+	'TPL-C-07' => array(
+		'TGL-FINANCE'      => array( 'ask' => '¿Simulador de cuota?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-BADGES'       => array( 'ask' => '¿Barra de garantías?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-TESTIMONIALS' => array( 'ask' => '¿Reseñas?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-08 · Modelo / Lanzamiento. */
+	'TPL-C-08' => array(
+		'TGL-GALLERY' => array( 'ask' => '¿Galería del modelo?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FINANCE' => array( 'ask' => '¿Bloque de financiación?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'     => array( 'ask' => '¿Preguntas frecuentes?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-09 · Taller / Tarifa. */
+	'TPL-C-09' => array(
+		'TGL-BADGES' => array( 'ask' => '¿Barra de garantías?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'    => array( 'ask' => '¿Preguntas frecuentes?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
 	/* TPL-C-06 · Mesa / Carta. Transcribed from its own § "Toggles admitidos", like every row here.
 	   `TGL-MARQUEE` and `TGL-MENU-PRICES` are new and they are declared BY THAT DOC — a toggle this
 	   table invented would be a capability the archetype never offered. */
@@ -1515,6 +1572,341 @@ foreach ( $SCRIM_ELEMENTS as $se ) {
 $BRAND = 'PIEDRA VALDÉS';
 
 $CONTENT = array(
+	/* ── MOTOR ARANDA · TPL-C-07 · un INVENTARIO, que es lo que ningún arquetipo corporativo tenía.
+	   El contenido no lo escribe el dueño una vez: son cuarenta unidades que entran y salen, y los
+	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
+	'TPL-C-07-aranda' => array(
+		'tpl'          => 'TPL-C-07-aranda',
+		'arch'         => 'TPL-C-07',
+		'brand'        => 'aranda',
+		'brand_name'   => 'Motor Aranda',
+		'brand_sector' => 'Automoción · ocasión',
+		'tpl_name'     => 'Stock / Ocasión',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Concesionarios multimarca, ocasión, maquinaria, náutica, caravanas',
+		'dna'          => 'COMP-SEARCH-FILTERS · COMP-STOCK-GRID · COMP-TRADE-IN',
+		'wire'         => 'COMP-HEADER · COMP-SEARCH-FILTERS · COMP-STOCK-GRID · COMP-TRADE-IN · COMP-FINANCE · COMP-TRUST-BADGES · COMP-TESTIMONIAL · COMP-MAP-NAP · COMP-FOOTER',
+		'nav'          => array( 'Stock', 'Financiación', 'Nosotros' ),
+		'nav_cta'      => 'Vender mi coche',
+		'phone'        => '948 00 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Ocasión seleccionada · Pamplona',
+			'h1'      => '38 coches en el patio, y los 38 con su informe',
+			'lede'    => 'Cada unidad lleva 150 puntos revisados, el histórico de mantenimiento y la ficha de kilómetros certificada. Si algo no está, se lo decimos antes de que pregunte.',
+			'img'     => 'aranda-patio',
+		),
+		'search'       => array(
+			'count'   => '38 unidades disponibles',
+			'submit'  => 'Ver resultados',
+			'fields'  => array(
+				array( 'marca', 'Marca', array( 'Todas', 'Volkswagen', 'Peugeot', 'Toyota', 'Kia', 'Renault' ) ),
+				array( 'precio', 'Precio hasta', array( 'Sin límite', '10.000 €', '15.000 €', '20.000 €', '30.000 €' ) ),
+				array( 'kms', 'Kilómetros hasta', array( 'Sin límite', '50.000', '100.000', '150.000' ) ),
+				array( 'comb', 'Combustible', array( 'Todos', 'Gasolina', 'Diésel', 'Híbrido', 'Eléctrico' ) ),
+			),
+		),
+		'stock'        => array(
+			'eyebrow' => 'En el patio',
+			'h2'      => 'Lo que hay hoy',
+			'note'    => 'Precios con transferencia e IVA incluidos. La cuota es orientativa a 72 meses con 20 % de entrada.',
+			'items'   => array(
+				array( 'img' => 'aranda-v1', 'h3' => 'Volkswagen T-Roc 1.5 TSI', 'facts' => array( '2021', '48.200 km', 'Gasolina', 'Manual', '150 CV' ), 'price' => '21.900 €', 'quota' => '253 €/mes' ),
+				array( 'img' => 'aranda-v2', 'h3' => 'Kia Sportage 1.6 CRDi',    'facts' => array( '2020', '76.400 km', 'Diésel',   'Manual', '136 CV' ), 'price' => '18.400 €', 'quota' => '212 €/mes' ),
+				array( 'img' => 'aranda-v3', 'h3' => 'Toyota Corolla 1.8 HSD',   'facts' => array( '2022', '31.050 km', 'Híbrido',  'Auto',   '122 CV' ), 'price' => '23.700 €', 'quota' => '274 €/mes' ),
+				array( 'img' => 'aranda-v4', 'h3' => 'Peugeot 3008 Hybrid',      'facts' => array( '2021', '54.800 km', 'Híbrido',  'Auto',   '180 CV' ), 'price' => '25.300 €', 'quota' => '292 €/mes' ),
+				array( 'img' => 'aranda-v5', 'h3' => 'Renault Mégane E-Tech',    'facts' => array( '2023', '18.900 km', 'Eléctrico','Auto',   '131 CV' ), 'price' => '27.800 €', 'quota' => '321 €/mes' ),
+				array( 'img' => 'aranda-v6', 'h3' => 'Seat León 1.0 TSI',        'facts' => array( '2020', '68.300 km', 'Gasolina', 'Manual', '110 CV' ), 'price' => '15.600 €', 'quota' => '180 €/mes' ),
+			),
+		),
+		'tradein'      => array(
+			'eyebrow' => 'Tasación',
+			'h2'      => 'Traiga el suyo y descuéntelo',
+			'lede'    => 'Matrícula y kilómetros. Con eso ya le damos un rango por teléfono el mismo día; el precio cerrado sale cuando lo vemos.',
+			'fields'  => array(
+				array( 'matricula', 'Matrícula', 'text' ),
+				array( 'km', 'Kilómetros', 'text' ),
+			),
+			'submit'  => 'Pedir tasación',
+			'small'   => 'No pedimos su correo. Si prefiere que no llamemos, escriba «solo WhatsApp» al enviar.',
+		),
+		'finance'      => array(
+			'eyebrow' => 'Financiación',
+			'h2'      => 'La cuota, con el coste total delante',
+			'rows'    => array(
+				array( 'Importe financiado', '17.520 €' ),
+				array( 'Entrada (20 %)',     '4.380 €' ),
+				array( 'Plazo',              '72 meses' ),
+				array( 'Cuota',              '253 €/mes' ),
+				array( 'TAE',                '8,95 %' ),
+				array( 'Coste total del crédito', '20.736 €' ),
+			),
+			'note'    => 'Ejemplo orientativo sobre el Volkswagen T-Roc. Sujeto a aprobación de la entidad; el build enlaza la información normalizada.',
+		),
+		'badges'       => array(
+			array( '12 meses', 'de garantía en todas las unidades, sin excepciones' ),
+			array( '150 puntos', 'revisados y firmados antes de ponerlo a la venta' ),
+			array( 'Transferencia', 'incluida en el precio publicado' ),
+			array( '7 días', 'para devolverlo si no es lo que esperaba' ),
+		),
+		'quotes'       => array(
+			'eyebrow' => 'Quien ya compró',
+			'h2'      => 'Tres coches que salieron de aquí',
+			'items'   => array(
+				array( 'Me enseñaron el informe de los 150 puntos antes de que lo pidiera. Dos cosas estaban en amarillo y me las explicaron.', 'Íñigo Sarasa', 'Toyota Corolla' ),
+				array( 'Tasaron el mío por teléfono con la matrícula y al verlo mantuvieron el precio. No hubo rebaja de última hora.', 'Cristina Iriarte', 'Kia Sportage' ),
+				array( 'La cuota que me dijeron es la que firmé. Eso, en este sector, no es normal.', 'Marc Bosch', 'Seat León' ),
+			),
+		),
+		'nap'          => array(
+			'eyebrow' => 'Dónde estamos',
+			'h2'      => 'Polígono Landaben, Pamplona',
+			'addr'    => array( 'Calle E, nave 14', '31012 Pamplona · Navarra' ),
+			'phone'   => '948 00 00 00',
+			'mail'    => 'stock@motoraranda.example',
+			'hours'   => array(
+				array( 'Lunes a viernes', '09:00 – 13:30 · 16:00 – 20:00' ),
+				array( 'Sábado', '10:00 – 14:00' ),
+				array( 'Domingo', 'Cerrado' ),
+			),
+			'note'    => 'Patio cubierto: se ven los coches aunque llueva. Salida 3 de la ronda, a 200 m.',
+			'img'     => 'aranda-v3',
+		),
+		'footer'       => array(
+			'tag'   => 'Motor Aranda · Polígono Landaben, calle E nave 14, 31012 Pamplona · 948 00 00 00',
+			'links' => array( 'Stock', 'Financiación', 'Privacidad' ),
+			'legal' => 'Motor Aranda SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* ── AURIA · TPL-C-08 · UN solo producto contado entero. TPL-C-07 tiene cuarenta unidades y su
+	   trabajo es descartarlas; éste tiene una y su trabajo es que la mires despacio. */
+	'TPL-C-08-auria' => array(
+		'tpl'          => 'TPL-C-08-auria',
+		'arch'         => 'TPL-C-08',
+		'brand'        => 'auria',
+		'brand_name'   => 'Auria',
+		'brand_sector' => 'Automoción · concesión',
+		'tpl_name'     => 'Modelo / Lanzamiento',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Concesión oficial, lanzamiento de un modelo, un producto caro y único',
+		'dna'          => 'COMP-MODEL-HERO · COMP-SPEC-TABLE · COMP-OFFER-STRIP · COMP-BOOKING',
+		'wire'         => 'COMP-HEADER · COMP-MODEL-HERO · COMP-SPEC-TABLE · COMP-GALLERY · COMP-OFFER-STRIP · COMP-FINANCE · COMP-BOOKING · COMP-FAQ · COMP-FOOTER',
+		'nav'          => array( 'El modelo', 'Versiones', 'Concesión' ),
+		'nav_cta'      => 'Reservar prueba',
+		'phone'        => '91 000 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Nuevo · disponible en concesión desde marzo',
+			'h1'      => 'Auria GT',
+			'lede'    => 'Tracción trasera, 4,1 segundos y una caja que baja de marcha cuando usted todavía lo está pensando.',
+			'cta_1'   => 'Reservar prueba',
+			'cta_2'   => 'Ver versiones',
+			'img'     => 'auria-hero',
+			'figures' => array(
+				array( '385 CV', 'potencia' ),
+				array( '4,1 s', '0 a 100' ),
+				array( '2+2', 'plazas' ),
+				array( '78.400 €', 'desde' ),
+			),
+		),
+		'specs'        => array(
+			'eyebrow' => 'Versiones',
+			'h2'      => 'Tres acabados y lo que cambia entre ellos',
+			'cols'    => array( 'GT', 'GT Sport', 'GT Sport +' ),
+			'rows'    => array(
+				array( 'Potencia',        array( '385 CV', '450 CV', '510 CV' ), true ),
+				array( '0 a 100 km/h',    array( '4,1 s', '3,7 s', '3,4 s' ), true ),
+				array( 'Tracción',        array( 'Trasera', 'Trasera', 'Total' ), true ),
+				array( 'Llantas',         array( '19"', '20"', '20" forjadas' ), true ),
+				array( 'Suspensión',      array( 'Adaptativa', 'Adaptativa', 'Adaptativa' ), false ),
+				array( 'Garantía',        array( '3 años', '3 años', '3 años' ), false ),
+				array( 'Precio',          array( '78.400 €', '92.900 €', '114.600 €' ), true ),
+			),
+			'note'    => 'Lo que cambia entre versiones va marcado; lo que se repite se atenúa. Una tabla en la que todo pesa igual no ayuda a decidir nada.',
+		),
+		'gallery'      => array(
+			'eyebrow' => 'Por dentro',
+			'h2'      => 'Tres detalles que se notan al sentarse',
+			'items'   => array( 'auria-interior', 'auria-puerta', 'auria-arranque' ),
+		),
+		'offer'        => array(
+			'eyebrow' => 'Hasta el 31 de marzo',
+			'h2'      => 'Entrega en marzo con el equipamiento Sport sin coste',
+			'lede'    => 'Sobre las unidades ya en tránsito. Son once y se asignan por orden de reserva.',
+			'cta'     => 'Reservar prueba',
+			'small'   => 'Oferta válida hasta el 31 de marzo o fin de existencias, lo que ocurra antes. Sin cuenta atrás: la fecha es la fecha.',
+		),
+		'finance'      => array(
+			'eyebrow' => 'Financiación',
+			'h2'      => 'Cuota con valor futuro garantizado',
+			'rows'    => array(
+				array( 'Precio del vehículo', '78.400 €' ),
+				array( 'Entrada',             '23.520 €' ),
+				array( 'Plazo',               '48 meses' ),
+				array( 'Cuota',               '689 €/mes' ),
+				array( 'TAE',                 '6,45 %' ),
+				array( 'Valor futuro garantizado', '39.200 €' ),
+			),
+			'note'    => 'Ejemplo sobre la versión GT. Sujeto a aprobación de la entidad financiera.',
+		),
+		'booking'      => array(
+			'eyebrow' => 'Prueba de conducción',
+			'h2'      => 'Elija día y hora',
+			'lede'    => 'La prueba dura cuarenta minutos y la hace usted, no un comercial de copiloto explicando cosas.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Lunes 26', 'Martes 27' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '10:00', '11:30', '13:00', '17:00', '18:30' ),
+			'submit'   => 'Reservar prueba',
+			'small'    => 'Necesita carné con más de dos años. Le confirmamos por teléfono el mismo día.',
+		),
+		'faq'          => array(
+			'eyebrow' => 'Antes de preguntar',
+			'h2'      => 'Lo que se pregunta siempre',
+			'items'   => array(
+				array( '¿Cuánto tarda la entrega?', 'Las unidades en tránsito se entregan en marzo. Un pedido a fábrica hoy sale a cinco meses, y esa fecha se la damos por escrito.' ),
+				array( '¿Aceptan mi coche a cambio?', 'Sí. La tasación la hace el departamento de ocasión y el importe se descuenta de la entrada, no de la cuota.' ),
+				array( '¿Puedo ver una unidad antes de reservar?', 'Hay una GT y una GT Sport en exposición. La prueba de conducción se hace con la GT.' ),
+				array( '¿La garantía cubre uso en circuito?', 'No. Ninguna garantía de serie lo cubre, y quien le diga lo contrario le está vendiendo algo.' ),
+			),
+		),
+		'footer'       => array(
+			'tag'   => 'Auria · Concesión oficial · Avenida de Burgos 120, 28050 Madrid · 91 000 00 00',
+			'links' => array( 'El modelo', 'Versiones', 'Privacidad' ),
+			'legal' => 'Auria Motor SA · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* ── TALLER BERGARA · TPL-C-09 · el precio es lo que NO se sabe, y ése es el miedo que hace
+	   posponer la reparación. Por eso la tarifa es la segunda cosa de la página y lleva importes. */
+	'TPL-C-09-bergara' => array(
+		'tpl'          => 'TPL-C-09-bergara',
+		'arch'         => 'TPL-C-09',
+		'brand'        => 'bergara',
+		'brand_name'   => 'Taller Bergara',
+		'brand_sector' => 'Automoción · taller',
+		'tpl_name'     => 'Taller / Tarifa',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Talleres mecánicos, chapa y pintura, neumáticos, reparación técnica',
+		'dna'          => 'COMP-PRICE-LIST · COMP-PROCESS · COMP-BOOKING',
+		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-PRICE-LIST · COMP-PROCESS · COMP-BOOKING · COMP-TRUST-BADGES · COMP-FAQ · COMP-MAP-NAP · COMP-FOOTER',
+		'nav'          => array( 'Tarifa', 'Cómo funciona', 'Dónde estamos' ),
+		'nav_cta'      => 'Pedir cita',
+		'phone'        => '943 00 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Taller multimarca · Eibar',
+			'h1'      => 'Diagnóstico 39 €, y se descuenta si repara aquí',
+			'lede'    => 'La tarifa completa está debajo, con importes cerrados. Si al abrirlo sale otra cosa, le llamamos antes de tocar nada — y usted decide.',
+			'cta_1'   => 'Pedir cita',
+			'cta_2'   => '943 00 00 00',
+			'img'     => 'bergara-nave',
+		),
+		'prices'       => array(
+			'eyebrow' => 'Tarifa',
+			'h2'      => 'Lo que cuesta, escrito',
+			'note'    => 'Precios con IVA y mano de obra incluida. «Desde» siempre lleva su porqué escrito al lado: un «desde» sin explicar es peor que no publicar precio.',
+			'groups'  => array(
+				array(
+					'h3'    => 'Mantenimiento',
+					'items' => array(
+						array( 'Cambio de aceite y filtro', 'Aceite sintético 5W30 y filtro de la marca. Hasta 5 litros.', '89 €' ),
+						array( 'Revisión de 30 puntos', 'Con informe firmado. Incluye niveles y presiones.', '49 €' ),
+						array( 'Filtro de habitáculo', 'Antipolen. Quince minutos, se hace en el momento.', '35 €' ),
+					),
+				),
+				array(
+					'h3'    => 'Frenos',
+					'items' => array(
+						array( 'Pastillas delanteras', 'Juego completo y purgado. Piezas de primer equipo.', '125 €' ),
+						array( 'Discos y pastillas', 'Desde, porque el disco depende del diámetro del eje.', 'desde 265 €' ),
+						array( 'Líquido de frenos', 'Sustitución completa con máquina de purga.', '69 €' ),
+					),
+				),
+				array(
+					'h3'    => 'Neumáticos',
+					'items' => array(
+						array( 'Montaje y equilibrado', 'Por rueda. Incluye válvula nueva y reciclado.', '18 €' ),
+						array( 'Alineación de dirección', 'Cuatro ruedas, con ficha de ángulos antes y después.', '55 €' ),
+					),
+				),
+				array(
+					'h3'    => 'Diagnosis',
+					'items' => array(
+						array( 'Lectura de centralita', 'Con informe de códigos. Se descuenta si repara aquí.', '39 €' ),
+						array( 'Búsqueda de avería eléctrica', 'Desde, porque se cobra por hora de banco a partir de la primera.', 'desde 60 €/h' ),
+					),
+				),
+			),
+		),
+		'process'      => array(
+			'eyebrow' => 'Cómo funciona',
+			'h2'      => 'Cuatro pasos, y el tercero es suyo',
+			'steps'   => array(
+				array( 'Lo trae', 'Sin cita para diagnosis rápida; con cita si ya sabe qué hay que hacer.' ),
+				array( 'Diagnosticamos', 'Lectura de centralita y revisión física. Sale un presupuesto por partidas.' ),
+				array( 'Usted aprueba', 'Le llamamos con el importe. Nadie toca nada hasta que dice que sí.' ),
+				array( 'Reparamos', 'Con factura desglosada: piezas por un lado, horas por otro.' ),
+			),
+		),
+		'booking'      => array(
+			'eyebrow' => 'Cita',
+			'h2'      => 'Reserve hueco',
+			'lede'    => 'Dos elevadores y un banco de diagnosis. Lo que no aparece aquí está ocupado, no es que no cojamos el teléfono.',
+			'fields'  => array(
+				array( 'matricula', 'Matrícula', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '08:30', '10:00', '11:30', '15:30', '17:00' ),
+			'submit'   => 'Pedir cita',
+			'img'      => 'bergara-rueda',
+			'small'    => 'Le confirmamos por WhatsApp. Si necesita coche de sustitución, dígalo al reservar: hay dos.',
+		),
+		'badges'       => array(
+			array( '24 meses', 'de garantía en la mano de obra de cualquier reparación' ),
+			array( 'Primer equipo', 'o equivalente homologado, y en el presupuesto pone cuál' ),
+			array( 'Factura', 'con piezas y horas separadas, siempre' ),
+			array( 'Piezas viejas', 'se las enseñamos y se las puede llevar' ),
+		),
+		'faq'          => array(
+			'eyebrow' => 'Lo que preocupa',
+			'h2'      => 'Preguntas que hacen todos',
+			'items'   => array(
+				array( '¿Y si al abrirlo sale más caro?', 'Paramos y le llamamos. El presupuesto no sube sin que usted lo apruebe, y si decide no seguir sólo paga la diagnosis.' ),
+				array( '¿Pierdo la garantía del concesionario?', 'No. La ley europea permite mantener el coche en un taller independiente sin perder la garantía de fábrica, siempre con piezas homologadas y factura. Se la damos.' ),
+				array( '¿Cuánto tardan?', 'El mantenimiento sale el mismo día. Una avería que necesita pieza depende del proveedor y se lo decimos al aprobar, no después.' ),
+				array( '¿Puedo llevar yo la pieza?', 'Sí, pero entonces la garantía cubre nuestra mano de obra y no la pieza. Se lo ponemos por escrito para que no haya dudas luego.' ),
+			),
+		),
+		'nap'          => array(
+			'eyebrow' => 'Dónde estamos',
+			'h2'      => 'Eibar, Gipuzkoa',
+			'addr'    => array( 'Polígono Azitain, pabellón 6', '20600 Eibar · Gipuzkoa' ),
+			'phone'   => '943 00 00 00',
+			'mail'    => 'citas@tallerbergara.example',
+			'hours'   => array(
+				array( 'Lunes a viernes', '08:30 – 13:30 · 15:00 – 19:00' ),
+				array( 'Sábado', '09:00 – 13:00 (sólo urgencias)' ),
+				array( 'Domingo', 'Cerrado' ),
+			),
+			'note'    => 'Aparcamiento delante del pabellón. Si viene con la avería en marcha, llame antes y le dejamos hueco.',
+			'img'     => 'bergara-rueda',
+		),
+		'footer'       => array(
+			'tag'   => 'Taller Bergara · Polígono Azitain pabellón 6, 20600 Eibar · 943 00 00 00',
+			'links' => array( 'Tarifa', 'Cita', 'Privacidad' ),
+			'legal' => 'Taller Bergara SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
 	/* ── CASA TERRAZZA · THE FIRST ENTRY IN THIS TABLE THAT IS A BUSINESS AND NOT A CONFIGURATION.
 	   Everything below it is Piedra Valdés — one company rendered through ten architectures and
 	   four anchors, which is forty cards a client cannot choose between by sector because they are
@@ -2716,6 +3108,12 @@ $STRIPS = array(
 	   in August with the eight "design personalities". TPL-C-06 declares its own wireframe, and the
 	   audit's `RT_TPL_TOO_SIMILAR` measures the distance instead of taking my word for it. */
 	array( 'tpl' => 'TPL-C-06-terrazza', 'anchor' => 'editorial' ),
+	/* Los tres de automoción. Cada uno sobre un ANCLA distinta y un ESQUELETO distinto: entre los
+	   cuatro negocios de marca quedan cubiertas las cuatro anclas del sistema, que es la prueba de
+	   que la variedad no depende de la paleta. */
+	array( 'tpl' => 'TPL-C-07-aranda',  'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-C-08-auria',   'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-C-09-bergara', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
@@ -3180,7 +3578,7 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
    `$VIS_ARCHS` is the set of archetypes whose hero puts copy ON the photograph. An archetype added
    to `render_page()` with a `.hero-visual` and left out of here would ship an unmeasured hero, so
    the list lives next to the check that consumes it rather than in a comment. */
-$VIS_ARCHS  = array( 'TPL-C-06' => true );
+$VIS_ARCHS  = array( 'TPL-C-06' => true, 'TPL-C-08' => true );
 $VIS_BRAND  = array();
 foreach ( $STRIPS as $vb_s ) {
 	$vb_c = $CONTENT[ $vb_s['tpl'] ];
@@ -4932,6 +5330,155 @@ $css[] = <<<'CSS'
     grid-row:1 / span 2}
 }
 
+/* ══════════ TPL-C-07 · STOCK / OCASIÓN ══════════
+   Written against tokens only, so the archetype survives any anchor and any brand. */
+
+/* The photograph is a contained band and the filter card RIDES ON ITS BOTTOM EDGE. That overlap is
+   the whole composition: it says the search belongs to the stock in the picture rather than being
+   a widget parked above it, and it costs one negative margin. */
+.hero-search .shot{margin:var(--sp-l) 0 0;aspect-ratio:21/9;border-radius:var(--radius-card);
+  overflow:hidden}
+.hero-search .shot img{width:100%;height:100%;object-fit:cover;display:block}
+.filterbar{position:relative;z-index:1;display:grid;gap:var(--sp-m);
+  margin:calc(var(--sp-xl) * -1) auto 0;width:min(100%,60rem);
+  background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-card);
+  padding:var(--sp-l);box-shadow:var(--elev-hover)}
+@media(min-width:900px){
+  .filterbar{grid-template-columns:repeat(4,minmax(0,1fr));align-items:end}
+  .filterbar .stockcount{grid-column:1 / 3;align-self:center}
+  .filterbar .btn{grid-column:4 / 5}
+}
+.filterbar .field{display:grid;gap:.3rem;min-width:0}
+.filterbar label{font-size:.8125rem;font-weight:600}
+.filterbar select{width:100%;font:inherit;color:var(--c-text);background:var(--c-bg);
+  border:1px solid var(--c-border);border-radius:var(--radius-button);padding:.55rem .7rem}
+.stockcount{margin:0;color:var(--c-text-muted);font-size:.9375rem}
+
+/* THE PRICE CARRIES `margin-top:auto`, NOT THE BUTTON. Measured once on the product grid and true
+   again here: pushing the button down leaves the price floating at whatever height the title
+   wrapped to, and a row of cards whose prices sit at four different heights reads as broken. The
+   price and the quota are one pair and they travel together. */
+.stockgrid{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))}
+.vcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
+  border-radius:var(--radius-card);box-shadow:var(--elev-rest);
+  transition:box-shadow var(--dur-lift) var(--ease)}
+.vcard:hover{box-shadow:var(--elev-hover)}
+.vcard .frame{aspect-ratio:4/3;border-radius:0}
+.vcard .frame img{width:100%;height:100%;object-fit:cover;display:block}
+.vbody{display:flex;flex-direction:column;gap:.5rem;flex:1;padding:var(--sp-m)}
+.vcard h3{margin:0;font-size:1.0625rem;line-height:1.25}
+.vfacts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.3rem}
+.vfacts li{font-size:.8125rem;color:var(--c-text-muted);border:1px solid var(--c-border);
+  border-radius:var(--radius-button);padding:.08rem .45rem;white-space:nowrap}
+.vprice{margin:auto 0 0;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.vprice b{font-family:var(--font-primary);font-size:1.375rem;font-variant-numeric:tabular-nums}
+.vprice span{color:var(--c-text-muted);font-size:.875rem}
+.vcard .btn{margin-top:.25rem;align-self:flex-start}
+
+.tiform{display:grid;gap:var(--sp-m);width:min(100%,44rem)}
+@media(min-width:900px){
+  .tiform{grid-template-columns:1fr 1fr auto;align-items:end}
+  .tiform .small{grid-column:1 / -1}
+}
+
+/* The last row is the TOTAL and it is the only one that gets weight: every row above it is an
+   input the buyer can argue with, and the total is the number this section exists to stop hiding. */
+.ftable{margin:0;width:min(100%,44rem)}
+.frow{display:flex;justify-content:space-between;gap:var(--sp-m);align-items:baseline;
+  padding-block:calc(var(--sp-s) * .9);border-bottom:1px solid var(--c-border)}
+.frow dt{color:var(--c-text-muted)}
+.frow dd{margin:0;font-variant-numeric:tabular-nums}
+.ftotal{border-bottom:none;border-top:2px solid var(--c-text);margin-top:.3rem}
+.ftotal dt,.ftotal dd{color:var(--c-text);font-weight:700;font-size:1.125rem}
+
+.sec.badges{border-block:1px solid var(--c-border)}
+.badgelist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
+@media(min-width:768px){.badgelist{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.badge b{display:block;font-family:var(--font-primary);line-height:1.05;
+  font-size:clamp(1.25rem,2.1vw,1.75rem)}
+.badge span{display:block;margin-top:.3rem;color:var(--c-text-muted);font-size:.9375rem}
+
+.pnote{margin:var(--sp-l) 0 0;color:var(--c-text-muted);font-size:.875rem;max-width:64ch}
+
+/* ══════════ TPL-C-08 · MODELO / LANZAMIENTO ══════════ */
+
+/* Same full-bleed machinery as `.hero-visual`, and measured by the same sweep — see $VIS_ARCHS.
+   What is different is the FIGURE STRIP riding the bottom of the photograph. */
+.mhero{position:relative;isolation:isolate}
+.mhero .media-full{position:absolute;inset:0;z-index:0}
+.mhero .media-full .frame{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+.mhero .media-full img{width:100%;height:100%;object-fit:cover}
+.mhero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.86) 0%,rgba(0,0,0,.62) 38%,rgba(0,0,0,.12) 72%,
+    rgba(0,0,0,0) 100%)}
+.mhero > .canvas{position:relative;z-index:2;min-height:min(76vh,46rem);align-content:end;
+  padding-block:var(--sp-xl)}
+.mhero .head{max-width:min(38rem,80%)}
+.mhero .head h1,.mhero .head .lede,.mhero .head .eyebrow{color:#fff}
+.mhero .head .lede{opacity:.92}
+.mhero .btn-outline{color:#fff;border-color:color-mix(in srgb,#fff 55%,transparent)}
+.mfigs{list-style:none;margin:var(--sp-xl) 0 0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:900px){.mfigs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mfigs li{border-top:1px solid color-mix(in srgb,#fff 34%,transparent);padding-top:var(--sp-s);
+  color:#fff}
+.mfigs b{display:block;font-family:var(--font-primary);line-height:1;
+  font-size:clamp(1.3rem,2.4vw,2rem)}
+.mfigs span{display:block;margin-top:.25rem;font-size:.8125rem;opacity:.78;
+  letter-spacing:.06em;text-transform:uppercase}
+
+/* A REAL TABLE. The rows that CHANGE across versions keep full colour and a rule down their left
+   edge; the rows that repeat are dimmed. A comparison where every row weighs the same helps
+   nobody choose, which is the only job it has. */
+.specwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* THE COLOUR AND THE FACE ARE SET EXPLICITLY, AND THAT IS NOT BELT-AND-BRACES. Measured with a
+   probe after the version columns rendered INVISIBLE — near-black on near-black — while every
+   token around them was correct: `--c-text` read #EDF1F6 on the td, on the tr, on the tbody and on
+   the table, and the computed `color` was #141C24 from the document root. The chain breaks at the
+   TABLE and only at the table.
+
+   The cause is QUIRKS MODE. A gallery asset is an Artifact FRAGMENT — no doctype, by contract — so
+   a browser opening the file directly reports `compatMode: BackCompat`, and in quirks mode a table
+   does not inherit color or font from its parent; it resets to the document default. The published
+   Artifact is wrapped in a doctype and would have rendered correctly, which is the trap: the defect
+   lives only in the local capture, so it is invisible in production and unavoidable in review.
+   Declaring both properties makes the two modes agree, which is worth more than being right in one. */
+.spectable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;
+  color:var(--c-text);font-family:var(--font-secondary)}
+.spectable th,.spectable td{text-align:left;padding:calc(var(--sp-s) * .9) var(--sp-m);
+  border-bottom:1px solid var(--c-border);white-space:nowrap}
+.spectable thead th{font-family:var(--font-primary);font-size:1rem;
+  border-bottom:2px solid var(--c-text)}
+.spectable tbody th{font-weight:500;color:var(--c-text-muted);white-space:normal}
+.spectable tr.same td,.spectable tr.same th{color:var(--c-text-muted)}
+.spectable tr.differs th{box-shadow:inset 2px 0 0 0 var(--c-text)}
+.spectable tr.differs td{font-weight:600}
+
+.sec.offer{border-block:1px solid var(--c-border);background:var(--c-bg-alt)}
+.sec.offer .head{max-width:52ch}
+
+/* ══════════ TPL-C-09 · TALLER / TARIFA ══════════ */
+
+/* Deliberately NOT the dotted leader TPL-C-06's carta uses. Two archetypes that both publish a
+   price list would read as one template if they published it the same way — the price here is a
+   bordered chip because a workshop rate is a closed figure, not a menu line. */
+.pgroups{display:grid;gap:var(--sp-xl)}
+@media(min-width:900px){
+  .pgroups{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(2rem,5vw,4rem)}
+}
+.pgroup h3{margin:0 0 var(--sp-m);font-family:var(--font-primary);font-size:var(--fs-h3);
+  letter-spacing:var(--track-h3)}
+.pgroup ul{list-style:none;margin:0;padding:0}
+.prow{display:flex;gap:var(--sp-m);align-items:flex-start;justify-content:space-between;
+  padding-block:calc(var(--sp-s) * 1.1);border-bottom:1px solid var(--c-border)}
+.pwhat{display:grid;gap:.15rem;min-width:0}
+.pwhat b{font-size:1.0625rem;line-height:1.3}
+.pwhat span{color:var(--c-text-muted);font-size:.875rem}
+.ptag{flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;
+  background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:var(--radius-button);
+  padding:.2rem .6rem}
+
 /* ── COMP-HOURS-BLOCK ─────────────────────────────────────────────────────────────────────────
    The hours ARE the graphic. A restaurant whose opening times are 9px grey at the foot of the page
    is a wasted trip waiting to happen, and every reference kit for this sector sets them large. */
@@ -6564,6 +7111,346 @@ function gallery_html( $g ) {
 	return $o . '</ul></div></section>';
 }
 
+/** COMP-HEADER with a phone: the local variant, in flow. */
+function head_phone( $C, $BRAND ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o .= '<a href="#">' . h( $n ) . '</a>';
+	}
+	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
+		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '</div></div></header>';
+}
+
+/**
+ * COMP-SEARCH-FILTERS · TPL-C-07.
+ *
+ * REAL `<select>` AND A REAL `<label>` PER CONTROL, not a drawn dropdown. A filter bar is the one
+ * component of this archetype the visitor actually operates, and a mockup that fakes it hands the
+ * native build a picture instead of a contract — the keyboard path, the mobile picker and the
+ * screen-reader name all come free from the element and from nothing else.
+ *
+ * The count is printed BEFORE the button because it is the answer to "is it worth filtering".
+ */
+function search_filters_html( $hero, $sf, $uid ) {
+	$im = img( $hero['img'] );
+	/* THE PHOTOGRAPH IS INSIDE THE CANVAS AND CONTAINED. LP-CENTERED's own rule is "images always
+	   inside the container, equal margins left and right — nothing bleeds, ever", and this archetype
+	   runs on PERS-INSTITUTIONAL. A full-bleed band here would be the blueprint's one prohibition,
+	   broken in the first section of the page. */
+	$o  = '<section class="sec hero hero-search" aria-label="Buscador de stock">'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p></div>'
+		. '<figure class="frame shot"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure>'
+		. '<form class="filterbar" onsubmit="return false">';
+	foreach ( $sf['fields'] as $f ) {
+		$id = $uid . '-f-' . $f[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
+			. '<select id="' . $id . '" name="' . $f[0] . '">';
+		foreach ( $f[2] as $opt ) {
+			$o .= '<option>' . h( $opt ) . '</option>';
+		}
+		$o .= '</select></div>';
+	}
+	return $o . '<p class="stockcount">' . h( $sf['count'] ) . '</p>'
+		. '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
+		. '</form></div></section>';
+}
+
+/**
+ * COMP-STOCK-GRID · TPL-C-07.
+ *
+ * THE PRICE AND THE MONTHLY FIGURE TRAVEL TOGETHER AND IN THAT ORDER. A quota printed without the
+ * price beside it is the sales technique that makes people distrust the whole lot, and it is the
+ * one thing a listing template can get wrong that costs the client trust rather than clicks.
+ */
+function stock_grid_html( $st ) {
+	$o = '<section class="sec stock grid-sec bg-alt" aria-label="' . h( $st['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $st['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $st['h2'] ) . '</h2></div><ul class="stockgrid">';
+	foreach ( $st['items'] as $v ) {
+		$vi  = img( $v['img'] );
+		$o  .= '<li class="vcard"><figure class="frame"><img data-img="' . h( $vi['slug'] ) . '"'
+			. ' alt="' . h( $vi['alt'] ) . '" width="' . $vi['w'] . '" height="' . $vi['h'] . '"></figure>'
+			. '<div class="vbody"><h3>' . h( $v['h3'] ) . '</h3><ul class="vfacts">';
+		foreach ( $v['facts'] as $f ) {
+			$o .= '<li>' . h( $f ) . '</li>';
+		}
+		$o .= '</ul><p class="vprice"><b>' . h( $v['price'] ) . '</b>'
+			. '<span>' . h( $v['quota'] ) . '</span></p>'
+			. '<a class="btn btn-outline btn-sm" href="#">Ver ficha</a></div></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $st['note'] ) . '</p></div></section>';
+}
+
+/** COMP-TRADE-IN · TPL-C-07. Two fields, because every extra one is an abandonment. */
+function trade_in_html( $ti, $uid ) {
+	$o = '<section class="sec tradein" aria-label="' . h( $ti['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ti['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ti['h2'] ) . '</h2><p class="lede muted">' . h( $ti['lede'] ) . '</p></div>'
+		. '<form class="tiform" onsubmit="return false">';
+	foreach ( $ti['fields'] as $f ) {
+		$id = $uid . '-ti-' . $f[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $ti['submit'] ) . '</button>'
+		. '<p class="small muted">' . h( $ti['small'] ) . '</p></form></div></section>';
+}
+
+/**
+ * COMP-FINANCE · TPL-C-07 and TPL-C-08.
+ *
+ * THE LAST ROW IS THE TOTAL AND IT IS EMPHASISED. Every row above it is an input the buyer can
+ * argue with; the total is the number the page exists to stop hiding, so it gets the weight.
+ */
+function finance_html( $fi ) {
+	$o = '<section class="sec finance grid-sec" aria-label="' . h( $fi['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fi['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fi['h2'] ) . '</h2></div><dl class="ftable">';
+	$last = count( $fi['rows'] ) - 1;
+	foreach ( $fi['rows'] as $i => $r ) {
+		$o .= '<div class="frow' . ( $i === $last ? ' ftotal' : '' ) . '">'
+			. '<dt>' . h( $r[0] ) . '</dt><dd>' . h( $r[1] ) . '</dd></div>';
+	}
+	return $o . '</dl><p class="pnote">' . h( $fi['note'] ) . '</p></div></section>';
+}
+
+/** COMP-TRUST-BADGES. Facts with a number, never adjectives. */
+function badges_html( $bd ) {
+	$o = '<section class="sec badges" aria-label="Garantías"><div class="canvas"><ul class="badgelist">';
+	foreach ( $bd as $b ) {
+		$o .= '<li class="badge"><b>' . h( $b[0] ) . '</b><span>' . h( $b[1] ) . '</span></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-TESTIMONIAL, the shared shape. */
+function quotes_block_html( $qt, $extra = '' ) {
+	$o = '<section class="sec quotes grid-sec' . $extra . '" aria-label="' . h( $qt['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+	foreach ( $qt['items'] as $q ) {
+		$o .= '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+			. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+			. '</figure></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-MAP-NAP. No embedded map: an iframe is a third-party request before any consent. */
+function nap_block_html( $np, $extra = '' ) {
+	$ni = img( $np['img'] );
+	$o  = '<section class="sec nap' . $extra . '" aria-label="' . h( $np['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $np['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $np['h2'] ) . '</h2>'
+		. '<p>' . h( $np['addr'][0] ) . '<br>' . h( $np['addr'][1] ) . '</p>'
+		. '<p><a href="#">' . h( $np['phone'] ) . '</a></p>'
+		. '<p><a href="#">' . h( $np['mail'] ) . '</a></p><dl class="hours">';
+	foreach ( $np['hours'] as $hr ) {
+		$o .= '<div><dt>' . h( $hr[0] ) . '</dt><dd>' . h( $hr[1] ) . '</dd></div>';
+	}
+	return $o . '</dl><p class="small muted">' . h( $np['note'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
+		. ' alt="' . h( $ni['alt'] ) . '" width="' . $ni['w'] . '" height="' . $ni['h'] . '"></figure></div>'
+		. '</div></section>';
+}
+
+/**
+ * COMP-MODEL-HERO · TPL-C-08.
+ *
+ * FOUR FIGURES AND NOT SIX. The strip under the fold is a HEADLINE, not the spec sheet — the spec
+ * sheet is the next section and it can hold everything. Six numbers in a hero is a table nobody
+ * asked for, placed where the photograph was supposed to be doing the work.
+ */
+function model_hero_html( $hero ) {
+	$im = img( $hero['img'] );
+	$o  = '<section class="sec hero mhero" aria-label="' . h( $hero['h1'] ) . '">'
+		. '<div class="media-full"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<ul class="mfigs">';
+	foreach ( $hero['figures'] as $f ) {
+		$o .= '<li><b>' . h( $f[0] ) . '</b><span>' . h( $f[1] ) . '</span></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * COMP-SPEC-TABLE · TPL-C-08.
+ *
+ * A REAL `<table>` WITH `<th scope>`. A comparison built from `div`s is unreadable with a screen
+ * reader and stops meaning anything the moment its CSS does not load — and this is the section a
+ * buyer copies into a message to ask somebody's opinion.
+ *
+ * Rows that CHANGE across versions are marked; rows that repeat are dimmed. A table where every
+ * row weighs the same helps nobody choose, which is the only thing it is for.
+ */
+function spec_table_html( $sp ) {
+	$o = '<section class="sec specs grid-sec bg-alt" aria-label="' . h( $sp['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sp['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sp['h2'] ) . '</h2></div><div class="specwrap"><table class="spectable">'
+		. '<thead><tr><th scope="col">Característica</th>';
+	foreach ( $sp['cols'] as $c ) {
+		$o .= '<th scope="col">' . h( $c ) . '</th>';
+	}
+	$o .= '</tr></thead><tbody>';
+	foreach ( $sp['rows'] as $r ) {
+		$o .= '<tr class="' . ( $r[2] ? 'differs' : 'same' ) . '"><th scope="row">' . h( $r[0] ) . '</th>';
+		foreach ( $r[1] as $cell ) {
+			$o .= '<td>' . h( $cell ) . '</td>';
+		}
+		$o .= '</tr>';
+	}
+	return $o . '</tbody></table></div><p class="pnote">' . h( $sp['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-OFFER-STRIP · TPL-C-08.
+ *
+ * A REAL DATE AND NO COUNTDOWN. A timer that restarts on reload is a lie the visitor catches on
+ * the second visit, and it costs more than the urgency it borrowed.
+ */
+function offer_strip_html( $of ) {
+	return '<section class="sec offer" aria-label="' . h( $of['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $of['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $of['h2'] ) . '</h2><p class="lede">' . h( $of['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $of['cta'] ) . '</a></div>'
+		. '<p class="small">' . h( $of['small'] ) . '</p></div></div></section>';
+}
+
+/**
+ * COMP-PRICE-LIST · TPL-C-09.
+ *
+ * `desde` ALWAYS CARRIES ITS REASON, and the data shape does not let it not: the reason is the
+ * same cell as the description, so a price written as "desde 265 €" with an empty explanation is
+ * visible in the table rather than only on the page.
+ */
+function price_list_html( $pr ) {
+	$o = '<section class="sec pricelist grid-sec" aria-label="' . h( $pr['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pr['h2'] ) . '</h2></div><div class="pgroups">';
+	foreach ( $pr['groups'] as $g ) {
+		$o .= '<section class="pgroup"><h3>' . h( $g['h3'] ) . '</h3><ul>';
+		foreach ( $g['items'] as $it ) {
+			$o .= '<li class="prow"><div class="pwhat"><b>' . h( $it[0] ) . '</b>'
+				. '<span>' . h( $it[1] ) . '</span></div>'
+				. '<span class="ptag">' . h( $it[2] ) . '</span></li>';
+		}
+		$o .= '</ul></section>';
+	}
+	return $o . '</div><p class="pnote">' . h( $pr['note'] ) . '</p></div></section>';
+}
+
+/** COMP-PROCESS. Numbered steps; the third one is the client's. */
+function process_block_html( $pr, $extra = '' ) {
+	$o = '<section class="sec process grid-sec' . $extra . '" aria-label="' . h( $pr['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pr['h2'] ) . '</h2></div><ol class="steps">';
+	foreach ( $pr['steps'] as $st ) {
+		$o .= '<li><h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
+	}
+	return $o . '</ol></div></section>';
+}
+
+/** COMP-FAQ, reusing the shape and the classes the other archetypes already style. */
+function faq_block_html( $fq, $extra = '' ) {
+	$o = '<section class="sec faq' . $extra . '" aria-label="' . h( $fq['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="faqlist">';
+	foreach ( $fq['items'] as $it ) {
+		$o .= '<div class="qa"><h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></div>';
+	}
+	return $o . '</div></div></section>';
+}
+
+/** TPL-C-07 · Stock / Ocasión. */
+function strip_stock( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o   = array();
+	$o[] = head_phone( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = search_filters_html( $C['hero'], $C['search'], $uid );
+	$o[] = stock_grid_html( $C['stock'] );
+	$o[] = trade_in_html( $C['tradein'], $uid );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FINANCE' ) ) {
+		$o[] = finance_html( $C['finance'] );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-BADGES' ) ) {
+		$o[] = badges_html( $C['badges'] );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$o[] = quotes_block_html( $C['quotes'], ' bg-alt' );
+	}
+	$o[] = nap_block_html( $C['nap'], ' closing' );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-C-08 · Modelo / Lanzamiento. */
+function strip_model( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o   = array();
+	$o[] = head_over( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = model_hero_html( $C['hero'] );
+	$o[] = spec_table_html( $C['specs'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
+		$o[] = gallery_html( $C['gallery'] );
+	}
+	$o[] = offer_strip_html( $C['offer'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FINANCE' ) ) {
+		$o[] = finance_html( $C['finance'] );
+	}
+	$o[] = booking_html( $C['booking'], $uid );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' closing' );
+	}
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-C-09 · Taller / Tarifa. */
+function strip_workshop( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+	$o[]  = head_phone( $C, $BRAND );
+	$o[]  = '<main>';
+	$o[]  = '<section class="sec hero" aria-label="El taller"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+	$o[]  = price_list_html( $C['prices'] );
+	$o[]  = process_block_html( $C['process'], ' bg-alt' );
+	$o[]  = booking_html( $C['booking'], $uid );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-BADGES' ) ) {
+		$o[] = badges_html( $C['badges'] );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
+	}
+	$o[]  = nap_block_html( $C['nap'], ' closing' );
+	$o[]  = '</main>';
+	$o[]  = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
 /** COMP-HEADER floating on the hero: same contents as the local header, out of flow. */
 function head_over( $C, $BRAND ) {
 	$o = '<header class="site-head head-over"><div class="canvas"><div class="nav">'
@@ -7586,6 +8473,15 @@ function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
    so a reader can check the page against its own spec instead of against this file's memory. The
    first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
 $PAGES = array(
+	'TPL-C-07' => array(
+		array( 'key' => 'home', 'label' => 'Stock', 'doc' => 'TPL-C-07' ),
+	),
+	'TPL-C-08' => array(
+		array( 'key' => 'home', 'label' => 'Modelo', 'doc' => 'TPL-C-08' ),
+	),
+	'TPL-C-09' => array(
+		array( 'key' => 'home', 'label' => 'Taller', 'doc' => 'TPL-C-09' ),
+	),
 	'TPL-C-06' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-06' ),
 	),
@@ -7625,6 +8521,15 @@ $PAGES = array(
 
 /** One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample. */
 function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	if ( 'TPL-C-07' === $tpl && 'home' === $page_key ) {
+		return strip_stock( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-08' === $tpl && 'home' === $page_key ) {
+		return strip_model( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-09' === $tpl && 'home' === $page_key ) {
+		return strip_workshop( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-06' === $tpl && 'home' === $page_key ) {
 		return strip_menu( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -8354,6 +9259,46 @@ if ( array() !== $vt_missing ) {
 		. ' explicit fallback if absence is intended.' );
 }
 
+/* ── EVERY <table> DECLARES ITS OWN COLOUR AND FACE ───────────────────────────────────────────
+   QUIRKS MODE IS THE REASON AND IT IS NOT GOING AWAY. A gallery asset is an Artifact FRAGMENT with
+   no doctype, so any browser that opens the file directly — which is every local capture and every
+   review pass — runs in `BackCompat`, where a table inherits neither `color` nor `font` from its
+   parent and resets to the document default instead. The published page is wrapped in a doctype
+   and renders correctly; the file under review does not. A defect that exists ONLY where you look
+   at it is worse than one that exists everywhere, because the fix looks unnecessary.
+
+   MEASURED, not deduced: `--c-text` read #EDF1F6 on the td, the tr, the tbody AND the table, while
+   the computed `color` was #141C24 from the document root. The token chain was perfect and the
+   property chain broke at one element.
+
+   Checked on the TABLE's own class, never on a descendant selector, because inheritance is exactly
+   the mechanism that fails here. */
+$tb_all  = implode( "\n", $css );
+$tb_body = implode( "\n", $body );
+if ( preg_match_all( '/<table class="([a-z0-9 _-]+)"/i', $tb_body, $tb_m ) ) {
+	foreach ( array_unique( $tb_m[1] ) as $tb_cls ) {
+		$tb_ok = false;
+		foreach ( preg_split( '/\s+/', trim( $tb_cls ) ) as $tb_one ) {
+			if ( '' === $tb_one ) {
+				continue;
+			}
+			if ( ! preg_match( '/(^|[\s,])\.' . preg_quote( $tb_one, '/' ) . '\s*\{([^}]*)\}/', $tb_all, $tb_r ) ) {
+				continue;
+			}
+			if ( false !== strpos( $tb_r[2], 'color:' ) && false !== strpos( $tb_r[2], 'font-family:' ) ) {
+				$tb_ok = true;
+			}
+		}
+		if ( ! $tb_ok ) {
+			fail( "no rule on `$tb_cls` declares both `color` and `font-family` for that <table>."
+				. ' A gallery asset has no doctype, so a browser opening it directly is in quirks mode,'
+				. ' where a table inherits neither from its parent: the cells fall back to the document'
+				. " default and the page's own ground can make them invisible. Declare both on the"
+				. ' table itself.' );
+		}
+	}
+}
+
 $c06_all    = $vt_all;
 $c06_marker = '── COMP-HEADER, floating on the photograph';
 $c06_at     = strpos( $c06_all, $c06_marker );
@@ -8362,15 +9307,40 @@ if ( false === $c06_at ) {
 		. ' check below would be scanning the whole file against itself and passing on everything' );
 }
 $c06_before  = substr( $c06_all, 0, $c06_at );
-$c06_classes = array( 'head-over', 'hero-full', 'marquee', 'track', 'run', 'menu-list', 'menu-group',
-	'dish', 'dots', 'figq', 'portrait', 'say', 'sig', 'hoursblock', 'hours-big', 'shut', 'where',
-	'masonry', 'bookmedia', 'booking-split' );
-foreach ( $c06_classes as $c06_c ) {
-	if ( preg_match( '/(^|[\s,>+~(])\.' . preg_quote( $c06_c, '/' ) . '(?![\w-])/', $c06_before, $c06_m ) ) {
-		fail( "TPL-C-06 introduces `.$c06_c`, and the stylesheet already defines a rule on that class"
-			. ' before its block. Two archetypes sharing a class name is valid CSS that renders — the'
-			. ' older rule simply lands on the newer element and moves it somewhere nobody chose. Rename'
-			. ' the new one; the old one has more callers.' );
+
+/* ONE ENTRY PER ARCHETYPE BLOCK, keyed by the marker comment that opens it. It started as a single
+   hand-kept list for TPL-C-06 and that shape does not survive a second archetype: three more
+   blocks means three more places a name can already be taken, and one flat list cannot say WHICH
+   block a class belongs to or where "before" starts for it. */
+$CLASS_BLOCKS = array(
+	'── COMP-HEADER, floating on the photograph' => array( 'TPL-C-06', array(
+		'head-over', 'hero-full', 'marquee', 'track', 'run', 'menu-list', 'menu-group', 'dish', 'dots',
+		'figq', 'portrait', 'say', 'sig', 'hoursblock', 'hours-big', 'shut', 'where', 'masonry',
+		'bookmedia', 'booking-split' ) ),
+	'══════════ TPL-C-07 · STOCK / OCASIÓN'      => array( 'TPL-C-07', array(
+		'hero-search', 'filterbar', 'stockcount', 'stockgrid', 'vcard', 'vbody', 'vfacts', 'vprice',
+		'tiform', 'ftable', 'frow', 'ftotal', 'badgelist', 'badge', 'pnote', 'shot' ) ),
+	'══════════ TPL-C-08 · MODELO / LANZAMIENTO' => array( 'TPL-C-08', array(
+		'mhero', 'mfigs', 'specwrap', 'spectable', 'differs', 'same', 'offer' ) ),
+	'══════════ TPL-C-09 · TALLER / TARIFA'      => array( 'TPL-C-09', array(
+		'pgroups', 'pgroup', 'prow', 'pwhat', 'ptag' ) ),
+);
+foreach ( $CLASS_BLOCKS as $cb_marker => $cb_def ) {
+	list( $cb_tpl, $cb_classes ) = $cb_def;
+	$cb_at = strpos( $c06_all, $cb_marker );
+	if ( false === $cb_at ) {
+		fail( "the `$cb_tpl` stylesheet block cannot be located by its own marker comment — the"
+			. ' collision check would be scanning the whole file against itself and passing on'
+			. ' everything' );
+	}
+	$cb_before = substr( $c06_all, 0, $cb_at );
+	foreach ( $cb_classes as $cb_c ) {
+		if ( preg_match( '/(^|[\s,>+~(])\.' . preg_quote( $cb_c, '/' ) . '(?![\w-])/', $cb_before ) ) {
+			fail( "$cb_tpl introduces `.$cb_c`, and the stylesheet already defines a rule on that class"
+				. ' before its block. Two archetypes sharing a class name is valid CSS that renders — the'
+				. ' older rule simply lands on the newer element and moves it somewhere nobody chose.'
+				. ' Rename the new one; the old one has more callers.' );
+		}
 	}
 }
 

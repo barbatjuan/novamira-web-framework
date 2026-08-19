@@ -173,6 +173,19 @@ new row looks different from the old ones.
 | `terrazza-velas` | card 4:3 | 720×540 | 34 KB | 5697815 | fp-5697 | Freepik free | Velas encendidas sobre una repisa de madera del comedor |
 | `terrazza-coctel` | card 4:3 | 720×540 | 34 KB | 3421110 | fp-3421 | Freepik free | Rincón del comedor con pared de ladrillo y tablas de madera colgadas |
 | `terrazza-terraza` | card 4:3 | 720×540 | 34 KB | 3742308 | fp-3742 | Freepik free | Terraza de restaurante en la calle con mesas y sillas de mimbre |
+| `aranda-patio` | hero 16:9 | 1440×810 | 59 KB | 5876725 | fp-5876 | Freepik free | Frontal de un coche oscuro en primer plano con otro claro desenfocado detrás |
+| `aranda-v1` | card 4:3 | 720×540 | 33 KB | 423028458 | fp-423028 | Freepik free | Todoterreno azul de perfil en una carretera de otoño |
+| `aranda-v2` | card 4:3 | 720×540 | 34 KB | 426304833 | fp-426304 | Freepik free | Todoterreno oscuro circulando por una calle nevada |
+| `aranda-v3` | card 4:3 | 720×540 | 34 KB | 427284074 | fp-427284 | Freepik free | Berlina plateada en una autovía despejada |
+| `aranda-v4` | card 4:3 | 720×540 | 32 KB | 426931288 | fp-426931 | Freepik free | Todoterreno blanco en carretera invernal al atardecer |
+| `aranda-v5` | card 4:3 | 720×540 | 33 KB | 419374753 | fp-419374 | Freepik free | Berlina moderna circulando por una calle de ciudad |
+| `aranda-v6` | card 4:3 | 720×540 | 33 KB | 422700761 | fp-422700 | Freepik free | Compacto gris de perfil en una vía rápida |
+| `auria-hero` | hero 16:9 | 1440×810 | 81 KB | 427093861 | fp-427093 | Freepik free | Deportivo oscuro de frente en una carretera de campo con el fondo barrido |
+| `auria-interior` | card 4:3 | 720×540 | 33 KB | 13337874 | fp-13337 | Freepik free | Interior de piel marrón y negra con salpicadero y consola |
+| `auria-puerta` | card 4:3 | 720×540 | 32 KB | 11678381 | fp-11678 | Freepik free | Puerta abierta de un coche con tapicería clara bajo luz de garaje |
+| `auria-arranque` | card 4:3 | 720×540 | 33 KB | 13554714 | fp-13554 | Freepik free | Detalle del botón de arranque en una consola central negra |
+| `bergara-nave` | card 4:3 | 720×540 | 34 KB | 12750560 | fp-12750 | Freepik free | Mecánico apretando una pieza bajo un coche elevado en el taller |
+| `bergara-rueda` | card 4:3 | 720×540 | 33 KB | 10001443 | fp-10001 | Freepik free | Operario sujetando un neumático en el taller de cambio |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
