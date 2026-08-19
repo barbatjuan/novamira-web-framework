@@ -2789,6 +2789,63 @@ foreach ( $STRIPS as $s ) {
 	}
 }
 
+/* ── A CATALOGUE ENTRY MAY NOT REUSE A SKELETON ───────────────────────────────────────────────
+   THE RULE THIS FILE KEPT LEARNING AND KEEPT NOT ENFORCING. Casa Terrazza shipped once as TPL-C-05
+   with a dark palette, a brass accent, a different typeface and seven photographs of its own — and
+   read as "exactamente igual a las otras... igual 100% pero cambiando colores", because it was:
+   same hero shape, same three-card grid, same booking block in third position, same six-cell
+   gallery, same close. A brand changes the SKIN. Only an archetype changes the SKELETON.
+
+   `RT_TPL_TOO_SIMILAR` in framework-audit.php has judged that distance all along — two archetypes
+   of one family may share at most half their combined inventory — but it reads TPL-*.md DOCS. A
+   catalogue entry that was a brand sitting on somebody else's archetype declared no wireframe, so
+   it was never in the comparison. That is the exact hole a clone shipped through.
+
+   Three clauses, and each one closes a different way of reproducing the miss:
+
+     1 · a branded template's archetype must have a DOC, so the audit's similarity judge sees it;
+     2 · no two templates may share an archetype once either of them is branded, so a second brand
+         cannot be dropped onto a skeleton that is already spoken for;
+     3 · the house strips are exempt from clause 2 BY NAME, because forty of them sharing ten
+         archetypes across four anchors is the axis proof and not a catalogue of businesses.
+
+   Clause 3 is the one worth watching: an exemption is how a rule stops applying to the thing it
+   was written for. It is keyed on `brand === ''`, which is a property of the DATA and not a list of
+   ids somebody maintains, so a house strip that becomes a brand loses the exemption automatically. */
+$skel_owner = array();
+foreach ( $STRIPS as $sk_s ) {
+	$sk_c = $CONTENT[ $sk_s['tpl'] ];
+	if ( ! isset( $skel_owner[ $sk_c['arch'] ] ) ) {
+		$skel_owner[ $sk_c['arch'] ] = array();
+	}
+	$skel_owner[ $sk_c['arch'] ][ $sk_s['tpl'] ] = $sk_c['brand'];
+}
+foreach ( $skel_owner as $sk_arch => $sk_tpls ) {
+	$sk_branded = array_keys( array_filter( $sk_tpls, function ( $b ) {
+		return '' !== $b;
+	} ) );
+	if ( array() === $sk_branded ) {
+		continue;   // clause 3: the house axis proof shares skeletons on purpose
+	}
+	if ( count( $sk_tpls ) > 1 ) {
+		fail( "`$sk_arch` is the skeleton of " . count( $sk_tpls ) . ' catalogue entries ('
+			. implode( ', ', array_keys( $sk_tpls ) ) . ') and at least one of them is a brand. Two'
+			. ' entries on one archetype are the same sections in the same order with a different'
+			. ' palette — which is what a client sees as "the same template again", whatever the'
+			. ' colours do. Give the new business its own TPL-*.md with its own wireframe.' );
+	}
+	$sk_doc = array_merge(
+		glob( dirname( __DIR__, 3 ) . '/web-templates/references/templates/corporate/' . $sk_arch . '-*.md' ),
+		glob( dirname( __DIR__, 3 ) . '/web-templates/references/templates/ecommerce/' . $sk_arch . '-*.md' )
+	);
+	if ( array() === $sk_doc ) {
+		fail( "branded template `{$sk_branded[0]}` is built on `$sk_arch`, which has no TPL-*.md under"
+			. ' web-templates/references/templates/. Without a doc it declares no wireframe, so'
+			. " `RT_TPL_TOO_SIMILAR` never measures it against its family — and an archetype nothing"
+			. ' compares is exactly how a repainted clone shipped as a new template.' );
+	}
+}
+
 /* THE TOGGLE, RESOLVED AND CHECKED AGAINST THE TEMPLATE'S OWN §4. toggles.md § Notas: "Los toggles
    nunca rompen el ADN … si el cliente lo pide, sugerir cambiar de plantilla, no deformar la
    actual." A generator that will set any toggle on any archetype is exactly that deformation, and

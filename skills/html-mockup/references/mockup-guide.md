@@ -271,3 +271,104 @@ measured before/after from the build where these were found.
 ## Handoff
 On approval, list the sections present per page (in order) + the token values used. `elementor-core` /
 `divi-core` reproduce this NATIVELY; `qa-review` compares the native output against this mockup.
+
+## What the gallery cost to learn
+
+Every line here was paid for by a defect that shipped and had to be found by looking at a render.
+The measurement is kept beside the rule, because a rule without one is an opinion that the next
+reader is free to weigh against their own taste — and losing that argument is how most of these
+came back a second time.
+
+**Each item says whether a gate enforces it.** That distinction is the point of the section. This
+file already carried a correct paragraph about invalid `var()` substitution weeks before a
+`--sp-2xl` typo silently deleted a whole `padding` declaration, so writing the explanation is
+demonstrably not the same as installing the check. Where the column says *no gate*, the rule
+survives only as long as somebody reads it.
+
+### A brand changes the skin. Only an archetype changes the skeleton.
+
+The first branded template shipped with its own ground, accent, typeface and seven photographs of
+its own, and read as *"exactamente igual a las otras, igual 100% pero cambiando colores"* — because
+it was: same hero shape, same three-card grid, same booking block in third position, same close.
+`RT_TPL_TOO_SIMILAR` had judged that distance all along (two archetypes of a family may share at
+most half their combined inventory) but it reads `TPL-*.md` docs, and a brand sitting on somebody
+else's archetype declares no wireframe. **A new business needs a new archetype doc**, or the
+catalogue is one template with a colour picker.
+
+*Gate:* `_build-gallery.php` fails if two catalogue entries share an archetype once either is
+branded, and if a branded entry's archetype has no doc. The house axis-proof strips are exempt by
+`brand === ''`, a property of the data rather than a list of ids.
+
+### An invalid `var()` does not degrade — it deletes the whole declaration
+
+`padding:var(--sp-2xl) clamp(2.5rem,6vw,6rem)` rendered with **no padding at all**, not a small
+one. The token is `--sp-xxl`; `--sp-2xl` never existed, and an invalid substitution invalidates the
+declaration at computed-value time, so the property takes its initial value and the perfectly good
+`clamp()` in the other half goes with it. No warning, no console error, valid CSS. The same trap
+had already been documented on `letter-spacing`, where an invalid value falls back to `normal` and
+leaves an optical ramp silently unapplied.
+
+*Gate:* every `var(--token)` in the emitted stylesheet must name a token the stylesheet declares.
+`var(--x, fallback)` is exempt — naming a fallback is a statement, a typo is not.
+
+### Two archetypes may not wear the same class name
+
+A closing band shipped as `<section class="sec hours closing">`, and `.hours` was already another
+archetype's NAP definition list: `display:grid`, `gap:.2rem`, `font-size:small`. Those three
+declarations landed on a whole section, whose `.canvas` became a grid item instead of a grid, and
+the heading ran off the left edge of the viewport. Two archetypes sharing a class is valid CSS that
+renders, which is the profile of every defect on this list.
+
+*Gate:* the classes an archetype introduces are listed and must be undefined in every byte of CSS
+emitted before its block. The list is hand-kept — a new class added without a line there is
+unchecked.
+
+### `ch` measures the font of the element it is written on
+
+`max-width:34ch` on a hero copy block resolved against the inherited **body** face at 1rem — about
+270px — and put an 88px display headline in five one-word lines. The unit was right for a paragraph
+and wrong for a block whose entire content is a headline. Cap display blocks in `rem`.
+
+*No gate.* Nothing in the CSS text distinguishes a block that will carry display type.
+
+### A masonry is `columns`, never a grid
+
+Six frames placed on hand-picked column lines with hand-picked top margins left a hole under every
+frame shorter than its row-mate, and the holes were the first thing anybody saw. **A grid places
+items in rows, and a row is exactly what a masonry does not have.** `columns` + `break-inside:avoid`
+has no rows to wait for; height variety comes from ratios cycling on `nth-child(3n+…)`.
+
+*No gate.* Retiring the old layout also correctly retired its "exactly six items" assertion, which
+was load-bearing only while six column lines were written by hand.
+
+### The measure is composition, not an axis
+
+`--content-width` is `clamp(1140px, 68vw, 100vw)` house-wide, which on a 2000px screen is 1360px of
+live text — loud on any page built from short lines. An archetype may narrow it on `[data-arch]`,
+which sits on the same element as `[data-anchor]`, so `--col` re-resolves through the shared chain.
+**Scale, density, ground, blueprint and elevation stay the anchor's**: those five are printed on the
+card as chips, and moving one silently turns a chip into a lie. Lowering a size you chose yourself —
+a pull quote, a ribbon, a hours list — is free; lowering `--fs-h1-max` is not.
+
+*No gate.* The distinction is about intent and cannot be read off a declaration.
+
+### A full-bleed split needs more inside padding than a contained section
+
+There is no page margin doing the work on the bleeding side, so the same `clamp()` that reads as
+generous inside a container reads as a collision beside a photograph.
+
+*No gate.*
+
+### Measure the render; do not reason about it
+
+Three hypotheses about the runaway heading were wrong before a measurement found the class
+collision in one attempt. Copy the built page to `probe.html`, append a `<script>` that writes
+`getBoundingClientRect()` and `getComputedStyle()` into `document.title`, and read it back:
+
+```bash
+chrome --headless=new --disable-gpu --hide-scrollbars --window-size=1440,1200 \
+  --virtual-time-budget=9000 --dump-dom "file:///…/probe.html#route" | rg -o '<title>[^<]*</title>'
+```
+
+Chrome clamps `--window-size` at about 500px, so 320 and 430 both measure 500 — narrow viewports
+cannot be captured this way.
