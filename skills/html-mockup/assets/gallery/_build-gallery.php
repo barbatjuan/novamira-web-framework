@@ -1602,6 +1602,7 @@ $CONTENT = array(
 			'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Domingo 25', 'Martes 27' ),
 			'slot_lbl' => 'Hora',
 			'slots'    => array( '13:30', '15:00', '20:00', '21:30', '22:45' ),
+			'img'      => 'terrazza-mesa',
 			'submit'   => 'Reservar mesa',
 			'small'    => 'Le confirmamos en menos de una hora. Si al final no puede venir, avise y liberamos la mesa.',
 		),
@@ -4721,6 +4722,19 @@ $css[] = implode( "\n", $brand_css ) . "\n";
    exception `.hero-visual` already carries and for the same reason: type over a photograph is
    measured against the SCRIM, not against the page ground. */
 $css[] = <<<'CSS'
+/* ── THE MEASURE, NARROWED FOR THIS ARCHETYPE ─────────────────────────────────────────────────
+   `--content-width` is `clamp(1140px, 68vw, 100vw)` house-wide, which on a 2000px screen resolves
+   to 1360px of live text. On a carta — two columns of short lines — that measure is not generous,
+   it is loud: the line lengths stop being read and start being scanned.
+
+   THIS IS A COMPOSITION DECISION AND NOT AN AXIS ONE, which is the only reason it is allowed here.
+   Scale, density, ground, blueprint and elevation are the anchor's and the five chips on the card
+   still describe them exactly; how much of the viewport the text block occupies is not one of the
+   five. Declared on `[data-arch]` — the same element that carries `[data-anchor]` — so `--col`,
+   which is derived from this token in the shared chain, re-resolves against the new value instead
+   of the root's. */
+[data-arch="tpl-c-06"]{--content-width:clamp(980px,54vw,1220px)}
+
 /* ── COMP-HEADER, floating on the photograph ──────────────────────────────────────────────────
    `.sample` becomes the containing block. The header is the first child either way, so taking it
    out of flow reorders nothing — it stops RESERVING 72px at the top of a section whose whole
@@ -4741,7 +4755,7 @@ $css[] = <<<'CSS'
    it is written on — `.head` inherits the BODY face at 1rem, so 34ch measured about 270px and the
    88px display headline came out in five one-word lines. The unit was right for a paragraph and
    wrong for a block whose whole content is a headline. A rem cap says what was meant. */
-.hero-full .head{max-width:min(42rem,86%)}
+.hero-full .head{max-width:min(34rem,78%)}
 .hero-full .head .lede{max-width:38ch}
 @media(max-width:767px){.hero-full > .canvas{min-height:70vh}}
 
@@ -4759,7 +4773,7 @@ $css[] = <<<'CSS'
 .marquee .track{display:flex;width:max-content;animation:nm-mq 42s linear infinite}
 .marquee .run{display:flex;align-items:center;gap:var(--sp-l);padding-right:var(--sp-l);
   margin:0;white-space:nowrap;font-family:var(--font-primary);
-  font-size:clamp(1.05rem,1.9vw,1.6rem);letter-spacing:.01em}
+  font-size:clamp(.95rem,1.3vw,1.2rem);letter-spacing:.02em}
 .marquee .run span{display:inline-flex;align-items:center;gap:var(--sp-l)}
 .marquee .run span::after{content:"—";opacity:.45}
 @keyframes nm-mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -4805,35 +4819,61 @@ $css[] = <<<'CSS'
 @media(min-width:900px){.figq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .figq .portrait{margin:0;min-height:22rem}
 .figq .portrait img{width:100%;height:100%;object-fit:cover;display:block}
+/* THE GUTTER IS THE POINT OF A SPLIT. At `clamp(1.5rem,5vw,4.5rem)` the quote started almost
+   against the edge of the photograph, so the two halves read as one collided block instead of as
+   a portrait and a voice. A full-bleed split needs MORE inside padding than a contained section,
+   not the same amount, because there is no page margin doing the work on that side. */
 .figq .say{background:var(--c-bg-alt);display:grid;align-content:center;gap:var(--sp-m);
-  padding:var(--sp-2xl) clamp(1.5rem,5vw,4.5rem)}
-.figq blockquote{margin:0;font-family:var(--font-primary);font-size:var(--fs-h2);
-  line-height:var(--display-lh);letter-spacing:var(--track-h2);text-wrap:balance}
+  padding:var(--sp-2xl) clamp(2.5rem,6vw,6rem)}
+/* --fs-h2 and not --fs-h3 was the wrong call on a 1200px measure: at the editorial scale it put a
+   six-line pull quote at very nearly headline size, which is the "todo muy grande" this pass was
+   asked to fix. A quote should be the second-loudest thing in its section, never the loudest. */
+.figq blockquote{margin:0;font-family:var(--font-primary);font-size:var(--fs-h3);
+  line-height:calc(var(--display-lh) + .12);letter-spacing:var(--track-h3);text-wrap:balance;
+  max-width:30ch}
 .figq .who{display:grid;gap:.15rem}
 .figq .who b{font-size:1rem}
 .figq .who span{color:var(--c-text-muted);font-size:.875rem}
 .figq .sig{font-family:var(--font-primary);font-style:italic;
-  font-size:clamp(1.6rem,3vw,2.4rem);line-height:1;opacity:.8}
+  font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1;opacity:.8}
 
-/* ── COMP-GALLERY, offset variant ─────────────────────────────────────────────────────────────
-   Six frames that do NOT share a baseline or a size. An even grid of six squares is the shape the
-   other archetypes already use; repeating it here would have made the one section this archetype
-   shares with TPL-C-05 look identical, which is exactly the reading this whole pass is fixing. */
-.shots.offset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);
-  list-style:none;margin:0;padding:0}
-@media(min-width:900px){
-  .shots.offset{grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--sp-m) var(--sp-m)}
-  .shots.offset > li:nth-child(1){grid-column:1 / 6}
-  .shots.offset > li:nth-child(2){grid-column:6 / 10;margin-top:var(--sp-xl)}
-  .shots.offset > li:nth-child(3){grid-column:10 / 13}
-  .shots.offset > li:nth-child(4){grid-column:1 / 4;margin-top:calc(var(--sp-l) * -1)}
-  .shots.offset > li:nth-child(5){grid-column:4 / 9}
-  .shots.offset > li:nth-child(6){grid-column:9 / 13;margin-top:var(--sp-l)}
-  .shots.offset > li:nth-child(2) .frame{aspect-ratio:3/4}
-  .shots.offset > li:nth-child(4) .frame{aspect-ratio:3/4}
+/* ── COMP-GALLERY, masonry ────────────────────────────────────────────────────────────────────
+   THE FIRST CUT WAS A GRID PRETENDING TO BE A MASONRY AND IT LOOKED IT. Six items placed on
+   hand-picked column lines with hand-picked top margins: every frame that was shorter than its
+   row-mate left a hole under it, and the holes were the first thing anybody saw. A grid places
+   items in ROWS, and a row is exactly the thing a masonry does not have — so the offsets were
+   fighting the layout model rather than using one.
+
+   `columns` IS the layout model that has no rows. Each frame flows under the previous one in its
+   column, `break-inside:avoid` keeps a figure whole, and there is no hole to leave because nothing
+   is waiting for a row to close. The height variety now comes from three ratios cycling on
+   `nth-child(3n+…)`, which is the same intent the margins were reaching for and the correct place
+   to put it.
+
+   Reading order runs DOWN each column rather than across, which for a set of photographs of one
+   room is not information the order was carrying. */
+.shots.masonry{display:block;columns:2;column-gap:var(--sp-m);list-style:none;margin:0;padding:0}
+@media(min-width:900px){.shots.masonry{columns:3}}
+.shots.masonry > li{break-inside:avoid;margin:0 0 var(--sp-m)}
+.shots.masonry .frame{width:100%;border-radius:0}
+.shots.masonry > li:nth-child(3n+1) .frame{aspect-ratio:4/3}
+.shots.masonry > li:nth-child(3n+2) .frame{aspect-ratio:3/4}
+.shots.masonry > li:nth-child(3n+3) .frame{aspect-ratio:1/1}
+.shots.masonry .frame img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── COMP-BOOKING, with the room beside it ────────────────────────────────────────────────────
+   A form alone in the left half of a 1200px measure is a form in a void: the right half carried
+   nothing, and the eye read the emptiness as an unfinished section rather than as air. The
+   photograph is not decoration here — it is the answer to "what am I booking", which is the one
+   question a booking block should not make you scroll back up for. */
+.bookmedia{margin:0;align-self:stretch}
+.bookmedia img{width:100%;height:100%;min-height:22rem;object-fit:cover;display:block}
+@media(min-width:1024px){
+  [data-comp="lp-asymmetric"] .booking-split .head{grid-column:c 1 / c 7}
+  [data-comp="lp-asymmetric"] .booking-split .bookform{grid-column:c 1 / c 7}
+  [data-comp="lp-asymmetric"] .booking-split .bookmedia{grid-column:c 8 / wide-end;
+    grid-row:1 / span 2}
 }
-.shots.offset .frame{aspect-ratio:4/3;width:100%}
-.shots.offset .frame img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* ── COMP-HOURS-BLOCK ─────────────────────────────────────────────────────────────────────────
    The hours ARE the graphic. A restaurant whose opening times are 9px grey at the foot of the page
@@ -4844,9 +4884,9 @@ $css[] = <<<'CSS'
 .hours-big dl{margin:0}
 .hours-big .row{display:grid;grid-template-columns:1fr auto;gap:var(--sp-m);align-items:baseline;
   padding-block:calc(var(--sp-s) * 1.2);border-bottom:1px solid var(--c-border)}
-.hours-big dt{font-family:var(--font-primary);font-size:clamp(1.15rem,2.2vw,1.9rem);
+.hours-big dt{font-family:var(--font-primary);font-size:clamp(1.05rem,1.6vw,1.5rem);
   line-height:1.1;letter-spacing:var(--track-h3)}
-.hours-big dd{margin:0;font-variant-numeric:tabular-nums;font-size:clamp(.95rem,1.5vw,1.25rem)}
+.hours-big dd{margin:0;font-variant-numeric:tabular-nums;font-size:clamp(.9rem,1.2vw,1.05rem)}
 .hours-big .shut dt,.hours-big .shut dd{color:var(--c-text-muted)}
 .hours-big .where{display:grid;gap:var(--sp-s);align-content:start}
 .hours-big .where p{margin:0}
@@ -6541,16 +6581,18 @@ function figure_quote_html( $f ) {
 		. '</div></section>';
 }
 
-/** COMP-GALLERY, offset variant. Six frames, two heights, no shared baseline. */
-function gallery_offset_html( $g ) {
-	if ( 6 !== count( $g['items'] ) ) {
-		fail( 'the offset collage places six frames on named nth-child lines and got '
-			. count( $g['items'] ) . ' — a seventh would fall into an unstyled cell and a fifth would'
-			. ' leave a hole, and neither is visible from the data' );
-	}
+/**
+ * COMP-GALLERY, masonry.
+ *
+ * NO COUNT ASSERTION ANY MORE, and its removal is the honest signal that the layout changed model.
+ * The offset grid placed six frames on six hand-written column lines, so a seventh item fell into
+ * an unstyled cell and a fifth left a hole — the assertion was load-bearing. `columns` flows any
+ * number, so a check that six is six would now be a rule with nothing behind it.
+ */
+function gallery_masonry_html( $g ) {
 	$o = '<section class="sec gallery grid-sec" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots offset">';
+		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots masonry">';
 	foreach ( $g['items'] as $slug ) {
 		$gi = img( $slug );
 		$o .= '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
@@ -6617,7 +6659,7 @@ function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 
 	// 5 · COMP-GALLERY, offset  [toggle TGL-GALLERY]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_offset_html( $C['gallery'] );
+		$o[] = gallery_masonry_html( $C['gallery'] );
 	}
 
 	// 6 · COMP-BOOKING  [fijo]
@@ -6746,7 +6788,11 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * two archetypes on one page means two live booking forms.
  */
 function booking_html( $bk, $uid ) {
-	$o = '<section class="sec booking" aria-label="Cita"><div class="canvas">'
+	/* THE PHOTOGRAPH IS OPTIONAL AND ABSENT BY DEFAULT. Three archetypes already ship this block
+	   without one and their markup must not move — so the key is read, not required, and the split
+	   class only appears when there is something to split with. */
+	$bk_split = isset( $bk['img'] ) ? ' booking-split' : '';
+	$o = '<section class="sec booking' . $bk_split . '" aria-label="Cita"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $bk['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $bk['h2'] ) . '</h2><p class="muted">' . h( $bk['lede'] ) . '</p></div>'
 		. '<form class="bookform" onsubmit="return false">';
@@ -6768,9 +6814,15 @@ function booking_html( $bk, $uid ) {
 		}
 		$o .= '</fieldset>';
 	}
-	return $o . '<button class="btn btn-primary" type="submit">' . h( $bk['submit'] ) . '</button>'
+	$o .= '<button class="btn btn-primary" type="submit">' . h( $bk['submit'] ) . '</button>'
 		. '<p class="small muted book-small">' . h( $bk['small'] ) . '</p>'
-		. '</form></div></section>';
+		. '</form>';
+	if ( '' !== $bk_split ) {
+		$bi  = img( $bk['img'] );
+		$o  .= '<figure class="bookmedia"><img data-img="' . h( $bi['slug'] ) . '"'
+			. ' alt="' . h( $bi['alt'] ) . '" width="' . $bi['w'] . '" height="' . $bi['h'] . '"></figure>';
+	}
+	return $o . '</div></section>';
 }
 
 /**
@@ -7623,6 +7675,7 @@ foreach ( $STRIPS as $s ) {
 		// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 		// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
 		$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '"'
+			. ' data-arch="' . h( strtolower( $C['arch'] ) ) . '"'
 			. $b_attr
 			. ' data-comp="' . h( $lp ) . '" data-page="' . h( $pg['key'] ) . '"'
 			. ( 0 === $pi ? '' : ' hidden' ) . '>';
@@ -8207,7 +8260,8 @@ if ( false === $c06_at ) {
 }
 $c06_before  = substr( $c06_all, 0, $c06_at );
 $c06_classes = array( 'head-over', 'hero-full', 'marquee', 'track', 'run', 'menu-list', 'menu-group',
-	'dish', 'dots', 'figq', 'portrait', 'say', 'sig', 'hoursblock', 'hours-big', 'shut', 'where' );
+	'dish', 'dots', 'figq', 'portrait', 'say', 'sig', 'hoursblock', 'hours-big', 'shut', 'where',
+	'masonry', 'bookmedia', 'booking-split' );
 foreach ( $c06_classes as $c06_c ) {
 	if ( preg_match( '/(^|[\s,>+~(])\.' . preg_quote( $c06_c, '/' ) . '(?![\w-])/', $c06_before, $c06_m ) ) {
 		fail( "TPL-C-06 introduces `.$c06_c`, and the stylesheet already defines a rule on that class"

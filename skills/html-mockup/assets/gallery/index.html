@@ -1584,6 +1584,19 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
    --c-on-accent resolves to --c-bg (#171310) at 8.21:1 on the fill. ══════════ */
 [data-brand="terrazza"]{--c-bg:#171310;--c-bg-alt:#211B16;--c-text:#F4EBDF;--c-accent:#D9A441;--c-on-accent:#171310;--font-primary:'Fraunces', Georgia, 'Times New Roman', serif;--font-secondary:'Source Sans 3', system-ui, sans-serif}
 
+/* ── THE MEASURE, NARROWED FOR THIS ARCHETYPE ─────────────────────────────────────────────────
+   `--content-width` is `clamp(1140px, 68vw, 100vw)` house-wide, which on a 2000px screen resolves
+   to 1360px of live text. On a carta — two columns of short lines — that measure is not generous,
+   it is loud: the line lengths stop being read and start being scanned.
+
+   THIS IS A COMPOSITION DECISION AND NOT AN AXIS ONE, which is the only reason it is allowed here.
+   Scale, density, ground, blueprint and elevation are the anchor's and the five chips on the card
+   still describe them exactly; how much of the viewport the text block occupies is not one of the
+   five. Declared on `[data-arch]` — the same element that carries `[data-anchor]` — so `--col`,
+   which is derived from this token in the shared chain, re-resolves against the new value instead
+   of the root's. */
+[data-arch="tpl-c-06"]{--content-width:clamp(980px,54vw,1220px)}
+
 /* ── COMP-HEADER, floating on the photograph ──────────────────────────────────────────────────
    `.sample` becomes the containing block. The header is the first child either way, so taking it
    out of flow reorders nothing — it stops RESERVING 72px at the top of a section whose whole
@@ -1604,7 +1617,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
    it is written on — `.head` inherits the BODY face at 1rem, so 34ch measured about 270px and the
    88px display headline came out in five one-word lines. The unit was right for a paragraph and
    wrong for a block whose whole content is a headline. A rem cap says what was meant. */
-.hero-full .head{max-width:min(42rem,86%)}
+.hero-full .head{max-width:min(34rem,78%)}
 .hero-full .head .lede{max-width:38ch}
 @media(max-width:767px){.hero-full > .canvas{min-height:70vh}}
 
@@ -1622,7 +1635,7 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .marquee .track{display:flex;width:max-content;animation:nm-mq 42s linear infinite}
 .marquee .run{display:flex;align-items:center;gap:var(--sp-l);padding-right:var(--sp-l);
   margin:0;white-space:nowrap;font-family:var(--font-primary);
-  font-size:clamp(1.05rem,1.9vw,1.6rem);letter-spacing:.01em}
+  font-size:clamp(.95rem,1.3vw,1.2rem);letter-spacing:.02em}
 .marquee .run span{display:inline-flex;align-items:center;gap:var(--sp-l)}
 .marquee .run span::after{content:"—";opacity:.45}
 @keyframes nm-mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -1668,35 +1681,61 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 @media(min-width:900px){.figq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .figq .portrait{margin:0;min-height:22rem}
 .figq .portrait img{width:100%;height:100%;object-fit:cover;display:block}
+/* THE GUTTER IS THE POINT OF A SPLIT. At `clamp(1.5rem,5vw,4.5rem)` the quote started almost
+   against the edge of the photograph, so the two halves read as one collided block instead of as
+   a portrait and a voice. A full-bleed split needs MORE inside padding than a contained section,
+   not the same amount, because there is no page margin doing the work on that side. */
 .figq .say{background:var(--c-bg-alt);display:grid;align-content:center;gap:var(--sp-m);
-  padding:var(--sp-2xl) clamp(1.5rem,5vw,4.5rem)}
-.figq blockquote{margin:0;font-family:var(--font-primary);font-size:var(--fs-h2);
-  line-height:var(--display-lh);letter-spacing:var(--track-h2);text-wrap:balance}
+  padding:var(--sp-2xl) clamp(2.5rem,6vw,6rem)}
+/* --fs-h2 and not --fs-h3 was the wrong call on a 1200px measure: at the editorial scale it put a
+   six-line pull quote at very nearly headline size, which is the "todo muy grande" this pass was
+   asked to fix. A quote should be the second-loudest thing in its section, never the loudest. */
+.figq blockquote{margin:0;font-family:var(--font-primary);font-size:var(--fs-h3);
+  line-height:calc(var(--display-lh) + .12);letter-spacing:var(--track-h3);text-wrap:balance;
+  max-width:30ch}
 .figq .who{display:grid;gap:.15rem}
 .figq .who b{font-size:1rem}
 .figq .who span{color:var(--c-text-muted);font-size:.875rem}
 .figq .sig{font-family:var(--font-primary);font-style:italic;
-  font-size:clamp(1.6rem,3vw,2.4rem);line-height:1;opacity:.8}
+  font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1;opacity:.8}
 
-/* ── COMP-GALLERY, offset variant ─────────────────────────────────────────────────────────────
-   Six frames that do NOT share a baseline or a size. An even grid of six squares is the shape the
-   other archetypes already use; repeating it here would have made the one section this archetype
-   shares with TPL-C-05 look identical, which is exactly the reading this whole pass is fixing. */
-.shots.offset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);
-  list-style:none;margin:0;padding:0}
-@media(min-width:900px){
-  .shots.offset{grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--sp-m) var(--sp-m)}
-  .shots.offset > li:nth-child(1){grid-column:1 / 6}
-  .shots.offset > li:nth-child(2){grid-column:6 / 10;margin-top:var(--sp-xl)}
-  .shots.offset > li:nth-child(3){grid-column:10 / 13}
-  .shots.offset > li:nth-child(4){grid-column:1 / 4;margin-top:calc(var(--sp-l) * -1)}
-  .shots.offset > li:nth-child(5){grid-column:4 / 9}
-  .shots.offset > li:nth-child(6){grid-column:9 / 13;margin-top:var(--sp-l)}
-  .shots.offset > li:nth-child(2) .frame{aspect-ratio:3/4}
-  .shots.offset > li:nth-child(4) .frame{aspect-ratio:3/4}
+/* ── COMP-GALLERY, masonry ────────────────────────────────────────────────────────────────────
+   THE FIRST CUT WAS A GRID PRETENDING TO BE A MASONRY AND IT LOOKED IT. Six items placed on
+   hand-picked column lines with hand-picked top margins: every frame that was shorter than its
+   row-mate left a hole under it, and the holes were the first thing anybody saw. A grid places
+   items in ROWS, and a row is exactly the thing a masonry does not have — so the offsets were
+   fighting the layout model rather than using one.
+
+   `columns` IS the layout model that has no rows. Each frame flows under the previous one in its
+   column, `break-inside:avoid` keeps a figure whole, and there is no hole to leave because nothing
+   is waiting for a row to close. The height variety now comes from three ratios cycling on
+   `nth-child(3n+…)`, which is the same intent the margins were reaching for and the correct place
+   to put it.
+
+   Reading order runs DOWN each column rather than across, which for a set of photographs of one
+   room is not information the order was carrying. */
+.shots.masonry{display:block;columns:2;column-gap:var(--sp-m);list-style:none;margin:0;padding:0}
+@media(min-width:900px){.shots.masonry{columns:3}}
+.shots.masonry > li{break-inside:avoid;margin:0 0 var(--sp-m)}
+.shots.masonry .frame{width:100%;border-radius:0}
+.shots.masonry > li:nth-child(3n+1) .frame{aspect-ratio:4/3}
+.shots.masonry > li:nth-child(3n+2) .frame{aspect-ratio:3/4}
+.shots.masonry > li:nth-child(3n+3) .frame{aspect-ratio:1/1}
+.shots.masonry .frame img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── COMP-BOOKING, with the room beside it ────────────────────────────────────────────────────
+   A form alone in the left half of a 1200px measure is a form in a void: the right half carried
+   nothing, and the eye read the emptiness as an unfinished section rather than as air. The
+   photograph is not decoration here — it is the answer to "what am I booking", which is the one
+   question a booking block should not make you scroll back up for. */
+.bookmedia{margin:0;align-self:stretch}
+.bookmedia img{width:100%;height:100%;min-height:22rem;object-fit:cover;display:block}
+@media(min-width:1024px){
+  [data-comp="lp-asymmetric"] .booking-split .head{grid-column:c 1 / c 7}
+  [data-comp="lp-asymmetric"] .booking-split .bookform{grid-column:c 1 / c 7}
+  [data-comp="lp-asymmetric"] .booking-split .bookmedia{grid-column:c 8 / wide-end;
+    grid-row:1 / span 2}
 }
-.shots.offset .frame{aspect-ratio:4/3;width:100%}
-.shots.offset .frame img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* ── COMP-HOURS-BLOCK ─────────────────────────────────────────────────────────────────────────
    The hours ARE the graphic. A restaurant whose opening times are 9px grey at the foot of the page
@@ -1707,9 +1746,9 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
 .hours-big dl{margin:0}
 .hours-big .row{display:grid;grid-template-columns:1fr auto;gap:var(--sp-m);align-items:baseline;
   padding-block:calc(var(--sp-s) * 1.2);border-bottom:1px solid var(--c-border)}
-.hours-big dt{font-family:var(--font-primary);font-size:clamp(1.15rem,2.2vw,1.9rem);
+.hours-big dt{font-family:var(--font-primary);font-size:clamp(1.05rem,1.6vw,1.5rem);
   line-height:1.1;letter-spacing:var(--track-h3)}
-.hours-big dd{margin:0;font-variant-numeric:tabular-nums;font-size:clamp(.95rem,1.5vw,1.25rem)}
+.hours-big dd{margin:0;font-variant-numeric:tabular-nums;font-size:clamp(.9rem,1.2vw,1.05rem)}
 .hours-big .shut dt,.hours-big .shut dd{color:var(--c-text-muted)}
 .hours-big .where{display:grid;gap:var(--sp-s);align-content:start}
 .hours-big .where p{margin:0}
@@ -2253,15 +2292,15 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-brand="terrazza" data-field="editorial@b-terrazza" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-06" data-brand="terrazza" data-field="editorial@b-terrazza" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head head-over"><div class="canvas"><div class="nav"><span class="logo">CASA TERRAZZA</span><nav class="mainnav" aria-label="Principal"><a href="#">Carta</a><a href="#">La casa</a><a href="#">Grupos</a></nav><a class="tel" href="#">93 000 00 00</a><a class="btn btn-primary btn-sm" href="#">Reservar mesa</a></div></div></header>
 <main>
 <section class="sec hero hero-visual hero-full" aria-label="La casa"><div class="media-full"><figure class="frame"><img data-img="terrazza-sala" alt="Comedor de ladrillo visto con mesas corridas de madera y lámparas colgantes" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack"><span class="eyebrow">Cocina de brasa · Poblenou, Barcelona</span><h1>Se cocina lo que llegó esta mañana</h1><p class="lede">Carta corta que cambia cada lunes, encina en la brasa y sesenta referencias en bodega. Reservamos por servicio y no por turno: la mesa es suya hasta que usted se levante.</p><div class="ctas"><a class="btn btn-primary" href="#">Reservar mesa</a><a class="btn btn-outline" href="#">Ver la carta</a></div></div></div></section>
 <section class="marquee" aria-label="La casa en cuatro palabras"><div class="track"><p class="run"><span>Cocina de mercado</span><span>Brasa de encina</span><span>Pan de masa madre</span><span>Bodega de sesenta</span></p><p class="run" aria-hidden="true"><span>Cocina de mercado</span><span>Brasa de encina</span><span>Pan de masa madre</span><span>Bodega de sesenta</span></p></div></section>
 <section class="sec menu-list grid-sec" aria-label="Doce platos, y el lunes son otros"><div class="canvas"><div class="head stack"><span class="eyebrow">La carta</span><h2>Doce platos, y el lunes son otros</h2></div><div class="groups"><section class="menu-group"><h3>Para empezar</h3><ol><li class="dish"><span class="n">Anchoa del Cantábrico</span><span class="dots" aria-hidden="true"></span><span class="p">4,80 € ud.</span><p class="d">Curada en casa, con mantequilla de leche cruda y pan de ayer tostado.</p></li><li class="dish"><span class="n">Tomate de secano</span><span class="dots" aria-hidden="true"></span><span class="p">11,00 €</span><p class="d">De Alcarràs, con albahaca y aceite de arbequina de este año.</p></li><li class="dish"><span class="n">Croquetas de puchero</span><span class="dots" aria-hidden="true"></span><span class="p">9,50 €</span><p class="d">Seis. Del cocido del domingo, que es como tienen que ser.</p></li></ol></section><section class="menu-group"><h3>De la brasa</h3><ol><li class="dish"><span class="n">Presa ibérica</span><span class="dots" aria-hidden="true"></span><span class="p">24,00 €</span><p class="d">Encina y sarmiento, reposada ocho minutos. Al punto o no la servimos.</p></li><li class="dish"><span class="n">Pulpo a la llama</span><span class="dots" aria-hidden="true"></span><span class="p">22,50 €</span><p class="d">Cocido dos horas, marcado treinta segundos, con patata ahumada.</p></li><li class="dish"><span class="n">Alcachofas enteras</span><span class="dots" aria-hidden="true"></span><span class="p">14,00 €</span><p class="d">A la brasa con su tallo, sal en escamas y limón asado.</p></li><li class="dish"><span class="n">Chuleta de vaca vieja</span><span class="dots" aria-hidden="true"></span><span class="p">68,00 €/kg</span><p class="d">Madurada sesenta días. Mínimo para dos, se pesa en sala.</p></li></ol></section><section class="menu-group"><h3>Para terminar</h3><ol><li class="dish"><span class="n">Torrija de brioche</span><span class="dots" aria-hidden="true"></span><span class="p">7,50 €</span><p class="d">Caramelizada al momento, con helado de leche merengada.</p></li><li class="dish"><span class="n">Queso del Pallars</span><span class="dots" aria-hidden="true"></span><span class="p">9,00 €</span><p class="d">Tres cortes y membrillo de la casa. Pregunte cuáles hay hoy.</p></li></ol></section><section class="menu-group"><h3>Menú del mediodía</h3><ol><li class="dish"><span class="n">De martes a viernes</span><span class="dots" aria-hidden="true"></span><span class="p">19,50 €</span><p class="d">Dos platos, postre, pan y una copa de la casa. Sólo mediodía.</p></li><li class="dish"><span class="n">Maridaje de tres copas</span><span class="dots" aria-hidden="true"></span><span class="p">16,00 €</span><p class="d">Lo elige quien esté en sala ese día. No hay carta de maridaje.</p></li></ol></section></div><p class="foot">Precios con IVA. Esta es la carta del 22 al 28; el lunes cambia entera. Si algo se acaba, se acaba.</p></div></section>
 <section class="sec figq" aria-label="Quien firma"><figure class="portrait"><img data-img="terrazza-chef" alt="Cocinero terminando un plato con una cuchara en la cocina" width="720" height="540"></figure><div class="say"><span class="eyebrow">Quien firma</span><blockquote>Cocino lo que me traen, no lo que tenía pensado. Por eso la carta cambia el lunes: si el martes llega mejor tomate que alcachofa, mando la alcachofa a casa.</blockquote><p class="sig">Èlia Ferrer</p><p class="who"><span>Cocinera y socia · en la casa desde 2016</span></p></div></section>
-<section class="sec gallery grid-sec" aria-label="Cómo es por dentro"><div class="canvas"><div class="head stack"><span class="eyebrow">El sitio</span><h2>Cómo es por dentro</h2></div><ul class="shots offset"><li><figure class="frame"><img data-img="terrazza-mesa" alt="Mesa larga vestida para una cena, con velas y sillas doradas" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-terraza" alt="Terraza de restaurante en la calle con mesas y sillas de mimbre" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-coctel" alt="Rincón del comedor con pared de ladrillo y tablas de madera colgadas" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-plato" alt="Plato de carne con salsa de cerezas servido en una mesa oscura" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-velas" alt="Velas encendidas sobre una repisa de madera del comedor" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-chef" alt="Cocinero terminando un plato con una cuchara en la cocina" width="720" height="540"></figure></li></ul></div></section>
-<section class="sec booking" aria-label="Cita"><div class="canvas"><div class="head stack"><span class="eyebrow">Reservas</span><h2>Elija día y hora</h2><p class="muted">Veinte mesas y dos servicios. Lo que no aparece aquí es que está lleno, no que no cogemos el teléfono.</p></div><form class="bookform" onsubmit="return false"><div class="field"><label for="tplc06terrazza-editorial-bk-nombre">Nombre</label><input id="tplc06terrazza-editorial-bk-nombre" name="nombre" type="text"></div><div class="field"><label for="tplc06terrazza-editorial-bk-tel">Teléfono</label><input id="tplc06terrazza-editorial-bk-tel" name="tel" type="tel"></div><fieldset class="opts opts-wide"><legend>Día</legend><label class="opt" for="tplc06terrazza-editorial-day0"><input type="radio" id="tplc06terrazza-editorial-day0" name="tplc06terrazza-editorial-day" checked><span>Jueves 22</span></label><label class="opt" for="tplc06terrazza-editorial-day1"><input type="radio" id="tplc06terrazza-editorial-day1" name="tplc06terrazza-editorial-day"><span>Viernes 23</span></label><label class="opt" for="tplc06terrazza-editorial-day2"><input type="radio" id="tplc06terrazza-editorial-day2" name="tplc06terrazza-editorial-day"><span>Sábado 24</span></label><label class="opt" for="tplc06terrazza-editorial-day3"><input type="radio" id="tplc06terrazza-editorial-day3" name="tplc06terrazza-editorial-day"><span>Domingo 25</span></label><label class="opt" for="tplc06terrazza-editorial-day4"><input type="radio" id="tplc06terrazza-editorial-day4" name="tplc06terrazza-editorial-day"><span>Martes 27</span></label></fieldset><fieldset class="opts opts-wide"><legend>Hora</legend><label class="opt" for="tplc06terrazza-editorial-slot0"><input type="radio" id="tplc06terrazza-editorial-slot0" name="tplc06terrazza-editorial-slot" checked><span>13:30</span></label><label class="opt" for="tplc06terrazza-editorial-slot1"><input type="radio" id="tplc06terrazza-editorial-slot1" name="tplc06terrazza-editorial-slot"><span>15:00</span></label><label class="opt" for="tplc06terrazza-editorial-slot2"><input type="radio" id="tplc06terrazza-editorial-slot2" name="tplc06terrazza-editorial-slot"><span>20:00</span></label><label class="opt" for="tplc06terrazza-editorial-slot3"><input type="radio" id="tplc06terrazza-editorial-slot3" name="tplc06terrazza-editorial-slot"><span>21:30</span></label><label class="opt" for="tplc06terrazza-editorial-slot4"><input type="radio" id="tplc06terrazza-editorial-slot4" name="tplc06terrazza-editorial-slot"><span>22:45</span></label></fieldset><button class="btn btn-primary" type="submit">Reservar mesa</button><p class="small muted book-small">Le confirmamos en menos de una hora. Si al final no puede venir, avise y liberamos la mesa.</p></form></div></section>
+<section class="sec gallery grid-sec" aria-label="Cómo es por dentro"><div class="canvas"><div class="head stack"><span class="eyebrow">El sitio</span><h2>Cómo es por dentro</h2></div><ul class="shots masonry"><li><figure class="frame"><img data-img="terrazza-mesa" alt="Mesa larga vestida para una cena, con velas y sillas doradas" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-terraza" alt="Terraza de restaurante en la calle con mesas y sillas de mimbre" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-coctel" alt="Rincón del comedor con pared de ladrillo y tablas de madera colgadas" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-plato" alt="Plato de carne con salsa de cerezas servido en una mesa oscura" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-velas" alt="Velas encendidas sobre una repisa de madera del comedor" width="720" height="540"></figure></li><li><figure class="frame"><img data-img="terrazza-chef" alt="Cocinero terminando un plato con una cuchara en la cocina" width="720" height="540"></figure></li></ul></div></section>
+<section class="sec booking booking-split" aria-label="Cita"><div class="canvas"><div class="head stack"><span class="eyebrow">Reservas</span><h2>Elija día y hora</h2><p class="muted">Veinte mesas y dos servicios. Lo que no aparece aquí es que está lleno, no que no cogemos el teléfono.</p></div><form class="bookform" onsubmit="return false"><div class="field"><label for="tplc06terrazza-editorial-bk-nombre">Nombre</label><input id="tplc06terrazza-editorial-bk-nombre" name="nombre" type="text"></div><div class="field"><label for="tplc06terrazza-editorial-bk-tel">Teléfono</label><input id="tplc06terrazza-editorial-bk-tel" name="tel" type="tel"></div><fieldset class="opts opts-wide"><legend>Día</legend><label class="opt" for="tplc06terrazza-editorial-day0"><input type="radio" id="tplc06terrazza-editorial-day0" name="tplc06terrazza-editorial-day" checked><span>Jueves 22</span></label><label class="opt" for="tplc06terrazza-editorial-day1"><input type="radio" id="tplc06terrazza-editorial-day1" name="tplc06terrazza-editorial-day"><span>Viernes 23</span></label><label class="opt" for="tplc06terrazza-editorial-day2"><input type="radio" id="tplc06terrazza-editorial-day2" name="tplc06terrazza-editorial-day"><span>Sábado 24</span></label><label class="opt" for="tplc06terrazza-editorial-day3"><input type="radio" id="tplc06terrazza-editorial-day3" name="tplc06terrazza-editorial-day"><span>Domingo 25</span></label><label class="opt" for="tplc06terrazza-editorial-day4"><input type="radio" id="tplc06terrazza-editorial-day4" name="tplc06terrazza-editorial-day"><span>Martes 27</span></label></fieldset><fieldset class="opts opts-wide"><legend>Hora</legend><label class="opt" for="tplc06terrazza-editorial-slot0"><input type="radio" id="tplc06terrazza-editorial-slot0" name="tplc06terrazza-editorial-slot" checked><span>13:30</span></label><label class="opt" for="tplc06terrazza-editorial-slot1"><input type="radio" id="tplc06terrazza-editorial-slot1" name="tplc06terrazza-editorial-slot"><span>15:00</span></label><label class="opt" for="tplc06terrazza-editorial-slot2"><input type="radio" id="tplc06terrazza-editorial-slot2" name="tplc06terrazza-editorial-slot"><span>20:00</span></label><label class="opt" for="tplc06terrazza-editorial-slot3"><input type="radio" id="tplc06terrazza-editorial-slot3" name="tplc06terrazza-editorial-slot"><span>21:30</span></label><label class="opt" for="tplc06terrazza-editorial-slot4"><input type="radio" id="tplc06terrazza-editorial-slot4" name="tplc06terrazza-editorial-slot"><span>22:45</span></label></fieldset><button class="btn btn-primary" type="submit">Reservar mesa</button><p class="small muted book-small">Le confirmamos en menos de una hora. Si al final no puede venir, avise y liberamos la mesa.</p></form><figure class="bookmedia"><img data-img="terrazza-mesa" alt="Mesa larga vestida para una cena, con velas y sillas doradas" width="720" height="540"></figure></div></section>
 <section class="sec hoursblock closing" aria-label="Abrimos de martes a domingo"><div class="canvas"><div class="head stack"><span class="eyebrow">Horario y dirección</span><h2>Abrimos de martes a domingo</h2></div><div class="hours-big"><dl><div class="row"><dt>Martes a jueves</dt><dd>13:00 – 16:00 · 20:00 – 23:30</dd></div><div class="row"><dt>Viernes y sábado</dt><dd>13:00 – 16:30 · 20:00 – 00:30</dd></div><div class="row"><dt>Domingo</dt><dd>13:00 – 16:30</dd></div><div class="row shut"><dt>Lunes</dt><dd>Cerrado</dd></div></dl><div class="where"><p>Carrer de Pujades, 118<br>08005 Barcelona</p><p><a href="#">93 000 00 00</a></p><p><a href="#">reservas@casaterrazza.example</a></p><p class="muted">Metro Llacuna a cuatro minutos. La terraza abre hasta que refresca.</p></div></div></div></section>
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Casa Terrazza · Carrer de Pujades 118, 08005 Barcelona · 93 000 00 00</span><a href="#">Carta</a><a href="#">Reservas</a><a href="#">Privacidad</a></div><p class="legal">Casa Terrazza SL · Maqueta interna NovaMira, no publicada.</p></div></footer>
@@ -2304,7 +2343,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-01" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Propuesta de valor"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div></div></section>
@@ -2340,7 +2379,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="servicio" hidden>
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-01" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="servicio" hidden>
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
 <main>
@@ -2419,7 +2458,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-01" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -2455,7 +2494,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="servicio" hidden>
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-01" data-field="direct@ink" data-comp="lp-broken-grid" data-page="servicio" hidden>
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
 <main>
@@ -2534,7 +2573,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-01" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -2570,7 +2609,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="servicio" hidden>
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-01" data-comp="lp-strict-grid" data-page="servicio" hidden>
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
 <main>
@@ -2649,7 +2688,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-01" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Propuesta de valor"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Taller de piedra natural · desde 1978</span><h1>Cortamos piedra que dura más que el edificio</h1><p class="lede muted">Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.</p><div class="ctas"><a class="btn btn-primary" href="#">Pedir presupuesto</a><a class="btn btn-outline" href="#">Ver el taller</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -2685,7 +2724,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Taller de cantería · Novelda, Alicante</span><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="servicio" hidden>
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-01" data-comp="lp-centered" data-page="servicio" hidden>
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Taller</a><a href="#">Materiales</a><a href="#">Trabajos</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Pedir presupuesto</a></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li aria-current="page">Encimeras y baños</li></ol></div></nav>
 <main>
@@ -2764,7 +2803,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-02" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
@@ -2839,7 +2878,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-02" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
@@ -2914,7 +2953,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-02" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
@@ -2989,7 +3028,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-02" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La casa</a><a href="#">Áreas</a><a href="#">Obra</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Hablar con nosotros</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Presentación"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Cantería Piedra Valdés · Lleida · desde 1978</span><h1>Cuarenta y siete años de la misma firma en la misma piedra</h1><p class="lede muted">Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.</p><div class="ctas"><a class="btn btn-primary" href="#">Hablar con nosotros</a><a class="btn btn-outline" href="#">Ver la obra</a></div></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div></div></section>
@@ -3065,7 +3104,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-03" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Obra</a><a href="#">Estudio</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Encargar</a></div></div></header>
 <main>
 <section class="sec hero hero-visual" aria-label="Obra"><div class="media-full"><figure class="frame"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Piedra Valdés · obra 1978—2026</span><h1>La obra</h1><p class="lede">Trescientas doce entregas. Estas son doce.</p><div class="ctas"><a class="btn btn-primary" href="#">Encargar</a><a class="btn btn-outline" href="#">Sobre el estudio</a></div></div></div></section>
@@ -3133,7 +3172,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-03" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Obra</a><a href="#">Estudio</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Encargar</a></div></div></header>
 <main>
 <section class="sec hero hero-visual" aria-label="Obra"><div class="media-full"><figure class="frame"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Piedra Valdés · obra 1978—2026</span><h1>La obra</h1><p class="lede">Trescientas doce entregas. Estas son doce.</p><div class="ctas"><a class="btn btn-primary" href="#">Encargar</a><a class="btn btn-outline" href="#">Sobre el estudio</a></div></div></div></section>
@@ -3201,7 +3240,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-03" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Obra</a><a href="#">Estudio</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Encargar</a></div></div></header>
 <main>
 <section class="sec hero hero-visual" aria-label="Obra"><div class="media-full"><figure class="frame"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Piedra Valdés · obra 1978—2026</span><h1>La obra</h1><p class="lede">Trescientas doce entregas. Estas son doce.</p><div class="ctas"><a class="btn btn-primary" href="#">Encargar</a><a class="btn btn-outline" href="#">Sobre el estudio</a></div></div></div></section>
@@ -3269,7 +3308,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-03" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">Obra</a><a href="#">Estudio</a><a href="#">Contacto</a></nav><a class="btn btn-primary btn-sm" href="#">Encargar</a></div></div></header>
 <main>
 <section class="sec hero hero-visual" aria-label="Obra"><div class="media-full"><figure class="frame"><img data-img="hero-taller" alt="Cantero labrando un sillar a maceta y cincel en el taller" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Piedra Valdés · obra 1978—2026</span><h1>La obra</h1><p class="lede">Trescientas doce entregas. Estas son doce.</p><div class="ctas"><a class="btn btn-primary" href="#">Encargar</a><a class="btn btn-outline" href="#">Sobre el estudio</a></div></div></div></section>
@@ -3337,7 +3376,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-03" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La piedra</a><a href="#">Catálogo</a><a href="#">El taller</a></nav><a class="cart" href="#">Cesta <b>1</b></a></div></div></header>
 <main>
 <section class="sec hero" aria-label="La marca"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Alcarràs, Lleida</span><h1>La piedra sale de un sitio, y ese sitio importa</h1><p class="lede muted">Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cómo trabajamos</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -3401,7 +3440,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-03" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La piedra</a><a href="#">Catálogo</a><a href="#">El taller</a></nav><a class="cart" href="#">Cesta <b>1</b></a></div></div></header>
 <main>
 <section class="sec hero" aria-label="La marca"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Alcarràs, Lleida</span><h1>La piedra sale de un sitio, y ese sitio importa</h1><p class="lede muted">Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cómo trabajamos</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -3465,7 +3504,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-03" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La piedra</a><a href="#">Catálogo</a><a href="#">El taller</a></nav><a class="cart" href="#">Cesta <b>1</b></a></div></div></header>
 <main>
 <section class="sec hero" aria-label="La marca"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Alcarràs, Lleida</span><h1>La piedra sale de un sitio, y ese sitio importa</h1><p class="lede muted">Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cómo trabajamos</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -3529,7 +3568,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-03" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"><a href="#">La piedra</a><a href="#">Catálogo</a><a href="#">El taller</a></nav><a class="cart" href="#">Cesta <b>1</b></a></div></div></header>
 <main>
 <section class="sec hero" aria-label="La marca"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Alcarràs, Lleida</span><h1>La piedra sale de un sitio, y ese sitio importa</h1><p class="lede muted">Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cómo trabajamos</a></div></div><div class="media"><figure class="frame"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure></div></div></section>
@@ -3594,7 +3633,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-04" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"></nav><a class="btn btn-primary btn-sm" href="#">Reservar medición</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Oferta"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Oferta de temporada · hasta el 30 de septiembre</span><h1>Su encimera de piedra natural, medida y colocada en quince días</h1><p class="lede muted">Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.</p><div class="ctas"><a class="btn btn-primary" href="#">Reservar medición</a><a class="btn btn-outline" href="#">Ver qué incluye</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
@@ -3684,7 +3723,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-04" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"></nav><a class="btn btn-primary btn-sm" href="#">Reservar medición</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Oferta"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Oferta de temporada · hasta el 30 de septiembre</span><h1>Su encimera de piedra natural, medida y colocada en quince días</h1><p class="lede muted">Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.</p><div class="ctas"><a class="btn btn-primary" href="#">Reservar medición</a><a class="btn btn-outline" href="#">Ver qué incluye</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
@@ -3774,7 +3813,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-04" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"></nav><a class="btn btn-primary btn-sm" href="#">Reservar medición</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Oferta"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Oferta de temporada · hasta el 30 de septiembre</span><h1>Su encimera de piedra natural, medida y colocada en quince días</h1><p class="lede muted">Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.</p><div class="ctas"><a class="btn btn-primary" href="#">Reservar medición</a><a class="btn btn-outline" href="#">Ver qué incluye</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
@@ -3864,7 +3903,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-04" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal"></nav><a class="btn btn-primary btn-sm" href="#">Reservar medición</a></div></div></header>
 <main>
 <section class="sec hero" aria-label="Oferta"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Oferta de temporada · hasta el 30 de septiembre</span><h1>Su encimera de piedra natural, medida y colocada en quince días</h1><p class="lede muted">Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.</p><div class="ctas"><a class="btn btn-primary" href="#">Reservar medición</a><a class="btn btn-outline" href="#">Ver qué incluye</a></div></div><div class="media"><figure class="frame"><img data-img="hero-encimera" alt="Encimera de piedra natural con grifería negra en una cocina" width="1440" height="810"></figure></div></div></section>
@@ -3955,7 +3994,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-05" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Liquidación de bancada · hasta el 30 de septiembre o fin de existencias</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple05-direct-q">Buscar en la tienda</label><input id="tple05-direct-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>3</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Campaña"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Termina el 30 de septiembre</span><h1>Restos de bancada al 40%</h1><p class="lede muted">Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver los restos</a><a class="btn btn-outline" href="#">Cómo funciona</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4020,7 +4059,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-05" data-comp="lp-strict-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Liquidación de bancada · hasta el 30 de septiembre o fin de existencias</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple05-matter-q">Buscar en la tienda</label><input id="tple05-matter-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>3</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Campaña"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Termina el 30 de septiembre</span><h1>Restos de bancada al 40%</h1><p class="lede muted">Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver los restos</a><a class="btn btn-outline" href="#">Cómo funciona</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4085,7 +4124,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-05" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Liquidación de bancada · hasta el 30 de septiembre o fin de existencias</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple05-editorial-q">Buscar en la tienda</label><input id="tple05-editorial-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>3</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Campaña"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Termina el 30 de septiembre</span><h1>Restos de bancada al 40%</h1><p class="lede muted">Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver los restos</a><a class="btn btn-outline" href="#">Cómo funciona</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4150,7 +4189,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-05" data-comp="lp-centered" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Liquidación de bancada · hasta el 30 de septiembre o fin de existencias</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple05-institutional-q">Buscar en la tienda</label><input id="tple05-institutional-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>3</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Campaña"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Termina el 30 de septiembre</span><h1>Restos de bancada al 40%</h1><p class="lede muted">Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver los restos</a><a class="btn btn-outline" href="#">Cómo funciona</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4216,7 +4255,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-c-05" data-comp="lp-strict-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
 <a href="#">Showroom</a>
 <a href="#">Materiales</a>
@@ -4282,7 +4321,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-c-05" data-comp="lp-centered" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
 <a href="#">Showroom</a>
 <a href="#">Materiales</a>
@@ -4348,7 +4387,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-c-05" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
 <a href="#">Showroom</a>
 <a href="#">Materiales</a>
@@ -4414,7 +4453,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-c-05" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><nav class="mainnav" aria-label="Principal">
 <a href="#">Showroom</a>
 <a href="#">Materiales</a>
@@ -4482,7 +4521,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-01" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h · muestra física gratuita con cada pedido</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple01-editorial-q">Buscar en la tienda</label><input id="tple01-editorial-q" type="search" placeholder="Buscar material, acabado, formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Cesta <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Colección"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Colección 2026</span><h1>Piedra que se elige mirándola</h1><p class="lede muted">Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver la colección</a><a class="btn btn-outline" href="#">Pedir muestra</a></div></div></div></section>
@@ -4540,7 +4579,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-01" data-comp="lp-strict-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h · muestra física gratuita con cada pedido</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple01-matter-q">Buscar en la tienda</label><input id="tple01-matter-q" type="search" placeholder="Buscar material, acabado, formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Cesta <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Colección"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Colección 2026</span><h1>Piedra que se elige mirándola</h1><p class="lede muted">Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver la colección</a><a class="btn btn-outline" href="#">Pedir muestra</a></div></div></div></section>
@@ -4598,7 +4637,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-01" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h · muestra física gratuita con cada pedido</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple01-direct-q">Buscar en la tienda</label><input id="tple01-direct-q" type="search" placeholder="Buscar material, acabado, formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Cesta <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Colección"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Colección 2026</span><h1>Piedra que se elige mirándola</h1><p class="lede muted">Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver la colección</a><a class="btn btn-outline" href="#">Pedir muestra</a></div></div></div></section>
@@ -4656,7 +4695,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-01" data-comp="lp-centered" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h · muestra física gratuita con cada pedido</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple01-institutional-q">Buscar en la tienda</label><input id="tple01-institutional-q" type="search" placeholder="Buscar material, acabado, formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Cesta <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec hero hero-slides" aria-label="Colección"><div class="slides"><figure class="frame slide"><img data-img="hero-cantera" alt="Vista aérea de una cantera a cielo abierto en bancadas" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-taller" alt="" width="1440" height="810"></figure><figure class="frame slide"><img data-img="hero-encimera" alt="" width="1440" height="810"></figure></div><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Colección 2026</span><h1>Piedra que se elige mirándola</h1><p class="lede muted">Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver la colección</a><a class="btn btn-outline" href="#">Pedir muestra</a></div></div></div></section>
@@ -4714,7 +4753,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-04" data-comp="lp-centered" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Más de 400 referencias en stock · corte a medida en 72 h</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple04-institutional-q">Buscar en la tienda</label><input id="tple04-institutional-q" type="search" placeholder="Referencia, material o formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a href="#">Pedidos</a><a class="cart" href="#">Carrito <b>5</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Catálogo"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Catálogo completo</span><h1>Cuatrocientas referencias, ordenadas</h1><p class="lede muted">Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cuenta de profesional</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4798,7 +4837,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-04" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Más de 400 referencias en stock · corte a medida en 72 h</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple04-direct-q">Buscar en la tienda</label><input id="tple04-direct-q" type="search" placeholder="Referencia, material o formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a href="#">Pedidos</a><a class="cart" href="#">Carrito <b>5</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Catálogo"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Catálogo completo</span><h1>Cuatrocientas referencias, ordenadas</h1><p class="lede muted">Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cuenta de profesional</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4882,7 +4921,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-04" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Más de 400 referencias en stock · corte a medida en 72 h</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple04-editorial-q">Buscar en la tienda</label><input id="tple04-editorial-q" type="search" placeholder="Referencia, material o formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a href="#">Pedidos</a><a class="cart" href="#">Carrito <b>5</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Catálogo"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Catálogo completo</span><h1>Cuatrocientas referencias, ordenadas</h1><p class="lede muted">Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cuenta de profesional</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -4966,7 +5005,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-04" data-comp="lp-strict-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Más de 400 referencias en stock · corte a medida en 72 h</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple04-matter-q">Buscar en la tienda</label><input id="tple04-matter-q" type="search" placeholder="Referencia, material o formato…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a href="#">Pedidos</a><a class="cart" href="#">Carrito <b>5</b></a></div></div></div></header>
 <main>
 <section class="sec hero" aria-label="Catálogo"><div class="canvas"><div class="head stack" data-index="01"><span class="eyebrow">Catálogo completo</span><h1>Cuatrocientas referencias, ordenadas</h1><p class="lede muted">Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.</p><div class="ctas"><a class="btn btn-primary" href="#">Ver el catálogo</a><a class="btn btn-outline" href="#">Cuenta de profesional</a></div></div><div class="media"><figure class="frame"><img data-img="card-veta" alt="Panel de piedra con veta dorada junto a un frente de madera" width="800" height="600"></figure></div></div></section>
@@ -5047,7 +5086,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-02" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-editorial-q">Buscar en la tienda</label><input id="tple02-editorial-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
@@ -5095,7 +5134,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="editorial" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="producto" hidden>
+<div class="sample" lang="es" data-anchor="editorial" data-arch="tpl-e-02" data-field="editorial@paper" data-comp="lp-asymmetric" data-page="producto" hidden>
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-editorial-producto-q">Buscar en la tienda</label><input id="tple02-editorial-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
 <main>
@@ -5150,7 +5189,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-02" data-field="direct@ink" data-comp="lp-broken-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-direct-q">Buscar en la tienda</label><input id="tple02-direct-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
@@ -5198,7 +5237,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="direct" data-field="direct@ink" data-comp="lp-broken-grid" data-page="producto" hidden>
+<div class="sample" lang="es" data-anchor="direct" data-arch="tpl-e-02" data-field="direct@ink" data-comp="lp-broken-grid" data-page="producto" hidden>
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-direct-producto-q">Buscar en la tienda</label><input id="tple02-direct-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
 <main>
@@ -5253,7 +5292,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="home">
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-02" data-comp="lp-strict-grid" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-matter-q">Buscar en la tienda</label><input id="tple02-matter-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
@@ -5301,7 +5340,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="matter" data-comp="lp-strict-grid" data-page="producto" hidden>
+<div class="sample" lang="es" data-anchor="matter" data-arch="tpl-e-02" data-comp="lp-strict-grid" data-page="producto" hidden>
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-matter-producto-q">Buscar en la tienda</label><input id="tple02-matter-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
 <main>
@@ -5356,7 +5395,7 @@ sobrescribe LOS CINCO. Un eje heredado de una tarjeta y nunca preguntado es el m
 default silencioso que esa regla existe para impedir. Lo mismo vale para los toggles: el
 valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente ya haya dado.</pre></details>
 </div></div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="home">
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-02" data-comp="lp-centered" data-page="home">
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-institutional-q">Buscar en la tienda</label><input id="tple02-institutional-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <main>
 <section class="sec mini" aria-label="Tienda"><div class="canvas"><div class="head stack" data-index="01"><h1>Tienda</h1><p class="lede muted">Piedra natural cortada a medida, del bloque a tu obra.</p></div><div class="media"><figure class="frame"><img data-img="pan-fachada" alt="Fachada barroca en piedra labrada de Lecce" width="1440" height="617"></figure></div><nav class="cats" aria-label="Categorías">
@@ -5404,7 +5443,7 @@ valor de arriba es el que la tarjeta enseñó, no una respuesta que el cliente y
 </main>
 <footer class="site-foot"><div class="canvas"><div class="fnav"><span class="muted small">Tienda de piedra natural · Novelda, Alicante</span><a href="#">Envíos</a><a href="#">Devoluciones</a><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></div><p class="legal">© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido</p></div></footer>
 </div>
-<div class="sample" lang="es" data-anchor="institutional" data-comp="lp-centered" data-page="producto" hidden>
+<div class="sample" lang="es" data-anchor="institutional" data-arch="tpl-e-02" data-comp="lp-centered" data-page="producto" hidden>
 <div class="announce"><div class="canvas"><p class="small">Envío en 72 h a península · Corte a medida sin coste</p></div></div><header class="site-head"><div class="canvas"><div class="nav"><span class="logo">PIEDRA VALDÉS</span><form class="searchbar" role="search" onsubmit="return false"><label class="sr" for="tple02-institutional-producto-q">Buscar en la tienda</label><input id="tple02-institutional-producto-q" type="search" placeholder="Buscar mármol, granito, pizarra…"><button class="btn btn-primary btn-sm" type="submit">Buscar</button></form><div class="tools"><a href="#">Cuenta</a><a class="cart" href="#">Carrito <b>2</b></a></div></div></div></header>
 <nav class="crumbs" aria-label="Migas"><div class="canvas"><ol><li><a href="#">Inicio</a></li><li><a href="#">Catálogo</a></li><li aria-current="page">Mármol Crema Levante</li></ol></div></nav>
 <main>
