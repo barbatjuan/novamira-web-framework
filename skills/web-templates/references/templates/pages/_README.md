@@ -2,7 +2,7 @@
 
 Mismo patrón que la home: arquetipos con secciones FIJAS / TOGGLE, `design-system.md` y `toggles.md`
 compartidos. El recomendador, tras elegir la home, resuelve el **set de páginas** del sitio y aplica
-un arquetipo por página. `html-mockup` renderiza cada página (una por Artifact, o multipágina).
+un arquetipo por página. `html-mockup` renderiza el set entero en UN solo Artifact con navegación interna (manda su `SKILL.md` §Hard Rules).
 
 Precios siempre en **€** (regla de casa del orquestador).
 

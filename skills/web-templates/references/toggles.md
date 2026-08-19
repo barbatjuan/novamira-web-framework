@@ -58,6 +58,64 @@ donde la plantilla lo admite.
 | `TGL-TESTIMONIALS` | ¿Testimonios / social proof? | sí / no | COMP-TESTIMONIAL | TPL-C-01, TPL-C-02, TPL-C-05 |
 | `TGL-CTA-STRENGTH` | ¿Qué tan agresivo el CTA? | suave / medio / fuerte | estilo de COMP-CTA | TPL-C-01, TPL-C-02, TPL-C-03, TPL-C-04, TPL-C-05 |
 
+## Catálogo de toggles — corporate, familia B (`TPL-C-06..12`)
+
+Los siete arquetipos de vertical (`recommender.md` §3b, familia B) traen toggles propios porque su
+unidad de contenido no existe en los otros cinco: una carta no se ajusta con los mismos mandos que
+una rejilla de servicios. Varios son **de cantidad**, no de on/off — el bloque es ADN y lo único
+negociable es cuántas filas publica.
+
+| ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
+|----|--------------------|----------|--------|-----------|
+| `TGL-MARQUEE` | ¿Cinta con lo que define la casa? | sí (default) / no | COMP-MARQUEE | TPL-C-06 |
+| `TGL-MENU-PRICES` | ¿La carta lleva los precios delante? | sí (default) / no | COMP-MENU-LIST | TPL-C-06 |
+| `TGL-GALLERY` | ¿Collage del local / del producto? | sí (default) / no | COMP-GALLERY | TPL-C-06, TPL-C-08 |
+| `TGL-FILTER-DEPTH` | ¿Cuántos controles de filtro? | 2 / **4** (default) | COMP-SEARCH-FILTERS | TPL-C-07 |
+| `TGL-STOCK-DENSITY` | ¿Cuántas unidades por fila en desktop? | 2 / **3** (default) | COMP-STOCK-GRID | TPL-C-07 |
+| `TGL-FINANCE` | ¿Bloque de cuota / financiación? | sí (default) / no | COMP-FINANCE | TPL-C-07, TPL-C-08 |
+| `TGL-BADGES` | ¿Sellos de garantía / confianza? | sí (default) / no | COMP-TRUST-BADGES | TPL-C-07, TPL-C-09 |
+| `TGL-SPEC-ROWS` | ¿Cuántas filas compara la tabla de versiones? | **6** (default) / menos | COMP-SPEC-TABLE | TPL-C-08 |
+| `TGL-PRICE-GROUPS` | ¿En cuántos grupos se ordena la tarifa? | **4** (default) / menos | COMP-PRICE-LIST | TPL-C-09 |
+| `TGL-TREATMENT-COUNT` | ¿Cuántas fichas de tratamiento? | **6** (default) / menos | COMP-TREATMENT-CARDS | TPL-C-10 |
+| `TGL-CASES-COUNT` | ¿Cuántos casos antes/después? | **1** (default) / más | COMP-BEFORE-AFTER | TPL-C-10 |
+| `TGL-INSURANCE` | ¿Aseguradoras y financiación? | sí (default) / no | COMP-INSURANCE | TPL-C-10 |
+| `TGL-PHASE-COUNT` | ¿Cuántas fases tiene el plan? | **4** (default) / otras | COMP-PHASE-TIMELINE | TPL-C-11 |
+| `TGL-PRICING-PLANS` | ¿Cuántos planes con cuota? | **3** (default) / otros | COMP-PRICING | TPL-C-11 |
+| `TGL-URGENT-STATE` | Estado que pinta la barra | **abierto** (default) — el build lo calcula del horario real | COMP-URGENT-BAR | TPL-C-12 |
+| `TGL-SYMPTOM-COUNT` | ¿Cuántas filas de triaje? | **4** (default) / otras | COMP-SYMPTOM-TRIAGE | TPL-C-12 |
+
+Un toggle de cantidad **no puede llegar a cero**: el bloque que gobierna es ADN del arquetipo. Una
+`TPL-C-09` sin tarifa o una `TPL-C-12` sin triaje no son la misma plantilla con menos secciones,
+son otro arquetipo — y la respuesta correcta es cambiar de plantilla, no vaciar ésta.
+
+`TGL-URGENT-STATE` es el único que el cliente **no** responde: su valor sale del horario real en el
+build. Está aquí para que quede escrito de dónde viene, no para preguntarlo.
+
+## Catálogo de toggles — ecommerce, familia B (`TPL-E-06..09`)
+
+Las cuatro verticales de tienda (`recommender.md` §3, familia B) estrenan toggles porque su unidad
+de contenido no es un producto de catálogo: es una talla, un lote, un plan o una configuración.
+Igual que en corporate, varios son **de cantidad** sobre un bloque que es ADN.
+
+| ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
+|----|--------------------|----------|--------|-----------|
+| `TGL-MEASURE-UNITS` | ¿Medidas en centímetros o pulgadas? | **cm** (default) / in | COMP-MEASURE-TABLE | TPL-E-06 |
+| `TGL-FIT-BODIES` | ¿Sobre cuántos cuerpos se enseña la prenda? | **3** (default) / 2 — nunca 1 | COMP-FIT-GALLERY | TPL-E-06 |
+| `TGL-BATCH-DEPTH` | ¿Cuántos lotes se publican a la vez? | **6** (default) / otros | COMP-BATCH-CARD | TPL-E-07 |
+| `TGL-ORIGIN-MAP` | ¿Mapa o foto de la explotación de origen? | sí (default) / no | COMP-ORIGIN-MAP | TPL-E-07 |
+| `TGL-PLAN-COUNT` | ¿Cuántos planes de suscripción? | **3** (default) / 2 — nunca 1 | COMP-PLAN-PICKER | TPL-E-08 |
+| `TGL-CADENCE-OPTIONS` | ¿Cuántas frecuencias de entrega? | **3** (default) / otras | COMP-CADENCE | TPL-E-08 |
+| `TGL-CONFIG-STEPS` | ¿Cuántos pasos tiene el configurador? | **4** (default) / hasta 5 | COMP-CONFIGURATOR | TPL-E-09 |
+| `TGL-SAMPLE` | ¿Se envían muestras físicas? | sí (default) / no | COMP-SAMPLE-REQUEST | TPL-E-09 |
+
+Dos suelos que no son de estilo. `TGL-FIT-BODIES` no baja de 2 porque una prenda sobre un solo
+cuerpo informa de ese cuerpo y de ninguno más, que es el problema que la sección viene a resolver.
+`TGL-PLAN-COUNT` no baja de 1 porque un único plan no es una elección: es un precio, y entonces el
+arquetipo correcto era otro.
+
+`TGL-SAMPLE` en off es una decisión con consecuencia, no un ajuste: lo fabricado a medida no se
+devuelve, así que sin muestra el visitante que duda del color no compra. Apagarlo solo tiene
+sentido cuando el material no tiene variante visual.
 ## Transversales (no dependen del arquetipo)
 
 | ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
@@ -89,6 +147,20 @@ fijan `TGL-IMAGERY` en `foto` (el lookbook y la historia necesitan campaña real
 | `TGL-CHECKOUT-STEPS` | ¿Checkout en 1 paso o 2 pasos? | 1-step / 2-step | form checkout | TPL-CHECKOUT-01 |
 | `TGL-CHECKOUT-HEADER` | ¿Header de checkout minimal o completo? | minimal / full | COMP-HEADER | TPL-CHECKOUT-01 |
 
+| `TGL-PROJECT-GALLERY` | ¿Galería del proyecto? | sí (default) / no — apagar con menos de 3 imágenes propias | galería | TPL-PROJECT-01 |
+| `TGL-PROJECT-QUOTE` | ¿Testimonio del cliente de ESTE proyecto? | sí / **no** (default) — solo si es real y autorizado | COMP-TESTIMONIAL | TPL-PROJECT-01 |
+| `TGL-PROJECT-METRICS` | ¿Métricas del resultado? | sí / **no** (default) — solo con cifras verificables | métricas | TPL-PROJECT-01 |
+| `TGL-PROJECT-RELATED` | ¿Proyectos relacionados? | sí (default) / no — apagar con menos de 4 proyectos | COMP-RELATED | TPL-PROJECT-01 |
+| `TGL-THANKS-RELATED` | ¿Productos/servicios relacionados en gracias? | sí / **no** (default) — encender en ecommerce | COMP-RELATED | TPL-THANKS-01 |
+| `TGL-404-RELATED` | ¿Destacados en la 404? | sí / **no** (default) — encender en ecommerce con catálogo amplio | COMP-RELATED | TPL-404-01 |
+| `TGL-LEGAL-TOC` | ¿Índice con ancla a cada H2? | sí (default) / no — apagar en documentos cortos | índice | TPL-LEGAL-01 |
+| `TGL-BLOG-FEATURED` | ¿Destacar la entrada más reciente a lo ancho? | sí (default) / no — apagar con menos de 4 entradas | destacado | TPL-BLOG-01 |
+| `TGL-BLOG-CATS` | ¿Filtro por categoría? | sí / **no** (default) — encender a partir de 3 categorías con contenido | filtro | TPL-BLOG-01 |
+| `TGL-POST-HERO` | ¿Imagen destacada? | sí (default) / no — apagar si no hay imagen real; una de stock resta | imagen destacada | TPL-POST-01 |
+| `TGL-POST-TOC` | ¿Índice lateral? | sí / **no** (default) — solo artículos largos y solo desktop | índice lateral | TPL-POST-01 |
+| `TGL-POST-AUTHOR` | ¿Ficha de autor? | sí / **no** (default) — encender si el autor aporta autoridad | autor | TPL-POST-01 |
+| `TGL-POST-RELATED` | ¿Entradas relacionadas? | sí (default) / no — apagar con menos de 4 entradas | COMP-RELATED | TPL-POST-01 |
+
 `TPL-SERVICE-01` (página de servicio/área) no estrena toggles: reutiliza `TGL-PROCESS`, `TGL-CASES`,
 `TGL-FAQ`, `TGL-TESTIMONIALS`, `TGL-PRICING` y `TGL-CTA-STRENGTH`. Ojo con dos defaults propios:
 `TGL-FAQ` va **on** (al revés que en `TPL-CONTACT-01`, porque ahí es ADN de SEO) y `TGL-PRICING` va
@@ -109,4 +181,13 @@ Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TG
   TPL-E-04 según la columna de acá, pero TPL-E-03 nunca lo declaró y en los otros dos el bloque que
   supuestamente movía pasó a ser fijo. Se retiró del catálogo en vez de dejarlo como pregunta
   decorativa.
+- **Dos nombres para la misma puerta, sin unificar todavía.** `TGL-TRUST` (ecommerce) y
+  `TGL-BADGES` (corporate familia B) gobiernan los dos `COMP-TRUST-BADGES`. Se documentan por
+  separado porque así los declaran sus plantillas y esa tabla manda; unificarlos es un cambio en
+  siete `TPL-*.md`, no en esta lista. Mismo caso, menos grave, entre `TGL-MAP` y `TGL-CONTACT-MAP`,
+  y entre `TGL-STATS`/`TGL-ABOUT-STATS` y `TGL-TEAM`/`TGL-ABOUT-TEAM`.
+- **Los cinco `*-RELATED` no son un duplicado**, aunque lo parezcan. `TGL-RELATED`,
+  `TGL-PROJECT-RELATED`, `TGL-POST-RELATED`, `TGL-THANKS-RELATED` y `TGL-404-RELATED` apuntan al
+  mismo componente pero llevan **defaults opuestos** (on en producto, proyecto y entrada; off en
+  gracias y 404), y ese default es justo la información que se perdería al fusionarlos.
 - Cada `TPL-*` declara en su doc qué toggles admite y con qué default. **Esa tabla manda.**
