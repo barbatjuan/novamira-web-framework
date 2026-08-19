@@ -5830,7 +5830,13 @@ $css[] = <<<'CSS'
 .phtotal{margin:var(--sp-s) 0 0;font-family:var(--font-primary);
   font-size:clamp(1.1rem,1.8vw,1.5rem);font-variant-numeric:tabular-nums}
 .phaselist{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.phase{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-m);
+/* UNA ANCHURA FIJA PARA EL NÚMERO, NO `auto`. Cada `.phase` es su PROPIA rejilla, así que una
+   columna `auto` se dimensiona por FILA y no entre filas: los cuatro cuerpos arrancaban en x
+   ligeramente distintas y la lista se leía como un bamboleo. Es el mismo error que una tabla
+   hecha de rejillas independientes — la alineación entre filas sólo existe si una sola rejilla,
+   o una medida fija, la impone. `ch` aquí SÍ es la unidad correcta: mide la cifra, que es
+   exactamente lo que ocupa esa columna. */
+.phase{display:grid;grid-template-columns:3.5ch minmax(0,1fr);gap:var(--sp-m);
   padding-block:var(--sp-l);border-top:1px solid var(--c-border)}
 .phase:last-child{border-bottom:1px solid var(--c-border)}
 .phn{font-family:var(--font-primary);font-size:clamp(1.6rem,3vw,2.6rem);line-height:1;
