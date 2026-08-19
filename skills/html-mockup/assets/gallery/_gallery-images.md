@@ -23,9 +23,26 @@ build, silently, in a way no gate here can see.
 
 `_axis-proof-content.md` makes the same argument about copy: it is the constant,
 so any visible difference between two renderings is the axes and nothing else.
-Images are the other half of that. Every strip in the gallery draws from these
-thirteen, so when two strips look different, the difference is the anchor or a
-**declared toggle** — never a photograph one strip had and another did not.
+Images are the other half of that. Every strip built on the HOUSE identity —
+Piedra Valdés, forty of them — draws from the first thirteen rows, so when two of
+those look different, the difference is the anchor or a **declared toggle**, never
+a photograph one strip had and another did not.
+
+**That premise stops at the house, and the day it stopped is recorded here rather
+than papered over.** A shared set proves the axes; it cannot prove a CATALOGUE. A
+gallery where every entry is the same stonemason answers "show me the difference
+between two anchors" and cannot answer "quiero la de restaurante", which is the
+question the catalogue exists for. So a BRAND — see `$BRANDS` in
+`_build-gallery.php` — brings its own ground, accent, type and photographs, and
+its rows are grouped under its own slug prefix below. Inside one brand the set is
+still shared and the old argument still holds; ACROSS brands the photographs are
+supposed to differ, because that is the thing being catalogued.
+
+The cost of that is real and it is why brand sets are small: a brand gets one hero
+and about six support frames at a tighter budget than the house rows, so thirty
+brands land near 8 MB of base64 rather than past the ceiling. A brand that wants a
+seventh photograph takes it out of another brand's allowance, not out of the
+budget.
 
 That second clause is not hedging, and it was added the day it stopped being
 optional. `TPL-C-01 × PERS-EDITORIAL` resolves `TGL-HERO-TYPE` to `slider` and
@@ -149,6 +166,13 @@ new row looks different from the old ones.
 | `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | fp-1051 | Freepik free | Superficie de mármol beige con veta natural |
 | `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | fp-1033 | Freepik free | Granito gris de grano fino en placa |
 | `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | fp-410749 | Freepik free | Fachada barroca en piedra labrada de Lecce |
+| `terrazza-sala` | hero 16:9 | 1440×810 | 114 KB | 7734844 | fp-7734 | Freepik free | Comedor de ladrillo visto con mesas corridas de madera y lámparas colgantes |
+| `terrazza-mesa` | card 4:3 | 720×540 | 34 KB | 11541171 | fp-11541 | Freepik free | Mesa larga vestida para una cena, con velas y sillas doradas |
+| `terrazza-plato` | card 4:3 | 720×540 | 33 KB | 5449221 | fp-5449 | Freepik free | Plato de carne con salsa de cerezas servido en una mesa oscura |
+| `terrazza-chef` | card 4:3 | 720×540 | 32 KB | 13273102 | fp-13273 | Freepik free | Cocinero terminando un plato con una cuchara en la cocina |
+| `terrazza-velas` | card 4:3 | 720×540 | 34 KB | 5697815 | fp-5697 | Freepik free | Velas encendidas sobre una repisa de madera del comedor |
+| `terrazza-coctel` | card 4:3 | 720×540 | 34 KB | 3421110 | fp-3421 | Freepik free | Rincón del comedor con pared de ladrillo y tablas de madera colgadas |
+| `terrazza-terraza` | card 4:3 | 720×540 | 34 KB | 3742308 | fp-3742 | Freepik free | Terraza de restaurante en la calle con mesas y sillas de mimbre |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
@@ -172,6 +196,7 @@ it first. They are:
 |---|---|---|
 | hero 16:9 | 125 KiB | q-varies, 114–122 KB |
 | card 4:3 | 46 KiB | q85 / q94 on the two new frames |
+| card 4:3 de marca | 34 KiB | q21–q88, y el rango ES el argumento del apartado siguiente |
 | square 1:1 | 40 KiB | q85 |
 | swatch 1:1 | 80 KiB | see below |
 | panoramic 21:9 | 105 KiB | — |

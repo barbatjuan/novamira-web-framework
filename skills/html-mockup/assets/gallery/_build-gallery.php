@@ -392,12 +392,73 @@ $ANCHORS = array(
 // are the point: change any of these four and the build stops rather than shipping a failing
 // label. `#8C3A1F` measures 2.47:1 on `ink`, which is the rule proving itself.
 
+// ─────────────────────────────────────────────────────────────── 4b · a brand is not an anchor
+//
+// AN ANCHOR IS A POSITION; A BRAND IS A BUSINESS. Everything above this line renders ONE company —
+// Piedra Valdes, cantería in Lleida — through ten architectures and four anchors. That is forty
+// configurations of one identity, and it is the defect this table exists to end: a catalogue whose
+// every entry is the same stonemason cannot answer "quiero la de restaurante", because none of
+// them is one. The architecture varied and the identity never did.
+//
+// So a brand supplies exactly what an anchor deliberately does not: its own GROUND, its own
+// ACCENT, its own TYPE PAIRING and its own PHOTOGRAPHS. It BORROWS scale, density, composition and
+// elevation from the anchor it starts on, so the five axes keep meaning what they meant and the
+// anchor stops being a variant you flip between — it becomes the preset a brand starts from.
+//
+// THE GROUND AND THE ACCENT ARE REGISTERED INTO THE SAME TWO TABLES THE ANCHORS USE, under a `b-`
+// key. That is the whole mechanism, and it is the reason this file needed almost no new gates:
+// the AA sweep on the eyebrow, the `--c-on-accent` derivation, the house ink, the split-tone shape
+// check and the swatch separation all run on a brand for free, because none of them ever learns
+// that such a thing as a brand exists.
+//
+// `ink` is this brand's own GRADE, in the two terms § 5a's table uses: `sat` is how much colour,
+// `gamma` is how deep the S-curve goes. A brand that names neither inherits the default, exactly
+// like an anchor whose § Imagery says nothing.
+$BRANDS = array(
+	'terrazza' => array(
+		'name'   => 'CASA TERRAZZA',
+		'sector' => 'Restaurante',
+		/* Ground: the room's own light. Brick, wood and candles photograph warm and DARK, and a
+		   restaurant read on a phone at 21:40 is read in a dark room — a paper ground would be the
+		   one surface in the whole design that argues with its own photographs. */
+		'ground' => array( 'bg' => '#171310', 'alt' => '#211B16', 'text' => '#F4EBDF' ),
+		/* Accent: brass. It is the metal actually in the photographs — the lamps, the cutlery, the
+		   chair frames — which is the only defensible way to pick one. Measured below like any other. */
+		'accent' => '#D9A441',
+		'font_1' => "'Fraunces', Georgia, 'Times New Roman', serif",
+		'font_2' => "'Source Sans 3', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.88, 'gamma' => 0.18 ),
+	),
+);
+
 $ACCENT_BY_GROUND = array(
 	'paper' => '#8C3A1F',
 	'warm'  => '#8C3A1F',
 	'cool'  => '#8C3A1F',
 	'ink'   => '#FF6A1A',
 );
+
+/* REGISTERED, NOT SPECIAL-CASED. A brand that appended its colours to a parallel table would be a
+   second palette nothing measures; appending them HERE means the derivation loop directly below
+   runs on it, and a brand whose eyebrow cannot be read stops the build with a number in the
+   message. The body-copy bar is 7:1 rather than 4.5 because a ground is what every paragraph on
+   the page is painted on, and AAA on body text is the one place this repo has always spent. */
+foreach ( $BRANDS as $br_k => $br_v ) {
+	$br_g = 'b-' . $br_k;
+	if ( isset( $GROUND[ $br_g ] ) ) {
+		fail( "brand `$br_k` claims ground key `$br_g`, which an anchor already owns" );
+	}
+	if ( contrast( $br_v['ground']['text'], $br_v['ground']['bg'] ) < 7.0 ) {
+		fail( "brand `$br_k` grounds its type at " . ratio_str( $br_v['ground']['text'], $br_v['ground']['bg'] )
+			. ' — below the 7:1 every other ground in this file clears' );
+	}
+	if ( contrast( $br_v['ground']['text'], $br_v['ground']['alt'] ) < 7.0 ) {
+		fail( "brand `$br_k` grounds its type at " . ratio_str( $br_v['ground']['text'], $br_v['ground']['alt'] )
+			. ' on --c-bg-alt — below 7:1' );
+	}
+	$GROUND[ $br_g ]           = $br_v['ground'];
+	$ACCENT_BY_GROUND[ $br_g ] = $br_v['accent'];
+}
 
 $ACCENT = array();
 foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
@@ -737,6 +798,23 @@ function ink_of( $anchor_key, $anchors, $grounds, $accents, $grades, $tint ) {
 $INK = array();
 foreach ( $ANCHORS as $ink_ak => $ink_av ) {
 	$INK[ $ink_ak ] = ink_of( $ink_ak, $ANCHORS, $GROUND, $ACCENT_BY_GROUND, $INK_GRADE, $INK_TINT );
+}
+
+/* AND ONE PER BRAND, from the brand's own two colours. A brand that kept the anchor's ink would be
+   grading its photographs toward a palette its page does not have — the exact failure the ink was
+   built to prevent, one level up. Everything below this line — the split-tone shape check, the
+   swatch separation bar — indexes `$INK` and therefore measures these too. */
+foreach ( $BRANDS as $ink_bk => $ink_bv ) {
+	$ink_bg    = 'b-' . $ink_bk;
+	$ink_grade = isset( $ink_bv['ink'] ) ? $ink_bv['ink'] : $INK_GRADE['default'];
+	$ink_bends = ink_ends( $GROUND[ $ink_bg ], $ACCENT_BY_GROUND[ $ink_bg ], $INK_TINT );
+	$INK[ $ink_bg ] = array(
+		'ends'  => $ink_bends,
+		'sat'   => rtrim( rtrim( sprintf( '%.4f', $ink_grade['sat'] ), '0' ), '.' ),
+		'gamma' => $ink_grade['gamma'],
+		'named' => isset( $ink_bv['ink'] ),
+		'table' => ink_curve( $ink_bends, $ink_grade['gamma'] ),
+	);
 }
 
 /* IT IS ONLY A SPLIT TONE IF THE MIDDLE MOVES LESS THAN THE ENDS, AND MUTATION IS WHY THIS EXISTS.
@@ -1417,6 +1495,102 @@ foreach ( $SCRIM_ELEMENTS as $se ) {
 $BRAND = 'PIEDRA VALDÉS';
 
 $CONTENT = array(
+	/* ── CASA TERRAZZA · THE FIRST ENTRY IN THIS TABLE THAT IS A BUSINESS AND NOT A CONFIGURATION.
+	   Everything below it is Piedra Valdés — one company rendered through ten architectures and
+	   four anchors, which is forty cards a client cannot choose between by sector because they are
+	   all the same sector. This one takes TPL-C-05's SKELETON (the phone in the header, the booking
+	   block, the address and the hours at the close) and brings everything else itself: name,
+	   sector, ground, brass, Fraunces, and seven photographs of its own room.
+
+	   THE COPY IS WRITTEN FOR THE BUSINESS AND NOT ADAPTED FROM THE QUARRY'S. An archetype supplies
+	   the SECTIONS a restaurant needs; it never supplies the sentences, and a page whose booking
+	   block says "el cantero estará con usted toda la visita" over a photograph of a dining room is
+	   the tell that nobody wrote it. Which also means: the axis-proof argument that the copy is a
+	   constant is a HOUSE argument. It ends at the brand, on purpose, and § "Why one shared set" in
+	   `_gallery-images.md` records the same boundary for the photographs. */
+	'TPL-C-05-terrazza' => array(
+		'tpl'          => 'TPL-C-05-terrazza',
+		'arch'         => 'TPL-C-05',
+		'brand'        => 'terrazza',
+		'brand_name'   => 'Casa Terrazza',
+		'brand_sector' => 'Restaurante',
+		'tpl_name'     => 'Local / Booking',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Restaurantes, asadores, bares con cocina, cualquier mesa que se reserva',
+		'dna'          => 'COMP-HEADER con teléfono · COMP-HERO local · COMP-BOOKING · COMP-MAP-NAP',
+		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-BOOKING · COMP-GALLERY · COMP-TESTIMONIAL · COMP-MAP-NAP · COMP-FOOTER',
+		'nav'          => array( 'Carta', 'La casa', 'Grupos' ),
+		'nav_cta'      => 'Reservar mesa',
+		'phone'        => '93 000 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Cocina de brasa · Poblenou, Barcelona',
+			'h1'      => 'Se cocina lo que llegó esta mañana',
+			'lede'    => 'Carta corta que cambia cada lunes, encina en la brasa y sesenta referencias en bodega. Reservamos por servicio y no por turno: la mesa es suya hasta que usted se levante.',
+			'cta_1'   => 'Reservar mesa',
+			'cta_2'   => 'Ver la carta',
+			'img'     => 'terrazza-sala',
+		),
+		'services'     => array(
+			'eyebrow' => 'La casa',
+			'h2'      => 'Tres cosas que hacemos siempre igual',
+			'cards'   => array(
+				array( 'img' => 'terrazza-plato', 'h3' => 'Carta de temporada', 'p' => 'Doce platos. Cambian el lunes y se acaban cuando se acaban.' ),
+				array( 'img' => 'terrazza-chef',  'h3' => 'Brasa a la vista',   'p' => 'Encina y sarmiento. La parrilla está en la sala, no escondida detrás.' ),
+				array( 'img' => 'terrazza-velas', 'h3' => 'Sobremesa larga',    'p' => 'Nadie va a pedirle la mesa. Un servicio es una reserva, no dos.' ),
+			),
+		),
+		'booking'      => array(
+			'eyebrow' => 'Reservas',
+			'h2'      => 'Elija día y hora',
+			'lede'    => 'Veinte mesas y dos servicios. Lo que no aparece aquí es que está lleno, no que no cogemos el teléfono.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Domingo 25', 'Martes 27' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '13:30', '15:00', '20:00', '21:30', '22:45' ),
+			'submit'   => 'Reservar mesa',
+			'small'    => 'Le confirmamos en menos de una hora. Si al final no puede venir, avise y liberamos la mesa.',
+		),
+		'gallery'      => array(
+			'eyebrow' => 'El sitio',
+			'h2'      => 'Cómo es por dentro',
+			'items'   => array( 'terrazza-mesa', 'terrazza-terraza', 'terrazza-coctel', 'terrazza-plato', 'terrazza-velas', 'terrazza-chef' ),
+		),
+		'quotes'       => array(
+			'eyebrow' => 'Reseñas',
+			'h2'      => 'Lo que dicen los que repiten',
+			'items'   => array(
+				array( 'Reservamos a las nueve y salimos a la una sin que nadie mirara el reloj.', 'Marta Sedó', 'Barcelona' ),
+				array( 'Cambian la carta cada semana y siempre hay algo que no había probado.', 'Iván Peris', 'Badalona' ),
+				array( 'Pedí consejo con el vino y me trajeron uno de veintidós euros, no el caro.', 'Nuria Bages', 'Sant Adrià' ),
+			),
+		),
+		'nap'          => array(
+			'eyebrow' => 'Cómo llegar',
+			'h2'      => 'Poblenou, Barcelona',
+			'addr'    => array( 'Carrer de Pujades, 118', '08005 Barcelona' ),
+			'phone'   => '93 000 00 00',
+			'mail'    => 'reservas@casaterrazza.example',
+			'hours'   => array(
+				array( 'Martes a jueves', '13:00 – 16:00 · 20:00 – 23:30' ),
+				array( 'Viernes y sábado', '13:00 – 16:30 · 20:00 – 00:30' ),
+				array( 'Domingo', '13:00 – 16:30' ),
+				array( 'Lunes', 'Cerrado' ),
+			),
+			'note'    => 'Metro Llacuna a cuatro minutos. La terraza abre hasta que refresca.',
+			'img'     => 'terrazza-sala',
+		),
+		'footer'       => array(
+			'tag'   => 'Casa Terrazza · Carrer de Pujades 118, 08005 Barcelona · 93 000 00 00',
+			'links' => array( 'Carta', 'Reservas', 'Privacidad' ),
+			'legal' => 'Casa Terrazza SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
 	'TPL-C-01' => array(
 		'tpl'      => 'TPL-C-01',
 		'tpl_name' => 'Services / Lead-Gen',
@@ -2363,6 +2537,34 @@ $CONTENT = array(
 // at the gradient's own floor, against the ink ground's own `--c-text`. Re-measured when the
 // duotone became a grade: 5.82:1 under both, because on a dark veil the binding pixel is the
 // brightest one and both inks cap the highlights at the same #EBEDEE.
+/* A CONTENT ENTRY IS A TEMPLATE; `arch` IS THE ARCHETYPE IT IS BUILT ON, AND THEY STOPPED BEING
+   THE SAME THING. While every entry was one company the two could share a key, and forty cards of
+   one stonemason is exactly what that shortcut produced. A brand takes an archetype's SKELETON —
+   its section inventory, its toggle table, its page set, its renderer — and brings its own
+   identity, so `TPL-C-05` is now something two entries can both be built on without being the
+   same catalogue entry.
+
+   NORMALISED HERE RATHER THAN DEFAULTED AT EVERY READ. Forty entries predate `arch` and every one
+   of them is its own archetype; writing that out forty times would be forty chances to typo a key
+   that no gate reads twice. */
+foreach ( $CONTENT as $cn_k => $cn_v ) {
+	if ( $cn_k !== $cn_v['tpl'] ) {
+		fail( "content is keyed `$cn_k` but carries tpl `{$cn_v['tpl']}` — the key IS the template id,"
+			. ' and two names for one entry is how a strip ends up rendering a page it did not ask for' );
+	}
+	if ( ! isset( $CONTENT[ $cn_k ]['arch'] ) ) {
+		$CONTENT[ $cn_k ]['arch'] = $cn_v['tpl'];
+	}
+	if ( ! isset( $CONTENT[ $cn_k ]['brand'] ) ) {
+		$CONTENT[ $cn_k ]['brand'] = '';
+	} elseif ( ! isset( $BRANDS[ $CONTENT[ $cn_k ]['brand'] ] ) ) {
+		fail( "template `$cn_k` names brand `{$CONTENT[ $cn_k ]['brand']}`, which \$BRANDS does not declare" );
+	}
+	if ( ! isset( $TOGGLES[ $CONTENT[ $cn_k ]['arch'] ] ) ) {
+		fail( "template `$cn_k` is built on archetype `{$CONTENT[ $cn_k ]['arch']}`, which has no toggle table" );
+	}
+}
+
 $BG_FLOOR      = 0.64;
 $BG_ANCHOR     = 'direct';
 $BG_SLUG       = $CONTENT['TPL-C-01']['hero']['img'];
@@ -2454,6 +2656,11 @@ printf( "  hero visual TPL-C-03 (%s, scrim %s negro, texto %s):\n    %s\n",
 	$VIS_SLUG, $VIS_ALPHA, $VIS_TEXT, implode( "\n    ", $VIS_ROWS ) );
 
 $STRIPS = array(
+	/* CASA TERRAZZA GOES FIRST because the catalogue is read from the top and this is the entry
+	   that answers the question the other forty cannot. PERS-EDITORIAL and not PERS-MATTER: the
+	   restaurant wants the generous density and the 88px display, and `matter`'s classic scale would
+	   have made a room that photographs like this read solid instead of worth the trip. */
+	array( 'tpl' => 'TPL-C-05-terrazza', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
@@ -2521,9 +2728,9 @@ foreach ( $STRIPS as $s ) {
 	if ( ! isset( $ANCHORS[ $s['anchor'] ] ) ) {
 		fail( "no anchor `{$s['anchor']}` in design-personalities.md" );
 	}
-	if ( ! isset( $TOGGLES[ $s['tpl'] ] ) ) {
-		fail( "no toggle table for {$s['tpl']} — an archetype that has not declared which toggles it"
-			. ' admits cannot be checked against one, and `todas` is not a declaration' );
+	if ( ! isset( $TOGGLES[ $CONTENT[ $s['tpl'] ]['arch'] ] ) ) {
+		fail( "no toggle table for {$CONTENT[ $s['tpl'] ]['arch']} — an archetype that has not declared"
+			. ' which toggles it admits cannot be checked against one, and `todas` is not a declaration' );
 	}
 }
 
@@ -2535,7 +2742,7 @@ foreach ( $STRIPS as $s ) {
    stops the build here rather than rendering a page that quietly invents a capability. */
 $RESOLVED = array();
 foreach ( $STRIPS as $s ) {
-	$r_admit = $TOGGLES[ $s['tpl'] ];
+	$r_admit = $TOGGLES[ $CONTENT[ $s['tpl'] ]['arch'] ];
 	$r_set   = isset( $s['tgl'] ) ? $s['tgl'] : array();
 	foreach ( $r_set as $r_id => $r_val ) {
 		if ( ! isset( $r_admit[ $r_id ] ) ) {
@@ -2568,13 +2775,22 @@ foreach ( $STRIPS as $s ) {
    — "shows one frame" is worth little if the frame is arbitrary — and it is exactly the kind of
    agreement between two tables that holds until somebody edits one of them. Asserted rather than
    commented, because a comment saying two things agree is not a thing that notices when they stop. */
-foreach ( $TOGGLES as $t_tpl => $t_admit ) {
+foreach ( $CONTENT as $t_tpl => $t_c ) {
+	$t_admit = $TOGGLES[ $t_c['arch'] ];
 	if ( ! isset( $t_admit['TGL-HERO-TYPE'] ) || ! in_array( 'slider', $t_admit['TGL-HERO-TYPE']['options'], true ) ) {
 		continue;
 	}
-	if ( $SLIDER_FRAMES[0] !== $CONTENT[ $t_tpl ]['hero']['img'] ) {
+	/* $SLIDER_FRAMES IS A HOUSE SET, and a branded template on a slider archetype would need its own.
+	   Stopping here is the honest state of the code: the alternative is a brand whose slider shows
+	   three photographs of somebody else's quarry, which is a worse page than no page. */
+	if ( '' !== $t_c['brand'] ) {
+		fail( "`$t_tpl` is a branded template on `{$t_c['arch']}`, which admits TGL-HERO-TYPE=slider,"
+			. ' and $SLIDER_FRAMES still names the three house frames — a brand needs its own frame list'
+			. ' before it can sit on a slider archetype' );
+	}
+	if ( $SLIDER_FRAMES[0] !== $t_c['hero']['img'] ) {
 		fail( "the slider's first frame is `{$SLIDER_FRAMES[0]}` and {$t_tpl}'s fixed hero is"
-			. " `{$CONTENT[ $t_tpl ]['hero']['img']}` — under prefers-reduced-motion the slider strip"
+			. " `{$t_c['hero']['img']}` — under prefers-reduced-motion the slider strip"
 			. ' would settle on a different photograph than the same strip shows at `imagen fija`, so'
 			. ' the toggle would be changing the image as well as the behaviour, and neither the data'
 			. ' bar nor the pasted spec would say so' );
@@ -2595,9 +2811,13 @@ function tgl_of( $rows, $id ) {
 // strip uses is the same lie as a token nothing reads.
 $used_anchors = array();
 $used_comps   = array();
+$used_brands  = array();
 foreach ( $STRIPS as $s ) {
 	$used_anchors[ $s['anchor'] ]                          = true;
 	$used_comps[ $ANCHORS[ $s['anchor'] ]['composition'] ] = true;
+	if ( '' !== $CONTENT[ $s['tpl'] ]['brand'] ) {
+		$used_brands[ $CONTENT[ $s['tpl'] ]['brand'] ] = true;
+	}
 }
 
 // ═══════════════════════════════════════════════════════════════ CSS
@@ -2846,15 +3066,32 @@ $FIELD_DEF = array(
 	   button on an accent field is a button nobody can find. */
 	'direct'    => array( 'kind' => 'accent' ),
 );
-foreach ( $FIELD_DEF as $fld_k => $fld_d ) {
-	$fld_gr = $GROUND[ $ANCHORS[ $fld_k ]['ground'] ];
+/* THE FIELD IS KEYED BY (ANCHOR x GROUND) AND NOT BY ANCHOR, and the brand layer is what forced
+   it. `inverse` means "this anchor's ink becomes the ground"; whose ink was never a question while
+   an anchor owned exactly one ground. A brand replaces the ground, so a field still resolved from
+   `$ANCHORS[$k]['ground']` would paint the HOUSE's back cover at the bottom of a page that has
+   none of the house's colours — near-black on near-black, legal in DevTools and unreadable on a
+   screen. The sites are DERIVED FROM THE STRIPS, so a field can only exist for a close that is
+   actually rendered, and every rendered close has one. */
+$FIELD_SITES = array();
+foreach ( $STRIPS as $fs_s ) {
+	if ( ! isset( $FIELD_DEF[ $fs_s['anchor'] ] ) ) {
+		continue;
+	}
+	$fs_c = $CONTENT[ $fs_s['tpl'] ];
+	$fs_g = ( '' !== $fs_c['brand'] ) ? 'b-' . $fs_c['brand'] : $ANCHORS[ $fs_s['anchor'] ]['ground'];
+	$FIELD_SITES[ $fs_s['anchor'] . '@' . $fs_g ] = array( 'anchor' => $fs_s['anchor'], 'ground' => $fs_g );
+}
+foreach ( $FIELD_SITES as $fld_k => $fld_site ) {
+	$fld_d  = $FIELD_DEF[ $fld_site['anchor'] ];
+	$fld_gr = $GROUND[ $fld_site['ground'] ];
 	if ( 'inverse' === $fld_d['kind'] ) {
 		$fld_bg   = $fld_gr['text'];
 		$fld_text = $fld_gr['bg'];
 		$fld_alt  = css_mix( $fld_gr['text'], 0.92, $fld_gr['bg'] );
 	} else {
-		$fld_bg   = $ACCENT[ $ANCHORS[ $fld_k ]['ground'] ]['hex'];
-		$fld_text = $ACCENT[ $ANCHORS[ $fld_k ]['ground'] ]['on'];
+		$fld_bg   = $ACCENT[ $fld_site['ground'] ]['hex'];
+		$fld_text = $ACCENT[ $fld_site['ground'] ]['on'];
 		$fld_alt  = css_mix( $fld_bg, 0.90, $fld_text );
 	}
 
@@ -2953,9 +3190,15 @@ foreach ( $FIELD_DEF as $fld_k => $fld_d ) {
    BUILT FROM THE SAME TABLE that paints the fields, so a field can never exist as a painted band
    without also being a resolution site for the derived neutrals. That pairing is the bug this
    whole mechanism exists to make impossible, and two lists would let them drift apart. */
-$FIELD_SELECTORS = array( ':root', '[data-anchor]' );
+/* `[data-brand]` IS IN THIS LIST FOR THE SAME REASON THE CLOSING FIELDS ARE. A brand block
+   re-declares --c-bg, --c-bg-alt and --c-text on the strip root; every derived neutral under it
+   would otherwise still carry the value it resolved to against the ANCHOR's ground — a muted grey
+   mixed toward white, painted on a near-black restaurant. The gate at the bottom of this file
+   fails the build if any selector declaring --c-bg is missing from here, which is how this line
+   stops being something a future brand can forget. */
+$FIELD_SELECTORS = array( ':root', '[data-anchor]', '[data-brand]' );
 foreach ( $FIELD as $fld_k => $fld_v ) {
-	$FIELD_SELECTORS[] = '[data-anchor="' . $fld_k . '"] .sec.closing';
+	$FIELD_SELECTORS[] = '[data-field="' . $fld_k . '"] .sec.closing';
 }
 
 // ── block 2 · THE SHARED DERIVED CHAIN — written once, resolved per anchor ─────────────────────
@@ -4324,6 +4567,36 @@ foreach ( $ANCHORS as $k => $A ) {
 	}
 }
 
+/* THE BRAND BLOCK COMES AFTER EVERY ANCHOR BLOCK, AND THE ORDER IS THE WHOLE MECHANISM. Both
+   selectors are a single attribute — 0,1,0 — and both land on the SAME element, so source order is
+   what decides which --c-bg survives. Everything derived follows for free: custom properties
+   substitute against the CASCADED value on the declaring element, not against the value written in
+   the same rule, so the muted tone, the border and the inverse surface all re-resolve against the
+   brand's two colours without a line of code knowing it.
+
+   WHAT IS NOT HERE IS THE POINT. Colour, type, and nothing else. A brand that also moved scale or
+   density would be a fifth anchor wearing a business name, and the five axis chips on its own card
+   would be describing a page that no longer matches them. */
+$brand_css = array( '/* ══════════ THE BRANDS — ground, accent and type. Never an axis. ══════════ */' );
+foreach ( $BRANDS as $b_k => $b_v ) {
+	if ( ! isset( $used_brands[ $b_k ] ) ) {
+		continue;
+	}
+	$b_gr = $GROUND[ 'b-' . $b_k ];
+	$b_ac = $ACCENT[ 'b-' . $b_k ];
+	$brand_css[] = "\n/* ══════════ {$b_v['name']} — {$b_v['sector']} ══════════\n"
+		. '   type ' . ratio_str( $b_gr['text'], $b_gr['bg'] ) . " on --c-bg, "
+		. ratio_str( $b_gr['text'], $b_gr['alt'] ) . " on --c-bg-alt;\n"
+		. '   accent ' . $b_ac['hex'] . ' measured ' . $b_ac['r_bg'] . ' on --c-bg, ' . $b_ac['r_alt']
+		. " on --c-bg-alt;\n" . '   --c-on-accent resolves to ' . $b_ac['on_is'] . ' (' . $b_ac['on']
+		. ') at ' . $b_ac['r_on'] . ' on the fill. ══════════ */';
+	$brand_css[] = '[data-brand="' . $b_k . '"]{'
+		. '--c-bg:' . $b_gr['bg'] . ';--c-bg-alt:' . $b_gr['alt'] . ';--c-text:' . $b_gr['text'] . ';'
+		. '--c-accent:' . $b_ac['hex'] . ';--c-on-accent:' . $b_ac['on'] . ';'
+		. '--font-primary:' . $b_v['font_1'] . ';--font-secondary:' . $b_v['font_2'] . '}';
+}
+$css[] = implode( "\n", $brand_css ) . "\n";
+
 // ── block 5a · the house ink, one filter per anchor ────────────────────────────────────────────
 //
 // EMITTED FROM `$INK`, THE SAME ARRAY THE CONTRAST SWEEP READS — and it emits the very strings the
@@ -4367,6 +4640,29 @@ foreach ( $ANCHORS as $ink_k => $ink_a ) {
 		. ' · saturate ' . $ink_o['sat'] . ' · gamma ' . $ink_o['gamma']
 		. ( $ink_o['named'] ? ', named by § Imagery' : ', the default' ) . ' */';
 	$ink_css[]  = '@supports not (filter:url(#nm-ink-' . $ink_k . ')){[data-anchor="' . $ink_k
+		. '"] .frame > img{filter:saturate(' . $ink_o['sat'] . ')}}';
+}
+
+/* AND ONE PER BRAND, AFTER THEM. Same specificity (0,1,1), so the later rule is the one the
+   browser paints — a branded strip grades toward ITS OWN shadow ink, not toward the quarry's. */
+foreach ( $BRANDS as $ink_bk2 => $ink_bv2 ) {
+	if ( ! isset( $used_brands[ $ink_bk2 ] ) ) {
+		continue;
+	}
+	$ink_bg2              = 'b-' . $ink_bk2;
+	$ink_o                = $INK[ $ink_bg2 ];
+	$INK_ENDS[ $ink_bg2 ] = $ink_o;
+	$ink_t                = array();
+	foreach ( array( 'R', 'G', 'B' ) as $ink_i => $ink_ch ) {
+		$ink_t[] = sprintf( '<feFunc%s type="table" tableValues="%s"/>', $ink_ch, $ink_o['table'][ $ink_i ] );
+	}
+	$ink_defs[] = '<filter id="nm-ink-' . $ink_bg2 . '" color-interpolation-filters="sRGB">'
+		. '<feColorMatrix type="saturate" values="' . $ink_o['sat'] . '"/>'
+		. '<feComponentTransfer>' . implode( '', $ink_t ) . '</feComponentTransfer></filter>';
+	$ink_css[]  = '[data-brand="' . $ink_bk2 . '"] .frame > img{filter:url(#nm-ink-' . $ink_bg2 . ')}'
+		. '   /* ' . $ink_o['ends']['dark'] . ' → ' . $ink_o['ends']['light']
+		. ' · saturate ' . $ink_o['sat'] . ' · gamma ' . $ink_o['gamma'] . ', named by the brand */';
+	$ink_css[]  = '@supports not (filter:url(#nm-ink-' . $ink_bg2 . ')){[data-brand="' . $ink_bk2
 		. '"] .frame > img{filter:saturate(' . $ink_o['sat'] . ')}}';
 }
 
@@ -4838,7 +5134,7 @@ $close_css = array( '/* ══════════ THE CLOSE — one voice p
 foreach ( $FIELD as $fld_k => $fld_v ) {
 	$close_css[] = '/* ' . $fld_k . ': ' . ( 'inverse' === $fld_v['kind'] ? 'the back cover' : 'a field of accent' )
 		. ' — type ' . $fld_v['r_text'] . ', control ' . $fld_v['r_ctrl'] . ', label ' . $fld_v['r_lbl'] . ' */';
-	$close_css[] = '[data-anchor="' . $fld_k . '"] .sec.closing{'
+	$close_css[] = '[data-field="' . $fld_k . '"] .sec.closing{'
 		. '--c-bg:' . $fld_v['bg'] . ';--c-bg-alt:' . $fld_v['alt'] . ';--c-text:' . $fld_v['text'] . ';'
 		. '--c-accent:' . $fld_v['accent'] . ';--c-on-accent:' . $fld_v['on'] . ';'
 		. ( $fld_v['over'] ? implode( ';', $fld_v['over'] ) . ';' : '' )
@@ -6730,10 +7026,19 @@ function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
 	$C = $C = $T['content'];
 	$n = count( $cards );
 
+	/* A CARD NAMES THE BUSINESS WHEN THERE IS ONE. `TPL-C-05 Local / Booking` is what the entry is
+	   BUILT ON; `CASA TERRAZZA · Restaurante` is what it IS, and the second is the only one that
+	   answers "quiero la de restaurante". The archetype does not disappear — it moves to the line
+	   underneath, where it belongs, next to who the template fits. */
+	$is_b  = ( '' !== $C['brand'] );
+	$g_eye = $is_b ? $C['brand_sector'] : $C['site_es'];
+	$g_b   = $is_b ? $C['brand_name'] : $tpl;
+	$g_r   = $is_b ? ( 'sobre ' . $C['arch'] . ' · ' . $C['tpl_name'] ) : $C['tpl_name'];
+
 	return '<section class="tgroup" data-site="' . h( $C['site'] ) . '" data-tpl="' . h( $tpl ) . '">'
 		. '<header class="tgroup-head">'
-		. '<span class="eyebrow">' . h( $C['site_es'] ) . '</span>'
-		. '<h2><a href="#' . h( $tpl_slug ) . '"><b>' . h( $tpl ) . '</b> ' . h( $C['tpl_name'] ) . '</a></h2>'
+		. '<span class="eyebrow">' . h( $g_eye ) . '</span>'
+		. '<h2><a href="#' . h( $tpl_slug ) . '"><b>' . h( $g_b ) . '</b> ' . h( $g_r ) . '</a></h2>'
 		. '<p class="tgroup-fits">' . h( $C['fits'] ) . '</p>'
 		. '<p class="tgroup-count">' . $n . ' ' . ( 1 === $n ? 'ancla' : 'anclas' ) . '</p>'
 		. '</header>'
@@ -6834,6 +7139,27 @@ $n_strip = count( $STRIPS );
 foreach ( $STRIPS as $s ) {
 	$C   = $CONTENT[ $s['tpl'] ];
 	$A   = $ANCHORS[ $s['anchor'] ];
+
+	/* THE BRAND OVERRIDES THE ANCHOR'S GROUND AND TYPE ON THE LOCAL COPY, so `axis_rows()` reports
+	   the colours the strip is actually painted in. The alternative — an axis bar that says `paper`
+	   over a near-black restaurant — is the kind of readout that is worse than none, because it is
+	   read as authoritative. Scale, density, composition and elevation are untouched: they are the
+	   anchor's, and the card's chips stay true. */
+	$wordmark = $BRAND;
+	$b_attr   = '';
+	if ( '' !== $C['brand'] ) {
+		$b_of        = $BRANDS[ $C['brand'] ];
+		$A['ground'] = 'b-' . $C['brand'];
+		$A['font_1'] = $b_of['font_1'];
+		$A['font_2'] = $b_of['font_2'];
+		$wordmark    = $b_of['name'];
+		$b_attr      = ' data-brand="' . h( $C['brand'] ) . '"';
+	}
+	$f_key = $s['anchor'] . '@' . $A['ground'];
+	if ( isset( $FIELD[ $f_key ] ) ) {
+		$b_attr .= ' data-field="' . h( $f_key ) . '"';
+	}
+
 	$lp  = strtolower( $COMPOSITION[ $A['composition'] ]['lp'] );
 	$uid = strip_uid( $C, $s['anchor'] );
 
@@ -6864,15 +7190,16 @@ foreach ( $STRIPS as $s ) {
 	   `<label for>` inside a sample is an id; two pages of the same variant are two live forms, and
 	   a duplicate id silently breaks the label on BOTH — clicking it focuses the wrong control, or
 	   nothing. The suffix is the page key, so the id says which page it belongs to. */
-	foreach ( $PAGES[ $C['tpl'] ] as $pi => $pg ) {
+	foreach ( $PAGES[ $C['arch'] ] as $pi => $pg ) {
 		$suid = ( 'home' === $pg['key'] ) ? $uid : ( $uid . '-' . $pg['key'] );
 		// `lang` is on the sample rather than the strip: the meta bar around it is Spanish too, but
 		// the sample is what carries hyphenated headings, and `hyphens:auto` needs a language to pick
 		// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
 		$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '"'
+			. $b_attr
 			. ' data-comp="' . h( $lp ) . '" data-page="' . h( $pg['key'] ) . '"'
 			. ( 0 === $pi ? '' : ' hidden' ) . '>';
-		$variant[] = render_page( $pg['key'], $C['tpl'], $s['anchor'], $C, $BRAND, $suid, $tgl );
+		$variant[] = render_page( $pg['key'], $C['arch'], $s['anchor'], $C, $wordmark, $suid, $tgl );
 		$variant[] = '</div>';
 	}
 	$variant[] = '</section>';
@@ -6920,10 +7247,15 @@ function template_page_html( $tpl, $T, $tpl_slug, $pages ) {
 			. ( 0 === $i ? '' : ' hidden' ) . '>' . $T['anchors'][ $k ]['html'] . '</div>';
 	}
 
+	$is_b  = ( '' !== $C['brand'] );
+	$g_eye = $is_b ? $C['brand_sector'] : $C['site_es'];
+	$g_b   = $is_b ? $C['brand_name'] : $tpl;
+	$g_r   = $is_b ? ( 'sobre ' . $C['arch'] . ' · ' . $C['tpl_name'] ) : $C['tpl_name'];
+
 	return '<div class="page" id="p-' . h( $tpl_slug ) . '" data-site="' . h( $C['site'] ) . '">'
 		. '<header class="tpl-head"><div class="gal-wrap">'
-		. '<span class="eyebrow">' . h( $C['site_es'] ) . '</span>'
-		. '<h2><b>' . h( $tpl ) . '</b> ' . h( $C['tpl_name'] ) . '</h2>'
+		. '<span class="eyebrow">' . h( $g_eye ) . '</span>'
+		. '<h2><b>' . h( $g_b ) . '</b> ' . h( $g_r ) . '</h2>'
 		. '<p class="tpl-dna">ADN fijo: <code>' . h( $C['dna'] ) . '</code></p>'
 		. '<p class="tpl-wire"><code>' . h( $C['wire'] ) . '</code></p>'
 		. '</div></header>'
@@ -6953,7 +7285,7 @@ foreach ( $by_tpl as $bt_tpl => $bt_T ) {
 	}
 	$n_cards  += count( $bt_cards );
 	$groups[]  = template_group_html( $bt_tpl, $bt_T, $bt_slug, $bt_cards );
-	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug, $PAGES[ $bt_tpl ] );
+	$body[]    = template_page_html( $bt_tpl, $bt_T, $bt_slug, $PAGES[ $bt_T['content']['arch'] ] );
 }
 
 // ── the image map: declared once, hydrated onto every `<img data-img>` ─────────────────────────
@@ -7050,21 +7382,45 @@ if ( count( $tpl_docs ) < 2 ) {
 		. ' — the completeness line would be printing a number nobody measured' );
 }
 $n_declared = count( $tpl_docs );
-$n_built    = count( $by_tpl );
-$built_line = $n_built . ' de los ' . $n_declared . ' arquetipos que el framework declara están '
-	. 'construidos en esta galería. Los ' . ( $n_declared - $n_built ) . ' restantes existen como '
-	. 'especificación y todavía no como maqueta.';
+
+/* THE NUMERATOR IS DISTINCT ARCHETYPES AND NOT CARDS, and it went wrong the moment a second
+   template landed on TPL-C-05. `count( $by_tpl )` printed "11 de los 10 arquetipos … los -1
+   restantes", which is the kind of sentence a reader trusts right up until they read it twice:
+   the denominator was measured from the docs, the numerator was counting a different thing, and
+   nothing between them noticed because both were integers. Counted from `arch` now, which is the
+   field that means archetype. */
+$archs_built = array();
+$n_brands    = 0;
+foreach ( $by_tpl as $bl_v ) {
+	$archs_built[ $bl_v['content']['arch'] ] = true;
+	if ( '' !== $bl_v['content']['brand'] ) {
+		++$n_brands;
+	}
+}
+$n_built    = count( $archs_built );
+$n_tpls     = count( $by_tpl );
+$built_line = $n_tpls . ' ' . ( 1 === $n_tpls ? 'plantilla' : 'plantillas' ) . ' sobre ' . $n_built
+	. ' de los ' . $n_declared . ' arquetipos que el framework declara.';
+if ( $n_declared > $n_built ) {
+	$built_line .= ' Los ' . ( $n_declared - $n_built ) . ' restantes existen como especificación y'
+		. ' todavía no como maqueta.';
+}
+$built_line .= ' ' . ( 1 === $n_brands ? 'Una es una marca propia' : $n_brands . ' son marcas propias' )
+	. ' — negocio, fondo, acento, tipografía y fotografías suyas; el resto comparten la marca de la casa.';
 
 $intro = '<header class="gal-head"><div class="gal-wrap">'
 	. '<span class="eyebrow">NovaMira · uso interno</span>'
 	. '<h1>Galería de plantillas</h1>'
-	. '<p>Cada tarjeta es un <b>arquetipo</b>: el <code>TPL-*</code> decide qué secciones existen y en '
-	. 'qué orden. Dentro de cada una están sus <b>anclas</b> — el <code>PERS-*</code> decide cómo se '
-	. 'ven los cinco ejes perceptuales. Elegir plantilla y ancla precarga las dos cosas.</p>'
-	. '<p class="gal-note">El copy y el juego de fotos son los mismos en todas las variantes de una '
-	. 'misma plantilla. Si dos variantes se distinguen, la diferencia es el <b>ancla</b> o un '
-	. '<b>toggle</b> (CAPA 3) — nunca el copy, y nunca una foto que una tenga y otra no. Cada '
-	. 'variante imprime los toggles que resuelve encima de sus cinco ejes.</p>'
+	. '<p>Cada tarjeta es una <b>plantilla</b>. El <code>TPL-*</code> decide qué secciones existen y '
+	. 'en qué orden; la <b>marca</b> decide el fondo, el acento, la tipografía y las fotos; y el '
+	. '<code>PERS-*</code> — el <b>ancla</b> — decide los cinco ejes perceptuales. Dos plantillas '
+	. 'pueden compartir arquetipo sin parecerse en nada, que es justamente el punto. Elegir tarjeta '
+	. 'precarga las tres cosas.</p>'
+	. '<p class="gal-note">Dentro de una misma plantilla el copy y el juego de fotos son los mismos '
+	. 'en todas sus variantes: si dos se distinguen, la diferencia es el <b>ancla</b> o un '
+	. '<b>toggle</b> (CAPA 3), nunca el copy y nunca una foto que una tenga y otra no. Cada variante '
+	. 'imprime los toggles que resuelve encima de sus cinco ejes. <b>Entre</b> plantillas de marcas '
+	. 'distintas la fotografía sí cambia, y cambia a propósito: es lo que se está catalogando.</p>'
 	. '<p class="gal-progress">' . h( $built_line ) . '</p>'
 	. '</div></header>';
 
@@ -7188,7 +7544,7 @@ $foot = '<footer class="gal-foot"><div class="gal-wrap">'
 	   catalogue grouped them. The footer said "8 plantillas" over a grid of two. */
 	. '<p>' . count( $groups ) . ' ' . ( 1 === count( $groups ) ? 'plantilla' : 'plantillas' )
 	. ' · ' . $n_strip . ' ' . ( 1 === $n_strip ? 'variante' : 'variantes' ) . ' · '
-	. count( $only_used ) . ' imágenes del set compartido · generado por <code>_build-gallery.php</code> '
+	. count( $only_used ) . ' imágenes · generado por <code>_build-gallery.php</code> '
 	. 'desde <code>assets/gallery/img/</code> y <code>_gallery-images.md</code>.</p>'
 	. '</div></footer>';
 
