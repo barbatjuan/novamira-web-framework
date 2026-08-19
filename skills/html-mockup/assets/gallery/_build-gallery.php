@@ -4794,6 +4794,14 @@ $css[] = <<<'CSS'
 .quotes figure{margin:0;min-width:0;display:flex;flex-direction:column;height:100%}
 .quotes blockquote{margin:0;position:relative;font-family:var(--font-primary);
                    font-size:var(--fs-h3);line-height:1.35;letter-spacing:var(--track-h3,0)}
+/* En una sola columna la cita dispone del canvas entero y --fs-h3 es correcto: es una cita
+   destacada y tiene que leerse como tal. En la rejilla de tres de abajo cada columna mide un
+   tercio del canvas —unos 350px a 1280— y --fs-h3 llega a 45.8px en `direct`: SIETE caracteres
+   por linea, que ya no es una frase sino una lista vertical de palabras. Una cita se dimensiona
+   por su MEDIDA, no por la escala de titulares: el tope deja la columna entre 32 y 46 caracteres,
+   que es la banda en la que una cita se lee de un golpe. El termino medio sigue saliendo de
+   --fs-h3, asi que la distancia entre anclas se conserva —institutional 16.8px frente a direct
+   21.6px— en vez de aplanarse a un numero fijo para todos. */
 .quotes blockquote::before{content:"\201C";position:absolute;right:100%;top:-.1em;
                            margin-right:.06em;color:var(--c-text-muted);
                            font-size:1.6em;line-height:1}
@@ -4801,6 +4809,11 @@ $css[] = <<<'CSS'
    outside the canvas and be clipped, so it comes back into the flow instead of disappearing. */
 @media(max-width:767px){
   .quotes blockquote::before{position:static;display:block;margin:0 0 -.35em}
+}
+/* DESPUES de la regla base a proposito: la base pinta --fs-h3 y, puesta antes, ganaba por orden
+ de cascada con la misma especificidad — el tope no llegaba a aplicarse nunca. */
+@media(min-width:768px){
+  .quotes blockquote{font-size:clamp(1.05rem, calc(var(--fs-h3) * .5), 1.35rem)}
 }
 .quotes figcaption{margin-top:auto;padding-top:var(--sp-s);font-size:var(--fs-small)}
 .quotes figcaption b{display:block}
@@ -5905,6 +5918,24 @@ $css[] = <<<'CSS'
 /* The last row is the TOTAL and it is the only one that gets weight: every row above it is an
    input the buyer can argue with, and the total is the number this section exists to stop hiding. */
 .ftable{margin:0;width:min(100%,44rem)}
+/* ── El cuerpo sigue el eje del encabezado ─────────────────────────────────────────────────
+   Estos seis bloques comparten forma: ancho acotado dentro de un canvas mas ancho. El .head se
+   centra segun el blueprint, y ellos se quedaban a la izquierda — 30 casos en 23 tiras, con
+   desvios de 286 a 589 px. Visto por un humano no se lee como 'esta a la izquierda', se lee
+   como que FALTA una imagen a la derecha, que es como se reporto.
+   `margin-inline:auto` y no `justify-self`: varios de estos no son items de grid en todos los
+   blueprints, y el margen automatico funciona en los dos casos. Donde el blueprint coloca el
+   head fuera del eje (lp-asymmetric lo lleva a las columnas 1-7, lp-broken-grid lo desplaza a
+   proposito) el bloque se devuelve al borde justo debajo, porque alli el eje NO es el centro. */
+.tiform, .ftable, .bookform, .newsform, .faqlist, .pnote, .plan-note{margin-inline:auto}
+[data-comp="lp-asymmetric"] .tiform, [data-comp="lp-asymmetric"] .ftable,
+[data-comp="lp-asymmetric"] .bookform, [data-comp="lp-asymmetric"] .newsform,
+[data-comp="lp-asymmetric"] .faqlist, [data-comp="lp-asymmetric"] .pnote,
+[data-comp="lp-asymmetric"] .plan-note,
+[data-head="tight"] .tiform, [data-head="tight"] .ftable, [data-head="tight"] .bookform,
+[data-head="tight"] .newsform, [data-head="tight"] .faqlist, [data-head="tight"] .pnote,
+[data-head="tight"] .plan-note{margin-inline:0}
+
 .frow{display:flex;justify-content:space-between;gap:var(--sp-m);align-items:baseline;
   padding-block:calc(var(--sp-s) * .9);border-bottom:1px solid var(--c-border)}
 .frow dt{color:var(--c-text-muted)}
@@ -5919,7 +5950,7 @@ $css[] = <<<'CSS'
   font-size:clamp(1.25rem,2.1vw,1.75rem)}
 .badge span{display:block;margin-top:.3rem;color:var(--c-text-muted);font-size:.9375rem}
 
-.pnote{margin:var(--sp-l) 0 0;color:var(--c-text-muted);font-size:.875rem;max-width:64ch}
+.pnote{margin:var(--sp-l) auto 0;color:var(--c-text-muted);font-size:.875rem;max-width:64ch}
 
 /* ══════════ TPL-C-08 · MODELO / LANZAMIENTO ══════════ */
 
@@ -7880,7 +7911,7 @@ function strip_urgent( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
 		$o[] = med_team_html( $C['team'] );
 	}
-	$o[] = nap_block_html( $C['nap'], ' closing' );
+	$o[] = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
 	return implode( "\n", $o );
@@ -8019,7 +8050,7 @@ function quotes_block_html( $qt, $extra = '' ) {
 }
 
 /** COMP-MAP-NAP. No embedded map: an iframe is a third-party request before any consent. */
-function nap_block_html( $np, $extra = '' ) {
+function nap_block_html( $np, $extra = '', $cta = '' ) {
 	$ni = img( $np['img'] );
 	$o  = '<section class="sec nap' . $extra . '" aria-label="' . h( $np['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $np['eyebrow'] ) . '</span>'
@@ -8030,7 +8061,16 @@ function nap_block_html( $np, $extra = '' ) {
 	foreach ( $np['hours'] as $hr ) {
 		$o .= '<div><dt>' . h( $hr[0] ) . '</dt><dd>' . h( $hr[1] ) . '</dd></div>';
 	}
-	return $o . '</dl><p class="small muted">' . h( $np['note'] ) . '</p></div>'
+	/* Cuando esta banda CIERRA la pagina, cierra pidiendo algo. Cuatro arquetipos de negocio local
+ 	   —C-05, C-07, C-09 y C-12— terminaban en un horario, sin una sola llamada a la accion en las dos
+ 	   ultimas secciones: un cierre que informa y no pide es media conversion tirada justo donde el
+ 	   visitante ya decidio. La etiqueta no se inventa aqui, la pasa quien llama y es la misma que ya
+ 	   usa la cabecera, asi que la pagina no estrena un verbo nuevo en la ultima pantalla. El telefono
+ 	   sigue arriba como enlace, asi que el boton no lo repite. */
+	$nap_cta = '' !== $cta
+		? '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $cta ) . '</a></div>'
+		: '';
+	return $o . '</dl><p class="small muted">' . h( $np['note'] ) . '</p>' . $nap_cta . '</div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
 		. ' alt="' . h( $ni['alt'] ) . '" width="' . $ni['w'] . '" height="' . $ni['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -8166,7 +8206,7 @@ function strip_stock( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
 		$o[] = quotes_block_html( $C['quotes'], ' bg-alt' );
 	}
-	$o[] = nap_block_html( $C['nap'], ' closing' );
+	$o[] = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
 	return implode( "\n", $o );
@@ -8220,7 +8260,7 @@ function strip_workshop( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
 		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
 	}
-	$o[]  = nap_block_html( $C['nap'], ' closing' );
+	$o[]  = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
 	$o[]  = '</main>';
 	$o[]  = footer_html( $C['footer'] );
 	return implode( "\n", $o );
@@ -8485,7 +8525,17 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	foreach ( $np['hours'] as $hr ) {
 		$o[] = '<div><dt>' . h( $hr[0] ) . '</dt><dd>' . h( $hr[1] ) . '</dd></div>';
 	}
-	$o[] = '</dl><p class="small muted">' . h( $np['note'] ) . '</p></div>'
+	/* La banda de cierre pedia la direccion y no pedia NADA mas. Cuatro arquetipos —C-05, C-07,
+	   C-09 y C-12, los cuatro de negocio local— terminaban la pagina en un horario, sin una sola
+	   llamada a la accion en las dos ultimas secciones. Un cierre que informa y no pide es media
+	   conversion tirada justo donde el visitante ya decidio. La etiqueta NO se inventa aqui: es la
+	   misma 'nav_cta' que la cabecera ya usa, asi que la pagina cierra pidiendo exactamente lo que
+	   venia pidiendo arriba —tasacion, cita, reserva o llamada— en vez de estrenar un verbo nuevo
+	   en la ultima pantalla. El telefono ya esta como enlace en el <address>, asi que no se repite. */
+	$nap_cta = isset( $C['nav_cta'] ) && '' !== $C['nav_cta']
+		? '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $C['nav_cta'] ) . '</a></div>'
+		: '';
+	$o[] = '</dl><p class="small muted">' . h( $np['note'] ) . '</p>' . $nap_cta . '</div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
 		. ' alt="' . h( $ni['alt'] ) . '" width="' . $ni['w'] . '" height="' . $ni['h'] . '"></figure></div>'
 		. '</div></section>';
