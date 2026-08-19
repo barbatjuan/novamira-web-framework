@@ -186,6 +186,18 @@ new row looks different from the old ones.
 | `auria-arranque` | card 4:3 | 720×540 | 33 KB | 13554714 | fp-13554 | Freepik free | Detalle del botón de arranque en una consola central negra |
 | `bergara-nave` | card 4:3 | 720×540 | 34 KB | 12750560 | fp-12750 | Freepik free | Mecánico apretando una pieza bajo un coche elevado en el taller |
 | `bergara-rueda` | card 4:3 | 720×540 | 33 KB | 10001443 | fp-10001 | Freepik free | Operario sujetando un neumático en el taller de cambio |
+| `arbea-consulta` | hero 16:9 | 1440×810 | 116 KB | 17437967 | fp-17437 | Freepik free | Gabinete dental con sillón moderno y equipo junto a un ventanal |
+| `arbea-material` | card 4:3 | 720×540 | 32 KB | 18264637 | fp-18264 | Freepik free | Instrumental dental estéril dispuesto sobre la bandeja |
+| `arbea-micro` | card 4:3 | 720×540 | 34 KB | 416006272 | fp-416006 | Freepik free | Odontóloga trabajando con microscopio dental sobre una paciente |
+| `arbea-radio` | card 4:3 | 720×540 | 34 KB | 26766940 | fp-26766 | Freepik free | Profesional mostrando una radiografía dental en una tableta |
+| `arbea-doctor` | card 4:3 | 720×540 | 32 KB | 17296182 | fp-17296 | Freepik free | Retrato de odontólogo sonriendo en su gabinete |
+| `arbea-antes` | card 4:3 | 720×540 | 31 KB | 8404196 | fp-8404 | Freepik free | Paciente mostrando la dentadura en consulta |
+| `arbea-despues` | card 4:3 | 720×540 | 33 KB | 8896977 | fp-8896 | Freepik free | Paciente comprobando su dentadura en un espejo de mano |
+| `alinea-hero` | hero 16:9 | 1440×810 | 114 KB | 27071287 | fp-27071 | Freepik free | Joven con ortodoncia metálica sentado en el sillón dental |
+| `alinea-fase` | card 4:3 | 720×540 | 34 KB | 28031013 | fp-28031 | Freepik free | Mujer joven sonriendo sentada en la clínica dental |
+| `alinea-consulta` | card 4:3 | 720×540 | 34 KB | 26955735 | fp-26955 | Freepik free | Odontóloga y paciente conversando en el gabinete |
+| `urgencia-box` | card 4:3 | 720×540 | 32 KB | 22511062 | fp-22511 | Freepik free | Odontóloga tratando a un paciente con dolor en el box de urgencias |
+| `urgencia-turno` | card 4:3 | 720×540 | 34 KB | 15933809 | fp-15933 | Freepik free | Auxiliar de clínica dental de turno mirando a cámara |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the

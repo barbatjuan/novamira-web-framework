@@ -469,6 +469,47 @@ $BRANDS = array(
 		'font_2' => "'DM Sans', system-ui, sans-serif",
 		'ink'    => array( 'sat' => 0.80, 'gamma' => 0.16 ),
 	),
+
+	/* CLÍNICA ARBEA · odontología general. Blanco frío casi puro y verde azulado. Es el fondo más
+	   CLARO de todo el catálogo a propósito: una consulta sanitaria compite con el miedo, y el miedo
+	   no se calma con contraste alto ni con acentos que gritan. */
+	'arbea'  => array(
+		'name'   => 'CLÍNICA ARBEA',
+		'sector' => 'Salud · odontología',
+		'ground' => array( 'bg' => '#FBFCFD', 'alt' => '#EDF2F4', 'text' => '#0F1E24' ),
+		'accent' => '#0E6E6E',
+		'font_1' => "'Source Sans 3', system-ui, sans-serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.58, 'gamma' => 0.10 ),
+	),
+
+	/* ALINEA · ortodoncia. Papel cálido y ciruela. Vende un tratamiento de dieciocho meses, así que
+	   se parece más a una marca de producto que a una clínica: el acento es el único de la casa que
+	   no viene ni del sector ni de la fotografía, y eso es correcto aquí — lo que se compra es la
+	   decisión de empezar, no el material. */
+	'alinea' => array(
+		'name'   => 'ALINEA',
+		'sector' => 'Salud · ortodoncia',
+		'ground' => array( 'bg' => '#FAF7F4', 'alt' => '#EFE8E1', 'text' => '#1E1720' ),
+		'accent' => '#6B3A7A',
+		'font_1' => "'Instrument Serif', Georgia, 'Times New Roman', serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.66, 'gamma' => 0.12 ),
+	),
+
+	/* URGENCIA DENTAL · guardia. Blanco puro y rojo de señal. Ningún otro fondo del catálogo es
+	   blanco #FFFFFF y ningún otro acento es rojo, y las dos cosas son la misma decisión: esta
+	   página se lee de pie, con dolor y con una mano, y todo lo que no sea contraste máximo le
+	   estorba a esa persona. */
+	'urgencia' => array(
+		'name'   => 'URGENCIA DENTAL',
+		'sector' => 'Salud · guardia 24 h',
+		'ground' => array( 'bg' => '#FFFFFF', 'alt' => '#F3F4F5', 'text' => '#131416' ),
+		'accent' => '#C22217',
+		'font_1' => "'Archivo', system-ui, sans-serif",
+		'font_2' => "'Source Sans 3', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.74, 'gamma' => 0.22 ),
+	),
 );
 
 $ACCENT_BY_GROUND = array(
@@ -939,6 +980,19 @@ foreach ( $INK_GRADE as $ink_gk => $ink_gv ) {
 // because its mini banner is ADN, and `TGL-HERO-TYPE` appears nowhere in its doc.
 
 $TOGGLES = array(
+	/* TPL-C-10 · Clínica / Tratamientos — de su propio § "Toggles admitidos". */
+	'TPL-C-10' => array(
+		'TGL-INSURANCE' => array( 'ask' => '¿Bloque de coberturas?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-11 · Plan por fases. */
+	'TPL-C-11' => array(
+		'TGL-CASES' => array( 'ask' => '¿Antes y después?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'   => array( 'ask' => '¿Preguntas frecuentes?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-12 · Urgencias / Hoy. */
+	'TPL-C-12' => array(
+		'TGL-TEAM' => array( 'ask' => '¿Quién está de guardia?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
 	/* TPL-C-07 · Stock / Ocasión — de su propio § "Toggles admitidos". */
 	'TPL-C-07' => array(
 		'TGL-FINANCE'      => array( 'ask' => '¿Simulador de cuota?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
@@ -1572,6 +1626,272 @@ foreach ( $SCRIM_ELEMENTS as $se ) {
 $BRAND = 'PIEDRA VALDÉS';
 
 $CONTENT = array(
+	/* ── CLÍNICA ARBEA · TPL-C-10 · el miedo no es el precio, es el procedimiento. La unidad de
+	   contenido no es un servicio con precio sino un TRATAMIENTO con cuatro datos que casi nadie
+	   publica: cuánto dura, cuántas sesiones, si lleva anestesia y desde cuánto. */
+	'TPL-C-10-arbea' => array(
+		'tpl'          => 'TPL-C-10-arbea',
+		'arch'         => 'TPL-C-10',
+		'brand'        => 'arbea',
+		'brand_name'   => 'Clínica Arbea',
+		'brand_sector' => 'Salud · odontología',
+		'tpl_name'     => 'Clínica / Tratamientos',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Clínicas dentales, dermatología, fisioterapia, podología, veterinaria',
+		'dna'          => 'COMP-TREATMENT-CARDS · COMP-BEFORE-AFTER · COMP-TEAM',
+		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-TREATMENT-CARDS · COMP-BEFORE-AFTER · COMP-TEAM · COMP-INSURANCE · COMP-BOOKING · COMP-FOOTER',
+		'nav'          => array( 'Tratamientos', 'Equipo', 'Coberturas' ),
+		'nav_cta'      => 'Pedir cita',
+		'phone'        => '945 00 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Odontología general y estética · Vitoria-Gasteiz',
+			'h1'      => 'Le contamos qué le vamos a hacer antes de hacerlo',
+			'lede'    => 'Cada tratamiento con su duración, sus sesiones y si lleva anestesia. Sin presupuestos que aparecen a mitad y sin tratamientos que se alargan sin avisar.',
+			'cta_1'   => 'Pedir cita',
+			'cta_2'   => '945 00 00 00',
+			'img'     => 'arbea-consulta',
+		),
+		'treatments'   => array(
+			'eyebrow' => 'Tratamientos',
+			'h2'      => 'Seis cosas que hacemos, con sus números',
+			'note'    => 'Los precios «desde» corresponden al caso simple; la primera visita incluye radiografía y presupuesto cerrado por escrito.',
+			'items'   => array(
+				array( 'img' => 'arbea-material', 'h3' => 'Empaste', 'p' => 'Composite del color del diente, en una sola visita.',
+					'facts' => array( '35 min', '1 sesión', 'Con anestesia', 'desde 65 €' ) ),
+				array( 'img' => 'arbea-micro', 'h3' => 'Endodoncia', 'p' => 'Con microscopio: se ve el conducto en vez de buscarlo.',
+					'facts' => array( '75 min', '1–2 sesiones', 'Con anestesia', 'desde 190 €' ) ),
+				array( 'img' => 'arbea-radio', 'h3' => 'Implante', 'p' => 'Colocación, cicatrización y corona sobre él.',
+					'facts' => array( '60 min', '3 sesiones', 'Con anestesia', 'desde 1.100 €' ) ),
+				array( 'img' => 'arbea-antes', 'h3' => 'Blanqueamiento', 'p' => 'En clínica con férula para casa las dos semanas siguientes.',
+					'facts' => array( '50 min', '1 sesión', 'Sin anestesia', 'desde 290 €' ) ),
+				array( 'img' => 'arbea-despues', 'h3' => 'Limpieza y mantenimiento', 'p' => 'Con revisión de encías y consejo de cepillado.',
+					'facts' => array( '40 min', '1 sesión', 'Sin anestesia', '59 €' ) ),
+				array( 'img' => 'arbea-doctor', 'h3' => 'Primera visita', 'p' => 'Radiografía, exploración y presupuesto por escrito.',
+					'facts' => array( '30 min', '1 sesión', 'Sin anestesia', 'Gratuita' ) ),
+			),
+		),
+		'cases'        => array(
+			'eyebrow' => 'Un caso',
+			'h2'      => 'Antes y después, con las dos fechas',
+			'lede'    => 'Rehabilitación de sector anterior: dos implantes y cuatro carillas. El paciente autorizó la publicación de las imágenes.',
+			'before'  => array( 'img' => 'arbea-antes', 'label' => 'Antes', 'date' => '14 de marzo de 2025' ),
+			'after'   => array( 'img' => 'arbea-despues', 'label' => 'Después', 'date' => '2 de julio de 2025' ),
+			'note'    => 'Tres meses y medio, seis sesiones. Los resultados dependen de cada caso y se explican en la primera visita.',
+		),
+		'team'         => array(
+			'eyebrow' => 'Quién le atiende',
+			'h2'      => 'Tres personas, con su número de colegiado',
+			'items'   => array(
+				array( 'img' => 'arbea-doctor', 'name' => 'Dr. Íñigo Arbea', 'role' => 'Odontología general y endodoncia', 'lic' => 'Col. 01-0001234' ),
+				array( 'img' => 'arbea-micro', 'name' => 'Dra. Leire Otxoa', 'role' => 'Implantología y cirugía', 'lic' => 'Col. 01-0004567' ),
+				array( 'img' => 'arbea-radio', 'name' => 'Dr. Pablo Mendive', 'role' => 'Estética dental y prótesis', 'lic' => 'Col. 01-0007890' ),
+			),
+		),
+		'insurance'    => array(
+			'eyebrow' => 'Coberturas',
+			'h2'      => 'Con qué seguros trabajamos',
+			'items'   => array( 'Adeslas', 'Sanitas', 'DKV', 'Asisa', 'Mapfre Salud', 'Caser' ),
+			'note'    => 'Financiación hasta 24 meses sin intereses a partir de 600 €, con estudio previo. TAE 0 % — el resto de plazos se explican por escrito antes de firmar.',
+		),
+		'booking'      => array(
+			'eyebrow' => 'Cita',
+			'h2'      => 'Elija día y hora',
+			'lede'    => 'La primera visita es gratuita e incluye radiografía y presupuesto por escrito. Dura media hora.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '09:30', '11:00', '12:30', '16:00', '18:00' ),
+			'submit'   => 'Pedir cita',
+			'small'    => 'Le confirmamos por teléfono el mismo día. Si necesita cambiarla, avise con 24 horas y no cuenta.',
+		),
+		'footer'       => array(
+			'tag'   => 'Clínica Arbea · Calle Postas 32, 01004 Vitoria-Gasteiz · 945 00 00 00 · Reg. sanitario 01-C21-0000',
+			'links' => array( 'Tratamientos', 'Equipo', 'Privacidad' ),
+			'legal' => 'Clínica Arbea SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* ── ALINEA · TPL-C-11 · un solo tratamiento que dura dieciocho meses. La pregunta no es «cuál»
+	   sino «cuánto tiempo, cuánto duele y cuánto al mes», y un catálogo de fichas sería la
+	   respuesta equivocada a las tres. */
+	'TPL-C-11-alinea' => array(
+		'tpl'          => 'TPL-C-11-alinea',
+		'arch'         => 'TPL-C-11',
+		'brand'        => 'alinea',
+		'brand_name'   => 'Alinea',
+		'brand_sector' => 'Salud · ortodoncia',
+		'tpl_name'     => 'Plan por fases',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Ortodoncia, implantología, nutrición, entrenamiento personal, psicoterapia',
+		'dna'          => 'COMP-PHASE-TIMELINE · COMP-PRICING · COMP-PROBLEM',
+		'wire'         => 'COMP-HEADER · COMP-HERO-FULL · COMP-PROBLEM · COMP-PHASE-TIMELINE · COMP-PRICING · COMP-BEFORE-AFTER · COMP-FAQ · COMP-BOOKING · COMP-FOOTER',
+		'nav'          => array( 'El plan', 'Precios', 'Casos' ),
+		'nav_cta'      => 'Estudio gratuito',
+		'phone'        => '96 000 00 00',
+		'hero'         => array(
+			'eyebrow' => 'Ortodoncia invisible y metálica · València',
+			'h1'      => 'Dieciocho meses, y le decimos qué pasa en cada uno',
+			'lede'    => 'El plan completo antes de empezar: cuántas fases, cuánto dura cada una, qué se nota y cuánto se paga al mes. Sin sorpresas a la mitad.',
+			'cta_1'   => 'Estudio gratuito',
+			'cta_2'   => 'Ver el plan',
+			'img'     => 'alinea-hero',
+		),
+		'pains'        => array(
+			'eyebrow' => 'Qué le trae aquí',
+			'h2'      => 'Lo que nos dicen en la primera visita',
+			'items'   => array(
+				'«Me da vergüenza sonreír en las fotos y ya tengo treinta y cuatro años.»',
+				'«Me dijeron de pequeño que había que hacerlo y no se hizo.»',
+				'«Se me está torciendo un diente de abajo y cada año va a peor.»',
+				'«Quiero saber cuánto tiempo es antes de decir que sí.»',
+			),
+		),
+		'phases'       => array(
+			'eyebrow' => 'El plan',
+			'h2'      => 'Cuatro fases y dieciocho meses',
+			'total'   => '18 meses en total',
+			'items'   => array(
+				array( 'n' => '01', 'h3' => 'Estudio y plan', 'months' => '2 semanas', 'p' => 'Escáner intraoral, radiografía y simulación. Sale el plan escrito con la fecha final.' ),
+				array( 'n' => '02', 'h3' => 'Alineación', 'months' => '6 meses', 'p' => 'Los dientes se mueven a su sitio. Es la fase en la que más se nota el cambio y la que más molesta la primera semana.' ),
+				array( 'n' => '03', 'h3' => 'Detalle', 'months' => '9 meses', 'p' => 'Ajuste fino de contactos y mordida. Se avanza poco a la vista y mucho en la función.' ),
+				array( 'n' => '04', 'h3' => 'Retención', 'months' => '3 meses', 'p' => 'Retenedor fijo y férula de noche. Empieza aquí y no termina nunca del todo: eso también se dice.' ),
+			),
+			'note'    => 'Los meses son de un caso medio y se recalculan en el estudio. Si su caso sale a veinticuatro, se lo decimos antes de firmar y no después.',
+		),
+		'plans'        => array(
+			'eyebrow' => 'Precios',
+			'h2'      => 'Tres formas de hacerlo',
+			'note'    => 'Cuota Y precio total, siempre los dos. Una cuota sin el total al lado es la técnica que hace que la gente llame desconfiando.',
+			'items'   => array(
+				array( 'name' => 'Metálica', 'quota' => '119 €/mes', 'total' => '2.142 € en total', 'p' => 'Brackets de acero. Es la más eficaz y la que más se ve.',
+					'feats' => array( '18 meses', 'Revisiones cada 6 semanas', 'Retenedor incluido' ) ),
+				array( 'name' => 'Estética', 'quota' => '149 €/mes', 'total' => '2.682 € en total', 'p' => 'Brackets de cerámica del color del diente.',
+					'feats' => array( '18 meses', 'Revisiones cada 6 semanas', 'Retenedor incluido' ), 'flag' => 'La más pedida' ),
+				array( 'name' => 'Invisible', 'quota' => '189 €/mes', 'total' => '3.402 € en total', 'p' => 'Férulas transparentes que se quitan para comer.',
+					'feats' => array( '18 meses', 'Revisiones cada 8 semanas', 'Juego de repuesto incluido' ) ),
+			),
+		),
+		'cases'        => array(
+			'eyebrow' => 'Un caso',
+			'h2'      => 'Antes y después, con las dos fechas',
+			'lede'    => 'Apiñamiento inferior moderado tratado con férulas transparentes. La paciente autorizó la publicación.',
+			'before'  => array( 'img' => 'alinea-fase', 'label' => 'Antes', 'date' => '9 de enero de 2024' ),
+			'after'   => array( 'img' => 'alinea-consulta', 'label' => 'Después', 'date' => '18 de junio de 2025' ),
+			'note'    => 'Diecisiete meses. Cada caso es distinto y el suyo se calcula en el estudio.',
+		),
+		'faq'          => array(
+			'eyebrow' => 'Lo que se pregunta',
+			'h2'      => 'Cuatro preguntas que hace todo el mundo',
+			'items'   => array(
+				array( '¿Duele?', 'Las primeras 48 horas de cada ajuste, como una agujeta. Después no. Si duele más de eso, llame: algo está rozando y se arregla en diez minutos.' ),
+				array( '¿Puedo comer de todo?', 'Con férulas sí, porque se quitan. Con brackets no: nada muy duro ni muy pegajoso los primeros meses. Le damos la lista por escrito.' ),
+				array( '¿Se nota al hablar?', 'La primera semana sí, sobre todo con las férulas. A partir de ahí nadie lo nota salvo usted.' ),
+				array( '¿Y si me olvido de ponérmelas?', 'El tratamiento se alarga. Con menos de 20 horas al día el plan deja de cumplirse, y eso se lo diremos en la revisión en vez de al final.' ),
+			),
+		),
+		'booking'      => array(
+			'eyebrow' => 'Estudio',
+			'h2'      => 'Reserve el estudio inicial',
+			'lede'    => 'Escáner, radiografía y simulación. Sale el plan escrito con las fases y la fecha final. No cuesta nada y no obliga a nada.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26', 'Lunes 29' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '10:00', '11:30', '13:00', '17:00', '18:30' ),
+			'submit'   => 'Reservar estudio',
+			'img'      => 'alinea-consulta',
+			'small'    => 'Dura cuarenta minutos. Si después no quiere seguir, se lleva el plan igualmente.',
+		),
+		'footer'       => array(
+			'tag'   => 'Alinea · Carrer de Colón 44, 46004 València · 96 000 00 00 · Reg. sanitario 46-C21-0000',
+			'links' => array( 'El plan', 'Precios', 'Privacidad' ),
+			'legal' => 'Alinea Ortodoncia SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
+	/* ── URGENCIA DENTAL · TPL-C-12 · siete secciones y ningún héroe. Quien entra tiene dolor, está
+	   de pie y con una mano. Todos los demás arquetipos empiezan por presentarse; éste empieza por
+	   responder. */
+	'TPL-C-12-urgencia' => array(
+		'tpl'          => 'TPL-C-12-urgencia',
+		'arch'         => 'TPL-C-12',
+		'brand'        => 'urgencia',
+		'brand_name'   => 'Urgencia Dental',
+		'brand_sector' => 'Salud · guardia 24 h',
+		'tpl_name'     => 'Urgencias / Hoy',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Urgencias dentales, cerrajería, fontanería, grúa, veterinaria 24 h',
+		'dna'          => 'COMP-URGENT-BAR · COMP-SYMPTOM-TRIAGE · COMP-WAIT-PROMISE',
+		'wire'         => 'COMP-HEADER · COMP-URGENT-BAR · COMP-SYMPTOM-TRIAGE · COMP-WAIT-PROMISE · COMP-TEAM · COMP-MAP-NAP · COMP-FOOTER',
+		'nav'          => array( 'Qué hacemos', 'Cómo llegar' ),
+		'nav_cta'      => 'Llamar ahora',
+		'phone'        => '944 00 00 00',
+		'urgent'       => array(
+			'state'   => 'Abierto ahora',
+			'h1'      => 'Guardia dental en Bilbao, hoy y sin cita',
+			'next'    => 'Próximo hueco: hoy a las 19:40',
+			'cta'     => 'Llamar al 944 00 00 00',
+			'note'    => 'De 09:00 a 01:00 todos los días del año, festivos incluidos.',
+		),
+		'triage'       => array(
+			'eyebrow' => 'Qué le pasa',
+			'h2'      => 'Cuatro cosas que resolvemos hoy mismo',
+			'items'   => array(
+				array( 'Se me ha roto un diente', 'Reconstrucción provisional en la misma visita; la definitiva se cita después.', '40 min' ),
+				array( 'Me duele mucho una muela', 'Radiografía, apertura y drenaje si hace falta. El dolor se va antes de que se vaya usted.', '50 min' ),
+				array( 'Se me ha caído una corona o un empaste', 'Se recementa en el momento si la trae. Tráigala aunque esté partida.', '30 min' ),
+				array( 'Se me ha salido un bracket y me clava', 'Se recoloca o se recorta el arco. Es lo más rápido de todo.', '20 min' ),
+			),
+			'note'    => 'Si ha habido un golpe con pérdida de un diente entero, llame ANTES de venir: hay media hora para reimplantarlo y le decimos qué hacer con él por teléfono.',
+		),
+		'wait'         => array(
+			'eyebrow' => 'Espera y precio',
+			'h2'      => 'Las dos cosas que nadie publica',
+			'items'   => array(
+				array( '22 minutos', 'de espera media en la última semana, contando fines de semana' ),
+				array( '49 €', 'la visita de urgencia, con radiografía incluida' ),
+			),
+			'note'    => 'La visita se descuenta del tratamiento si lo hace aquí. Lo que cueste el tratamiento se lo decimos antes de empezarlo, no al terminar.',
+		),
+		'team'         => array(
+			'eyebrow' => 'De guardia',
+			'h2'      => 'Quién está hoy',
+			'items'   => array(
+				array( 'img' => 'urgencia-box', 'name' => 'Dra. Nerea Zubiaur', 'role' => 'Odontóloga de guardia · turno de tarde', 'lic' => 'Col. 48-0002345' ),
+				array( 'img' => 'urgencia-turno', 'name' => 'Jon Aretxaga', 'role' => 'Auxiliar · recepción y radiología', 'lic' => 'Nº reg. 48-A-0678' ),
+			),
+		),
+		'nap'          => array(
+			'eyebrow' => 'Cómo llegar',
+			'h2'      => 'Indautxu, Bilbao',
+			'addr'    => array( 'Alameda de Urquijo 68, bajo', '48013 Bilbao · Bizkaia' ),
+			'phone'   => '944 00 00 00',
+			'mail'    => 'guardia@urgenciadental.example',
+			'hours'   => array(
+				array( 'Todos los días', '09:00 – 01:00' ),
+				array( 'Festivos', '09:00 – 01:00' ),
+				array( 'Fuera de ese horario', 'Llame igualmente' ),
+			),
+			'note'    => 'Metro Indautxu a 200 m. Portal a pie de calle, sin escalones. Hay parking público en la misma manzana.',
+			'img'     => 'urgencia-box',
+		),
+		'footer'       => array(
+			'tag'   => 'Urgencia Dental · Alameda de Urquijo 68, 48013 Bilbao · 944 00 00 00 · Reg. sanitario 48-C21-0000',
+			'links' => array( 'Qué hacemos', 'Cómo llegar', 'Privacidad' ),
+			'legal' => 'Urgencia Dental Bilbao SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
 	/* ── MOTOR ARANDA · TPL-C-07 · un INVENTARIO, que es lo que ningún arquetipo corporativo tenía.
 	   El contenido no lo escribe el dueño una vez: son cuarenta unidades que entran y salen, y los
 	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
@@ -3114,6 +3434,10 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-07-aranda',  'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-C-08-auria',   'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-09-bergara', 'anchor' => 'matter' ),
+	/* Los tres de salud dental. */
+	array( 'tpl' => 'TPL-C-10-arbea',    'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-C-11-alinea',   'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-12-urgencia', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
@@ -3578,7 +3902,7 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
    `$VIS_ARCHS` is the set of archetypes whose hero puts copy ON the photograph. An archetype added
    to `render_page()` with a `.hero-visual` and left out of here would ship an unmeasured hero, so
    the list lives next to the check that consumes it rather than in a comment. */
-$VIS_ARCHS  = array( 'TPL-C-06' => true, 'TPL-C-08' => true );
+$VIS_ARCHS  = array( 'TPL-C-06' => true, 'TPL-C-08' => true, 'TPL-C-11' => true );
 $VIS_BRAND  = array();
 foreach ( $STRIPS as $vb_s ) {
 	$vb_c = $CONTENT[ $vb_s['tpl'] ];
@@ -5322,6 +5646,126 @@ $css[] = <<<'CSS'
   [data-comp="lp-asymmetric"] .booking-split .bookmedia{grid-column:c 8 / wide-end;
     grid-row:1 / span 2}
 }
+
+/* ══════════ TPL-C-10 · CLÍNICA / TRATAMIENTOS ══════════ */
+
+/* The four facts are a ROW OF CHIPS and not prose: the patient scans them against the other five
+   cards, and a sentence cannot be scanned in parallel. `margin-top:auto` on the fact row, so six
+   cards whose descriptions wrap to different heights still align their numbers. */
+.treatcards{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr))}
+.trcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
+  border-radius:var(--radius-card);box-shadow:var(--elev-rest)}
+.trcard .frame{aspect-ratio:16/10;border-radius:0}
+.trcard .frame img{width:100%;height:100%;object-fit:cover;display:block}
+.trbody{display:flex;flex-direction:column;gap:.4rem;flex:1;padding:var(--sp-m)}
+.trcard h3{margin:0;font-size:1.0625rem}
+.trcard p{margin:0;color:var(--c-text-muted);font-size:.875rem}
+.tfacts{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:flex;flex-wrap:wrap;gap:.3rem}
+.tfacts li{font-size:.8125rem;border:1px solid var(--c-border);border-radius:var(--radius-button);
+  padding:.1rem .45rem;white-space:nowrap}
+.tfacts li:last-child{font-weight:700;border-color:var(--c-text)}
+
+/* The caption is UNDER the photograph and carries the date. A label floated over the image would
+   be the one place the reader cannot copy the date from. */
+.bapair{display:grid;gap:var(--sp-l);grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.bapair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bashot{margin:0}
+.bashot .frame{aspect-ratio:4/3;border-radius:var(--radius-card);overflow:hidden}
+.bashot .frame img{width:100%;height:100%;object-fit:cover;display:block}
+.bashot figcaption{display:flex;gap:.5rem;align-items:baseline;margin-top:var(--sp-s);flex-wrap:wrap}
+.bashot figcaption b{font-family:var(--font-primary);font-size:1.0625rem}
+.bashot figcaption span{color:var(--c-text-muted);font-size:.875rem}
+
+.medlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,15rem),1fr))}
+.medico .frame{aspect-ratio:1/1;border-radius:var(--radius-card);overflow:hidden}
+.medico .frame img{width:100%;height:100%;object-fit:cover;display:block}
+.medbody{display:grid;gap:.1rem;margin-top:var(--sp-s)}
+.medbody b{font-family:var(--font-primary);font-size:1.0625rem}
+.medbody span{color:var(--c-text-muted);font-size:.875rem}
+.medlic{font-variant-numeric:tabular-nums;font-size:.8125rem}
+
+.inslist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--sp-s)}
+.inslist li{border:1px solid var(--c-border);border-radius:var(--radius-button);
+  padding:.35rem .8rem;background:var(--c-bg);font-size:.9375rem}
+
+/* ══════════ TPL-C-11 · PLAN POR FASES ══════════ */
+
+.painlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m)}
+@media(min-width:900px){.painlist{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-l)}}
+.painlist li{font-family:var(--font-primary);font-size:clamp(1.05rem,1.7vw,1.35rem);
+  line-height:1.35;padding-left:var(--sp-m);border-left:2px solid var(--c-border)}
+
+/* A CALENDAR, NOT A FOUR-STEP PROCESS. The duration is the difference, so it is the element with
+   its own weight — the number of months is the thing the reader is measuring against their life. */
+/* NOT THE ACCENT, and the whitelist was right to stop it. A total is emphasis on body text, and
+   design-tokens.md names five accent roles of which none is emphasis. The weight it needs comes
+   from SIZE and from the display face, which cost the palette nothing. */
+.phtotal{margin:var(--sp-s) 0 0;font-family:var(--font-primary);
+  font-size:clamp(1.1rem,1.8vw,1.5rem);font-variant-numeric:tabular-nums}
+.phaselist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.phase{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-m);
+  padding-block:var(--sp-l);border-top:1px solid var(--c-border)}
+.phase:last-child{border-bottom:1px solid var(--c-border)}
+.phn{font-family:var(--font-primary);font-size:clamp(1.6rem,3vw,2.6rem);line-height:1;
+  color:var(--c-text-muted);font-variant-numeric:tabular-nums}
+.phbody{display:grid;gap:.3rem}
+.phbody h3{margin:0;font-size:var(--fs-h3);font-family:var(--font-primary)}
+.phmonths{font-weight:700;font-variant-numeric:tabular-nums}
+.phbody p{margin:0;color:var(--c-text-muted);max-width:58ch}
+
+.planlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
+@media(min-width:900px){.planlist{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.planbox{position:relative;display:flex;flex-direction:column;gap:.5rem;
+  padding:var(--sp-l);border:1px solid var(--c-border);border-radius:var(--radius-card);
+  background:var(--c-bg)}
+/* AN INVERTED CHIP AND NOT AN ACCENT ONE. Same reasoning that put the TPL-C-06 ribbon on
+   --c-text: a "most asked for" flag is marketing emphasis, not one of the five roles, and
+   inverting the two ground colours hits harder than a tint while spending nothing. */
+.planflag{position:absolute;top:0;right:var(--sp-m);transform:translateY(-50%);
+  background:var(--c-text);color:var(--c-bg);font-size:.75rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:var(--radius-button)}
+.planbox h3{margin:0;font-family:var(--font-primary);font-size:var(--fs-h3)}
+.planq{margin:0;display:grid;gap:.1rem}
+.planq b{font-family:var(--font-primary);font-size:clamp(1.5rem,2.6vw,2rem);line-height:1;
+  font-variant-numeric:tabular-nums}
+.planq span{color:var(--c-text-muted);font-size:.875rem;font-variant-numeric:tabular-nums}
+.planp{margin:0;color:var(--c-text-muted);font-size:.9375rem}
+.planfeats{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:grid;gap:.25rem;
+  font-size:.875rem}
+.planfeats li{padding-left:1rem;position:relative}
+.planfeats li::before{content:"·";position:absolute;left:.25rem;color:var(--c-text-muted)}
+.planbox .btn{margin-top:var(--sp-s);align-self:flex-start}
+
+/* ══════════ TPL-C-12 · URGENCIAS / HOY ══════════ */
+
+/* THE STATE IS A WORD. The accent ring agrees with it; it never carries it alone — this band is
+   the one piece of information on the page that cannot depend on colour. */
+.sec.urgbar{border-bottom:2px solid var(--c-text);padding-block:var(--sp-xl)}
+.urgbar .canvas{display:grid;gap:var(--sp-m);justify-items:start}
+.urgstate{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem var(--sp-m)}
+.urgstate b{font-size:.9375rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border:2px solid var(--c-text);border-radius:var(--radius-button);padding:.15rem .6rem}
+.urgstate span{font-variant-numeric:tabular-nums;font-weight:600}
+.urgbar h1{margin:0;max-width:20ch}
+.urgnote{margin:0;color:var(--c-text-muted);font-size:.9375rem}
+.btn-lg{font-size:1.125rem;padding:.9rem 1.6rem}
+
+.triagelist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.trow{display:grid;gap:.35rem var(--sp-m);padding-block:var(--sp-m);
+  border-top:1px solid var(--c-border);align-items:baseline}
+.triagelist li:last-child{border-bottom:1px solid var(--c-border)}
+@media(min-width:900px){.trow{grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) auto}}
+.trow b{font-family:var(--font-primary);font-size:1.125rem}
+.trdo{color:var(--c-text-muted)}
+.trmin{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+
+.waitlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
+@media(min-width:768px){.waitlist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.waitlist b{display:block;font-family:var(--font-primary);line-height:1;
+  font-size:clamp(2rem,4.5vw,3.4rem);font-variant-numeric:tabular-nums}
+.waitlist span{display:block;margin-top:.4rem;color:var(--c-text-muted)}
 
 /* ══════════ TPL-C-07 · STOCK / OCASIÓN ══════════
    Written against tokens only, so the archetype survives any anchor and any brand. */
@@ -7104,6 +7548,261 @@ function gallery_html( $g ) {
 	return $o . '</ul></div></section>';
 }
 
+/**
+ * COMP-TREATMENT-CARDS · TPL-C-10.
+ *
+ * THE FOUR FACTS ARE ASSERTED, NOT HOPED FOR. A treatment card without its session count is the one
+ * that makes the patient ring to ask exactly what the page was there to save them, and one without
+ * the word "anestesia" leaves the question that gets thought about most and asked least. So a
+ * missing fact stops the build rather than rendering a card that looks finished.
+ */
+function treatment_cards_html( $tr ) {
+	$o = '<section class="sec treatments grid-sec" aria-label="' . h( $tr['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tr['h2'] ) . '</h2></div><ul class="treatcards">';
+	foreach ( $tr['items'] as $t ) {
+		if ( 4 !== count( $t['facts'] ) ) {
+			fail( "the treatment `{$t['h3']}` carries " . count( $t['facts'] ) . ' facts and the archetype'
+				. ' fixes four — duración, sesiones, anestesia y desde. A card with three renders'
+				. ' perfectly and quietly drops the one the patient came for.' );
+		}
+		$ti  = img( $t['img'] );
+		$o  .= '<li class="trcard"><figure class="frame"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure>'
+			. '<div class="trbody"><h3>' . h( $t['h3'] ) . '</h3><p>' . h( $t['p'] ) . '</p>'
+			. '<ul class="tfacts">';
+		foreach ( $t['facts'] as $f ) {
+			$o .= '<li>' . h( $f ) . '</li>';
+		}
+		$o .= '</ul></div></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $tr['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-BEFORE-AFTER · TPL-C-10 and TPL-C-11.
+ *
+ * EACH PHOTOGRAPH CARRIES ITS DATE, and the date is not decoration: a before/after without them
+ * does not say whether the result took three weeks or two years, which is precisely what the reader
+ * is trying to work out.
+ */
+function before_after_html( $cs, $extra = '' ) {
+	$b = img( $cs['before']['img'] );
+	$a = img( $cs['after']['img'] );
+	$o = '<section class="sec cases grid-sec' . $extra . '" aria-label="' . h( $cs['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cs['h2'] ) . '</h2><p class="lede muted">' . h( $cs['lede'] ) . '</p></div>'
+		. '<div class="bapair">';
+	foreach ( array( array( $cs['before'], $b ), array( $cs['after'], $a ) ) as $pair ) {
+		$o .= '<figure class="bashot"><div class="frame"><img data-img="' . h( $pair[1]['slug'] ) . '"'
+			. ' alt="' . h( $pair[1]['alt'] ) . '" width="' . $pair[1]['w'] . '" height="' . $pair[1]['h'] . '"></div>'
+			. '<figcaption><b>' . h( $pair[0]['label'] ) . '</b>'
+			. '<span>' . h( $pair[0]['date'] ) . '</span></figcaption></figure>';
+	}
+	return $o . '</div><p class="pnote">' . h( $cs['note'] ) . '</p></div></section>';
+}
+
+/** COMP-TEAM, sanitary variant: the licence number is what turns a stock smile into a person. */
+function med_team_html( $tm, $extra = '' ) {
+	$o = '<section class="sec medteam grid-sec' . $extra . '" aria-label="' . h( $tm['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist">';
+	foreach ( $tm['items'] as $m ) {
+		$mi  = img( $m['img'] );
+		$o  .= '<li class="medico"><figure class="frame"><img data-img="' . h( $mi['slug'] ) . '"'
+			. ' alt="' . h( $mi['alt'] ) . '" width="' . $mi['w'] . '" height="' . $mi['h'] . '"></figure>'
+			. '<div class="medbody"><b>' . h( $m['name'] ) . '</b>'
+			. '<span>' . h( $m['role'] ) . '</span>'
+			. '<span class="medlic">' . h( $m['lic'] ) . '</span></div></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-INSURANCE · TPL-C-10. */
+function insurance_html( $ins ) {
+	$o = '<section class="sec insur grid-sec bg-alt" aria-label="' . h( $ins['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ins['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ins['h2'] ) . '</h2></div><ul class="inslist">';
+	foreach ( $ins['items'] as $i ) {
+		$o .= '<li>' . h( $i ) . '</li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $ins['note'] ) . '</p></div></section>';
+}
+
+/** COMP-PROBLEM · TPL-C-11. First person, as it is actually said in a consultation. */
+function pains_html( $pn ) {
+	$o = '<section class="sec pains grid-sec" aria-label="' . h( $pn['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pn['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pn['h2'] ) . '</h2></div><ul class="painlist">';
+	foreach ( $pn['items'] as $p ) {
+		$o .= '<li>' . h( $p ) . '</li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * COMP-PHASE-TIMELINE · TPL-C-11.
+ *
+ * `<ol>` BECAUSE THE ORDER IS THE CONTENT. And it is a calendar, not a four-step process: every
+ * phase carries a duration, which is the difference between this component and `COMP-PROCESS`.
+ */
+function phase_timeline_html( $ph ) {
+	$o = '<section class="sec phases grid-sec bg-alt" aria-label="' . h( $ph['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ph['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ph['h2'] ) . '</h2>'
+		. '<p class="phtotal">' . h( $ph['total'] ) . '</p></div><ol class="phaselist">';
+	foreach ( $ph['items'] as $p ) {
+		$o .= '<li class="phase"><span class="phn">' . h( $p['n'] ) . '</span>'
+			. '<div class="phbody"><h3>' . h( $p['h3'] ) . '</h3>'
+			. '<span class="phmonths">' . h( $p['months'] ) . '</span>'
+			. '<p>' . h( $p['p'] ) . '</p></div></li>';
+	}
+	return $o . '</ol><p class="pnote">' . h( $ph['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-PRICING · TPL-C-11.
+ *
+ * THE MONTHLY FIGURE AND THE TOTAL, ALWAYS BOTH. A quota with no total beside it is the technique
+ * that makes people ring to ask for the total already distrusting you, and the distrust costs more
+ * than the difference ever did.
+ */
+function pricing_html( $pl ) {
+	$o = '<section class="sec planset grid-sec" aria-label="' . h( $pl['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pl['h2'] ) . '</h2></div><ul class="planlist">';
+	foreach ( $pl['items'] as $p ) {
+		$o .= '<li class="planbox">'
+			. ( isset( $p['flag'] ) ? '<span class="planflag">' . h( $p['flag'] ) . '</span>' : '' )
+			. '<h3>' . h( $p['name'] ) . '</h3>'
+			. '<p class="planq"><b>' . h( $p['quota'] ) . '</b><span>' . h( $p['total'] ) . '</span></p>'
+			. '<p class="planp">' . h( $p['p'] ) . '</p><ul class="planfeats">';
+		foreach ( $p['feats'] as $f ) {
+			$o .= '<li>' . h( $f ) . '</li>';
+		}
+		$o .= '</ul><a class="btn btn-outline btn-sm" href="#">Pedir estudio</a></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $pl['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-URGENT-BAR · TPL-C-12.
+ *
+ * THE STATE IS WRITTEN, NOT PAINTED. A green dot is not a state for somebody who does not separate
+ * green from red, and this band is the one piece of information on the page that cannot afford to
+ * depend on colour. The word carries it; the colour only agrees with the word.
+ */
+function urgent_bar_html( $ug ) {
+	return '<section class="sec urgbar" aria-label="Estado de la guardia"><div class="canvas">'
+		. '<p class="urgstate"><b>' . h( $ug['state'] ) . '</b>'
+		. '<span>' . h( $ug['next'] ) . '</span></p>'
+		. '<h1>' . h( $ug['h1'] ) . '</h1>'
+		. '<a class="btn btn-primary btn-lg" href="#">' . h( $ug['cta'] ) . '</a>'
+		. '<p class="urgnote">' . h( $ug['note'] ) . '</p>'
+		. '</div></section>';
+}
+
+/** COMP-SYMPTOM-TRIAGE · TPL-C-12. The symptom in the patient's words, never in the clinical ones. */
+function triage_html( $tg ) {
+	$o = '<section class="sec triage grid-sec" aria-label="' . h( $tg['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tg['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tg['h2'] ) . '</h2></div><ul class="triagelist">';
+	foreach ( $tg['items'] as $t ) {
+		$o .= '<li class="trow"><b>' . h( $t[0] ) . '</b>'
+			. '<span class="trdo">' . h( $t[1] ) . '</span>'
+			. '<span class="trmin">' . h( $t[2] ) . '</span></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $tg['note'] ) . '</p></div></section>';
+}
+
+/** COMP-WAIT-PROMISE · TPL-C-12. Publishing the wait looks like a risk and is the opposite. */
+function wait_promise_html( $w ) {
+	$o = '<section class="sec waitp grid-sec bg-alt" aria-label="' . h( $w['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $w['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $w['h2'] ) . '</h2></div><ul class="waitlist">';
+	foreach ( $w['items'] as $i ) {
+		$o .= '<li><b>' . h( $i[0] ) . '</b><span>' . h( $i[1] ) . '</span></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $w['note'] ) . '</p></div></section>';
+}
+
+/** TPL-C-10 · Clínica / Tratamientos. */
+function strip_clinic( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+	$o[]  = head_phone( $C, $BRAND );
+	$o[]  = '<main>';
+	$o[]  = '<section class="sec hero" aria-label="La clínica"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+	$o[]  = treatment_cards_html( $C['treatments'] );
+	$o[]  = before_after_html( $C['cases'], ' bg-alt' );
+	$o[]  = med_team_html( $C['team'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-INSURANCE' ) ) {
+		$o[] = insurance_html( $C['insurance'] );
+	}
+	$o[]  = booking_html( $C['booking'], $uid );
+	$o[]  = '</main>';
+	$o[]  = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-C-11 · Plan por fases. */
+function strip_plan( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+	$o[]  = head_over( $C, $BRAND );
+	$o[]  = '<main>';
+	$o[]  = '<section class="sec hero hero-visual hero-full" aria-label="El plan"><div class="media-full">'
+		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '</div></div></section>';
+	$o[]  = pains_html( $C['pains'] );
+	$o[]  = phase_timeline_html( $C['phases'] );
+	$o[]  = pricing_html( $C['plans'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-CASES' ) ) {
+		$o[] = before_after_html( $C['cases'], ' bg-alt' );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'] );
+	}
+	$o[]  = booking_html( $C['booking'], $uid );
+	$o[]  = '</main>';
+	$o[]  = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-C-12 · Urgencias / Hoy. No hero, on purpose: the first thing is an answer. */
+function strip_urgent( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o   = array();
+	$o[] = head_phone( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = urgent_bar_html( $C['urgent'] );
+	$o[] = triage_html( $C['triage'] );
+	$o[] = wait_promise_html( $C['wait'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
+		$o[] = med_team_html( $C['team'] );
+	}
+	$o[] = nap_block_html( $C['nap'], ' closing' );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
 /** COMP-HEADER with a phone: the local variant, in flow. */
 function head_phone( $C, $BRAND ) {
 	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
@@ -8453,6 +9152,15 @@ function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
    so a reader can check the page against its own spec instead of against this file's memory. The
    first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
 $PAGES = array(
+	'TPL-C-10' => array(
+		array( 'key' => 'home', 'label' => 'Clínica', 'doc' => 'TPL-C-10' ),
+	),
+	'TPL-C-11' => array(
+		array( 'key' => 'home', 'label' => 'Plan', 'doc' => 'TPL-C-11' ),
+	),
+	'TPL-C-12' => array(
+		array( 'key' => 'home', 'label' => 'Urgencias', 'doc' => 'TPL-C-12' ),
+	),
 	'TPL-C-07' => array(
 		array( 'key' => 'home', 'label' => 'Stock', 'doc' => 'TPL-C-07' ),
 	),
@@ -8501,6 +9209,15 @@ $PAGES = array(
 
 /** One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample. */
 function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	if ( 'TPL-C-10' === $tpl && 'home' === $page_key ) {
+		return strip_clinic( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-11' === $tpl && 'home' === $page_key ) {
+		return strip_plan( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-12' === $tpl && 'home' === $page_key ) {
+		return strip_urgent( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-07' === $tpl && 'home' === $page_key ) {
 		return strip_stock( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -9295,6 +10012,15 @@ $CLASS_BLOCKS = array(
 		'mhero', 'mfigs', 'specwrap', 'spectable', 'differs', 'same', 'offer' ) ),
 	'══════════ TPL-C-09 · TALLER / TARIFA'      => array( 'TPL-C-09', array(
 		'pgroups', 'pgroup', 'prow', 'pwhat', 'ptag' ) ),
+	'══════════ TPL-C-10 · CLÍNICA / TRATAMIENTOS' => array( 'TPL-C-10', array(
+		'treatcards', 'trcard', 'trbody', 'tfacts', 'bapair', 'bashot', 'medlist', 'medico',
+		'medbody', 'medlic', 'inslist' ) ),
+	'══════════ TPL-C-11 · PLAN POR FASES'       => array( 'TPL-C-11', array(
+		'painlist', 'phtotal', 'phaselist', 'phase', 'phn', 'phbody', 'phmonths', 'planlist',
+		'planbox', 'planflag', 'planq', 'planp', 'planfeats' ) ),
+	'══════════ TPL-C-12 · URGENCIAS / HOY'      => array( 'TPL-C-12', array(
+		'urgbar', 'urgstate', 'urgnote', 'btn-lg', 'triagelist', 'trow', 'trdo', 'trmin',
+		'waitlist' ) ),
 );
 foreach ( $CLASS_BLOCKS as $cb_marker => $cb_def ) {
 	list( $cb_tpl, $cb_classes ) = $cb_def;
