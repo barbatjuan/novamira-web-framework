@@ -4212,6 +4212,47 @@ ok( array() === fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-C-01 a
 ok( array() === fx_lines_with( $out127, array( 'RT_TPL_TOO_SIMILAR', 'TPL-C-03' ) ), 'y un arquetipo corporate identico a uno ecommerce no produce fila: se compara dentro de la familia', $out127 );
 fx_rrmdir( $r127 );
 
+echo "--- un arquetipo terminado al que nadie puede llegar ---\n";
+/* RT_TPL_TOO_SIMILAR prueba que dos arquetipos son DISTINTOS. No dice nada de si alguien puede
+   llegar a ofrecer uno, y ese fue el hueco que costo trabajo de verdad: TPL-C-06..12 se
+   entregaron como siete arquetipos terminados -- con su bloque de marca, sus tipografias
+   incrustadas y su tira en la galeria -- mientras recommender.md no nombraba ninguno, ni una vez.
+   El arbol estuvo en 0 FAIL todo el tiempo. */
+$r129 = fx_tmp_root();
+fx_base( $r129 );
+$fx_route_dir = 'skills/web-templates/references/templates/';
+/* El recomendador nombra E-01 y NO nombra E-02. Nombra el id pelado, no el fichero: por eso el
+   fichero se llama TPL-E-01-alcanzable.md -- si la regla comparase nombres de fichero, renombrar
+   un arquetipo la apagaria en silencio. */
+fx( $r129, 'skills/web-templates/references/recommender.md', "# Recomendador fixture\n\n| Perfil | Recomienda |\n|---|---|\n| Marca visual | **TPL-E-01** |\n" );
+fx( $r129, $fx_route_dir . 'ecommerce/_README.md', "# Ecommerce\n\nTPL-E-01 y TPL-E-02 son los dos arquetipos de la familia.\n" );
+fx( $r129, $fx_route_dir . 'ecommerce/TPL-E-01-alcanzable.md', fx_tpl( 'TPL-E-01', array( 'HEADER', 'HERO', 'CATEGORY-CARD', 'NEWSLETTER', 'FOOTER' ) ) );
+fx( $r129, $fx_route_dir . 'ecommerce/TPL-E-02-huerfano.md', fx_tpl( 'TPL-E-02', array( 'HEADER', 'PRODUCT-GRID', 'FAQ', 'CTA', 'BENEFITS' ) ) );
+/* corporate no tiene _README.md: una sola fila contra el DIRECTORIO, no una por plantilla. Un
+   arbol con doce arquetipos y sin indice tiene un problema, no doce. */
+fx( $r129, $fx_route_dir . 'corporate/TPL-C-01-fixture.md', fx_tpl( 'TPL-C-01', array( 'HEADER', 'HERO', 'SERVICES', 'LEAD-FORM', 'FOOTER' ) ) );
+list( , $out129 ) = fx_run_ok( $audit, $r129 );
+ok( 'FAIL' === fx_row_level( $out129, array( 'RT_TPL_UNROUTABLE', 'TPL-E-02', 'recommender.md' ) ), 'un arquetipo que recommender.md no nombra FALLA: esta construido y nadie puede ser enviado a el', fx_row_level( $out129, array( 'RT_TPL_UNROUTABLE', 'TPL-E-02', 'recommender.md' ) ) );
+ok( array() === fx_lines_with( $out129, array( 'RT_TPL_UNROUTABLE', 'TPL-E-01' ) ), 'el que SI esta nombrado no se acusa de nada, y se le reconoce por el id pelado aunque el fichero se llame distinto', $out129 );
+ok( array() !== fx_lines_with( $out129, array( 'RT_TPL_UNROUTABLE', 'corporate/ holds' ) ), 'una familia sin _README.md produce su propia fila: el indice que un humano lee antes de elegir no existe', $out129 );
+ok( 1 === count( fx_lines_with( $out129, array( 'RT_TPL_UNROUTABLE', 'no _README.md' ) ) ), 'y esa fila es UNA contra el directorio, no una por cada plantilla que el indice ausente deja de listar', $out129 );
+/* Y las dos causas se cuentan por separado: corporate trae DOS filas -- el indice que falta y
+   la plantilla que el recomendador no nombra -- porque son dos arreglos distintos. Fundirlas en
+   una haria que arreglar el _README pareciera arreglar tambien la ruta, que es la mentira que
+   esta regla existe para no contar. */
+ok( array() !== fx_lines_with( $out129, array( 'RT_TPL_UNROUTABLE', 'TPL-C-01', 'recommender.md' ) ), 'y la plantilla corporate sin ruta trae ADEMAS su propia fila: indice ausente y ruta ausente son dos arreglos', $out129 );
+fx_rrmdir( $r129 );
+
+/* Control negativo del gate: el mismo arbol SIN recommender.md no dice nada. Un arbol sin
+   recomendador no es un catalogo con la ruta rota, es que no es un catalogo -- y el fichero que
+   falta ya lo acusa RT_BROKEN_REFERENCE una capa mas arriba, porque SKILL.md apunta a el.
+   Sin este gate la regla gritaria en cada fixture que lleve un TPL-*.md suelto. */
+$r130 = fx_tmp_root();
+fx_base( $r130 );
+fx( $r130, $fx_route_dir . 'ecommerce/TPL-E-01-suelto.md', fx_tpl( 'TPL-E-01', array( 'HEADER', 'HERO', 'FOOTER' ) ) );
+list( , $out130 ) = fx_run_ok( $audit, $r130 );
+ok( array() === fx_lines_with( $out130, array( 'RT_TPL_UNROUTABLE' ) ), 'sin recommender.md la regla calla: no hay catalogo que enrutar y el fichero ausente es de otra fila', $out130 );
+fx_rrmdir( $r130 );
 echo "--- un arquetipo que el parser no puede leer no se cae de la comparacion en silencio ---\n";
 $r128 = fx_tmp_root();
 fx_base( $r128 );

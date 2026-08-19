@@ -95,6 +95,7 @@ const ROW_TYPES = array(
 	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
 	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
 	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
+	'RT_TPL_UNROUTABLE'          => 'FAIL  — a TPL-*.md exists that recommender.md or its folder _README.md never names, so nothing can route a client to it',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
 	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
@@ -1157,9 +1158,9 @@ function tpl_wireframe_comps( $src ) {
 	return array( array_keys( $comps ), $prose );
 }
 
-/* ------------------------------------------------- archetypes of one family must be five designs
+/* -------------------------------------------------- archetypes of one family must be distinct
  *
- * web-templates/SKILL.md promises "five different architectures", and the personality catalog
+ * web-templates/SKILL.md promises "many architectures", and the personality catalog
  * already has to earn its equivalent claim: `RT_PERS_TOO_SIMILAR` above lets two anchors share at
  * most one of five axes, "or they ship as the same site with a different accent colour". The
  * archetypes made the same promise with nothing checking it, and the ecommerce family had drifted
@@ -1251,6 +1252,103 @@ foreach ( array( 'ecommerce', 'corporate' ) as $tpl_family ) {
 						. ') — two archetypes of one family may share at most half, the distance the corporate family already holds, or they ship as the same site with a different accent'
 				);
 			}
+		}
+	}
+}
+
+/* ------------------------------------------------ every archetype has to be reachable by a client
+ *
+ * `RT_TPL_TOO_SIMILAR` above proves two archetypes are DIFFERENT. It says nothing about whether
+ * anybody can ever be offered one, and that turned out to be the gap that actually cost work:
+ * TPL-C-06..12 shipped as seven finished archetypes — each with its own brand block, its own
+ * embedded typefaces and its own strip in the gallery — while `recommender.md` named none of them,
+ * not once. Every documented path into the catalog runs through that file, so seven templates were
+ * built and none of them could be recommended. Nothing failed; the audit was green the whole time.
+ *
+ * This is the same class of finding as `RT_CATALOG_UNMENTIONED` one level up ("the personality
+ * catalog is unreachable from the skill"), applied to the layer below it, and it is a FAIL for the
+ * same reason: an unreachable catalog entry is indistinguishable from one that does not exist,
+ * except that somebody paid to build it.
+ *
+ * Two ways in are required, because they fail apart. `recommender.md` is the RUNTIME path — the
+ * agent reads it to route a live client. The folder `_README.md` is the READING path — a human
+ * comparing the family before touching anything. A template missing from the first cannot be
+ * chosen; one missing from the second gets rebuilt from scratch by the next person, who had no way
+ * to know it was there. A family directory with no `_README.md` at all reports once, against the
+ * directory, rather than once per template it fails to list.
+ *
+ * Matched on the bare id (TPL-C-06), never the filename, so renaming
+ * `TPL-C-06-table-menu.md` cannot silently switch the check off. Silent when recommender.md is
+ * absent: see the note on the gate below.
+ */
+$route_rec_file = $root . '/skills/web-templates/references/recommender.md';
+/* No recommender.md, no judgement. A tree without one is not a catalog with a broken route, it is
+   not a catalog — and the missing file is already owned one level up: SKILL.md § References points
+   at `references/recommender.md`, so `RT_BROKEN_REFERENCE` fires on the dead path. Claiming it here
+   too would print the same fact twice and would make this rule shout at every fixture that happens
+   to carry a TPL-*.md without a whole skill around it. */
+$route_rec_src = file_exists( $route_rec_file ) ? slurp( $route_rec_file ) : null;
+
+$route_groups = null === $route_rec_src ? array() : array(
+	'ecommerce' => $root . '/skills/web-templates/references/templates/ecommerce',
+	'corporate' => $root . '/skills/web-templates/references/templates/corporate',
+	'pages'     => $root . '/skills/web-templates/references/templates/pages',
+);
+
+foreach ( $route_groups as $route_family => $route_dir ) {
+	if ( ! is_dir( $route_dir ) ) {
+		continue;
+	}
+	/* pages/ nests one level deeper (product/, legal/, error/…); the two home families are flat.
+	   One glob pattern per shape rather than a recursive walk, so the set this rule judges is the
+	   same set a reader sees in the directory listing. */
+	$route_files = array_merge(
+		is_array( $g1 = glob( $route_dir . '/TPL-*.md' ) ) ? $g1 : array(),
+		is_array( $g2 = glob( $route_dir . '/*/TPL-*.md' ) ) ? $g2 : array()
+	);
+	sort( $route_files );
+	if ( array() === $route_files ) {
+		continue;
+	}
+
+	$route_readme = $route_dir . '/_README.md';
+	if ( ! file_exists( $route_readme ) ) {
+		add(
+			'RT_TPL_UNROUTABLE',
+			'FAIL',
+			'web-templates',
+			'templates/' . $route_family . '/ holds ' . count( $route_files ) . ' archetype(s) and no _README.md —'
+				. ' the other families have one, so this is the family a human comparing the catalog cannot read'
+		);
+		$route_readme_src = null;
+	} else {
+		$route_readme_src = slurp( $route_readme );
+	}
+
+	foreach ( $route_files as $route_file ) {
+		$route_base = basename( $route_file );
+		if ( ! preg_match( '/^(TPL-[A-Z0-9]+-\d+)/', $route_base, $route_m ) ) {
+			continue;
+		}
+		$route_id = $route_m[1];
+
+		if ( null !== $route_rec_src && false === strpos( $route_rec_src, $route_id ) ) {
+			add(
+				'RT_TPL_UNROUTABLE',
+				'FAIL',
+				'web-templates',
+				$route_id . ' (' . $route_family . '/' . $route_base . ') is never named in recommender.md —'
+					. ' it is a finished archetype no client can ever be offered, because every documented route into the catalog reads that file'
+			);
+		}
+		if ( null !== $route_readme_src && false === strpos( $route_readme_src, $route_id ) ) {
+			add(
+				'RT_TPL_UNROUTABLE',
+				'FAIL',
+				'web-templates',
+				$route_id . ' is missing from templates/' . $route_family . '/_README.md —'
+					. ' the comparison table a human reads before choosing does not list it, which is how an archetype gets rebuilt by somebody who never knew it existed'
+			);
 		}
 	}
 }
