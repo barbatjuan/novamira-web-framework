@@ -899,6 +899,26 @@ foreach ( $INK_GRADE as $ink_gk => $ink_gv ) {
 // because its mini banner is ADN, and `TGL-HERO-TYPE` appears nowhere in its doc.
 
 $TOGGLES = array(
+	/* TPL-C-06 · Mesa / Carta. Transcribed from its own § "Toggles admitidos", like every row here.
+	   `TGL-MARQUEE` and `TGL-MENU-PRICES` are new and they are declared BY THAT DOC — a toggle this
+	   table invented would be a capability the archetype never offered. */
+	'TPL-C-06' => array(
+		'TGL-MARQUEE'     => array(
+			'ask'     => '¿Cinta de identidad bajo el héroe?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-MENU-PRICES' => array(
+			'ask'     => '¿Precios en la carta?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-GALLERY'     => array(
+			'ask'     => '¿Collage del local?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
 	'TPL-C-01' => array(
 		// TPL-C-01-services-leadgen.md § 4: `TGL-HERO-TYPE` | imagen/color fija | slider opcional
 		'TGL-HERO-TYPE' => array(
@@ -1508,18 +1528,18 @@ $CONTENT = array(
 	   the tell that nobody wrote it. Which also means: the axis-proof argument that the copy is a
 	   constant is a HOUSE argument. It ends at the brand, on purpose, and § "Why one shared set" in
 	   `_gallery-images.md` records the same boundary for the photographs. */
-	'TPL-C-05-terrazza' => array(
-		'tpl'          => 'TPL-C-05-terrazza',
-		'arch'         => 'TPL-C-05',
+	'TPL-C-06-terrazza' => array(
+		'tpl'          => 'TPL-C-06-terrazza',
+		'arch'         => 'TPL-C-06',
 		'brand'        => 'terrazza',
 		'brand_name'   => 'Casa Terrazza',
 		'brand_sector' => 'Restaurante',
-		'tpl_name'     => 'Local / Booking',
+		'tpl_name'     => 'Mesa / Carta',
 		'site'         => 'corporate',
 		'site_es'      => 'Corporativa',
 		'fits'         => 'Restaurantes, asadores, bares con cocina, cualquier mesa que se reserva',
-		'dna'          => 'COMP-HEADER con teléfono · COMP-HERO local · COMP-BOOKING · COMP-MAP-NAP',
-		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-BOOKING · COMP-GALLERY · COMP-TESTIMONIAL · COMP-MAP-NAP · COMP-FOOTER',
+		'dna'          => 'COMP-HERO-FULL · COMP-MENU-LIST · COMP-FIGURE-QUOTE · COMP-HOURS-BLOCK',
+		'wire'         => 'COMP-HEADER · COMP-HERO-FULL · COMP-MARQUEE · COMP-MENU-LIST · COMP-FIGURE-QUOTE · COMP-GALLERY · COMP-BOOKING · COMP-HOURS-BLOCK · COMP-FOOTER',
 		'nav'          => array( 'Carta', 'La casa', 'Grupos' ),
 		'nav_cta'      => 'Reservar mesa',
 		'phone'        => '93 000 00 00',
@@ -1531,13 +1551,43 @@ $CONTENT = array(
 			'cta_2'   => 'Ver la carta',
 			'img'     => 'terrazza-sala',
 		),
-		'services'     => array(
-			'eyebrow' => 'La casa',
-			'h2'      => 'Tres cosas que hacemos siempre igual',
-			'cards'   => array(
-				array( 'img' => 'terrazza-plato', 'h3' => 'Carta de temporada', 'p' => 'Doce platos. Cambian el lunes y se acaban cuando se acaban.' ),
-				array( 'img' => 'terrazza-chef',  'h3' => 'Brasa a la vista',   'p' => 'Encina y sarmiento. La parrilla está en la sala, no escondida detrás.' ),
-				array( 'img' => 'terrazza-velas', 'h3' => 'Sobremesa larga',    'p' => 'Nadie va a pedirle la mesa. Un servicio es una reserva, no dos.' ),
+		'marquee'      => array( 'Cocina de mercado', 'Brasa de encina', 'Pan de masa madre', 'Bodega de sesenta' ),
+		'menu'         => array(
+			'eyebrow' => 'La carta',
+			'h2'      => 'Doce platos, y el lunes son otros',
+			'note'    => 'Precios con IVA. Esta es la carta del 22 al 28; el lunes cambia entera. Si algo se acaba, se acaba.',
+			'groups'  => array(
+				array(
+					'h3'    => 'Para empezar',
+					'items' => array(
+						array( 'Anchoa del Cantábrico', 'Curada en casa, con mantequilla de leche cruda y pan de ayer tostado.', '4,80 € ud.' ),
+						array( 'Tomate de secano', 'De Alcarràs, con albahaca y aceite de arbequina de este año.', '11,00 €' ),
+						array( 'Croquetas de puchero', 'Seis. Del cocido del domingo, que es como tienen que ser.', '9,50 €' ),
+					),
+				),
+				array(
+					'h3'    => 'De la brasa',
+					'items' => array(
+						array( 'Presa ibérica', 'Encina y sarmiento, reposada ocho minutos. Al punto o no la servimos.', '24,00 €' ),
+						array( 'Pulpo a la llama', 'Cocido dos horas, marcado treinta segundos, con patata ahumada.', '22,50 €' ),
+						array( 'Alcachofas enteras', 'A la brasa con su tallo, sal en escamas y limón asado.', '14,00 €' ),
+						array( 'Chuleta de vaca vieja', 'Madurada sesenta días. Mínimo para dos, se pesa en sala.', '68,00 €/kg' ),
+					),
+				),
+				array(
+					'h3'    => 'Para terminar',
+					'items' => array(
+						array( 'Torrija de brioche', 'Caramelizada al momento, con helado de leche merengada.', '7,50 €' ),
+						array( 'Queso del Pallars', 'Tres cortes y membrillo de la casa. Pregunte cuáles hay hoy.', '9,00 €' ),
+					),
+				),
+				array(
+					'h3'    => 'Menú del mediodía',
+					'items' => array(
+						array( 'De martes a viernes', 'Dos platos, postre, pan y una copa de la casa. Sólo mediodía.', '19,50 €' ),
+						array( 'Maridaje de tres copas', 'Lo elige quien esté en sala ese día. No hay carta de maridaje.', '16,00 €' ),
+					),
+				),
 			),
 		),
 		'booking'      => array(
@@ -1560,29 +1610,27 @@ $CONTENT = array(
 			'h2'      => 'Cómo es por dentro',
 			'items'   => array( 'terrazza-mesa', 'terrazza-terraza', 'terrazza-coctel', 'terrazza-plato', 'terrazza-velas', 'terrazza-chef' ),
 		),
-		'quotes'       => array(
-			'eyebrow' => 'Reseñas',
-			'h2'      => 'Lo que dicen los que repiten',
-			'items'   => array(
-				array( 'Reservamos a las nueve y salimos a la una sin que nadie mirara el reloj.', 'Marta Sedó', 'Barcelona' ),
-				array( 'Cambian la carta cada semana y siempre hay algo que no había probado.', 'Iván Peris', 'Badalona' ),
-				array( 'Pedí consejo con el vino y me trajeron uno de veintidós euros, no el caro.', 'Nuria Bages', 'Sant Adrià' ),
-			),
+		'figq'         => array(
+			'eyebrow' => 'Quien firma',
+			'quote'   => 'Cocino lo que me traen, no lo que tenía pensado. Por eso la carta cambia el lunes: si el martes llega mejor tomate que alcachofa, mando la alcachofa a casa.',
+			'name'    => 'Èlia Ferrer',
+			'role'    => 'Cocinera y socia · en la casa desde 2016',
+			'sig'     => 'Èlia Ferrer',
+			'img'     => 'terrazza-chef',
 		),
-		'nap'          => array(
-			'eyebrow' => 'Cómo llegar',
-			'h2'      => 'Poblenou, Barcelona',
-			'addr'    => array( 'Carrer de Pujades, 118', '08005 Barcelona' ),
-			'phone'   => '93 000 00 00',
-			'mail'    => 'reservas@casaterrazza.example',
-			'hours'   => array(
+		'hours'        => array(
+			'eyebrow' => 'Horario y dirección',
+			'h2'      => 'Abrimos de martes a domingo',
+			'rows'    => array(
 				array( 'Martes a jueves', '13:00 – 16:00 · 20:00 – 23:30' ),
 				array( 'Viernes y sábado', '13:00 – 16:30 · 20:00 – 00:30' ),
 				array( 'Domingo', '13:00 – 16:30' ),
 				array( 'Lunes', 'Cerrado' ),
 			),
+			'addr'    => array( 'Carrer de Pujades, 118', '08005 Barcelona' ),
+			'phone'   => '93 000 00 00',
+			'mail'    => 'reservas@casaterrazza.example',
 			'note'    => 'Metro Llacuna a cuatro minutos. La terraza abre hasta que refresca.',
-			'img'     => 'terrazza-sala',
 		),
 		'footer'       => array(
 			'tag'   => 'Casa Terrazza · Carrer de Pujades 118, 08005 Barcelona · 93 000 00 00',
@@ -2659,8 +2707,14 @@ $STRIPS = array(
 	/* CASA TERRAZZA GOES FIRST because the catalogue is read from the top and this is the entry
 	   that answers the question the other forty cannot. PERS-EDITORIAL and not PERS-MATTER: the
 	   restaurant wants the generous density and the 88px display, and `matter`'s classic scale would
-	   have made a room that photographs like this read solid instead of worth the trip. */
-	array( 'tpl' => 'TPL-C-05-terrazza', 'anchor' => 'editorial' ),
+	   have made a room that photographs like this read solid instead of worth the trip.
+
+	   IT SITS ON TPL-C-06 AND NOT ON TPL-C-05, and that correction is the point of this pass. Built
+	   on TPL-C-05 it was the same nine sections in the same order as the quarry with a brown palette
+	   on top — the skin changed and the skeleton did not, which is the failure this repo already had
+	   in August with the eight "design personalities". TPL-C-06 declares its own wireframe, and the
+	   audit's `RT_TPL_TOO_SIMILAR` measures the distance instead of taking my word for it. */
+	array( 'tpl' => 'TPL-C-06-terrazza', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
@@ -3058,6 +3112,61 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
 // contrast quietly goes wrong: `--c-accent` is #8C3A1F on three grounds and measures 2.47:1 on
 // near-black, which this file already says out loud. An inverted editorial band painted with the
 // paper accent would be an eyebrow nobody can read, and it would look deliberate.
+/* THE FULL-BLEED HERO IS MEASURED PER TEMPLATE, NOT ONCE FOR THE ARCHETYPE THAT INTRODUCED IT.
+   § 5c already sweeps TPL-C-03's `hero-taller` across the four anchor inks at this exact alpha.
+   TPL-C-06 puts the same `.hero-visual` gradient over a DIFFERENT photograph under a DIFFERENT
+   ink, and inheriting that number would be certifying one image by measuring another — the same
+   shape of defect as measuring the un-inked file, one level along. The bar is 4.5 and the
+   measurement is taken at the gradient's weakest point, not its average.
+
+   `$VIS_ARCHS` is the set of archetypes whose hero puts copy ON the photograph. An archetype added
+   to `render_page()` with a `.hero-visual` and left out of here would ship an unmeasured hero, so
+   the list lives next to the check that consumes it rather than in a comment. */
+$VIS_ARCHS  = array( 'TPL-C-06' => true );
+$VIS_BRAND  = array();
+foreach ( $STRIPS as $vb_s ) {
+	$vb_c = $CONTENT[ $vb_s['tpl'] ];
+	if ( ! isset( $VIS_ARCHS[ $vb_c['arch'] ] ) ) {
+		continue;
+	}
+	$vb_ink = ( '' !== $vb_c['brand'] ) ? 'b-' . $vb_c['brand'] : $vb_s['anchor'];
+	$vb_key = $vb_c['hero']['img'] . ' @ ' . $vb_ink;
+	if ( isset( $VIS_BRAND[ $vb_key ] ) ) {
+		continue;
+	}
+	$vb_row = img( $vb_c['hero']['img'] );
+	if ( 0 !== strpos( $vb_row['role'], 'hero' ) ) {
+		fail( "`{$vb_c['tpl']}` puts `{$vb_c['hero']['img']}` behind a full-bleed hero and the manifest"
+			. " calls it `{$vb_row['role']}` — a non-hero crop stretched across 78vh is a blown-up"
+			. ' thumbnail, and the contrast measurement below will not object because brightness is not'
+			. ' the defect' );
+	}
+	$vb = worst_pixel( $vb_c['hero']['img'], '#000000', $VIS_ALPHA, $VIS_TEXT, $INK[ $vb_ink ] );
+	if ( $vb['ratio'] < 4.5 ) {
+		fail( sprintf(
+			'%s full-bleed hero: `%s` under the `%s` ink measures %.2f:1 for %s text at a %s black scrim'
+				. ' — below AA at the weakest point of the gradient',
+			$vb_c['tpl'],
+			$vb_c['hero']['img'],
+			$vb_ink,
+			$vb['ratio'],
+			$VIS_TEXT,
+			$VIS_ALPHA
+		) );
+	}
+	$VIS_BRAND[ $vb_key ] = sprintf( '%-30s %5.2f:1', $vb_key, $vb['ratio'] );
+}
+
+/* PRINTED, not just measured. A number this build computed and kept to itself is the same silent
+   configuration every other section of this file has had to stop shipping. */
+if ( array() !== $VIS_BRAND ) {
+	printf( "  hero a sangre por plantilla (scrim %s negro, texto %s):
+    %s
+",
+		$VIS_ALPHA, $VIS_TEXT, implode( "
+    ", $VIS_BRAND ) );
+}
+
 $FIELD = array();
 $FIELD_DEF = array(
 	/* the back cover: the anchor's own ink becomes the ground, its own paper becomes the type. */
@@ -4596,6 +4705,153 @@ foreach ( $BRANDS as $b_k => $b_v ) {
 		. '--font-primary:' . $b_v['font_1'] . ';--font-secondary:' . $b_v['font_2'] . '}';
 }
 $css[] = implode( "\n", $brand_css ) . "\n";
+
+/* ══════════ TPL-C-06 · MESA / CARTA — five sections no other archetype has ══════════
+
+   THIS IS THE PART THE BRAND LAYER COULD NOT DO. A brand changes ground, accent, type and
+   photographs; it does not change WHICH SECTIONS EXIST OR IN WHAT ORDER, and a catalogue whose
+   entries all wear the same skeleton reads as one template with a colour picker no matter how
+   different the palettes are. `RT_TPL_TOO_SIMILAR` is the framework's own judge of that — two
+   archetypes of a family may share at most half their combined inventory — and it is the reason
+   TPL-C-06 exists as a DOC and not as a styling flag: the judge can only measure something that
+   declares a wireframe.
+
+   Everything below is written against tokens, so these sections work under any anchor and any
+   brand. Not one hard-coded colour except `#fff` on the photographic hero, which is the same
+   exception `.hero-visual` already carries and for the same reason: type over a photograph is
+   measured against the SCRIM, not against the page ground. */
+$css[] = <<<'CSS'
+/* ── COMP-HEADER, floating on the photograph ──────────────────────────────────────────────────
+   `.sample` becomes the containing block. The header is the first child either way, so taking it
+   out of flow reorders nothing — it stops RESERVING 72px at the top of a section whose whole
+   argument is that the room is the first thing you see. */
+.sample{position:relative}
+.site-head.head-over{position:absolute;inset-inline:0;top:0;z-index:5;background:transparent;
+  border-bottom:1px solid color-mix(in srgb,#fff 20%,transparent)}
+.site-head.head-over .logo,
+.site-head.head-over .mainnav a,
+.site-head.head-over .tel{color:#fff}
+.site-head.head-over .mainnav a:hover{color:#fff;opacity:.72}
+
+/* ── COMP-HERO-FULL ───────────────────────────────────────────────────────────────────────────
+   `.hero-visual` with more height and the copy in the bottom third. Same gradient, same alpha,
+   and its own contrast measurement in the build report. */
+.hero-full > .canvas{min-height:min(78vh,48rem);align-content:end}
+/* NOT `34ch`, AND THE FAILURE IS WORTH THE COMMENT. `ch` resolves against the font of the element
+   it is written on — `.head` inherits the BODY face at 1rem, so 34ch measured about 270px and the
+   88px display headline came out in five one-word lines. The unit was right for a paragraph and
+   wrong for a block whose whole content is a headline. A rem cap says what was meant. */
+.hero-full .head{max-width:min(42rem,86%)}
+.hero-full .head .lede{max-width:38ch}
+@media(max-width:767px){.hero-full > .canvas{min-height:70vh}}
+
+/* ── COMP-MARQUEE ─────────────────────────────────────────────────────────────────────────────
+   AN INVERTED BAND AND NOT AN ACCENT ONE, on purpose. The accent whitelist has five roles and a
+   ribbon is none of them; painting it in the accent would have meant either stretching "the close"
+   to cover something that is not a close, or quietly adding a sixth role to a list that lives in
+   `design-tokens.md`. Inverting --c-text and --c-bg costs the palette nothing, is already measured
+   at 7:1 by the ground gate, and hits harder than a tinted strip would.
+
+   It stops moving under `prefers-reduced-motion` — and it stays READABLE when it stops, which is
+   why the copy repeats twice rather than scrolling a single run off the edge. */
+.marquee{margin-inline:calc(50% - 50vw);width:100vw;overflow:clip;
+  background:var(--c-text);color:var(--c-bg);padding-block:calc(var(--sp-s) * 1.1)}
+.marquee .track{display:flex;width:max-content;animation:nm-mq 42s linear infinite}
+.marquee .run{display:flex;align-items:center;gap:var(--sp-l);padding-right:var(--sp-l);
+  margin:0;white-space:nowrap;font-family:var(--font-primary);
+  font-size:clamp(1.05rem,1.9vw,1.6rem);letter-spacing:.01em}
+.marquee .run span{display:inline-flex;align-items:center;gap:var(--sp-l)}
+.marquee .run span::after{content:"—";opacity:.45}
+@keyframes nm-mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.marquee .track{animation:none}}
+
+/* ── COMP-MENU-LIST ───────────────────────────────────────────────────────────────────────────
+   The dotted leader is a BORDER on a flexible middle cell, not a row of typed periods: typed dots
+   are read out one by one by a screen reader and do not stretch. The middle cell is `aria-hidden`
+   in the markup for the same reason. */
+.menu-list .groups{display:grid;grid-template-columns:1fr;gap:var(--sp-xl)}
+@media(min-width:900px){
+  .menu-list .groups{grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:clamp(2rem,6vw,6rem);row-gap:var(--sp-xl)}
+}
+.menu-group h3{font-family:var(--font-primary);font-size:var(--fs-h3);
+  letter-spacing:var(--track-h3);margin:0 0 var(--sp-m)}
+.menu-group ol{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m)}
+/* FLEX AND NOT GRID, and the render is what settled it: as a three-column grid the leader drew a
+   rule across the whole row instead of the gap between the dish and its price. A leader is a cell
+   that EATS THE REMAINING SPACE, which is `flex:1` — grid had to be told the column widths in
+   advance, and "whatever is left after two pieces of text neither of which has a known width" is
+   not something a track list can say. Dotted rather than solid, and mixed from --c-text rather
+   than taken from --c-border: the border token is tuned for a 1px box edge and disappears at 40%
+   opacity on a dark ground, which is exactly where this archetype lives. */
+.dish{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:.6rem;min-width:0}
+.dish .n{font-family:var(--font-primary);font-size:1.0625rem;min-width:0;order:1}
+.dish .dots{order:2;flex:1 1 1.5rem;min-width:1.5rem;transform:translateY(-.32em);
+  border-bottom:1px dotted color-mix(in srgb,var(--c-text) 42%,transparent)}
+.dish .p{order:3;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.dish .d{order:4;flex:1 0 100%;margin:.2rem 0 0;color:var(--c-text-muted);font-size:.875rem;
+  max-width:46ch}
+.menu-list .foot{margin:var(--sp-l) 0 0;color:var(--c-text-muted);font-size:.875rem}
+
+/* ── COMP-FIGURE-QUOTE ────────────────────────────────────────────────────────────────────────
+   Full-bleed split, and the text half sits on --c-bg-alt so the section reads as a stop rather
+   than as more page. The signature is display type in italic, NOT the accent — same whitelist
+   reasoning as the ribbon. */
+/* A full-bleed band brings its own vertical rhythm inside the coloured half; the section padding
+   on top of that was ~350px of empty ground between the carta and the portrait. */
+.sec.figq{padding-block:0}
+.figq{margin-inline:calc(50% - 50vw);width:100vw;display:grid;grid-template-columns:1fr;
+  align-items:stretch}
+@media(min-width:900px){.figq{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.figq .portrait{margin:0;min-height:22rem}
+.figq .portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.figq .say{background:var(--c-bg-alt);display:grid;align-content:center;gap:var(--sp-m);
+  padding:var(--sp-2xl) clamp(1.5rem,5vw,4.5rem)}
+.figq blockquote{margin:0;font-family:var(--font-primary);font-size:var(--fs-h2);
+  line-height:var(--display-lh);letter-spacing:var(--track-h2);text-wrap:balance}
+.figq .who{display:grid;gap:.15rem}
+.figq .who b{font-size:1rem}
+.figq .who span{color:var(--c-text-muted);font-size:.875rem}
+.figq .sig{font-family:var(--font-primary);font-style:italic;
+  font-size:clamp(1.6rem,3vw,2.4rem);line-height:1;opacity:.8}
+
+/* ── COMP-GALLERY, offset variant ─────────────────────────────────────────────────────────────
+   Six frames that do NOT share a baseline or a size. An even grid of six squares is the shape the
+   other archetypes already use; repeating it here would have made the one section this archetype
+   shares with TPL-C-05 look identical, which is exactly the reading this whole pass is fixing. */
+.shots.offset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);
+  list-style:none;margin:0;padding:0}
+@media(min-width:900px){
+  .shots.offset{grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--sp-m) var(--sp-m)}
+  .shots.offset > li:nth-child(1){grid-column:1 / 6}
+  .shots.offset > li:nth-child(2){grid-column:6 / 10;margin-top:var(--sp-xl)}
+  .shots.offset > li:nth-child(3){grid-column:10 / 13}
+  .shots.offset > li:nth-child(4){grid-column:1 / 4;margin-top:calc(var(--sp-l) * -1)}
+  .shots.offset > li:nth-child(5){grid-column:4 / 9}
+  .shots.offset > li:nth-child(6){grid-column:9 / 13;margin-top:var(--sp-l)}
+  .shots.offset > li:nth-child(2) .frame{aspect-ratio:3/4}
+  .shots.offset > li:nth-child(4) .frame{aspect-ratio:3/4}
+}
+.shots.offset .frame{aspect-ratio:4/3;width:100%}
+.shots.offset .frame img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── COMP-HOURS-BLOCK ─────────────────────────────────────────────────────────────────────────
+   The hours ARE the graphic. A restaurant whose opening times are 9px grey at the foot of the page
+   is a wasted trip waiting to happen, and every reference kit for this sector sets them large. */
+.sec.hoursblock .head{grid-column:c 1 / c 9}
+.hours-big{display:grid;gap:var(--sp-xl)}
+@media(min-width:900px){.hours-big{grid-template-columns:1.4fr 1fr;gap:clamp(2rem,5vw,5rem)}}
+.hours-big dl{margin:0}
+.hours-big .row{display:grid;grid-template-columns:1fr auto;gap:var(--sp-m);align-items:baseline;
+  padding-block:calc(var(--sp-s) * 1.2);border-bottom:1px solid var(--c-border)}
+.hours-big dt{font-family:var(--font-primary);font-size:clamp(1.15rem,2.2vw,1.9rem);
+  line-height:1.1;letter-spacing:var(--track-h3)}
+.hours-big dd{margin:0;font-variant-numeric:tabular-nums;font-size:clamp(.95rem,1.5vw,1.25rem)}
+.hours-big .shut dt,.hours-big .shut dd{color:var(--c-text-muted)}
+.hours-big .where{display:grid;gap:var(--sp-s);align-content:start}
+.hours-big .where p{margin:0}
+.hours-big .where a{font-size:1.0625rem}
+CSS;
 
 // ── block 5a · the house ink, one filter per anchor ────────────────────────────────────────────
 //
@@ -6211,6 +6467,171 @@ function gallery_html( $g ) {
 	return $o . '</ul></div></section>';
 }
 
+/** COMP-HEADER floating on the hero: same contents as the local header, out of flow. */
+function head_over( $C, $BRAND ) {
+	$o = '<header class="site-head head-over"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o .= '<a href="#">' . h( $n ) . '</a>';
+	}
+	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
+		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '</div></div></header>';
+}
+
+/**
+ * COMP-MARQUEE · the ribbon.
+ *
+ * THE COPY IS EMITTED TWICE AND THE SECOND COPY IS `aria-hidden`. The animation translates the
+ * track by -50%, so a single run would scroll off and leave a gap; two identical runs make the
+ * loop seamless. Hiding the duplicate is not a nicety — without it a screen reader reads the whole
+ * ribbon twice, and the strip's own copy multiset would count every phrase two times.
+ */
+function marquee_html( $rows ) {
+	$run = '';
+	foreach ( $rows as $r ) {
+		$run .= '<span>' . h( $r ) . '</span>';
+	}
+	return '<section class="marquee" aria-label="La casa en cuatro palabras"><div class="track">'
+		. '<p class="run">' . $run . '</p>'
+		. '<p class="run" aria-hidden="true">' . $run . '</p>'
+		. '</div></section>';
+}
+
+/**
+ * COMP-MENU-LIST · the carta.
+ *
+ * `<ol>` and not `<ul>`: a carta has an order and the kitchen chose it. The leader is an empty
+ * `aria-hidden` cell carrying a dotted border — typed periods are announced one at a time and do
+ * not stretch to fill the gap.
+ */
+function menu_list_html( $m, $prices ) {
+	$o = '<section class="sec menu-list grid-sec" aria-label="' . h( $m['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $m['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $m['h2'] ) . '</h2></div><div class="groups">';
+	foreach ( $m['groups'] as $g ) {
+		$o .= '<section class="menu-group"><h3>' . h( $g['h3'] ) . '</h3><ol>';
+		foreach ( $g['items'] as $d ) {
+			$o .= '<li class="dish"><span class="n">' . h( $d[0] ) . '</span>'
+				. ( 'no' === $prices ? '' : '<span class="dots" aria-hidden="true"></span>'
+					. '<span class="p">' . h( $d[2] ) . '</span>' )
+				. '<p class="d">' . h( $d[1] ) . '</p></li>';
+		}
+		$o .= '</ol></section>';
+	}
+	return $o . '</div><p class="foot">' . h( $m['note'] ) . '</p></div></section>';
+}
+
+/** COMP-FIGURE-QUOTE · the person who signs the food. */
+function figure_quote_html( $f ) {
+	$fi = img( $f['img'] );
+	return '<section class="sec figq" aria-label="' . h( $f['eyebrow'] ) . '">'
+		. '<figure class="portrait"><img data-img="' . h( $fi['slug'] ) . '"'
+		. ' alt="' . h( $fi['alt'] ) . '" width="' . $fi['w'] . '" height="' . $fi['h'] . '"></figure>'
+		. '<div class="say"><span class="eyebrow">' . h( $f['eyebrow'] ) . '</span>'
+		. '<blockquote>' . h( $f['quote'] ) . '</blockquote>'
+		/* THE SIGNATURE IS THE NAME AND IT IS NOT `aria-hidden`. The first cut printed both — a
+		   handwritten `Èlia Ferrer` and a bold `Èlia Ferrer` two lines under it — which reads as a
+		   template that forgot to fill one of its fields. Hiding the signature from assistive tech and
+		   printing the name for it was the reason the duplicate existed; making the signature the
+		   accessible name removes both problems at once. */
+		. '<p class="sig">' . h( $f['sig'] ) . '</p>'
+		. '<p class="who"><span>' . h( $f['role'] ) . '</span></p>'
+		. '</div></section>';
+}
+
+/** COMP-GALLERY, offset variant. Six frames, two heights, no shared baseline. */
+function gallery_offset_html( $g ) {
+	if ( 6 !== count( $g['items'] ) ) {
+		fail( 'the offset collage places six frames on named nth-child lines and got '
+			. count( $g['items'] ) . ' — a seventh would fall into an unstyled cell and a fifth would'
+			. ' leave a hole, and neither is visible from the data' );
+	}
+	$o = '<section class="sec gallery grid-sec" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots offset">';
+	foreach ( $g['items'] as $slug ) {
+		$gi = img( $slug );
+		$o .= '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
+			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '"></figure></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-HOURS-BLOCK · the opening times as the graphic, and the address as copyable text. */
+function hours_block_html( $hb ) {
+	$o = '<section class="sec hoursblock closing" aria-label="' . h( $hb['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hb['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $hb['h2'] ) . '</h2></div><div class="hours-big"><dl>';
+	foreach ( $hb['rows'] as $r ) {
+		$shut = ( 'Cerrado' === $r[1] ) ? ' shut' : '';
+		$o   .= '<div class="row' . $shut . '"><dt>' . h( $r[0] ) . '</dt><dd>' . h( $r[1] ) . '</dd></div>';
+	}
+	$o .= '</dl><div class="where"><p>' . h( $hb['addr'][0] ) . '<br>' . h( $hb['addr'][1] ) . '</p>'
+		. '<p><a href="#">' . h( $hb['phone'] ) . '</a></p>'
+		. '<p><a href="#">' . h( $hb['mail'] ) . '</a></p>'
+		. '<p class="muted">' . h( $hb['note'] ) . '</p></div></div></div></section>';
+	return $o;
+}
+
+/**
+ * TPL-C-06 · Mesa / Carta.
+ *
+ * THE ORDER IS THE ARGUMENT and it is the whole reason this archetype exists beside TPL-C-05: you
+ * enter through the photograph, you decide with the carta, you trust the person, and only then do
+ * you meet a form. TPL-C-05 puts the booking block third, which is right for a clinic and wrong
+ * for a table.
+ */
+function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	// COMP-HEADER, transparent over the hero  [fijo]
+	$o[] = head_over( $C, $BRAND );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO-FULL  [fijo · ADN]
+	$o[] = '<section class="sec hero hero-visual hero-full" aria-label="La casa"><div class="media-full">'
+		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '</div></div></section>';
+
+	// 2 · COMP-MARQUEE  [toggle TGL-MARQUEE]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-MARQUEE' ) ) {
+		$o[] = marquee_html( $C['marquee'] );
+	}
+
+	// 3 · COMP-MENU-LIST  [fijo · ADN · toggle TGL-MENU-PRICES]
+	$o[] = menu_list_html( $C['menu'], tgl_of( $tgl_rows, 'TGL-MENU-PRICES' ) );
+
+	// 4 · COMP-FIGURE-QUOTE  [fijo · ADN]
+	$o[] = figure_quote_html( $C['figq'] );
+
+	// 5 · COMP-GALLERY, offset  [toggle TGL-GALLERY]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
+		$o[] = gallery_offset_html( $C['gallery'] );
+	}
+
+	// 6 · COMP-BOOKING  [fijo]
+	$o[] = booking_html( $C['booking'], $uid );
+
+	// 7 · COMP-HOURS-BLOCK  [fijo · ADN] — and it is the close
+	$o[] = hours_block_html( $C['hours'] );
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
 /**
  * TPL-C-05 · Local / Booking.
  *
@@ -7056,6 +7477,9 @@ function template_group_html( $tpl, $T, $tpl_slug, $cards ) {
    so a reader can check the page against its own spec instead of against this file's memory. The
    first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
 $PAGES = array(
+	'TPL-C-06' => array(
+		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-06' ),
+	),
 	'TPL-C-01' => array(
 		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
 		array( 'key' => 'servicio', 'label' => 'Servicio', 'doc' => 'TPL-SERVICE-01' ),
@@ -7092,6 +7516,9 @@ $PAGES = array(
 
 /** One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample. */
 function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	if ( 'TPL-C-06' === $tpl && 'home' === $page_key ) {
+		return strip_menu( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-01' === $tpl && 'home' === $page_key ) {
 		return strip_corporate( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -7753,6 +8180,42 @@ $mk_js = "<script>\n"
 	. "  route();\n"
 	. "})();\n"
 	. "</script>";
+
+/* ── A NEW SECTION MAY NOT WEAR A CLASS SOMEBODY ELSE ALREADY STYLED ──────────────────────────
+   FOUND BY LOOKING, AND IT COST AN HOUR. TPL-C-06's closing band shipped as `<section class="sec
+   hours closing">`, and `.hours` was already TPL-C-05's NAP definition list: `display:grid`,
+   `gap:.2rem`, `font-size:var(--fs-small)`. Those three declarations landed on a whole SECTION.
+   The band still rendered — it just rendered as a one-column grid whose `.canvas` was a grid item
+   instead of a grid, so the heading started at the viewport's left edge and ran off it.
+
+   NOTHING ELSE COULD HAVE CAUGHT IT. `php -l` and `node --check` see syntax; the contrast sweeps
+   see colour; the copy multiset sees text. A stylesheet where two archetypes silently share a
+   class name is valid CSS that renders, which is the exact profile of every defect this file has
+   had to grow a gate for. The gate is cheap: the classes an archetype introduces are listed, and
+   each must be undefined in every byte of CSS emitted BEFORE that archetype's own block.
+
+   The list is hand-kept and that is a real weakness — a tenth class added to the block below
+   without a line here is unchecked. It is still strictly better than nothing, and the failure mode
+   is "a new collision slips through" rather than "the check silently passes on everything", which
+   is the failure this repository keeps actually having. */
+$c06_all    = implode( "\n", $css );
+$c06_marker = '── COMP-HEADER, floating on the photograph';
+$c06_at     = strpos( $c06_all, $c06_marker );
+if ( false === $c06_at ) {
+	fail( 'the TPL-C-06 stylesheet block cannot be located by its own marker comment — the collision'
+		. ' check below would be scanning the whole file against itself and passing on everything' );
+}
+$c06_before  = substr( $c06_all, 0, $c06_at );
+$c06_classes = array( 'head-over', 'hero-full', 'marquee', 'track', 'run', 'menu-list', 'menu-group',
+	'dish', 'dots', 'figq', 'portrait', 'say', 'sig', 'hoursblock', 'hours-big', 'shut', 'where' );
+foreach ( $c06_classes as $c06_c ) {
+	if ( preg_match( '/(^|[\s,>+~(])\.' . preg_quote( $c06_c, '/' ) . '(?![\w-])/', $c06_before, $c06_m ) ) {
+		fail( "TPL-C-06 introduces `.$c06_c`, and the stylesheet already defines a rule on that class"
+			. ' before its block. Two archetypes sharing a class name is valid CSS that renders — the'
+			. ' older rule simply lands on the newer element and moves it somewhere nobody chose. Rename'
+			. ' the new one; the old one has more callers.' );
+	}
+}
 
 $html = $head . "\n<style>\n" . implode( "\n", $css ) . "\n</style>\n\n"
 	. $ink_svg . "\n"
