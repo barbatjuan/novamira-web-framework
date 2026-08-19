@@ -1631,6 +1631,7 @@ $CONTENT = array(
 	   publica: cuánto dura, cuántas sesiones, si lleva anestesia y desde cuánto. */
 	'TPL-C-10-arbea' => array(
 		'tpl'          => 'TPL-C-10-arbea',
+		'head_mode'    => 'tight',
 		'arch'         => 'TPL-C-10',
 		'brand'        => 'arbea',
 		'brand_name'   => 'Clínica Arbea',
@@ -1721,6 +1722,7 @@ $CONTENT = array(
 	   respuesta equivocada a las tres. */
 	'TPL-C-11-alinea' => array(
 		'tpl'          => 'TPL-C-11-alinea',
+		'head_mode'    => 'rule',
 		'arch'         => 'TPL-C-11',
 		'brand'        => 'alinea',
 		'brand_name'   => 'Alinea',
@@ -1823,6 +1825,7 @@ $CONTENT = array(
 	   responder. */
 	'TPL-C-12-urgencia' => array(
 		'tpl'          => 'TPL-C-12-urgencia',
+		'head_mode'    => 'tight',
 		'arch'         => 'TPL-C-12',
 		'brand'        => 'urgencia',
 		'brand_name'   => 'Urgencia Dental',
@@ -1897,6 +1900,7 @@ $CONTENT = array(
 	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
 	'TPL-C-07-aranda' => array(
 		'tpl'          => 'TPL-C-07-aranda',
+		'head_mode'    => 'rule',
 		'arch'         => 'TPL-C-07',
 		'brand'        => 'aranda',
 		'brand_name'   => 'Motor Aranda',
@@ -2106,6 +2110,7 @@ $CONTENT = array(
 	   posponer la reparación. Por eso la tarifa es la segunda cosa de la página y lleva importes. */
 	'TPL-C-09-bergara' => array(
 		'tpl'          => 'TPL-C-09-bergara',
+		'head_mode'    => 'rule',
 		'arch'         => 'TPL-C-09',
 		'brand'        => 'bergara',
 		'brand_name'   => 'Taller Bergara',
@@ -3316,6 +3321,17 @@ foreach ( $CONTENT as $cn_k => $cn_v ) {
 	if ( ! isset( $CONTENT[ $cn_k ]['arch'] ) ) {
 		$CONTENT[ $cn_k ]['arch'] = $cn_v['tpl'];
 	}
+	/* THE SECTION-HEAD TREATMENT STOPS BELONGING TO THE ANCHOR. Four anchors carried four head
+	   decorations, so seventeen templates shared four; every section of every page announced itself
+	   with the same gesture in the same place, and THAT is the drumbeat that made different section
+	   inventories still read as one skeleton. The mode is a template property now, and the pairing
+	   (anchor × mode) is asserted unique across branded templates below. */
+	if ( ! isset( $CONTENT[ $cn_k ]['head_mode'] ) ) {
+		$CONTENT[ $cn_k ]['head_mode'] = 'index';
+	} elseif ( ! in_array( $CONTENT[ $cn_k ]['head_mode'], array( 'index', 'rule', 'tight' ), true ) ) {
+		fail( "template `$cn_k` asks for head mode `{$CONTENT[ $cn_k ]['head_mode']}`, which is not one"
+			. ' of index / rule / tight' );
+	}
 	if ( ! isset( $CONTENT[ $cn_k ]['brand'] ) ) {
 		$CONTENT[ $cn_k ]['brand'] = '';
 	} elseif ( ! isset( $BRANDS[ $CONTENT[ $cn_k ]['brand'] ] ) ) {
@@ -3509,6 +3525,25 @@ foreach ( $STRIPS as $s ) {
 		fail( "no toggle table for {$CONTENT[ $s['tpl'] ]['arch']} — an archetype that has not declared"
 			. ' which toggles it admits cannot be checked against one, and `todas` is not a declaration' );
 	}
+}
+
+/* ── TWO BRANDS MAY NOT SHARE BOTH THE ANCHOR AND THE HEAD TREATMENT ──────────────────────────
+   The anchor moves five axes and the head mode moves the gesture every section opens with. Sharing
+   one is fine and unavoidable — there are four anchors and there will be thirty brands. Sharing
+   BOTH is two pages with the same rhythm, and rhythm is what a reader recognises before content. */
+$hm_seen = array();
+foreach ( $STRIPS as $hm_s ) {
+	$hm_c = $CONTENT[ $hm_s['tpl'] ];
+	if ( '' === $hm_c['brand'] ) {
+		continue;
+	}
+	$hm_k = $hm_s['anchor'] . ' + ' . $hm_c['head_mode'];
+	if ( isset( $hm_seen[ $hm_k ] ) ) {
+		fail( "`{$hm_s['tpl']}` and `{$hm_seen[ $hm_k ]}` are both `$hm_k`. Two branded templates on the"
+			. ' same anchor AND the same section-head treatment open every section with the same gesture'
+			. ' at the same size in the same place — which is the sameness the head mode exists to break.' );
+	}
+	$hm_seen[ $hm_k ] = $hm_s['tpl'];
 }
 
 /* ── A CATALOGUE ENTRY MAY NOT REUSE A SKELETON ───────────────────────────────────────────────
@@ -5647,6 +5682,40 @@ $css[] = <<<'CSS'
     grid-row:1 / span 2}
 }
 
+/* ══════════ THE SECTION HEAD, PER TEMPLATE ══════════
+   Three treatments. `index` is what the four anchors already do — a numbered head, decorated the
+   anchor's own way. The other two switch that decoration off and put a different gesture in its
+   place, so two brands on one anchor no longer open every section identically. */
+
+/* `rule` — the eyebrow runs into a hairline that reaches the end of the measure. A horizontal
+   gesture where `index` is a vertical one, and it costs one pseudo-element. */
+[data-head="rule"] .head[data-index]::before{content:none}
+[data-head="rule"] .head .eyebrow{display:grid;grid-template-columns:auto minmax(2rem,1fr);
+  gap:.75rem;align-items:center;width:100%}
+[data-head="rule"] .head .eyebrow::after{content:"";height:1px;background:var(--c-border)}
+[data-comp="lp-centered"][data-head="rule"] .head .eyebrow{
+  grid-template-columns:minmax(2rem,1fr) auto minmax(2rem,1fr)}
+[data-comp="lp-centered"][data-head="rule"] .head .eyebrow::before{content:"";height:1px;
+  background:var(--c-border)}
+
+/* `tight` — no number, no rule: a 2px rule down the LEFT of the head block, and a page that
+   breathes about a quarter less. Reads as a document rather than as a brochure. */
+[data-head="tight"] .head[data-index]::before{content:none}
+[data-head="tight"] .head{padding-left:var(--sp-m);border-left:2px solid var(--c-text)}
+[data-head="tight"] .sec{padding-block:calc(var(--sp-section) * .74)}
+[data-comp="lp-centered"][data-head="tight"] .head{text-align:left;align-items:flex-start;
+  margin-inline:0}
+
+/* ── ALIGNMENT, FOUND BY LOOKING AND NOT BY A PROBE ───────────────────────────────────────────
+   The section note hung at the LEFT of a section whose heading was CENTRED, on every lp-centered
+   template. An automated left-edge sweep could not have caught it: under this blueprint half the
+   children are legitimately off the modal left, so the check that would have flagged the note
+   flags forty things that are correct. It took looking at a render.
+   The note follows the head because it belongs to it — it is the head's small print, not the
+   section's footer. */
+[data-comp="lp-centered"] .pnote,
+[data-comp="lp-centered"] .menu-list .foot{text-align:center;margin-inline:auto}
+
 /* ══════════ TPL-C-10 · CLÍNICA / TRATAMIENTOS ══════════ */
 
 /* The four facts are a ROW OF CHIPS and not prose: the patient scans them against the other five
@@ -5661,9 +5730,15 @@ $css[] = <<<'CSS'
 .trbody{display:flex;flex-direction:column;gap:.4rem;flex:1;padding:var(--sp-m)}
 .trcard h3{margin:0;font-size:1.0625rem}
 .trcard p{margin:0;color:var(--c-text-muted);font-size:.875rem}
-.tfacts{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:flex;flex-wrap:wrap;gap:.3rem}
+/* A FIXED 2×2 GRID AND NOT A WRAPPING FLEX. The four facts are a FIXED SET of four, and flex-wrap
+   made their line count depend on how long each label happened to be: one card broke 3+1, the next
+   4+0, so the price sat on a different line in every card and the row of numbers never lined up
+   across the grid. A fixed set deserves a fixed layout — the wrap was doing arithmetic on text
+   length that nobody asked it to do. */
+.tfacts{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem}
 .tfacts li{font-size:.8125rem;border:1px solid var(--c-border);border-radius:var(--radius-button);
-  padding:.1rem .45rem;white-space:nowrap}
+  padding:.1rem .45rem;text-align:center;min-width:0;overflow-wrap:break-word}
 .tfacts li:last-child{font-weight:700;border-color:var(--c-text)}
 
 /* The caption is UNDER the photograph and carries the date. A label floated over the image would
@@ -5805,9 +5880,12 @@ $css[] = <<<'CSS'
 .vcard .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .vbody{display:flex;flex-direction:column;gap:.5rem;flex:1;padding:var(--sp-m)}
 .vcard h3{margin:0;font-size:1.0625rem;line-height:1.25}
-.vfacts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.3rem}
+/* Same reasoning as `.tfacts`: five fixed facts on a fixed 3-column grid, so every vehicle card
+   spends exactly two rows on them and the prices below line up across the whole listing. */
+.vfacts{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem}
 .vfacts li{font-size:.8125rem;color:var(--c-text-muted);border:1px solid var(--c-border);
-  border-radius:var(--radius-button);padding:.08rem .45rem;white-space:nowrap}
+  border-radius:var(--radius-button);padding:.08rem .45rem;text-align:center;min-width:0}
 .vprice{margin:auto 0 0;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
 .vprice b{font-family:var(--font-primary);font-size:1.375rem;font-variant-numeric:tabular-nums}
 .vprice span{color:var(--c-text-muted);font-size:.875rem}
@@ -6632,7 +6710,7 @@ $css[] = implode( "\n", $close_css ) . "\n";
 function number_heads( $markup ) {
 	$n = 0;
 	return preg_replace_callback(
-		'/<div class="head stack"/',
+		'/<div class="head stack"(?! data-index)/',
 		function () use ( &$n ) {
 			++$n;
 			return '<div class="head stack" data-index="' . sprintf( '%02d', $n ) . '"';
@@ -9207,8 +9285,20 @@ $PAGES = array(
 	),
 );
 
-/** One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample. */
+/**
+ * One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample.
+ *
+ * THE SECTION INDEX IS APPLIED HERE AND ONLY FOR ARCHETYPES THAT ASK FOR IT. It used to be called
+ * inside every strip, which made numbering universal — and universal chrome is exactly what made
+ * seventeen templates read as one. `number_heads()` is idempotent now (it skips a head that
+ * already carries `data-index`), so the strips that still call it themselves are unaffected.
+ */
 function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	$rp = render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl );
+	return ( 'index' === $C['head_mode'] ) ? number_heads( $rp ) : $rp;
+}
+
+function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	if ( 'TPL-C-10' === $tpl && 'home' === $page_key ) {
 		return strip_clinic( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -9335,6 +9425,7 @@ foreach ( $STRIPS as $s ) {
 		// a dictionary. Without it Chrome hyphenates nothing and the card headings overflow again.
 		$variant[] = '<div class="sample" lang="es" data-anchor="' . h( $s['anchor'] ) . '"'
 			. ' data-arch="' . h( strtolower( $C['arch'] ) ) . '"'
+			. ' data-head="' . h( $C['head_mode'] ) . '"'
 			. $b_attr
 			. ' data-comp="' . h( $lp ) . '" data-page="' . h( $pg['key'] ) . '"'
 			. ( 0 === $pi ? '' : ' hidden' ) . '>';
@@ -10007,11 +10098,18 @@ $CLASS_BLOCKS = array(
 		'bookmedia', 'booking-split' ) ),
 	'══════════ TPL-C-07 · STOCK / OCASIÓN'      => array( 'TPL-C-07', array(
 		'hero-search', 'filterbar', 'stockcount', 'stockgrid', 'vcard', 'vbody', 'vfacts', 'vprice',
-		'tiform', 'ftable', 'frow', 'ftotal', 'badgelist', 'badge', 'pnote', 'shot' ) ),
+		/* `.pnote` and `.badge*` are NOT in this list and that is the correction, not an omission.
+		   They are SHARED — six archetypes emit a section note and three emit a badge row — and the
+		   check asks "is this class defined before the block that OWNS it". A shared class has no
+		   owner, so listing it under whichever archetype happened to need it first turns the gate into
+		   a tripwire for anybody who later styles it from a shared block, which is exactly what
+		   happened. The gate is for names an archetype INTRODUCES for itself. */
+		'tiform', 'ftable', 'frow', 'ftotal', 'badgelist', 'shot' ) ),
 	'══════════ TPL-C-08 · MODELO / LANZAMIENTO' => array( 'TPL-C-08', array(
 		'mhero', 'mfigs', 'specwrap', 'spectable', 'differs', 'same', 'offer' ) ),
 	'══════════ TPL-C-09 · TALLER / TARIFA'      => array( 'TPL-C-09', array(
 		'pgroups', 'pgroup', 'prow', 'pwhat', 'ptag' ) ),
+	'══════════ THE SECTION HEAD, PER TEMPLATE' => array( 'head modes', array() ),
 	'══════════ TPL-C-10 · CLÍNICA / TRATAMIENTOS' => array( 'TPL-C-10', array(
 		'treatcards', 'trcard', 'trbody', 'tfacts', 'bapair', 'bashot', 'medlist', 'medico',
 		'medbody', 'medlic', 'inslist' ) ),
