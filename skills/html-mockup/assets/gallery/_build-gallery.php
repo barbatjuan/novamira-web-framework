@@ -1958,7 +1958,12 @@ $CONTENT = array(
 		'dna'      => 'COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-VALUATION-CTA',
 		'wire'     => 'COMP-HEADER · COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-TEAM · COMP-FAQ · COMP-VALUATION-CTA · COMP-FOOTER',
 		'nav'      => array( 'Comprar', 'Alquilar', 'Nosotros' ),
+		/* NOMBRE sin paleta: no hay reportaje propio, así que no hay marca — pero un header que
+		   dijera «Piedra Valdés» sobre una cartera de pisos en Pamplona es peor que uno genérico. */
+		'wordmark' => 'ZUBIRI & OSÉS',  // en versales como los otros ocho: la caja del wordmark es una convención del catálogo, no del negocio
 		'nav_cta'  => 'Vender tu casa',
+		/* Su § 3 lo dice: secundario, porque el primario aquí es el teléfono. */
+		'nav_cta_weight' => 'secundario',
 		'phone'    => '948 00 00 00',
 		'hero'     => array(
 			'eyebrow' => 'Cartera propia · Pamplona y comarca',
@@ -8278,8 +8283,13 @@ function head_phone( $C, $BRAND ) {
 	foreach ( $C['nav'] as $n ) {
 		$o .= '<a href="#">' . h( $n ) . '</a>';
 	}
+	/* The header CTA's WEIGHT is the archetype's call. TPL-C-07 wants `Vender mi coche` solid and
+	   its doc says nothing against it; TPL-C-13's doc says the opposite in as many words, because
+	   there the primary action is the phone and a solid second button beside it is two primaries.
+	   Default unchanged, so no existing strip moves. */
+	$cta_cls = isset( $C['nav_cta_weight'] ) && 'secundario' === $C['nav_cta_weight'] ? 'btn-outline' : 'btn-primary';
 	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '<a class="btn ' . $cta_cls . ' btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 }
 
@@ -8819,8 +8829,13 @@ function head_over( $C, $BRAND ) {
 	foreach ( $C['nav'] as $n ) {
 		$o .= '<a href="#">' . h( $n ) . '</a>';
 	}
+	/* The header CTA's WEIGHT is the archetype's call. TPL-C-07 wants `Vender mi coche` solid and
+	   its doc says nothing against it; TPL-C-13's doc says the opposite in as many words, because
+	   there the primary action is the phone and a solid second button beside it is two primaries.
+	   Default unchanged, so no existing strip moves. */
+	$cta_cls = isset( $C['nav_cta_weight'] ) && 'secundario' === $C['nav_cta_weight'] ? 'btn-outline' : 'btn-primary';
 	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '<a class="btn ' . $cta_cls . ' btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 }
 
@@ -9979,7 +9994,12 @@ foreach ( $STRIPS as $s ) {
 	   over a near-black restaurant — is the kind of readout that is worse than none, because it is
 	   read as authoritative. Scale, density, composition and elevation are untouched: they are the
 	   anchor's, and the card's chips stay true. */
-	$wordmark = $BRAND;
+	/* Tres estados y no dos: la marca de la casa, un NOMBRE propio sin paleta, y una marca entera.
+	   El de en medio no existía y por eso TPL-C-13 se rendía con el wordmark de una cantería sobre
+	   una inmobiliaria. `wordmark` cambia el nombre y NADA más — ni ground, ni tipografías, ni
+	   `data-brand` — así que el arquetipo sigue contando como de la casa en $n_brands, que es la
+	   verdad: no tiene fotografías suyas. */
+	$wordmark = isset( $C['wordmark'] ) ? $C['wordmark'] : $BRAND;
 	$b_attr   = '';
 	if ( '' !== $C['brand'] ) {
 		$b_of        = $BRANDS[ $C['brand'] ];
