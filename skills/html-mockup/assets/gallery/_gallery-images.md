@@ -263,6 +263,17 @@ new row looks different from the old ones.
 | `tueste-taza` | card 4:3 | 800×600 | 58 KB | 5220590270 | fp-5220590 | Freepik AI (Pikaso) | Café de filtro cayendo a una jarra de vidrio, con vapor |
 | `tueste-molino` | card 4:3 | 800×600 | 46 KB | 5220589424 | fp-5220589 | Freepik AI (Pikaso) | Café recién molido en el cajón de un molinillo manual |
 
+Las veintiuna filas `corte-*`, `bajura-*` y `tueste-*` son las tres verticales de ecommerce que
+el catálogo tenía escritas y no podía enseñar. Están GENERADAS, como las `inmo-*`, y valen para
+una maqueta por lo mismo: enseñan de qué va la sección sin afirmar que existan esa tienda, ese
+barco ni ese tostadero. En un sitio de cliente NINGUNA de las tres sirve — la ropa hay que
+fotografiarla sobre los cuerpos reales que la venden, el pescado es el de la lonja de ese día, y
+la caja es la caja que el cliente manda.
+
+Y una nota sobre las tres de `corte-cuerpo*`: son la MISMA prenda sobre tres cuerpos distintos,
+que es el dato entero de `COMP-FIT-GALLERY`. Sustituir una por otra prenda rompe la sección sin
+romper nada que un gate pueda ver.
+
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
 `h2` is a screen-reader user hearing the same sentence twice. It describes the

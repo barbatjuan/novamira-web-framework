@@ -1292,6 +1292,17 @@ $TOGGLES = array(
 			'options' => array( 'sí', 'no' ),
 		),
 	),
+	/* TPL-E-07 · Lote / Peso. Los tres de su doc. */
+	'TPL-E-07' => array(
+		'TGL-ORIGIN'       => array( 'ask' => '¿Mapa de origen de la pieza?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-TESTIMONIALS' => array( 'ask' => '¿Quién ya compró?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-NEWSLETTER'   => array( 'ask' => '¿Aviso de lote nuevo?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-E-08 · Suscripción. */
+	'TPL-E-08' => array(
+		'TGL-TESTIMONIALS' => array( 'ask' => '¿Quién lleva tiempo suscrito?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'          => array( 'ask' => '¿Dudas de compromiso?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
 	'TPL-E-02' => array(),
 );
 
@@ -3629,6 +3640,241 @@ $CONTENT = array(
 			'legal' => '© 2026 Corte Nueve S.L. · Taller y almacén en Igualada · IVA incluido',
 		),
 	),
+
+	/* TPL-E-07 · BAJURA. El producto CAMBIA cada semana y no es intercambiable consigo mismo: tiene
+	   lote, fecha y un peso que no es exacto hasta que alguien lo pone en la báscula. Eso rompe tres
+	   supuestos que ningún otro arquetipo de ecommerce resuelve — el precio es por kilo y el importe
+	   se ajusta al pesar, la entrega es parte del producto (fresco que llega a una casa vacía es
+	   fresco perdido), y la confianza es trazabilidad y no insignias: un sello de «pago seguro» no
+	   dice nada sobre un pescado. */
+	'TPL-E-07-bajura' => array(
+		'tpl'          => 'TPL-E-07-bajura',
+		'arch'         => 'TPL-E-07',
+		'brand'        => 'bajura',
+		'brand_name'   => 'Bajura',
+		'brand_sector' => 'Alimentación · pescado fresco',
+		'tpl_name'     => 'Lote / Peso',
+		'site'         => 'ecommerce',
+		'site_es'      => 'Ecommerce',
+		'fits'         => 'Pescadería y carnicería online, quesos, embutido, café de tueste, bodega, huerta',
+		'dna'          => 'COMP-DELIVERY-WINDOW · COMP-BATCH-CARD · COMP-WEIGHT-NOTE · COMP-COLD-CHAIN',
+		'wire'         => 'COMP-HEADER · COMP-DELIVERY-WINDOW · COMP-BATCH-CARD · COMP-WEIGHT-NOTE · COMP-ORIGIN-MAP · COMP-COLD-CHAIN · COMP-TESTIMONIAL · COMP-NEWSLETTER · COMP-FOOTER',
+		'head_mode'    => 'rule',
+		'nav'          => array( 'Lonja de hoy', 'Pescado', 'Marisco', 'Cómo llega' ),
+		'cart'         => 'Cesta',
+		'cart_n'       => '2',
+		'window'       => array(
+			'eyebrow' => 'Antes de elegir',
+			'h1'      => '¿Qué días llegamos a tu calle?',
+			'lede'    => 'Sale de la lonja por la mañana y llega al día siguiente. Si no servimos tu código postal el día que te sirve, no hay compra que hacer — y averiguarlo en el último paso es averiguarlo tarde.',
+			'lbl'     => 'Código postal',
+			'ph'      => '48001',
+			'cta'     => 'Ver mis días',
+			'result'  => 'En el 48001 repartimos martes, jueves y sábado. Pedido antes de las 22:00 del día anterior.',
+			'note'    => 'Fuera de esos días no ofrecemos entrega: preferimos no vender antes que mandar fresco a una casa vacía un viernes por la tarde.',
+		),
+		'batch'        => array(
+			'eyebrow' => 'La lonja de hoy',
+			'h2'      => 'Cuatro piezas, con su lote',
+			'note'    => 'Lo que hay hoy. Mañana es otra cosa, y por eso cada pieza lleva su barco, su fecha y su precio por kilo — no un PVP fijo que mentiría en todos los pedidos.',
+			'items'   => array(
+				array(
+					'img' => 'bajura-pieza', 'h3' => 'Lubina de anzuelo',
+					'kg' => '28 €/kg', 'pc' => 'pieza de ~1,1 kg ≈ 31 €',
+					'rows' => array( array( 'Barco', 'Nuevo Aramar · Ondarroa' ), array( 'Lote', 'ON-2609-14' ), array( 'Consumo preferente', '3 días desde la entrega' ) ),
+				),
+				array(
+					'img' => 'bajura-lomo', 'h3' => 'Lomo de atún rojo',
+					'kg' => '46 €/kg', 'pc' => 'corte de ~0,8 kg ≈ 37 €',
+					'rows' => array( array( 'Almadraba', 'Barbate' ), array( 'Lote', 'BA-2609-03' ), array( 'Consumo preferente', '2 días desde la entrega' ) ),
+				),
+				array(
+					'img' => 'bajura-marisco', 'h3' => 'Langostino de costa',
+					'kg' => '34 €/kg', 'pc' => 'bandeja de ~0,5 kg ≈ 17 €',
+					'rows' => array( array( 'Lonja', 'Sanlúcar' ), array( 'Lote', 'SL-2609-21' ), array( 'Consumo preferente', '2 días desde la entrega' ) ),
+				),
+				array(
+					'img' => 'bajura-corte', 'h3' => 'Merluza en rodajas',
+					'kg' => '22 €/kg', 'pc' => 'bandeja de ~0,9 kg ≈ 20 €',
+					'rows' => array( array( 'Barco', 'Itsasgain · Bermeo' ), array( 'Lote', 'BE-2609-08' ), array( 'Consumo preferente', '3 días desde la entrega' ) ),
+				),
+			),
+		),
+		'weight'       => array(
+			'eyebrow' => 'Antes de cobrar',
+			'h2'      => 'Por qué el importe final varía',
+			'lede'    => 'Las piezas no salen todas iguales de la mar. Publicamos el precio por kilo y un peso aproximado; al preparar el pedido se pesa de verdad y el cargo se ajusta.',
+			'items'   => array(
+				array( '±15%', 'es el margen habitual', 'Una pieza anunciada de 1,1 kg puede salir de 0,95 a 1,25.' ),
+				array( 'Antes', 'de pasar el cobro', 'Te mandamos el peso real y el importe. Si no contestas, no se cobra.' ),
+				array( 'Nunca', 'más de lo aproximado +15%', 'Si la pieza se pasa, la partimos o buscamos otra.' ),
+			),
+			'note'    => 'Un PVP fijo en una pescadería miente en el 100% de los pedidos. Preferimos decirlo arriba y no en una nota legal al pie.',
+		),
+		'origin'       => array(
+			'eyebrow' => 'De dónde viene',
+			'h2'      => 'De la lonja, no de una plataforma',
+			'lede'    => 'Compramos en subasta en tres puertos del Cantábrico y uno del Golfo. Sin intermediario no hay un teléfono al que llamar cuando algo sale mal: hay un nombre y un barco.',
+			'img'     => 'bajura-puerto',
+			/* LEÍDAS SOBRE LA FOTOGRAFÍA, no repartidas a ojo. Con la primera colocación dos caían
+			   en mitad de la dársena, y un puerto pesquero flotando sobre el agua es el detalle que
+			   hace que nadie se crea el resto de la página. Es la misma corrección que ya costó una
+			   vuelta en el mapa de TPL-C-13: las cuatro van sobre el pueblo o sobre el muelle. */
+			'pins'    => array(
+				array( 12, 24, 'Ondarroa' ),
+				array( 11, 66, 'Bermeo' ),
+				array( 74, 18, 'Getaria' ),
+				array( 52, 88, 'Sanlúcar' ),
+			),
+		),
+		'cold'         => array(
+			'eyebrow' => 'Cómo viaja',
+			'h2'      => 'Y qué hacer al abrir la caja',
+			'img'     => 'bajura-caja',
+			'steps'   => array(
+				array( 'Se envasa al vacío', 'Sobre hielo en escamas, dentro de bolsa estanca. El pescado no toca el agua del deshielo.' ),
+				array( 'Caja isotérmica', 'Con acumuladores de gel congelados a −18 °C. Aguanta 30 horas por encima de 4 °C aunque el reparto se retrase.' ),
+				array( 'Al recibirlo', 'A la nevera en la primera hora, todavía envasado. Si vas a congelar, hazlo el mismo día y sin abrir la bolsa.' ),
+			),
+			'note'    => 'Si la caja llega templada o rota, la foto por WhatsApp y se repone en el siguiente reparto. Sin devolver nada: con fresco no tendría sentido.',
+		),
+		'quotes'       => array(
+			'eyebrow' => 'Quién ya compró',
+			'h2'      => 'Tres cocinas y una casa',
+			'items'   => array(
+				array( 'Nos llega el martes lo que se subastó el lunes. Eso antes sólo lo tenía yendo yo a la lonja.', 'Iñaki Beitia', 'Restaurante Aixerrota, Getxo' ),
+				array( 'El aviso del peso real antes de cobrar me pareció una tontería hasta que vi la primera factura cuadrada.', 'Carmen Losada', 'Cliente desde 2024' ),
+				array( 'Pido lomo de atún cada quince días y siempre sé de qué almadraba viene. Ningún proveedor me daba eso.', 'Sergi Puyol', 'Bar Nou, Barcelona' ),
+			),
+		),
+		'news'         => array(
+			'eyebrow' => 'Aviso de lonja',
+			'h2'      => 'Te avisamos cuando entre lote nuevo',
+			'lede'    => 'Un correo los días que hay subasta buena, y ninguno el resto. No es un boletín: es un aviso de que hay algo que mañana no estará.',
+			'label'   => 'Tu email',
+			'cta'     => 'Avisadme',
+			'small'   => 'Dos o tres correos al mes. Baja en un clic y no volvemos a escribir.',
+		),
+		'footer'       => array(
+			'tag'   => 'Pescado de lonja · reparto en Bizkaia, Gipuzkoa y Cantabria',
+			'links' => array( 'Zonas de reparto', 'Cómo viaja', 'Aviso legal', 'Privacidad', 'Cookies' ),
+			'legal' => '© 2026 Bajura S. Coop. · Puerto de Ondarroa, muelle 3 · IVA incluido',
+		),
+	),
+
+	/* TPL-E-08 · TUESTE NORTE. Lo que se elige aquí no es una cantidad: es un PLAN y una cadencia.
+	   Nadie compara «12,90 €» con «12,90 € al mes cada seis semanas» del mismo modo, y una rejilla
+	   de producto con botón de comprar empuja justo a la decisión equivocada — llevarse una bolsa
+	   suelta en vez de suscribirse. Por eso esta tienda NO tiene COMP-PRODUCT-INFO en ninguna de sus
+	   dos páginas: el control de compra es el selector de plan.
+	   Frente a TPL-C-11, que también vende una cuota: aquel plan TERMINA —la ortodoncia dura
+	   dieciocho meses— y por eso su bloque central es una línea de tiempo. Éste no termina, y por eso
+	   el suyo es un control de cadencia. */
+	'TPL-E-08-tueste' => array(
+		'tpl'          => 'TPL-E-08-tueste',
+		'arch'         => 'TPL-E-08',
+		'brand'        => 'tueste',
+		'brand_name'   => 'Tueste Norte',
+		'brand_sector' => 'Alimentación · café por suscripción',
+		'tpl_name'     => 'Suscripción / Entrega recurrente',
+		'site'         => 'ecommerce',
+		'site_es'      => 'Ecommerce',
+		'fits'         => 'Café de tueste, comida de mascota, cosmética de reposición, vino, cajas de temporada, consumibles',
+		'dna'          => 'COMP-PLAN-PICKER · COMP-CADENCE · COMP-FIRST-BOX · COMP-PAUSE-PROMISE',
+		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-PLAN-PICKER · COMP-CADENCE · COMP-FIRST-BOX · COMP-PAUSE-PROMISE · COMP-TESTIMONIAL · COMP-FAQ · COMP-FOOTER',
+		'nav'          => array( 'Cómo funciona', 'Los cafés', 'Preguntas' ),
+		'nav_cta'      => 'Empezar',
+		'hero'         => array(
+			'eyebrow' => 'Tostado el lunes, en tu casa el jueves',
+			'h1'      => 'Café recién tostado, cada cuánto quieras',
+			'lede'    => 'Tostamos por encargo los lunes y enviamos el martes. Eliges cantidad y frecuencia, y las cambias cuando te sobre o te falte — que es lo que de verdad pasa.',
+			'cta_1'   => 'Ver los planes',
+			'cta_2'   => 'Qué llega la primera vez',
+			'img'     => 'tueste-hero',
+		),
+		'plans'        => array(
+			'eyebrow' => 'Los planes',
+			'h2'      => 'Tres, contados enteros',
+			'note'    => 'La cuota incluye el envío. Al lado va lo que costaría comprando bolsa a bolsa, porque comparar es lo que hace que un plan se entienda.',
+			'items'   => array(
+				array(
+					'name' => 'Una bolsa', 'fee' => '13,90 € al mes', 'each' => 'suelta saldría 15,50 €',
+					'what' => '250 g cada cuatro semanas', 'who' => 'Para una persona que hace café en casa a diario.',
+					'rows' => array( 'Un origen por envío', 'Molido a tu método o en grano', 'Cambias la frecuencia cuando quieras' ),
+					'best' => false,
+				),
+				array(
+					'name' => 'Dos bolsas', 'fee' => '24,90 € al mes', 'each' => 'sueltas saldrían 31,00 €',
+					'what' => '500 g cada cuatro semanas', 'who' => 'Dos personas, o una que también hace café el fin de semana.',
+					'rows' => array( 'Dos orígenes distintos', 'Molido a tu método o en grano', 'Saltas un envío en un clic' ),
+					'best' => true,
+				),
+				array(
+					'name' => 'Oficina', 'fee' => '69,00 € al mes', 'each' => 'sueltas saldrían 93,00 €',
+					'what' => '1,5 kg cada dos semanas', 'who' => 'Equipos de ocho a quince personas.',
+					'rows' => array( 'Tres orígenes rotando', 'Factura mensual con IVA desglosado', 'Pausa por vacaciones sin dar de baja' ),
+					'best' => false,
+				),
+			),
+		),
+		'cadence'      => array(
+			'eyebrow' => 'La letra pequeña, en grande',
+			'h2'      => 'Cambiar, saltar o pausar',
+			'lede'    => 'El miedo a acumular café que no te da tiempo a beber es la objeción número uno, y no se disuelve leyendo condiciones: se disuelve enseñando los tres controles.',
+			'items'   => array(
+				array( 'Cada 2, 4 o 6 semanas', 'Se cambia desde la cuenta y afecta al siguiente envío, no al que ya salió.' ),
+				array( 'Saltar el próximo', 'Un clic. No cuenta como baja y no cambia el precio.' ),
+				array( 'Pausar hasta una fecha', 'Eliges el día de vuelta. Si no lo eliges, se queda pausada.' ),
+			),
+			'note'    => 'Los tres se tocan desde la cuenta, sin escribir a nadie y sin esperar respuesta.',
+		),
+		'firstbox'     => array(
+			'eyebrow' => 'La primera caja',
+			'h2'      => 'Qué llega exactamente',
+			'lede'    => 'No «descubre nuestro café». Esto es lo que hay dentro del plan de dos bolsas la primera vez, con gramos y con nombre.',
+			'img'     => 'tueste-caja',
+			'items'   => array(
+				array( '250 g', 'Huila, Colombia', 'Lavado. Panela y ciruela. Para filtro.' ),
+				array( '250 g', 'Sidamo, Etiopía', 'Natural. Fresa y té negro. Para filtro o espresso.' ),
+				array( '1', 'Ficha de tueste', 'Fecha, altitud, finca y la receta con la que lo catamos.' ),
+			),
+			'note'    => 'Sale el martes siguiente a tu alta. Si te suscribes un martes antes de las 10:00, sale ese mismo día.',
+		),
+		'pause'        => array(
+			'eyebrow' => 'Salirse',
+			'h2'      => 'Cancelar es un botón, no un correo',
+			'lede'    => 'Sin permanencia y sin llamada de retención. Una suscripción de la que no se ve la salida no se firma, y esconderla no la hace menos visible: la hace más sospechosa.',
+			'items'   => array(
+				array( 'Desde la cuenta', 'Un botón. No hay que escribir ni llamar.' ),
+				array( 'Sin permanencia', 'Ni mínimo de envíos ni penalización.' ),
+				array( 'El envío ya preparado', 'Si el café ya se tostó, ese envío sale y es el último. No se cobra ninguno más.' ),
+			),
+		),
+		'quotes'       => array(
+			'eyebrow' => 'Quién lleva tiempo',
+			'h2'      => 'Tres suscripciones viejas',
+			'items'   => array(
+				array( 'Pausé dos meses por un viaje y volvió solo el día que dije. Es lo único que le pido a una suscripción.', 'Marta Iriarte', 'Suscrita desde 2023' ),
+				array( 'Cambié a cada seis semanas porque me sobraba, y dejó de sobrarme. Nadie me llamó para convencerme de nada.', 'Dani Rubio', 'Suscrito desde 2024' ),
+				array( 'En la oficina somos doce y la factura llega desglosada. Parece poco y es lo que hace que administración no me lo tumbe.', 'Nerea Blasco', 'Estudio Bilbao' ),
+			),
+		),
+		'faq'          => array(
+			'eyebrow' => 'Dudas de compromiso',
+			'h2'      => 'Lo que se pregunta antes de suscribirse',
+			'items'   => array(
+				array( '¿Y si me sobra café?', 'Bajas la frecuencia o saltas un envío, las dos cosas desde la cuenta. Es la pregunta más repetida y por eso la cadencia está arriba y no en un desplegable.' ),
+				array( '¿Puedo comprar una bolsa suelta sin suscribirme?', 'Sí, pero no desde aquí: esta página vende el plan. La tienda suelta está en el menú y sale más cara por bolsa, que es la verdad y no un truco.' ),
+				array( '¿Elijo yo el café o lo elegís vosotros?', 'Lo elegimos nosotros según lo que haya salido bien esa semana, y lo puedes fijar a un origen concreto si prefieres siempre el mismo.' ),
+				array( '¿Qué pasa si me voy de vacaciones?', 'Pausas hasta la fecha de vuelta. No cuenta como baja y no pierdes el precio que tenías.' ),
+			),
+		),
+		'footer'       => array(
+			'tag'   => 'Tostadero en Errenteria · tostamos los lunes y enviamos los martes',
+			'links' => array( 'Cómo funciona', 'Los cafés', 'Aviso legal', 'Privacidad', 'Cookies' ),
+			'legal' => '© 2026 Tueste Norte S.L. · Polígono Txirrita Maleo 4, Errenteria · IVA incluido',
+		),
+	),
 );
 
 // ── EL CONTENIDO DE LAS PÁGINAS INTERNAS ───────────────────────────────────────────────────────
@@ -3911,6 +4157,40 @@ $CONTENT['TPL-E-06-corte']['pdp'] = array(
 	),
 	'cta'    => 'Añadir a la cesta',
 	'ship'   => 'Envío en 48 h · si dudas entre dos tallas, pide las dos',
+);
+
+/* TPL-PDP-03 «Lote y peso» sobre TPL-E-07.
+   La ventana de entrega vuelve a salir ARRIBA, antes de la galería: si no servimos ese código
+   postal el día que le sirve al cliente, no hay ficha que leer. Y el precio principal es el €/kg —
+   nunca un PVP a secas—, con el importe estimado en secundario y `COMP-WEIGHT-NOTE` pegado al
+   bloque de compra, no en una nota al pie. */
+$CONTENT['TPL-E-07-bajura']['pdp'] = array(
+	'crumbs' => array( 'Inicio', 'Pescado', 'Lubina de anzuelo' ),
+	'h1'     => 'Lubina de anzuelo',
+	'kg'     => '28 €/kg',
+	'pc'     => 'pieza de ~1,1 kg · importe estimado 31 €',
+	'lede'   => 'Pescada a anzuelo frente a Ondarroa y subastada esta mañana. Se sirve entera, eviscerada y sin escamar salvo que pidas lo contrario en el paso de datos.',
+	'main'   => 'bajura-pieza',
+	'thumbs' => array( 'bajura-corte', 'bajura-lonja', 'bajura-caja' ),
+	'sz_lbl' => 'Preparación',
+	'opts'   => array( 'Entera eviscerada', 'A lomos sin piel', 'En rodajas' ),
+	'qty_lbl'=> 'Piezas',
+	'cta'    => 'Añadir a la cesta',
+	'ship'   => 'El importe se ajusta al peso real y se te comunica antes de cobrar',
+);
+
+/* TPL-PDP-04 «Suscripción» sobre TPL-E-08.
+   NO LLEVA PRECIO EN EL BLOQUE DE ARRIBA, y se dice por qué en la propia página: el hueco donde
+   toda ficha pone una cifra es justo donde el lector la busca, así que callarse sin más se lee como
+   un fallo de la maqueta. La cuota está en el selector de plan, que es el control de compra. */
+$CONTENT['TPL-E-08-tueste']['pdp'] = array(
+	'crumbs' => array( 'Inicio', 'Los cafés', 'Huila · Colombia' ),
+	'h1'     => 'Huila, Colombia · lavado',
+	'lede'   => 'Finca La Esperanza, 1.720 m. Caturra y colombia, fermentación de 36 h y secado en marquesina. Panela, ciruela y un final limpio; el que mejor aguanta con leche de los tres que rotan.',
+	'main'   => 'tueste-bolsa',
+	'thumbs' => array( 'tueste-taza', 'tueste-molino', 'tueste-caja' ),
+	'nofee'  => 'Este café no se vende por bolsa desde aquí: entra en los planes de abajo, y la cuota los incluye con el envío.',
+	'cta'    => 'Ver los planes',
 );
 
 /* TPL-ABOUT-01 «La empresa» sobre TPL-C-02.
@@ -4278,6 +4558,8 @@ $STRIPS = array(
 	   basta una configuración — las cinco anclas son para los arquetipos de la casa, donde el
 	   contenido es constante y lo único que se compara es el ancla. */
 	array( 'tpl' => 'TPL-E-06-corte',  'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-E-07-bajura', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-E-08-tueste', 'anchor' => 'institutional' ),
 );
 
 /* No pair may repeat: `RT_GALLERY_NOT_DISTINCT` will assert this from outside, but a generator
@@ -6228,6 +6510,95 @@ $css[] = <<<'CSS'
 .sizeopt.out span{text-decoration:line-through;text-decoration-thickness:1px}
 .sizeopt.out em{text-decoration:none}
 
+/* ── ESTILOS DE TPL-E-07 · LOTE / PESO ─────────────────────────────────────────────────────── */
+
+/* COMP-DELIVERY-WINDOW · reutiliza la caja del buscador de talla: son el mismo control —una
+   pregunta corta cuya respuesta puede cancelar la compra— y darles dos cajas distintas sería dos
+   implementaciones de una cosa. */
+.dwin .canvas{padding-block:var(--sp-xl)}
+@media(min-width:1024px){
+  [data-comp="lp-centered"] .dwin .canvas{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+                                          column-gap:var(--sp-l);align-items:start}
+}
+
+/* COMP-BATCH-CARD · la trazabilidad de cada pieza. Dos columnas y no tres: cada tarjeta lleva foto,
+   precio por kilo, importe estimado y tres filas de datos, y a tres columnas eso es una ficha
+   técnica de 240px que nadie lee. */
+.batchlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+           grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+.batchcard{min-width:0;display:grid;gap:var(--sp-s)}
+.batchcard figure{margin:0}
+.batchbody{display:grid;gap:.15rem;min-width:0}
+.batchcard h3{margin:0}
+.batchcard .price{margin:0;font-size:var(--fs-h3);font-variant-numeric:tabular-nums}
+.batchmeta{margin:var(--sp-xs) 0 0;display:grid;gap:.15rem;font-size:var(--fs-small)}
+.batchmeta > div{display:flex;flex-wrap:wrap;gap:.2rem var(--sp-s);
+                 padding-top:.2rem;border-top:1px solid var(--c-border)}
+.batchmeta dt{color:var(--c-text-muted);flex:0 0 15ch}
+.batchmeta dd{margin:0;font-variant-numeric:tabular-nums}
+@media(max-width:599px){.batchlist{grid-template-columns:1fr}}
+
+/* COMP-WEIGHT-NOTE · tres cifras, como la promesa de devolución de TPL-E-06: es el mismo gesto
+   —decir un número antes de que el cliente lo descubra— y comparte su rejilla. */
+.weightn .canvas{padding-block:var(--sp-l)}
+.pdp-approx{margin:.1rem 0 0;font-variant-numeric:tabular-nums}
+
+/* COMP-ORIGIN-MAP · fotografía del puerto, no un plano dibujado. Mismo argumento que el mapa de
+   TPL-C-13: un plano de una costa que no existe AFIRMA algo falso, y una fotografía aérea sólo
+   enseña. Las chinchetas llevan el nombre de la lonja y se pintan con la superficie de la página y
+   un filete, nunca con el acento: un topónimo no es un CTA ni un estado activo. */
+.mapwrap{position:relative;min-width:0}
+.mapwrap .mapshot{margin:0;aspect-ratio:1200/570}
+.mapwrap .mapshot img{width:100%;height:100%;object-fit:cover;display:block}
+.portpin{position:absolute;transform:translate(-50%,-100%);
+  background:var(--c-bg);color:var(--c-text);border:1px solid var(--c-border);
+  font-size:.75rem;font-weight:700;padding:.2rem .5rem;
+  border-radius:var(--radius-pill,999px);white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.28)}
+
+/* COMP-COLD-CHAIN · foto de la caja abierta y tres pasos. */
+.coldsteps{grid-template-columns:1fr}
+@media(min-width:768px){.cold .coldsteps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* ── ESTILOS DE TPL-E-08 · SUSCRIPCIÓN ─────────────────────────────────────────────────────── */
+
+/* COMP-PLAN-PICKER · es el control de compra, así que se comporta como uno: tres columnas que se
+   comparan de un vistazo y no tres tarjetas apiladas que hay que recordar. */
+.subplans{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+          grid-template-columns:repeat(var(--cols,1),minmax(0,1fr));align-items:start}
+.subplan{min-width:0;position:relative;display:flex;flex-direction:column;gap:.2rem;
+      padding:var(--sp-m);border:1px solid var(--c-border);background:var(--c-bg)}
+/* EL RECOMENDADO SE MARCA CON FILETE MÁS GRUESO Y UNA ETIQUETA, nunca con el acento: no es un CTA
+   ni un estado activo, y dentro de la propia tarjeta el acento ya lo tiene su botón. Marcarlo con
+   color pondría dos cosas gritando en el mismo bloque. */
+.subplan.best{border-width:2px}
+.subbadge{position:absolute;top:0;left:var(--sp-m);transform:translateY(-50%);
+  background:var(--c-bg);border:1px solid var(--c-border);padding:.1rem .5rem;
+  font-size:var(--fs-eyebrow);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.subplan h3{margin:0}
+.subfee{margin:.2rem 0 0;font-size:var(--fs-h3);font-variant-numeric:tabular-nums}
+.subwhat{margin:.35rem 0 0;font-family:var(--font-primary)}
+.subrows{list-style:none;margin:var(--sp-s) 0 var(--sp-m);padding:0;display:grid;gap:.2rem;
+          font-size:var(--fs-small)}
+.subrows li{padding-top:.25rem;border-top:1px solid var(--c-border)}
+.subplan .btn{margin-top:auto;align-self:start}
+@media(max-width:599px){.subplans{grid-template-columns:1fr}}
+
+/* COMP-FIRST-BOX · el contenido exacto, con la cantidad delante. Las cifras van tabulares y a la
+   izquierda para que «250 g» y «1» se lean como una columna y no como tres frases. */
+.boxlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-s);min-width:0}
+.boxlist li{display:grid;grid-template-columns:7ch minmax(0,1fr);gap:var(--sp-s);
+            padding-top:var(--sp-xs);border-top:1px solid var(--c-border)}
+.boxqty{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.1;
+        font-variant-numeric:tabular-nums}
+.boxlist div{display:grid;gap:.05rem;min-width:0}
+.boxname{font-family:var(--font-primary);font-weight:600}
+
+/* La ficha de suscripción no lleva precio arriba, y el hueco donde toda ficha pone una cifra es
+   justo donde el lector la busca — así que la ausencia se dice, no se deja en blanco. */
+.nopricenote{margin:var(--sp-xs) 0;padding:var(--sp-s);border:1px solid var(--c-border);
+             font-family:var(--font-primary)}
+
 /* Finish options. A radio group that reads as a row of chips, and the CHECKED state is border
    weight and ground, never colour alone — the same rule the filter chips follow. */
 .opts{border:0;margin:var(--sp-xs) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
@@ -6853,8 +7224,8 @@ $css[] = <<<'CSS'
 .phmonths{font-weight:700;font-variant-numeric:tabular-nums}
 .phbody p{margin:0;color:var(--c-text-muted);max-width:58ch}
 
-.planlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
-@media(min-width:900px){.planlist{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.subplans{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
+@media(min-width:900px){.subplans{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .planbox{position:relative;display:flex;flex-direction:column;gap:.5rem;
   padding:var(--sp-l);border:1px solid var(--c-border);border-radius:var(--radius-card);
   background:var(--c-bg)}
@@ -8824,6 +9195,338 @@ function page_pdp_fit( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return implode( "\n", $o );
 }
 
+/* ── TPL-E-07 · LOTE / PESO ───────────────────────────────────────────────────────────────────
+   El producto cambia cada semana y no es intercambiable consigo mismo. */
+
+/** COMP-DELIVERY-WINDOW · descarta la compra imposible antes de empezarla. */
+function delivery_window_html( $dw, $uid ) {
+	return '<section class="sec dwin" aria-label="Ventana de entrega"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $dw['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $dw['h1'] ) . '</h1><p class="lede muted">' . h( $dw['lede'] ) . '</p></div>'
+		. '<div class="findbox">'
+		. '<div class="field"><label for="' . $uid . '-cp">' . h( $dw['lbl'] ) . '</label>'
+		. '<input id="' . $uid . '-cp" type="text" inputmode="numeric" placeholder="' . h( $dw['ph'] ) . '"></div>'
+		. '<button class="btn btn-primary" type="button">' . h( $dw['cta'] ) . '</button>'
+		. '<p class="findres">' . h( $dw['result'] ) . '</p>'
+		. '<p class="small muted">' . h( $dw['note'] ) . '</p>'
+		. '</div></div></section>';
+}
+
+/** COMP-BATCH-CARD · la trazabilidad de CADA pieza, no una insignia de confianza genérica. */
+function batch_cards_html( $bt ) {
+	$o = '<section class="sec batch grid-sec bg-alt" aria-label="' . h( $bt['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $bt['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $bt['h2'] ) . '</h2><p class="muted">' . h( $bt['note'] ) . '</p></div>'
+		. '<ul class="batchlist"' . cols_attr( count( $bt['items'] ), 2 ) . '>';
+	foreach ( $bt['items'] as $b ) {
+		$bi = img( $b['img'] );
+		$o .= '<li class="batchcard"><figure class="frame"><img data-img="' . h( $bi['slug'] ) . '"'
+			. ' alt="' . h( $bi['alt'] ) . '" width="' . $bi['w'] . '" height="' . $bi['h'] . '"></figure>'
+			. '<div class="batchbody"><h3>' . h( $b['h3'] ) . '</h3>'
+			/* EL PRECIO PRINCIPAL ES EL €/KG y el importe estimado va debajo y en secundario: al
+			   revés, la ficha publica una cifra que no es la que se cobra. */
+			. '<p class="price">' . h( $b['kg'] ) . '</p>'
+			. '<p class="small muted">' . h( $b['pc'] ) . '</p><dl class="batchmeta">';
+		foreach ( $b['rows'] as $r ) {
+			$o .= '<div><dt>' . h( $r[0] ) . '</dt><dd>' . h( $r[1] ) . '</dd></div>';
+		}
+		$o .= '</dl></div></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-WEIGHT-NOTE · el margen dicho ANTES de cobrar, no en una nota legal al pie. */
+function weight_note_html( $wn ) {
+	$o = '<section class="sec weightn" aria-label="' . h( $wn['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $wn['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $wn['h2'] ) . '</h2><p class="muted">' . h( $wn['lede'] ) . '</p></div>'
+		. '<dl class="figs retfigs">';
+	foreach ( $wn['items'] as $it ) {
+		$o .= '<div class="fig"><dt>' . h( $it[0] ) . '</dt><dd>' . h( $it[1] ) . '</dd>'
+			. '<p class="small muted">' . h( $it[2] ) . '</p></div>';
+	}
+	return $o . '</dl><p class="small muted flownote">' . h( $wn['note'] ) . '</p></div></section>';
+}
+
+/** COMP-ORIGIN-MAP · fotografía del puerto con las lonjas marcadas, no un plano dibujado. */
+function origin_map_html( $om ) {
+	$mi = img( $om['img'] );
+	$o  = '<section class="sec originmap grid-sec" aria-label="' . h( $om['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $om['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $om['h2'] ) . '</h2><p class="muted">' . h( $om['lede'] ) . '</p></div>'
+		. '<div class="mapwrap"><figure class="frame mapshot"><img data-img="' . h( $mi['slug'] ) . '"'
+		. ' alt="' . h( $mi['alt'] ) . '" width="' . $mi['w'] . '" height="' . $mi['h'] . '"></figure>';
+	foreach ( $om['pins'] as $p ) {
+		$o .= '<span class="pin portpin" style="left:' . (int) $p[0] . '%;top:' . (int) $p[1] . '%">'
+			. h( $p[2] ) . '</span>';
+	}
+	return $o . '</div></div></section>';
+}
+
+/** COMP-COLD-CHAIN · cómo viaja y qué hacer al abrirla. */
+function cold_chain_html( $cc ) {
+	$ci = img( $cc['img'] );
+	$o  = '<section class="sec cold grid-sec bg-alt" aria-label="' . h( $cc['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cc['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cc['h2'] ) . '</h2></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $ci['slug'] ) . '"'
+		. ' alt="' . h( $ci['alt'] ) . '" width="' . $ci['w'] . '" height="' . $ci['h'] . '"></figure></div>'
+		. '<ol class="steps coldsteps">';
+	foreach ( $cc['steps'] as $i => $st ) {
+		$o .= '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
+	}
+	return $o . '</ol><p class="small muted flownote">' . h( $cc['note'] ) . '</p></div></section>';
+}
+
+/**
+ * TPL-E-07 · Lote / Peso — la home.
+ *
+ * LA VENTANA DE ENTREGA VA ARRIBA Y OCUPA EL SITIO DEL HÉROE. Fresco que llega un viernes por la
+ * tarde a una casa vacía es fresco perdido, así que si no servimos ese código postal el día que le
+ * sirve al cliente no hay catálogo que enseñar. Averiguarlo en el checkout es averiguarlo tarde.
+ */
+function strip_batch( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o = array();
+	$o[] = head_shop_plain( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = delivery_window_html( $C['window'], $uid );
+	$o[] = batch_cards_html( $C['batch'] );
+	$o[] = weight_note_html( $C['weight'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-ORIGIN' ) ) {
+		$o[] = origin_map_html( $C['origin'] );
+	}
+	$o[] = cold_chain_html( $C['cold'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$o[] = quotes_block_html( $C['quotes'] );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
+		$o[] = newsletter_html( $C['news'], $uid );
+	}
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-PDP-03 · la ficha de lote y peso.
+ *
+ * TRES COSAS QUE NINGUNA OTRA FICHA HACE. El precio principal es el €/kg y el importe estimado va
+ * en secundario — al revés, la ficha publica una cifra que no es la que se cobra. La nota de peso
+ * va PEGADA al bloque de compra y no al pie, porque decir después de cobrar cuánto puede variar es
+ * decirlo tarde. Y la ventana de entrega vuelve a salir antes que la galería: la pregunta que
+ * cancela la compra se hace primero.
+ */
+function page_pdp_batch( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$P  = $C['pdp'];
+	$mn = img( $P['main'] );
+	$o  = array();
+
+	$o[] = head_shop_plain( $C, $BRAND );
+	$o[] = crumbs_html( $P['crumbs'] );
+	$o[] = '<main>';
+	$o[] = delivery_window_html( $C['window'], $uid . '-p' );
+
+	$thumbs = '';
+	foreach ( $P['thumbs'] as $t ) {
+		$ti      = img( $t );
+		$thumbs .= '<li><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure></li>';
+	}
+	$opts = '';
+	foreach ( $P['opts'] as $i => $op ) {
+		$oid   = $uid . '-prep' . $i;
+		$opts .= '<label class="opt" for="' . $oid . '">'
+			. '<input type="radio" id="' . $oid . '" name="' . $uid . '-prep"'
+			. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $op ) . '</span></label>';
+	}
+
+	$o[] = '<section class="sec pdp" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
+		. '<div class="pdp-gal">'
+		. '<figure class="frame"><img data-img="' . h( $mn['slug'] ) . '" alt="' . h( $mn['alt'] ) . '"'
+		. ' width="' . $mn['w'] . '" height="' . $mn['h'] . '"></figure>'
+		. '<ul class="pdp-thumbs">' . $thumbs . '</ul></div>'
+		. '<div class="pdp-buy"><h1>' . h( $P['h1'] ) . '</h1>'
+		. '<p class="price pdp-price">' . h( $P['kg'] ) . '</p>'
+		. '<p class="small muted pdp-approx">' . h( $P['pc'] ) . '</p>'
+		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
+		. '<fieldset class="opts"><legend>' . h( $P['sz_lbl'] ) . '</legend>' . $opts . '</fieldset>'
+		. '<div class="field qty"><label for="' . $uid . '-pq">' . h( $P['qty_lbl'] ) . '</label>'
+		. '<input id="' . $uid . '-pq" type="number" value="1" min="1"></div>'
+		. '<button class="btn btn-primary" type="button">' . h( $P['cta'] ) . '</button>'
+		. '<p class="small muted pdp-ship">' . h( $P['ship'] ) . '</p>'
+		. '</div></div></section>';
+
+	$o[] = weight_note_html( $C['weight'] );
+	$o[] = batch_cards_html( $C['batch'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-ORIGIN' ) ) {
+		$o[] = origin_map_html( $C['origin'] );
+	}
+	$o[] = cold_chain_html( $C['cold'] );
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
+/* ── TPL-E-08 · SUSCRIPCIÓN ───────────────────────────────────────────────────────────────────
+   Lo que se elige no es una cantidad: es un plan y una cadencia. */
+
+/** COMP-PLAN-PICKER · ES el control de compra de este arquetipo, y sustituye a COMP-PRODUCT-INFO. */
+function plan_picker_html( $pp, $uid ) {
+	$o = '<section class="sec plans grid-sec bg-alt" aria-label="' . h( $pp['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pp['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pp['h2'] ) . '</h2><p class="muted">' . h( $pp['note'] ) . '</p></div>'
+		. '<ul class="subplans"' . cols_attr( count( $pp['items'] ) ) . '>';
+	foreach ( $pp['items'] as $p ) {
+		/* EL RECOMENDADO SE MARCA CON FILETE Y ETIQUETA, no con el acento: no es un CTA ni un estado
+		   activo, y dentro de esa tarjeta el acento ya lo tiene su botón. */
+		$o .= '<li class="subplan' . ( $p['best'] ? ' best' : '' ) . '">'
+			. ( $p['best'] ? '<span class="subbadge">El que más se elige</span>' : '' )
+			. '<h3>' . h( $p['name'] ) . '</h3>'
+			. '<p class="price subfee">' . h( $p['fee'] ) . '</p>'
+			. '<p class="small muted">' . h( $p['each'] ) . '</p>'
+			. '<p class="subwhat">' . h( $p['what'] ) . '</p>'
+			. '<p class="small muted">' . h( $p['who'] ) . '</p><ul class="subrows">';
+		foreach ( $p['rows'] as $r ) {
+			$o .= '<li>' . h( $r ) . '</li>';
+		}
+		$o .= '</ul><button class="btn ' . ( $p['best'] ? 'btn-primary' : 'btn-outline' )
+			. '" type="button">Empezar con este</button></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-CADENCE · los tres controles que quitan el miedo a acumular, escritos como acciones. */
+function cadence_html( $cd ) {
+	$o = '<section class="sec cadence grid-sec" aria-label="' . h( $cd['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cd['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cd['h2'] ) . '</h2><p class="muted">' . h( $cd['lede'] ) . '</p></div><ul class="feats">';
+	foreach ( $cd['items'] as $it ) {
+		$o .= '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	return $o . '</ul><p class="small muted flownote">' . h( $cd['note'] ) . '</p></div></section>';
+}
+
+/** COMP-FIRST-BOX · el contenido exacto del primer envío, con gramos y con nombre. */
+function first_box_html( $fb ) {
+	$bi = img( $fb['img'] );
+	$o  = '<section class="sec firstbox grid-sec bg-alt" aria-label="' . h( $fb['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fb['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fb['h2'] ) . '</h2><p class="muted">' . h( $fb['lede'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $bi['slug'] ) . '"'
+		. ' alt="' . h( $bi['alt'] ) . '" width="' . $bi['w'] . '" height="' . $bi['h'] . '"></figure></div>'
+		. '<ul class="boxlist">';
+	foreach ( $fb['items'] as $it ) {
+		$o .= '<li><b class="boxqty">' . h( $it[0] ) . '</b>'
+			. '<div><span class="boxname">' . h( $it[1] ) . '</span>'
+			. '<span class="muted small">' . h( $it[2] ) . '</span></div></li>';
+	}
+	return $o . '</ul><p class="small muted flownote">' . h( $fb['note'] ) . '</p></div></section>';
+}
+
+/** COMP-PAUSE-PROMISE · sección con su propio título, no un enlace en el pie. */
+function pause_promise_html( $pz ) {
+	$o = '<section class="sec pausep grid-sec" aria-label="' . h( $pz['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pz['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pz['h2'] ) . '</h2><p class="muted">' . h( $pz['lede'] ) . '</p></div><ul class="feats">';
+	foreach ( $pz['items'] as $it ) {
+		$o .= '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * TPL-E-08 · Suscripción — la home.
+ *
+ * NO HAY REJILLA DE CATÁLOGO Y NO HAY CARRUSEL DE PRODUCTO, y las dos ausencias son la decisión:
+ * una rejilla con precios por bolsa empuja a comprar una bolsa, que es exactamente la conversión
+ * equivocada en una página cuyo negocio es la cuota.
+ */
+function strip_plan_sub( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1><p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+	$o[] = plan_picker_html( $C['plans'], $uid );
+	$o[] = cadence_html( $C['cadence'] );
+	$o[] = first_box_html( $C['firstbox'] );
+	$o[] = pause_promise_html( $C['pause'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$o[] = quotes_block_html( $C['quotes'], ' bg-alt' );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'] );
+	}
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-PDP-04 · la ficha de suscripción, y la segunda del catálogo sin `COMP-PRODUCT-INFO`.
+ *
+ * La ficha estándar tiene un control de compra: variante, cantidad, añadir. Aquí no aplica, porque
+ * lo que se contrata no es una unidad sino una cuota con una frecuencia. Dejar un «añadir al
+ * carrito» empuja a llevarse una bolsa suelta en vez de suscribirse, así que el control de compra
+ * es COMP-PLAN-PICKER y SUSTITUYE al bloque de producto en lugar de convivir con él.
+ */
+function page_pdp_sub( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$P  = $C['pdp'];
+	$mn = img( $P['main'] );
+	$o  = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $P['crumbs'] );
+	$o[] = '<main>';
+
+	$thumbs = '';
+	foreach ( $P['thumbs'] as $t ) {
+		$ti      = img( $t );
+		$thumbs .= '<li><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure></li>';
+	}
+
+	/* GALERÍA Y TEXTO, SIN BLOQUE DE COMPRA AL LADO. El hueco donde toda ficha lleva un precio es
+	   justo donde el lector lo busca, así que se dice en voz alta que aquí no lo hay y por qué. */
+	$o[] = '<section class="sec pdp" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
+		. '<div class="pdp-gal">'
+		. '<figure class="frame"><img data-img="' . h( $mn['slug'] ) . '" alt="' . h( $mn['alt'] ) . '"'
+		. ' width="' . $mn['w'] . '" height="' . $mn['h'] . '"></figure>'
+		. '<ul class="pdp-thumbs">' . $thumbs . '</ul></div>'
+		. '<div class="pdp-buy"><h1>' . h( $P['h1'] ) . '</h1>'
+		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
+		. '<p class="nopricenote">' . h( $P['nofee'] ) . '</p>'
+		. '<a class="btn btn-primary" href="#">' . h( $P['cta'] ) . '</a>'
+		. '</div></div></section>';
+
+	$o[] = plan_picker_html( $C['plans'], $uid . '-p' );
+	$o[] = cadence_html( $C['cadence'] );
+	$o[] = first_box_html( $C['firstbox'] );
+	$o[] = pause_promise_html( $C['pause'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
 /**
  * TPL-C-02 · Institutional Trust.
  *
@@ -9557,7 +10260,7 @@ function phase_timeline_html( $ph ) {
 function pricing_html( $pl ) {
 	$o = '<section class="sec planset grid-sec" aria-label="' . h( $pl['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $pl['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $pl['h2'] ) . '</h2></div><ul class="planlist">';
+		. '<h2>' . h( $pl['h2'] ) . '</h2></div><ul class="subplans">';
 	foreach ( $pl['items'] as $p ) {
 		$o .= '<li class="planbox">'
 			. ( isset( $p['flag'] ) ? '<span class="planflag">' . h( $p['flag'] ) . '</span>' : '' )
@@ -11422,6 +12125,14 @@ $PAGES = array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-06' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-02' ),
 	),
+	'TPL-E-07' => array(
+		array( 'key' => 'home',     'label' => 'Lonja',    'doc' => 'TPL-E-07' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-03' ),
+	),
+	'TPL-E-08' => array(
+		array( 'key' => 'home',     'label' => 'Planes',   'doc' => 'TPL-E-08' ),
+		array( 'key' => 'producto', 'label' => 'El café',  'doc' => 'TPL-PDP-04' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -11518,6 +12229,18 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-E-04' === $tpl && 'producto' === $page_key ) {
 		return page_pdp( $anchor_key, $C, $BRAND, $suid );
+	}
+	if ( 'TPL-E-08' === $tpl && 'home' === $page_key ) {
+		return strip_plan_sub( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-08' === $tpl && 'producto' === $page_key ) {
+		return page_pdp_sub( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-07' === $tpl && 'home' === $page_key ) {
+		return strip_batch( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-07' === $tpl && 'producto' === $page_key ) {
+		return page_pdp_batch( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-06' === $tpl && 'home' === $page_key ) {
 		return strip_fit( $anchor_key, $C, $BRAND, $suid, $tgl );
