@@ -37,7 +37,7 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
   deform the current one (no "add storytelling to the Catalog template").
 - ONE shared token STRUCTURE across every template (`references/design-system.md`): same names,
   same scale steps. What a template may pin is its POSITION on the five axes — the sector
-  verticals `TPL-C-06..12` ship a brand block of their own. Names never change.
+  verticals `TPL-C-06..12` ship a brand block of their own; `TPL-C-13` has none yet. Names never change.
 - Ask the client for 2–4 references BEFORE recommending. Confirm the recommended template
   with the user before continuing.
 - Mobile-first: every section carries mobile / tablet / desktop behavior.
@@ -70,5 +70,5 @@ tokens, and per-breakpoint notes. No visual or builder-specific code.
 - `references/recommender.md` — CAPA 2: analysis, reference intake, signal→template map, page set.
 - `references/toggles.md` — CAPA 3: modular toggle catalog.
 - `references/templates/ecommerce/` — TPL-E-01..05. See its `_README.md`.
-- `references/templates/corporate/` — TPL-C-01..12, two families. See its `_README.md`.
+- `references/templates/corporate/` — TPL-C-01..13, two families. See its `_README.md`.
 - `references/templates/pages/` — inner-page archetypes. See `pages/_README.md`.

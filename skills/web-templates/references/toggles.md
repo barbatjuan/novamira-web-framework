@@ -83,10 +83,20 @@ negociable es cuántas filas publica.
 | `TGL-PRICING-PLANS` | ¿Cuántos planes con cuota? | **3** (default) / otros | COMP-PRICING | TPL-C-11 |
 | `TGL-URGENT-STATE` | Estado que pinta la barra | **abierto** (default) — el build lo calcula del horario real | COMP-URGENT-BAR | TPL-C-12 |
 | `TGL-SYMPTOM-COUNT` | ¿Cuántas filas de triaje? | **4** (default) / otras | COMP-SYMPTOM-TRIAGE | TPL-C-12 |
+| `TGL-SEARCH-FIELDS` | ¿Cuántos filtros entran en el héroe? | **4 campos** (default) / 3 campos | COMP-SEARCH-HERO | TPL-C-13 |
+| `TGL-GRID-DENSITY` | ¿Cuántas fichas por fila? | 2 col / **3 col** (default) / 4 col | COMP-PROPERTY-GRID | TPL-C-13 |
+| `TGL-MAP-MODE` | ¿Cómo entra el plano? | **conmutador** (default) / sección / off | COMP-MAP-SEARCH | TPL-C-13 |
 
 Un toggle de cantidad **no puede llegar a cero**: el bloque que gobierna es ADN del arquetipo. Una
 `TPL-C-09` sin tarifa o una `TPL-C-12` sin triaje no son la misma plantilla con menos secciones,
 son otro arquetipo — y la respuesta correcta es cambiar de plantilla, no vaciar ésta.
+
+`TGL-SEARCH-FIELDS` tiene tope en cuatro y no es una preferencia estética: el quinto campo de un
+buscador es el que hace abandonar, así que la opción de más no existe. `TGL-MAP-MODE` en `off` es
+para carteras de una sola zona, donde un plano no discrimina nada y sólo añade un tercero que
+consentir; en `conmutador` —el valor por defecto— la rejilla y el plano comparten UNA fuente de
+resultados, porque dos consultas separadas es cómo el contador acaba diciendo 34 y el plano
+enseñando 31.
 
 `TGL-URGENT-STATE` es el único que el cliente **no** responde: su valor sale del horario real en el
 build. Está aquí para que quede escrito de dónde viene, no para preguntarlo.

@@ -131,6 +131,22 @@ entra en una tarjeta de servicio. La pregunta que los enruta no es "¿qué objet
 | Un **inventario volátil** de unidades, cada una con sus datos | Concesionario, ocasión, maquinaria, náutica; el stock rota cada semana; filtrar es la primera intención | **TPL-C-07 Stock / Ocasión** |
 | **Un solo objeto** caro, contado entero | Concesión oficial, lanzamiento, piso piloto; una unidad que se mira despacio, no cuarenta que se descartan | **TPL-C-08 Modelo / Lanzamiento** |
 | Una **tarifa** con importes por trabajo | Taller, chapa, neumáticos, reparación técnica; el miedo del cliente es el precio desconocido | **TPL-C-09 Taller / Tarifa** |
+| Una **cartera de inmuebles**, buscable por ZONA | Inmobiliaria, administrador de fincas con cartera, promotora comercializando; la primera intención es buscar, no leer | **TPL-C-13 Cartera / Búsqueda** |
+
+**`TPL-C-13` frente a `TPL-C-07` y `TPL-C-08`.** Los tres publican unidades, y la tabla sola no
+basta para separarlos. `TPL-C-07` filtra por ATRIBUTOS discretos —marca, modelo, año, kilómetros—
+y una unidad es intercambiable con otra igual: dos coches del mismo modelo y año son el mismo
+coche. `TPL-C-13` filtra por **ZONA**, que es geografía, y ninguna unidad es intercambiable con
+otra — de ahí que lleve el plano como MODO DE BÚSQUEDA, que `TPL-C-07` no tiene. `TPL-C-08` no es
+un listado en absoluto: es UNA unidad contada entera, y su mención de «piso piloto» va por ahí —
+la promotora que enseña un solo piso, no la que comercializa cuarenta.
+Regla corta: **¿cuántas, y se eligen por dónde están?** Cuarenta y por zona → C-13. Cuarenta y por
+ficha técnica → C-07. Una → C-08.
+
+Y una frontera que NO es de sector: una inmobiliaria publica SU cartera y el visitante mira y
+contacta. No hay perfil de vendedor, ranking ni «sube tu anuncio» — eso es un portal, que es otro
+negocio y no está en este catálogo. Lo que sí lleva `TPL-C-13` es captación de cartera vía
+tasación, que es la agencia decidiendo qué coge, no el usuario publicando.
 | **Tratamientos** con datos duros y quien los hace | Clínica dental, dermatología, fisio, podología, veterinaria; el miedo es el procedimiento, no el precio | **TPL-C-10 Clínica / Tratamientos** |
 | **Un plan largo** medido en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento, psicoterapia; un solo tratamiento de 12–18 meses | **TPL-C-11 Plan por fases** |
 | **Disponibilidad AHORA** | Guardia dental, cerrajería, fontanería, grúa, veterinaria 24 h; quien entra tiene dolor o una puerta cerrada y no va a leer | **TPL-C-12 Urgencias / Hoy** |

@@ -1,6 +1,6 @@
 # Corporate templates (TPL-C-*)
 
-Doce arquetipos corporativos en **dos familias**. Misma mecánica en las dos: secciones FIJAS (ADN) /
+Trece arquetipos corporativos en **dos familias**. Misma mecánica en las dos: secciones FIJAS (ADN) /
 TOGGLE, `design-system.md` y `toggles.md` compartidos (con toggles propios de corporate). El
 recomendador elige por perfil, y **pregunta primero por la familia B** (ver `recommender.md` §3b).
 
@@ -19,8 +19,10 @@ Para negocios que venden algo que el dueño describe una vez y no cambia.
 ## Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..12`)
 
 Existen porque el negocio **publica una cosa concreta** que no entra en una tarjeta de servicio.
-Cada una lleva además su marca de referencia con bloque `[data-brand]` propio en la galería —
-ground, acento, par tipográfico y duotono.
+Las siete primeras llevan además su marca de referencia con bloque `[data-brand]` propio en la
+galería — ground, acento, par tipográfico y duotono. **`TPL-C-13` todavía no**: una marca propia
+exige reportaje fotográfico propio, porque `RT_GALLERY_ONE_SHOOT` prohíbe reutilizar el de otra, y
+hasta que exista el arquetipo es utilizable pero no aparece como tira de marca en la galería.
 
 | ID | Nombre | Publica | Ideal para | Marca demo · ancla |
 |----|--------|---------|-----------|--------------------|
@@ -31,6 +33,7 @@ ground, acento, par tipográfico y duotono.
 | TPL-C-10 | Clínica / Tratamientos | Tratamientos con datos duros y quien los hace | Dental, dermatología, fisio, podología, veterinaria | Arbea · INSTITUTIONAL |
 | TPL-C-11 | Plan por fases | Un plan largo, en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento | Alinea · EDITORIAL |
 | TPL-C-12 | Urgencias / Hoy | Disponibilidad AHORA | Guardia dental, cerrajería, fontanería, grúa, 24 h | Urgencia Dental · DIRECT |
+| TPL-C-13 | Cartera / Búsqueda | Una cartera de inmuebles buscable por zona | Inmobiliarias, administradores con cartera, promotoras | — *(sin marca demo)* |
 
 ## Diferenciación real (no mismo template)
 
