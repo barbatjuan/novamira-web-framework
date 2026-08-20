@@ -2898,6 +2898,56 @@ ok( 'FAIL' === fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'cor
 ok( array() === fx_lines_with( $out132, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'y no se le acusa tambien de incoherencia: sin ancla no hay contra que comparar', $out132 );
 fx_rrmdir( $r132 );
 
+/* ---- Las tres formas de equivocarse con una lista desplegable ----
+ *
+ * La regla es una: construida con `<details>` y exactamente la PRIMERA fila abierta. Se escribio
+ * DESPUES del drift, no antes: mockup-guide.md llevaba desde el principio pidiendo
+ * `<details>/<summary>` para COMP-FAQ y habia CUATRO emisores con TRES comportamientos, uno de
+ * ellos pintando `<div class="qa"><h3>` con todas las respuestas permanentemente en pantalla.
+ * Cada causa es una edicion distinta, asi que cada una tiene su mensaje y su asercion.
+ */
+echo "--- una lista desplegable que no abre ninguna fila FALLA ---\n";
+$r133 = fx_tmp_root();
+fx_base( $r133 );
+fx( $r133, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', "</style>\n<div class=\"faq\"><details><summary>A</summary><p>a</p></details>\n"
+		. "<details><summary>B</summary><p>b</p></details></div>", fx_mockup() ) );
+list( , $out133 ) = fx_run_ok( $audit, $r133 );
+ok( 'FAIL' === fx_row_level( $out133, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ), 'una lista con todas las filas cerradas FALLA', fx_row_level( $out133, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ) );
+fx_rrmdir( $r133 );
+
+echo "--- y una que abre mas de una tambien ---\n";
+$r134 = fx_tmp_root();
+fx_base( $r134 );
+fx( $r134, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', "</style>\n<div class=\"faq\"><details open><summary>A</summary><p>a</p></details>\n"
+		. "<details open><summary>B</summary><p>b</p></details></div>", fx_mockup() ) );
+list( , $out134 ) = fx_run_ok( $audit, $r134 );
+ok( 'FAIL' === fx_row_level( $out134, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'more than one row' ) ), 'una lista con dos filas abiertas FALLA: no es un acordeon, es una pagina larga disfrazada de corta', fx_row_level( $out134, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'more than one row' ) ) );
+fx_rrmdir( $r134 );
+
+echo "--- y una seccion FAQ sin ningun <details> es la tercera causa ---\n";
+$r135 = fx_tmp_root();
+fx_base( $r135 );
+fx( $r135, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', "</style>\n<section class=\"sec faq\"><div class=\"qa\"><h3>A</h3><p>a</p></div>"
+		. "<div class=\"qa\"><h3>B</h3><p>b</p></div></section>", fx_mockup() ) );
+list( , $out135 ) = fx_run_ok( $audit, $r135 );
+ok( 'FAIL' === fx_row_level( $out135, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'no <details> at all' ) ), 'una seccion FAQ que no es un desplegable en absoluto FALLA', fx_row_level( $out135, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'no <details> at all' ) ) );
+fx_rrmdir( $r135 );
+
+/* Y el control negativo, que es el que impide que la fila se vuelva ruido: UN solo `<details>` no
+   es una lista y no se juzga. Es la forma de `.handoff`, el bloque de spec, que empieza cerrado a
+   proposito porque nada de lo que hay dentro merece la primera mirada del lector. */
+echo "--- pero un <details> suelto no es una lista y no se juzga ---\n";
+$r136 = fx_tmp_root();
+fx_base( $r136 );
+fx( $r136, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', "</style>\n<details class=\"handoff\"><summary>Spec</summary><p>x</p></details>", fx_mockup() ) );
+list( , $out136 ) = fx_run_ok( $audit, $r136 );
+ok( array() === fx_lines_with( $out136, array( 'RT_MOCKUP_DISCLOSURE_STATE' ) ), 'un desplegable unico y cerrado no produce fila', $out136 );
+fx_rrmdir( $r136 );
+
 echo "--- .hero .frame tampoco: la lista blanca es de MEDIA, no de un literal ---\n";
 $r101g = fx_tmp_root();
 fx_base( $r101g );

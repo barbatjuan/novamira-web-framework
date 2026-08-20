@@ -222,7 +222,10 @@ per-breakpoint notes of the `TPL-*.md`.
 - **Pricing** (`COMP-PRICING`): stacked cards mobile → 3 cols desktop, middle plan highlighted with
   the accent border (one accent only); feature list as plain `ul`.
 - **FAQ** (`COMP-FAQ`): native `<details>/<summary>` accordion, full width, `--c-border` divider
-  per row. No JS needed.
+  per row. No JS needed. **The FIRST row carries `open` and no other one does** — all closed is a
+  wall of headings, all open is not an accordion. Same recipe and same rule for `COMP-ACCORDION`:
+  they are one control doing one job, and the day they had four implementations they had three
+  behaviours. Why, in full: `ux-design-system/references/layout-patterns.md` § "Disclosure lists".
 - **Booking** (`COMP-BOOKING`): stacked service + date/time selects mobile → inline row desktop,
   ending in the solid accent CTA. Inert placeholder, no real calendar.
 - **Map / NAP** (`COMP-MAP-NAP`): map is a `.ph` block (`aspect-ratio:16/9`) — never an embedded

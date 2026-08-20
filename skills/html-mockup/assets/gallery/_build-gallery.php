@@ -4867,6 +4867,9 @@ $css[] = <<<'CSS'
    container geometry without any of the four `[data-comp]` blocks needing a rule for it. That is
    also why neither section is `.band`: `.band` is placed column by column in the grid blueprints
    and a new child class there would land unplaced. */
+/* Open by default carries no styling of its own: `<details open>` simply shows its `<p>`, and
+   the row reads the same whether the reader opened it or it arrived that way. A first row
+   styled differently would say "this one is special" when what it means is "start here". */
 .faqlist{border-top:1px solid var(--c-border);max-width:72ch}
 .faqlist > details{border-bottom:1px solid var(--c-border)}
 .faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
@@ -5501,7 +5504,9 @@ $css[] = <<<'CSS'
 
 /* COMP-ACCORDION — the same `<details>/<summary>` recipe COMP-FAQ uses, because they are the same
    control doing the same job, and giving one of them a second implementation is how two things
-   that should stay identical start to drift. */
+   that should stay identical start to drift. THAT ALREADY HAPPENED: by the time anybody looked
+   there were four emitters and three behaviours, and one of them was not a disclosure at all.
+   They all go through disclosure_list_html() now, and RT_MOCKUP_FAQ_ALL_OPEN keeps them there. */
 .acc .qas{max-width:none}
 
 /* The switcher grows a second label once a template ships more than one page. */
@@ -7311,11 +7316,9 @@ function page_service( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$fq  = $S['faq'];
 	$o[] = '<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="qas">';
-	foreach ( $fq['items'] as $q ) {
-		$o[] = '<details><summary>' . h( $q[0] ) . '</summary><p>' . h( $q[1] ) . '</p></details>';
-	}
-	$o[] = '</div></div></section>';
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
+	$o[] = disclosure_list_html( $fq['items'], 'qas' );
+	$o[] = '</div></section>';
 
 	// 6 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
@@ -7400,12 +7403,9 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
 		. '</div></div></section>';
 
 	// COMP-ACCORDION  [fijo]
-	$o[] = '<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas"><div class="qas">';
-	foreach ( $P['acc'] as $i => $a ) {
-		$o[] = '<details' . ( 0 === $i ? ' open' : '' ) . '><summary>' . h( $a[0] ) . '</summary>'
-			. '<p>' . h( $a[1] ) . '</p></details>';
-	}
-	$o[] = '</div></div></section>';
+	$o[] = '<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas">';
+	$o[] = disclosure_list_html( $P['acc'], 'qas' );
+	$o[] = '</div></section>';
 
 	// COMP-TRUST-BADGES  [toggle] — the tick stays neutral, same reason as the benefits bar
 	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
@@ -7889,11 +7889,9 @@ function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$fq  = $C['faq'];
 	$o[] = '<section class="sec faq bg-alt" aria-label="Preguntas frecuentes"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="qas">';
-	foreach ( $fq['items'] as $q ) {
-		$o[] = '<details><summary>' . h( $q[0] ) . '</summary><p>' . h( $q[1] ) . '</p></details>';
-	}
-	$o[] = '</div></div></section>';
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
+	$o[] = disclosure_list_html( $fq['items'], 'qas' );
+	$o[] = '</div></section>';
 
 	// 8 · COMP-CTA cierre final  [fijo · ADN]
 	$b   = $C['band'];
@@ -8541,15 +8539,38 @@ function process_block_html( $pr, $extra = '' ) {
 	return $o . '</ol></div></section>';
 }
 
-/** COMP-FAQ, reusing the shape and the classes the other archetypes already style. */
-function faq_block_html( $fq, $extra = '' ) {
-	$o = '<section class="sec faq' . $extra . '" aria-label="' . h( $fq['h2'] ) . '"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="faqlist">';
-	foreach ( $fq['items'] as $it ) {
-		$o .= '<div class="qa"><h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></div>';
+/**
+ * THE ONE DISCLOSURE RECIPE, and it exists because there were four.
+ *
+ * COMP-ACCORDION and COMP-FAQ are the same control doing the same job, and the comment above
+ * `.acc .qas` has said so since it was written — "giving one of them a second implementation is how
+ * two things that should stay identical start to drift". By the time anybody looked there were FOUR
+ * emitters and THREE behaviours: the PDP accordion opened its first row, two FAQ blocks opened
+ * none, and `faq_block_html()` rendered `<div class="qa"><h3>` — not a disclosure at all, every
+ * answer permanently on screen. mockup-guide.md § FAQ had specified `<details>/<summary>` the whole
+ * time. The spec was right and unenforced, which is this repo's recurring failure and the reason
+ * the row below exists.
+ *
+ * THE FIRST ROW IS OPEN AND THE REST ARE NOT, and that is a design rule rather than a default.
+ * All-closed reads as a wall of headings and makes the reader work to find out whether anything
+ * inside is worth opening; all-open is not an accordion at all, it is a long page pretending to be
+ * a short one, and it drops the one thing the control is for. One open row shows the SHAPE of an
+ * answer — how long, what tone — so the reader can judge the rest without clicking.
+ */
+function disclosure_list_html( $items, $wrap_cls = 'faqlist' ) {
+	$o = '<div class="' . $wrap_cls . '">';
+	foreach ( array_values( $items ) as $i => $it ) {
+		$o .= '<details' . ( 0 === $i ? ' open' : '' ) . '><summary>' . h( $it[0] ) . '</summary>'
+			. '<p>' . h( $it[1] ) . '</p></details>';
 	}
-	return $o . '</div></div></section>';
+	return $o . '</div>';
+}
+/** COMP-FAQ. The section wrapper; the rows are disclosure_list_html()'s, like every other. */
+function faq_block_html( $fq, $extra = '' ) {
+	return '<section class="sec faq' . $extra . '" aria-label="' . h( $fq['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div>'
+		. disclosure_list_html( $fq['items'] ) . '</div></section>';
 }
 
 /** TPL-C-07 · Stock / Ocasión. */
@@ -9561,11 +9582,9 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 	$fq  = $C['faq'];
 	$o[] = '<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div><div class="faqlist">';
-	foreach ( $fq['rows'] as $r ) {
-		$o[] = '<details><summary>' . h( $r[0] ) . '</summary><p>' . h( $r[1] ) . '</p></details>';
-	}
-	$o[] = '</div></div></section>';
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
+	$o[] = disclosure_list_html( $fq['rows'] );
+	$o[] = '</div></section>';
 
 	// 7 · COMP-CONTACT-DIRECT — "¿no lo encontraste?"  [fijo · ADN] — the closing band
 	//

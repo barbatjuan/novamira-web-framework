@@ -106,6 +106,7 @@ const ROW_TYPES = array(
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
 	'RT_MOCKUP_ANCHOR_UNDECLARED' => 'FAIL  — a starting or proof mockup does not say which anchor it is pointed at',
 	'RT_MOCKUP_AXES_MISMATCH'    => 'FAIL  — a mockup\'s axis labels are not the ones its declared anchor holds',
+	'RT_MOCKUP_DISCLOSURE_STATE' => 'FAIL  — a disclosure block is not built from <details>, or does not open exactly its first row',
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_MOCKUP_BLEED_FIXED_BAND' => 'FAIL  — a mockup bleeds to `full-end` but pins --content-width at a fixed length, leaving the gutter beside the bleed unbounded',
 	'RT_MOCKUP_BLEED_NOT_MEDIA'  => 'FAIL  — a mockup sends something other than media to the viewport glass: a card, a run of copy or, worst, a form control',
@@ -1915,6 +1916,93 @@ foreach ( $mockup_assets as $mockup_path ) {
 	   five axes. They still declare `Anchor:` and are still checked below, because the glob checks
 	   whatever declares one; they are simply not required to, since a demand nothing would ever
 	   violate is a row that only ever fires on fixtures. */
+
+	/* ---- RT_MOCKUP_DISCLOSURE_STATE ----
+	 *
+	 * ONE RULE FOR EVERY DISCLOSURE LIST: built from `<details>`, and exactly the FIRST row open.
+	 * layout-patterns.md § "Disclosure lists" gives the reasons — all closed is a wall of headings
+	 * the reader will not open, all open is a long page pretending to be a short one — and this row
+	 * is what stops them being reasons nobody applies.
+	 *
+	 * WRITTEN AFTER THE DRIFT, NOT BEFORE IT. mockup-guide.md had specified `<details>/<summary>`
+	 * for COMP-FAQ from the beginning, and the `.acc .qas` comment had warned in as many words that
+	 * a second implementation is how two identical things start to drift. Measured when somebody
+	 * finally looked: FOUR emitters, THREE behaviours — the PDP accordion opened its first row, two
+	 * FAQ blocks opened none, and one rendered `<div class="qa"><h3>`, not a disclosure at all, with
+	 * every answer permanently on screen. Every gate was green throughout, because none of them read
+	 * the emitted markup. The reader's words were "no queda bien todas desplegadas".
+	 *
+	 * A RUN OF SIBLINGS, NOT A LIST OF WRAPPER CLASSES, and the first draft of this row got that
+	 * wrong. Keying on `faqlist`/`qas` — the two classes the GALLERY happens to use — left every
+	 * other asset unchecked, including `corporate-mockup.html`, which holds nine `<details>` under a
+	 * wrapper called `faq` and IS the file a real project is copied from. A rule that only inspects
+	 * the tool and not the product is worse than none, because the tool is the part nobody ships.
+	 * So: two or more `<details>` separated by nothing but whitespace are one list, whatever wraps
+	 * them. A SINGLE `<details>` is not a list and is not judged — that is `.handoff`, the spec
+	 * block, which correctly starts closed because nothing in it deserves the reader's first glance.
+	 *
+	 * THREE CAUSES, three messages, because each is a different edit.
+	 */
+	if ( preg_match_all( '#<details[^>]*>.*?</details>#s', $mockup_src, $disc_m, PREG_OFFSET_CAPTURE ) ) {
+		/* Group into runs: a hit that starts where the previous one ended, give or take whitespace,
+		   is the same list. */
+		$disc_runs = array();
+		$disc_cur  = array();
+		$disc_prev = -1;
+		foreach ( $disc_m[0] as $disc_hit ) {
+			$disc_at = $disc_hit[1];
+			if ( $disc_prev >= 0 && '' === trim( substr( $mockup_src, $disc_prev, $disc_at - $disc_prev ) ) ) {
+				$disc_cur[] = $disc_hit[0];
+			} else {
+				if ( count( $disc_cur ) > 0 ) {
+					$disc_runs[] = $disc_cur;
+				}
+				$disc_cur = array( $disc_hit[0] );
+			}
+			$disc_prev = $disc_at + strlen( $disc_hit[0] );
+		}
+		if ( count( $disc_cur ) > 0 ) {
+			$disc_runs[] = $disc_cur;
+		}
+		$disc_none_open = 0;
+		$disc_many_open = 0;
+		foreach ( $disc_runs as $disc_run ) {
+			if ( count( $disc_run ) < 2 ) {
+				continue;
+			}
+			$disc_open = 0;
+			foreach ( $disc_run as $disc_row ) {
+				if ( preg_match( '/^<details[^>]*\sopen[\s>]/', $disc_row ) ) {
+					++$disc_open;
+				}
+			}
+			if ( 0 === $disc_open ) {
+				++$disc_none_open;
+			} elseif ( $disc_open > 1 ) {
+				++$disc_many_open;
+			}
+		}
+		if ( $disc_none_open > 0 ) {
+			add( 'RT_MOCKUP_DISCLOSURE_STATE', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ': ' . $disc_none_open . ' disclosure list(s) open no row — all closed reads as a wall of headings and the reader cannot tell whether anything inside is worth opening. The FIRST row carries `open`, and no other' );
+		}
+		if ( $disc_many_open > 0 ) {
+			add( 'RT_MOCKUP_DISCLOSURE_STATE', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ': ' . $disc_many_open . ' disclosure list(s) open more than one row — all open is not an accordion, it is a long page pretending to be a short one. Exactly the first, and no other' );
+		}
+	}
+	/* A section that calls itself a FAQ and holds no `<details>` at all is the fourth emitter's
+	   defect — `<div class="qa"><h3>` with every answer permanently on screen — and the run check
+	   above cannot see it, because there is nothing to run over. */
+	if ( preg_match_all( '#<section[^>]*class="[^"]*\bfaq\b[^"]*"[^>]*>(.*?)</section>#s', $mockup_src, $disc_fq, PREG_SET_ORDER ) ) {
+		$disc_flat = 0;
+		foreach ( $disc_fq as $disc_one ) {
+			if ( false === strpos( $disc_one[1], '<details' ) ) {
+				++$disc_flat;
+			}
+		}
+		if ( $disc_flat > 0 ) {
+			add( 'RT_MOCKUP_DISCLOSURE_STATE', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ': ' . $disc_flat . ' FAQ section(s) hold no <details> at all — every answer is permanently on screen, which is not a disclosure list, it is a long page pretending to be a short one' );
+		}
+	}
 	$anchored_required = array(
 		'corporate-mockup.html',
 		'ecommerce-mockup.html',

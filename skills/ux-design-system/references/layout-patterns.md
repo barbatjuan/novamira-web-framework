@@ -142,6 +142,29 @@ muted tone stops being quieter and starts being unreadable: the gallery's accent
 one ink**, the same rule a photographic hero already follows, and hierarchy comes from size and
 weight instead.
 
+## Disclosure lists (FAQ, accordion, spec tabs)
+
+**The first row is open. The rest are not.** One rule, and it holds for every disclosure list on
+the site — `COMP-FAQ`, `COMP-ACCORDION`, any spec block built the same way.
+
+All closed reads as a wall of headings: the reader has to work to find out whether anything
+inside is worth opening, and most decide it is not. All open is not an accordion at all — it is a
+long page pretending to be a short one, and it throws away the one thing the control does. One
+open row shows the SHAPE of an answer — how long it runs, what tone it takes — so the reader can
+judge the other six without clicking any of them.
+
+Which row is open is not a choice either: it is the FIRST. A list that opens its third row is
+telling the reader the first two were filler, and if that is true the fix is to delete them.
+
+**Open by default carries no styling of its own.** `<details open>` simply shows its panel, and
+the row must read the same whether the reader opened it or it arrived that way. A first row
+styled differently says *this one is special* when what it means is *start here*.
+
+Native `<details>/<summary>`, never a div with state: no script, works with JS off, and the
+platform already handles keyboard and screen readers. Detail:
+`html-mockup/references/mockup-guide.md` § "Section blueprints".
+(verifier: `RT_MOCKUP_DISCLOSURE_STATE` FAILs a mockup whose disclosure block is not `<details>` or does not open exactly its first row.)
+
 ## Responsive rules
 - Header as a column on mobile: top row (logo · menu · cart, aligned) + a full-width CTA row below.
 - Two-column product grids need equal-height cards (see `motion.md`).
