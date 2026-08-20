@@ -262,6 +262,12 @@ new row looks different from the old ones.
 | `tueste-bolsa` | card 4:3 | 800×600 | 32 KB | 5220587983 | fp-5220587 | Freepik AI (Pikaso) | Bolsa de café kraft de pie junto a grano tostado suelto |
 | `tueste-taza` | card 4:3 | 800×600 | 58 KB | 5220590270 | fp-5220590 | Freepik AI (Pikaso) | Café de filtro cayendo a una jarra de vidrio, con vapor |
 | `tueste-molino` | card 4:3 | 800×600 | 46 KB | 5220589424 | fp-5220589 | Freepik AI (Pikaso) | Café recién molido en el cajón de un molinillo manual |
+| `estor-hero` | hero 16:9 | 1440×810 | 36 KB | 5220845913 | fp-5220845 | Freepik AI (Pikaso) | Estor de lino claro montado en una ventana de salón, visto de frente |
+| `estor-muestras` | card 4:3 | 800×600 | 42 KB | 5220846547 | fp-5220846 | Freepik AI (Pikaso) | Muestrario de tejidos de lino y algodón abierto en abanico sobre una mesa de taller |
+| `estor-medicion` | card 4:3 | 800×600 | 23 KB | 5220847144 | fp-5220847 | Freepik AI (Pikaso) | Medición del hueco de una ventana con medidor láser y metro plegable |
+| `estor-taller` | card 4:3 | 800×600 | 88 KB | 5220848159 | fp-5220848 | Freepik AI (Pikaso) | Rollo de tejido cortándose a medida en el banco del taller |
+| `estor-cortina` | card 4:3 | 800×600 | 30 KB | 5220849652 | fp-5220849 | Freepik AI (Pikaso) | Cortina de lino con tabla montada en un dormitorio |
+| `estor-oficina` | card 4:3 | 800×600 | 28 KB | 5220850130 | fp-5220850 | Freepik AI (Pikaso) | Estores anchos montados en el ventanal de una oficina, vistos desde dentro |
 
 Las veintiuna filas `corte-*`, `bajura-*` y `tueste-*` son las tres verticales de ecommerce que
 el catálogo tenía escritas y no podía enseñar. Están GENERADAS, como las `inmo-*`, y valen para

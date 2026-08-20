@@ -561,6 +561,20 @@ $BRANDS = array(
 		'ink'    => array( 'sat' => 0.62, 'gamma' => 0.12 ),
 	),
 
+	/* MEDIDA JUSTA · estores y cortinas a medida. Blanco lino, que es el color del propio tejido
+	   crudo y el del ciclorama de sus fotografías. El acento es BURDEOS: el único del catálogo en esa
+	   familia, y en un negocio de interiorismo el color de marca no puede competir con el de las
+	   telas que vende — un burdeos profundo marca sin gritar sobre nueve tonos de lino. */
+	'medida' => array(
+		'name'   => 'MEDIDA JUSTA',
+		'sector' => 'Hogar · estores y cortinas a medida',
+		'ground' => array( 'bg' => '#F7F4EE', 'alt' => '#EAE4DA', 'text' => '#241D1A' ),
+		'accent' => '#7A2B3A',
+		'font_1' => "'Instrument Serif', Georgia, 'Times New Roman', serif",
+		'font_2' => "'DM Sans', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.66, 'gamma' => 0.12 ),
+	),
+
 	/* BAJURA · pescado fresco. Fondo casi negro VERDOSO, y no es estética: el pescado se fotografía
 	   sobre pizarra y hielo, brilla sobre oscuro y se apaga sobre papel. Frente al casi negro cálido
 	   de Terrazza y al azulado de Auria, éste tira a verde — tres oscuros que no se parecen es
@@ -1302,6 +1316,11 @@ $TOGGLES = array(
 	'TPL-E-08' => array(
 		'TGL-TESTIMONIALS' => array( 'ask' => '¿Quién lleva tiempo suscrito?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 		'TGL-FAQ'          => array( 'ask' => '¿Dudas de compromiso?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-E-09 · A medida. Los dos que su doc declara. */
+	'TPL-E-09' => array(
+		'TGL-GALLERY' => array( 'ask' => '¿Trabajos entregados con su medida?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'     => array( 'ask' => '¿Dudas de medición y montaje?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 	),
 	'TPL-E-02' => array(),
 );
@@ -3875,6 +3894,119 @@ $CONTENT = array(
 			'legal' => '© 2026 Tueste Norte S.L. · Polígono Txirrita Maleo 4, Errenteria · IVA incluido',
 		),
 	),
+
+	/* TPL-E-09 · MEDIDA JUSTA. El único ecommerce del catálogo SIN carrito y SIN precio publicado.
+	   Un estor de 137 × 214 en lino crudo con cadena a la izquierda no es una referencia: es una
+	   combinación que nadie ha fabricado todavía, y su precio no se sabe hasta configurarla. Forzarlo
+	   en TPL-E-02 produce el error clásico del sector — precios «desde» que no se parecen al final, un
+	   carrito que acepta la compra y un correo posterior pidiendo medidas. Ese correo es donde se cae
+	   la venta, y encima ya se cobró. */
+	'TPL-E-09-medida' => array(
+		'tpl'          => 'TPL-E-09-medida',
+		'arch'         => 'TPL-E-09',
+		'brand'        => 'medida',
+		'brand_name'   => 'Medida Justa',
+		'brand_sector' => 'Hogar · estores y cortinas a medida',
+		'tpl_name'     => 'A medida / Presupuesto',
+		'site'         => 'ecommerce',
+		'site_es'      => 'Ecommerce',
+		'fits'         => 'Cortinas y estores, mobiliario a medida, encimeras, impresión y rotulación, mamparas, tapicería',
+		'dna'          => 'COMP-CONFIGURATOR · COMP-SAMPLE-REQUEST · COMP-LEAD-TIME · COMP-QUOTE-FORM',
+		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-CONFIGURATOR · COMP-SAMPLE-REQUEST · COMP-LEAD-TIME · COMP-QUOTE-FORM · COMP-GALLERY · COMP-FAQ · COMP-FOOTER',
+		'head_mode'    => 'tight',
+		'nav'          => array( 'Estores', 'Cortinas', 'Cómo medir' ),
+		'nav_cta'      => 'Pedir presupuesto',
+		'hero'         => array(
+			'eyebrow' => 'Se cose en Errenteria, se monta en tu casa',
+			'h1'      => 'Estores al centímetro, no a la talla más cercana',
+			'lede'    => 'Cortamos y cosemos por encargo desde una unidad. Dinos la medida y el tejido y devolvemos un presupuesto cerrado en 48 h laborables — no un «desde» que luego cambia.',
+			'cta_1'   => 'Configurar el mío',
+			'cta_2'   => 'Pedir muestras',
+			'img'     => 'estor-hero',
+		),
+		'cfg'          => array(
+			'eyebrow' => 'Configurador',
+			'h2'      => 'Cuatro datos y ya tenemos tu pieza',
+			'fields'  => array(
+				array( 'ancho', 'Ancho (cm)', '137' ),
+				array( 'alto', 'Alto (cm)', '214' ),
+			),
+			'opt_lbl' => 'Tejido',
+			'opts'    => array( 'Lino crudo', 'Screen 5%', 'Opaco térmico' ),
+			'fin_lbl' => 'Accionamiento',
+			'fins'    => array( 'Cadena izquierda', 'Cadena derecha', 'Motorizado' ),
+			'ext_lbl' => 'Añadidos',
+			'extras'  => array( 'Cajón y guías laterales', 'Contrapeso forrado', 'Mando a distancia' ),
+			'note'    => 'No hay precio hasta emitir el presupuesto. Una cifra provisional que luego cambia hace más daño que no dar ninguna.',
+			'cta'     => 'Continuar al presupuesto',
+		),
+		'measure'      => array(
+			'eyebrow' => 'Cómo se mide',
+			'h2'      => 'De dónde a dónde',
+			'rows'    => array(
+				array( 'Ancho', 'De jamba a jamba si va DENTRO del hueco, o el ancho del hueco más 10 cm si va por fuera. Son dos medidas distintas y confundirlas es la equivocación número uno.' ),
+				array( 'Alto', 'Del punto de anclaje al suelo o al alféizar, más 15 cm de enrolle. El enrolle lo añadimos nosotros: dinos sólo hasta dónde quieres que llegue bajado.' ),
+				array( 'Fuera de escuadra', 'Mide el ancho arriba, en medio y abajo. Si difieren más de 1 cm, dínoslo: se fabrica al menor y se ajusta con guías.' ),
+				array( 'Obstáculos', 'Manillas, radiadores y cajas de persiana. Una foto del hueco con el metro apoyado nos vale más que tres correos.' ),
+			),
+			'note'    => 'En Gipuzkoa, Bizkaia y Navarra vamos a medir sin coste, y estas cuatro dudas dejan de existir.',
+			'img'     => 'estor-medicion',
+		),
+		'sample'       => array(
+			'eyebrow' => 'Antes de decidir',
+			'h2'      => 'Pide la muestra física',
+			'lede'    => 'Hasta cinco muestras de 15 × 15 gratis, en 72 h. Un tejido en pantalla no es el tejido, y de algo cosido a tu medida no hay devolución: la muestra es lo que sustituye a esa garantía que aquí no podemos dar.',
+			'cta'     => 'Pedir muestras',
+			'items'   => array( 'estor-muestras', 'estor-cortina', 'estor-oficina' ),
+		),
+		'lead'         => array(
+			'eyebrow' => 'Plazo',
+			'h2'      => 'Por fases, con días',
+			'items'   => array(
+				array( 'Medición en casa', '3–5 días', 'Desde que apruebas el presupuesto. Si mides tú, este paso se salta.' ),
+				array( 'Corte y confección', '7–9 días', 'En el taller de Errenteria. Aquí entra el forrado del contrapeso si lo pediste.' ),
+				array( 'Montaje', '1 día', 'Los mismos que lo cosieron. Se cuelga, se prueba y se firma.' ),
+			),
+			'note'    => 'Entre 11 y 15 días laborables en total. «3 a 4 semanas» sin desglosar no es un plazo, es una excusa por adelantado.',
+		),
+		'gallery'      => array(
+			'eyebrow' => 'Entregados',
+			'h2'      => 'Con su medida escrita',
+			'items'   => array(
+				array( 'estor-hero', '137 × 214 · lino crudo · cadena izquierda' ),
+				array( 'estor-cortina', '2 hojas de 90 × 260 · lino lavado' ),
+				array( 'estor-oficina', '3 estores de 180 × 210 · screen 5% gris' ),
+				array( 'estor-taller', 'Corte de 6 m para un ventanal de escalera' ),
+			),
+		),
+		'quote'        => array(
+			'eyebrow' => 'Presupuesto',
+			'h2'      => 'Cerramos precio en 48 h',
+			'lede'    => 'Arrastramos la configuración que acabas de hacer, así que no hay que repetirla. Sólo falta dónde y cuándo.',
+			'fields'  => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'mail', 'Email', 'email' ),
+				array( 'cp', 'Código postal', 'text' ),
+			),
+			'msg'     => '¿Prefieres que vayamos a medir o mides tú?',
+			'submit'  => 'Pedir presupuesto',
+		),
+		'faq'          => array(
+			'eyebrow' => 'Medición y montaje',
+			'h2'      => 'Lo que se pregunta antes de encargar',
+			'items'   => array(
+				array( '¿Y si me equivoco al medir?', 'Si mides tú y la medida sale mal, rehacemos la pieza una vez a mitad de precio. No es una garantía: es lo que cuesta el tejido, y preferimos decirlo antes que discutirlo después.' ),
+				array( '¿Puedo devolverlo si no me gusta el tejido?', 'No, y por eso las muestras son gratis y van antes. Lo cosido a tu medida no vuelve a stock: prometer una devolución que no podemos cumplir sería peor que no ofrecerla.' ),
+				array( '¿El motorizado necesita obra?', 'No si hay enchufe a menos de dos metros. Si no lo hay, va con batería recargable y dura entre ocho meses y un año según uso.' ),
+				array( '¿Montáis vosotros?', 'En Gipuzkoa, Bizkaia y Navarra sí, y va incluido. Fuera enviamos con plantilla de taladro y un vídeo de dos minutos; es un tornillo a cada lado.' ),
+			),
+		),
+		'footer'       => array(
+			'tag'   => 'Estores y cortinas a medida · taller en Errenteria',
+			'links' => array( 'Cómo medir', 'Muestras', 'Aviso legal', 'Privacidad', 'Cookies' ),
+			'legal' => '© 2026 Medida Justa S.L. · Polígono Ventas 12, Errenteria · IVA incluido',
+		),
+	),
 );
 
 // ── EL CONTENIDO DE LAS PÁGINAS INTERNAS ───────────────────────────────────────────────────────
@@ -4560,6 +4692,7 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-E-06-corte',  'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-07-bajura', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-08-tueste', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-E-09-medida', 'anchor' => 'editorial' ),
 );
 
 /* No pair may repeat: `RT_GALLERY_NOT_DISTINCT` will assert this from outside, but a generator
@@ -8894,98 +9027,18 @@ function page_pdp_mtm( $anchor_key, $C, $BRAND, $uid ) {
 	$o[] = head_shop_plain( $C, $BRAND );
 	$o[] = crumbs_html( $P['crumbs'] );
 	$o[] = '<main>';
-
 	// 1 · COMP-CONFIGURATOR  [fijo · ADN] — ocupa el sitio que en TPL-PDP-01 ocupa la compra
-	$cf   = $P['cfg'];
-	$o[]  = '<section class="sec cfg" aria-label="Configurador"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cf['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $P['h1'] ) . '</h1><p class="lede muted">' . h( $P['lede'] ) . '</p></div>'
-		. '<div class="cfgbox"><h2>' . h( $cf['h2'] ) . '</h2><div class="cfgrow">';
-	foreach ( $cf['fields'] as $f ) {
-		$fid = $uid . '-m-' . $f[0];
-		$o[] = '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
-			. '<input id="' . $fid . '" type="number" value="' . h( $f[2] ) . '"></div>';
-	}
-	$o[] = '</div>';
-	foreach ( array( array( $cf['opt_lbl'], $cf['opts'], 'mat' ), array( $cf['fin_lbl'], $cf['fins'], 'fin' ) ) as $grp ) {
-		$o[] = '<fieldset class="opts"><legend>' . h( $grp[0] ) . '</legend>';
-		foreach ( $grp[1] as $i => $op ) {
-			$oid = $uid . '-' . $grp[2] . $i;
-			$o[] = '<label class="opt" for="' . $oid . '">'
-				. '<input type="radio" id="' . $oid . '" name="' . $uid . '-' . $grp[2] . '"'
-				. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $op ) . '</span></label>';
-		}
-		$o[] = '</fieldset>';
-	}
-	$o[] = '<fieldset class="opts"><legend>' . h( $cf['ext_lbl'] ) . '</legend>';
-	foreach ( $cf['extras'] as $i => $ex ) {
-		$xid = $uid . '-x' . $i;
-		$o[] = '<label class="opt" for="' . $xid . '">'
-			. '<input type="checkbox" id="' . $xid . '"><span>' . h( $ex ) . '</span></label>';
-	}
-	/* SIN PRECIO, Y DICHO EN VOZ ALTA. El hueco donde toda ficha lleva una cifra es justo donde el
-	   lector la busca, así que callarse sin más se lee como un fallo de la maqueta. */
-	$o[] = '</fieldset><p class="small muted cfgnote">' . h( $cf['note'] ) . '</p>'
-		. '<button class="btn btn-primary" type="button">' . h( $cf['cta'] ) . '</button>'
-		. '</div></div></section>';
-	return page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid );
-}
-
-/** La segunda mitad de `page_pdp_mtm`: lo que sostiene una compra sin precio y sin devolución. */
-function page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid ) {
-	// 2 · COMP-MEASURE-TABLE  [fijo · ADN] — aquí no es una tabla de tallas: es cómo se mide
-	$ms  = $P['measure'];
-	$o[] = '<section class="sec features grid-sec bg-alt" aria-label="Cómo se mide"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $ms['h2'] ) . '</h2></div><ul class="feats">';
-	foreach ( $ms['rows'] as $r ) {
-		$o[] = '<li><b>' . h( $r[0] ) . '</b><span>' . h( $r[1] ) . '</span></li>';
-	}
-	$o[] = '</ul><p class="small muted flownote">' . h( $ms['note'] ) . '</p></div></section>';
-
+	$o[] = configurator_html( $P['cfg'], $uid, array( $P['h1'], $P['lede'] ) );
+	// 2 · COMP-MEASURE-TABLE  [fijo · ADN] — aquí es la instrucción de medición
+	$o[] = measure_how_html( $P['measure'] );
 	// 3 · COMP-GALLERY  [fijo] — trabajos entregados, cada uno CON SU MEDIDA escrita
-	$gl  = $P['gallery'];
-	$o[] = '<section class="sec gallery grid-sec" aria-label="Entregados"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $gl['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $gl['h2'] ) . '</h2></div><ul class="shots done"' . cols_attr( count( $gl['items'] ), 2 ) . '>';
-	foreach ( $gl['items'] as $it ) {
-		$gi  = img( $it[0] );
-		$o[] = '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
-			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '">'
-			. '<figcaption class="small muted">' . h( $it[1] ) . '</figcaption></figure></li>';
-	}
-	$o[] = '</ul></div></section>';
-
-	/* 4 · COMP-SAMPLE-REQUEST  [fijo · ADN]
-	   ES LA SECCIÓN QUE SUSTITUYE A LA POLÍTICA DE DEVOLUCIONES, que esta ficha no puede ofrecer: de
-	   algo cortado a medida no hay devolución, y prometerla sería peor que callarla. */
-	$sm  = $P['sample'];
-	$o[] = '<section class="sec sample bg-alt" aria-label="Muestra física"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $sm['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $sm['h2'] ) . '</h2><p class="muted">' . h( $sm['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $sm['cta'] ) . '</a></div></div>'
-		. '<div class="media"><ul class="swatches">';
-	foreach ( $sm['items'] as $slug ) {
-		$si  = img( $slug );
-		$o[] = '<li><figure class="frame sq"><img data-img="' . h( $si['slug'] ) . '"'
-			. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure></li>';
-	}
-	$o[] = '</ul></div></div></section>';
-
-	// 5 · COMP-LEAD-TIME  [fijo · ADN] — fases con días, no «3 a 4 semanas»
-	$ld  = $P['lead'];
-	$o[] = '<section class="sec process grid-sec" aria-label="Plazo"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $ld['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $ld['h2'] ) . '</h2></div><ol class="steps">';
-	foreach ( $ld['items'] as $i => $st ) {
-		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
-			. '<h3>' . h( $st[0] ) . '</h3><p class="days">' . h( $st[1] ) . '</p>'
-			. '<p>' . h( $st[2] ) . '</p></li>';
-	}
-	$o[] = '</ol><p class="small muted flownote">' . h( $ld['note'] ) . '</p></div></section>';
-
+	$o[] = done_gallery_html( $P['gallery'] );
+	// 4 · COMP-SAMPLE-REQUEST  [fijo · ADN]
+	$o[] = sample_request_html( $P['sample'] );
+	// 5 · COMP-LEAD-TIME  [fijo · ADN]
+	$o[] = lead_time_html( $P['lead'] );
 	// 6 · COMP-QUOTE-FORM  [fijo · ADN] — el cierre: presupuesto, no compra
-	$q = $P['quote'];
+	$q   = $P['quote'];
 	$o[] = band_closing_html(
 		array(
 			'eyebrow' => $q['eyebrow'],
@@ -9002,6 +9055,59 @@ function page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid ) {
 	$o[] = footer_html( $C['footer'] );
 
 	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-E-09 · A medida / Presupuesto — la home.
+ *
+ * MISMAS SECCIONES QUE LA FICHA DE TPL-E-03 Y NO ES UN DESCUIDO: en este arquetipo el configurador
+ * ES la página, así que su home y su ficha se parecen más que en cualquier otro par del catálogo.
+ * Lo que las separa es dónde vive el h1 —aquí en el héroe, allí en el configurador— y que ésta abre
+ * con una fotografía de lo que se fabrica, porque una tienda sin catálogo necesita enseñar algo
+ * antes de pedir medidas.
+ */
+function strip_made( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$im   = img( $hero['img'] );
+	$o    = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1><p class="lede muted">' . h( $hero['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
+		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '</div></section>';
+	$o[] = configurator_html( $C['cfg'], $uid );
+	$o[] = measure_how_html( $C['measure'] );
+	$o[] = sample_request_html( $C['sample'], '' );
+	$o[] = lead_time_html( $C['lead'], ' bg-alt' );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
+		$o[] = done_gallery_html( $C['gallery'] );
+	}
+	$q   = $C['quote'];
+	$o[] = band_closing_html(
+		array(
+			'eyebrow' => $q['eyebrow'],
+			'h2'      => $q['h2'],
+			'lede'    => $q['lede'],
+			'fields'  => $q['fields'],
+			'msg'     => $q['msg'],
+			'submit'  => $q['submit'],
+		),
+		$uid . '-q'
+	);
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
 }
 
 /* ── TPL-E-06 · TALLA / PRUEBA ────────────────────────────────────────────────────────────────
@@ -9525,6 +9631,124 @@ function page_pdp_sub( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = footer_html( $C['footer'] );
 
 	return implode( "\n", $o );
+}
+
+/* ── TPL-E-09 · A MEDIDA / PRESUPUESTO ────────────────────────────────────────────────────────
+   UNA SOLA RECETA PARA LAS DOS PÁGINAS QUE LA USAN. El configurador, las muestras, el plazo por
+   fases y la instrucción de medición nacieron dentro de `page_pdp_mtm()` cuando sólo TPL-E-03 los
+   necesitaba. Al llegar TPL-E-09 había dos caminos: copiarlos o sacarlos. Copiarlos es cómo dos
+   cosas que deberían quedarse idénticas empiezan a separarse — este fichero ya pagó ese error con
+   cuatro emisores de acordeón y tres comportamientos distintos. */
+
+/**
+ * COMP-CONFIGURATOR · convierte una necesidad en una configuración concreta.
+ *
+ * `$lead` lleva el h1 y la entradilla cuando el configurador ES la página (la ficha de TPL-E-03);
+ * en la home de TPL-E-09 el h1 lo tiene el héroe y aquí va un h2. Un solo emisor y dos posiciones
+ * en la jerarquía, que es lo correcto: la sección es la misma, su sitio en el documento no.
+ */
+function configurator_html( $cf, $uid, $lead = null ) {
+	$o = '<section class="sec cfg" aria-label="Configurador"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cf['eyebrow'] ) . '</span>';
+	if ( null !== $lead ) {
+		$o .= '<h1>' . h( $lead[0] ) . '</h1><p class="lede muted">' . h( $lead[1] ) . '</p>';
+	}
+	$o .= '</div><div class="cfgbox"><h2>' . h( $cf['h2'] ) . '</h2><div class="cfgrow">';
+	foreach ( $cf['fields'] as $f ) {
+		$fid = $uid . '-m-' . $f[0];
+		$o  .= '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $fid . '" type="number" value="' . h( $f[2] ) . '"></div>';
+	}
+	$o .= '</div>';
+	foreach ( array( array( $cf['opt_lbl'], $cf['opts'], 'mat' ), array( $cf['fin_lbl'], $cf['fins'], 'fin' ) ) as $grp ) {
+		$o .= '<fieldset class="opts"><legend>' . h( $grp[0] ) . '</legend>';
+		foreach ( $grp[1] as $i => $op ) {
+			$oid = $uid . '-' . $grp[2] . $i;
+			$o  .= '<label class="opt" for="' . $oid . '">'
+				. '<input type="radio" id="' . $oid . '" name="' . $uid . '-' . $grp[2] . '"'
+				. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $op ) . '</span></label>';
+		}
+		$o .= '</fieldset>';
+	}
+	$o .= '<fieldset class="opts"><legend>' . h( $cf['ext_lbl'] ) . '</legend>';
+	foreach ( $cf['extras'] as $i => $ex ) {
+		$xid = $uid . '-x' . $i;
+		$o  .= '<label class="opt" for="' . $xid . '">'
+			. '<input type="checkbox" id="' . $xid . '"><span>' . h( $ex ) . '</span></label>';
+	}
+	/* SIN PRECIO, Y DICHO EN VOZ ALTA. El hueco donde toda ficha lleva una cifra es justo donde el
+	   lector la busca, así que callarse sin más se lee como un fallo de la maqueta. */
+	return $o . '</fieldset><p class="small muted cfgnote">' . h( $cf['note'] ) . '</p>'
+		. '<button class="btn btn-primary" type="button">' . h( $cf['cta'] ) . '</button>'
+		. '</div></div></section>';
+}
+
+/**
+ * COMP-MEASURE-TABLE en su uso de medición: la instrucción, no una tabla de tallas.
+ *
+ * LA FOTOGRAFÍA ES OPCIONAL Y NO DECORATIVA. Cuando la hay, enseña la operación que el texto
+ * describe —el metro apoyado en la jamba—, y en una sección cuyo fallo típico es que el cliente
+ * mida otra cosa, ver la operación vale más que otro párrafo. La ficha de TPL-E-03 no la pasa y
+ * se queda como estaba: un parámetro opcional no cambia a quien no lo usa.
+ */
+function measure_how_html( $ms, $extra = ' bg-alt' ) {
+	$mh_img = isset( $ms['img'] )
+		? ( function ( $slug ) {
+			$mi = img( $slug );
+			return '<div class="media"><figure class="frame"><img data-img="' . h( $mi['slug'] ) . '"'
+				. ' alt="' . h( $mi['alt'] ) . '" width="' . $mi['w'] . '" height="' . $mi['h'] . '"></figure></div>';
+		} )( $ms['img'] )
+		: '';
+	$o = '<section class="sec features grid-sec' . $extra . '" aria-label="Cómo se mide"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ms['h2'] ) . '</h2></div>' . $mh_img . '<ul class="feats">';
+	foreach ( $ms['rows'] as $r ) {
+		$o .= '<li><b>' . h( $r[0] ) . '</b><span>' . h( $r[1] ) . '</span></li>';
+	}
+	return $o . '</ul><p class="small muted flownote">' . h( $ms['note'] ) . '</p></div></section>';
+}
+
+/** COMP-GALLERY de trabajos entregados · el pie ES el dato, así que no se atenúa ni se esconde. */
+function done_gallery_html( $gl ) {
+	$o = '<section class="sec gallery grid-sec" aria-label="Entregados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $gl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $gl['h2'] ) . '</h2></div><ul class="shots done"'
+		. cols_attr( count( $gl['items'] ), 2 ) . '>';
+	foreach ( $gl['items'] as $it ) {
+		$gi = img( $it[0] );
+		$o .= '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
+			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '">'
+			. '<figcaption class="small muted">' . h( $it[1] ) . '</figcaption></figure></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-SAMPLE-REQUEST · sustituye a la política de devoluciones que esta ficha no puede ofrecer. */
+function sample_request_html( $sm, $extra = ' bg-alt' ) {
+	$o = '<section class="sec sample' . $extra . '" aria-label="Muestra física"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sm['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sm['h2'] ) . '</h2><p class="muted">' . h( $sm['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $sm['cta'] ) . '</a></div></div>'
+		. '<div class="media"><ul class="swatches">';
+	foreach ( $sm['items'] as $slug ) {
+		$si = img( $slug );
+		$o .= '<li><figure class="frame sq"><img data-img="' . h( $si['slug'] ) . '"'
+			. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure></li>';
+	}
+	return $o . '</ul></div></div></section>';
+}
+
+/** COMP-LEAD-TIME · fases con días, no «3 a 4 semanas». */
+function lead_time_html( $ld, $extra = '' ) {
+	$o = '<section class="sec process grid-sec' . $extra . '" aria-label="Plazo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ld['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ld['h2'] ) . '</h2></div><ol class="steps">';
+	foreach ( $ld['items'] as $i => $st ) {
+		$o .= '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st[0] ) . '</h3><p class="days">' . h( $st[1] ) . '</p>'
+			. '<p>' . h( $st[2] ) . '</p></li>';
+	}
+	return $o . '</ol><p class="small muted flownote">' . h( $ld['note'] ) . '</p></div></section>';
 }
 
 /**
@@ -12133,6 +12357,12 @@ $PAGES = array(
 		array( 'key' => 'home',     'label' => 'Planes',   'doc' => 'TPL-E-08' ),
 		array( 'key' => 'producto', 'label' => 'El café',  'doc' => 'TPL-PDP-04' ),
 	),
+	/* Una sola página: en este arquetipo el configurador ES la web, y su ficha de producto —la
+	   TPL-PDP-05— ya está renderizada sobre TPL-E-03, que vende encimeras por el mismo modelo.
+	   Duplicarla aquí sería enseñar dos veces lo mismo con otro tejido. */
+	'TPL-E-09' => array(
+		array( 'key' => 'home', 'label' => 'Configurador', 'doc' => 'TPL-E-09' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -12229,6 +12459,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-E-04' === $tpl && 'producto' === $page_key ) {
 		return page_pdp( $anchor_key, $C, $BRAND, $suid );
+	}
+	if ( 'TPL-E-09' === $tpl && 'home' === $page_key ) {
+		return strip_made( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-08' === $tpl && 'home' === $page_key ) {
 		return strip_plan_sub( $anchor_key, $C, $BRAND, $suid, $tgl );
