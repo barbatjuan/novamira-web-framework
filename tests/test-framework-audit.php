@@ -194,7 +194,7 @@ function fx_row_type_doc() {
    expects: one "### `PERS-ID`" heading per personality, each followed by every required
    "**Field:**" bullet. */
 $FX_PERS_IDS    = array(
-	'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL',
+	'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL', 'PERS-VITRINE',
 );
 $FX_PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
 /* One well-separated axis position per fixture ID, mirroring the real catalog's own anchors (see
@@ -206,6 +206,11 @@ $FX_PERS_AXES = array(
 	'PERS-MATTER'        => array( 'classic', 'warm', 'standard', 'strict-grid', 'hairline' ),
 	'PERS-DIRECT'        => array( 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' ),
 	'PERS-INSTITUTIONAL' => array( 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ),
+	/* One axis with each of the other four and never two -- scale with EDITORIAL, composition with
+	   MATTER, ground with DIRECT, elevation with INSTITUTIONAL. Transcribed from the real block, not
+	   invented here: a fixture anchor placed by hand is how a fixture catalog starts failing
+	   RT_PERS_TOO_SIMILAR in every scenario that has nothing to do with it. */
+	'PERS-VITRINE'       => array( 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow' ),
 );
 
 /* Mirrors framework-audit.php's own $PERS_AXES (never imported -- the audit is a subprocess, see
@@ -1644,6 +1649,26 @@ ok(
 );
 fx_rrmdir( $r28 );
 
+/* La quinta ancla es la que probo que esta lista podia quedarse corta. PERS-VITRINE se entrego
+   con su bloque, sus cinco posiciones, su entrada en $ANCHORS y tres tiras de galeria mientras
+   $PERS_IDS seguia nombrando cuatro: borrar su bloque devolvia el audit a 0 FAIL. Las demas filas
+   PERS leen los bloques que el fichero TRAE, asi que ninguna nota una ausencia -- forma, ejes y
+   distancia se le comprobaban, existencia no. Esta asercion es la unica que cae si alguien
+   devuelve la lista a cuatro anclas. */
+echo "--- y la quinta ancla esta en la lista: omitir PERS-VITRINE tambien FALLA ---
+";
+$r28b = fx_tmp_root();
+fx_base( $r28b );
+fx( $r28b, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-VITRINE' ) );
+list( , $out28b ) = fx_run_ok( $audit, $r28b );
+ok(
+	has( $out28b, 'RT_PERS_ID_MISSING' ) && has( $out28b, 'PERS-VITRINE' ),
+	'un catalogo sin PERS-VITRINE es RT_PERS_ID_MISSING nombrandola: un ancla construida sigue siendo obligatoria',
+	$out28b
+);
+ok( 1 === count( fx_lines_with( $out28b, array( 'RT_PERS_ID_MISSING' ) ) ), 'y solo por ella: las otras cuatro siguen presentes', $out28b );
+fx_rrmdir( $r28b );
+
 echo "--- ux-design-system: design-tokens.md hardcoding an example font pairing is RT_TOKENS_HARDCODED_FONT, and dropping it clears the row ---\n";
 $r29 = fx_tmp_root();
 fx_base( $r29 );
@@ -2591,6 +2616,10 @@ fx( $r92, 'skills/ux-design-system/references/design-personalities.md',
 	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+	/* Presente porque $PERS_IDS lo exige, y con sus posiciones reales: un eje con EDITORIAL
+	   (scale), uno con DIRECT (ground), uno con INSTITUTIONAL (elevation), cero con MATTER. Cero
+	   ruido sobre el par EDITORIAL/MATTER que este escenario existe para provocar. */
+	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow' )
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline' ) );
 list( , $out92 ) = fx_run_ok( $audit, $r92 );
 ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ), 'un ID declarado dos veces FALLA, nombrandolo', fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ) );

@@ -267,7 +267,7 @@ $COMPOSITION = array(
 	'broken-grid' => array( 'lp' => 'LP-BROKEN-GRID', 'line' => 'un elemento por sección cruza la retícula' ),
 );
 
-// ─────────────────────────────────────────────────────────────── 4 · the four anchors
+// ─────────────────────────────────────────────────────────────── 4 · the anchors
 //
 // Positions and typefaces COPIED from ux-design-system/references/design-personalities.md.
 // Motion durations come from ux-design-system/references/motion.md (".35s colour, .5s lift,
@@ -281,7 +281,7 @@ $COMPOSITION = array(
 // `track_disp` IS `0em` AND NOT `normal` ON THE TWO ANCHORS THAT DO NOT TIGHTEN, and the change is
 // an encoding, not a value. For `letter-spacing` the two are the same rendered result — `normal`
 // IS zero extra tracking on every engine — but `calc(normal + .016em)` is a parse error, and the
-// optical ramp below adds a per-step offset to this token on all four anchors. Writing `normal`
+// optical ramp below adds a per-step offset to this token on every anchor. Writing `normal`
 // here would have silently dropped the ramp on exactly the two anchors whose h3 needs it most,
 // with no invalid-value warning anywhere: an invalid custom-property substitution falls back to
 // the property's initial value, which for letter-spacing is `normal`, so the two would have kept
@@ -421,10 +421,15 @@ $ANCHORS = array(
 // ─────────────────────────────────────────────────────────────── 4b · a brand is not an anchor
 //
 // AN ANCHOR IS A POSITION; A BRAND IS A BUSINESS. Everything above this line renders ONE company —
-// Piedra Valdes, cantería in Lleida — through ten architectures and four anchors. That is forty
-// configurations of one identity, and it is the defect this table exists to end: a catalogue whose
+// Piedra Valdes, cantería in Lleida — through ten architectures and the anchor set. That is 43 of
+// the 50 strips: one identity in 43 configurations, and it is the defect this table exists to end:
+// a catalogue whose
 // every entry is the same stonemason cannot answer "quiero la de restaurante", because none of
 // them is one. The architecture varied and the identity never did.
+//
+// The count is stated rather than computed because the strip table is EXPLICIT PAIRS, not a cross
+// product: coverage per anchor is whatever the table says it is, and it is not even — measured on
+// this build, direct/editorial/institutional carry 12 strips each, matter 11 and vitrine 3.
 //
 // So a brand supplies exactly what an anchor deliberately does not: its own GROUND, its own
 // ACCENT, its own TYPE PAIRING and its own PHOTOGRAPHS. It BORROWS scale, density, composition and
@@ -677,7 +682,7 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 // about FRAMING; neither says "no colour", and the retired duotone read them as though they did.
 // The duotone therefore survives on ZERO anchors — not on one, and not as a floor.
 
-/* THE ACCENT'S SHARE OF THE SHADOW INK. One number for all four anchors, because the per-anchor
+/* THE ACCENT'S SHARE OF THE SHADOW INK. One number for every anchor, because the per-anchor
    difference is meant to come from the ground and the accent, which already differ, rather than
    from a fifth table of hand-set weights. Its floor is asserted below rather than trusted. */
 $INK_TINT = 0.45;

@@ -995,7 +995,13 @@ if ( file_exists( $hr_file ) ) {
 
 /* --------------------------------------- ux-design-system personality catalog */
 
-$PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL' );
+/* Every anchor the catalog ships, and the list is REQUIRED-EXISTENCE, not merely descriptive.
+   The other PERS rows below read whatever blocks the file happens to contain, so a deleted anchor
+   fails nothing they check: PERS-VITRINE shipped with its block, its five axis positions, its
+   $ANCHORS entry and three gallery strips while THIS line still named four anchors, which means
+   deleting its block returned the audit to 0 FAIL. Same shape as RT_TPL_UNROUTABLE: built, correct,
+   and with nothing obliging it to keep existing. An anchor added anywhere is added here too. */
+$PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL', 'PERS-VITRINE' );
 /* Color mood and "Radius & shadow" are gone as prose fields: ground and elevation are AXES now,
    and a field that repeats an axis in adjectives is how the old catalog drifted from its own
    values. Motion stays prose on purpose — the distance rule below is about what a still frame
