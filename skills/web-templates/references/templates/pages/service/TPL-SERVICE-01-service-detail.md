@@ -20,15 +20,15 @@ en la home. Una home no rankea para todos los servicios a la vez; una página po
 ```
 COMP-HEADER [fijo]
 COMP-BREADCRUMB (Inicio · Servicios · <este>) [fijo]
-Encabezado de servicio (H1 = el servicio + claim + CTA) [fijo · ADN]
-Qué resolvemos (los problemas concretos que atiende) [fijo · ADN]
+COMP-PAGE-HEAD [fijo · ADN] · H1 = el servicio + claim + CTA
+COMP-PROBLEM [fijo · ADN] · qué resolvemos: los problemas concretos que atiende
 COMP-FEATURES (alcance: qué incluye) [fijo]
 COMP-PROCESS (cómo se lleva ESTE servicio) [toggle]
 COMP-CASES (asuntos de este tipo) [toggle]
 COMP-FAQ (dudas de ESTE servicio) [toggle · default ON]
 COMP-TESTIMONIAL [toggle]
 COMP-PRICING (planes, si el servicio los tiene) [toggle · default OFF]
-Otros servicios (cross-link a las hermanas) [fijo · ADN]
+COMP-SERVICES [fijo · ADN] · las hermanas: cross-link a los otros servicios
 COMP-CTA + COMP-LEAD-FORM [fijo · ADN]
 COMP-FOOTER [fijo]
 ```

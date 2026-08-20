@@ -1192,8 +1192,37 @@ function tpl_wireframe_comps( $src ) {
  * nothing here, and is caught one level up: SKILL.md points at both directories, so
  * `RT_BROKEN_REFERENCE` fires on the missing path.
  */
-foreach ( array( 'ecommerce', 'corporate' ) as $tpl_family ) {
-	$tpl_dir = $root . '/skills/web-templates/references/templates/' . $tpl_family;
+/* A FAMILY IS THE SET ONE CHOICE PICKS FROM, and for the inner pages that set is a single PAGE
+   ROLE, never the whole `pages/` directory. Nobody chooses between an about page and a product
+   page — a site gets both — so comparing across roles would measure a distance no client can
+   spend, and the cross-role pairs would outnumber the real ones nine to one. `pages/product/`
+   against itself is the question that means something: two product archetypes ARE alternatives,
+   and exactly one of them gets picked.
+ *
+ * THIS OMISSION IS WHAT THE INNER PAGES ACTUALLY COST. The rule shipped pointed at the two home
+ * families and nothing else, so every page under `pages/` sat outside the only gate that keeps
+ * architectures apart. Measured for the first time, `TPL-PDP-01` and `TPL-PDP-02` shared SEVEN of
+ * their eight sections and `TPL-SHOP-01`/`TPL-SHOP-02` six of seven: not similar, the same page.
+ * The homes had a gate and held their distance; the pages had none and converged — which is the
+ * mechanical reason every site in this catalogue shipped the same product page with a different
+ * photo size. Same class of finding as `RT_TPL_UNROUTABLE`: nothing failed, and the audit was
+ * green the whole time it was true. */
+$tpl_families = array(
+	'ecommerce' => $root . '/skills/web-templates/references/templates/ecommerce',
+	'corporate' => $root . '/skills/web-templates/references/templates/corporate',
+);
+$tpl_page_dirs = glob( $root . '/skills/web-templates/references/templates/pages/*', GLOB_ONLYDIR );
+if ( ! is_array( $tpl_page_dirs ) ) {
+	$tpl_page_dirs = array();
+}
+/* Sorted, for the same reason the file list below is: the pairs a run reports must not depend on
+   the order the filesystem happens to hand back its directory entries. */
+sort( $tpl_page_dirs );
+foreach ( $tpl_page_dirs as $tpl_page_dir ) {
+	$tpl_families[ 'pages/' . basename( $tpl_page_dir ) ] = $tpl_page_dir;
+}
+
+foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 	if ( ! is_dir( $tpl_dir ) ) {
 		continue;
 	}
@@ -1208,7 +1237,10 @@ foreach ( array( 'ecommerce', 'corporate' ) as $tpl_family ) {
 	$tpl_inv = array();
 	foreach ( $tpl_files as $tpl_file ) {
 		$tpl_base = basename( $tpl_file );
-		$tpl_id   = preg_match( '/^(TPL-[A-Z]+-\d+)/', $tpl_base, $im ) ? $im[1] : $tpl_base;
+		/* [A-Z0-9] and not [A-Z]: `TPL-404-01` carries digits in its family segment, and under the
+		   narrower class it fell through to the bare filename — a label that still reads but no
+		   longer matches the id every other rule speaks in. */
+		$tpl_id   = preg_match( '/^(TPL-[A-Z0-9]+-\d+)/', $tpl_base, $im ) ? $im[1] : $tpl_base;
 		/* Every name in this block carries the `tpl_` prefix, and that is a rule here rather than a
 		   style: this file is 2,900 lines of top-level procedural code sharing one global scope,
 		   and an unprefixed `$prose` in this loop silently overwrote the concatenated-markdown

@@ -8,10 +8,10 @@ Archive de productos con **filtros en sidebar**. Ideal para catálogos amplios c
 ```
 COMP-HEADER [fijo]
 COMP-BREADCRUMB [fijo]
-Encabezado de archive [fijo] · título categoría + nº resultados + (banner categoría opcional)
-Cuerpo [fijo · ADN]
-   ├─ COMP-FILTERS (sidebar izquierda)
-   └─ COMP-TOOLBAR + COMP-PRODUCT-GRID (derecha)
+COMP-PAGE-HEAD [fijo] · título de la categoría + nº de resultados + banner opcional
+COMP-FILTERS [fijo · ADN · TGL-SHOP-FILTERS] · sidebar, barra superior o ninguno
+COMP-TOOLBAR [fijo] · orden, nº por página y, en mobile, el botón que abre los filtros
+COMP-PRODUCT-GRID [fijo · ADN] · 2 col mobile · 3 tablet · 3 con sidebar / 4 sin él
 COMP-PAGINATION [fijo]
 COMP-FOOTER [fijo]
 ```

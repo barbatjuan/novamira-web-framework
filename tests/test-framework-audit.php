@@ -4445,6 +4445,35 @@ ok( array() !== fx_lines_with( $out128, array( 'RT_TPL_NO_WIREFRAME', 'Editorial
 ok( array() === fx_lines_with( $out128, array( 'RT_TPL_NO_WIREFRAME', 'TPL-E-03-fixture.md' ) ), 'el arquetipo legible no se acusa de nada', $out128 );
 fx_rrmdir( $r128 );
 
+echo "--- la comparacion tambien mide las paginas internas, y por ROL de pagina ---\n";
+/* LA FAMILIA ES EL SET DEL QUE SALE UNA ELECCION, y bajo pages/ ese set es un rol de pagina.
+   La regla nacio apuntando solo a las dos familias de home, asi que todo lo de pages/ crecio fuera
+   del unico control que mantiene separadas dos arquitecturas: medidos por primera vez, TPL-PDP-01 y
+   TPL-PDP-02 compartian SIETE de sus ocho secciones y TPL-SHOP-01/TPL-SHOP-02 seis de siete. Este
+   escenario existe para que eso no pueda volver en silencio: quitar el bloque de pages/ de
+   $tpl_families deja verde el arbol entero y pone en rojo estas afirmaciones.
+
+   El fixture de about es IDENTICO seccion por seccion al de product, y NO puede producir fila:
+   nadie elige entre una pagina de Nosotros y una ficha de producto -- un sitio lleva las dos --,
+   asi que comparar entre roles mediria una distancia que nadie puede gastar. Comparar la carpeta
+   pages/ entera de golpe hace aparecer exactamente esa fila de mas. */
+$r140 = fx_tmp_root();
+fx_base( $r140 );
+fx( $r140, $fx_tpl_dir . 'pages/product/TPL-PDP-01-fixture.md', fx_tpl( 'TPL-PDP-01', array( 'HEADER', 'BREADCRUMB', 'GALLERY', 'PRODUCT-INFO', 'ACCORDION', 'FOOTER' ) ) );
+fx( $r140, $fx_tpl_dir . 'pages/product/TPL-PDP-02-fixture.md', fx_tpl( 'TPL-PDP-02', array( 'HEADER', 'BREADCRUMB', 'GALLERY', 'PRODUCT-INFO', 'ACCORDION', 'PRODUCT-CAROUSEL' ) ) );
+fx( $r140, $fx_tpl_dir . 'pages/about/TPL-ABOUT-01-fixture.md', fx_tpl( 'TPL-ABOUT-01', array( 'HEADER', 'BREADCRUMB', 'GALLERY', 'PRODUCT-INFO', 'ACCORDION', 'FOOTER' ) ) );
+/* Una sola fila en prosa dentro de una pagina interna: la misma forma peligrosa que el escenario
+   128 prueba en una home, aqui para demostrar que la comprobacion fila a fila llega tan lejos como
+   la de conteo. Sin ella, media docena de paginas internas podian quedarse en prosa sin acusarlas. */
+fx( $r140, $fx_tpl_dir . 'pages/contact/TPL-CONTACT-01-fixture.md', fx_tpl( 'TPL-CONTACT-01', array( 'HEADER', 'CONTACT-FORM', 'FOOTER' ), array(), 'mixed' ) );
+list( , $out140 ) = fx_run_ok( $audit, $r140 );
+ok( 'FAIL' === fx_row_level( $out140, array( 'RT_TPL_TOO_SIMILAR', 'TPL-PDP-01 and TPL-PDP-02' ) ), 'dos fichas de producto que comparten mas de la mitad FALLAN: la regla llega a pages/', fx_row_level( $out140, array( 'RT_TPL_TOO_SIMILAR', 'TPL-PDP-01 and TPL-PDP-02' ) ) );
+ok( array() !== fx_lines_with( $out140, array( 'RT_TPL_TOO_SIMILAR', 'share 5 of 7 sections' ) ), 'y la fila cuenta lo mismo aqui que en una home: cuantas comparten sobre cuantas hay', $out140 );
+ok( array() === fx_lines_with( $out140, array( 'RT_TPL_TOO_SIMILAR', 'TPL-ABOUT-01' ) ), 'una pagina de Nosotros identica a una ficha NO produce fila: la familia es el ROL, no la carpeta pages/', $out140 );
+ok( 'FAIL' === fx_row_level( $out140, array( 'RT_TPL_NO_WIREFRAME', 'TPL-CONTACT-01-fixture.md' ) ), 'y una fila en prosa dentro de una pagina interna tambien FALLA', fx_row_level( $out140, array( 'RT_TPL_NO_WIREFRAME', 'TPL-CONTACT-01-fixture.md' ) ) );
+ok( array() !== fx_lines_with( $out140, array( 'RT_TPL_NO_WIREFRAME', 'pages/contact/TPL-CONTACT-01-fixture.md' ) ), 'nombrando el ROL dentro de la ruta, para que el lector sepa que carpeta abrir', $out140 );
+fx_rrmdir( $r140 );
+
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
 sort( $fx_observed );

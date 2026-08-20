@@ -12,10 +12,10 @@ nadie la vuelve a leer.
 ## 2. Wireframe (top → bottom)
 ```
 COMP-HEADER [fijo]
-Encabezado [fijo] · H1 con el nombre exacto del documento + fecha de última actualización
-Índice [toggle TGL-LEGAL-TOC] · ancla a cada H2, útil a partir de ~6 secciones
-Cuerpo [fijo · ADN] · texto largo, UNA columna, medida de lectura limitada
-Contacto del responsable [fijo] · a quién se escribe para ejercer derechos
+COMP-PAGE-HEAD [fijo] · H1 con el nombre exacto del documento + fecha de última actualización
+COMP-TOC [toggle TGL-LEGAL-TOC] · ancla a cada H2, útil a partir de ~6 secciones
+COMP-LONGFORM [fijo · ADN] · texto largo, UNA columna, medida de lectura limitada
+COMP-CONTACT-DIRECT [fijo] · a quién se escribe para ejercer derechos
 COMP-FOOTER [fijo]
 ```
 

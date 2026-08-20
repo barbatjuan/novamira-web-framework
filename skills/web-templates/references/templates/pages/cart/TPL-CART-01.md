@@ -7,26 +7,22 @@ Lo construye la skill `woocommerce` con widgets nativos (mini-cart / cart); acá
 
 ## 2. Wireframe
 
-### Side-cart (drawer) `[TGL-CART-VIEW = drawer/both]`
-```
-Drawer derecho, overlay oscuro
-  ├─ Header: "Tu carrito (n)" + cerrar
-  ├─ Line items compactos: mini-foto · nombre/variante · qty stepper · precio € · quitar
-  ├─ (envío gratis progress bar) [toggle]
-  ├─ Subtotal €
-  └─ CTA: "Finalizar compra" (primary) + "Ver carrito" (link)
-```
+UN SOLO INVENTARIO, DOS VISTAS. El drawer y la página no son dos arquetipos: son la misma lista de
+secciones servida en dos superficies, y quién manda es `TGL-CART-VIEW`. Iban en dos bloques
+cercados y eso las rompía en dos sitios — el inventario se lee del primero, que era un dibujo del
+cajón sin un solo id, así que este arquetipo declaraba una arquitectura vacía mientras su página
+real quedaba fuera de toda comparación.
 
-### Página de carrito `[TGL-CART-VIEW = page/both]`
 ```
-COMP-HEADER [fijo] · COMP-BREADCRUMB
-Line items (tabla/lista) [fijo · ADN]
-   imagen · nombre/variante · qty stepper · precio unit € · subtotal línea · quitar
-Resumen [fijo · ADN]
-   subtotal €, cupón, envío estimado, TOTAL €, CTA "Finalizar compra"
-COMP-PRODUCT-CAROUSEL (completá tu compra) [toggle TGL-CART-CROSSSELL]
-Estado vacío [fijo] · mensaje + CTA "Ir a la tienda"
-COMP-FOOTER [fijo]
+COMP-HEADER [fijo · vista página] · COMP-BREADCRUMB
+COMP-CART-DRAWER [vista drawer · ADN] · panel derecho sobre overlay, cierra con Esc y con clic fuera
+COMP-CART-LINES [fijo · ADN] · imagen · nombre/variante · stepper · precio unit € · subtotal · quitar
+COMP-SHIPPING-BAR [toggle TGL-CART-SHIPBAR] · cuánto falta para el envío gratis
+COMP-CART-TOTALS [fijo · ADN] · subtotal €, cupón, envío estimado, TOTAL €
+COMP-CTA [fijo] · "Finalizar compra" (primary) + "Ver carrito" (enlace, sólo en drawer)
+COMP-PRODUCT-CAROUSEL (completá tu compra) [toggle TGL-CART-CROSSSELL · sólo vista página]
+COMP-EMPTY-STATE [fijo] · mensaje + CTA "Ir a la tienda"
+COMP-FOOTER [fijo · vista página]
 ```
 
 ## 3. Secciones

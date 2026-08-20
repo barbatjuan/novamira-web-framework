@@ -12,12 +12,11 @@ lógica de pago. Ecommerce. Precios en **€**.
 ## 2. Wireframe
 ```
 COMP-HEADER minimal [fijo · ADN] · logo (a home) + candado/"compra segura", SIN nav que distraiga
-(Pasos) [toggle TGL-CHECKOUT-STEPS] · 1-step (todo en una) o 2-step (datos → pago)
-Bloque principal [fijo · ADN]
-   ├─ Form (izquierda): Contacto · Envío (dirección) · Método de envío · Pago
-   └─ COMP-ORDER-SUMMARY (derecha, sticky): items, subtotal, envío, cupón, TOTAL €
+COMP-CHECKOUT-STEPS [toggle TGL-CHECKOUT-STEPS] · 1-step (todo en una) o 2-step (datos → pago)
+COMP-CHECKOUT-FORM [fijo · ADN] · izquierda: Contacto · Envío (dirección) · Método de envío · Pago
+COMP-ORDER-SUMMARY [fijo · ADN] · derecha, sticky: items, subtotal, envío, cupón, TOTAL €
 COMP-TRUST-BADGES [toggle] · pago seguro, medios
-CTA "Pagar" [fijo · ADN]
+COMP-CTA [fijo · ADN] · "Pagar"
 COMP-FOOTER minimal [fijo]
 ```
 

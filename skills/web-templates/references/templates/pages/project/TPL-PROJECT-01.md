@@ -11,14 +11,14 @@ foto del resultado, es el problema que había antes.
 ## 2. Wireframe (top → bottom)
 ```
 COMP-HEADER [fijo]
-Encabezado [fijo] · H1 con el nombre del proyecto + cliente/sector + año
-Imagen principal [fijo]
-Ficha [fijo] · cliente, sector, año, servicios prestados, duración
-Reto → solución → resultado [fijo · ADN] · en ese orden, siempre
-Galería [toggle TGL-PROJECT-GALLERY]
-Testimonio [toggle TGL-PROJECT-QUOTE] · del cliente de ESTE proyecto
-Métricas [toggle TGL-PROJECT-METRICS] · solo con números reales
-CTA [fijo] · un servicio concreto, no "contacto"
+COMP-PAGE-HEAD [fijo] · H1 con el nombre del proyecto + cliente/sector + año
+COMP-HERO-FULL [fijo] · la imagen principal del trabajo
+COMP-PROJECT-FACTS [fijo] · cliente, sector, año, servicios prestados, duración
+COMP-CASE-NARRATIVE [fijo · ADN] · reto → solución → resultado, en ese orden, siempre
+COMP-GALLERY [toggle TGL-PROJECT-GALLERY]
+COMP-TESTIMONIAL [toggle TGL-PROJECT-QUOTE] · del cliente de ESTE proyecto
+COMP-STATS [toggle TGL-PROJECT-METRICS] · solo con números reales
+COMP-CTA [fijo] · un servicio concreto, no "contacto"
 COMP-RELATED [toggle TGL-PROJECT-RELATED] · 3 proyectos del mismo tipo
 COMP-FOOTER [fijo]
 ```

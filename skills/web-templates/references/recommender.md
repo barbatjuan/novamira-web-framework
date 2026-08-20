@@ -220,8 +220,8 @@ Preguntarlas es ofrecer al cliente que diga que no a algo que igualmente hay que
 
 | Tipo de sitio | Set de páginas sugerido |
 |---------------|-------------------------|
-| Ecommerce | Home + **Shop/Catálogo** + **Product/PDP** + **About** (`TPL-ABOUT-01`) + **Contacto** (`TPL-CONTACT-01`) — más el bloque 6.1. Carrito (`TPL-CART-01`) y Checkout (`TPL-CHECKOUT-01`) existen como arquetipo de LAYOUT, pero quien los monta es `woocommerce`: no entran en este set, se citan al pasar el testigo |
-| Corporate | Home + **una `TPL-SERVICE-01` por servicio/área** + **About** (`TPL-ABOUT-01`) + **Contacto** (`TPL-CONTACT-01`) — más el bloque 6.1 |
+| Ecommerce | Home + **Shop/Catálogo** (`TPL-SHOP-01`) + **Ficha de producto** (`TPL-PDP-01..05`, ver 6.4) + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1. Carrito (`TPL-CART-01`) y Checkout (`TPL-CHECKOUT-01`) existen como arquetipo de LAYOUT, pero quien los monta es `woocommerce`: no entran en este set, se citan al pasar el testigo |
+| Corporate | Home + **una `TPL-SERVICE-01` por servicio/área** + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1 |
 
 Los `TPL-C-06..12` publican su unidad de contenido **en la propia home** (la carta, el stock, la
 tarifa, los tratamientos, el plan, el triaje). No arrastran páginas de servicio por defecto: si la
@@ -229,13 +229,59 @@ home no lleva `COMP-SERVICES`, no hay grid que enlace a ninguna parte. Dos excep
 piden cuando el negocio las tiene: `TPL-C-09` puede querer una `TPL-SERVICE-01` por línea de
 trabajo, y `TPL-C-10` una por tratamiento con búsqueda propia. Se pregunta; no se asume.
 
-### 6.4 Herencia de default (coherencia con la home)
+### 6.4 Qué arquetipo le toca a cada página interna
 
-- Home TPL-E-01 Visual Brand / TPL-E-03 Brand Story → **PDP TPL-PDP-02 Editorial**, **Shop TPL-SHOP-02 Full-width**.
-- Home TPL-E-02 Catalog / TPL-E-04 Categories → **PDP TPL-PDP-01 Standard**, **Shop TPL-SHOP-01 Sidebar**.
+Aquí había una línea que decía que Nosotros y Contacto **«no tienen variantes»**, y con un solo
+arquetipo cada una todos los sitios del catálogo se entregaban con la misma página de Nosotros y la
+misma de Contacto. Las páginas internas se eligen igual que la home: por lo que el visitante
+necesita decidir, no por el sector ni por el gusto.
+
+**Ficha de producto — se elige por la DUDA que bloquea la compra.**
+
+| La duda que queda | Arquetipo | Home que suele acompañarla |
+|-------------------|-----------|----------------------------|
+| Cuál y cuántos: el producto está definido | `TPL-PDP-01` Estándar | `TPL-E-01`…`TPL-E-05` |
+| Si le va a caber | `TPL-PDP-02` Talla y ajuste | `TPL-E-06` |
+| Cuánto pesa, de dónde viene y qué día llega | `TPL-PDP-03` Lote y peso | `TPL-E-07` |
+| A qué se compromete y cómo se sale | `TPL-PDP-04` Suscripción | `TPL-E-08` |
+| Si se puede fabricar lo suyo y qué cuesta | `TPL-PDP-05` A medida | `TPL-E-09` |
+
+La frontera se comprueba con una pregunta: **¿el precio se sabe antes de que el cliente hable?**
+Sí y la pieza es siempre igual → `TPL-PDP-01`. Sí pero por kilo → `TPL-PDP-03`. Sí pero es una
+cuota → `TPL-PDP-04`. No → `TPL-PDP-05`. Y si el precio se sabe pero la talla no, → `TPL-PDP-02`.
+
+`TPL-E-01` Visual Brand y `TPL-E-03` Brand Story **no arrastran un arquetipo propio**: usan
+`TPL-PDP-01` con `TGL-PDP-LAYOUT: editorial`. Hubo un `TPL-PDP-02 Editorial` y medido compartía
+siete de sus ocho secciones con la estándar — el registro visual lo mueven las anclas y ese toggle,
+no un esqueleto duplicado. Por lo mismo se retiró `TPL-SHOP-02 Full-width`: era
+`TGL-SHOP-FILTERS: topbar` con nombre de arquetipo.
+
+**Nosotros — se elige por lo que da confianza en ese negocio.**
+
+| Lo que convence | Arquetipo | Ejemplos |
+|-----------------|-----------|----------|
+| La trayectoria: años, clientes, equipo | `TPL-ABOUT-01` La empresa | Asesoría, distribuidora, agencia |
+| El oficio: cómo se hace y qué ha salido | `TPL-ABOUT-02` El oficio | Taller, cantería, imprenta, laboratorio |
+| El sitio: la sala, el horario, quién atiende | `TPL-ABOUT-03` La casa | Restaurante, clínica, hotel, tienda |
+
+**Contacto — se elige por lo que el visitante va a HACER.**
+
+| Lo que quiere hacer | Arquetipo |
+|---------------------|-----------|
+| Escribir una consulta que hay que estudiar antes de contestar | `TPL-CONTACT-01` Consulta |
+| Llamar, ir o reservar | `TPL-CONTACT-02` Puerta abierta |
+
+La señal: **si la respuesta útil se da en el mismo minuto, no es una consulta, es una llamada** — y
+entonces el formulario compite con el teléfono y pierde.
+
+**Defaults coherentes con la home.** Se proponen; el usuario puede cambiar cualquiera.
+
+- `TPL-C-05`, `TPL-C-06`, `TPL-C-10`, `TPL-C-12` (negocio con puerta) → `TPL-ABOUT-03` + `TPL-CONTACT-02`.
+- `TPL-C-09`, `TPL-E-02` con taller propio → `TPL-ABOUT-02` + `TPL-CONTACT-01`.
+- El resto → `TPL-ABOUT-01` + `TPL-CONTACT-01`.
 - Home TPL-C-01 / TPL-C-02 (llevan `COMP-SERVICES`) → **una `TPL-SERVICE-01` por servicio o área**.
   TPL-C-04 es una oferta única y no las necesita; TPL-C-03 enlaza a páginas de proyecto, no de servicio.
-- `TPL-ABOUT-01` y `TPL-CONTACT-01` heredan tokens y tono de la home; no tienen variantes.
+- Todas heredan tokens y tono de la home. Heredar el ASPECTO no es heredar la ESTRUCTURA.
 
 El usuario puede overridear cualquier arquetipo por página. Cada página pasa luego por sus toggles
 y llega a `html-mockup`, que renderiza **el set entero en UN solo Artifact** con navegación

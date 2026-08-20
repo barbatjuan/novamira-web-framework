@@ -12,8 +12,8 @@ optimiza.
 ## 2. Wireframe (top → bottom)
 ```
 COMP-HEADER [fijo]
-Confirmación [fijo · ADN] · H1 "Gracias" + qué pasa ahora + en cuánto tiempo
-Siguiente paso [fijo] · 1 CTA de vuelta al sitio (nunca un callejón sin salida)
+COMP-CONFIRMATION [fijo · ADN] · H1 "Gracias" + qué pasa ahora + en cuánto tiempo
+COMP-CTA [fijo] · 1 salida de vuelta al sitio (nunca un callejón sin salida)
 COMP-CONTACT-DIRECT [toggle TGL-THANKS-DIRECT] · teléfono/WhatsApp para los que no quieren esperar
 COMP-RELATED [toggle TGL-THANKS-RELATED] · productos o servicios relacionados
 COMP-FOOTER [fijo]

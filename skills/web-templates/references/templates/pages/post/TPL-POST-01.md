@@ -10,12 +10,12 @@ da por sabido —quién es este negocio, qué vende, por qué creerle— aquí h
 ## 2. Wireframe (top → bottom)
 ```
 COMP-HEADER [fijo]
-Encabezado [fijo] · H1 + fecha + autor + tiempo de lectura
-Imagen destacada [toggle TGL-POST-HERO]
-Cuerpo [fijo · ADN] · UNA columna, medida de lectura limitada
-Índice lateral [toggle TGL-POST-TOC] · solo en artículos largos y solo en desktop
-CTA contextual [fijo] · qué hacer ahora, ligado al tema del artículo
-Autor [toggle TGL-POST-AUTHOR]
+COMP-PAGE-HEAD [fijo] · H1 + fecha + autor + tiempo de lectura
+COMP-HERO-FULL [toggle TGL-POST-HERO] · imagen destacada
+COMP-LONGFORM [fijo · ADN] · UNA columna, medida de lectura limitada
+COMP-TOC [toggle TGL-POST-TOC] · índice lateral, solo en artículos largos y solo en desktop
+COMP-CTA [fijo] · contextual: qué hacer ahora, ligado al tema del artículo
+COMP-AUTHOR [toggle TGL-POST-AUTHOR]
 COMP-RELATED [toggle TGL-POST-RELATED] · 3 entradas del mismo tema
 COMP-FOOTER [fijo]
 ```

@@ -11,11 +11,11 @@ quién publica y cada cuánto. Si no hay respuesta, no lo montes.
 ## 2. Wireframe (top → bottom)
 ```
 COMP-HEADER [fijo]
-Encabezado [fijo] · H1 + una línea de para quién es
-Destacado [toggle TGL-BLOG-FEATURED] · la entrada más reciente, a lo ancho
-Listado [fijo · ADN] · grid de tarjetas: imagen, título, fecha, extracto, tiempo de lectura
-Filtro por categoría [toggle TGL-BLOG-CATS]
-Paginación [fijo] · nunca scroll infinito sin enlaces reales
+COMP-PAGE-HEAD [fijo] · H1 + una línea de para quién es
+COMP-FEATURED-POST [toggle TGL-BLOG-FEATURED] · la entrada más reciente, a lo ancho
+COMP-POST-GRID [fijo · ADN] · imagen, título, fecha, extracto, tiempo de lectura
+COMP-FILTERS (por categoría) [toggle TGL-BLOG-CATS]
+COMP-PAGINATION [fijo] · nunca scroll infinito sin enlaces reales
 COMP-NEWSLETTER [toggle TGL-NEWSLETTER]
 COMP-FOOTER [fijo]
 ```

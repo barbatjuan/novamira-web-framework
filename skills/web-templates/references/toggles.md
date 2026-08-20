@@ -141,14 +141,23 @@ fijan `TGL-IMAGERY` en `foto` (el lookbook y la historia necesitan campaña real
 
 | ID | Pregunta al cliente | Opciones | Afecta | Aplica en |
 |----|--------------------|----------|--------|-----------|
-| `TGL-PDP-LAYOUT` | ¿Ficha de producto estándar o editorial? | standard / editorial | arquetipo PDP | TPL-PDP-01/02 |
-| `TGL-PDP-STICKY` | ¿Info de compra pegada al scroll (desktop)? | sí / no | COMP-PRODUCT-INFO | TPL-PDP-01/02 |
-| `TGL-RELATED` | ¿Productos relacionados? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-PDP-01/02 |
-| `TGL-SHOP-FILTERS` | ¿Filtros en sidebar, barra superior o sin filtros? | sidebar / topbar / off | COMP-FILTERS/TOOLBAR | TPL-SHOP-01/02 |
-| `TGL-SHOP-SORT` | ¿Control de orden? | sí / no | COMP-TOOLBAR | TPL-SHOP-01/02 |
-| `TGL-ABOUT-STATS` | ¿Cifras/números en Nosotros? | sí / no | COMP-STATS | TPL-ABOUT-01 |
-| `TGL-ABOUT-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-ABOUT-01 |
-| `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 |
+| `TGL-PDP-LAYOUT` | ¿La galería manda o manda la información? | standard / editorial | COMP-GALLERY, aire y miniaturas | TPL-PDP-01 |
+| `TGL-PDP-STICKY` | ¿Info de compra pegada al scroll (desktop)? | sí / no | COMP-PRODUCT-INFO | TPL-PDP-01..03 |
+| `TGL-RELATED` | ¿Productos relacionados? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-PDP-01 (off por ADN en 02, 03, 04) |
+| `TGL-FIT-FINDER` | ¿Traductor de tallas entre marcas? | sí / no | COMP-FIT-FINDER | TPL-E-06, TPL-PDP-02 |
+| `TGL-ORIGIN` | ¿Mapa de origen de la pieza? | sí / no | COMP-ORIGIN-MAP | TPL-E-07, TPL-PDP-03 |
+| `TGL-ONE-OFF` | ¿Se puede comprar suelto además de suscribirse? | sí / no | COMP-PLAN-PICKER | TPL-E-08, TPL-PDP-04 |
+| `TGL-INSTALL` | ¿El plazo incluye instalación? | sí / no | COMP-LEAD-TIME | TPL-E-09, TPL-PDP-05 |
+| `TGL-SHOP-FILTERS` | ¿Filtros en sidebar, barra superior o sin filtros? | sidebar / topbar / off | COMP-FILTERS/TOOLBAR | TPL-SHOP-01 |
+| `TGL-SHOP-SORT` | ¿Control de orden? | sí / no | COMP-TOOLBAR | TPL-SHOP-01 |
+| `TGL-ABOUT-STATS` | ¿Cifras/números en Nosotros? | sí / no | COMP-STATS | TPL-ABOUT-01 (off por ADN en 02) |
+| `TGL-ABOUT-TEAM` | ¿Sección de equipo? | sí / no | COMP-TEAM | TPL-ABOUT-01, TPL-ABOUT-03 (off por ADN en 02) |
+| `TGL-ABOUT-CREDS` | ¿Certificaciones y homologaciones? | sí / no | COMP-CREDENTIALS | TPL-ABOUT-02 |
+| `TGL-BOOKING-TYPE` | ¿Qué se reserva? | mesa / cita / turno / visita | COMP-BOOKING | TPL-ABOUT-03, TPL-CONTACT-02 |
+| `TGL-CONTACT-MAP` | ¿Mapa en Contacto? | sí / no | COMP-MAP-NAP | TPL-CONTACT-01 (fijo en 02) |
+| `TGL-CONTACT-WHO` | ¿Se enseña con quién va a hablar? | sí / no | COMP-TEAM | TPL-CONTACT-01 |
+| `TGL-CONTACT-FORM` | ¿Formulario en Contacto? | sí / no | COMP-CONTACT-FORM | TPL-CONTACT-02 (off por ADN) |
+| `TGL-CONTACT-WHATSAPP` | ¿WhatsApp como canal? | sí / no | COMP-CONTACT-DIRECT | TPL-CONTACT-02 |
 | `TGL-THANKS-DIRECT` | ¿Teléfono/WhatsApp en la página de gracias? | sí / no | COMP-CONTACT-DIRECT | TPL-THANKS-01 |
 | `TGL-CART-VIEW` | ¿Carrito como drawer, página o ambos? | drawer / page / both | side-cart / cart page | TPL-CART-01 |
 | `TGL-CART-CROSSSELL` | ¿"Completá tu compra" en el carrito? | sí / no | COMP-PRODUCT-CAROUSEL | TPL-CART-01 |
