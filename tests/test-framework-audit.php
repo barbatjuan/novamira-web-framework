@@ -438,18 +438,32 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
  *              whole-file half of the scan gets a fixture; a `:root`-only reader misses it
  *   'faces'  — family => src, emitted as `@font-face` ahead of `:root`, exactly as production does
  */
-function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array(), array $band = array() ) {
+function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array(), array $band = array(), $anchor = null ) {
+	/* array( 'PERS-X', 'ground-position' ) — the anchor line plus the one label that has no token of
+	   its own to ride on. Default is the conforming pair; a scenario passes something else to make
+	   RT_MOCKUP_AXES_MISMATCH fire. */
+	$anchor_pid    = ( null === $anchor ) ? 'PERS-INSTITUTIONAL' : $anchor[0];
+	$anchor_ground = ( null === $anchor ) ? 'cool' : $anchor[1];
 	/* One source for every declaration so `:root` and $outside emit byte-identical text — a
 	   fixture whose two copies differed could pass the scoping test for the wrong reason. */
+	/* PERS-INSTITUTIONAL throughout — the same anchor the real corporate-mockup.html stands at, and
+	   the values are its own. The anchor marker and the four position labels ride along because
+	   RT_MOCKUP_ANCHOR_UNDECLARED requires the first and RT_MOCKUP_AXES_MISMATCH reads the rest, and a
+	   base fixture that failed either would charge every scenario in this suite for a row it has
+	   nothing to do with. They are NOT part of $omit: $omit exists to drop a TOKEN and prove
+	   RT_MOCKUP_NO_AXES sees it, and a dropped token with its label still in place is precisely the
+	   shape the two rows separate — one asks whether the axis is declared, the other whether the
+	   declaration is coherent. $anchor overrides the pair for the scenarios that need a mismatch. */
 	$axis_decl = array(
-		'--type-ratio' => '--type-ratio: 1.200;',
+		'--type-ratio' => '--type-ratio: 1.200;  /* scale: contained */',
 		'--display-lh' => '--display-lh: 1.25;',
 		'--fs-h1-max'  => '--fs-h1-max: 48;',
-		'--sp-scale'   => '--sp-scale: 1.0;',
-		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;',
+		'--sp-scale'   => '--sp-scale: 1.0;  /* density: standard */',
+		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;  /* elevation: soft-shadow */',
 		'composition'  => '/* composition: LP-CENTERED */',
 	);
-	$decl = '';
+	$decl = '    /* Anchor: ' . $anchor_pid . " */\n"
+		. '    --c-bg:#F2F5F8; --c-bg-alt:#E8EDF3;  /* ground: ' . $anchor_ground . " */\n";
 	foreach ( $axis_decl as $axis_key => $axis_line ) {
 		if ( ! in_array( $axis_key, $omit, true ) ) {
 			$decl .= '    ' . $axis_line . "\n";
@@ -2844,6 +2858,45 @@ list( $code101f, $out101f ) = fx_run_ok( $audit, $r101f );
 ok( array() === fx_lines_with( $out101f, array( 'RT_MOCKUP_BLEED_NOT_MEDIA' ) ), 'una imagen sangrando no produce fila', $out101f );
 ok( 0 === $code101f, 'y el arbol sale con codigo 0', $code101f );
 fx_rrmdir( $r101f );
+
+/* ---- El re-apuntado a medias: la forma que TODAS las filas anteriores dejaban pasar ----
+ *
+ * Apuntar un proyecto a otra ancla es editar seis cosas —cinco lineas de token y el marcador de
+ * composition— y hasta esta fila el audit quedaba verde con cinco de seis. La sexta se entrega como
+ * un sitio que no es ninguna de las dos anclas. Aqui el fichero DICE PERS-VITRINE y lleva las cinco
+ * posiciones de PERS-INSTITUTIONAL, que es el caso extremo del mismo defecto.
+ */
+echo "--- un mockup cuyas etiquetas de eje no son las de su ancla FALLA ---\n";
+$r131 = fx_tmp_root();
+fx_base( $r131 );
+fx( $r131, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array(), array( 'PERS-VITRINE', 'cool' ) ) );
+list( , $out131 ) = fx_run_ok( $audit, $r131 );
+ok( 'FAIL' === fx_row_level( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'un fichero que dice ser un ancla y lleva las posiciones de otra FALLA', fx_row_level( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ) );
+/* Las dos aserciones que hacen accionable el mensaje. Sin ellas "no coincide con su ancla" manda al
+   lector a comparar un :root contra un catalogo a ojo, que es justamente el diff que nadie hace. */
+ok( array() !== fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', '4 of 5' ) ), 'y dice CUANTOS ejes discrepan: cuatro, porque VITRINE e INSTITUTIONAL comparten elevation', $out131 );
+ok( array() !== fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'composition', 'strict-grid' ) ), 'y nombra cada eje con las DOS posiciones, la que trae y la que deberia', $out131 );
+/* El eje compartido NO se reporta: una coincidencia no es un defecto, y listarla ahogaria los
+   cuatro que si lo son. INSTITUTIONAL y VITRINE estan ambas en `soft-shadow`. */
+ok( array() === fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'elevation `soft-shadow`' ) ), 'y el eje en el que SI coinciden no se reporta', $out131 );
+fx_rrmdir( $r131 );
+
+/* ---- Y el marcador no puede desaparecer para apagar la fila de arriba ----
+ *
+ * Sin esta fila, borrar la linea `Anchor:` dejaba RT_MOCKUP_AXES_MISMATCH sin sujeto y el audit en
+ * verde: la misma forma exacta por la que PERS-VITRINE se entrego fuera de $PERS_IDS. Por eso los
+ * dos assets de arranque estan por NOMBRE y no por glob.
+ */
+echo "--- y un asset de arranque sin marcador de ancla FALLA ---\n";
+$r132 = fx_tmp_root();
+fx_base( $r132 );
+fx( $r132, 'skills/html-mockup/assets/corporate-mockup.html', str_replace( '/* Anchor: PERS-INSTITUTIONAL */', '', fx_mockup() ) );
+list( , $out132 ) = fx_run_ok( $audit, $r132 );
+ok( 'FAIL' === fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'corporate-mockup.html' ) ), 'un asset de arranque que no dice a que ancla apunta FALLA', fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'corporate-mockup.html' ) ) );
+/* Y no se le acusa ADEMAS de incoherencia: sin ancla declarada no hay contra que comparar, y dos
+   filas por un hecho mandan al lector a arreglar dos cosas donde solo hay una. */
+ok( array() === fx_lines_with( $out132, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'y no se le acusa tambien de incoherencia: sin ancla no hay contra que comparar', $out132 );
+fx_rrmdir( $r132 );
 
 echo "--- .hero .frame tampoco: la lista blanca es de MEDIA, no de un literal ---\n";
 $r101g = fx_tmp_root();

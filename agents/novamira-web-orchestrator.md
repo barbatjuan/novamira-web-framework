@@ -228,11 +228,20 @@ nothing to notice.
   (verifier: `qa-review` house-rule row 10 checks the mobile rules are present in the compiled CSS and then measures the three zones.)
 - **Mockups** (`html-mockup`): one Artifact with in-page navigation, header/announcement/footer as
   global elements OUTSIDE the page containers; never split pages across Artifacts with `target="_top"`
-  links. Start from the asset matching the SITE TYPE — `html-mockup/assets/ecommerce-mockup.html`
-  for commerce, `html-mockup/assets/corporate-mockup.html` for corporate. Never start a corporate
-  site from the ecommerce asset: it carries cart, prices and shop pages a corporate site must not
-  inherit. Detail: `html-mockup/references/mockup-guide.md`.
+  links. Detail: `html-mockup/references/mockup-guide.md`.
+  (no verifier: nothing inspects a published Artifact's page switching; a mockup split across two Artifacts only shows up when the user clicks a dead link.)
+- **Site type picks the mockup CHASSIS** — `html-mockup/assets/ecommerce-mockup.html` for commerce,
+  `corporate-mockup.html` for corporate. Chassis means which pages exist and whether there is a
+  cart. Never start a corporate site from the ecommerce asset: it carries cart, prices and shop
+  pages a corporate site must not inherit.
   (no verifier: nothing checks which asset a mockup started from; a corporate site built on the commerce one only shows up when a human opens it.)
+- **The ANCHOR picks the look, and it is a second decision.** Re-point the `AXIS POSITIONS` block
+  at the anchor `ux-design-system` resolved — five token lines and the `Anchor:` marker, together.
+  Each asset ships pointed at one only so it renders. While that line read `Default anchor` and
+  this step did not exist, every corporate project shipped `PERS-INSTITUTIONAL` and every commerce
+  one `PERS-MATTER` — not chosen, inherited — and those two are the quietest of the four assets in
+  the repo: 48px and 64px h1 caps against 88 and 120, and the only two at `--sp-scale: 1.0`.
+  (verifier: `RT_MOCKUP_AXES_MISMATCH` FAILs a starting asset whose five axis labels are not the ones its declared anchor holds, naming each axis and both positions, so a re-point that edits five of the six things cannot land.)
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.

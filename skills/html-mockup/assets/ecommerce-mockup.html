@@ -51,7 +51,14 @@
        Every value COPIED from web-templates/references/design-system.md § "Perceptual axes — token
        values". Never type a number here and never re-derive one: these five lines are the whole
        visual identity, and a hand-picked value is how every client site ends up looking the same.
-       Default anchor PERS-MATTER; see the header comment. */
+       Anchor: PERS-MATTER — AND THIS FILE SHIPS POINTED AT IT ONLY SO IT RENDERS. It is not the
+       anchor for your project; the project's anchor comes out of the ux-design-system dialogue,
+       and re-pointing these five lines at it is a STEP, not an option. Site type picks the
+       chassis below — which pages exist, cart or no cart — and the anchor picks how it looks.
+       They are two decisions, and while this line read "Default anchor" they were one: every
+       ecommerce project shipped on PERS-MATTER because nobody ever chose it.
+       Re-point ALL FIVE and the `Anchor:` line together — RT_MOCKUP_AXES_MISMATCH FAILs on a
+       file whose axis labels are not the ones its declared anchor holds. */
     --type-ratio: 1.333;  --display-lh: 1.10;  --fs-h1-max: 64;   /* scale: classic */
     --sp-scale: 1.0;                                              /* density: standard */
     --c-bg:#FFF3E3; --c-bg-alt:#F7E8D4; --c-text:#241C14;         /* ground: warm (15.3:1) */

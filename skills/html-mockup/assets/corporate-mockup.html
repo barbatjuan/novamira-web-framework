@@ -49,7 +49,14 @@
        Every value COPIED from web-templates/references/design-system.md § "Perceptual axes — token
        values". Never type a number here and never re-derive one: these five lines are the whole
        visual identity, and a hand-picked value is how every client site ends up looking the same.
-       Default anchor PERS-INSTITUTIONAL; see the header comment. */
+       Anchor: PERS-INSTITUTIONAL — AND THIS FILE SHIPS POINTED AT IT ONLY SO IT RENDERS. It is not the
+       anchor for your project; the project's anchor comes out of the ux-design-system dialogue,
+       and re-pointing these five lines at it is a STEP, not an option. Site type picks the
+       chassis below — which pages exist, cart or no cart — and the anchor picks how it looks.
+       They are two decisions, and while this line read "Default anchor" they were one: every
+       corporate project shipped on PERS-INSTITUTIONAL because nobody ever chose it.
+       Re-point ALL FIVE and the `Anchor:` line together — RT_MOCKUP_AXES_MISMATCH FAILs on a
+       file whose axis labels are not the ones its declared anchor holds. */
     --type-ratio: 1.200;  --display-lh: 1.25;  --fs-h1-max: 48;   /* scale: contained */
     --sp-scale: 1.0;                                              /* density: standard */
     --c-bg:#F2F5F8; --c-bg-alt:#E8EDF3; --c-text:#141C24;         /* ground: cool (15.7:1) */

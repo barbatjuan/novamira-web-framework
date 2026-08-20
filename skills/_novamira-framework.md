@@ -106,8 +106,10 @@ paste code inline. What exists:
 - `woocommerce/assets/es-shop-template.example.php`,
   `woocommerce/assets/es-product-single.example.php`.
 - `html-mockup/assets/ecommerce-mockup.html` and `html-mockup/assets/corporate-mockup.html` —
-  the brand-neutral reference mockups; the orchestrator mandates starting from the one matching
-  the SITE TYPE (copy it, swap the tokens). Never start a corporate site from the ecommerce one.
+  the brand-neutral reference CHASSIS; the orchestrator mandates starting from the one matching
+  the SITE TYPE. Never start a corporate site from the ecommerce one. Copying is half the step:
+  each ships pointed at one anchor so it renders, and the `AXIS POSITIONS` block must then be
+  re-pointed at the anchor the dialogue resolved (`RT_MOCKUP_AXES_MISMATCH` gates it).
 - `divi-core` has no `assets/` yet.
 
 ## Extending per project

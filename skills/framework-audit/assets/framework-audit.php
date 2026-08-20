@@ -104,6 +104,8 @@ const ROW_TYPES = array(
 	'RT_PROOF_NOT_DISTINCT'      => 'FAIL  — the two proof mockups do not differ on enough axes',
 	'RT_PROOF_COPY_DIFFERS'      => 'FAIL  — the two proof mockups do not render the same copy',
 	'RT_MOCKUP_NO_AXES'          => 'FAIL  — an html-mockup asset declares no perceptual-axis tokens',
+	'RT_MOCKUP_ANCHOR_UNDECLARED' => 'FAIL  — a starting or proof mockup does not say which anchor it is pointed at',
+	'RT_MOCKUP_AXES_MISMATCH'    => 'FAIL  — a mockup\'s axis labels are not the ones its declared anchor holds',
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_MOCKUP_BLEED_FIXED_BAND' => 'FAIL  — a mockup bleeds to `full-end` but pins --content-width at a fixed length, leaving the gutter beside the bleed unbounded',
 	'RT_MOCKUP_BLEED_NOT_MEDIA'  => 'FAIL  — a mockup sends something other than media to the viewport glass: a card, a run of copy or, worst, a form control',
@@ -1878,6 +1880,89 @@ foreach ( $mockup_assets as $mockup_path ) {
 			'assets/' . $mockup_name . ' does not declare ' . implode( ', ', $mockup_missing )
 				. ' in its :root — a mockup that cannot express an axis silently reverts every project that starts from it to one look'
 		);
+	}
+
+	/* ---- RT_MOCKUP_ANCHOR_UNDECLARED / RT_MOCKUP_AXES_MISMATCH ----
+	 *
+	 * RT_MOCKUP_NO_AXES above asks whether the five axes are DECLARED. This pair asks whether they
+	 * are declared COHERENTLY -- that a file naming PERS-INSTITUTIONAL actually carries the positions
+	 * PERS-INSTITUTIONAL holds, rather than four of them and one left over from whatever it was
+	 * re-pointed away from.
+	 *
+	 * THE DEFECT THIS EXISTS FOR IS THE HALF-DONE RE-POINT, and it is the likely one. The block is
+	 * five token lines plus a composition marker, so re-pointing a project to a new anchor means
+	 * editing six things, and every row that existed before this one stayed green on five out of six.
+	 * The block's own comment has said `a hand-picked value is how every client site ends up looking
+	 * the same` since the axes landed, and nothing read it: writing the explanation is not installing
+	 * the gate.
+	 *
+	 * WHAT IT DOES NOT CHECK, said plainly: the LABEL, not the value. A `scale: contained` marker
+	 * beside a hand-typed `--fs-h1-max: 53` still passes, because the label agrees with the anchor.
+	 * Value-level agreement belongs to design-system.md's token table and is a different row. This one
+	 * catches the axis that was never re-pointed AT ALL, which is the one that survives a re-point
+	 * because nobody diffs a comment.
+	 *
+	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The four
+	 * named files must DECLARE an anchor -- a missing declaration there is the file going quiet, and a
+	 * glob alone would let deleting the marker switch the check off, which is exactly how PERS-VITRINE
+	 * shipped outside $PERS_IDS. Every OTHER asset the walk finds is checked only IF it declares one,
+	 * because assets/gallery/index.html renders every anchor at once and belongs to no single one.
+	 */
+	/* THE TWO STARTING ASSETS, and only those. They are the files a real project is copied from and
+	   therefore the only ones anybody ever RE-POINTS, which is the act this pair exists to police. The
+	   two proof-*-mockup.html are fixed by contract — their whole job is to stand at two named anchors
+	   over one copy set — and RT_PROOF_NOT_DISTINCT already measures them against EACH OTHER on all
+	   five axes. They still declare `Anchor:` and are still checked below, because the glob checks
+	   whatever declares one; they are simply not required to, since a demand nothing would ever
+	   violate is a row that only ever fires on fixtures. */
+	$anchored_required = array(
+		'corporate-mockup.html',
+		'ecommerce-mockup.html',
+	);
+	$mockup_declares = preg_match( '/Anchor:\s*(PERS-[A-Z-]+)/', $mockup_root, $mockup_anm );
+	if ( ! $mockup_declares ) {
+		if ( in_array( $mockup_name, $anchored_required, true ) ) {
+			add( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' does not say which anchor it is pointed at — without `Anchor: PERS-*` in its :root nothing can check that its five axis positions belong together' );
+		}
+	} elseif ( ! isset( $axes_of ) ) {
+		/* No catalog at all is RT_PERS_CATALOG_MISSING's row, already FAILing above. Reporting the
+		   same absence a second time here would send the reader to the wrong file. */
+		$mockup_declares = 0;
+	} elseif ( ! isset( $axes_of[ $mockup_anm[1] ] ) ) {
+		add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' is pointed at "' . $mockup_anm[1] . '", which design-personalities.md does not define as a valid anchor' );
+	} else {
+		$mockup_pid    = $mockup_anm[1];
+		$mockup_labels = array();
+		/* FIRST occurrence per axis wins: proof-editorial-mockup.html repeats its `elevation` marker
+		   further down with prose after it, and the one that counts is the one in the axis block. */
+		if ( preg_match_all( '#/\*\s*(scale|ground|density|composition|elevation)\s*:\s*([A-Za-z0-9-]+)#i', $mockup_root, $mockup_lm, PREG_SET_ORDER ) ) {
+			foreach ( $mockup_lm as $mockup_one ) {
+				$mockup_ax = strtolower( $mockup_one[1] );
+				if ( isset( $mockup_labels[ $mockup_ax ] ) ) {
+					continue;
+				}
+				$mockup_pos = strtolower( $mockup_one[2] );
+				/* composition is the one axis written as a layout pattern rather than a position, because
+				   it has no custom property to carry it: `LP-STRICT-GRID` IS `strict-grid`. */
+				if ( 'composition' === $mockup_ax ) {
+					$mockup_pos = preg_replace( '/^lp-/', '', $mockup_pos );
+				}
+				$mockup_labels[ $mockup_ax ] = $mockup_pos;
+			}
+		}
+		$mockup_wrong = array();
+		foreach ( $PERS_AXES as $mockup_axis => $mockup_ignored ) {
+			$mockup_want = $axes_of[ $mockup_pid ][ $mockup_axis ];
+			$mockup_got  = isset( $mockup_labels[ $mockup_axis ] ) ? $mockup_labels[ $mockup_axis ] : '(none)';
+			if ( $mockup_got !== $mockup_want ) {
+				$mockup_wrong[] = $mockup_axis . ' `' . $mockup_got . '` (' . $mockup_pid . ' holds `' . $mockup_want . '`)';
+			}
+		}
+		if ( array() !== $mockup_wrong ) {
+			/* Naming the axis AND both positions is the whole value: "does not match its anchor" sends
+			   the reader to compare a :root against a catalog by eye, which is the diff nobody does. */
+			add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' says it is ' . $mockup_pid . ' but ' . count( $mockup_wrong ) . ' of 5 axes disagree: ' . implode( '; ', $mockup_wrong ) . ' — a half-finished re-point ships as a site that is neither anchor' );
+		}
 	}
 
 	/* ---- RT_MOCKUP_BLEED_FIXED_BAND ----

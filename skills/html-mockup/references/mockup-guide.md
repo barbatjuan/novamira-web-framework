@@ -372,3 +372,35 @@ chrome --headless=new --disable-gpu --hide-scrollbars --window-size=1440,1200 \
 
 Chrome clamps `--window-size` at about 500px, so 320 and 430 both measure 500 — narrow viewports
 cannot be captured this way.
+
+## Chassis and anchor
+
+**CHASSIS AND ANCHOR ARE TWO DECISIONS, and for a long time they were one.** Site type decides
+the chassis — which pages exist, whether there is a cart, whether prices and a shipping bar
+belong. The anchor decides how the whole thing looks, and it comes out of the `ux-design-system`
+dialogue with the client. Nothing connects the two: a bakery and a law firm can want the same
+anchor, and two law firms can want different ones.
+
+The two starting assets each ship pointed at one anchor **only so they render** — an HTML file
+has to carry values. `corporate-mockup.html` ships at `PERS-INSTITUTIONAL`, `ecommerce-mockup.html`
+at `PERS-MATTER`. Neither is a recommendation.
+
+**Why this needed saying.** Until it did, step 1 read *pick the starting asset by site type* and
+stopped there, and the `:root` comment read *Default anchor* — so every corporate project shipped
+`PERS-INSTITUTIONAL` and every commerce one `PERS-MATTER`, not because anyone chose them but
+because nobody was asked to. Measured against the other assets in the repo, those two are also the
+quietest of the four: h1 caps of 48 and 64 against 88 and 120, type ratios of 1.200 and 1.333
+against 1.500 and 1.618, and `--sp-scale: 1.0` on both — the only two with no density move at all.
+So the default was not merely arbitrary; it was the tamest corner of the system, and every client
+site started there.
+
+**Re-pointing is six edits, and five out of six is the failure mode.** The block holds five token
+lines plus the `composition` marker, which has no custom property of its own to ride on and is
+therefore the one most easily forgotten. `RT_MOCKUP_AXES_MISMATCH` reads the labels against
+`design-personalities.md` and names each axis that disagrees with both positions, so a half-done
+re-point FAILs instead of shipping as a site that is neither anchor.
+
+What that row does NOT check is the VALUE: a `scale: contained` label beside a hand-typed
+`--fs-h1-max: 53` passes, because the label agrees with the anchor. Copy the numbers from
+`design-system.md` § "Perceptual axes — token values" and never derive one — the `:root` comment
+has said so since the axes landed, and this is the half of it that still has no gate.
