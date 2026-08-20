@@ -3651,6 +3651,75 @@ $CONTENT['TPL-E-03']['mtm'] = array(
 	),
 );
 
+/* TPL-PDP-01 sobre TPL-E-04, la tienda organizada por categorías.
+   MISMO ESQUELETO QUE LA DE TPL-E-02 Y ESO ES LA RESPUESTA, no un descuido. La mayoría de las
+   tiendas necesitan la ficha estándar; lo que las distingue es el ancla y el contexto, no un
+   esqueleto propio. Aquí el contexto es la categoría: la miga de pan tiene un nivel más y el
+   cross-sell no es «más vendidos» sino «más de Baño» — en una tienda que se navega por secciones,
+   quien está en una ficha sigue dentro de una sección. */
+$CONTENT['TPL-E-04']['pdp'] = array(
+	'crumbs'  => array( 'Inicio', 'Baño', 'Platos de ducha', 'Plato de ducha en piedra' ),
+	'h1'      => 'Plato de ducha en piedra natural',
+	'price'   => '540 € / 120 × 80',
+	'lede'    => 'Pieza maciza rebajada en una sola pieza, con la pendiente labrada y el sumidero centrado o descentrado. Se corta a la medida del hueco.',
+	'main'    => 'card-detalle',
+	'thumbs'  => array( 'sq-pizarra', 'card-veta', 'sq-marmol' ),
+	'opt_lbl' => 'Acabado',
+	'opts'    => array( 'Apomazado', 'Flameado', 'Cepillado' ),
+	'qty_lbl' => 'Unidades',
+	'cta'     => 'Añadir al carrito',
+	'ship'    => 'Corte a la medida del hueco sin coste · entrega en 10 días',
+	'acc'     => array(
+		array( 'Descripción', 'Pizarra o caliza de 4 cm rebajada a 3 cm en el centro, con pendiente del 2% labrada hacia el sumidero. El acabado flameado es el más antideslizante de los tres y el único que recomendamos con niños en casa.' ),
+		array( 'Instalación', 'Se apoya sobre mortero de nivelación, no sobre patas. Pesa entre 90 y 130 kg según medida, así que suben dos personas: si el acceso tiene escalera estrecha, dilo al pedir y lo despiezamos en dos.' ),
+		array( 'Devoluciones', 'Treinta días en medidas de catálogo. El corte al hueco es a medida y no admite devolución salvo defecto.' ),
+	),
+	'badges'  => array( 'Corte al hueco incluido', 'Muestra física gratuita', 'Sumidero a elegir' ),
+	/* El cross-sell de una tienda por categorías es la categoría, no un carrusel de más vendidos. */
+	'related' => array(
+		'eyebrow' => 'Sigues en Baño',
+		'h2'      => 'Más de esta sección',
+		'cards'   => array(
+			array( 'img' => 'card-veta',    'h3' => 'Encimera de lavabo 100 cm', 'p' => '395 €' ),
+			array( 'img' => 'sq-marmol',    'h3' => 'Frente de bañera a medida', 'p' => '260 €' ),
+			array( 'img' => 'card-mueble',  'h3' => 'Repisa maciza 90 × 20',     'p' => '118 €' ),
+			array( 'img' => 'card-cantero', 'h3' => 'Zócalo de ducha 8 cm',      'p' => '19 €/ml' ),
+		),
+	),
+);
+
+/* TPL-PDP-01 sobre TPL-E-05, la campaña con fecha.
+   ES LA MISMA PIEDRA QUE VENDE TPL-E-02 A 189 €/m², y aquí es un resto de bancada de 1,4 m² a 113.
+   Esa coincidencia no es reciclaje: es la prueba de que las cinco tiendas del catálogo son un solo
+   negocio enseñado bajo arquitecturas distintas, así que una oferta se puede comprobar contra el
+   precio de tabla en vez de ser un número inventado con un porcentaje encima.
+   TPL-PDP-01 § 3 pedía «precio anterior tachado si hay oferta» desde que se escribió y ningún
+   renderizador lo hacía. Lo hace ésta, y con ella llega la fecha: el ADN de este arquetipo es la
+   urgencia CON fecha, y una ficha de campaña que no dice hasta cuándo es una ficha normal con un
+   descuento. */
+$CONTENT['TPL-E-05']['pdp'] = array(
+	'crumbs'    => array( 'Inicio', 'Ofertas', 'Restos de bancada', 'Crema Levante 1,4 m²' ),
+	'h1'        => 'Crema Levante · resto de 1,4 m²',
+	'price'     => '113 €/m²',
+	'price_was' => '189 €/m²',
+	'price_off' => '−40%',
+	'deadline'  => 'Al precio de liquidación hasta el 30 de septiembre, o mientras quede la pieza: es una sola y no se repone.',
+	'lede'      => 'Pieza sobrante de un encargo cerrado, 168 × 84 cm en tabla de 2 cm. Mismo bloque y mismo pulido que el material de catálogo — lo que cambia es que ya está cortada y no espera al bloque.',
+	'main'      => 'sq-marmol',
+	'thumbs'    => array( 'card-veta', 'card-detalle', 'hero-encimera' ),
+	'opt_lbl'   => 'Canto',
+	'opts'      => array( 'Sin cantear', 'Recto pulido', 'Bisel' ),
+	'qty_lbl'   => 'Metros cuadrados (quedan 1,4)',
+	'cta'       => 'Añadir al carrito',
+	'ship'      => 'Sale del almacén en 48 h · el cantado suma 3 días',
+	'acc'       => array(
+		array( 'Qué es un resto de bancada', 'Lo que sobra de una tabla después de despiezar un encargo. Es material de primera con una medida que no elegiste tú, y por eso vale un 40% menos: el descuento paga la restricción, no un defecto.' ),
+		array( 'La medida es la que es', 'Esta pieza mide 168 × 84 y no hay otra igual. Se puede cortar más pequeña, nunca más grande, y una vez cortada no vuelve a stock.' ),
+		array( 'Envíos', 'Palet a península en 48 h laborables desde el almacén. Baleares y Canarias, consultar antes de comprar.' ),
+	),
+	'badges'    => array( 'Pieza única · no se repone', 'Mismo bloque que el catálogo', 'Sale en 48 h' ),
+);
+
 /* TPL-ABOUT-01 «La empresa» sobre TPL-C-02.
    Reutiliza historia, cifras, equipo y testimonios del bloque de la home: es la misma empresa un
    nivel más abajo, no otra. Lo que añade son el encabezado propio, los compromisos —COMP-VALUES,
@@ -5775,6 +5844,16 @@ $css[] = <<<'CSS'
 .pdp-buy h1{margin:0}
 .pdp-price{font-size:var(--fs-h3)}
 .pdp-ship{margin-top:.2rem}
+/* EL PRECIO ANTERIOR Y EL PORCENTAJE, SIN GASTAR EL ACENTO. El descuento no es ninguno de los
+   cuatro roles que design-tokens.md admite para el único color de la página —CTA, icono de acción,
+   enlace, estado activo— y en esta ficha ese color ya lo tiene el botón de comprar. Un porcentaje
+   que grita más que el botón mueve la mirada al sitio equivocado, así que el «−40%» se marca con
+   filete y cifra tabular, igual que las opciones de acabado dos reglas más abajo. */
+.pdp-price .was{color:var(--c-text-muted);font-size:var(--fs-body);margin-left:.35em;
+                text-decoration-thickness:1px}
+.pdp-price .off{font-size:var(--fs-small);font-variant-numeric:tabular-nums;margin-left:.4em;
+                padding:.1em .45em;border:1px solid var(--c-border);vertical-align:middle}
+.pdp-deadline{margin:.1rem 0 0;font-weight:600}
 /* THE BUY BOX IS PLACED ON THE COMPOSITION'S OWN COLUMNS, not on a grid this section invents.
    The first cut redeclared `.pdp .canvas` as a two-column grid and nothing happened, because every
    `[data-comp]` block redefines `.canvas` at 1024 and wins on specificity: the section was fighting
@@ -7825,7 +7904,17 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid, $layout = 'standard' ) {
 		. '</div>'
 		. '<div class="pdp-buy">'
 		. '<h1>' . h( $P['h1'] ) . '</h1>'
-		. '<p class="price pdp-price">' . h( $P['price'] ) . '</p>'
+		/* PRECIO ANTERIOR TACHADO SI HAY OFERTA. TPL-PDP-01 § 3 lo pedía desde que se escribió
+		   y ningún renderizador lo hacía — el arquetipo tenía una línea sin código detrás.
+		   `<s>` y no `text-decoration` a secas: un precio tachado es información, y un lector de
+		   pantalla tiene que poder decir que ese número ya no vale. El porcentaje NO gasta el
+		   acento: no es un CTA, ni un icono de acción, ni un enlace, ni un estado activo, y el
+		   único color de la página ya lo tiene el botón de comprar. */
+		. '<p class="price pdp-price">' . h( $P['price'] )
+			. ( isset( $P['price_was'] ) ? ' <s class="was">' . h( $P['price_was'] ) . '</s>' : '' )
+			. ( isset( $P['price_off'] ) ? ' <span class="off">' . h( $P['price_off'] ) . '</span>' : '' )
+			. '</p>'
+		. ( isset( $P['deadline'] ) ? '<p class="small pdp-deadline">' . h( $P['deadline'] ) . '</p>' : '' )
 		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
 		. '<fieldset class="opts"><legend>' . h( $P['opt_lbl'] ) . '</legend>' . $opts . '</fieldset>'
 		. '<div class="field qty"><label for="' . $uid . '-qty">' . h( $P['qty_lbl'] ) . '</label>'
@@ -7846,8 +7935,13 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid, $layout = 'standard' ) {
 	}
 	$o[] = '</div></div></section>';
 
-	// COMP-PRODUCT-CAROUSEL  [toggle TGL-RELATED] — the home's carousel, because it is one shop
-	$cr  = $C['carousel'];
+	/* COMP-PRODUCT-CAROUSEL  [toggle TGL-RELATED]
+	   POR DEFECTO EL CARRUSEL DE LA HOME, porque es una sola tienda y repetir su selección es lo
+	   que hace que las dos páginas se lean como un sitio. Pero una tienda organizada por
+	   CATEGORÍAS no hace cross-sell con «más vendidos»: quien está en una ficha sigue dentro de
+	   una sección, y lo que le sirve es el resto de esa sección. Por eso la ficha puede traer su
+	   propio bloque, y sólo lo trae quien tiene un motivo. */
+	$cr  = isset( $P['related'] ) ? $P['related'] : $C['carousel'];
 	$o[] = '<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
@@ -10841,7 +10935,8 @@ $PAGES = array(
 		array( 'key' => 'home', 'label' => 'Landing', 'doc' => 'TPL-C-04' ),
 	),
 	'TPL-E-05' => array(
-		array( 'key' => 'home', 'label' => 'Campaña', 'doc' => 'TPL-E-05' ),
+		array( 'key' => 'home',     'label' => 'Campaña',  'doc' => 'TPL-E-05' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · en oferta' ),
 	),
 	'TPL-C-05' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-05' ),
@@ -10851,7 +10946,8 @@ $PAGES = array(
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · editorial' ),
 	),
 	'TPL-E-04' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-04' ),
+		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-E-04' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · cross-sell de sección' ),
 	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
@@ -10930,6 +11026,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-E-05' === $tpl && 'home' === $page_key ) {
 		return strip_promo( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-E-05' === $tpl && 'producto' === $page_key ) {
+		return page_pdp( $anchor_key, $C, $BRAND, $suid );
+	}
 	if ( 'TPL-C-05' === $tpl && 'home' === $page_key ) {
 		return strip_local( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -10943,6 +11042,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-E-04' === $tpl && 'home' === $page_key ) {
 		return strip_categories( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-04' === $tpl && 'producto' === $page_key ) {
+		return page_pdp( $anchor_key, $C, $BRAND, $suid );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );

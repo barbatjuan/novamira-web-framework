@@ -17,3 +17,8 @@ secrets.*
 
 # Extracto local para revisar una tira suelta; se regenera desde index.html
 .review-*.html
+
+# Scripts de parcheo de un solo uso; nunca son parte del generador
+_p*.php
+_wire*.php
+_ins*.php
