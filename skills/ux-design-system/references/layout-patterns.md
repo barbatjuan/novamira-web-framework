@@ -200,6 +200,16 @@ telling the reader the first two were filler, and if that is true the fix is to 
 the row must read the same whether the reader opened it or it arrived that way. A first row
 styled differently says *this one is special* when what it means is *start here*.
 
+**Two columns on a wide screen, and two is a measure decision.** Splitting text into thirds of a
+1560px canvas leaves about 35 characters a line, which cuts every answer into ribbons; two columns
+land near 60 and read. The list rises to `108ch` because the usual `72ch` limit is the width of ONE
+reading column, not of the block that holds two.
+
+`align-items:start` is not cosmetic here. Without it, opening one row stretches its neighbour to
+the same height and a gap appears beside the open answer — the defect a grid accordion ships with,
+and the reason most people never put one in two columns. And the top rule moves from the list to
+each row: a single rule drawn across two columns belongs to neither.
+
 Native `<details>/<summary>`, never a div with state: no script, works with JS off, and the
 platform already handles keyboard and screen readers. Detail:
 `html-mockup/references/mockup-guide.md` § "Section blueprints".

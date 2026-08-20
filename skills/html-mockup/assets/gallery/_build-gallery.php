@@ -2038,6 +2038,10 @@ $CONTENT = array(
 				array( '¿Qué son las arras y cuánto se entrega?', 'Una señal que reserva el inmueble y fija el plazo, normalmente el 10 %. Si se echa atrás el comprador las pierde; si se echa atrás el vendedor devuelve el doble.' ),
 				array( '¿Pedís la nota simple antes de enseñar?', 'Sí, y la enseñamos en la visita. Si hay una carga, se sabe antes de que usted se ilusione.' ),
 				array( '¿Cobráis algo al comprador?', 'No. Los honorarios los paga quien nos encarga la venta.' ),
+				array( '¿Puedo visitar sin tener la hipoteca aprobada?', 'Sí, y conviene: la visita cuesta una hora y la aprobación tres semanas. Lo que no hacemos es firmar arras sin que el banco haya dado al menos un preacuerdo por escrito.' ),
+				array( '¿Qué pasa si el piso tiene una derrama pendiente?', 'Sale en el acta de la comunidad, que pedimos antes de publicar. Si la hay, se dice en la ficha y se negocia quién la asume — nunca aparece en la notaría.' ),
+				array( '¿Aceptáis ofertas por debajo del precio publicado?', 'Las trasladamos todas, sin filtrar. El precio lo pone el propietario y la decisión también; nuestro trabajo es que la reciba con los comparables de su calle delante.' ),
+				array( '¿Cuánto tarda desde las arras hasta la firma?', 'Entre cuatro y ocho semanas si hay hipoteca, y dos o tres si no la hay. El plazo lo fijan las arras y lo marca el banco, no nosotros.' ),
 			),
 		),
 		'valuation' => array(
@@ -4876,6 +4880,21 @@ $css[] = <<<'CSS'
    the row reads the same whether the reader opened it or it arrived that way. A first row
    styled differently would say "this one is special" when what it means is "start here". */
 .faqlist{border-top:1px solid var(--c-border);max-width:72ch}
+/* DOS COLUMNAS EN PANTALLA ANCHA, y la medida es la razón de que sean dos y no tres: repartir
+   texto en tercios de un canvas de 1560 deja ~35 caracteres por línea. La lista sube a 108ch
+   porque el límite de 72 es el de UNA columna de lectura, no el del bloque entero.
+   `align-items:start` NO es cosmético: sin él, abrir una fila estira su vecina hasta la misma
+   altura y aparece un hueco al lado de la respuesta abierta — que es el defecto que un acordeón
+   en rejilla trae de serie y por el que casi nadie lo pone en dos columnas.
+   `border-top` se apaga y pasa a cada fila: un filete superior sobre dos columnas dibuja una
+   línea que no corresponde a ninguna de las dos. */
+@media(min-width:1024px){
+  .faqlist[style*="--cols:2"], .qas[style*="--cols:2"]{display:grid;align-items:start;
+    grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--sp-xl);
+    max-width:108ch;border-top:0}
+  .faqlist[style*="--cols:2"] > details, .qas[style*="--cols:2"] > details{
+    border-top:1px solid var(--c-border)}
+}
 .faqlist > details{border-bottom:1px solid var(--c-border)}
 .faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
   font-weight:600;color:var(--c-text)}
@@ -8581,7 +8600,12 @@ function process_block_html( $pr, $extra = '' ) {
  * answer — how long, what tone — so the reader can judge the rest without clicking.
  */
 function disclosure_list_html( $items, $wrap_cls = 'faqlist' ) {
-	$o = '<div class="' . $wrap_cls . '">';
+	/* TOPE DE DOS, y no el tres de las rejillas de tarjetas: aquí lo que se reparte es TEXTO, y una
+	   columna de un tercio de 1560px deja una medida de ~35 caracteres que parte cada respuesta en
+	   tiras. Con dos, cada columna ronda los 60 y se lee. El resto de la aritmética es la misma que
+	   grid_cols() aplica en todas partes — nunca más columnas que filas, última al menos medio
+	   llena — así que cuatro preguntas dan 2+2 y tres dan 2+1. */
+	$o = '<div class="' . $wrap_cls . '"' . cols_attr( count( $items ), 2 ) . '>';
 	foreach ( array_values( $items ) as $i => $it ) {
 		$o .= '<details' . ( 0 === $i ? ' open' : '' ) . '><summary>' . h( $it[0] ) . '</summary>'
 			. '<p>' . h( $it[1] ) . '</p></details>';
