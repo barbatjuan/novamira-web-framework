@@ -4124,7 +4124,12 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
         1920 against 2560, both above any knee a 1140 floor can produce, and MUTATION CONFIRMS it
         still fails every historical defect: fixed 1140px scores +7.42pp, the rejected
         `clamp(1140,+0.5,1600)` scores +6.77pp, 85vw scores 0.00pp, 68vw scores 0.00pp. ── */
-  --content-width:clamp(1140px, 68vw, 100vw);
+  /* UN TECHO, Y NO 100vw. Sin él el canvas vale 1740px a 2560 y 2611px a 3840: una banda que crece
+     sin límite estira cada rejilla, cada medida de línea y cada foto hasta tamaños que nadie
+     diseñó. 1560 es el punto donde una rejilla de tres deja tarjetas de ~500px — grandes pero
+     legibles — y una línea de texto sigue por debajo de los 90 caracteres. Por debajo de ~2294px
+     el clamp no llega al techo, así que ninguna pantalla normal cambia. */
+  --content-width:clamp(1140px, 68vw, 1560px);
   --pad-x-mobile:20px; --pad-x-tablet:32px;
   --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
   --btn-padding:.875rem 1.75rem; --btn-border-width:1.5px;
@@ -6026,7 +6031,9 @@ $css[] = <<<'CSS'
    cards, and a sentence cannot be scanned in parallel. `margin-top:auto` on the fact row, so six
    cards whose descriptions wrap to different heights still align their numbers. */
 .treatcards{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))}
+  grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+@media(max-width:900px){.treatcards{grid-template-columns:repeat(min(var(--cols,1),2),minmax(0,1fr))}}
+@media(max-width:599px){.treatcards{grid-template-columns:1fr}}
 .trcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
   border-radius:var(--radius-card);box-shadow:var(--elev-rest)}
 .trcard .frame{aspect-ratio:16/10;border-radius:0}
@@ -6056,15 +6063,18 @@ $css[] = <<<'CSS'
 .bashot figcaption b{font-family:var(--font-primary);font-size:1.0625rem}
 .bashot figcaption span{color:var(--c-text-muted);font-size:.875rem}
 
-/* AUTO-FIT Y NO AUTO-FILL, y la diferencia es un hueco a la derecha del último retrato.
-   `auto-fill` crea todas las columnas que quepan en el canvas EXISTAN O NO elementos para
-   llenarlas: con tres personas en un ancho donde caben cuatro, la cuarta columna se reserva
-   vacía y las tres tarjetas se quedan encogidas contra el borde izquierdo. `auto-fit` colapsa
-   las columnas vacías y reparte el ancho entre las que hay.
-   Es la misma forma que layout-patterns.md § "Grid track counts" describe: un contenedor que
-   decide su tamaño mirando el hueco disponible en vez de a sus hermanos. */
+/* REJILLA FIJA PARA UN CONJUNTO FIJO, que es la regla de la casa y la que estas rejillas no
+   seguían. `auto-fill` reservaba una columna para elementos que no existen — tres retratos en un
+   ancho donde caben cuatro dejaban la cuarta vacía. `auto-fit` arregló eso y dejó el defecto
+   siguiente: el navegador sigue eligiendo CUÁNTAS columnas según el ancho, así que un conjunto de
+   seis salía 5+1 a 2560 y 3+3 en un portátil, sin que nadie eligiera ninguno de los dos.
+   Ahora el número lo decide grid_cols() en el generador, que es el único sitio que sabe cuántos
+   elementos hay, y llega como `--cols`. El fallback `1` no es decorativo: si el atributo faltara,
+   una columna es el único valor que no puede dejar hueco ni fila coja. */
 .medlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))}
+  grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+@media(max-width:900px){.medlist{grid-template-columns:repeat(min(var(--cols,1),2),minmax(0,1fr))}}
+@media(max-width:599px){.medlist{grid-template-columns:1fr}}
 .medico .frame{aspect-ratio:1/1;border-radius:var(--radius-card);overflow:hidden}
 .medico .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .medbody{display:grid;gap:.1rem;margin-top:var(--sp-s)}
@@ -6188,7 +6198,9 @@ $css[] = <<<'CSS'
    wrapped to, and a row of cards whose prices sit at four different heights reads as broken. The
    price and the quota are one pair and they travel together. */
 .stockgrid{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
+  grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+@media(max-width:900px){.stockgrid{grid-template-columns:repeat(min(var(--cols,1),2),minmax(0,1fr))}}
+@media(max-width:599px){.stockgrid{grid-template-columns:1fr}}
 .vcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
   border-radius:var(--radius-card);box-shadow:var(--elev-rest);
   transition:box-shadow var(--dur-lift) var(--ease)}
@@ -8040,7 +8052,7 @@ function gallery_html( $g ) {
 function treatment_cards_html( $tr ) {
 	$o = '<section class="sec treatments grid-sec" aria-label="' . h( $tr['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $tr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $tr['h2'] ) . '</h2></div><ul class="treatcards">';
+		. '<h2>' . h( $tr['h2'] ) . '</h2></div><ul class="treatcards"' . cols_attr( count( $tr['items'] ) ) . '>';
 	foreach ( $tr['items'] as $t ) {
 		if ( 4 !== count( $t['facts'] ) ) {
 			fail( "the treatment `{$t['h3']}` carries " . count( $t['facts'] ) . ' facts and the archetype'
@@ -8087,7 +8099,7 @@ function before_after_html( $cs, $extra = '' ) {
 function med_team_html( $tm, $extra = '' ) {
 	$o = '<section class="sec medteam grid-sec' . $extra . '" aria-label="' . h( $tm['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist">';
+		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist"' . cols_attr( count( $tm['items'] ) ) . '>';
 	foreach ( $tm['items'] as $m ) {
 		$mi  = img( $m['img'] );
 		$o  .= '<li class="medico"><figure class="frame"><img data-img="' . h( $mi['slug'] ) . '"'
@@ -8350,7 +8362,7 @@ function search_filters_html( $hero, $sf, $uid ) {
 function stock_grid_html( $st ) {
 	$o = '<section class="sec stock grid-sec bg-alt" aria-label="' . h( $st['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $st['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $st['h2'] ) . '</h2></div><ul class="stockgrid">';
+		. '<h2>' . h( $st['h2'] ) . '</h2></div><ul class="stockgrid"' . cols_attr( count( $st['items'] ) ) . '>';
 	foreach ( $st['items'] as $v ) {
 		$vi  = img( $v['img'] );
 		$o  .= '<li class="vcard"><figure class="frame"><img data-img="' . h( $vi['slug'] ) . '"'
@@ -8662,7 +8674,7 @@ function search_hero_html( $hero, $sf, $uid ) {
 function agent_list_html( $tm, $extra = '' ) {
 	$o = '<section class="sec medteam grid-sec' . $extra . '" aria-label="' . h( $tm['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist">';
+		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist"' . cols_attr( count( $tm['items'] ) ) . '>';
 	foreach ( $tm['items'] as $m ) {
 		$mi  = isset( $m['img'] ) ? img( $m['img'] ) : null;
 		$o  .= '<li class="medico pcard">'
@@ -8677,6 +8689,46 @@ function agent_list_html( $tm, $extra = '' ) {
 	return $o . '</ul></div></section>';
 }
 /**
+ * HOW MANY COLUMNS A CLOSED SET GETS, decided here because here is the only place that knows how
+ * many items there are.
+ *
+ * "Conjunto fijo → rejilla fija" is the framework's own rule and `auto-fit` is the opposite of it:
+ * it lets the BROWSER pick the track count from the width available, so a set of six renders as
+ * five-and-one on a 2560 screen and as three-and-three on a laptop, and nobody chose either.
+ * `auto-fill` was worse — it reserved a column for items that do not exist — and swapping it for
+ * `auto-fit` fixed the empty track while leaving the ragged last row, which is the defect the
+ * reader saw next.
+ *
+ * THE RULE: never more columns than items — that is the empty-track bug — and among the rest take
+ * the WIDEST layout whose last row is at least half full. Six with a cap of three gives 3+3, five
+ * gives 3+2, four gives 2+2, three gives one clean row, two gives two. Seven drops to 2 because
+ * 3 would leave a single orphan.
+ *
+ * The half-full floor is the whole rule and the first draft did not have it: scoring purely on
+ * "last row exact" made FIVE items render as five stacked rows of one, because 1 is the only
+ * count that divides 5. An orphan is ugly; a single column of five cards is worse.
+ *
+ * The cap exists because a row can be full and still be wrong: six cards across a 1740px canvas
+ * are 270px wide with a 200px photograph, which is a contact sheet and not a listing.
+ */
+function grid_cols( $count, $cap = 3 ) {
+	$count = max( 1, (int) $count );
+	$cap   = max( 1, min( (int) $cap, $count ) );
+	/* Downward, so the FIRST acceptable count is the widest one. */
+	for ( $c = $cap; $c >= 2; $c-- ) {
+		$rest = $count % $c;
+		if ( 0 === $rest || $rest >= (int) ceil( $c / 2 ) ) {
+			return $c;
+		}
+	}
+	return 1;
+}
+
+/** The inline custom property the grid CSS reads. One place, so the attribute cannot drift. */
+function cols_attr( $count, $cap = 3 ) {
+	return ' style="--cols:' . grid_cols( $count, $cap ) . '"';
+}
+/**
  * COMP-PROPERTY-GRID · TPL-C-13.
  *
  * THE SIX FACTS ARE VISIBLE WITHOUT OPENING ANYTHING, because that is what a listing is for: the
@@ -8689,7 +8741,7 @@ function agent_list_html( $tm, $extra = '' ) {
 function property_grid_html( $pg ) {
 	$o = '<section class="sec stock grid-sec bg-alt" aria-label="' . h( $pg['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $pg['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $pg['h2'] ) . '</h2></div><ul class="stockgrid">';
+		. '<h2>' . h( $pg['h2'] ) . '</h2></div><ul class="stockgrid"' . cols_attr( count( $pg['items'] ) ) . '>';
 	foreach ( $pg['items'] as $p ) {
 		$pi  = isset( $p['img'] ) ? img( $p['img'] ) : null;
 		$o  .= '<li class="vcard pcard">'

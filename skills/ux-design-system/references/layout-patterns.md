@@ -144,7 +144,8 @@ weight instead.
 
 ## Grid track counts
 
-**`auto-fit`, never `auto-fill`, unless the reason is written next to it.**
+**A closed set gets a FIXED column count, decided by whoever knows how many items there are.**
+`auto-fill` and `auto-fit` both hand that decision to the browser, and neither should have it.
 
 The two look identical in a stylesheet and differ in one thing: `auto-fill` creates every column
 that fits the container **whether or not there is an element for it**, and `auto-fit` collapses
@@ -155,6 +156,26 @@ of the section empty — which is the defect a reader circles in red and calls *
 It is the same shape as every other misalignment in this framework: **a container sizing itself
 against the space available instead of against its own siblings.** Chips that wrap, an `auto`
 column in an independent grid, an item with `min-width:auto` eating the gutter — and this one.
+
+**`auto-fit` fixes the empty track and leaves the ragged row.** It collapses the columns nobody
+fills, so the hole goes — but the BROWSER still picks how many tracks fit the width, so a set of
+six renders 5+1 on a 2560 screen and 3+3 on a laptop, and nobody chose either. A last row with one
+orphan in it reads as broken in exactly the way the empty column did.
+
+**So the generator decides**, because it is the only place that knows the count. Two rules and a
+cap: never more columns than items; among the rest take the WIDEST layout whose last row is at
+least half full; never more than three, because a row can be full and still be wrong — six cards
+across a 1560px canvas are 250px wide with a 190px photograph, which is a contact sheet and not a
+listing. Six items give 3+3, five give 3+2, four give 2+2, seven drop to two columns because three
+would leave a single orphan.
+
+The half-full floor is the whole rule. Scoring only on *last row exact* makes FIVE items render as
+five stacked rows of one, since 1 is the only count that divides 5 — and an orphan is ugly where a
+single column of five cards is worse.
+
+**And the canvas needs a ceiling.** `--content-width` capped at `100vw` is a band that grows
+forever: 1740px at 2560, 2611px at 3840. Every grid, every measure and every photograph stretches
+with it into sizes nobody designed. The cap belongs in the token, not in each grid.
 
 `auto-fill` earns its place only where the empty track is the point: a calendar month, a seat
 map, a contact sheet whose grid must not reflow as items are filtered out. None of those are
