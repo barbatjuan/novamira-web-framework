@@ -3463,6 +3463,286 @@ $CONTENT = array(
 	),
 );
 
+// ── EL CONTENIDO DE LAS PÁGINAS INTERNAS ───────────────────────────────────────────────────────
+//
+// Va aparte de `$CONTENT` y no dentro, y es una decisión, no comodidad: `$CONTENT` describe la
+// HOME de cada arquetipo y ya son mil ochocientas líneas. Meter aquí cuatro páginas más por tira lo
+// convierte en un fichero que nadie vuelve a leer entero. Separado, quien busca «qué lleva la
+// página de Nosotros de la piedra» abre un bloque de treinta líneas en vez de bucear en el array
+// de la home.
+//
+// SE REUTILIZA LO QUE YA EXISTE. La página de Nosotros de TPL-C-02 no reescribe su historia, sus
+// cifras, su equipo ni sus testimonios: los toma del bloque de la home. Es lo mismo que ya hace
+// `page_service` con el proceso y el cierre de TPL-C-01, y por la misma razón — reutilizar es lo
+// que hace que dos páginas se lean como UN sitio y no como dos maquetas que comparten carpeta.
+// Aquí sólo va lo que la página interna añade.
+//
+// Y LAS PERSONAS SON LAS MISMAS EN TODAS LAS TIRAS. Ramon Valdés, Aina Serra y Marc Puig salen en
+// la corporativa y en la tienda porque son la misma empresa de piedra enseñada bajo arquitecturas
+// distintas, que es lo que esta galería hace con el contenido: dejarlo fijo para que lo único que
+// cambie sea la estructura. Ponerles otro nombre en cada tira daría a entender que son negocios
+// distintos y haría ilegible justo la comparación.
+
+/* TPL-PDP-01 sobre TPL-E-01, con `TGL-PDP-LAYOUT: editorial`.
+   ES LA MISMA FICHA QUE LA DE TPL-E-02 Y ESE ES EXACTAMENTE EL PUNTO. Hubo un `TPL-PDP-02
+   Editorial` y medido compartía siete de sus ocho secciones con la estándar: no era otra
+   arquitectura, era ésta con la foto más grande. Renderizadas una al lado de la otra —mismo
+   esqueleto, misma tienda, misma piedra— se ve que lo que cambia es el reparto de columnas y el
+   aire, y que eso es un toggle. Si hubiera que mirarlas dos veces para notar la diferencia, la
+   conclusión sería la contraria y también estaría bien saberla. */
+$CONTENT['TPL-E-01']['pdp'] = array(
+	'crumbs'  => array( 'Inicio', 'Encimeras', 'Blanco Macael pulido' ),
+	'h1'      => 'Encimera Blanco Macael',
+	'price'   => '890 € / 3 m lineales',
+	'lede'    => 'Mármol de Macael, blanco de fondo limpio y veta gris muy fina. Canto recto pulido de serie; bisel o media caña sin coste sobre el mismo precio.',
+	'main'    => 'hero-encimera',
+	'thumbs'  => array( 'card-veta', 'sq-marmol', 'card-detalle' ),
+	'opt_lbl' => 'Canto',
+	'opts'    => array( 'Recto', 'Bisel', 'Media caña' ),
+	'qty_lbl' => 'Metros lineales',
+	'cta'     => 'Añadir a la cesta',
+	'ship'    => 'Plantilla en obra incluida · entrega en 12 días laborables',
+	'acc'     => array(
+		array( 'Descripción', 'Tabla de 3 cm sobre bancada de Macael. Poro cerrado y tratamiento antimancha de fábrica, que se renueva cada tres o cuatro años según uso. Apta para cocina, baño y mesa.' ),
+		array( 'Medición y montaje', 'Vamos a tomar plantilla cuando los muebles ya están colocados, no antes: una encimera medida sobre plano y montada sobre muebles reales falla en la esquina. La visita entra en el precio dentro de la provincia.' ),
+		array( 'Cuidados', 'Limpieza con jabón neutro. El mármol es calcáreo: limón, vinagre y descalcificador lo marcan en segundos, y esa marca no sale frotando, se pule.' ),
+	),
+	'badges'  => array( 'Plantilla en obra incluida', 'Muestra física gratuita', 'Garantía de veta continua' ),
+);
+
+/* TPL-ABOUT-02 «El oficio» sobre TPL-E-03.
+   Es la página que la tienda de marca necesitaba y no tenía: su home afirma que extraen y cortan
+   ellos mismos, y esa afirmación pide una página que la enseñe. La prueba son los trabajos y el
+   proceso fotografiado, no una rejilla de retratos ni un contador de años — el ADN del arquetipo
+   apaga `TGL-ABOUT-TEAM` y `TGL-ABOUT-STATS` a propósito: un taller de cuatro personas con cuatro
+   retratos de estudio parece una consultora pequeña. */
+$CONTENT['TPL-E-03']['oficio'] = array(
+	'crumbs'  => array( 'Inicio', 'El taller' ),
+	'hero'    => array(
+		'eyebrow' => 'Alcarràs, Lleida',
+		'h1'      => 'Del bloque a la pieza, sin salir de casa',
+		'lede'    => 'Cuatro personas, una cantera y un taller a doscientos metros de ella. Lo que sale de aquí lo ha tocado alguien cuyo nombre está en esta página.',
+		'img'     => 'hero-taller',
+	),
+	'process' => array(
+		'eyebrow' => 'Cómo se hace',
+		'h2'      => 'Cuatro pasos y dos semanas',
+		'steps'   => array(
+			array( 'Se elige el bloque', 'En la cantera, mirando la veta mojada. Un bloque no se parece al de al lado, así que el material de un encargo grande sale del mismo bloque o no sale.', 'hero-cantera' ),
+			array( 'Se corta la tabla', 'Telar de hilo diamantado, 2 o 3 cm. De aquí salen las tablas que luego se despiezan, y el desperdicio de este paso es el que marca el precio por metro.', 'card-labra' ),
+			array( 'Se labra a mano lo que la máquina no hace', 'Cantos moldurados, encuentros en esquina, molduras de recuperación. Es el paso lento y el único que no se puede encargar fuera.', 'sq-manos' ),
+			array( 'Se pule y se monta', 'Pulido a grano progresivo hasta 3.000 y montaje en obra por los mismos que la cortaron. Quien monta ve el fallo del taller, y eso mejora el taller.', 'hero-encimera' ),
+		),
+	),
+	'gallery' => array(
+		'eyebrow' => 'El sitio y las herramientas',
+		'h2'      => 'Dónde y con qué',
+		'items'   => array( 'card-cantero', 'card-labra', 'sq-pizarra', 'card-patio', 'sq-marmol', 'card-detalle' ),
+	),
+	'figq'    => array(
+		'eyebrow' => 'Quién firma',
+		'quote'   => 'La piedra dice si la has entendido cuando la mojas. Por eso no doy un precio por teléfono: primero veo el bloque.',
+		'sig'     => 'Marc Puig',
+		'role'    => 'Jefe de taller · en la casa desde 2009',
+		'img'     => 'card-cantero',
+	),
+	'cases'   => array(
+		'eyebrow' => 'Trabajos hechos',
+		'h2'      => 'Tres que tenían algo difícil',
+		'items'   => array(
+			array( 'Encimera de 3,20 m en una pieza', 'Subida por una escalera de caracol, sin junta. Se cortó al milímetro con la plantilla puesta y entró con cuatro centímetros de margen.', 'hero-encimera' ),
+			array( 'Patio con sillar recuperado', 'Piedra de derribo de la misma comarca, relabrada cara a cara para que las juntas cerraran. Ochenta y dos piezas, ninguna igual.', 'card-patio' ),
+			array( 'Frente de mueble con veta continua', 'Cinco puertas cortadas seguidas del mismo bloque, de modo que la veta cruza el mueble entero. Si el bloque se acaba, el mueble no se termina.', 'card-mueble' ),
+		),
+	),
+	'creds'   => array(
+		'eyebrow' => 'Verificable',
+		'h2'      => 'Lo que se puede comprobar',
+		'items'   => array(
+			array( 'Cantera propia', 'Explotación inscrita en el registro minero de Lleida, nº 4.118.' ),
+			array( 'Marcado CE', 'Conforme a UNE-EN 1469 para revestimiento y UNE-EN 12057 para plaqueta.' ),
+			array( 'Seguro de responsabilidad', 'Cobertura de 600.000 € en obra, póliza a nombre del taller.' ),
+		),
+	),
+	'cta'     => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Traes una medida o traes una idea?',
+		'lede'    => 'Con la medida sale un presupuesto. Con la idea sale una visita al taller, que suele ser mejor punto de partida.',
+		'cta_1'   => 'Pedir presupuesto',
+		'cta_2'   => 'Ver el catálogo',
+	),
+);
+
+/* TPL-PDP-05 «A medida» sobre TPL-E-03.
+   La misma tienda que la ficha estándar de TPL-E-02 y la editorial de TPL-E-01, con la MISMA
+   fotografía, y sin carrito ni precio. Es el contraste que esta galería no podía enseñar: tres
+   fichas del mismo negocio con la misma piedra, y una termina en presupuesto porque su producto no
+   existe hasta que alguien lo configura. Ahí la diferencia no es el aire ni el tamaño de la foto:
+   es que falta el botón de comprar. */
+$CONTENT['TPL-E-03']['mtm'] = array(
+	'crumbs'  => array( 'Inicio', 'Catálogo', 'Encimera a medida' ),
+	'h1'      => 'Encimera a medida',
+	'lede'    => 'Dinos la medida y el material y devolvemos un presupuesto cerrado en 48 h laborables. Sin precios «desde»: el de tu encimera o ninguno.',
+	'cfg'     => array(
+		'eyebrow' => 'Configurador',
+		'h2'      => 'Cuatro datos y ya tenemos tu pieza',
+		'fields'  => array(
+			array( 'largo', 'Largo (cm)', '320' ),
+			array( 'fondo', 'Fondo (cm)', '62' ),
+		),
+		'opt_lbl' => 'Material',
+		'opts'    => array( 'Blanco Macael', 'Crema Levante', 'Negro Marquina' ),
+		'fin_lbl' => 'Canto',
+		'fins'    => array( 'Recto', 'Bisel', 'Media caña' ),
+		'ext_lbl' => 'Añadidos',
+		'extras'  => array( 'Hueco de fregadero bajo encimera', 'Hueco de placa', 'Copete de 8 cm' ),
+		'note'    => 'No hay precio hasta emitir el presupuesto. Una cifra provisional que luego cambia hace más daño que no dar ninguna.',
+		'cta'     => 'Continuar al presupuesto',
+	),
+	'measure' => array(
+		'eyebrow' => 'Cómo se mide',
+		'h2'      => 'De dónde a dónde',
+		'rows'    => array(
+			array( 'Largo', 'De pared a pared, no de mueble a mueble. Las paredes no son paralelas casi nunca y ese margen se resuelve en el taller, no en la obra.' ),
+			array( 'Fondo', 'Del fondo del mueble al borde delantero, más el vuelo que quieras. Estándar 60 + 2 de vuelo.' ),
+			array( 'Hueco de fregadero', 'Marca y modelo, no las medidas del hueco: la plantilla la da el fabricante y no siempre coincide con el agujero del mueble.' ),
+			array( 'Esquinas', 'Si hay ángulo, hace falta el ángulo real medido, no «noventa grados». Aquí es donde se rompen las encimeras mal medidas.' ),
+		),
+		'note'    => 'Si la obra está en Lleida, Tarragona o Barcelona vamos a tomar plantilla sin coste, y estas cuatro dudas dejan de existir.',
+	),
+	'gallery' => array(
+		'eyebrow' => 'Entregados',
+		'h2'      => 'Con su medida escrita',
+		'items'   => array(
+			array( 'hero-encimera', '320 × 62 · Blanco Macael · canto recto' ),
+			array( 'card-mueble', '5 puertas · veta continua del mismo bloque' ),
+			array( 'card-patio', '82 sillares relabrados · patio de 41 m²' ),
+			array( 'card-cantero', '2 peldaños macizos de 120 · Crema Levante' ),
+		),
+	),
+	'sample'  => array(
+		'eyebrow' => 'Antes de decidir',
+		'h2'      => 'Pide la muestra física',
+		'lede'    => 'Hasta tres muestras de 10 × 10 gratis, en 72 h. El color de una piedra en pantalla no es el color de la piedra, y de algo cortado a tu medida no hay devolución: la muestra es lo que sustituye a esa garantía que aquí no podemos dar.',
+		'cta'     => 'Pedir muestras',
+		'items'   => array( 'sq-marmol', 'card-veta', 'sq-pizarra' ),
+	),
+	'lead'    => array(
+		'eyebrow' => 'Plazo',
+		'h2'      => 'Por fases, con días',
+		'items'   => array(
+			array( 'Plantilla en obra', '3–5 días', 'Desde que se aprueba el presupuesto. Los muebles tienen que estar ya colocados.' ),
+			array( 'Corte y pulido', '6–8 días', 'En taller. Aquí entra el labrado a mano si el canto lo pide.' ),
+			array( 'Montaje', '1 día', 'Los mismos que la cortaron. Se sella y se entrega firmada.' ),
+		),
+		'note'    => 'Entre 10 y 14 días laborables en total. «3 a 4 semanas» sin desglosar no es un plazo, es una excusa por adelantado.',
+	),
+	'quote'   => array(
+		'eyebrow' => 'Presupuesto',
+		'h2'      => 'Cerramos precio en 48 h',
+		'lede'    => 'Arrastramos la configuración que acabas de hacer, así que no hay que repetirla. Sólo falta dónde y cuándo.',
+		'fields'  => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'cp', 'Código postal de la obra', 'text' ),
+		),
+		'msg'     => '¿Cuándo estarán colocados los muebles?',
+		'submit'  => 'Pedir presupuesto',
+	),
+);
+
+/* TPL-ABOUT-01 «La empresa» sobre TPL-C-02.
+   Reutiliza historia, cifras, equipo y testimonios del bloque de la home: es la misma empresa un
+   nivel más abajo, no otra. Lo que añade son el encabezado propio, los compromisos —COMP-VALUES,
+   que la home no lleva— y el cierre. */
+$CONTENT['TPL-C-02']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Desde 1974',
+		'h1'      => 'Tres generaciones cortando la misma piedra',
+		'lede'    => 'Empezamos sirviendo bordillo a los ayuntamientos de la comarca. Seguimos aquí porque el material sale de nuestra cantera y el corte de nuestro taller.',
+		'img'     => 'hero-cantera',
+	),
+	'values' => array(
+		'eyebrow' => 'Compromisos',
+		'h2'      => 'Cuatro cosas que sí ponemos por escrito',
+		'items'   => array(
+			array( 'Presupuesto en 48 h', 'Laborables, y cerrado. Si no llega a tiempo, el retraso se descuenta.' ),
+			array( 'Una sola veta por encargo', 'El material de un pedido sale del mismo bloque, o avisamos antes de cortar.' ),
+			array( 'Quien mide, monta', 'La misma persona toma la plantilla y coloca la pieza. No hay a quién echarle la culpa.' ),
+			array( 'Peritaje en 48 h', 'Si algo llega mal vamos a verlo en dos días. Sin fotos por correo.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Hablamos de un encargo concreto?',
+		'lede'    => 'Con una medida y un material sale un presupuesto. Sin ellos, sale una visita al taller.',
+		'cta_1'   => 'Pedir presupuesto',
+		'cta_2'   => 'Ver trabajos',
+	),
+);
+
+/* TPL-CONTACT-01 «Consulta» sobre TPL-C-01.
+   Las dos secciones que casi ninguna página de contacto tiene: qué pasa después de darle a enviar,
+   y con quién se va a hablar. Un formulario es una caja negra —se escribe, se pulsa y no se sabe si
+   llegó ni quién lo lee— y esa incertidumbre es la que empuja a llamar a quien prefería escribir. */
+$CONTENT['TPL-C-01']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Cuéntanos el encargo',
+		'lede'    => 'Respondemos consultas de obra, medición y presupuesto. Si es urgente, el teléfono está aquí al lado y lo coge una persona.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntanos el encargo',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Cuatro campos y ninguno más. Cada campo de sobra baja el número de envíos, así que el teléfono sólo se pide cuando de verdad se va a llamar.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '973 00 00 00', 'De lunes a viernes, 8:00 – 18:00' ),
+			array( 'Email', 'obra@piedravaldes.example', 'Lo lee Aina, no un buzón compartido' ),
+			array( 'Taller', 'Ctra. de la Cantera 4, Alcarràs', 'Se puede pasar sin cita en horario de taller' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Tres pasos, con plazo',
+		'steps'   => array(
+			array( 'Lo lee una persona', 'El mismo día laborable. No hay respuesta automática, porque una respuesta automática no informa de nada.' ),
+			array( 'Te llamamos', 'En 24 h, para entender la obra. Cinco minutos de teléfono ahorran tres correos.' ),
+			array( 'Presupuesto por escrito', 'En 48 h desde esa llamada, con medidas, material y plazo. Cerrado, no orientativo.' ),
+		),
+		'note'    => 'Son plazos publicados, así que se cumplen o se cambia el número: un plazo que no se cumple hace más daño que no publicarlo.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién vas a hablar',
+		'h2'      => 'Somos tres y contestamos nosotros',
+		'items'   => array(
+			array( 'name' => 'Aina Serra', 'role' => 'Oficina técnica', 'lic' => 'Despiece y presupuestos', 'img' => 'card-detalle' ),
+			array( 'name' => 'Marc Puig', 'role' => 'Jefe de taller', 'lic' => 'Plazos y cortes especiales', 'img' => 'card-cantero' ),
+			array( 'name' => 'Ramon Valdés', 'role' => 'Dirección', 'lic' => 'Obra grande y peritajes', 'img' => 'sq-manos' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta siempre',
+		'items'   => array(
+			array( '¿Dais precio por teléfono?', 'Un orden de magnitud, sí. Un precio, no: depende del bloque, del despiece y de si hay que labrar. Lo que sí damos por teléfono es si el plazo te sirve.' ),
+			array( '¿Trabajáis para particulares?', 'Sí, y son la mitad del taller. No hay pedido mínimo, aunque por debajo de un metro cuadrado el porte pesa más que la piedra.' ),
+			array( '¿Vais a medir fuera de la provincia?', 'Hasta 120 km sin coste. Más lejos se cobra el desplazamiento, y se descuenta del pedido si sale adelante.' ),
+			array( '¿Cuánto tardáis en contestar?', 'El mismo día laborable si escribes antes de las cinco. Los viernes por la tarde, el lunes.' ),
+		),
+	),
+);
+
 // ── THE SECOND PHOTOGRAPH WITH TEXT ON IT, WHICH NOTHING HAD EVER SWEPT ────────────────────────
 //
 // `LP-BROKEN-GRID`'s corporate hero puts the h1 ON the picture, exactly as the slider does, and
@@ -5514,6 +5794,106 @@ $css[] = <<<'CSS'
                column-gap:var(--sp-l);align-items:start}
 }
 
+/* ── LAS PÁGINAS INTERNAS ──────────────────────────────────────────────────────────────────────
+   Casi todo lo que necesitan ya existe: `.hero`, `.about`, `.feats`, `.steps`, `.items.cols-3`,
+   `.figq`, `.shots`, `.qas`. Aquí abajo sólo va lo que ninguna sección de home hacía. */
+
+/* COMP-PAGE-HEAD · el encabezado de una página interna, que NO es un hero: sin imagen y sin CTA.
+   Su trabajo es decir dónde estás, y por eso ocupa una banda corta en vez de media pantalla. */
+.pagehead .canvas{padding-block:var(--sp-l) var(--sp-m)}
+.pagehead h1{margin:0}
+
+/* COMP-PROCESS con foto · TPL-ABOUT-02. Fila ancha y no tarjeta: de un oficio la prueba es la
+   imagen del paso, y una foto de 270px en una rejilla de cuatro no prueba nada. */
+.craftsteps{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
+.craftstep{min-width:0;display:grid;gap:var(--sp-s);align-content:start}
+.craftbody{display:grid;gap:.3rem;min-width:0}
+.craftstep .n{font-family:var(--font-primary);font-size:var(--fs-small);
+              letter-spacing:.16em;color:var(--c-text-muted);font-variant-numeric:tabular-nums}
+.craftstep h3{margin:0}
+@media(min-width:768px){.craftsteps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1200px){
+  /* Cuatro pasos en dos filas de dos, NO en una fila de cuatro: son cuatro fotografías, y cuatro
+     fotografías en fila a 1560px dan 360px cada una — la foto deja de leerse justo en el arquetipo
+     cuyo argumento entero es que se vea el oficio. */
+  .craftsteps{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-xl) var(--sp-l)}
+}
+
+/* COMP-CONTACT-DIRECT junto al formulario · TPL-CONTACT-01. Lista, no tarjetas: son tres datos y
+   un tarjetón por cada uno los convierte en tres decisiones. */
+.directlist{list-style:none;margin:var(--sp-s) 0 0;padding:0;display:grid;gap:var(--sp-s)}
+.directlist li{display:grid;gap:.1rem;padding-top:var(--sp-xs);border-top:1px solid var(--c-border)}
+.dlabel{font-size:var(--fs-eyebrow);letter-spacing:.16em;text-transform:uppercase;
+        color:var(--c-text-muted)}
+.directlist a{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.2}
+.flownote{margin-top:var(--sp-m)}
+/* EN MÓVIL LOS CANALES VAN ANTES DEL FORMULARIO, y esto lo decidió una medición, no el gusto: con
+   el orden de origen —formulario primero, porque es a lo que va la página— el teléfono quedaba
+   737px por debajo del primer campo en una pantalla de 812. Es decir, quien entra en Contacto
+   queriendo llamar tiene que pasar el formulario entero para encontrar el número. El propio doc del
+   arquetipo dice lo contrario en tantas palabras: «va junto al formulario, no debajo del todo;
+   quien prefiere llamar tiene que verlo sin bajar».
+   `order` y no reordenar el HTML: en ancho el blueprint pone `.head` a la izquierda y `.formwrap` a
+   la derecha por posición en la rejilla, así que el orden de origen no se ve, y el foco de teclado
+   sigue llegando primero al formulario, que es lo correcto para quien sí venía a escribir. */
+@media(max-width:1023px){ .contactblock .head{order:-1} }
+/* EL PLAZO NO ES UN ROL DE ACENTO, y el verificador tuvo razón al rechazarlo: «3–5 días» no es
+   un CTA, ni un icono de acción, ni un enlace, ni un estado activo. Es un dato, y un dato que
+   importa se destaca con PESO y con cifras tabulares, no gastando el único color de la página
+   — que en esta ficha ya lo tiene el botón de presupuesto, que es a donde va todo. */
+.steps .days{font-variant-numeric:tabular-nums;font-weight:600;margin:0}
+
+/* COMP-CONFIGURATOR · TPL-PDP-05. El configurador ES la página, así que ocupa las dos mitades del
+   canvas como lo hace el bloque de compra de TPL-PDP-01 — misma línea, distinto contenido. */
+.cfgbox{min-width:0;display:flex;flex-direction:column;gap:var(--sp-xs);align-self:start;
+        padding:var(--sp-m);border:1px solid var(--c-border);background:var(--c-bg-alt)}
+.cfgbox h2{margin:0 0 var(--sp-xs)}
+.cfgrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-s)}
+.cfgnote{margin:var(--sp-xs) 0 var(--sp-s)}
+@media(min-width:1024px){
+  .cfg .canvas{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+               column-gap:var(--sp-l);align-items:start}
+}
+
+/* COMP-SAMPLE-REQUEST · las tres muestras, en cuadrado y pequeñas: son una carta de color, no una
+   galería. */
+.swatches{list-style:none;margin:0;padding:0;display:grid;
+          grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-xs)}
+
+/* COMP-GALLERY de trabajos entregados · el pie ES el dato (la medida), así que no se atenúa hasta
+   desaparecer ni se esconde en un hover que en táctil no existe. */
+.shots.done{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+            grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+.shots.done figure{margin:0}
+.shots.done figcaption{margin-top:.4rem;font-variant-numeric:tabular-nums}
+@media(max-width:599px){.shots.done{grid-template-columns:1fr}}
+
+/* TGL-PDP-LAYOUT: editorial · el MISMO esqueleto con la foto mandando. Es un toggle y no un
+   arquetipo, y esto es todo lo que cuesta: el reparto de columnas y una fila de miniaturas. Si
+   hicieran falta secciones nuevas para conseguirlo, sería otra arquitectura y llevaría su doc.
+
+   SE MUEVEN LAS COLUMNAS DE LOS HIJOS, NUNCA LA REJILLA DEL CANVAS, y esto costó un desbordamiento
+   de 87px antes de entenderlo. El primer intento redeclaraba `.pdp.editorial .canvas` con dos pistas
+   anónimas y GANABA por especificidad a `[data-comp="lp-asymmetric"] .canvas` — pero los hijos
+   siguen pidiendo `grid-column: c 7 / c 13`, líneas nombradas que esa rejilla ya no tenía. El
+   navegador creó quince pistas implícitas de 0px para llegar hasta la línea 13 y dejó el bloque de
+   compra fuera del canvas. Es la misma trampa que el comentario de `.pdp .canvas` ya avisaba
+   doscientas líneas más arriba: pelearse con la capa del blueprint en vez de usarla.
+   `lp-centered` es el único que no redefine `.canvas`, así que es el único donde tocar el reparto
+   es tocar algo que existe. */
+.pdp.editorial .canvas{padding-block:var(--sp-xl)}
+.pdp.editorial .pdp-thumbs{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-s)}
+@media(min-width:1024px){
+  [data-comp="lp-centered"] .pdp.editorial .canvas{
+      grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);column-gap:var(--sp-xl)}
+  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-gal{grid-column:1/9}
+  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-buy{grid-column:9/13}
+  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-gal{grid-column:c 1/c 11}
+  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-buy{grid-column:c 9/c 13}
+  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-gal{grid-column:c 1/c 9}
+  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-buy{grid-column:c 9/c 13}
+}
+
 /* Finish options. A radio group that reads as a row of chips, and the CHECKED state is border
    weight and ground, never colour alone — the same rule the filter chips follow. */
 .opts{border:0;margin:var(--sp-xs) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
@@ -7412,7 +7792,7 @@ function page_service( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * and they are emitted that way: a section boundary running through a buy box is the difference
  * between a product page and two stacked panels.
  */
-function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
+function page_pdp( $anchor_key, $C, $BRAND, $uid, $layout = 'standard' ) {
 	$P  = $C['pdp'];
 	$mn = img( $P['main'] );
 	$o  = array();
@@ -7437,7 +7817,7 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
 	}
 
 	// COMP-GALLERY + COMP-PRODUCT-INFO — one block  [fijo · ADN]
-	$o[] = '<section class="sec pdp" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
+	$o[] = '<section class="sec pdp' . ( 'editorial' === $layout ? ' editorial' : '' ) . '" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
 		. '<div class="pdp-gal">'
 		. '<figure class="frame"><img data-img="' . h( $mn['slug'] ) . '" alt="' . h( $mn['alt'] ) . '"'
 		. ' width="' . $mn['w'] . '" height="' . $mn['h'] . '"></figure>'
@@ -7475,6 +7855,428 @@ function page_pdp( $anchor_key, $C, $BRAND, $uid ) {
 		$o[] = product_html( $anchor_key, $c );
 	}
 	$o[] = '</div></div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * COMP-PROCESS con fotografía por paso · TPL-ABOUT-02.
+ *
+ * NO ES `process_block_html` CON UNA FOTO AÑADIDA, y la diferencia es el arquetipo entero. Aquel
+ * renderiza el método de una empresa de servicios: cuatro pasos de texto en una fila, porque lo que
+ * se explica es un procedimiento. Aquí lo que se enseña es un OFICIO, y de un oficio la prueba no
+ * es la descripción del paso sino la imagen de alguien dándolo — «doce años de experiencia» lo
+ * escribe cualquiera. Por eso el paso es una fila ancha con su fotografía y no una tarjeta más de
+ * una rejilla de cuatro.
+ */
+function craft_steps_html( $pr ) {
+	$o = '<section class="sec craft grid-sec bg-alt" aria-label="' . h( $pr['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pr['h2'] ) . '</h2></div><ol class="craftsteps">';
+	foreach ( $pr['steps'] as $i => $st ) {
+		$si = img( $st[2] );
+		$o .= '<li class="craftstep"><figure class="frame"><img data-img="' . h( $si['slug'] ) . '"'
+			. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure>'
+			. '<div class="craftbody"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st[0] ) . '</h3><p class="muted">' . h( $st[1] ) . '</p></div></li>';
+	}
+	return $o . '</ol></div></section>';
+}
+
+/** COMP-CTA sobrio, sin formulario. Tres páginas internas cierran igual, así que hay uno. */
+function page_cta_html( $b ) {
+	return '<section class="sec band closing sober" aria-label="' . h( $b['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '</div></section>';
+}
+
+/** Encabezado de página interna sin fotografía · COMP-PAGE-HEAD. */
+function page_head_html( $hd ) {
+	return '<section class="sec pagehead" aria-label="' . h( $hd['h1'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hd['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hd['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hd['lede'] ) . '</p></div></div></section>';
+}
+
+/**
+ * TPL-ABOUT-01 «La empresa» · la página de Nosotros de TPL-C-02.
+ *
+ * REUTILIZA historia, cifras, equipo y testimonios del bloque de la home, igual que `page_service`
+ * reutiliza el proceso y el cierre de TPL-C-01: es la misma empresa un nivel más abajo, y reutilizar
+ * es lo que hace que las dos páginas se lean como UN sitio y no como dos maquetas que comparten
+ * carpeta. Lo propio de la página son el encabezado, los compromisos y el cierre.
+ *
+ * COMP-VALUES ES LO QUE LA HOME NO TIENE, y no es relleno: la home de TPL-C-02 gana confianza con
+ * cifras y acreditaciones, cosas que ya ocurrieron. Una página de Nosotros tiene además que decir a
+ * qué se compromete de aquí en adelante, y eso son compromisos verificables — «presupuesto en 48 h»,
+ * no «excelencia».
+ */
+function page_about_company( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$A  = $C['nosotros'];
+	$hi = img( $A['hero']['img'] );
+	$o  = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $A['crumbs'] );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO  [fijo]
+	$o[] = '<section class="sec hero" aria-label="Quiénes somos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $A['hero']['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $A['hero']['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $A['hero']['lede'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $hi['slug'] ) . '"'
+		. ' alt="' . h( $hi['alt'] ) . '" width="' . $hi['w'] . '" height="' . $hi['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-ABOUT — historia y misión  [fijo · ADN], la de la home
+	$ab  = $C['about'];
+	$ai  = img( $ab['img'] );
+	$o[] = '<section class="sec about bg-alt" aria-label="Historia"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ab['h2'] ) . '</h2>';
+	foreach ( $ab['body'] as $para ) {
+		$o[] = '<p class="muted">' . h( $para ) . '</p>';
+	}
+	$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
+		. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 3 · COMP-VALUES  [fijo · ADN] — lo que la home no lleva
+	$vl  = $A['values'];
+	$o[] = '<section class="sec features grid-sec" aria-label="Compromisos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $vl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $vl['h2'] ) . '</h2></div><ul class="feats">';
+	foreach ( $vl['items'] as $it ) {
+		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+	return page_about_company_tail( $anchor_key, $C, $A, $o, $tgl_rows );
+}
+
+/** La segunda mitad de `page_about_company`, partida donde la página deja de aportar y empieza a
+ *  reutilizar: de aquí abajo todo viene del bloque de la home de TPL-C-02. */
+function page_about_company_tail( $anchor_key, $C, $A, $o, $tgl_rows ) {
+	// 4 · COMP-STATS  [toggle TGL-ABOUT-STATS]
+	/* LAS CIFRAS VAN EN EL HTML, no las pinta un script al hacer scroll. En una página cuyo trabajo
+	   entero es la credibilidad, una credencial que sólo existe después de un script no es una
+	   credencial: sin JS —y para todo rastreador— pone «0». */
+	$st  = $C['stats'];
+	$o[] = '<section class="sec stats bg-alt" aria-label="Cifras"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $st['eyebrow'] ) . '</span></div>'
+		. '<dl class="figs">';
+	foreach ( $st['items'] as $it ) {
+		$o[] = '<div class="fig"><dt>' . h( $it[0] ) . '</dt><dd>' . h( $it[1] ) . '</dd></div>';
+	}
+	$o[] = '</dl></div></section>';
+
+	// 5 · COMP-TEAM  [toggle TGL-ABOUT-TEAM] — caras reales o la sección no va
+	$tm  = $C['team'];
+	$o[] = '<section class="sec team grid-sec" aria-label="Equipo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="items cols-3">';
+	foreach ( $tm['items'] as $it ) {
+		$ti  = img( $it[2] );
+		$o[] = '<li class="member"><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure>'
+			. '<b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 6 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
+		$qt  = $C['quotes'];
+		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Referencias"><div class="canvas">'
+			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
+			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		foreach ( $qt['items'] as $q ) {
+			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
+				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
+				. '</figure></li>';
+		}
+		$o[] = '</ul></div></section>';
+	}
+
+	// 7 · COMP-CTA  [fijo]
+	$o[] = page_cta_html( $A['cta'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-ABOUT-02 «El oficio» · la página de Nosotros de TPL-E-03.
+ *
+ * NO HAY REJILLA DE EQUIPO Y NO HAY CONTADOR DE CIFRAS, y las dos ausencias son la decisión del
+ * arquetipo, no un olvido. Un taller de cuatro personas con cuatro retratos de estudio parece una
+ * consultora pequeña; el mismo taller con una fotografía de las manos trabajando y una frase
+ * firmada por quien las tiene parece lo que es. Y «doce años de experiencia» lo escribe cualquiera,
+ * mientras que «una encimera de 3,20 m en una pieza por una escalera de caracol» no: la prueba es
+ * COMP-CASES.
+ */
+function page_about_workshop( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$A  = $C['oficio'];
+	$hi = img( $A['hero']['img'] );
+	$o  = array();
+
+	$o[] = head_shop_plain( $C, $BRAND );
+	$o[] = crumbs_html( $A['crumbs'] );
+	$o[] = '<main>';
+
+	// 1 · COMP-HERO  [fijo] — el taller trabajando, no el logo sobre fondo blanco
+	$o[] = '<section class="sec hero" aria-label="El taller"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $A['hero']['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $A['hero']['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $A['hero']['lede'] ) . '</p></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $hi['slug'] ) . '"'
+		. ' alt="' . h( $hi['alt'] ) . '" width="' . $hi['w'] . '" height="' . $hi['h'] . '"></figure></div>'
+		. '</div></section>';
+
+	// 2 · COMP-PROCESS  [fijo · ADN] — con fotografía en cada paso
+	$o[] = craft_steps_html( $A['process'] );
+
+	// 3 · COMP-GALLERY  [fijo · ADN] — el sitio y las herramientas, no el porfolio
+	$o[] = gallery_masonry_html( $A['gallery'] );
+
+	// 4 · COMP-FIGURE-QUOTE  [fijo · ADN] — la cara que la rejilla de equipo hacía mal
+	$o[] = figure_quote_html( $A['figq'] );
+
+	// 5 · COMP-CASES  [fijo · ADN] — la sustituta de las cifras
+	$cs  = $A['cases'];
+	$o[] = '<section class="sec cases grid-sec bg-alt" aria-label="Trabajos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cs['h2'] ) . '</h2></div><div class="items cols-3">';
+	foreach ( $cs['items'] as $it ) {
+		$o[] = card_html( $anchor_key, array( 'img' => $it[2], 'h3' => $it[0], 'p' => $it[1] ) );
+	}
+	$o[] = '</div></div></section>';
+
+	// 6 · COMP-CREDENTIALS  [toggle TGL-ABOUT-CREDS] — sólo lo verificable
+	$cd  = $A['creds'];
+	$o[] = '<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cd['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cd['h2'] ) . '</h2></div><ul class="feats">';
+	foreach ( $cd['items'] as $it ) {
+		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	// 7 · COMP-CTA  [fijo]
+	$o[] = page_cta_html( $A['cta'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-CONTACT-01 «Consulta» · la página de contacto de TPL-C-01.
+ *
+ * LAS DOS SECCIONES QUE CASI NINGUNA PÁGINA DE CONTACTO TIENE. Un formulario es una caja negra: se
+ * escribe, se pulsa y no se sabe si aquello llegó, quién lo va a leer ni cuándo, y esa
+ * incertidumbre es la que hace que mucha gente prefiera llamar aunque le venga peor. `COMP-PROCESS`
+ * dice qué pasa al enviar, con plazos; `COMP-TEAM` dice con quién se va a hablar. Saber a quién le
+ * escribes cambia lo que escribes, y cambia si escribes.
+ *
+ * LOS DATOS DIRECTOS VAN AL LADO DEL FORMULARIO, no debajo del todo: quien prefiere llamar tiene
+ * que ver el teléfono sin bajar.
+ */
+function page_contact_enquiry( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['contacto'];
+	$o = array();
+
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+
+	// 1 · COMP-PAGE-HEAD  [fijo]
+	$o[] = page_head_html( $K['head'] );
+
+	// 2 · COMP-CONTACT-FORM + COMP-CONTACT-DIRECT — un bloque, dos mitades  [fijo · ADN]
+	$fm  = $K['form'];
+	$dr  = $K['direct'];
+	$o[] = '<section class="sec band contactblock" aria-label="Escríbenos"><div class="canvas">'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">';
+	foreach ( $fm['fields'] as $f ) {
+		$fid = $uid . '-c-' . $f[0];
+		$o[] = '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $fid . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+	}
+	$o[] = '<div class="field"><label for="' . $uid . '-c-msg">' . h( $fm['msg'] ) . '</label>'
+		. '<textarea id="' . $uid . '-c-msg" name="msg" rows="4"></textarea></div>'
+		. '<button class="btn btn-primary" type="submit">' . h( $fm['submit'] ) . '</button>'
+		. '<p class="small muted">' . h( $fm['small'] ) . '</p>'
+		. '</form></div>'
+		. '<div class="head stack"><span class="eyebrow">' . h( $dr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $dr['h2'] ) . '</h2><ul class="directlist">';
+	foreach ( $dr['items'] as $it ) {
+		$o[] = '<li><span class="dlabel">' . h( $it[0] ) . '</span>'
+			. '<a href="#">' . h( $it[1] ) . '</a>'
+			. '<span class="muted small">' . h( $it[2] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></div></section>';
+
+	// 3 · COMP-PROCESS  [fijo · ADN] — qué pasa después de enviar
+	$fl  = $K['flow'];
+	$o[] = '<section class="sec process grid-sec bg-alt" aria-label="Qué pasa al enviar"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fl['h2'] ) . '</h2></div><ol class="steps">';
+	foreach ( $fl['steps'] as $i => $st ) {
+		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
+	}
+	$o[] = '</ol><p class="small muted flownote">' . h( $fl['note'] ) . '</p></div></section>';
+
+	// 4 · COMP-TEAM  [toggle TGL-CONTACT-WHO] — con quién vas a hablar
+	$o[] = med_team_html( $K['team'] );
+
+	// 5 · COMP-FAQ  [toggle TGL-FAQ]
+	$fq  = $K['faq'];
+	$o[] = '<section class="sec faq bg-alt" aria-label="Preguntas frecuentes"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
+	$o[] = disclosure_list_html( $fq['items'], 'qas' );
+	$o[] = '</div></section>';
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return number_heads( implode( "\n", $o ) );
+}
+
+/**
+ * TPL-PDP-05 «A medida» · la ficha de producto de TPL-E-03, y la única del catálogo SIN carrito y
+ * SIN precio.
+ *
+ * Las otras cuatro fichas comparten un supuesto que aquí se rompe: existe una referencia con un
+ * precio que se puede meter en un carrito. Una encimera de 320 × 62 en Blanco Macael con canto de
+ * media caña y hueco de fregadero no es una referencia; es una combinación que nadie ha fabricado
+ * todavía, y su precio no se sabe hasta configurarla. Forzarla en `TPL-PDP-01` produce el error
+ * clásico del sector: un precio «desde» que no se parece al final, un carrito que acepta la compra,
+ * y un correo posterior pidiendo medidas — que es donde se cae la venta, y encima ya se cobró.
+ *
+ * MISMA TIENDA Y MISMA FOTOGRAFÍA que la ficha estándar de TPL-E-02 y la editorial de TPL-E-01. Es
+ * deliberado: puestas una al lado de otra, lo único que cambia entre las tres es la estructura, y
+ * entre ésta y las otras dos la diferencia no es el aire ni el tamaño de la foto — es que falta el
+ * botón de comprar.
+ */
+function page_pdp_mtm( $anchor_key, $C, $BRAND, $uid ) {
+	$P = $C['mtm'];
+	$o = array();
+
+	$o[] = head_shop_plain( $C, $BRAND );
+	$o[] = crumbs_html( $P['crumbs'] );
+	$o[] = '<main>';
+
+	// 1 · COMP-CONFIGURATOR  [fijo · ADN] — ocupa el sitio que en TPL-PDP-01 ocupa la compra
+	$cf   = $P['cfg'];
+	$o[]  = '<section class="sec cfg" aria-label="Configurador"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cf['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $P['h1'] ) . '</h1><p class="lede muted">' . h( $P['lede'] ) . '</p></div>'
+		. '<div class="cfgbox"><h2>' . h( $cf['h2'] ) . '</h2><div class="cfgrow">';
+	foreach ( $cf['fields'] as $f ) {
+		$fid = $uid . '-m-' . $f[0];
+		$o[] = '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $fid . '" type="number" value="' . h( $f[2] ) . '"></div>';
+	}
+	$o[] = '</div>';
+	foreach ( array( array( $cf['opt_lbl'], $cf['opts'], 'mat' ), array( $cf['fin_lbl'], $cf['fins'], 'fin' ) ) as $grp ) {
+		$o[] = '<fieldset class="opts"><legend>' . h( $grp[0] ) . '</legend>';
+		foreach ( $grp[1] as $i => $op ) {
+			$oid = $uid . '-' . $grp[2] . $i;
+			$o[] = '<label class="opt" for="' . $oid . '">'
+				. '<input type="radio" id="' . $oid . '" name="' . $uid . '-' . $grp[2] . '"'
+				. ( 0 === $i ? ' checked' : '' ) . '><span>' . h( $op ) . '</span></label>';
+		}
+		$o[] = '</fieldset>';
+	}
+	$o[] = '<fieldset class="opts"><legend>' . h( $cf['ext_lbl'] ) . '</legend>';
+	foreach ( $cf['extras'] as $i => $ex ) {
+		$xid = $uid . '-x' . $i;
+		$o[] = '<label class="opt" for="' . $xid . '">'
+			. '<input type="checkbox" id="' . $xid . '"><span>' . h( $ex ) . '</span></label>';
+	}
+	/* SIN PRECIO, Y DICHO EN VOZ ALTA. El hueco donde toda ficha lleva una cifra es justo donde el
+	   lector la busca, así que callarse sin más se lee como un fallo de la maqueta. */
+	$o[] = '</fieldset><p class="small muted cfgnote">' . h( $cf['note'] ) . '</p>'
+		. '<button class="btn btn-primary" type="button">' . h( $cf['cta'] ) . '</button>'
+		. '</div></div></section>';
+	return page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid );
+}
+
+/** La segunda mitad de `page_pdp_mtm`: lo que sostiene una compra sin precio y sin devolución. */
+function page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid ) {
+	// 2 · COMP-MEASURE-TABLE  [fijo · ADN] — aquí no es una tabla de tallas: es cómo se mide
+	$ms  = $P['measure'];
+	$o[] = '<section class="sec features grid-sec bg-alt" aria-label="Cómo se mide"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ms['h2'] ) . '</h2></div><ul class="feats">';
+	foreach ( $ms['rows'] as $r ) {
+		$o[] = '<li><b>' . h( $r[0] ) . '</b><span>' . h( $r[1] ) . '</span></li>';
+	}
+	$o[] = '</ul><p class="small muted flownote">' . h( $ms['note'] ) . '</p></div></section>';
+
+	// 3 · COMP-GALLERY  [fijo] — trabajos entregados, cada uno CON SU MEDIDA escrita
+	$gl  = $P['gallery'];
+	$o[] = '<section class="sec gallery grid-sec" aria-label="Entregados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $gl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $gl['h2'] ) . '</h2></div><ul class="shots done"' . cols_attr( count( $gl['items'] ), 2 ) . '>';
+	foreach ( $gl['items'] as $it ) {
+		$gi  = img( $it[0] );
+		$o[] = '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
+			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '">'
+			. '<figcaption class="small muted">' . h( $it[1] ) . '</figcaption></figure></li>';
+	}
+	$o[] = '</ul></div></section>';
+
+	/* 4 · COMP-SAMPLE-REQUEST  [fijo · ADN]
+	   ES LA SECCIÓN QUE SUSTITUYE A LA POLÍTICA DE DEVOLUCIONES, que esta ficha no puede ofrecer: de
+	   algo cortado a medida no hay devolución, y prometerla sería peor que callarla. */
+	$sm  = $P['sample'];
+	$o[] = '<section class="sec sample bg-alt" aria-label="Muestra física"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $sm['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $sm['h2'] ) . '</h2><p class="muted">' . h( $sm['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $sm['cta'] ) . '</a></div></div>'
+		. '<div class="media"><ul class="swatches">';
+	foreach ( $sm['items'] as $slug ) {
+		$si  = img( $slug );
+		$o[] = '<li><figure class="frame sq"><img data-img="' . h( $si['slug'] ) . '"'
+			. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure></li>';
+	}
+	$o[] = '</ul></div></div></section>';
+
+	// 5 · COMP-LEAD-TIME  [fijo · ADN] — fases con días, no «3 a 4 semanas»
+	$ld  = $P['lead'];
+	$o[] = '<section class="sec process grid-sec" aria-label="Plazo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ld['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ld['h2'] ) . '</h2></div><ol class="steps">';
+	foreach ( $ld['items'] as $i => $st ) {
+		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st[0] ) . '</h3><p class="days">' . h( $st[1] ) . '</p>'
+			. '<p>' . h( $st[2] ) . '</p></li>';
+	}
+	$o[] = '</ol><p class="small muted flownote">' . h( $ld['note'] ) . '</p></div></section>';
+
+	// 6 · COMP-QUOTE-FORM  [fijo · ADN] — el cierre: presupuesto, no compra
+	$q = $P['quote'];
+	$o[] = band_closing_html(
+		array(
+			'eyebrow' => $q['eyebrow'],
+			'h2'      => $q['h2'],
+			'lede'    => $q['lede'],
+			'fields'  => $q['fields'],
+			'msg'     => $q['msg'],
+			'submit'  => $q['submit'],
+		),
+		$uid . '-q'
+	);
 
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
@@ -10021,15 +10823,19 @@ $PAGES = array(
 	'TPL-C-01' => array(
 		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
 		array( 'key' => 'servicio', 'label' => 'Servicio', 'doc' => 'TPL-SERVICE-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto', 'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-02' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-02' ),
+		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-02' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros', 'doc' => 'TPL-ABOUT-01' ),
 	),
 	'TPL-C-03' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-03' ),
 	),
 	'TPL-E-03' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-03' ),
+		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-03' ),
+		array( 'key' => 'nosotros', 'label' => 'El taller', 'doc' => 'TPL-ABOUT-02' ),
+		array( 'key' => 'producto', 'label' => 'A medida',  'doc' => 'TPL-PDP-05' ),
 	),
 	'TPL-C-04' => array(
 		array( 'key' => 'home', 'label' => 'Landing', 'doc' => 'TPL-C-04' ),
@@ -10041,7 +10847,8 @@ $PAGES = array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-05' ),
 	),
 	'TPL-E-01' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-01' ),
+		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-E-01' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · editorial' ),
 	),
 	'TPL-E-04' => array(
 		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-E-04' ),
@@ -10096,14 +10903,26 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-C-01' === $tpl && 'servicio' === $page_key ) {
 		return page_service( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-01' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-02' === $tpl && 'home' === $page_key ) {
 		return strip_institutional( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-02' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-03' === $tpl && 'home' === $page_key ) {
 		return strip_showcase( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-03' === $tpl && 'home' === $page_key ) {
 		return strip_story( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-03' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_workshop( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-03' === $tpl && 'producto' === $page_key ) {
+		return page_pdp_mtm( $anchor_key, $C, $BRAND, $suid );
 	}
 	if ( 'TPL-C-04' === $tpl && 'home' === $page_key ) {
 		return strip_landing( $anchor_key, $C, $BRAND, $suid, $tgl );
@@ -10116,6 +10935,11 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-E-01' === $tpl && 'home' === $page_key ) {
 		return strip_visual( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	/* La MISMA `page_pdp` que sirve a TPL-E-02, con el toggle en `editorial`. Un renderizador
+	   aparte habría sido la forma de código de volver a tener dos arquetipos donde hay uno. */
+	if ( 'TPL-E-01' === $tpl && 'producto' === $page_key ) {
+		return page_pdp( $anchor_key, $C, $BRAND, $suid, 'editorial' );
 	}
 	if ( 'TPL-E-04' === $tpl && 'home' === $page_key ) {
 		return strip_categories( $anchor_key, $C, $BRAND, $suid, $tgl );
