@@ -1035,6 +1035,14 @@ $TOGGLES = array(
 		'TGL-BADGES'       => array( 'ask' => '¿Barra de garantías?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 		'TGL-TESTIMONIALS' => array( 'ask' => '¿Reseñas?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 	),
+	/* TPL-C-13 · Cartera / Búsqueda — de su propio § 4. `TGL-SEARCH-FIELDS` y `TGL-GRID-DENSITY`
+	   no entran aquí porque no cambian QUÉ secciones existen sino cuántos campos y columnas lleva
+	   una que ya está: la tabla de admisión gobierna presencia, no aforo. */
+	'TPL-C-13' => array(
+		'TGL-MAP-MODE' => array( 'ask' => '¿Plano de búsqueda?', 'default' => 'conmutador', 'options' => array( 'conmutador', 'sección', 'off' ) ),
+		'TGL-TEAM'     => array( 'ask' => '¿Equipo?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-FAQ'      => array( 'ask' => '¿Preguntas frecuentes?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
 	/* TPL-C-08 · Modelo / Lanzamiento. */
 	'TPL-C-08' => array(
 		'TGL-GALLERY' => array( 'ask' => '¿Galería del modelo?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
@@ -1931,6 +1939,124 @@ $CONTENT = array(
 		),
 	),
 
+	/* ── TPL-C-13 · CARTERA / BÚSQUEDA. Sin marca y SIN UNA SOLA IMAGEN, y las dos cosas son la
+	   misma decisión. Este repo tiene 45 fotografías y ninguna es una vivienda; las más cercanas
+	   son una cantera y seis coches de ocasión. Meter un coche en una ficha de piso es exactamente
+	   el defecto que el § 5 del propio arquetipo prohíbe, y reutilizar el reportaje de Piedra
+	   Valdés cargaría la cota de RT_GALLERY_ONE_SHOOT sin ganar nada. Así que las tres superficies
+	   que pedirían foto —banda del héroe, ficha y retrato— rinden un placeholder MARCADO.
+	   La tira sigue mereciendo la pena sin ellas: lo que un ancla cambia en un listado es la
+	   tipografía del precio, el ritmo de los chips de datos y la densidad de la rejilla, y las tres
+	   se ven aquí. Cuando haya reportaje propio esto pasa a ser una marca como las siete de la
+	   familia B, y entonces será un cambio de datos y no de código. */
+	'TPL-C-13' => array(
+		'tpl'      => 'TPL-C-13',
+		'tpl_name' => 'Cartera / Búsqueda',
+		'fits'     => 'Inmobiliarias, administradores de fincas con cartera, promotoras comercializando',
+		'site'     => 'corporate',
+		'site_es'  => 'Corporativa',
+		'dna'      => 'COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-VALUATION-CTA',
+		'wire'     => 'COMP-HEADER · COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-TEAM · COMP-FAQ · COMP-VALUATION-CTA · COMP-FOOTER',
+		'nav'      => array( 'Comprar', 'Alquilar', 'Nosotros' ),
+		'nav_cta'  => 'Vender tu casa',
+		'phone'    => '948 00 00 00',
+		'hero'     => array(
+			'eyebrow' => 'Cartera propia · Pamplona y comarca',
+			'h1'      => 'Nadie entra aquí a leer sobre nosotros',
+			'lede'    => 'Entra a buscar piso, así que el buscador va primero y lo nuestro va al final. 54 inmuebles con precio cerrado, gastos calculados y la nota simple pedida antes de enseñarlos.',
+		),
+		'search'   => array(
+			'count'  => '54 inmuebles disponibles',
+			'submit' => 'Ver resultados',
+			/* Cuatro campos y no cinco: el quinto es el que hace abandonar — TGL-SEARCH-FIELDS. */
+			'fields' => array(
+				array( 'op',     'Operación',     array( 'Comprar', 'Alquilar' ) ),
+				array( 'zona',   'Zona',          array( 'Todas', 'Casco Viejo', 'Ensanche', 'Rochapea', 'Mendebaldea', 'Comarca' ) ),
+				array( 'precio', 'Precio hasta',  array( 'Sin límite', '150.000 €', '250.000 €', '350.000 €', '500.000 €' ) ),
+				array( 'hab',    'Habitaciones',  array( 'Indiferente', '1', '2', '3', '4 o más' ) ),
+			),
+		),
+		'listing'  => array(
+			'eyebrow' => 'La cartera',
+			'h2'      => 'Lo que hay hoy',
+			'note'    => 'Precio de venta sin gastos de compraventa. Los gastos aproximados van en cada ficha, calculados sobre el precio publicado y no sobre el de tasación.',
+			'items'   => array(
+				array( 'h3' => 'Piso reformado con ascensor', 'zone' => 'Ensanche · Calle San Ignacio', 'facts' => array( '92 m²', '3 hab', '2 baños', '4ª planta', 'Ascensor' ), 'price' => '289.000 €', 'unit' => '3.141 €/m²' ),
+				array( 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
+				array( 'h3' => 'Bajo con patio para reformar', 'zone' => 'Rochapea · Calle Marcelo Celayeta', 'facts' => array( '78 m²', '2 hab', '1 baño', 'Bajo', 'Patio' ), 'price' => '148.000 €', 'unit' => '1.897 €/m²' ),
+				array( 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
+				array( 'h3' => 'Adosado con garaje doble',     'zone' => 'Comarca · Cizur Menor', 'facts' => array( '186 m²', '4 hab', '3 baños', 'Adosado', 'Jardín' ), 'price' => '412.000 €', 'unit' => '2.215 €/m²' ),
+				array( 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
+			),
+		),
+		'map'      => array(
+			'eyebrow' => 'Buscar por dónde está',
+			'h2'      => 'Los mismos 54, sobre el plano',
+			'note'    => 'Mover el plano refiltra la lista, y volver a la lista conserva lo que el plano dejó: las dos vistas comparten una sola consulta. Un plano de verdad carga un tercero, así que necesita consentimiento previo — aquí va dibujado.',
+			/* left%, top%, precio. Las chinchetas caen en las manzanas del plano, no sobre las calles. */
+			'pins'    => array(
+				array( 22, 34, '289.000 €' ),
+				array( 47, 22, '345.000 €' ),
+				array( 68, 44, '148.000 €' ),
+				array( 34, 68, '167.500 €' ),
+				array( 82, 72, '412.000 €' ),
+				array( 57, 82, '119.000 €' ),
+			),
+		),
+		'visit'    => array(
+			'eyebrow' => 'Verlo',
+			'h2'      => 'Pida la visita del que le interese',
+			'lede'    => 'La referencia viaja con la solicitud. Sin ella esto sería una consulta genérica, y una consulta genérica no se puede meter en una agenda.',
+			'fields'  => array(
+				array( 'ref',    'Referencia',   'text',   'PAM-0417', true ),
+				array( 'nombre', 'Nombre',       'text' ),
+				array( 'tel',    'Teléfono',     'tel' ),
+				array( 'franja', 'Franja',       'select', array( 'Mañanas', 'Tardes', 'Sábado por la mañana' ) ),
+			),
+			'submit'  => 'Pedir visita',
+			'small'   => 'Le llamamos para confirmar hora. No cedemos su teléfono a terceros ni lo usamos para nada más.',
+		),
+		'team'     => array(
+			'eyebrow' => 'Quién le abre la puerta',
+			'h2'      => 'Tres personas, tres zonas',
+			'items'   => array(
+				array( 'name' => 'Nerea Zabalza', 'role' => 'Ensanche y Casco Viejo', 'lic' => '948 00 00 01' ),
+				array( 'name' => 'Julen Arraiza', 'role' => 'Rochapea y Chantrea',    'lic' => '948 00 00 02' ),
+				array( 'name' => 'Leire Osés',    'role' => 'Comarca y obra nueva',   'lic' => '948 00 00 03' ),
+			),
+		),
+		'faq'      => array(
+			'eyebrow' => 'Antes de firmar',
+			'h2'      => 'Lo que se pregunta y casi nadie explica',
+			'items'   => array(
+				array( '¿Cuánto son los gastos de compraventa?', 'Entre el 8 % y el 11 % del precio en Navarra, según si hay hipoteca. En cada ficha va el cálculo hecho sobre ese inmueble, no un porcentaje genérico.' ),
+				array( '¿Qué son las arras y cuánto se entrega?', 'Una señal que reserva el inmueble y fija el plazo, normalmente el 10 %. Si se echa atrás el comprador las pierde; si se echa atrás el vendedor devuelve el doble.' ),
+				array( '¿Pedís la nota simple antes de enseñar?', 'Sí, y la enseñamos en la visita. Si hay una carga, se sabe antes de que usted se ilusione.' ),
+				array( '¿Cobráis algo al comprador?', 'No. Los honorarios los paga quien nos encarga la venta.' ),
+			),
+		),
+		'valuation' => array(
+			'eyebrow' => 'Si lo que quiere es vender',
+			'h2'      => 'Le decimos por cuánto sale, en persona',
+			'lede'    => 'Sin calculadora automática. Un número que sale de un formulario es un número que luego hay que desdecir, y preferimos no empezar así.',
+			'stats'   => array(
+				array( '61 días', 'de media entre encargo y firma en 2025' ),
+				array( '94 %',    'de los inmuebles vendidos por encima del precio mínimo pactado' ),
+				array( '38',      'operaciones cerradas en la comarca el año pasado' ),
+			),
+			'fields'  => array(
+				array( 'dir', 'Dirección del inmueble', 'text' ),
+				array( 'tel', 'Teléfono',               'tel' ),
+			),
+			'submit'  => 'Pedir tasación',
+			'small'   => 'Vamos, lo vemos y le damos un rango con los comparables de su calle delante. Sin compromiso de encargo.',
+		),
+		'footer'   => array(
+			'tag'   => 'Maqueta interna NovaMira · arquetipo TPL-C-13, sin marca asignada',
+			'links' => array( 'Comprar', 'Alquilar', 'Vender', 'Privacidad' ),
+			'legal' => 'Agente inmobiliario · nº de registro donde la comunidad lo exija. Maqueta interna, no publicada.',
+		),
+	),
 	/* ── MOTOR ARANDA · TPL-C-07 · un INVENTARIO, que es lo que ningún arquetipo corporativo tenía.
 	   El contenido no lo escribe el dueño una vez: son cuarenta unidades que entran y salen, y los
 	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
@@ -3561,6 +3687,15 @@ $STRIPS = array(
 	   header y el ancla es la mas lenta en imagen del catalogo. Funciona para un restaurante caro y
 	   chirria para una clinica, y esa diferencia solo se ve mirandola. */
 	array( 'tpl' => 'TPL-C-05', 'anchor' => 'vitrine' ),
+	/* TPL-C-13 · la cartera que se busca. Las cinco anclas, como los otros diez de la casa: un
+	   arquetipo que llega con tres tiras no se puede comparar con uno que llega con cinco, y este
+	   catalogo ya pago ese error una vez con VITRINE. Sin marca y sin foto -- ver su bloque en
+	   $CONTENT. */
+	array( 'tpl' => 'TPL-C-13', 'anchor' => 'institutional' ),
+	array( 'tpl' => 'TPL-C-13', 'anchor' => 'editorial' ),
+	array( 'tpl' => 'TPL-C-13', 'anchor' => 'matter' ),
+	array( 'tpl' => 'TPL-C-13', 'anchor' => 'direct' ),
+	array( 'tpl' => 'TPL-C-13', 'anchor' => 'vitrine' ),
 	/* TPL-E-01 · la tienda que entra por el ojo. */
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'matter' ),
@@ -6108,6 +6243,68 @@ $css[] = <<<'CSS'
 
 .pnote{margin:var(--sp-l) auto 0;color:var(--c-text-muted);font-size:.875rem;max-width:64ch}
 
+/* ══════════ TPL-C-13 · CARTERA / BÚSQUEDA ══════════
+   Written against tokens only. Reuses `.hero-search`/`.filterbar` from TPL-C-07 above and
+   `.stockgrid`/`.vcard` for the listing, because the HTML really is the same shape — a band of
+   filters over a grid of fact-cards — and inventing parallel classes for it would be piel distinta
+   with extra steps. What IS new is below: the plan, the photoless card, and the capture band. */
+
+/* THE CARD CARRIES NO PHOTOGRAPH, AND THAT IS DECLARED RATHER THAN MISSING. This repo has 45
+   images and not one of them is a dwelling; the nearest are a quarry and six second-hand cars.
+   Dropping a car into a property card would be the exact defect TPL-C-13's own § 5 forbids — "no
+   con una foto de archivo que parezca real" — and reusing the Piedra Valdés shoot would push
+   RT_GALLERY_ONE_SHOOT's concentration bound for no gain. So the frame renders as a marked
+   placeholder: diagonal hatch in the border colour, the aspect ratio the real photo would occupy,
+   and the word PLACEHOLDER, so nobody reading the gallery mistakes it for a design decision.
+   The strip is still worth rendering without it — what an anchor changes in a listing is the price
+   typography, the fact-chip rhythm and the grid density, and all three are visible here. */
+.hero-search .shot.ph{aspect-ratio:21/9}
+.medico .frame.ph{aspect-ratio:1/1}
+.pcard .frame.ph, .hero-search .shot.ph, .medico .frame.ph{display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
+.pcard .frame.ph{aspect-ratio:4/3}
+.pcard .frame.ph span, .hero-search .shot.ph span, .medico .frame.ph span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--c-text-muted);background:var(--c-bg);padding:.25rem .6rem;
+  border:1px solid var(--c-border);border-radius:var(--radius-pill,999px)}
+/* The price is the first thing read and the zone the second: a listing where the zone hides under
+   the fact chips forces the reader to parse five numbers to learn the one thing that decides. */
+.pcard .pzone{margin:0;font-size:.8125rem;color:var(--c-text-muted)}
+
+/* THE PLAN IS A SEARCH MODE, NOT AN ILLUSTRATION, so it is drawn rather than photographed and
+   every pin carries its price. A map with unlabelled pins makes the reader click to learn what
+   they could have read. The streets are inline SVG because the Artifact CSP blocks tiles and
+   because a real map needs third-party consent — see wordpress-legal. */
+.mapsearch .mapwrap{position:relative;border:1px solid var(--c-border);
+  border-radius:var(--radius-card);overflow:hidden;background:var(--c-bg-alt)}
+.mapsearch svg{display:block;width:100%;height:auto}
+/* THE PIN IS NOT AN ACCENT MARK. Six accented pins on one plan out-shout the single CTA the page
+   has, and design-tokens.md is explicit that the accent is ONE colour for CTAs, action icons,
+   important links and active states — a price label is none of those, it is a label. So the pin
+   is the page surface with a hairline, which is also the better read: on a plan the price is
+   information to scan, not a thing to be shouted at six times. */
+.mapsearch .pin{position:absolute;transform:translate(-50%,-100%);
+  background:var(--c-bg);color:var(--c-text);border:1px solid var(--c-border);
+  font-size:.75rem;font-weight:700;
+  padding:.2rem .5rem;border-radius:var(--radius-pill,999px);white-space:nowrap;
+  box-shadow:var(--elev-rest);
+  transition:transform var(--dur-lift) var(--ease),box-shadow var(--dur-lift) var(--ease)}
+.mapsearch .pin:hover{transform:translate(-50%,-100%) scale(1.06);box-shadow:var(--elev-hover)}
+/* On a phone the two modes are a SWITCH and not two stacked sections: a 300px-tall plan under a
+   grid is a thing nobody uses. The switch is real UI here so the anchor's control styling shows. */
+.mapswitch{display:inline-flex;gap:0;border:1px solid var(--c-border);
+  border-radius:var(--radius-pill,999px);overflow:hidden;margin:0 auto var(--sp-m)}
+.mapswitch button{font:inherit;font-size:.875rem;padding:.4rem 1rem;border:0;cursor:pointer;
+  background:var(--c-bg);color:var(--c-text);
+  transition:background var(--dur-color) var(--ease),color var(--dur-color) var(--ease)}
+.mapswitch button[aria-pressed="true"]{background:var(--c-accent);color:var(--c-on-accent)}
+
+/* CAPTURE IS A BAND AND NOT A GRID, because it addresses a different person than everything above
+   it — the owner, not the buyer — and a band is the one shape that reads as a change of subject. */
+.valuation .vstats{list-style:none;margin:0 0 var(--sp-l);padding:0;display:grid;
+  gap:var(--sp-m);grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}
+.valuation .vstats b{display:block;font-family:var(--font-primary);font-size:var(--fs-h3);
+  line-height:1.1}
+.valuation .vstats span{font-size:.8125rem;color:var(--c-text-muted)}
 /* ══════════ TPL-C-08 · MODELO / LANZAMIENTO ══════════ */
 
 /* Same full-bleed machinery as `.hero-visual`, and measured by the same sweep — see $VIS_ARCHS.
@@ -8065,7 +8262,7 @@ function strip_urgent( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = triage_html( $C['triage'] );
 	$o[] = wait_promise_html( $C['wait'] );
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
-		$o[] = med_team_html( $C['team'] );
+		$o[] = agent_list_html( $C['team'] );
 	}
 	$o[] = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
 	$o[] = '</main>';
@@ -8368,6 +8565,198 @@ function strip_stock( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return implode( "\n", $o );
 }
 
+/**
+ * COMP-SEARCH-HERO · TPL-C-13.
+ *
+ * Same composition as TPL-C-07's COMP-SEARCH-FILTERS — a contained band with the filter card
+ * riding its bottom edge — and it reuses `.hero-search`/`.filterbar` verbatim, because the
+ * composition IS the same and duplicating the CSS would be two things to keep in step. What it
+ * cannot reuse is the function: that one requires a photograph per hero, and this archetype has
+ * none, so the band renders as a declared placeholder instead of borrowing a quarry.
+ */
+function search_hero_html( $hero, $sf, $uid ) {
+	$o = '<section class="sec hero hero-search" aria-label="Buscador de inmuebles">'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p></div>'
+		. '<figure class="frame shot ph"><span>Placeholder</span></figure>'
+		. '<form class="filterbar" onsubmit="return false">';
+	foreach ( $sf['fields'] as $fl ) {
+		$id = $uid . '-f-' . $fl[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<select id="' . $id . '" name="' . $fl[0] . '">';
+		foreach ( $fl[2] as $opt ) {
+			$o .= '<option>' . h( $opt ) . '</option>';
+		}
+		$o .= '</select></div>';
+	}
+	return $o . '<p class="stockcount">' . h( $sf['count'] ) . '</p>'
+		. '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
+		. '</form></div></section>';
+}
+
+/**
+ * COMP-TEAM · TPL-C-13. Who opens the door, with the ZONE each one covers — which is the fact that
+ * makes the section useful here and that a generic team grid leaves out. Reuses `.medlist` from
+ * TPL-C-10; same object, a row of people with a line of credential under each.
+ */
+function agent_list_html( $tm, $extra = '' ) {
+	$o = '<section class="sec medteam grid-sec' . $extra . '" aria-label="' . h( $tm['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist">';
+	foreach ( $tm['items'] as $m ) {
+		$o .= '<li class="medico pcard"><figure class="frame ph"><span>Placeholder</span></figure>'
+			. '<div class="medbody"><b>' . h( $m['name'] ) . '</b>'
+			. '<span>' . h( $m['role'] ) . '</span>'
+			. '<span class="medlic">' . h( $m['lic'] ) . '</span></div></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+/**
+ * COMP-PROPERTY-GRID · TPL-C-13.
+ *
+ * THE SIX FACTS ARE VISIBLE WITHOUT OPENING ANYTHING, because that is what a listing is for: the
+ * reader discards forty and keeps three, and every fact they have to click for is a discard they
+ * cannot make. Price first, zone second, the rest as chips.
+ *
+ * Reuses `.stockgrid` from TPL-C-07 — same shape, a grid of fact-cards — and adds `.pcard` only
+ * for what genuinely differs: no photograph, and a zone line under the heading.
+ */
+function property_grid_html( $pg ) {
+	$o = '<section class="sec stock grid-sec bg-alt" aria-label="' . h( $pg['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $pg['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pg['h2'] ) . '</h2></div><ul class="stockgrid">';
+	foreach ( $pg['items'] as $p ) {
+		$o .= '<li class="vcard pcard"><figure class="frame ph"><span>Placeholder</span></figure>'
+			. '<div class="vbody"><h3>' . h( $p['h3'] ) . '</h3>'
+			. '<p class="pzone">' . h( $p['zone'] ) . '</p><ul class="vfacts">';
+		foreach ( $p['facts'] as $fa ) {
+			$o .= '<li>' . h( $fa ) . '</li>';
+		}
+		$o .= '</ul><p class="vprice"><b>' . h( $p['price'] ) . '</b>'
+			. '<span>' . h( $p['unit'] ) . '</span></p>'
+			. '<a class="btn btn-outline btn-sm" href="#">Ver ficha</a></div></li>';
+	}
+	return $o . '</ul><p class="pnote">' . h( $pg['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-MAP-SEARCH · TPL-C-13. The section that separates this archetype from every other listing
+ * in the catalogue: a car has no place, a flat is nothing but its place.
+ *
+ * DRAWN, NOT PHOTOGRAPHED. Inline SVG streets — the Artifact CSP blocks map tiles, a real provider
+ * needs consent before it loads (see wordpress-legal), and neither belongs in a structural mockup.
+ * Every pin carries its price, because a pin the reader has to click to price is a pin that made
+ * them work for something they could have read.
+ */
+function map_search_html( $ms ) {
+	$svg = '<svg viewBox="0 0 800 380" role="img" aria-label="Plano esquemático de la zona">'
+		. '<rect width="800" height="380" fill="var(--c-bg-alt)"/>'
+		. '<g stroke="var(--c-border)" stroke-width="14" fill="none">'
+		. '<path d="M0 96 H800"/><path d="M0 232 H800"/>'
+		. '<path d="M168 0 V380"/><path d="M410 0 V380"/><path d="M632 0 V380"/>'
+		. '</g>'
+		. '<g stroke="var(--c-border)" stroke-width="5" fill="none" opacity=".65">'
+		. '<path d="M0 164 H800"/><path d="M0 306 H800"/><path d="M290 0 V380"/><path d="M524 0 V380"/>'
+		. '</g></svg>';
+	$o = '<section class="sec mapsearch grid-sec" aria-label="' . h( $ms['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ms['h2'] ) . '</h2>'
+		. '<div class="mapswitch" role="group" aria-label="Modo de búsqueda">'
+		. '<button type="button" aria-pressed="false">Lista</button>'
+		. '<button type="button" aria-pressed="true">Mapa</button></div></div>'
+		. '<div class="mapwrap">' . $svg;
+	foreach ( $ms['pins'] as $p ) {
+		$o .= '<span class="pin" style="left:' . (float) $p[0] . '%;top:' . (float) $p[1] . '%">'
+			. h( $p[2] ) . '</span>';
+	}
+	return $o . '</div><p class="pnote">' . h( $ms['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-VISIT-REQUEST · TPL-C-13.
+ *
+ * THE REFERENCE TRAVELS WITH THE REQUEST. A visit form without the property in it is a generic
+ * enquiry, and an agency cannot put a generic enquiry in a diary — which is the whole difference
+ * between this and TPL-C-05's COMP-BOOKING, where the appointment is at the one address the
+ * business has. Reuses `.tiform` for the field layout it shares with COMP-TRADE-IN.
+ */
+function visit_request_html( $vr, $uid ) {
+	$o = '<section class="sec tradein" aria-label="' . h( $vr['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $vr['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $vr['h2'] ) . '</h2><p class="lede muted">' . h( $vr['lede'] ) . '</p></div>'
+		. '<form class="tiform" onsubmit="return false">';
+	foreach ( $vr['fields'] as $fl ) {
+		$id = $uid . '-vr-' . $fl[0];
+		if ( 'select' === $fl[2] ) {
+			$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+				. '<select id="' . $id . '" name="' . $fl[0] . '">';
+			foreach ( $fl[3] as $op ) {
+				$o .= '<option>' . h( $op ) . '</option>';
+			}
+			$o .= '</select></div>';
+			continue;
+		}
+		$val = isset( $fl[3] ) ? ' value="' . h( $fl[3] ) . '"' : '';
+		$ro  = isset( $fl[4] ) ? ' readonly' : '';
+		$o  .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $fl[0] . '" type="' . $fl[2] . '"' . $val . $ro . '></div>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $vr['submit'] ) . '</button>'
+		. '<p class="small muted">' . h( $vr['small'] ) . '</p></form></div></section>';
+}
+
+/**
+ * COMP-VALUATION-CTA · TPL-C-13. The other conversion, and it addresses the other person.
+ *
+ * NO PRICE IS PROMISED ON THE PAGE. An automatic figure is the promise the agency then has to walk
+ * back in person, so the band offers a visit and two numbers it can actually stand behind.
+ */
+function valuation_html( $vl, $uid ) {
+	$o = '<section class="sec valuation grid-sec bg-alt closing" aria-label="' . h( $vl['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $vl['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $vl['h2'] ) . '</h2><p class="lede muted">' . h( $vl['lede'] ) . '</p></div>'
+		. '<ul class="vstats">';
+	foreach ( $vl['stats'] as $st ) {
+		$o .= '<li><b>' . h( $st[0] ) . '</b><span>' . h( $st[1] ) . '</span></li>';
+	}
+	$o .= '</ul><form class="tiform" onsubmit="return false">';
+	foreach ( $vl['fields'] as $fl ) {
+		$id = $uid . '-vl-' . $fl[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $fl[0] . '" type="' . $fl[2] . '"></div>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $vl['submit'] ) . '</button>'
+		. '<p class="small muted">' . h( $vl['small'] ) . '</p></form></div></section>';
+}
+
+/** TPL-C-13 · Cartera / Búsqueda. */
+function strip_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o   = array();
+	$o[] = head_phone( $C, $BRAND );
+	$o[] = '<main>';
+	/* The searcher IS the front page. Same composition as TPL-C-07's filter band and the same CSS,
+	   different function: that one needs a photograph per hero and this archetype has none. */
+	$o[] = search_hero_html( $C['hero'], $C['search'], $uid );
+	$o[] = property_grid_html( $C['listing'] );
+	if ( 'off' !== tgl_of( $tgl_rows, 'TGL-MAP-MODE' ) ) {
+		$o[] = map_search_html( $C['map'] );
+	}
+	$o[] = visit_request_html( $C['visit'], $uid );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
+		$o[] = agent_list_html( $C['team'] );
+	}
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'] );
+	}
+	/* Capture goes AFTER the visit on purpose: an owner who wants to sell arrives anyway, and
+	   putting it first steals the front page from the buyer, who is most of the traffic. */
+	$o[] = valuation_html( $C['valuation'], $uid );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
 /** TPL-C-08 · Modelo / Lanzamiento. */
 function strip_model( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o   = array();
@@ -9453,6 +9842,9 @@ $PAGES = array(
 	'TPL-C-07' => array(
 		array( 'key' => 'home', 'label' => 'Stock', 'doc' => 'TPL-C-07' ),
 	),
+	'TPL-C-13' => array(
+		array( 'key' => 'home', 'label' => 'Cartera', 'doc' => 'TPL-C-13' ),
+	),
 	'TPL-C-08' => array(
 		array( 'key' => 'home', 'label' => 'Modelo', 'doc' => 'TPL-C-08' ),
 	),
@@ -9521,6 +9913,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-C-07' === $tpl && 'home' === $page_key ) {
 		return strip_stock( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-13' === $tpl && 'home' === $page_key ) {
+		return strip_property( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-08' === $tpl && 'home' === $page_key ) {
 		return strip_model( $anchor_key, $C, $BRAND, $suid, $tgl );
@@ -10662,7 +11057,11 @@ $ACCENT_ROLES = array(
 	   marked current, so there is no active state to paint. The `:hover`/`:focus`/`:active`/
 	   `:checked` selectors the scan skips below are the same role, and they are skipped rather
 	   than listed because a whitelist is a statement about the page AT REST. */
-	'active states'    => array(),
+	/* Empty until TPL-C-13 brought the first real one. `.mapswitch` is the Lista/Mapa control, and
+	   the pressed half IS the active state the role names — the same object as a tab that is open.
+	   The unpressed half stays on --c-bg, because a control where both halves are accented has
+	   stopped saying which one you are looking at. */
+	'active states'    => array( 'mapswitch' ),
 
 	/* NOT A ROLE, AND THAT IS THE POINT: the closing band is a whole SURFACE painted in the accent
 	   on PERS-DIRECT, not a mark on one. layout-patterns.md § "The close is a designed moment"
