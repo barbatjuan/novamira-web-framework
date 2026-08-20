@@ -240,6 +240,7 @@ new row looks different from the old ones.
 | `inmo-nerea` | square 1:1 | 600×600 | 18 KB | 5216694377 | fp-5216694 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria, fondo gris liso |
 | `inmo-julen` | square 1:1 | 600×600 | 17 KB | 5216695166 | fp-5216695 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris liso |
 | `inmo-leire` | square 1:1 | 600×600 | 20 KB | 5216696534 | fp-5216696 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris liso |
+| `inmo-plano` | panoramic 2:1 | 1200×570 | 119 KB | 5218258085 | fp-5218258 | Freepik AI (Pikaso) | Vista aérea cenital de un distrito urbano europeo con manzanas, un parque y un río |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the

@@ -1997,15 +1997,18 @@ $CONTENT = array(
 		'map'      => array(
 			'eyebrow' => 'Buscar por dónde está',
 			'h2'      => 'Los mismos 54, sobre el plano',
-			'note'    => 'Mover el plano refiltra la lista, y volver a la lista conserva lo que el plano dejó: las dos vistas comparten una sola consulta. Un plano de verdad carga un tercero, así que necesita consentimiento previo — aquí va dibujado.',
-			/* left%, top%, precio. Las chinchetas caen en las manzanas del plano, no sobre las calles. */
+			'note'    => 'Mover el plano refiltra la lista, y volver a la lista conserva lo que el plano dejó: las dos vistas comparten una sola consulta. El plano navegable lo carga un tercero y necesita consentimiento previo, así que en la maqueta va como fotografía: se ve qué ocupa ese sitio sin pedirle nada al visitante.',
+			'img'     => 'inmo-plano',
+			/* left%, top%, precio. LEÍDAS SOBRE LA FOTOGRAFÍA, no repartidas a ojo: con las posiciones
+			   del plano dibujado, dos chinchetas caían una en el parque y otra en el río — un piso en
+			   mitad del agua es el detalle que hace que nadie se crea el resto de la página. */
 			'pins'    => array(
-				array( 22, 34, '289.000 €' ),
-				array( 47, 22, '345.000 €' ),
-				array( 68, 44, '148.000 €' ),
-				array( 34, 68, '167.500 €' ),
-				array( 82, 72, '412.000 €' ),
-				array( 57, 82, '119.000 €' ),
+				array( 30, 18, '289.000 €' ),
+				array( 52, 30, '345.000 €' ),
+				array( 73, 19, '148.000 €' ),
+				array( 63, 57, '167.500 €' ),
+				array( 86, 71, '412.000 €' ),
+				array( 49, 80, '119.000 €' ),
 			),
 		),
 		'visit'    => array(
@@ -6324,7 +6327,14 @@ $css[] = <<<'CSS'
    because a real map needs third-party consent — see wordpress-legal. */
 .mapsearch .mapwrap{position:relative;border:1px solid var(--c-border);
   border-radius:var(--radius-card);overflow:hidden;background:var(--c-bg-alt)}
-.mapsearch .mapph{aspect-ratio:800/380;width:100%;display:grid;place-items:center;
+.mapsearch .mapshot{margin:0;aspect-ratio:1200/570}
+.mapsearch .mapshot img{width:100%;height:100%;object-fit:cover;display:block}
+/* Sobre una fotografía la chincheta necesita separarse del fondo: sombra corta y filete. Sin
+   ellos un precio oscuro sobre un tejado oscuro deja de leerse justo donde importa. */
+.mapsearch .pin{box-shadow:0 2px 6px rgba(0,0,0,.28)}
+/* La rama sin foto se queda: ese estado es real y vuelve cada vez que un arquetipo aterriza
+   antes que su fotografía. */
+.mapsearch .mapph{aspect-ratio:1200/570;width:100%;display:grid;place-items:center;
   background:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
 .mapsearch .mapph span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--c-text-muted);background:var(--c-bg);padding:.25rem .6rem;
@@ -8795,15 +8805,22 @@ function property_grid_html( $pg ) {
  * them work for something they could have read.
  */
 function map_search_html( $ms ) {
-	/* NO SE DIBUJA UN PLANO. La primera versión de esta sección pintaba calles inventadas en SVG y
-	   el lector la llamó «un mapa random», con razón: un plano de una ciudad que no existe AFIRMA
-	   algo falso, mientras que un hueco declarado no afirma nada. mockup-guide.md § COMP-MAP-NAP ya
-	   lo decía para el otro mapa del catálogo — «map is a `.ph` block, never an embedded iframe» — y
-	   la razón es la misma en los dos sitios: el plano real lo pone el build, con su proveedor y su
-	   consentimiento previo, y en una maqueta estructural sólo se reserva su sitio.
-	   LAS CHINCHETAS SE QUEDAN porque no son decoración: son el dato que esta sección existe para
-	   enseñar — que el precio se lee sin abrir la ficha y que la posición es un filtro. */
-	$svg = '<div class="ph mapph"><span>El plano lo sirve el proveedor en el build</span></div>';
+	/* TRES INTENTOS Y LA TERCERA ES LA BUENA, y las dos anteriores explican por qué.
+	   (1) Un SVG de calles inventadas: el lector lo llamó «un mapa random», con razón — un plano de
+	   una ciudad que no existe AFIRMA algo falso. (2) Un hueco declarado, que no afirma nada pero
+	   tampoco enseña nada: el lector dijo «el mapa no se ve», y tenía razón otra vez, porque la
+	   sección existe para demostrar que buscar por SITIO es distinto de buscar por atributos, y un
+	   rectángulo rayado no demuestra eso. (3) Una fotografía aérea: es una imagen, no una afirmación
+	   cartográfica, así que puede enseñar el tejido urbano —manzanas, parque, río— sin decir que es
+	   ninguna calle concreta. Es la misma respuesta que el resto del arquetipo: no dibujes lo que
+	   puedes fotografiar.
+	   El plano NAVEGABLE sigue siendo del build, con su proveedor y su consentimiento previo — esto
+	   es la maqueta y aquí basta con que se vea qué va en ese sitio.
+	   LAS CHINCHETAS SE QUEDAN porque no son decoración: son el dato que la sección enseña — que el
+	   precio se lee sin abrir la ficha y que la posición es un filtro. */
+	$mp  = img( $ms['img'] );
+	$svg = '<figure class="frame mapshot"><img data-img="' . h( $mp['slug'] ) . '"'
+		. ' alt="' . h( $mp['alt'] ) . '" width="' . $mp['w'] . '" height="' . $mp['h'] . '"></figure>';
 	$o = '<section class="sec mapsearch grid-sec" aria-label="' . h( $ms['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $ms['h2'] ) . '</h2>'
