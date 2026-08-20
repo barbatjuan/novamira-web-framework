@@ -1939,16 +1939,15 @@ $CONTENT = array(
 		),
 	),
 
-	/* ── TPL-C-13 · CARTERA / BÚSQUEDA. Sin marca y SIN UNA SOLA IMAGEN, y las dos cosas son la
-	   misma decisión. Este repo tiene 45 fotografías y ninguna es una vivienda; las más cercanas
-	   son una cantera y seis coches de ocasión. Meter un coche en una ficha de piso es exactamente
-	   el defecto que el § 5 del propio arquetipo prohíbe, y reutilizar el reportaje de Piedra
-	   Valdés cargaría la cota de RT_GALLERY_ONE_SHOOT sin ganar nada. Así que las tres superficies
-	   que pedirían foto —banda del héroe, ficha y retrato— rinden un placeholder MARCADO.
-	   La tira sigue mereciendo la pena sin ellas: lo que un ancla cambia en un listado es la
-	   tipografía del precio, el ritmo de los chips de datos y la densidad de la rejilla, y las tres
-	   se ven aquí. Cuando haya reportaje propio esto pasa a ser una marca como las siete de la
-	   familia B, y entonces será un cambio de datos y no de código. */
+	/* ── TPL-C-13 · CARTERA / BÚSQUEDA. SIETE FOTOGRAFÍAS PROPIAS Y NINGUNA MARCA, que no es una
+	   contradicción: la marca es ground + acento + par tipográfico + reportaje, y aquí sólo está lo
+	   último. Durante un commit no estuvo ni eso — el repo tenía 45 imágenes y ninguna era una
+	   vivienda, así que las tres superficies que piden foto iban con placeholder marcado. Las siete
+	   de ahora son GENERADAS con Freepik Pikaso, no fotografía de archivo, y el manifiesto lo dice
+	   en su columna de licencia en vez de dejarlas pasar por lo que no son.
+	   Los RETRATOS del equipo siguen en placeholder a propósito: una cara inventada en la web de
+	   una agencia es peor que un hueco declarado, porque la promesa que rompe es «éste es quien te
+	   abre la puerta». */
 	'TPL-C-13' => array(
 		'tpl'      => 'TPL-C-13',
 		'tpl_name' => 'Cartera / Búsqueda',
@@ -1969,6 +1968,7 @@ $CONTENT = array(
 			'eyebrow' => 'Cartera propia · Pamplona y comarca',
 			'h1'      => 'Nadie entra aquí a leer sobre nosotros',
 			'lede'    => 'Entra a buscar piso, así que el buscador va primero y lo nuestro va al final. 54 inmuebles con precio cerrado, gastos calculados y la nota simple pedida antes de enseñarlos.',
+			'img'     => 'inmo-calle',
 		),
 		'search'   => array(
 			'count'  => '54 inmuebles disponibles',
@@ -1986,12 +1986,12 @@ $CONTENT = array(
 			'h2'      => 'Lo que hay hoy',
 			'note'    => 'Precio de venta sin gastos de compraventa. Los gastos aproximados van en cada ficha, calculados sobre el precio publicado y no sobre el de tasación.',
 			'items'   => array(
-				array( 'h3' => 'Piso reformado con ascensor', 'zone' => 'Ensanche · Calle San Ignacio', 'facts' => array( '92 m²', '3 hab', '2 baños', '4ª planta', 'Ascensor' ), 'price' => '289.000 €', 'unit' => '3.141 €/m²' ),
-				array( 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
-				array( 'h3' => 'Bajo con patio para reformar', 'zone' => 'Rochapea · Calle Marcelo Celayeta', 'facts' => array( '78 m²', '2 hab', '1 baño', 'Bajo', 'Patio' ), 'price' => '148.000 €', 'unit' => '1.897 €/m²' ),
-				array( 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
-				array( 'h3' => 'Adosado con garaje doble',     'zone' => 'Comarca · Cizur Menor', 'facts' => array( '186 m²', '4 hab', '3 baños', 'Adosado', 'Jardín' ), 'price' => '412.000 €', 'unit' => '2.215 €/m²' ),
-				array( 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
+				array( 'img' => 'inmo-reformado', 'h3' => 'Piso reformado con ascensor', 'zone' => 'Ensanche · Calle San Ignacio', 'facts' => array( '92 m²', '3 hab', '2 baños', '4ª planta', 'Ascensor' ), 'price' => '289.000 €', 'unit' => '3.141 €/m²' ),
+				array( 'img' => 'inmo-atico', 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
+				array( 'img' => 'inmo-bajo', 'h3' => 'Bajo con patio para reformar', 'zone' => 'Rochapea · Calle Marcelo Celayeta', 'facts' => array( '78 m²', '2 hab', '1 baño', 'Bajo', 'Patio' ), 'price' => '148.000 €', 'unit' => '1.897 €/m²' ),
+				array( 'img' => 'inmo-piedra', 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
+				array( 'img' => 'inmo-adosado', 'h3' => 'Adosado con garaje doble',     'zone' => 'Comarca · Cizur Menor', 'facts' => array( '186 m²', '4 hab', '3 baños', 'Adosado', 'Jardín' ), 'price' => '412.000 €', 'unit' => '2.215 €/m²' ),
+				array( 'img' => 'inmo-estudio', 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
 			),
 		),
 		'map'      => array(
@@ -8601,17 +8601,33 @@ function strip_stock( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  *
  * Same composition as TPL-C-07's COMP-SEARCH-FILTERS — a contained band with the filter card
  * riding its bottom edge — and it reuses `.hero-search`/`.filterbar` verbatim, because the
- * composition IS the same and duplicating the CSS would be two things to keep in step. What it
- * cannot reuse is the function: that one requires a photograph per hero, and this archetype has
- * none, so the band renders as a declared placeholder instead of borrowing a quarry.
+ * composition IS the same and duplicating the CSS would be two things to keep in step. Separate
+ * function because the two archetypes label their band differently (`Buscador de inmuebles` vs
+ * `Buscador de stock`) and the aria-label is not decoration.
  */
+/**
+ * The hero band's surface: the photograph when the archetype has one, a MARKED placeholder when
+ * it does not. Marked and not blank — a grey box reads as a design decision, and this one is an
+ * absence. TPL-C-13 shipped without any: the repo held 45 images and not one was a dwelling, so
+ * for one commit the band was hatched. The placeholder branch stays because that state is real
+ * and will recur the next time an archetype lands before its photography does.
+ */
+function hero_shot_html( $hero ) {
+	if ( ! isset( $hero['img'] ) ) {
+		return '<figure class="frame shot ph"><span>Placeholder</span></figure>';
+	}
+	$hs = img( $hero['img'] );
+	return '<figure class="frame shot"><img data-img="' . h( $hs['slug'] ) . '"'
+		. ' alt="' . h( $hs['alt'] ) . '" width="' . $hs['w'] . '" height="' . $hs['h'] . '"></figure>';
+}
+
 function search_hero_html( $hero, $sf, $uid ) {
 	$o = '<section class="sec hero hero-search" aria-label="Buscador de inmuebles">'
 		. '<div class="canvas"><div class="head stack">'
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede">' . h( $hero['lede'] ) . '</p></div>'
-		. '<figure class="frame shot ph"><span>Placeholder</span></figure>'
+		. hero_shot_html( $hero )
 		. '<form class="filterbar" onsubmit="return false">';
 	foreach ( $sf['fields'] as $fl ) {
 		$id = $uid . '-f-' . $fl[0];
@@ -8659,7 +8675,12 @@ function property_grid_html( $pg ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $pg['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $pg['h2'] ) . '</h2></div><ul class="stockgrid">';
 	foreach ( $pg['items'] as $p ) {
-		$o .= '<li class="vcard pcard"><figure class="frame ph"><span>Placeholder</span></figure>'
+		$pi  = isset( $p['img'] ) ? img( $p['img'] ) : null;
+		$o  .= '<li class="vcard pcard">'
+			. ( null === $pi
+				? '<figure class="frame ph"><span>Placeholder</span></figure>'
+				: '<figure class="frame"><img data-img="' . h( $pi['slug'] ) . '" alt="' . h( $pi['alt'] )
+					. '" width="' . $pi['w'] . '" height="' . $pi['h'] . '"></figure>' )
 			. '<div class="vbody"><h3>' . h( $p['h3'] ) . '</h3>'
 			. '<p class="pzone">' . h( $p['zone'] ) . '</p><ul class="vfacts">';
 		foreach ( $p['facts'] as $fa ) {

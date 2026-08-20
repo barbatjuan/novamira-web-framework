@@ -87,6 +87,35 @@ attribution. Recorded here so the obligation travels with the files.
 and its LICENSE grants every reader the right to redistribute what it contains —
 a right an Envato subscription does not give us to pass on.
 
+## Las siete de `inmo-*` no son fotografías
+
+**Están GENERADAS, y la columna `Licence` lo dice en vez de dejarlas pasar por lo que no son.**
+El resto de este manifiesto son fotografías de archivo de Freepik; éstas salieron de **Freepik
+Pikaso**, que es el generador de la misma casa y entrena sobre la biblioteca propia de Freepik,
+así que llevan su licencia comercial. Esa es la razón de que estén aquí y no otra: la regla del
+repo es *imágenes sólo Freepik libre*, y ésta es la parte de Freepik que sabe dibujar un piso.
+
+**Por qué hicieron falta.** `TPL-C-13` publica una cartera de inmuebles y en las 45 filas
+anteriores no hay una sola vivienda: lo más cercano son una cantera y seis coches de ocasión.
+Meter un coche en una ficha de piso es el defecto que el § 5 del propio arquetipo prohíbe, y
+reutilizar el reportaje de Piedra Valdés habría cargado la cota de `RT_GALLERY_ONE_SHOOT` sin
+ganar nada. Durante un commit la tira fue con placeholder marcado, que era la respuesta honesta
+mientras no hubiera imágenes.
+
+**El `Shoot` se deriva igual que el de las demás** — el identificador sin sus tres últimos
+dígitos — y lleva el mismo prefijo `fp-`. Se intentó `pk-` para que la procedencia se leyera de un
+vistazo y la regla lo rechazó con razón: el `Shoot` es una CLAVE DE AGRUPACIÓN y la procedencia va
+en `Licence`, así que meter las dos cosas en una celda habría roto la derivación a cambio de nada.
+Cada una
+es una generación independiente con su propio encargo, así que no forman un reportaje en el
+sentido que `RT_GALLERY_ONE_SHOOT` persigue: siete escenas distintas, no siete encuadres de la
+misma tarde. La cota sigue midiéndolas de todos modos, que es como debe ser — la regla no se fía
+de la prosa de este párrafo y hace bien.
+
+**Lo que NO se generó: las caras.** `COMP-TEAM` sigue con placeholder a propósito. Un retrato
+inventado en la web de una agencia rompe una promesa concreta —«éste es quien te abre la
+puerta»— y un hueco declarado no rompe ninguna.
+
 ## Registers
 
 Four, deliberately. A single register would have shipped forty strips of the same
@@ -198,6 +227,13 @@ new row looks different from the old ones.
 | `alinea-consulta` | card 4:3 | 720×540 | 34 KB | 26955735 | fp-26955 | Freepik free | Odontóloga y paciente conversando en el gabinete |
 | `urgencia-box` | card 4:3 | 720×540 | 32 KB | 22511062 | fp-22511 | Freepik free | Odontóloga tratando a un paciente con dolor en el box de urgencias |
 | `urgencia-turno` | card 4:3 | 720×540 | 34 KB | 15933809 | fp-15933 | Freepik free | Auxiliar de clínica dental de turno mirando a cámara |
+| `inmo-calle` | panoramic 21:9 | 1440×617 | 132 KB | 5215694971 | fp-5215694 | Freepik AI (Pikaso) | Calle residencial de manzana cerrada con balcones de forja, al atardecer |
+| `inmo-reformado` | card 4:3 | 800×600 | 30 KB | 5215695836 | fp-5215695 | Freepik AI (Pikaso) | Salón reformado con parqué de roble y ventanal al balcón |
+| `inmo-atico` | card 4:3 | 800×600 | 50 KB | 5215697660 | fp-5215697 | Freepik AI (Pikaso) | Terraza de ático con solado claro y barandilla de vidrio sobre los tejados |
+| `inmo-bajo` | card 4:3 | 800×600 | 34 KB | 5215697234 | fp-5215697 | Freepik AI (Pikaso) | Bajo sin reformar con salida a un patio interior enlosado |
+| `inmo-piedra` | card 4:3 | 800×600 | 56 KB | 5215699667 | fp-5215699 | Freepik AI (Pikaso) | Estancia con muro de piedra vista, vigas de madera y ventana pequeña |
+| `inmo-adosado` | card 4:3 | 800×600 | 57 KB | 5215700160 | fp-5215700 | Freepik AI (Pikaso) | Fachada de adosado con garaje doble y seto recortado |
+| `inmo-estudio` | card 4:3 | 800×600 | 32 KB | 5215701894 | fp-5215701 | Freepik AI (Pikaso) | Estudio de una sola pieza con cocina en un lateral |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
