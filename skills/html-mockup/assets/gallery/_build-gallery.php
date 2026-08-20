@@ -2025,9 +2025,9 @@ $CONTENT = array(
 			'eyebrow' => 'Quién le abre la puerta',
 			'h2'      => 'Tres personas, tres zonas',
 			'items'   => array(
-				array( 'name' => 'Nerea Zabalza', 'role' => 'Ensanche y Casco Viejo', 'lic' => '948 00 00 01' ),
-				array( 'name' => 'Julen Arraiza', 'role' => 'Rochapea y Chantrea',    'lic' => '948 00 00 02' ),
-				array( 'name' => 'Leire Osés',    'role' => 'Comarca y obra nueva',   'lic' => '948 00 00 03' ),
+				array( 'img' => 'inmo-nerea', 'name' => 'Nerea Zabalza', 'role' => 'Ensanche y Casco Viejo', 'lic' => '948 00 00 01' ),
+				array( 'img' => 'inmo-julen', 'name' => 'Julen Arraiza', 'role' => 'Rochapea y Chantrea',    'lic' => '948 00 00 02' ),
+				array( 'img' => 'inmo-leire', 'name' => 'Leire Osés',    'role' => 'Comarca y obra nueva',   'lic' => '948 00 00 03' ),
 			),
 		),
 		'faq'      => array(
@@ -6026,7 +6026,7 @@ $css[] = <<<'CSS'
    cards, and a sentence cannot be scanned in parallel. `margin-top:auto` on the fact row, so six
    cards whose descriptions wrap to different heights still align their numbers. */
 .treatcards{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))}
 .trcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
   border-radius:var(--radius-card);box-shadow:var(--elev-rest)}
 .trcard .frame{aspect-ratio:16/10;border-radius:0}
@@ -6056,8 +6056,15 @@ $css[] = <<<'CSS'
 .bashot figcaption b{font-family:var(--font-primary);font-size:1.0625rem}
 .bashot figcaption span{color:var(--c-text-muted);font-size:.875rem}
 
+/* AUTO-FIT Y NO AUTO-FILL, y la diferencia es un hueco a la derecha del último retrato.
+   `auto-fill` crea todas las columnas que quepan en el canvas EXISTAN O NO elementos para
+   llenarlas: con tres personas en un ancho donde caben cuatro, la cuarta columna se reserva
+   vacía y las tres tarjetas se quedan encogidas contra el borde izquierdo. `auto-fit` colapsa
+   las columnas vacías y reparte el ancho entre las que hay.
+   Es la misma forma que layout-patterns.md § "Grid track counts" describe: un contenedor que
+   decide su tamaño mirando el hueco disponible en vez de a sus hermanos. */
 .medlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,15rem),1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))}
 .medico .frame{aspect-ratio:1/1;border-radius:var(--radius-card);overflow:hidden}
 .medico .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .medbody{display:grid;gap:.1rem;margin-top:var(--sp-s)}
@@ -6181,7 +6188,7 @@ $css[] = <<<'CSS'
    wrapped to, and a row of cards whose prices sit at four different heights reads as broken. The
    price and the quota are one pair and they travel together. */
 .stockgrid{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
 .vcard{display:flex;flex-direction:column;background:var(--c-bg);overflow:hidden;
   border-radius:var(--radius-card);box-shadow:var(--elev-rest);
   transition:box-shadow var(--dur-lift) var(--ease)}
@@ -6286,7 +6293,11 @@ $css[] = <<<'CSS'
    because a real map needs third-party consent — see wordpress-legal. */
 .mapsearch .mapwrap{position:relative;border:1px solid var(--c-border);
   border-radius:var(--radius-card);overflow:hidden;background:var(--c-bg-alt)}
-.mapsearch svg{display:block;width:100%;height:auto}
+.mapsearch .mapph{aspect-ratio:800/380;width:100%;display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
+.mapsearch .mapph span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--c-text-muted);background:var(--c-bg);padding:.25rem .6rem;
+  border:1px solid var(--c-border);border-radius:var(--radius-pill,999px)}
 /* THE PIN IS NOT AN ACCENT MARK. Six accented pins on one plan out-shout the single CTA the page
    has, and design-tokens.md is explicit that the accent is ONE colour for CTAs, action icons,
    important links and active states — a price label is none of those, it is a label. So the pin
@@ -8653,7 +8664,12 @@ function agent_list_html( $tm, $extra = '' ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="medlist">';
 	foreach ( $tm['items'] as $m ) {
-		$o .= '<li class="medico pcard"><figure class="frame ph"><span>Placeholder</span></figure>'
+		$mi  = isset( $m['img'] ) ? img( $m['img'] ) : null;
+		$o  .= '<li class="medico pcard">'
+			. ( null === $mi
+				? '<figure class="frame ph"><span>Placeholder</span></figure>'
+				: '<figure class="frame"><img data-img="' . h( $mi['slug'] ) . '" alt="' . h( $mi['alt'] )
+					. '" width="' . $mi['w'] . '" height="' . $mi['h'] . '"></figure>' )
 			. '<div class="medbody"><b>' . h( $m['name'] ) . '</b>'
 			. '<span>' . h( $m['role'] ) . '</span>'
 			. '<span class="medlic">' . h( $m['lic'] ) . '</span></div></li>';
@@ -8703,15 +8719,15 @@ function property_grid_html( $pg ) {
  * them work for something they could have read.
  */
 function map_search_html( $ms ) {
-	$svg = '<svg viewBox="0 0 800 380" role="img" aria-label="Plano esquemático de la zona">'
-		. '<rect width="800" height="380" fill="var(--c-bg-alt)"/>'
-		. '<g stroke="var(--c-border)" stroke-width="14" fill="none">'
-		. '<path d="M0 96 H800"/><path d="M0 232 H800"/>'
-		. '<path d="M168 0 V380"/><path d="M410 0 V380"/><path d="M632 0 V380"/>'
-		. '</g>'
-		. '<g stroke="var(--c-border)" stroke-width="5" fill="none" opacity=".65">'
-		. '<path d="M0 164 H800"/><path d="M0 306 H800"/><path d="M290 0 V380"/><path d="M524 0 V380"/>'
-		. '</g></svg>';
+	/* NO SE DIBUJA UN PLANO. La primera versión de esta sección pintaba calles inventadas en SVG y
+	   el lector la llamó «un mapa random», con razón: un plano de una ciudad que no existe AFIRMA
+	   algo falso, mientras que un hueco declarado no afirma nada. mockup-guide.md § COMP-MAP-NAP ya
+	   lo decía para el otro mapa del catálogo — «map is a `.ph` block, never an embedded iframe» — y
+	   la razón es la misma en los dos sitios: el plano real lo pone el build, con su proveedor y su
+	   consentimiento previo, y en una maqueta estructural sólo se reserva su sitio.
+	   LAS CHINCHETAS SE QUEDAN porque no son decoración: son el dato que esta sección existe para
+	   enseñar — que el precio se lee sin abrir la ficha y que la posición es un filtro. */
+	$svg = '<div class="ph mapph"><span>El plano lo sirve el proveedor en el build</span></div>';
 	$o = '<section class="sec mapsearch grid-sec" aria-label="' . h( $ms['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $ms['h2'] ) . '</h2>'

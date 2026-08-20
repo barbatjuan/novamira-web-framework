@@ -2948,6 +2948,43 @@ list( , $out136 ) = fx_run_ok( $audit, $r136 );
 ok( array() === fx_lines_with( $out136, array( 'RT_MOCKUP_DISCLOSURE_STATE' ) ), 'un desplegable unico y cerrado no produce fila', $out136 );
 fx_rrmdir( $r136 );
 
+/* ---- `auto-fill` reserva una columna para lo que no existe ----
+ *
+ * Las dos grafías se leen igual en una hoja de estilos y no lo son: `auto-fill` crea todas las
+ * columnas que CABEN, `auto-fit` colapsa las vacías. Tres retratos en un canvas donde caben cuatro
+ * se rinden, bajo `auto-fill`, como tres tarjetas apretadas a la izquierda y un cuarto de sección
+ * vacío — que es lo que el lector rodeó en rojo. No es una prohibición sino una exigencia de
+ * justificación, porque hay sitios donde la pista vacía ES el objetivo.
+ */
+echo "--- una rejilla con auto-fill sin justificar FALLA ---\n";
+$r137 = fx_tmp_root();
+fx_base( $r137 );
+fx( $r137, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', ".team{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}\n</style>", fx_mockup() ) );
+list( , $out137 ) = fx_run_ok( $audit, $r137 );
+ok( 'FAIL' === fx_row_level( $out137, array( 'RT_MOCKUP_GRID_AUTOFILL', 'corporate-mockup.html' ) ), 'auto-fill sin justificacion al lado FALLA', fx_row_level( $out137, array( 'RT_MOCKUP_GRID_AUTOFILL', 'corporate-mockup.html' ) ) );
+fx_rrmdir( $r137 );
+
+/* Los dos controles negativos, que son los que impiden que la fila se vuelva un tic: la grafia
+   correcta no dispara, y la incorrecta CON su razon escrita tampoco. */
+echo "--- pero auto-fit no, y auto-fill justificado tampoco ---\n";
+$r138 = fx_tmp_root();
+fx_base( $r138 );
+fx( $r138, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', ".team{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}\n</style>", fx_mockup() ) );
+list( , $out138 ) = fx_run_ok( $audit, $r138 );
+ok( array() === fx_lines_with( $out138, array( 'RT_MOCKUP_GRID_AUTOFILL' ) ), 'auto-fit no produce fila', $out138 );
+fx_rrmdir( $r138 );
+
+$r139 = fx_tmp_root();
+fx_base( $r139 );
+fx( $r139, 'skills/html-mockup/assets/corporate-mockup.html',
+	str_replace( '</style>', "/* auto-fill: el hueco es el objetivo, esto es un calendario */\n"
+		. ".cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(3rem,1fr))}\n</style>", fx_mockup() ) );
+list( , $out139 ) = fx_run_ok( $audit, $r139 );
+ok( array() === fx_lines_with( $out139, array( 'RT_MOCKUP_GRID_AUTOFILL' ) ), 'auto-fill CON su razon escrita al lado no produce fila: la fila pide una justificacion, no prohibe', $out139 );
+fx_rrmdir( $r139 );
+
 echo "--- .hero .frame tampoco: la lista blanca es de MEDIA, no de un literal ---\n";
 $r101g = fx_tmp_root();
 fx_base( $r101g );

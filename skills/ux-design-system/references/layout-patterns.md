@@ -142,6 +142,25 @@ muted tone stops being quieter and starts being unreadable: the gallery's accent
 one ink**, the same rule a photographic hero already follows, and hierarchy comes from size and
 weight instead.
 
+## Grid track counts
+
+**`auto-fit`, never `auto-fill`, unless the reason is written next to it.**
+
+The two look identical in a stylesheet and differ in one thing: `auto-fill` creates every column
+that fits the container **whether or not there is an element for it**, and `auto-fit` collapses
+the empty ones so the elements that exist share the width. Three team photos in a canvas that
+fits four render, under `auto-fill`, as three cards squeezed against the left edge and a quarter
+of the section empty — which is the defect a reader circles in red and calls *"falta algo aquí"*, because a reserved column looks exactly like a missing card.
+
+It is the same shape as every other misalignment in this framework: **a container sizing itself
+against the space available instead of against its own siblings.** Chips that wrap, an `auto`
+column in an independent grid, an item with `min-width:auto` eating the gutter — and this one.
+
+`auto-fill` earns its place only where the empty track is the point: a calendar month, a seat
+map, a contact sheet whose grid must not reflow as items are filtered out. None of those are
+section layouts, so in a page they are the exception that has to argue for itself.
+(verifier: `RT_MOCKUP_GRID_AUTOFILL` FAILs any `repeat(auto-fill` in a mockup asset that carries no `auto-fill:` justification comment beside it.)
+
 ## Disclosure lists (FAQ, accordion, spec tabs)
 
 **The first row is open. The rest are not.** One rule, and it holds for every disclosure list on

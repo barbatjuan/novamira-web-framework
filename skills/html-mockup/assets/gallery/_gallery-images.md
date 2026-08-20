@@ -112,9 +112,12 @@ sentido que `RT_GALLERY_ONE_SHOOT` persigue: siete escenas distintas, no siete e
 misma tarde. La cota sigue midiéndolas de todos modos, que es como debe ser — la regla no se fía
 de la prosa de este párrafo y hace bien.
 
-**Lo que NO se generó: las caras.** `COMP-TEAM` sigue con placeholder a propósito. Un retrato
-inventado en la web de una agencia rompe una promesa concreta —«éste es quien te abre la
-puerta»— y un hueco declarado no rompe ninguna.
+**Las caras llegaron después, y con una advertencia que viaja con ellas.** Durante un commit
+`COMP-TEAM` fue con placeholder por un motivo que sigue siendo verdad: un retrato inventado en la
+web de una agencia rompe una promesa concreta —«éste es quien te abre la puerta»—. En la GALERÍA,
+que es una herramienta interna y no la web de nadie, no hay promesa que romper y un hueco a la
+derecha del último retrato se lee como una tarjeta que falta. **En un sitio de cliente estas tres
+no valen**: ahí van las caras reales o no va la sección.
 
 ## Registers
 
@@ -234,6 +237,9 @@ new row looks different from the old ones.
 | `inmo-piedra` | card 4:3 | 800×600 | 56 KB | 5215699667 | fp-5215699 | Freepik AI (Pikaso) | Estancia con muro de piedra vista, vigas de madera y ventana pequeña |
 | `inmo-adosado` | card 4:3 | 800×600 | 57 KB | 5215700160 | fp-5215700 | Freepik AI (Pikaso) | Fachada de adosado con garaje doble y seto recortado |
 | `inmo-estudio` | card 4:3 | 800×600 | 32 KB | 5215701894 | fp-5215701 | Freepik AI (Pikaso) | Estudio de una sola pieza con cocina en un lateral |
+| `inmo-nerea` | square 1:1 | 600×600 | 18 KB | 5216694377 | fp-5216694 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria, fondo gris liso |
+| `inmo-julen` | square 1:1 | 600×600 | 17 KB | 5216695166 | fp-5216695 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris liso |
+| `inmo-leire` | square 1:1 | 600×600 | 20 KB | 5216696534 | fp-5216696 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris liso |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the

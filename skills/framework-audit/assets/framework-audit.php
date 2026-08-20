@@ -107,6 +107,7 @@ const ROW_TYPES = array(
 	'RT_MOCKUP_ANCHOR_UNDECLARED' => 'FAIL  — a starting or proof mockup does not say which anchor it is pointed at',
 	'RT_MOCKUP_AXES_MISMATCH'    => 'FAIL  — a mockup\'s axis labels are not the ones its declared anchor holds',
 	'RT_MOCKUP_DISCLOSURE_STATE' => 'FAIL  — a disclosure block is not built from <details>, or does not open exactly its first row',
+	'RT_MOCKUP_GRID_AUTOFILL'    => 'FAIL  — a mockup grid uses repeat(auto-fill) with no justification beside it, so it reserves columns for elements that do not exist',
 	'RT_MOCKUP_FONT_NOT_EMBEDDED' => 'FAIL  — an html-mockup asset names a font family it does not embed',
 	'RT_MOCKUP_BLEED_FIXED_BAND' => 'FAIL  — a mockup bleeds to `full-end` but pins --content-width at a fixed length, leaving the gutter beside the bleed unbounded',
 	'RT_MOCKUP_BLEED_NOT_MEDIA'  => 'FAIL  — a mockup sends something other than media to the viewport glass: a card, a run of copy or, worst, a form control',
@@ -1917,6 +1918,41 @@ foreach ( $mockup_assets as $mockup_path ) {
 	   whatever declares one; they are simply not required to, since a demand nothing would ever
 	   violate is a row that only ever fires on fixtures. */
 
+
+	/* ---- RT_MOCKUP_GRID_AUTOFILL ----
+	 *
+	 * `auto-fill` AND `auto-fit` LOOK IDENTICAL IN A STYLESHEET AND ARE NOT. `auto-fill` creates
+	 * every column that fits the container whether or not there is an element for it; `auto-fit`
+	 * collapses the empty ones so the elements that exist share the width. Three team portraits in
+	 * a canvas that fits four render, under `auto-fill`, as three cards squeezed left with a quarter
+	 * of the section empty — and an empty reserved column is indistinguishable from a missing card.
+	 * The reader circled exactly that in red and asked why it keeps happening.
+	 *
+	 * SAME SHAPE AS EVERY OTHER MISALIGNMENT HERE: a container sizing itself against the space
+	 * available instead of against its own siblings. layout-patterns.md § "Grid track counts" says
+	 * it in full, and this row is what stops it being said and not applied — which is the failure
+	 * that produced `RT_MOCKUP_DISCLOSURE_STATE` one commit ago and is worth naming twice.
+	 *
+	 * NOT A BAN, A JUSTIFICATION REQUIREMENT, and the difference matters because `auto-fill` is
+	 * genuinely right somewhere: a calendar month, a seat map, a contact sheet whose grid must not
+	 * reflow as items are filtered out. In all three the empty track IS the point. So the row asks
+	 * for the marker `auto-fill:` in a comment within 400 characters before the declaration, which
+	 * is the same shape as the verifier markers in a SKILL.md — the reason travels with the code and
+	 * the next reader does not have to guess whether it was a decision or a default.
+	 */
+	if ( preg_match_all( '/repeat\(\s*auto-fill/', $mockup_src, $af_m, PREG_OFFSET_CAPTURE ) ) {
+		$af_bad = 0;
+		foreach ( $af_m[0] as $af_hit ) {
+			$af_from = max( 0, $af_hit[1] - 400 );
+			$af_ctx  = substr( $mockup_src, $af_from, $af_hit[1] - $af_from );
+			if ( false === strpos( $af_ctx, 'auto-fill:' ) ) {
+				++$af_bad;
+			}
+		}
+		if ( $af_bad > 0 ) {
+			add( 'RT_MOCKUP_GRID_AUTOFILL', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ': ' . $af_bad . ' grid(s) use repeat(auto-fill) with no `auto-fill:` justification beside them — that reserves a column for every element that FITS rather than for every element that EXISTS, and a reserved empty column reads as a missing card. `auto-fit` collapses them; if the empty track is the point, say so in a comment within 400 chars' );
+		}
+	}
 	/* ---- RT_MOCKUP_DISCLOSURE_STATE ----
 	 *
 	 * ONE RULE FOR EVERY DISCLOSURE LIST: built from `<details>`, and exactly the FIRST row open.
