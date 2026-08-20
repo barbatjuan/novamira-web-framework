@@ -421,15 +421,17 @@ $ANCHORS = array(
 // ─────────────────────────────────────────────────────────────── 4b · a brand is not an anchor
 //
 // AN ANCHOR IS A POSITION; A BRAND IS A BUSINESS. Everything above this line renders ONE company —
-// Piedra Valdes, cantería in Lleida — through ten architectures and the anchor set. That is 43 of
-// the 50 strips: one identity in 43 configurations, and it is the defect this table exists to end:
-// a catalogue whose
+// Piedra Valdes, cantería in Lleida — through ten architectures and all five anchors. That is 50
+// of the 57 strips: one identity in 50 configurations, and it is the defect this table exists to
+// end: a catalogue whose
 // every entry is the same stonemason cannot answer "quiero la de restaurante", because none of
 // them is one. The architecture varied and the identity never did.
 //
 // The count is stated rather than computed because the strip table is EXPLICIT PAIRS, not a cross
-// product: coverage per anchor is whatever the table says it is, and it is not even — measured on
-// this build, direct/editorial/institutional carry 12 strips each, matter 11 and vitrine 3.
+// product: coverage per anchor is whatever the table says it is. Across the TEN house archetypes it
+// is now the full 10x5 — it was not, and VITRINE sat at 3 while the rest sat at 10, which is a hole
+// in the one thing this page does. Totals still differ (12/12/12/11/10) because the seven BRANDED
+// strips below each stand at one chosen anchor and no brand chose vitrine.
 //
 // So a brand supplies exactly what an anchor deliberately does not: its own GROUND, its own
 // ACCENT, its own TYPE PAIRING and its own PHOTOGRAPHS. It BORROWS scale, density, composition and
@@ -3467,6 +3469,16 @@ printf( "  hero visual TPL-C-03 (%s, scrim %s negro, texto %s):\n    %s\n",
 	$VIS_SLUG, $VIS_ALPHA, $VIS_TEXT, implode( "\n    ", $VIS_ROWS ) );
 
 $STRIPS = array(
+	/* COBERTURA PAREJA, Y NO "DONDE ENCAJA". Las cuatro primeras anclas cubren los diez arquetipos
+	   de la casa; VITRINE cubria TRES, elegidos porque la vitrina les venia bien. Eso no era una
+	   decision de cobertura sino su ausencia, y rompe lo unico que esta galeria hace: COMPARAR. Un
+	   ancla presente en 3 de 10 no se puede poner al lado de una presente en 10.
+	   Asi que ahora estan las diez, incluidas las dos donde la combinacion CHIRRIA -- TPL-C-05 (el
+	   telefono en el header contra el ancla mas lenta en imagen) y TPL-E-05 (urgencia con fecha
+	   contra densidad monumental). Se quedan y se marcan como tensas: una tira es una configuracion
+	   renderizada, no una recomendacion, y saber cual chirria es justo el dato que un catalogo con
+	   huecos no puede dar. RT_GALLERY_NOT_DISTINCT sigue verde en las siete: VITRINE difiere en 4 de
+	   5 ejes contra cada una de las otras cuatro, por construccion. */
 	/* CASA TERRAZZA GOES FIRST because the catalogue is read from the top and this is the entry
 	   that answers the question the other forty cannot. PERS-EDITORIAL and not PERS-MATTER: the
 	   restaurant wants the generous density and the 88px display, and `matter`'s classic scale would
@@ -3492,12 +3504,20 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'institutional' ),
+	/* VITRINE sobre servicios + captacion. Es la combinacion mas incomoda del bloque corporativo y por
+	   eso esta: el ancla pide aire monumental y el arquetipo quiere el formulario cerca. Renderizada,
+	   se ve exactamente cuanto scroll cuesta esa densidad antes de llegar al cierre. */
+	array( 'tpl' => 'TPL-C-01', 'anchor' => 'vitrine' ),
 	/* TPL-C-02 · the second corporate archetype. Its four anchors sit between C-01's and E-02's so
 	   the catalogue reads corporate → corporate → ecommerce rather than jumping. */
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-02', 'anchor' => 'direct' ),
+	/* VITRINE sobre Institutional Trust. Contraste directo con la variante `institutional` de arriba:
+	   comparten UN eje (elevation `soft-shadow`) y ninguno mas, asi que la misma pagina se lee
+	   como despacho sobrio o como sala de exposicion segun donde caiga el ground. */
+	array( 'tpl' => 'TPL-C-02', 'anchor' => 'vitrine' ),
 	/* TPL-C-03 · el tercer arquetipo corporativo. */
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-03', 'anchor' => 'matter' ),
@@ -3512,21 +3532,35 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-E-03', 'anchor' => 'direct' ),
+	/* VITRINE sobre Brand Story. `la marca y el relato venden; el producto ilustra` dice su doc, y este
+	   ancla es la que mas subordina el producto al ambiente. La mas facil del bloque. */
+	array( 'tpl' => 'TPL-E-03', 'anchor' => 'vitrine' ),
 	/* TPL-C-04 · la landing de oferta única. */
 	array( 'tpl' => 'TPL-C-04', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-04', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-04', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-04', 'anchor' => 'institutional' ),
+	/* VITRINE sobre la landing de oferta unica. Una oferta y un CTA repetido, servidos en la densidad
+	   mas alta del catalogo: es el caso donde se ve si el aire ayuda a la conversion o la entierra. */
+	array( 'tpl' => 'TPL-C-04', 'anchor' => 'vitrine' ),
 	/* TPL-E-05 · la campaña con fecha. */
 	array( 'tpl' => 'TPL-E-05', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-05', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-05', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-05', 'anchor' => 'institutional' ),
+	/* VITRINE sobre Promo / Campaign. TENSA, y es el contraejemplo que faltaba: la urgencia con fecha
+	   quiere velocidad y este ancla es la unica que no la tiene. Deja de ser una opinion cuando la
+	   campana esta renderizada al lado de su version `direct`. */
+	array( 'tpl' => 'TPL-E-05', 'anchor' => 'vitrine' ),
 	/* TPL-C-05 · el negocio con puerta. */
 	array( 'tpl' => 'TPL-C-05', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-05', 'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-C-05', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-05', 'anchor' => 'direct' ),
+	/* VITRINE sobre el negocio con puerta. TENSA a proposito: el arquetipo lleva el TELEFONO en el
+	   header y el ancla es la mas lenta en imagen del catalogo. Funciona para un restaurante caro y
+	   chirria para una clinica, y esa diferencia solo se ve mirandola. */
+	array( 'tpl' => 'TPL-C-05', 'anchor' => 'vitrine' ),
 	/* TPL-E-01 · la tienda que entra por el ojo. */
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-E-01', 'anchor' => 'matter' ),
@@ -3546,6 +3580,10 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'institutional' ),
+	/* VITRINE sobre Catalog / Product-First. Ocho tiles en rejilla estricta bajo un ground `ink`: es
+	   el escalon de superficie haciendo TODO el trabajo de separacion, porque sobre negro la sombra
+	   `soft-shadow` no se ve. La tira existe para comprobar que ese escalon basta a ocho piezas. */
+	array( 'tpl' => 'TPL-E-02', 'anchor' => 'vitrine' ),
 );
 
 /* No pair may repeat: `RT_GALLERY_NOT_DISTINCT` will assert this from outside, but a generator
