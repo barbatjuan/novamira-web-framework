@@ -543,6 +543,58 @@ $BRANDS = array(
 		'font_2' => "'Source Sans 3', system-ui, sans-serif",
 		'ink'    => array( 'sat' => 0.74, 'gamma' => 0.22 ),
 	),
+
+	/* CORTE NUEVE · vaquero con ajuste. El fondo es el GREIGE DEL PROPIO FONDO DE LAS FOTOS, y esa
+	   es la única forma defendible de elegirlo aquí: este arquetipo enseña la misma prenda sobre
+	   tres cuerpos contra un ciclorama liso, así que cualquier otro fondo pondría a la página a
+	   discutir con sus nueve fotografías. El acento es el índigo del tinte — no un color de marca
+	   inventado, el color que tiene el producto cuando sale de la cuba.
+	   Es además el ÚNICO fondo de tono medio del catálogo: los otros siete son o muy claros o muy
+	   oscuros, y esa banda intermedia estaba vacía. */
+	'corte' => array(
+		'name'   => 'CORTE NUEVE',
+		'sector' => 'Moda · vaquero',
+		'ground' => array( 'bg' => '#EDEAE4', 'alt' => '#DFDAD1', 'text' => '#1C1A17' ),
+		'accent' => '#2C3E7A',
+		'font_1' => "'DM Sans', system-ui, sans-serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.62, 'gamma' => 0.12 ),
+	),
+
+	/* BAJURA · pescado fresco. Fondo casi negro VERDOSO, y no es estética: el pescado se fotografía
+	   sobre pizarra y hielo, brilla sobre oscuro y se apaga sobre papel. Frente al casi negro cálido
+	   de Terrazza y al azulado de Auria, éste tira a verde — tres oscuros que no se parecen es
+	   exactamente lo que un catálogo tiene que poder demostrar.
+	   El acento es el naranja de las boyas y los petos del puerto, que es donde está el negocio. */
+	'bajura' => array(
+		'name'   => 'BAJURA',
+		'sector' => 'Alimentación · pescado fresco',
+		'ground' => array( 'bg' => '#0F1714', 'alt' => '#18211D', 'text' => '#E9F1EC' ),
+		'accent' => '#FF8A3D',
+		'font_1' => "'Archivo', system-ui, sans-serif",
+		'font_2' => "'Source Sans 3', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.55, 'gamma' => 0.30 ),
+	),
+
+	/* TUESTE NORTE · suscripción de café. Kraft, el papel de la propia caja. Lo que se vende aquí no
+	   es un producto que se mira sino una entrega que llega, y lo que el cliente ve cada mes es
+	   cartón: el fondo es el material del envío y no el color del grano.
+	   Verde de planta como acento — nadie más en el catálogo lo tiene, y el café es una planta antes
+	   que una bebida. */
+	'tueste' => array(
+		'name'   => 'TUESTE NORTE',
+		'sector' => 'Alimentación · café por suscripción',
+		'ground' => array( 'bg' => '#E8DFD0', 'alt' => '#DBD0BD', 'text' => '#20180E' ),
+		/* VERDE MEDIDO, NO ELEGIDO. #2F5D3A daba un ink de sombra con un recorrido de canal de 14 y
+		   la puerta lo tumbó con razón: un duotono cuya tinta oscura es gris no es un duotono. El
+		   fondo kraft es cálido y el verde tenía que ser bastante más puro para que la mezcla al 45%
+		   siguiera siendo verde después de reponer la luminancia. Éste da 21 de recorrido y 6,16:1
+		   sobre el fondo — de los candidatos probados, el único que pasa las dos cosas con margen. */
+		'accent' => '#0F5C28',
+		'font_1' => "'Fraunces', Georgia, 'Times New Roman', serif",
+		'font_2' => "'Archivo', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.70, 'gamma' => 0.15 ),
+	),
 );
 
 $ACCENT_BY_GROUND = array(
@@ -1222,6 +1274,20 @@ $TOGGLES = array(
 		),
 		'TGL-NEWSLETTER' => array(
 			'ask'     => '¿Bloque de boletín?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+	),
+	/* TPL-E-06 · Talla / Prueba. Los dos que su doc declara y ninguno más: un toggle que esta tabla
+	   inventara sería una capacidad que el arquetipo nunca ofreció. */
+	'TPL-E-06' => array(
+		'TGL-FIT-FINDER' => array(
+			'ask'     => '¿Traductor de tallas entre marcas?',
+			'default' => 'sí',
+			'options' => array( 'sí', 'no' ),
+		),
+		'TGL-FAQ'        => array(
+			'ask'     => '¿Preguntas de ajuste?',
 			'default' => 'sí',
 			'options' => array( 'sí', 'no' ),
 		),
@@ -3461,6 +3527,108 @@ $CONTENT = array(
 			'legal' => '© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido',
 		),
 	),
+
+	/* TPL-E-06 · CORTE NUEVE. La tienda cuyo cliente no duda del producto: duda de si le va a caber.
+	   La talla es la primera causa de devolución en moda online, así que el coste de no responderla
+	   no es una venta perdida — es una venta hecha, enviada, devuelta y reembolsada, con dos portes
+	   por el camino. De ahí las tres decisiones del arquetipo: el buscador de talla ARRIBA, las
+	   medidas en centímetros y por prenda, y la misma prenda sobre tres cuerpos con su talla escrita.
+	   NO hay héroe editorial a sangre: una pantalla completa de fotografía es lo que hace esta tienda
+	   cuando ya no tiene nada que decir, y aquí tiene mucho. */
+	'TPL-E-06-corte' => array(
+		'tpl'          => 'TPL-E-06-corte',
+		'arch'         => 'TPL-E-06',
+		'brand'        => 'corte',
+		'brand_name'   => 'Corte Nueve',
+		'brand_sector' => 'Moda · vaquero',
+		'tpl_name'     => 'Talla / Prueba',
+		'site'         => 'ecommerce',
+		'site_es'      => 'Ecommerce',
+		'fits'         => 'Moda con ajuste, calzado, lencería, ropa técnica y deportiva, uniformes',
+		'dna'          => 'COMP-FIT-FINDER · COMP-MEASURE-TABLE · COMP-FIT-GALLERY · COMP-RETURN-PROMISE',
+		'wire'         => 'COMP-HEADER · COMP-FIT-FINDER · COMP-PRODUCT-GRID · COMP-MEASURE-TABLE · COMP-FIT-GALLERY · COMP-RETURN-PROMISE · COMP-FAQ · COMP-FOOTER',
+		'head_mode'    => 'tight',
+		'nav'          => array( 'Vaqueros', 'Chaquetas', 'Camisas', 'Medidas' ),
+		'search'       => 'Buscar corte, lavado, talla…',
+		'tools'        => array( 'Cuenta' ),
+		'cart'         => 'Cesta',
+		'cart_n'       => '1',
+		'finder'       => array(
+			'eyebrow' => 'Antes de nada',
+			'h1'      => 'Dinos qué talla llevas y de qué marca',
+			'lede'    => 'Traducimos desde treinta marcas. No es un algoritmo: es una tabla que hicimos midiendo prendas reales, y se puede consultar entera más abajo.',
+			'lbl_1'   => 'Tu talla habitual',
+			'opt_1'   => array( '38', '40', '42', '44', '46', '48' ),
+			'lbl_2'   => 'En qué marca',
+			'opt_2'   => array( 'Levi\'s', 'Zara', 'Uniqlo', 'Carhartt', 'Otra' ),
+			'cta'     => 'Ver mi talla aquí',
+			'result'  => 'Con una 42 de Levi\'s aquí llevas una 42 en recto y una 44 si la quieres holgada.',
+			'note'    => 'Si sale entre dos, mandamos las dos y devuelves la que no. El porte de la vuelta lo pagamos nosotros.',
+		),
+		'grid'         => array(
+			'eyebrow' => 'Lo que hay',
+			'h2'      => 'Seis prendas y su talla en la foto',
+			'note'    => 'Cada ficha dice qué talla lleva la persona de la foto y cuánto mide. Una prenda sobre un solo cuerpo informa de ese cuerpo y de ninguno más.',
+			'items'   => array(
+				array( 'img' => 'corte-v1', 'h3' => 'Recto lavado medio', 'p' => '89 € · la modelo lleva 42' ),
+				array( 'img' => 'corte-v2', 'h3' => 'Pitillo negro',      'p' => '85 € · el modelo lleva 40' ),
+				array( 'img' => 'corte-v3', 'h3' => 'Ancho lavado claro', 'p' => '95 € · la modelo lleva 44' ),
+				array( 'img' => 'corte-v4', 'h3' => 'Chaqueta índigo',    'p' => '119 € · el modelo lleva M' ),
+				array( 'img' => 'corte-v5', 'h3' => 'Chino oliva',        'p' => '69 € · el modelo lleva 42' ),
+				array( 'img' => 'corte-v6', 'h3' => 'Camisa de chambray', 'p' => '75 € · la modelo lleva M' ),
+			),
+		),
+		'measure'      => array(
+			'eyebrow' => 'En centímetros',
+			'h2'      => 'Las medidas del recto lavado medio',
+			'note'    => 'Prenda a prenda, no una tabla genérica de marca al pie. «M» no es una medida: es una etiqueta que cada fábrica interpreta distinto.',
+			'cols'    => array( 'Talla', 'Cintura', 'Cadera', 'Tiro', 'Largo', 'Bajo' ),
+			'rows'    => array(
+				array( '38', '74', '94', '27', '104', '17' ),
+				array( '40', '78', '98', '27,5', '105', '17,5' ),
+				array( '42', '82', '102', '28', '106', '18' ),
+				array( '44', '86', '106', '28,5', '107', '18,5' ),
+				array( '46', '90', '110', '29', '108', '19' ),
+				array( '48', '94', '114', '29,5', '109', '19,5' ),
+			),
+			'how'     => 'Cintura medida en plano y multiplicada por dos, con la prenda abrochada. Si comparas con un vaquero tuyo, mídelo igual.',
+		),
+		'fitgal'       => array(
+			'eyebrow' => 'La misma prenda',
+			'h2'      => 'Sobre tres cuerpos distintos',
+			'note'    => 'Es el mismo vaquero recto lavado medio en las tres fotos. Lo que cambia es quién lo lleva y qué talla pidió.',
+			'items'   => array(
+				array( 'img' => 'corte-cuerpo1', 'who' => '1,78 m · 68 kg', 'size' => 'Talla 40' ),
+				array( 'img' => 'corte-cuerpo2', 'who' => '1,70 m · 79 kg', 'size' => 'Talla 44' ),
+				array( 'img' => 'corte-cuerpo3', 'who' => '1,65 m · 92 kg', 'size' => 'Talla 48' ),
+			),
+		),
+		'ret'          => array(
+			'eyebrow' => 'Si no te vale',
+			'h2'      => 'La devolución, con cifras',
+			'items'   => array(
+				array( '30', 'días para devolver', 'Desde que te llega, no desde que lo pides.' ),
+				array( '0 €', 'cuesta el porte', 'Lo pagamos nosotros, también si pediste dos tallas.' ),
+				array( '4', 'días hasta el reembolso', 'Desde que el paquete entra en nuestro almacén.' ),
+			),
+			'note'    => 'Sin asteriscos y sin «previo estudio». Si la prenda vuelve sin usar y con la etiqueta puesta, el dinero sale.',
+		),
+		'faq'          => array(
+			'eyebrow' => 'Dudas de ajuste',
+			'h2'      => 'Lo que se pregunta antes de pedir talla',
+			'items'   => array(
+				array( '¿Encoge al lavar?', 'El algodón sin elastano encoge entre un 1 y un 2% el primer lavado, y ya está: son uno o dos centímetros de largo. Las medidas de la tabla son de prenda ya lavada.' ),
+				array( '¿Puedo pedir dos tallas y devolver una?', 'Sí, y es lo que recomendamos si el buscador te deja entre dos. El porte de la vuelta lo pagamos nosotros.' ),
+				array( '¿Los vaqueros de mujer y de hombre son la misma horma?', 'No. Comparten lavado y tejido, y cambian tiro y cadera. Cada uno tiene su tabla, y son las dos que ves arriba según la prenda.' ),
+				array( '¿Qué talla lleva la persona de cada foto?', 'Está escrita debajo de cada imagen, con su altura y su peso. Es el dato que hace comparable una foto de catálogo.' ),
+			),
+		),
+		'footer'       => array(
+			'tag'   => 'Vaquero cosido en Igualada · tallas de la 36 a la 52',
+			'links' => array( 'Envíos', 'Devoluciones', 'Aviso legal', 'Privacidad', 'Cookies' ),
+			'legal' => '© 2026 Corte Nueve S.L. · Taller y almacén en Igualada · IVA incluido',
+		),
+	),
 );
 
 // ── EL CONTENIDO DE LAS PÁGINAS INTERNAS ───────────────────────────────────────────────────────
@@ -3718,6 +3886,31 @@ $CONTENT['TPL-E-05']['pdp'] = array(
 		array( 'Envíos', 'Palet a península en 48 h laborables desde el almacén. Baleares y Canarias, consultar antes de comprar.' ),
 	),
 	'badges'    => array( 'Pieza única · no se repone', 'Mismo bloque que el catálogo', 'Sale en 48 h' ),
+);
+
+/* TPL-PDP-02 «Talla y ajuste» sobre TPL-E-06.
+   REUTILIZA el buscador de talla, la tabla de medidas, la galería de tres cuerpos y la promesa de
+   devolución del bloque de la home: es la misma tienda un nivel más abajo, y son exactamente las
+   secciones que responden la única duda que queda. Lo propio de la ficha es el selector de talla
+   CON EL STOCK DE CADA UNA — una talla agotada se ve agotada, no se descubre al añadir al carrito. */
+$CONTENT['TPL-E-06-corte']['pdp'] = array(
+	'crumbs' => array( 'Inicio', 'Vaqueros', 'Recto lavado medio' ),
+	'h1'     => 'Vaquero recto · lavado medio',
+	'price'  => '89 €',
+	'lede'   => 'Algodón de 13 onzas sin elastano, tejido en Valencia y cosido en Igualada. Tiro medio y pierna recta desde la rodilla: la horma más neutra que hacemos.',
+	'main'   => 'corte-v1',
+	'thumbs' => array( 'corte-cuerpo1', 'corte-cuerpo2', 'corte-cuerpo3' ),
+	'sz_lbl' => 'Talla',
+	'sizes'  => array(
+		array( '38', 'quedan 4' ),
+		array( '40', 'quedan 11' ),
+		array( '42', 'quedan 7' ),
+		array( '44', 'agotada' ),
+		array( '46', 'quedan 2' ),
+		array( '48', 'quedan 9' ),
+	),
+	'cta'    => 'Añadir a la cesta',
+	'ship'   => 'Envío en 48 h · si dudas entre dos tallas, pide las dos',
 );
 
 /* TPL-ABOUT-01 «La empresa» sobre TPL-C-02.
@@ -4080,6 +4273,11 @@ $STRIPS = array(
 	   el escalon de superficie haciendo TODO el trabajo de separacion, porque sobre negro la sombra
 	   `soft-shadow` no se ve. La tira existe para comprobar que ese escalon basta a ocho piezas. */
 	array( 'tpl' => 'TPL-E-02', 'anchor' => 'vitrine' ),
+	/* Las tres verticales de ecommerce que faltaban por renderizar. Una tira cada una, como el
+	   resto de las marcas: lo que un arquetipo con marca demuestra es SU esqueleto, y para eso
+	   basta una configuración — las cinco anclas son para los arquetipos de la casa, donde el
+	   contenido es constante y lo único que se compara es el ancla. */
+	array( 'tpl' => 'TPL-E-06-corte',  'anchor' => 'matter' ),
 );
 
 /* No pair may repeat: `RT_GALLERY_NOT_DISTINCT` will assert this from outside, but a generator
@@ -5972,6 +6170,63 @@ $css[] = <<<'CSS'
   [data-comp="lp-asymmetric"] .pdp.editorial .pdp-gal{grid-column:c 1/c 9}
   [data-comp="lp-asymmetric"] .pdp.editorial .pdp-buy{grid-column:c 9/c 13}
 }
+
+/* ── ESTILOS DE TPL-E-06 · TALLA / PRUEBA ──────────────────────────────────────────────────── */
+
+/* COMP-FIT-FINDER · ocupa el sitio del héroe, así que respira como un héroe y no como un widget. */
+.finder .canvas{padding-block:var(--sp-xl)}
+.findbox{min-width:0;align-self:start;display:flex;flex-direction:column;gap:var(--sp-xs);
+         padding:var(--sp-m);border:1px solid var(--c-border);background:var(--c-bg-alt)}
+.findrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-s)}
+/* LA RESPUESTA SE VE, no se esconde detrás de un botón que en una maqueta no hace nada. Y se marca
+   con filete y peso: un resultado no es un CTA, ni un icono de acción, ni un enlace, ni un estado
+   activo, así que no gasta el único color de la página — que aquí lo tiene «Ver mi talla». */
+.findres{margin:var(--sp-xs) 0 0;padding:var(--sp-s);border:1px solid var(--c-border);
+         font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.25}
+@media(min-width:1024px){
+  [data-comp="lp-centered"] .finder .canvas{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+                                            column-gap:var(--sp-l);align-items:start}
+}
+
+/* COMP-MEASURE-TABLE · seis columnas de cifras no caben en 375px, así que la tabla scrollea DENTRO
+   de su caja y nunca la página. `color` y `font-family` van en la propia <table> porque estas
+   maquetas no llevan doctype: en quirks mode una tabla no hereda ninguna de las dos y las celdas
+   caen al defecto del documento, que sobre un fondo oscuro es texto negro sobre negro. */
+.tablewrap{overflow-x:auto}
+/* `.mtab` a secas y no `table.mtab`: la puerta busca el selector de la CLASE precedido de inicio,
+   espacio o coma, y con razón — comprueba que la regla existe sobre el elemento mismo, y un
+   selector calificado por etiqueta es una regla distinta que ella no puede reconocer. */
+.mtab{color:var(--c-text);font-family:var(--font-secondary);border-collapse:collapse;
+      width:100%;font-size:var(--fs-small);font-variant-numeric:tabular-nums}
+.mtab th,.mtab td{padding:.5rem .7rem;border-bottom:1px solid var(--c-border);text-align:right;
+                  white-space:nowrap}
+.mtab thead th{font-family:var(--font-primary);letter-spacing:.04em;border-bottom-width:2px}
+.mtab th:first-child,.mtab thead th:first-child{text-align:left}
+.mtab tbody th{font-family:var(--font-primary);font-weight:600}
+
+/* COMP-FIT-GALLERY · la talla va en peso y no en gris pequeño: es el dato que hace comparable una
+   fotografía de catálogo, y atenuado deja de leerse justo donde importa. */
+.bodies{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+        grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+.bodies figure{margin:0}
+.bodysize{margin:.45rem 0 0;display:flex;flex-wrap:wrap;gap:.2rem var(--sp-s);align-items:baseline}
+.bodysize b{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1.1}
+.bodysize span{font-size:var(--fs-small);font-variant-numeric:tabular-nums}
+@media(max-width:599px){.bodies{grid-template-columns:1fr}}
+
+/* COMP-RETURN-PROMISE · tres cifras grandes y una línea bajo cada una. */
+.retfigs .fig p{margin:.2rem 0 0}
+
+/* El selector de talla lleva el stock dentro del propio control, y la agotada se ve agotada: no se
+   descubre al pulsar «añadir», que es el momento exacto en que se pierde la compra. */
+.sizes .opt span{display:flex;flex-direction:column;align-items:center;gap:.05rem;line-height:1.1}
+.sizes .opt em{font-style:normal;font-size:var(--fs-eyebrow);letter-spacing:.06em;
+               color:var(--c-text-muted);font-variant-numeric:tabular-nums}
+.sizeopt.out{opacity:.45}
+/* Tachado y no sólo apagado: la opacidad sola es contraste bajo, y un contraste bajo se lee como
+   «poco importante», no como «no está». */
+.sizeopt.out span{text-decoration:line-through;text-decoration-thickness:1px}
+.sizeopt.out em{text-decoration:none}
 
 /* Finish options. A radio group that reads as a row of chips, and the CHECKED state is border
    weight and ground, never colour alone — the same rule the filter chips follow. */
@@ -8378,6 +8633,197 @@ function page_pdp_mtm_tail( $anchor_key, $C, $P, $o, $uid ) {
 	return number_heads( implode( "\n", $o ) );
 }
 
+/* ── TPL-E-06 · TALLA / PRUEBA ────────────────────────────────────────────────────────────────
+   La tienda cuyo cliente no duda del producto sino de si le va a caber. */
+
+/** COMP-FIT-FINDER · traduce una talla conocida a la de esta tienda. */
+function fit_finder_html( $fi, $uid ) {
+	$o = '<section class="sec finder" aria-label="Buscador de talla"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fi['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $fi['h1'] ) . '</h1><p class="lede muted">' . h( $fi['lede'] ) . '</p></div>'
+		. '<div class="findbox"><div class="findrow">';
+	foreach ( array( array( 'a', $fi['lbl_1'], $fi['opt_1'] ), array( 'b', $fi['lbl_2'], $fi['opt_2'] ) ) as $g ) {
+		$gid = $uid . '-fs' . $g[0];
+		$o  .= '<div class="field"><label for="' . $gid . '">' . h( $g[1] ) . '</label><select id="' . $gid . '">';
+		foreach ( $g[2] as $op ) {
+			$o .= '<option>' . h( $op ) . '</option>';
+		}
+		$o .= '</select></div>';
+	}
+	/* EL RESULTADO SE ENSEÑA YA RESUELTO y no detrás del botón. Una maqueta que esconde su propia
+	   respuesta detrás de un clic que no hace nada enseña un formulario, no un buscador de talla. */
+	return $o . '</div><button class="btn btn-primary" type="button">' . h( $fi['cta'] ) . '</button>'
+		. '<p class="findres">' . h( $fi['result'] ) . '</p>'
+		. '<p class="small muted">' . h( $fi['note'] ) . '</p>'
+		. '</div></div></section>';
+}
+
+/** COMP-MEASURE-TABLE · medidas reales en cm, de ESTA prenda y no de la marca. */
+function measure_table_html( $ms ) {
+	$o = '<section class="sec measure grid-sec bg-alt" aria-label="' . h( $ms['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ms['h2'] ) . '</h2><p class="muted">' . h( $ms['note'] ) . '</p></div>'
+		/* La tabla scrollea DENTRO de su caja y nunca la página entera: seis columnas de cifras no
+		   caben en 375px y arrastrar el documento de lado es el defecto que eso produce. */
+		. '<div class="tablewrap"><table class="mtab"><thead><tr>';
+	foreach ( $ms['cols'] as $c ) {
+		$o .= '<th scope="col">' . h( $c ) . '</th>';
+	}
+	$o .= '</tr></thead><tbody>';
+	foreach ( $ms['rows'] as $r ) {
+		$o .= '<tr><th scope="row">' . h( $r[0] ) . '</th>';
+		foreach ( array_slice( $r, 1 ) as $cell ) {
+			$o .= '<td>' . h( $cell ) . '</td>';
+		}
+		$o .= '</tr>';
+	}
+	return $o . '</tbody></table></div><p class="small muted flownote">' . h( $ms['how'] ) . '</p>'
+		. '</div></section>';
+}
+
+/** COMP-FIT-GALLERY · la misma prenda sobre tres cuerpos, con su talla escrita. */
+function fit_gallery_html( $fg ) {
+	$o = '<section class="sec fitgal grid-sec" aria-label="' . h( $fg['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $fg['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $fg['h2'] ) . '</h2><p class="muted">' . h( $fg['note'] ) . '</p></div>'
+		. '<ul class="bodies"' . cols_attr( count( $fg['items'] ) ) . '>';
+	foreach ( $fg['items'] as $b ) {
+		$bi = img( $b['img'] );
+		$o .= '<li><figure class="frame"><img data-img="' . h( $bi['slug'] ) . '"'
+			. ' alt="' . h( $bi['alt'] ) . '" width="' . $bi['w'] . '" height="' . $bi['h'] . '"></figure>'
+			. '<p class="bodysize"><b>' . h( $b['size'] ) . '</b><span class="muted">' . h( $b['who'] ) . '</span></p></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-RETURN-PROMISE · tres cifras y una frase, sin asteriscos. */
+function return_promise_html( $rt ) {
+	$o = '<section class="sec retprom" aria-label="' . h( $rt['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $rt['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $rt['h2'] ) . '</h2></div><dl class="figs retfigs">';
+	foreach ( $rt['items'] as $it ) {
+		$o .= '<div class="fig"><dt>' . h( $it[0] ) . '</dt><dd>' . h( $it[1] ) . '</dd>'
+			. '<p class="small muted">' . h( $it[2] ) . '</p></div>';
+	}
+	return $o . '</dl><p class="small muted flownote">' . h( $rt['note'] ) . '</p></div></section>';
+}
+
+/**
+ * TPL-E-06 · Talla / Prueba — la home.
+ *
+ * EL BUSCADOR DE TALLA OCUPA EL SITIO DEL HÉROE, y esa es la decisión entera del arquetipo. Es la
+ * primera intención del visitante que ya sabe lo que quiere, y una pantalla de fotografía editorial
+ * delante retrasa la única pregunta que esta tienda existe para contestar. No hay hero a sangre, no
+ * hay lookbook y no hay carrusel de destacados: los tres son lo que hace una tienda de moda cuando
+ * no tiene nada que decir sobre el ajuste.
+ */
+function strip_fit( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o = array();
+	$o[] = head_shop_search( $C, $BRAND, $uid );
+	$o[] = '<main>';
+
+	// 1 · COMP-FIT-FINDER  [fijo · ADN]
+	$o[] = fit_finder_html( $C['finder'], $uid );
+
+	// 2 · COMP-PRODUCT-GRID  [fijo] — cada ficha con la talla que lleva quien posa
+	$g   = $C['grid'];
+	$o[] = '<section class="sec stock grid-sec bg-alt" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $g['h2'] ) . '</h2><p class="muted">' . h( $g['note'] ) . '</p></div>'
+		. '<div class="items grid-prod"' . cols_attr( count( $g['items'] ) ) . '>';
+	foreach ( $g['items'] as $c ) {
+		$o[] = product_html( $anchor_key, $c );
+	}
+	$o[] = '</div></div></section>';
+
+	// 3 · COMP-MEASURE-TABLE  [fijo · ADN]
+	$o[] = measure_table_html( $C['measure'] );
+
+	// 4 · COMP-FIT-GALLERY  [fijo · ADN]
+	$o[] = fit_gallery_html( $C['fitgal'] );
+
+	// 5 · COMP-RETURN-PROMISE  [fijo · ADN]
+	$o[] = return_promise_html( $C['ret'] );
+
+	// 6 · COMP-FAQ  [toggle TGL-FAQ] — dudas de ajuste, no de envío
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-PDP-02 · la ficha de talla y ajuste.
+ *
+ * LA TABLA DE MEDIDAS SALE DEL ACORDEÓN, y es la diferencia estructural con TPL-PDP-01. Allí el
+ * detalle se pliega porque es detalle; aquí el detalle ES la decisión, y una tabla en una pestaña
+ * que nadie abre es una tabla que no existe. Por lo mismo no hay carrusel de relacionados: empujar
+ * otra prenda a quien todavía duda de la talla de ésta es cambiar una compra segura por dos
+ * inseguras.
+ */
+function page_pdp_fit( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$P  = $C['pdp'];
+	$mn = img( $P['main'] );
+	$o  = array();
+
+	$o[] = head_shop_search( $C, $BRAND, $uid );
+	$o[] = crumbs_html( $P['crumbs'] );
+	$o[] = '<main>';
+
+	$thumbs = '';
+	foreach ( $P['thumbs'] as $t ) {
+		$ti      = img( $t );
+		$thumbs .= '<li><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
+			. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure></li>';
+	}
+
+	/* EL SELECTOR LLEVA EL STOCK DE CADA TALLA, y la agotada se marca como agotada en el propio
+	   control: descubrirlo al pulsar «añadir» es el momento exacto en que se pierde la compra. */
+	$sizes = '';
+	$first = true;
+	foreach ( $P['sizes'] as $s ) {
+		$out   = ( 'agotada' === $s[1] );
+		$sid   = $uid . '-sz' . $s[0];
+		$sizes .= '<label class="opt sizeopt' . ( $out ? ' out' : '' ) . '" for="' . $sid . '">'
+			. '<input type="radio" id="' . $sid . '" name="' . $uid . '-size"'
+			. ( $out ? ' disabled' : '' ) . ( ( $first && ! $out ) ? ' checked' : '' ) . '>'
+			. '<span>' . h( $s[0] ) . '<em>' . h( $s[1] ) . '</em></span></label>';
+		if ( ! $out ) {
+			$first = false;
+		}
+	}
+
+	$o[] = '<section class="sec pdp" aria-label="' . h( $P['h1'] ) . '"><div class="canvas">'
+		. '<div class="pdp-gal">'
+		. '<figure class="frame"><img data-img="' . h( $mn['slug'] ) . '" alt="' . h( $mn['alt'] ) . '"'
+		. ' width="' . $mn['w'] . '" height="' . $mn['h'] . '"></figure>'
+		. '<ul class="pdp-thumbs">' . $thumbs . '</ul></div>'
+		. '<div class="pdp-buy"><h1>' . h( $P['h1'] ) . '</h1>'
+		. '<p class="price pdp-price">' . h( $P['price'] ) . '</p>'
+		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
+		. '<fieldset class="opts sizes"><legend>' . h( $P['sz_lbl'] ) . '</legend>' . $sizes . '</fieldset>'
+		. '<button class="btn btn-primary" type="button">' . h( $P['cta'] ) . '</button>'
+		. '<p class="small muted pdp-ship">' . h( $P['ship'] ) . '</p>'
+		. '</div></div></section>';
+
+	$o[] = fit_finder_html( $C['finder'], $uid . '-p' );
+	$o[] = measure_table_html( $C['measure'] );
+	$o[] = fit_gallery_html( $C['fitgal'] );
+	$o[] = return_promise_html( $C['ret'] );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
+		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
+	}
+
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+
+	return implode( "\n", $o );
+}
+
 /**
  * TPL-C-02 · Institutional Trust.
  *
@@ -8627,6 +9073,29 @@ function newsletter_html( $n, $uid ) {
  * you READ before you search. Giving it TPL-E-02's header would erase the difference between the
  * two archetypes in the first hundred pixels of the page.
  */
+/**
+ * COMP-HEADER con buscador y carrito, SIN banda de anuncio.
+ *
+ * `head_ecommerce()` abre siempre con `COMP-ANNOUNCEMENT` porque los cuatro arquetipos que la usan
+ * la declaran en su wireframe. TPL-E-06 no la declara, y añadírsela para reutilizar el emisor sería
+ * inventarle una sección al arquetipo — que es exactamente el fallo que `RT_TPL_TOO_SIMILAR` mide un
+ * piso más arriba. Un emisor más, y el arquetipo se queda con las secciones que dice tener.
+ */
+function head_shop_search( $C, $BRAND, $uid ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<span class="logo">' . h( $BRAND ) . '</span>'
+		. '<form class="searchbar" role="search" onsubmit="return false">'
+		. '<label class="sr" for="' . $uid . '-q">Buscar en la tienda</label>'
+		. '<input id="' . $uid . '-q" type="search" placeholder="' . h( $C['search'] ) . '">'
+		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
+		. '</form><nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $nv ) {
+		$o .= '<a href="#">' . h( $nv ) . '</a>';
+	}
+	return $o . '</nav><a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+		. '</div></div></header>';
+}
+
 function head_shop_plain( $C, $BRAND ) {
 	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
@@ -10949,6 +11418,10 @@ $PAGES = array(
 		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-E-04' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · cross-sell de sección' ),
 	),
+	'TPL-E-06' => array(
+		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-06' ),
+		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-02' ),
+	),
 	'TPL-E-02' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
@@ -11045,6 +11518,12 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	}
 	if ( 'TPL-E-04' === $tpl && 'producto' === $page_key ) {
 		return page_pdp( $anchor_key, $C, $BRAND, $suid );
+	}
+	if ( 'TPL-E-06' === $tpl && 'home' === $page_key ) {
+		return strip_fit( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-E-06' === $tpl && 'producto' === $page_key ) {
+		return page_pdp_fit( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
 		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );

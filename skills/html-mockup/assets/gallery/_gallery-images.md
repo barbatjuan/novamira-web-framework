@@ -241,6 +241,27 @@ new row looks different from the old ones.
 | `inmo-julen` | square 1:1 | 600×600 | 17 KB | 5216695166 | fp-5216695 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris liso |
 | `inmo-leire` | square 1:1 | 600×600 | 20 KB | 5216696534 | fp-5216696 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris liso |
 | `inmo-plano` | panoramic 2:1 | 1200×570 | 119 KB | 5218258085 | fp-5218258 | Freepik AI (Pikaso) | Vista aérea cenital de un distrito urbano europeo con manzanas, un parque y un río |
+| `corte-v1` | card 4:3 | 800×600 | 38 KB | 5220559242 | fp-5220559 | Freepik AI (Pikaso) | Vaquero recto azul medio extendido sobre fondo liso, visto desde arriba |
+| `corte-v2` | card 4:3 | 800×600 | 9 KB | 5220559896 | fp-5220559 | Freepik AI (Pikaso) | Vaquero pitillo negro extendido sobre fondo liso, visto desde arriba |
+| `corte-v3` | card 4:3 | 800×600 | 23 KB | 5220560517 | fp-5220560 | Freepik AI (Pikaso) | Vaquero ancho de lavado claro extendido sobre fondo liso |
+| `corte-v4` | card 4:3 | 800×600 | 55 KB | 5220561366 | fp-5220561 | Freepik AI (Pikaso) | Chaqueta vaquera índigo extendida sobre fondo liso |
+| `corte-v5` | card 4:3 | 800×600 | 15 KB | 5220563473 | fp-5220563 | Freepik AI (Pikaso) | Pantalón chino verde oliva extendido sobre fondo liso |
+| `corte-v6` | card 4:3 | 800×600 | 61 KB | 5220564170 | fp-5220564 | Freepik AI (Pikaso) | Camisa de trabajo en chambray extendida sobre fondo liso |
+| `corte-cuerpo1` | card 4:3 | 800×600 | 22 KB | 5220564578 | fp-5220564 | Freepik AI (Pikaso) | El mismo vaquero recto sobre un cuerpo delgado, de cintura a tobillo |
+| `corte-cuerpo2` | card 4:3 | 800×600 | 19 KB | 5220565363 | fp-5220565 | Freepik AI (Pikaso) | El mismo vaquero recto sobre un cuerpo mediano, de cintura a tobillo |
+| `corte-cuerpo3` | card 4:3 | 800×600 | 22 KB | 5220565877 | fp-5220565 | Freepik AI (Pikaso) | El mismo vaquero recto sobre un cuerpo grande, de cintura a tobillo |
+| `bajura-pieza` | card 4:3 | 800×600 | 105 KB | 5220580086 | fp-5220580 | Freepik AI (Pikaso) | Lubina entera sobre hielo picado en una losa de pizarra |
+| `bajura-lomo` | card 4:3 | 800×600 | 118 KB | 5220580693 | fp-5220580 | Freepik AI (Pikaso) | Lomo de atún rojo cortado grueso sobre hielo picado |
+| `bajura-marisco` | card 4:3 | 800×600 | 88 KB | 5220582159 | fp-5220582 | Freepik AI (Pikaso) | Langostinos crudos colocados sobre hielo picado |
+| `bajura-lonja` | card 4:3 | 800×600 | 116 KB | 5220582285 | fp-5220582 | Freepik AI (Pikaso) | Nave de subasta al amanecer con cajas de pescado en hilera |
+| `bajura-caja` | card 4:3 | 800×600 | 45 KB | 5220583908 | fp-5220583 | Freepik AI (Pikaso) | Caja isotérmica abierta con acumuladores de frío y una pieza envasada |
+| `bajura-puerto` | panoramic 2:1 | 1200×570 | 76 KB | 5220585204 | fp-5220585 | Freepik AI (Pikaso) | Vista aérea cenital de un puerto pesquero pequeño al amanecer |
+| `bajura-corte` | card 4:3 | 800×600 | 56 KB | 5220586038 | fp-5220586 | Freepik AI (Pikaso) | Manos de pescadero fileteando una pieza sobre mostrador de acero |
+| `tueste-hero` | hero 16:9 | 1440×810 | 147 KB | 5220586812 | fp-5220586 | Freepik AI (Pikaso) | Grano recién tostado saliendo de la bandeja de enfriado del tostador |
+| `tueste-caja` | card 4:3 | 800×600 | 52 KB | 5220587240 | fp-5220587 | Freepik AI (Pikaso) | Caja de envío abierta con una bolsa de café kraft y una ficha |
+| `tueste-bolsa` | card 4:3 | 800×600 | 32 KB | 5220587983 | fp-5220587 | Freepik AI (Pikaso) | Bolsa de café kraft de pie junto a grano tostado suelto |
+| `tueste-taza` | card 4:3 | 800×600 | 58 KB | 5220590270 | fp-5220590 | Freepik AI (Pikaso) | Café de filtro cayendo a una jarra de vidrio, con vapor |
+| `tueste-molino` | card 4:3 | 800×600 | 46 KB | 5220589424 | fp-5220589 | Freepik AI (Pikaso) | Café recién molido en el cajón de un molinillo manual |
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the
