@@ -4417,6 +4417,867 @@ $CONTENT['TPL-C-01']['contacto'] = array(
 	),
 );
 
+/* NOSOTROS + CONTACTO PARA LAS OCHO MARCAS QUE LLEGARON SIN ELLAS. TPL-C-06..13 se entregaron con
+   una sola página cada una; el catálogo comparaba homes y las páginas internas quedaron para
+   después. Van aquí, agrupadas, con el mismo patrón que ya prueban TPL-C-01/02: `nosotros` reutiliza
+   `about`/`stats`/`team` de la marca — así que esas tres claves se añaden primero, sólo donde el home
+   no las tenía ya — y `contacto` es autocontenido, como el de TPL-C-01. */
+
+/* CASA TERRAZZA · about/stats/team para su Nosotros. El home no lleva ninguna de las tres: llevaba
+   `figq`, una sola cara con firma. Esa misma cara es el equipo — no se inventa una segunda persona
+   para que la rejilla tenga más de un hueco. */
+$CONTENT['TPL-C-06-terrazza']['about'] = array(
+	'eyebrow' => 'La casa',
+	'h2'      => 'Un local, dos servicios, una brasa que no se apaga',
+	'body'    => array(
+		'Abrimos en 2016 con una idea sencilla: la carta la escribe lo que llega esa mañana, no una carta impresa que dura un año. Doce platos y el lunes son otros.',
+		'Veinte mesas, dos servicios, sin doblar ninguna en la misma franja. Lo que no cabe en una noche se queda para la siguiente, no se aprieta.',
+	),
+	'img'     => 'terrazza-terraza',
+);
+$CONTENT['TPL-C-06-terrazza']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '20 mesas', 'y dos servicios, sin turno compartido' ),
+		array( '60 referencias', 'en la bodega, elegidas por sala' ),
+		array( '2016', 'año en que Èlia entró en cocina' ),
+		array( '12 platos', 'en carta, y el lunes cambian' ),
+	),
+);
+$CONTENT['TPL-C-06-terrazza']['team'] = array(
+	'eyebrow' => 'Quién cocina',
+	'h2'      => 'La cocina la lleva la misma persona desde 2016',
+	'items'   => array(
+		array( 'Èlia Ferrer', 'Cocinera y socia', 'terrazza-chef' ),
+	),
+);
+$CONTENT['TPL-C-06-terrazza']['quotes'] = array(
+	'eyebrow' => 'Quien ya vino',
+	'h2'      => 'Dos mesas que volvieron',
+	'items'   => array(
+		array( 'La carta cambió entre mi primera visita y la segunda, tal como dicen. Se nota que no es un menú de imprenta.', 'Marta Coll', 'Cliente habitual' ),
+		array( 'Reservamos para ocho y nos dieron una mesa entera, no dos juntadas. Se ve poco.', 'Bernat Riera', 'Cena de empresa' ),
+	),
+);
+$CONTENT['TPL-C-06-terrazza']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Desde la brasa',
+		'h1'      => 'La carta la escribe el mercado, no nosotros',
+		'lede'    => 'Sin cámara de congelación grande a propósito: lo que no se puede comprar fresco esa semana, no está en la carta esa semana.',
+		'img'     => 'terrazza-sala',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no negociamos',
+		'items'   => array(
+			array( 'Carta corta', 'Doce platos, no cuarenta. Lo que no está fresco esa semana, no está en la carta.' ),
+			array( 'Mesa por servicio', 'No se dobla una mesa en la misma franja. La reserva es la mesa entera, no un hueco compartido.' ),
+			array( 'Confirmación en una hora', 'Si no llega la confirmación en horario de sala, la mesa sigue libre — se avisa, no se da por hecho.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Reservamos su mesa?',
+		'lede'    => 'Elija día y hora, o llame directamente si prefiere hablar con sala.',
+		'cta_1'   => 'Reservar mesa',
+		'cta_2'   => 'Ver la carta',
+	),
+);
+$CONTENT['TPL-C-06-terrazza']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Reservas de grupo y eventos',
+		'lede'    => 'Para mesas de hasta seis, resérvela en la home. Esto es para grupos, menús cerrados y eventos privados — cada uno se habla antes.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos el motivo (grupo, evento, alergias)',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Para una mesa normal es más rápido reservar arriba. Esto es para lo que un formulario de reserva no cubre.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '93 000 00 00', 'De martes a domingo, en horario de sala' ),
+			array( 'Email', 'reservas@casaterrazza.example', 'Lo lee sala, no un buzón compartido' ),
+			array( 'Sala', 'Carrer de Pujades 118, Barcelona', 'Metro Llacuna a cuatro minutos' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Lo lee sala', 'El mismo día, en horario de apertura. Fuera de horario, al abrir el servicio siguiente.' ),
+			array( 'Confirmamos por teléfono', 'Para grupos y eventos siempre llamamos — un email no basta para cerrar un menú.' ),
+		),
+		'note'    => 'No hay un tercer paso ni un email de confirmación aparte: la llamada es la confirmación.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién habla',
+		'h2'      => 'Cocina',
+		'items'   => array(
+			array( 'name' => 'Èlia Ferrer', 'role' => 'Cocinera y socia', 'lic' => 'Menús de grupo y alergias', 'img' => 'terrazza-chef' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Hacen menú para grupos?', 'Sí, a partir de ocho comensales, con menú cerrado que se acuerda antes de la reserva.' ),
+			array( '¿Aceptan alergias e intolerancias?', 'Sí — indíquelo al escribir y cocina lo prepara aparte.' ),
+			array( '¿Cuánto tardan en confirmar?', 'Menos de una hora en horario de sala; fuera de horario, al abrir.' ),
+		),
+	),
+);
+
+/* MOTOR ARANDA · about/stats/team. El home ya tiene `badges` (4 cifras de confianza) y `quotes` (3
+   clientes reales); `stats` reutiliza las cifras de `badges` en vez de inventar unas nuevas, y el
+   equipo se cuenta con la foto del patio — no hay retrato de nadie y no se finge uno. */
+$CONTENT['TPL-C-07-aranda']['about'] = array(
+	'eyebrow' => 'El negocio',
+	'h2'      => 'Compramos, revisamos y vendemos — nada a comisión de un tercero',
+	'body'    => array(
+		'Todo lo que hay en el patio lo compramos nosotros, lo revisamos en nuestro taller y lo vendemos con nuestra garantía. No exponemos coches en depósito de particulares.',
+		'150 puntos revisados y firmados antes de ponerlo a la venta, con el histórico de mantenimiento cuando existe. Si un dato no está, se lo decimos — no se rellena.',
+	),
+	'img'     => 'aranda-patio',
+);
+$CONTENT['TPL-C-07-aranda']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '38 coches', 'en el patio, todos con informe' ),
+		array( '150 puntos', 'revisados antes de la venta' ),
+		array( '12 meses', 'de garantía, sin excepciones' ),
+		array( '7 días', 'para devolverlo si no es lo esperado' ),
+	),
+);
+$CONTENT['TPL-C-07-aranda']['team'] = array(
+	'eyebrow' => 'Quién revisa cada unidad',
+	'h2'      => 'Taller propio, no un mecánico externo',
+	'items'   => array(
+		array( 'Equipo de taller', 'Revisión de 150 puntos e histórico', 'aranda-patio' ),
+	),
+);
+$CONTENT['TPL-C-07-aranda']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Ocasión seleccionada',
+		'h1'      => 'No exponemos lo que no compraríamos nosotros mismos',
+		'lede'    => 'Cada unidad pasa por nuestro taller antes de salir al patio. Lo que no aprueba la revisión, no se pone a la venta.',
+		'img'     => 'aranda-v3',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo compramos',
+		'h2'      => 'Tres cosas que revisamos siempre',
+		'items'   => array(
+			array( '150 puntos, con firma', 'No es una frase: es una lista que firma quien la revisa, y se la enseñamos si la pide.' ),
+			array( 'Histórico cuando existe', 'Si el coche lo tiene, se lo damos. Si no lo tiene, se lo decimos — no se inventa uno.' ),
+			array( 'Kilómetros certificados', 'Contra registro, no contra el cuentakilómetros a secas.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Buscamos su coche o tasamos el suyo?',
+		'lede'    => 'Filtre el stock por lo que necesita, o traiga su matrícula y le damos un rango por teléfono el mismo día.',
+		'cta_1'   => 'Ver stock',
+		'cta_2'   => 'Pedir tasación',
+	),
+);
+$CONTENT['TPL-C-07-aranda']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Consulte una unidad o pida cita',
+		'lede'    => 'Para tasar su coche use el formulario de la home — es más rápido. Esto es para preguntar por una unidad concreta o pedir cita para verla.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Unidad de interés', 'text' ),
+		),
+		'msg'    => 'Cuéntenos qué busca',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Dígalo con marca y modelo si ya sabe qué unidad quiere ver.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '948 00 00 00', 'De lunes a sábado, en horario de patio' ),
+			array( 'Email', 'stock@motoraranda.example', 'Lo lee ventas, no un buzón compartido' ),
+			array( 'Patio', 'Polígono Landaben, calle E nave 14, Pamplona', 'Cubierto — se ve el coche aunque llueva' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, para confirmar que la unidad sigue disponible.' ),
+			array( 'Queda la visita', 'Con hora fija — el patio está cubierto, así que la lluvia no la cambia.' ),
+		),
+		'note'    => 'Si la unidad ya se vendió, se lo decimos en la primera llamada, no cuando llega.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién habla',
+		'h2'      => 'Ventas y taller',
+		'items'   => array(
+			array( 'name' => 'Equipo de ventas', 'role' => 'Stock y financiación', 'lic' => '948 00 00 00', 'img' => 'aranda-patio' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Puedo reservar una unidad sin verla?', 'Con una señal de 200 € que se descuenta del precio, sí, hasta 48 horas.' ),
+			array( '¿Aceptan mi coche a cambio?', 'Sí, use el formulario de tasación de la home — la respuesta llega el mismo día.' ),
+			array( '¿Puedo probarlo antes de comprar?', 'Sí, con cita previa y carné de más de un año.' ),
+		),
+	),
+);
+
+/* AURIA · about/stats/team. El home ya trae `figures` (potencia, 0-100, plazas, precio) — esas cifras
+   SON las de `stats`, no se duplican con otras. No hay retrato de nadie en el manifiesto: el equipo
+   se cuenta con la foto del interior, que es lo que sí existe. */
+$CONTENT['TPL-C-08-auria']['about'] = array(
+	'eyebrow' => 'La concesión',
+	'h2'      => 'Un modelo, una concesión, cero vendedores a comisión por unidad',
+	'body'    => array(
+		'Auria GT es el único modelo que exponemos. No hay comparativa con otras marcas en el mostrador porque no vendemos otras marcas.',
+		'Las once unidades en tránsito se asignan por orden de reserva, no por quién insiste más. El precio de la oferta es el mismo para la primera reserva y la última.',
+	),
+	'img'     => 'auria-interior',
+);
+$CONTENT['TPL-C-08-auria']['stats'] = array(
+	'eyebrow' => 'El modelo, en cifras',
+	'items'   => array(
+		array( '385 CV', 'potencia de la versión de acceso' ),
+		array( '4,1 s', '0 a 100 en la GT' ),
+		array( '11 unidades', 'en tránsito, por orden de reserva' ),
+		array( '3 años', 'de garantía en las tres versiones' ),
+	),
+);
+$CONTENT['TPL-C-08-auria']['team'] = array(
+	'eyebrow' => 'Quién le enseña el coche',
+	'h2'      => 'La prueba la hace usted, no un comercial de copiloto',
+	'items'   => array(
+		array( 'Equipo de concesión', 'Pruebas de conducción y entregas', 'auria-interior' ),
+	),
+);
+$CONTENT['TPL-C-08-auria']['quotes'] = array(
+	'eyebrow' => 'Quien ya lo probó',
+	'h2'      => 'Dos entregas recientes',
+	'items'   => array(
+		array( 'Reservé en enero por orden de lista y me entregaron en la fecha que dijeron, sin retraso.', 'Fernando Uría', 'Auria GT Sport' ),
+		array( 'La prueba la conduje yo, cuarenta minutos sin nadie explicándome el volante.', 'Claudia Ibarra', 'Auria GT' ),
+	),
+);
+$CONTENT['TPL-C-08-auria']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Concesión oficial',
+		'h1'      => 'Un modelo en el mostrador, no un catálogo entero',
+		'lede'    => 'Exponemos el Auria GT en sus tres versiones y nada más. Quien entra a preguntar por él encuentra a alguien que solo vende eso.',
+		'img'     => 'auria-puerta',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo vendemos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'La prueba la conduce usted', 'Cuarenta minutos sin comercial de copiloto explicando cosas.' ),
+			array( 'Orden de reserva, no de insistencia', 'Las unidades en tránsito se asignan por fecha de reserva, sin excepciones.' ),
+			array( 'Precio igual para todos', 'La oferta hasta el 31 de marzo es la misma cifra para la primera reserva y la última.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Reservamos su prueba?',
+		'lede'    => 'Cuarenta minutos, con la GT en exposición. Le confirmamos por teléfono el mismo día.',
+		'cta_1'   => 'Reservar prueba',
+		'cta_2'   => 'Ver versiones',
+	),
+);
+$CONTENT['TPL-C-08-auria']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Pregunte por una versión o su coche a cambio',
+		'lede'    => 'Para reservar la prueba use el formulario de la home. Esto es para financiación, tasación de su coche actual o preguntas de versión.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos qué necesita saber',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Si es sobre financiación, indique la versión que le interesa — la cuota cambia entre las tres.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '91 000 00 00', 'De lunes a sábado' ),
+			array( 'Email', 'concesion@auria.example', 'Lo lee ventas' ),
+			array( 'Concesión', 'Avenida de Burgos 120, Madrid', 'Exposición con las dos versiones' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, con disponibilidad real de la versión que pregunta.' ),
+			array( 'Queda la cita', 'Prueba, financiación o entrega — lo que haya pedido.' ),
+		),
+		'note'    => 'Si la versión que pregunta está agotada hasta marzo, se lo decimos en la primera llamada.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién habla',
+		'h2'      => 'Ventas',
+		'items'   => array(
+			array( 'name' => 'Equipo de concesión', 'role' => 'Versiones y financiación', 'lic' => '91 000 00 00', 'img' => 'auria-interior' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Puedo cambiar de versión tras reservar?', 'Sí, mientras su unidad no haya entrado en producción — se lo confirmamos al reservar.' ),
+			array( '¿La financiación es solo para la GT?', 'No, cubre las tres versiones; la cuota cambia con el precio de cada una.' ),
+			array( '¿Aceptan mi coche a cambio?', 'Sí, la tasación la hace ocasión y se descuenta de la entrada.' ),
+		),
+	),
+);
+
+/* TALLER BERGARA · about/stats/team. Sin retratos en el manifiesto: el equipo se cuenta con la nave,
+   que es la foto que sí existe y la que un taller real enseñaría primero. */
+$CONTENT['TPL-C-09-bergara']['about'] = array(
+	'eyebrow' => 'El taller',
+	'h2'      => 'Dos elevadores, un banco de diagnosis, precio antes de tocar nada',
+	'body'    => array(
+		'Multimarca desde el primer día: no hay coche que rechacemos por marca. El presupuesto sale por partidas antes de empezar, y nadie toca nada hasta que usted dice que sí.',
+		'Piezas de primer equipo o equivalente homologado — y en el presupuesto pone cuál de las dos. Las piezas viejas se las enseñamos y se las puede llevar.',
+	),
+	'img'     => 'bergara-nave',
+);
+$CONTENT['TPL-C-09-bergara']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '24 meses', 'de garantía en mano de obra' ),
+		array( '2 elevadores', 'y un banco de diagnosis propio' ),
+		array( '39 €', 'la diagnosis, se descuenta si repara aquí' ),
+		array( '4 pasos', 'del proceso, y el tercero lo aprueba usted' ),
+	),
+);
+$CONTENT['TPL-C-09-bergara']['team'] = array(
+	'eyebrow' => 'Quién repara',
+	'h2'      => 'Taller propio, sin subcontratar',
+	'items'   => array(
+		array( 'Equipo de taller', 'Diagnosis, mecánica y chapa', 'bergara-nave' ),
+	),
+);
+$CONTENT['TPL-C-09-bergara']['quotes'] = array(
+	'eyebrow' => 'Quien ya reparó aquí',
+	'h2'      => 'Dos coches que salieron del taller',
+	'items'   => array(
+		array( 'Me llamaron antes de tocar nada porque la avería salía más cara de lo previsto. Dije que sí sabiendo el precio.', 'Josu Etxeberria', 'Cliente' ),
+		array( 'Me enseñaron las pastillas viejas al terminar, sin pedirlo yo.', 'Amaia Larrea', 'Cliente' ),
+	),
+);
+$CONTENT['TPL-C-09-bergara']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Taller multimarca',
+		'h1'      => 'El presupuesto se aprueba antes de tocar el coche',
+		'lede'    => 'Diagnosticamos, le llamamos con el importe por partidas, y no reparamos nada hasta que usted dice que sí.',
+		'img'     => 'bergara-rueda',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'Presupuesto por partidas', 'Piezas por un lado, horas por otro — antes de reparar, no en la factura final.' ),
+			array( 'Nada sin su aprobación', 'Si al abrirlo sale más caro, paramos y le llamamos.' ),
+			array( 'Piezas viejas a la vista', 'Se las enseñamos al terminar y se las puede llevar.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Reservamos su cita?',
+		'lede'    => 'Dos elevadores y un banco de diagnosis. Elija día y hora, o llame si prefiere hablar antes.',
+		'cta_1'   => 'Pedir cita',
+		'cta_2'   => 'Ver tarifa',
+	),
+);
+$CONTENT['TPL-C-09-bergara']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Consulte antes de traer el coche',
+		'lede'    => 'Para citar diagnosis o mantenimiento use la home — es más rápido. Esto es para averías fuera de tarifa o coche de sustitución.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Qué le pasa al coche', 'text' ),
+		),
+		'msg'    => 'Descríbalo con el mayor detalle posible',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Cuanto más detalle, menos vueltas en la diagnosis.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '943 00 00 00', 'De lunes a viernes' ),
+			array( 'Email', 'citas@tallerbergara.example', 'Lo lee taller' ),
+			array( 'Nave', 'Polígono Azitain pabellón 6, Eibar', 'Aparcamiento delante del pabellón' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, para entender la avería antes de citar.' ),
+			array( 'Queda la cita', 'Con coche de sustitución si lo pide — hay dos.' ),
+		),
+		'note'    => 'Si la avería suena a algo que necesita pieza, se lo decimos en la primera llamada, no al abrir el coche.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién habla',
+		'h2'      => 'Taller',
+		'items'   => array(
+			array( 'name' => 'Equipo de taller', 'role' => 'Diagnosis y presupuestos', 'lic' => '943 00 00 00', 'img' => 'bergara-nave' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Necesito cita para diagnosis?', 'No para diagnosis rápida; sí si ya sabe qué reparación necesita.' ),
+			array( '¿Dan coche de sustitución?', 'Hay dos — pídalo al escribir o al citar por teléfono.' ),
+			array( '¿Trabajan con todas las marcas?', 'Sí, multimarca desde el primer día.' ),
+		),
+	),
+);
+
+/* CLÍNICA ARBEA · about/stats/team. El home ya trae `team` con los tres profesionales y su colegiado
+   — se reutiliza tal cual, sin duplicar. Sólo faltan `about` y `stats`, y `stats` sale de datos que
+   ya existían en `treatments`/`insurance`, no de cifras nuevas. */
+$CONTENT['TPL-C-10-arbea']['about'] = array(
+	'eyebrow' => 'La clínica',
+	'h2'      => 'Tres profesionales, cada uno con su especialidad escrita',
+	'body'    => array(
+		'No hay un dentista que hace de todo: cada tratamiento lo lleva quien tiene la especialidad, y en la primera visita se dice quién será.',
+		'Presupuesto cerrado por escrito antes de empezar cualquier tratamiento, con duración y número de sesiones. Si algo cambia a mitad, se avisa antes de seguir.',
+	),
+	'img'     => 'arbea-consulta',
+);
+$CONTENT['TPL-C-10-arbea']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '3 especialistas', 'cada uno con su número de colegiado' ),
+		array( '6 tratamientos', 'con duración y precio publicados' ),
+		array( '6 aseguradoras', 'con las que trabajamos directamente' ),
+		array( '24 meses', 'de financiación sin intereses desde 600 €' ),
+	),
+);
+$CONTENT['TPL-C-10-arbea']['quotes'] = array(
+	'eyebrow' => 'Quien ya vino',
+	'h2'      => 'Dos pacientes recientes',
+	'items'   => array(
+		array( 'Me dijeron desde el primer día que mi endodoncia la llevaría la Dra. Otxoa, no un dentista distinto cada visita.', 'Iker Mendizabal', 'Paciente' ),
+		array( 'El presupuesto por escrito llegó igual que en la primera visita, sin sorpresas a mitad.', 'Ainhoa Gil', 'Paciente' ),
+	),
+);
+$CONTENT['TPL-C-10-arbea']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Odontología general y estética',
+		'h1'      => 'Le decimos quién le va a atender antes de la primera visita',
+		'lede'    => 'Tres especialistas, tres números de colegiado. Cada tratamiento lo lleva quien tiene la especialidad, no quien está libre esa hora.',
+		'img'     => 'arbea-doctor',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'Presupuesto cerrado, por escrito', 'Antes de empezar, con duración y sesiones. No aparece nada a mitad de tratamiento.' ),
+			array( 'Especialista, no generalista', 'Endodoncia, implantología y estética las lleva quien tiene esa especialidad.' ),
+			array( 'Primera visita gratuita', 'Radiografía, exploración y presupuesto por escrito, sin coste.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Pedimos su cita?',
+		'lede'    => 'La primera visita es gratuita y dura media hora. Le confirmamos por teléfono el mismo día.',
+		'cta_1'   => 'Pedir cita',
+		'cta_2'   => 'Ver tratamientos',
+	),
+);
+$CONTENT['TPL-C-10-arbea']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Consulte antes de pedir cita',
+		'lede'    => 'Para citar la primera visita gratuita use la home. Esto es para preguntas de tratamiento, seguro o financiación.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos su consulta',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Si tiene seguro, indique cuál — le decimos si trabajamos con él en la misma respuesta.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '945 00 00 00', 'De lunes a viernes' ),
+			array( 'Email', 'consultas@clinicaarbea.example', 'Lo lee recepción' ),
+			array( 'Clínica', 'Calle Postas 32, Vitoria-Gasteiz', 'Sin escalones en el acceso' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, para entender qué necesita.' ),
+			array( 'Queda la cita', 'Con el especialista que corresponda, no con quien esté libre.' ),
+		),
+		'note'    => 'Si su seguro no cubre el tratamiento, se lo decimos en la primera llamada, antes de citar.',
+	),
+	'team'   => $CONTENT['TPL-C-10-arbea']['team'],
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿La primera visita tiene coste?', 'No, incluye radiografía, exploración y presupuesto por escrito.' ),
+			array( '¿Trabajáis con mi seguro?', 'Indíquelo al escribir — trabajamos con Adeslas, Sanitas, DKV, Asisa, Mapfre Salud y Caser.' ),
+			array( '¿Hay financiación?', 'Sí, hasta 24 meses sin intereses desde 600 €, con estudio previo.' ),
+		),
+	),
+);
+
+/* ALINEA · about/stats/team. Sin retratos de equipo en el manifiesto: se cuenta con la foto de
+   consulta, que es donde de verdad ocurre el seguimiento. */
+$CONTENT['TPL-C-11-alinea']['about'] = array(
+	'eyebrow' => 'El plan',
+	'h2'      => 'Cuatro fases, dieciocho meses, un plan por escrito desde el primer día',
+	'body'    => array(
+		'El estudio inicial no es una venta: escáner, radiografía y simulación, y sale un plan con fecha final antes de que usted decida nada.',
+		'Si su caso se alarga sobre la media, se lo decimos en el estudio o en la revisión — nunca al final, cuando ya no hay nada que negociar.',
+	),
+	'img'     => 'alinea-consulta',
+);
+$CONTENT['TPL-C-11-alinea']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '18 meses', 'de plan medio, con sus cuatro fases' ),
+		array( '3 formas de pago', 'con cuota y total siempre juntos' ),
+		array( '6 semanas', 'entre revisiones, según el tratamiento' ),
+		array( '0 €', 'el estudio inicial, sin compromiso' ),
+	),
+);
+$CONTENT['TPL-C-11-alinea']['team'] = array(
+	'eyebrow' => 'El seguimiento',
+	'h2'      => 'Revisión cada seis u ocho semanas, según el plan',
+	'items'   => array(
+		array( 'Equipo clínico', 'Estudio, plan y revisiones', 'alinea-consulta' ),
+	),
+);
+$CONTENT['TPL-C-11-alinea']['quotes'] = array(
+	'eyebrow' => 'Quien ya terminó su plan',
+	'h2'      => 'Dos pacientes recientes',
+	'items'   => array(
+		array( 'Me dijeron dieciocho meses y fueron diecisiete. La primera vez que un plazo médico me sale corto en vez de largo.', 'Paula Ferrando', 'Paciente' ),
+		array( 'La cuota que me dijeron en el estudio es la que pagué todo el tratamiento, sin subidas.', 'Vicent Roig', 'Paciente' ),
+	),
+);
+$CONTENT['TPL-C-11-alinea']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Ortodoncia invisible y metálica',
+		'h1'      => 'El plan sale escrito antes de que usted decida',
+		'lede'    => 'Cuatro fases, dieciocho meses de media, y una fecha final que se recalcula en el estudio — no a mitad de tratamiento.',
+		'img'     => 'alinea-hero',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'Plan por escrito, con fecha', 'Antes de empezar, no a mitad de tratamiento.' ),
+			array( 'Cuota y total, siempre juntos', 'Una cuota sin el total al lado es la técnica que genera desconfianza — aquí van los dos.' ),
+			array( 'Si se alarga, se avisa', 'En el estudio o en la revisión, nunca al final.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Reservamos su estudio?',
+		'lede'    => 'Cuarenta minutos, sin coste y sin compromiso. Sale con el plan escrito.',
+		'cta_1'   => 'Estudio gratuito',
+		'cta_2'   => 'Ver precios',
+	),
+);
+$CONTENT['TPL-C-11-alinea']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Consulte antes del estudio',
+		'lede'    => 'Para reservar el estudio inicial use la home. Esto es para preguntas de precio, financiación o si ya lleva ortodoncia en otra clínica.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos su caso',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Si ya lleva tratamiento empezado en otra clínica, indíquelo — el estudio cambia.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '96 000 00 00', 'De lunes a viernes' ),
+			array( 'Email', 'estudio@alinea.example', 'Lo lee clínica' ),
+			array( 'Clínica', 'Carrer de Colón 44, València', 'Con parking cercano' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, para entender su caso.' ),
+			array( 'Queda el estudio', 'Cuarenta minutos, sin coste — se lleva el plan aunque después no siga.' ),
+		),
+		'note'    => 'Si ya lleva tratamiento en otra clínica, se lo decimos en la primera llamada si el caso cambia el estudio.',
+	),
+	'team'   => array(
+		'eyebrow' => 'Con quién habla',
+		'h2'      => 'Clínica',
+		'items'   => array(
+			array( 'name' => 'Equipo clínico', 'role' => 'Estudio y planes', 'lic' => '96 000 00 00', 'img' => 'alinea-consulta' ),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿El estudio tiene coste?', 'No, y se lleva el plan escrito aunque después decida no seguir.' ),
+			array( '¿Puedo cambiar de plan de pago a mitad?', 'Sí, se recalcula en la revisión más próxima.' ),
+			array( '¿Ya llevo ortodoncia en otra clínica, puedo cambiarme?', 'Sí — tráigase la documentación y el estudio la tiene en cuenta.' ),
+		),
+	),
+);
+
+/* URGENCIA DENTAL · about/stats/team. El home ya trae `team` (dos personas, con colegiado) — se
+   reutiliza. `stats` sale de `wait` (espera y precio), que ya eran las dos cifras que el home
+   publicaba sin sección de "quiénes somos" alrededor. */
+$CONTENT['TPL-C-12-urgencia']['about'] = array(
+	'eyebrow' => 'La guardia',
+	'h2'      => 'Guardia todos los días del año, festivos incluidos',
+	'body'    => array(
+		'No cerramos festivos ni fines de semana. La guardia la cubre siempre un odontólogo colegiado, nunca solo un auxiliar.',
+		'La visita de urgencia se descuenta del tratamiento si lo hace aquí. Lo que cueste el tratamiento se dice antes de empezarlo, no al terminar.',
+	),
+	'img'     => 'urgencia-box',
+);
+$CONTENT['TPL-C-12-urgencia']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => array(
+		array( '22 min', 'de espera media la última semana' ),
+		array( '49 €', 'la visita, con radiografía incluida' ),
+		array( '365 días', 'al año, festivos incluidos' ),
+		array( '30 min', 'de margen si hay un diente reimplantable' ),
+	),
+);
+$CONTENT['TPL-C-12-urgencia']['quotes'] = array(
+	'eyebrow' => 'Quien vino un festivo',
+	'h2'      => 'Dos urgencias resueltas',
+	'items'   => array(
+		array( 'Llamé un domingo a las once de la noche y me atendieron. No esperaba que cogieran el teléfono.', 'Xabier Goikoetxea', 'Paciente' ),
+		array( 'Se me cayó una corona en Nochebuena. Me la recementaron esa misma noche.', 'Miren Uranga', 'Paciente' ),
+	),
+);
+$CONTENT['TPL-C-12-urgencia']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Guardia dental 24 h',
+		'h1'      => 'Abrimos festivos porque el dolor no mira el calendario',
+		'lede'    => 'De 09:00 a 01:00 todos los días del año. La guardia la cubre siempre un odontólogo colegiado.',
+		'img'     => 'urgencia-turno',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'Siempre un odontólogo de guardia', 'Nunca solo un auxiliar — el diagnóstico lo hace quien tiene la colegiación.' ),
+			array( 'Precio antes de tratar', 'Lo que cueste el tratamiento se dice antes de empezarlo, no al terminar.' ),
+			array( 'La visita se descuenta', 'Si el tratamiento se hace aquí, los 49 € de la urgencia se restan del total.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Si tiene dolor ahora',
+		'h2'      => 'Llame, no espere a que empeore',
+		'lede'    => 'Abierto ahora. El próximo hueco se ve en la home, actualizado al minuto.',
+		'cta_1'   => 'Llamar al 944 00 00 00',
+		'cta_2'   => 'Cómo llegar',
+	),
+);
+$CONTENT['TPL-C-12-urgencia']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Si tiene dolor, mejor llame',
+		'lede'    => 'Para una urgencia real, el teléfono es más rápido que un formulario. Esto es para consultas que no son urgentes hoy mismo.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos su consulta',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Si es una urgencia ahora mismo, llame — no espere la respuesta de este formulario.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '944 00 00 00', 'Todos los días, 09:00 – 01:00' ),
+			array( 'Email', 'guardia@urgenciadental.example', 'Para consultas no urgentes' ),
+			array( 'Guardia', 'Alameda de Urquijo 68, Bilbao', 'Metro Indautxu a 200 m' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Un paso',
+		'steps'   => array(
+			array( 'Le llamamos', 'En horario de guardia, para consultas que no requieren venir hoy mismo.' ),
+		),
+		'note'    => 'Para dolor activo o un golpe con pérdida de diente, llame directamente — no escriba y espere.',
+	),
+	'team'   => $CONTENT['TPL-C-12-urgencia']['team'],
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Necesito cita?', 'No, la guardia atiende sin cita en su horario.' ),
+			array( '¿Atienden fuera de las 09:00–01:00?', 'Llame igualmente — se indica qué hacer según el caso.' ),
+			array( '¿La visita de urgencia se descuenta del tratamiento?', 'Sí, si el tratamiento se hace aquí.' ),
+		),
+	),
+);
+
+/* ZUBIRI & OSÉS (TPL-C-13) · about/stats/team. El home ya trae `team` (tres agentes por zona) y
+   `valuation.stats` (tres cifras de venta) — se reutilizan tal cual en vez de duplicarlas. */
+$CONTENT['TPL-C-13']['about'] = array(
+	'eyebrow' => 'La agencia',
+	'h2'      => 'Cartera propia, sin comisión al comprador',
+	'body'    => array(
+		'Cada inmueble de la cartera pasa por nota simple antes de publicarse — si hay una carga, se sabe antes de que usted se ilusione.',
+		'Tres agentes, cada uno con su zona. Quien le enseña un piso en el Casco Viejo conoce el Casco Viejo, no toda la ciudad a medias.',
+	),
+	'img'     => 'inmo-calle',
+);
+$CONTENT['TPL-C-13']['stats'] = array(
+	'eyebrow' => 'En números',
+	'items'   => $CONTENT['TPL-C-13']['valuation']['stats'],
+);
+$CONTENT['TPL-C-13']['quotes'] = array(
+	'eyebrow' => 'Quien ya compró o vendió',
+	'h2'      => 'Dos operaciones cerradas',
+	'items'   => array(
+		array( 'Pidieron la nota simple antes de enseñarme el piso. Había una carga y me lo dijeron en la primera llamada, no en la notaría.', 'Edurne Lasa', 'Compradora' ),
+		array( 'Trasladaron todas las ofertas que llegaron, incluida una por debajo del precio que puse. Decidí yo, no ellos.', 'Patxi Ollo', 'Vendedor' ),
+	),
+);
+$CONTENT['TPL-C-13']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'hero'   => array(
+		'eyebrow' => 'Cartera propia',
+		'h1'      => 'Pedimos la nota simple antes de enseñar, no después',
+		'lede'    => 'Si un inmueble tiene una carga, se sabe antes de la visita — no en la notaría.',
+		'img'     => 'inmo-plano',
+	),
+	'values' => array(
+		'eyebrow' => 'Cómo trabajamos',
+		'h2'      => 'Tres cosas que no cambiamos',
+		'items'   => array(
+			array( 'Nota simple antes de enseñar', 'Si hay una carga, se sabe antes de la visita.' ),
+			array( 'Ofertas sin filtrar', 'Todas se trasladan al propietario, con los comparables de su calle delante.' ),
+			array( 'Sin comisión al comprador', 'Los honorarios los paga quien encarga la venta, nunca quien compra.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Siguiente paso',
+		'h2'      => '¿Buscamos su piso o tasamos el suyo?',
+		'lede'    => 'Filtre la cartera por zona y precio, o pida una tasación en persona sin compromiso.',
+		'cta_1'   => 'Ver cartera',
+		'cta_2'   => 'Pedir tasación',
+	),
+);
+$CONTENT['TPL-C-13']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Contacto',
+		'h1'      => 'Consulte antes de pedir visita',
+		'lede'    => 'Para pedir visita de un inmueble concreto use la ficha — es más rápido, viaja la referencia. Esto es para preguntas generales o vender.',
+	),
+	'form'   => array(
+		'fields' => array(
+			array( 'nombre', 'Nombre', 'text' ),
+			array( 'mail', 'Email', 'email' ),
+			array( 'asunto', 'Asunto', 'text' ),
+		),
+		'msg'    => 'Cuéntenos qué busca o qué quiere vender',
+		'submit' => 'Enviar consulta',
+		'small'  => 'Si busca piso, indique zona y precio máximo — respondemos con lo que encaje aunque no esté publicado aún.',
+	),
+	'direct' => array(
+		'eyebrow' => 'O directamente',
+		'h2'      => 'Sin esperar respuesta',
+		'items'   => array(
+			array( 'Teléfono', '948 00 00 00', 'De lunes a viernes' ),
+			array( 'Email', 'info@zubiriyoses.example', 'Lo lee la agencia, no un buzón compartido' ),
+		),
+	),
+	'flow'   => array(
+		'eyebrow' => 'Qué pasa al enviar',
+		'h2'      => 'Dos pasos',
+		'steps'   => array(
+			array( 'Le llamamos', 'El mismo día laborable, para entender qué busca o qué quiere vender.' ),
+			array( 'Queda la cita', 'Visita de un inmueble o tasación en persona, según lo que haya pedido.' ),
+		),
+		'note'    => 'Si busca piso y nada de la cartera actual encaja, se lo decimos en la primera llamada.',
+	),
+	'team'   => $CONTENT['TPL-C-13']['team'],
+	'faq'    => array(
+		'eyebrow' => 'Antes de escribir',
+		'h2'      => 'Lo que se pregunta',
+		'items'   => array(
+			array( '¿Cobráis algo al comprador?', 'No. Los honorarios los paga quien nos encarga la venta.' ),
+			array( '¿Puedo visitar sin la hipoteca aprobada?', 'Sí, y conviene — la visita cuesta una hora y la aprobación tres semanas.' ),
+			array( '¿Aceptáis ofertas por debajo del precio publicado?', 'Las trasladamos todas, sin filtrar.' ),
+		),
+	),
+);
+
 // ── THE SECOND PHOTOGRAPH WITH TEXT ON IT, WHICH NOTHING HAD EVER SWEPT ────────────────────────
 //
 // `LP-BROKEN-GRID`'s corporate hero puts the h1 ON the picture, exactly as the slider does, and
@@ -6574,16 +7435,17 @@ $css[] = <<<'CSS'
    `lp-centered` es el único que no redefine `.canvas`, así que es el único donde tocar el reparto
    es tocar algo que existe. */
 .pdp.editorial .canvas{padding-block:var(--sp-xl)}
-.pdp.editorial .pdp-thumbs{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-s)}
+.pdp.editorial .pdp-gal > .frame{aspect-ratio:1/1}
+.pdp.editorial .pdp-thumbs{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-s)}
 @media(min-width:1024px){
   [data-comp="lp-centered"] .pdp.editorial .canvas{
       grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);column-gap:var(--sp-xl)}
-  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-gal{grid-column:1/9}
-  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-buy{grid-column:9/13}
-  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-gal{grid-column:c 1/c 11}
-  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-buy{grid-column:c 9/c 13}
-  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-gal{grid-column:c 1/c 9}
-  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-buy{grid-column:c 9/c 13}
+  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-gal{grid-column:1/7}
+  [data-comp="lp-strict-grid"] .pdp.editorial .pdp-buy{grid-column:7/13}
+  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-gal{grid-column:c 1/c 7}
+  [data-comp="lp-broken-grid"] .pdp.editorial .pdp-buy{grid-column:c 7/c 13}
+  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-gal{grid-column:c 1/c 7}
+  [data-comp="lp-asymmetric"] .pdp.editorial .pdp-buy{grid-column:c 7/c 13}
 }
 
 /* ── ESTILOS DE TPL-E-06 · TALLA / PRUEBA ──────────────────────────────────────────────────── */
@@ -7869,8 +8731,8 @@ $COMP_CSS['strict-grid'] = <<<'CSS'
   [data-comp="lp-strict-grid"] .items.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
   /* equal card heights: the rows must visibly align */
   [data-comp="lp-strict-grid"] .card{height:100%}
-  [data-comp="lp-strict-grid"] .band .head{grid-column:1/7}
-  [data-comp="lp-strict-grid"] .band .formwrap{grid-column:7/13}
+  [data-comp="lp-strict-grid"] .band .head{grid-column:1/7;grid-row:1}
+  [data-comp="lp-strict-grid"] .band .formwrap{grid-column:7/13;grid-row:1}
   [data-comp="lp-strict-grid"] .pdp .pdp-gal{grid-column:1/7}
   [data-comp="lp-strict-grid"] .pdp .pdp-buy{grid-column:7/13}
 }
@@ -8000,7 +8862,7 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      get to spend. Caught by looking at it; no measurement would have flagged it. */
   [data-comp="lp-broken-grid"] .services .items > :nth-child(2),
   [data-comp="lp-broken-grid"] .cases .items > :nth-child(2){margin-top:var(--sp-l)}
-  [data-comp="lp-broken-grid"] .band .head{grid-column:c 1/c 10}
+  [data-comp="lp-broken-grid"] .band .head{grid-column:c 1/c 6;grid-row:1}
   /* A FORM NEVER BLEEDS. THIS ONE DID, AND IT WAS THE WORST THING ON THE PAGE — not a styling
      complaint but a control the reader cannot use. MEASURED at `c 6 / full-end`: every field and
      the submit button ended at exactly x=2000.0 on a 2000 viewport and x=2560.0 on a 2560 one,
@@ -8011,9 +8873,9 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
      concepto" and he is right. A photograph at the glass is a bleed. A paragraph at the glass is
      an amputation. A SUBMIT BUTTON AT THE GLASS IS A BROKEN PAGE: no hit-slop on one side, and the
      border that tells you where the control ends is coincident with the edge of the screen. */
-  [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/c 13}
-  [data-comp="lp-broken-grid"] .pdp .pdp-gal{grid-column:c 1/c 10}
-  [data-comp="lp-broken-grid"] .pdp .pdp-buy{grid-column:c 6/c 13}
+  [data-comp="lp-broken-grid"] .band .formwrap{grid-column:c 6/c 13;grid-row:1}
+  [data-comp="lp-broken-grid"] .pdp .pdp-gal{grid-column:c 1/c 7}
+  [data-comp="lp-broken-grid"] .pdp .pdp-buy{grid-column:c 7/c 13}
   /* THE `padding-right:var(--pad-x-tablet)` ON THE LAST CARD'S BODY IS GONE, and its absence is
      the point rather than an omission. It existed to give a bleeding card's text some paper; with
      the row ending at `c 13` there is no bleeding card, and leaving it would inset the last card's
@@ -8129,8 +8991,8 @@ $COMP_CSS['asymmetric'] = <<<'CSS'
   [data-comp="lp-asymmetric"] .prods .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .carousel .head{grid-column:c 1/c 6}
   [data-comp="lp-asymmetric"] .carousel .items{grid-column:c 3/c 13}
-  [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7}
-  [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13}
+  [data-comp="lp-asymmetric"] .band .head{grid-column:c 1/c 7;grid-row:1}
+  [data-comp="lp-asymmetric"] .band .formwrap{grid-column:c 7/c 13;grid-row:1}
   [data-comp="lp-asymmetric"] .pdp .pdp-gal{grid-column:c 1/c 7}
   [data-comp="lp-asymmetric"] .pdp .pdp-buy{grid-column:c 7/c 13}
   [data-comp="lp-asymmetric"] .site-foot .fnav{grid-column:c 1/c 8}
@@ -8458,9 +9320,9 @@ function head_corporate( $C, $BRAND ) {
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
 		. '<nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $n ) {
-		$o .= '<a href="#">' . h( $n ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
 	}
-	return $o . '</nav><a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+	return $o . '</nav><a class="btn btn-primary btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 }
 
@@ -8474,9 +9336,9 @@ function head_ecommerce( $C, $BRAND, $uid ) {
 		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
 		. '</form><div class="tools">';
 	foreach ( $C['tools'] as $t ) {
-		$o .= '<a href="#">' . h( $t ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $t ) ) . '">' . h( $t ) . '</a>';
 	}
-	return $o . '<a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+	return $o . '<a class="cart" href="' . h( ihref_for_label( $C['cart'] ) ) . '">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
 		. '</div></div></div></header>';
 }
 
@@ -8487,7 +9349,7 @@ function crumbs_html( $trail ) {
 	foreach ( $trail as $i => $t ) {
 		$o .= ( $i === $last )
 			? '<li aria-current="page">' . h( $t ) . '</li>'
-			: '<li><a href="#">' . h( $t ) . '</a></li>';
+			: '<li><a href="' . h( ihref_for_label( $t ) ) . '">' . h( $t ) . '</a></li>';
 	}
 	return $o . '</ol></div></nav>';
 }
@@ -8543,8 +9405,8 @@ function page_service( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $S['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $S['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $S['claim'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $S['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $S['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $S['cta_1'] ) ) . '">' . h( $S['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $S['cta_2'] ) ) . '">' . h( $S['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -8744,8 +9606,8 @@ function page_cta_html( $b ) {
 	return '<section class="sec band closing sober" aria-label="' . h( $b['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 }
 
@@ -8971,7 +9833,7 @@ function page_contact_enquiry( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<h2>' . h( $dr['h2'] ) . '</h2><ul class="directlist">';
 	foreach ( $dr['items'] as $it ) {
 		$o[] = '<li><span class="dlabel">' . h( $it[0] ) . '</span>'
-			. '<a href="#">' . h( $it[1] ) . '</a>'
+			. '<a href="' . h( ihref_for_label( $it[1] ) ) . '">' . h( $it[1] ) . '</a>'
 			. '<span class="muted small">' . h( $it[2] ) . '</span></li>';
 	}
 	$o[] = '</ul></div></div></section>';
@@ -9076,8 +9938,8 @@ function strip_made( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1><p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -9561,8 +10423,8 @@ function strip_plan_sub( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1><p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -9616,7 +10478,7 @@ function page_pdp_sub( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="pdp-buy"><h1>' . h( $P['h1'] ) . '</h1>'
 		. '<p class="muted">' . h( $P['lede'] ) . '</p>'
 		. '<p class="nopricenote">' . h( $P['nofee'] ) . '</p>'
-		. '<a class="btn btn-primary" href="#">' . h( $P['cta'] ) . '</a>'
+		. '<a class="btn btn-primary" href="' . h( ihref_for_label( $P['cta'] ) ) . '">' . h( $P['cta'] ) . '</a>'
 		. '</div></div></section>';
 
 	$o[] = plan_picker_html( $C['plans'], $uid . '-p' );
@@ -9728,7 +10590,7 @@ function sample_request_html( $sm, $extra = ' bg-alt' ) {
 	$o = '<section class="sec sample' . $extra . '" aria-label="Muestra física"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $sm['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $sm['h2'] ) . '</h2><p class="muted">' . h( $sm['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $sm['cta'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $sm['cta'] ) ) . '">' . h( $sm['cta'] ) . '</a></div></div>'
 		. '<div class="media"><ul class="swatches">';
 	foreach ( $sm['items'] as $slug ) {
 		$si = img( $slug );
@@ -9772,8 +10634,8 @@ function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -9861,8 +10723,8 @@ function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	$o[] = '</main>';
@@ -9898,8 +10760,8 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
 		. '</div></div></section>';
 
 	/* 2 · COMP-PORTFOLIO-GRID  [fijo · ADN]
@@ -9913,7 +10775,7 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<h2>' . h( $wk['h2'] ) . '</h2></div><ul class="works">';
 	foreach ( $wk['items'] as $it ) {
 		$wi  = img( $it[2] );
-		$o[] = '<li class="work-item"><a href="#">'
+		$o[] = '<li class="work-item"><a href="' . h( ihref_for_label( $it[0] ) ) . '">'
 			. '<figure class="frame"><img data-img="' . h( $wi['slug'] ) . '"'
 			. ' alt="' . h( $wi['alt'] ) . '" width="' . $wi['w'] . '" height="' . $wi['h'] . '"></figure>'
 			. '<span class="work-cap"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></span>'
@@ -9964,8 +10826,8 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	$o[] = '</main>';
@@ -10017,9 +10879,9 @@ function head_shop_search( $C, $BRAND, $uid ) {
 		. '<button class="btn btn-primary btn-sm" type="submit">Buscar</button>'
 		. '</form><nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $nv ) {
-		$o .= '<a href="#">' . h( $nv ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $nv ) ) . '">' . h( $nv ) . '</a>';
 	}
-	return $o . '</nav><a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+	return $o . '</nav><a class="cart" href="' . h( ihref_for_label( $C['cart'] ) ) . '">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
 		. '</div></div></header>';
 }
 
@@ -10028,9 +10890,9 @@ function head_shop_plain( $C, $BRAND ) {
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
 		. '<nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $n ) {
-		$o .= '<a href="#">' . h( $n ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
 	}
-	return $o . '</nav><a class="cart" href="#">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
+	return $o . '</nav><a class="cart" href="' . h( ihref_for_label( $C['cart'] ) ) . '">' . h( $C['cart'] ) . ' <b>' . h( $C['cart_n'] ) . '</b></a>'
 		. '</div></div></header>';
 }
 
@@ -10054,8 +10916,8 @@ function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -10115,8 +10977,8 @@ function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Muestra"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
@@ -10151,8 +11013,8 @@ function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -10223,8 +11085,8 @@ function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 			foreach ( $pl[2] as $f ) {
 				$o[] = '<li>' . h( $f ) . '</li>';
 			}
-			$o[] = '</ul><a class="btn ' . ( $best ? 'btn-primary' : 'btn-outline' ) . '" href="#">'
-				. h( $C['nav_cta'] ) . '</a></li>';
+			$o[] = '</ul><a class="btn ' . ( $best ? 'btn-primary' : 'btn-outline' ) . '" href="'
+				. h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a></li>';
 		}
 		$o[] = '</ul><p class="small muted plan-note">' . h( $pr['note'] ) . '</p></div></section>';
 	}
@@ -10242,8 +11104,8 @@ function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Reservar"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	$o[] = '</main>';
@@ -10275,8 +11137,8 @@ function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -10302,7 +11164,7 @@ function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 				. ' aria-label="' . h( $pm[0] ) . '"><div class="canvas">'
 				. '<div class="promo-in"><b>' . h( $pm[0] ) . '</b>'
 				. '<span>' . h( $pm[1] ) . '</span>'
-				. '<a class="btn btn-outline btn-sm" href="#">' . h( $pm[2] ) . '</a></div>'
+				. '<a class="btn btn-outline btn-sm" href="' . h( ihref_for_label( $pm[2] ) ) . '">' . h( $pm[2] ) . '</a></div>'
 				. '</div></section>';
 		}
 	}
@@ -10329,8 +11191,8 @@ function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Cierre"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	// 7 · COMP-NEWSLETTER cupón  [toggle TGL-NEWSLETTER]
@@ -10494,7 +11356,7 @@ function pricing_html( $pl ) {
 		foreach ( $p['feats'] as $f ) {
 			$o .= '<li>' . h( $f ) . '</li>';
 		}
-		$o .= '</ul><a class="btn btn-outline btn-sm" href="#">Pedir estudio</a></li>';
+		$o .= '</ul><a class="btn btn-outline btn-sm" href="' . h( ihref_for_label( 'Pedir estudio' ) ) . '">Pedir estudio</a></li>';
 	}
 	return $o . '</ul><p class="pnote">' . h( $pl['note'] ) . '</p></div></section>';
 }
@@ -10511,7 +11373,7 @@ function urgent_bar_html( $ug ) {
 		. '<p class="urgstate"><b>' . h( $ug['state'] ) . '</b>'
 		. '<span>' . h( $ug['next'] ) . '</span></p>'
 		. '<h1>' . h( $ug['h1'] ) . '</h1>'
-		. '<a class="btn btn-primary btn-lg" href="#">' . h( $ug['cta'] ) . '</a>'
+		. '<a class="btn btn-primary btn-lg" href="' . h( ihref_for_label( $ug['cta'] ) ) . '">' . h( $ug['cta'] ) . '</a>'
 		. '<p class="urgnote">' . h( $ug['note'] ) . '</p>'
 		. '</div></section>';
 }
@@ -10551,8 +11413,8 @@ function strip_clinic( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -10582,8 +11444,8 @@ function strip_plan( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
 		. '</div></div></section>';
 	$o[]  = pains_html( $C['pains'] );
 	$o[]  = phase_timeline_html( $C['phases'] );
@@ -10623,7 +11485,7 @@ function head_phone( $C, $BRAND ) {
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
 		. '<nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $n ) {
-		$o .= '<a href="#">' . h( $n ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
 	}
 	/* The header CTA's WEIGHT is the archetype's call. TPL-C-07 wants `Vender mi coche` solid and
 	   its doc says nothing against it; TPL-C-13's doc says the opposite in as many words, because
@@ -10631,7 +11493,7 @@ function head_phone( $C, $BRAND ) {
 	   Default unchanged, so no existing strip moves. */
 	$cta_cls = isset( $C['nav_cta_weight'] ) && 'secundario' === $C['nav_cta_weight'] ? 'btn-outline' : 'btn-primary';
 	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn ' . $cta_cls . ' btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '<a class="btn ' . $cta_cls . ' btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 }
 
@@ -10694,7 +11556,7 @@ function stock_grid_html( $st ) {
 		}
 		$o .= '</ul><p class="vprice"><b>' . h( $v['price'] ) . '</b>'
 			. '<span>' . h( $v['quota'] ) . '</span></p>'
-			. '<a class="btn btn-outline btn-sm" href="#">Ver ficha</a></div></li>';
+			. '<a class="btn btn-outline btn-sm" href="' . h( ihref( 'producto' ) ) . '">Ver ficha</a></div></li>';
 	}
 	return $o . '</ul><p class="pnote">' . h( $st['note'] ) . '</p></div></section>';
 }
@@ -10773,7 +11635,7 @@ function nap_block_html( $np, $extra = '', $cta = '' ) {
  	   usa la cabecera, asi que la pagina no estrena un verbo nuevo en la ultima pantalla. El telefono
  	   sigue arriba como enlace, asi que el boton no lo repite. */
 	$nap_cta = '' !== $cta
-		? '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $cta ) . '</a></div>'
+		? '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $cta ) ) . '">' . h( $cta ) . '</a></div>'
 		: '';
 	return $o . '</dl><p class="small muted">' . h( $np['note'] ) . '</p>' . $nap_cta . '</div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
@@ -10797,8 +11659,8 @@ function model_hero_html( $hero ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<ul class="mfigs">';
 	foreach ( $hero['figures'] as $f ) {
 		$o .= '<li><b>' . h( $f[0] ) . '</b><span>' . h( $f[1] ) . '</span></li>';
@@ -10845,7 +11707,7 @@ function offer_strip_html( $of ) {
 	return '<section class="sec offer" aria-label="' . h( $of['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $of['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $of['h2'] ) . '</h2><p class="lede">' . h( $of['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $of['cta'] ) . '</a></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $of['cta'] ) ) . '">' . h( $of['cta'] ) . '</a></div>'
 		. '<p class="small">' . h( $of['small'] ) . '</p></div></div></section>';
 }
 
@@ -11082,7 +11944,7 @@ function property_grid_html( $pg ) {
 		}
 		$o .= '</ul><p class="vprice"><b>' . h( $p['price'] ) . '</b>'
 			. '<span>' . h( $p['unit'] ) . '</span></p>'
-			. '<a class="btn btn-outline btn-sm" href="#">Ver ficha</a></div></li>';
+			. '<a class="btn btn-outline btn-sm" href="' . h( ihref( 'producto' ) ) . '">Ver ficha</a></div></li>';
 	}
 	return $o . '</ul><p class="pnote">' . h( $pg['note'] ) . '</p></div></section>';
 }
@@ -11244,8 +12106,8 @@ function strip_workshop( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -11270,7 +12132,7 @@ function head_over( $C, $BRAND ) {
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
 		. '<nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $n ) {
-		$o .= '<a href="#">' . h( $n ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
 	}
 	/* The header CTA's WEIGHT is the archetype's call. TPL-C-07 wants `Vender mi coche` solid and
 	   its doc says nothing against it; TPL-C-13's doc says the opposite in as many words, because
@@ -11278,7 +12140,7 @@ function head_over( $C, $BRAND ) {
 	   Default unchanged, so no existing strip moves. */
 	$cta_cls = isset( $C['nav_cta_weight'] ) && 'secundario' === $C['nav_cta_weight'] ? 'btn-outline' : 'btn-primary';
 	return $o . '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn ' . $cta_cls . ' btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '<a class="btn ' . $cta_cls . ' btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 }
 
@@ -11404,8 +12266,8 @@ function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
 		. '</div></div></section>';
 
 	// 2 · COMP-MARQUEE  [toggle TGL-MARQUEE]
@@ -11455,10 +12317,10 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="logo">' . h( $BRAND ) . '</span>'
 		. '<nav class="mainnav" aria-label="Principal">';
 	foreach ( $C['nav'] as $n ) {
-		$o[] = '<a href="#">' . h( $n ) . '</a>';
+		$o[] = '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
 	}
 	$o[] = '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn btn-primary btn-sm" href="#">' . h( $C['nav_cta'] ) . '</a>'
+		. '<a class="btn btn-primary btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a>'
 		. '</div></div></header>';
 
 	$o[] = '<main>';
@@ -11468,8 +12330,8 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -11536,7 +12398,7 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	   venia pidiendo arriba —tasacion, cita, reserva o llamada— en vez de estrenar un verbo nuevo
 	   en la ultima pantalla. El telefono ya esta como enlace en el <address>, asi que no se repite. */
 	$nap_cta = isset( $C['nav_cta'] ) && '' !== $C['nav_cta']
-		? '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $C['nav_cta'] ) . '</a></div>'
+		? '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a></div>'
 		: '';
 	$o[] = '</dl><p class="small muted">' . h( $np['note'] ) . '</p>' . $nap_cta . '</div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
@@ -11610,7 +12472,7 @@ function category_cards_html( $anchor_key, $cs ) {
 		. '<h2>' . h( $cs['h2'] ) . '</h2></div><ul class="catcards">';
 	foreach ( $cs['items'] as $it ) {
 		$ci = img( $it[3] );
-		$o .= '<li class="catcard"><a href="#">'
+		$o .= '<li class="catcard"><a href="' . h( ihref_for_label( $it[0] ) ) . '">'
 			. '<figure class="frame"><img data-img="' . h( $ci['slug'] ) . '"'
 			. ' alt="' . h( $ci['alt'] ) . '" width="' . $ci['w'] . '" height="' . $ci['h'] . '"></figure>'
 			. '<span class="catcard-body"><b>' . h( $it[0] ) . '</b>'
@@ -11646,8 +12508,8 @@ function strip_visual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
 		. '</div></section>';
@@ -11716,8 +12578,8 @@ function strip_categories( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
 		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '</div></section>';
@@ -11732,7 +12594,7 @@ function strip_categories( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $gr['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $gr['h2'] ) . '</h2></div><ul class="tiles">';
 	foreach ( $gr['items'] as $it ) {
-		$o[] = '<li><a href="#"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></a></li>';
+		$o[] = '<li><a href="' . h( ihref_for_label( $it[0] ) ) . '"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></a></li>';
 	}
 	$o[] = '</ul></div></section>';
 
@@ -11775,8 +12637,8 @@ function strip_categories( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = '<section class="sec band closing sober" aria-label="Profesionales"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 
 	// 6 · COMP-CATEGORY-CARD  [fijo]
@@ -11817,8 +12679,8 @@ function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
 		. '<h1>' . h( $hero['h1'] ) . '</h1>'
 		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="#">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="#">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
 		. '</div>'
 		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
 			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
@@ -11896,7 +12758,7 @@ function footer_html( $f ) {
 	$o = '<footer class="site-foot"><div class="canvas">'
 		. '<div class="fnav"><span class="muted small">' . h( $f['tag'] ) . '</span>';
 	foreach ( $f['links'] as $l ) {
-		$o .= '<a href="#">' . h( $l ) . '</a>';
+		$o .= '<a href="' . h( ihref_for_label( $l ) ) . '">' . h( $l ) . '</a>';
 	}
 	return $o . '</div><p class="legal">' . h( $f['legal'] ) . '</p></div></footer>';
 }
@@ -11961,7 +12823,7 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '<nav class="cats" aria-label="Categorías">';
 	foreach ( $hero['cats'] as $c ) {
-		$o[] = '<a href="#">' . h( $c ) . '</a>';
+		$o[] = '<a href="' . h( ihref_for_label( $c ) ) . '">' . h( $c ) . '</a>';
 	}
 	$o[] = '</nav></div></section>';
 
@@ -12023,7 +12885,7 @@ function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
 		   the four blueprints, so a third child here would land unplaced — the same trap the note
 		   on `.faqlist` records for `.band`. The control belongs to the ask, so it belongs in the
 		   block that makes it. */
-		. '<div class="closecta"><a class="btn btn-primary btn-close" href="#">' . h( $cl['cta'] ) . '</a>'
+		. '<div class="closecta"><a class="btn btn-primary btn-close" href="' . h( ihref_for_label( $cl['cta'] ) ) . '">' . h( $cl['cta'] ) . '</a>'
 		. '<span class="muted small">' . h( $cl['cta_sub'] ) . '</span></div>'
 		. '</div><div class="items chans">';
 	foreach ( $cl['chans'] as $c ) {
@@ -12287,28 +13149,44 @@ function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
    first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
 $PAGES = array(
 	'TPL-C-10' => array(
-		array( 'key' => 'home', 'label' => 'Clínica', 'doc' => 'TPL-C-10' ),
+		array( 'key' => 'home',     'label' => 'Clínica',   'doc' => 'TPL-C-10' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-11' => array(
-		array( 'key' => 'home', 'label' => 'Plan', 'doc' => 'TPL-C-11' ),
+		array( 'key' => 'home',     'label' => 'Plan',      'doc' => 'TPL-C-11' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-12' => array(
-		array( 'key' => 'home', 'label' => 'Urgencias', 'doc' => 'TPL-C-12' ),
+		array( 'key' => 'home',     'label' => 'Urgencias', 'doc' => 'TPL-C-12' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-07' => array(
-		array( 'key' => 'home', 'label' => 'Stock', 'doc' => 'TPL-C-07' ),
+		array( 'key' => 'home',     'label' => 'Stock',     'doc' => 'TPL-C-07' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-13' => array(
-		array( 'key' => 'home', 'label' => 'Cartera', 'doc' => 'TPL-C-13' ),
+		array( 'key' => 'home',     'label' => 'Cartera',   'doc' => 'TPL-C-13' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-08' => array(
-		array( 'key' => 'home', 'label' => 'Modelo', 'doc' => 'TPL-C-08' ),
+		array( 'key' => 'home',     'label' => 'Modelo',    'doc' => 'TPL-C-08' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-09' => array(
-		array( 'key' => 'home', 'label' => 'Taller', 'doc' => 'TPL-C-09' ),
+		array( 'key' => 'home',     'label' => 'Taller',    'doc' => 'TPL-C-09' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-06' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-06' ),
+		array( 'key' => 'home',     'label' => 'Home',      'doc' => 'TPL-C-06' ),
+		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	'TPL-C-01' => array(
 		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
@@ -12383,29 +13261,110 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 }
 
 function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
+	ihref_set_context( tpl_slug( $C['tpl'] ), $anchor_key, $tpl );
+
 	if ( 'TPL-C-10' === $tpl && 'home' === $page_key ) {
 		return strip_clinic( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-10' === $tpl && 'nosotros' === $page_key ) {
+		/* `$C['team']` de esta arquitectura es asociativo (img/name/role/lic, lo que pinta la home
+		   con `strip_clinic`); `page_about_company_tail` lo lee posicional ([name,role,img], lo que
+		   pintan TPL-C-01/02). Se convierte en una COPIA — PHP copia arrays por valor, así que esto
+		   no toca el `$C['team']` que la home sigue usando. */
+		$C_nos = $C;
+		$C_nos['team'] = array(
+			'eyebrow' => $C['team']['eyebrow'],
+			'h2'      => $C['team']['h2'],
+			'items'   => array_map(
+				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
+				$C['team']['items']
+			),
+		);
+		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-10' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-11' === $tpl && 'home' === $page_key ) {
 		return strip_plan( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-11' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-11' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-12' === $tpl && 'home' === $page_key ) {
 		return strip_urgent( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-12' === $tpl && 'nosotros' === $page_key ) {
+		$C_nos = $C;
+		$C_nos['team'] = array(
+			'eyebrow' => $C['team']['eyebrow'],
+			'h2'      => $C['team']['h2'],
+			'items'   => array_map(
+				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
+				$C['team']['items']
+			),
+		);
+		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-12' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-07' === $tpl && 'home' === $page_key ) {
 		return strip_stock( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-07' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-07' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-13' === $tpl && 'home' === $page_key ) {
 		return strip_property( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-13' === $tpl && 'nosotros' === $page_key ) {
+		$C_nos = $C;
+		$C_nos['team'] = array(
+			'eyebrow' => $C['team']['eyebrow'],
+			'h2'      => $C['team']['h2'],
+			'items'   => array_map(
+				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
+				$C['team']['items']
+			),
+		);
+		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-13' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-08' === $tpl && 'home' === $page_key ) {
 		return strip_model( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-08' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-08' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-09' === $tpl && 'home' === $page_key ) {
 		return strip_workshop( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-09' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-09' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-06' === $tpl && 'home' === $page_key ) {
 		return strip_menu( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-06' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-06' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-01' === $tpl && 'home' === $page_key ) {
 		return strip_corporate( $anchor_key, $C, $BRAND, $suid, $tgl );
@@ -12638,6 +13597,85 @@ function template_page_html( $tpl, $T, $tpl_slug, $pages ) {
    slug plus `-anchor` and the two can never need translating between. */
 function tpl_slug( $tpl ) {
 	return strtolower( str_replace( '-', '', $tpl ) );
+}
+
+/* INTERNAL NAV WIRING · best-effort label → real page, so nav/footer/CTA links actually go
+   somewhere instead of sitting on a dead `href="#"`.
+
+   `render_page_inner()` calls `ihref_set_context()` once per page it renders — it is the one
+   place that already holds the routing slug, the anchor and the archetype together — and every
+   `href="#"` site downstream reads that context back through `ihref()` / `ihref_for_label()`
+   instead of taking it as a parameter. Threading tpl/anchor through the ~20 component functions
+   that print a nav item or a CTA would touch every one of their signatures and every call site;
+   a page-scoped global does the same job with a single injection point and no signature churn,
+   which is safe here because the generator is single-threaded and one page finishes rendering
+   before the next one starts.
+
+   A label that matches no real page for its archetype is not an error: `ihref()` falls back to
+   that archetype's own home, which the client-side router already treats as its default target,
+   so a miss degrades to "goes home" and never to a dead link. */
+$GLOBALS['NM_IHREF_SLUG']   = '';
+$GLOBALS['NM_IHREF_ANCHOR'] = '';
+$GLOBALS['NM_IHREF_ARCH']   = '';
+
+function ihref_set_context( $slug, $anchor, $arch ) {
+	$GLOBALS['NM_IHREF_SLUG']   = $slug;
+	$GLOBALS['NM_IHREF_ANCHOR'] = $anchor;
+	$GLOBALS['NM_IHREF_ARCH']   = $arch;
+}
+
+function ihref_norm( $s ) {
+	$s   = strtolower( $s );
+	$map = array(
+		'á' => 'a',
+		'é' => 'e',
+		'í' => 'i',
+		'ó' => 'o',
+		'ú' => 'u',
+		'ñ' => 'n',
+		'ü' => 'u',
+	);
+	return preg_replace( '/[^a-z0-9]/', '', strtr( $s, $map ) );
+}
+
+/** Best-effort label → page key for the CURRENT archetype's page set. '' if nothing is close. */
+function ihref_match( $label ) {
+	global $PAGES;
+	$arch = $GLOBALS['NM_IHREF_ARCH'];
+	if ( '' === $arch || ! isset( $PAGES[ $arch ] ) ) {
+		return '';
+	}
+	$n = ihref_norm( $label );
+	if ( '' === $n ) {
+		return '';
+	}
+	foreach ( $PAGES[ $arch ] as $pg ) {
+		if ( ihref_norm( $pg['label'] ) === $n ) {
+			return $pg['key'];
+		}
+	}
+	foreach ( $PAGES[ $arch ] as $pg ) {
+		$pl = ihref_norm( $pg['label'] );
+		if ( '' !== $pl && ( false !== strpos( $n, $pl ) || false !== strpos( $pl, $n ) ) ) {
+			return $pg['key'];
+		}
+	}
+	return '';
+}
+
+/** Explicit page key → the real hash the router understands. Home when the key is empty/unknown. */
+function ihref( $page_key = 'home' ) {
+	$slug = $GLOBALS['NM_IHREF_SLUG'];
+	if ( '' === $slug ) {
+		return '#';
+	}
+	$anc = $GLOBALS['NM_IHREF_ANCHOR'];
+	return '#' . $slug . '/' . $anc . ( ( '' === $page_key || 'home' === $page_key ) ? '' : ( '/' . $page_key ) );
+}
+
+/** Nav/CTA label → real hash, best-effort matched against the current archetype's page set. */
+function ihref_for_label( $label ) {
+	return ihref( ihref_match( $label ) );
 }
 
 $groups  = array();
