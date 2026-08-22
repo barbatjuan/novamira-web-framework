@@ -39,13 +39,15 @@ inspected at all; do not run `project-context` reflexively.
 **New site (greenfield)** — nothing is written to WordPress until the gate:
 `web-templates` → `ux-design-system` → `html-mockup` (client approves) → **BUILD GATE** →
 `project-context` (now, to confirm connector / builder / theme on the real target) →
+`elementor-theme-parts` (header/footer FIRST, so pages inherit one that already exists) →
 `elementor-core` | `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` /
-`wordpress-seo` → `qa-review` → hand off.
+`wordpress-seo` → `wordpress-legal` → `wordpress-forms` → `qa-review` → hand off.
 
 **Existing site** — inspect first, so routing is based on facts, never assumption:
 `project-context` → `web-templates` → `ux-design-system` → `html-mockup` (approve) →
-**BUILD GATE** → `elementor-core` | `divi-core` → `woocommerce` (if commerce) →
-`wordpress-performance` / `wordpress-seo` → `qa-review` → hand off.
+**BUILD GATE** → `elementor-theme-parts` (header/footer FIRST) → `elementor-core` |
+`divi-core` → `woocommerce` (if commerce) → `wordpress-performance` / `wordpress-seo` →
+`wordpress-legal` → `wordpress-forms` → `qa-review` → hand off.
 
 Either way the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
 builder-agnostic and needs no WordPress and no connector.
@@ -71,7 +73,8 @@ the result against it.
   Elementor build artefacts; the Divi equivalents are not validated. Also `woocommerce`: the
   commerce structure is generic, but every execution step and asset targets the Elementor
   Theme Builder, so there is no Divi commerce path today.
-- **Builder-specific**: `elementor-core` (battle-tested) and `divi-core` (scaffold).
+- **Builder-specific**: `elementor-core` (battle-tested), `elementor-theme-parts`
+  (Elementor Pro Theme Builder only — no Divi equivalent) and `divi-core` (scaffold).
 
 **The Divi path is unvalidated.** `divi-core` has no `assets/` directory at all, and the
 `di_section` / `di_row` / `di_module` helper library its own SKILL.md describes does not exist
@@ -90,10 +93,12 @@ have reached it:
 | `elementor-core` | `knowledge.md` + `gotchas.md` |
 | `woocommerce` | `knowledge.md` + `gotchas.md` |
 | `divi-core` | `gotchas.md` only — no knowledge file yet |
-| `ux-design-system` | `design-tokens.md`, `layout-patterns.md`, `motion.md` |
+| `elementor-theme-parts` | `gotchas.md` only — no knowledge file yet |
+| `ux-design-system` | `design-personalities.md`, `design-tokens.md`, `layout-patterns.md`, `motion.md` |
 | `web-templates` | `design-system.md`, `recommender.md`, `toggles.md`, `templates/` |
 | `html-mockup` | `mockup-guide.md` |
-| `project-context`, `qa-review`, `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` | none |
+| `qa-review` | `house-rules.md` — the most cross-referenced file in the framework |
+| `project-context`, `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` | none |
 
 Gotchas are the gold — grow them every time something surprises you. Shape and rules:
 `CONTRIBUTING.md`.
@@ -101,8 +106,10 @@ Gotchas are the gold — grow them every time something surprises you. Shape and
 ## Assets (library, not skill)
 Reusable code lives under a skill's `assets/`; skills reference assets by path and never
 paste code inline. What exists:
-- `elementor-core/assets/es-builder.php` — helper library;
-  `es-theme-parts.example.php` — header/footer + Theme Builder parts.
+- `elementor-core/assets/es-builder.php` — the helper library.
+- `elementor-theme-parts/assets/es-theme-parts.example.php` — header/footer + Theme Builder
+  parts. Lives in its own skill, not `elementor-core/assets/`; it loads `es-builder.php` as a
+  dependency.
 - `woocommerce/assets/es-shop-template.example.php`,
   `woocommerce/assets/es-product-single.example.php`.
 - `html-mockup/assets/ecommerce-mockup.html` and `html-mockup/assets/corporate-mockup.html` —
@@ -110,6 +117,9 @@ paste code inline. What exists:
   the SITE TYPE. Never start a corporate site from the ecommerce one. Copying is half the step:
   each ships pointed at one anchor so it renders, and the `AXIS POSITIONS` block must then be
   re-pointed at the anchor the dialogue resolved (`RT_MOCKUP_AXES_MISMATCH` gates it).
+- `qa-review/assets/lighthouse-audit.mjs` — the server-side evidence script other skills' gates
+  point at.
+- `framework-audit/assets/framework-audit.php` — verifies this repo itself, not a built site.
 - `divi-core` has no `assets/` yet.
 
 ## Extending per project

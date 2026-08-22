@@ -24,7 +24,7 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
 
 ## The 3 layers
 - **CAPA 1 — Archetypes** (`references/templates/<type>/TPL-*.md`): proven skeletons, each section
-  marked FIXED (DNA) or TOGGLE. 22 homes: 9 ecommerce, 14 corporate.
+  marked FIXED (DNA) or TOGGLE. 23 homes: 9 ecommerce, 14 corporate.
 - **CAPA 2 — Recommender** (`references/recommender.md`): analyze the brand, request
   references, recommend a `TPL-*`, confirm.
 - **CAPA 3 — Toggles** (`references/toggles.md`): fine-tuning limited to what the chosen
