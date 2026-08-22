@@ -87,6 +87,26 @@ attribution. Recorded here so the obligation travels with the files.
 and its LICENSE grants every reader the right to redistribute what it contains —
 a right an Envato subscription does not give us to pass on.
 
+## Dos de `aranda-*` tampoco son fotografías, y el motivo es un dato
+
+El reportaje de Motor Aranda son fotos reales de stock libre, y las dos tomas nuevas de la ficha de
+unidad no lo son. No es descuido: es que **el stock no puede dar un cuentakilómetros que coincida
+con la unidad**.
+
+`TPL-UNIT-01` escribe en su propio contrato que el cuentakilómetros tiene que salir legible, y da la
+razón: es el único dato de la ficha que el comprador puede verificar sin bajarse del sofá. La
+unidad destacada tiene 48.200 km. La mejor foto libre del catálogo —un cuadro de mandos nítido y
+bien iluminado— marcaba **195.478**. Publicarla habría sido escribir una regla sobre datos
+verificables y romperla en el único sitio donde se ve, que es peor que no tener la regla.
+
+Y hubo un segundo hallazgo que sólo apareció **mirando la hoja de contactos**: la toma que iba a ser
+«interior desde la puerta» era otro cuadro de mandos. Dos frames distintos y el mismo encuadre. La
+métrica de peso y proporción no ve eso — el paso de mirarlas existe justo para esto.
+
+Las dos se generaron: una con la cifra pedida dentro del prompt (y verificada en pantalla, marca
+48.200), y otra con la cabina entera desde la puerta del conductor. La celda `Licence` lo dice fila
+por fila, que es donde tiene que decirse.
+
 ## Las siete de `inmo-*` no son fotografías
 
 **Están GENERADAS, y la columna `Licence` lo dice en vez de dejarlas pasar por lo que no son.**
@@ -212,6 +232,9 @@ new row looks different from the old ones.
 | `aranda-v4` | card 4:3 | 720×540 | 32 KB | 426931288 | fp-426931 | Freepik free | Todoterreno blanco en carretera invernal al atardecer |
 | `aranda-v5` | card 4:3 | 720×540 | 33 KB | 419374753 | fp-419374 | Freepik free | Berlina moderna circulando por una calle de ciudad |
 | `aranda-v6` | card 4:3 | 720×540 | 33 KB | 422700761 | fp-422700 | Freepik free | Compacto gris de perfil en una vía rápida |
+| `aranda-u-cuadro` | card 4:3 | 800×600 | 42 KB | 5234126956 | fp-5234126 | Freepik AI (Pikaso) | Cuadro de mandos con el cuentakilómetros marcando 48.200 km |
+| `aranda-u-interior` | card 4:3 | 800×600 | 42 KB | 5234127412 | fp-5234127 | Freepik AI (Pikaso) | Interior visto desde la puerta del conductor: dos asientos de tela gris y consola |
+| `aranda-u-maletero` | card 4:3 | 800×600 | 44 KB | 5234185348 | fp-5234185 | Freepik AI (Pikaso) | Maletero abierto y vacío, con el patio del concesionario detrás |
 | `auria-hero` | hero 16:9 | 1440×810 | 81 KB | 427093861 | fp-427093 | Freepik free | Deportivo oscuro de frente en una carretera de campo con el fondo barrido |
 | `auria-interior` | card 4:3 | 720×540 | 33 KB | 13337874 | fp-13337 | Freepik free | Interior de piel marrón y negra con salpicadero y consola |
 | `auria-puerta` | card 4:3 | 720×540 | 32 KB | 11678381 | fp-11678 | Freepik free | Puerta abierta de un coche con tapicería clara bajo luz de garaje |
@@ -241,6 +264,10 @@ new row looks different from the old ones.
 | `inmo-julen` | square 1:1 | 600×600 | 17 KB | 5216695166 | fp-5216695 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris liso |
 | `inmo-leire` | square 1:1 | 600×600 | 20 KB | 5216696534 | fp-5216696 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris liso |
 | `inmo-plano` | panoramic 2:1 | 1200×570 | 119 KB | 5218258085 | fp-5218258 | Freepik AI (Pikaso) | Vista aérea cenital de un distrito urbano europeo con manzanas, un parque y un río |
+| `inmo-p-cocina` | card 4:3 | 800×600 | 42 KB | 5234118861 | fp-5234118 | Freepik AI (Pikaso) | Cocina con muebles blancos, encimera de piedra clara y ventana a un patio |
+| `inmo-p-dormitorio` | card 4:3 | 800×600 | 41 KB | 5234118808 | fp-5234118 | Freepik AI (Pikaso) | Dormitorio principal con cama vestida en blanco y armario empotrado |
+| `inmo-p-bano` | card 4:3 | 800×600 | 44 KB | 5234119696 | fp-5234119 | Freepik AI (Pikaso) | Baño con ducha de obra, mampara de vidrio y lavabo suspendido |
+| `inmo-p-plano` | plan 3:2 | 1200×800 | 71 KB | 5234119490 | fp-5234119 | Freepik AI (Pikaso) | Plano de planta de un piso de tres dormitorios, línea negra sobre blanco, con cotas |
 | `corte-v1` | card 4:3 | 800×600 | 38 KB | 5220559242 | fp-5220559 | Freepik AI (Pikaso) | Vaquero recto azul medio extendido sobre fondo liso, visto desde arriba |
 | `corte-v2` | card 4:3 | 800×600 | 9 KB | 5220559896 | fp-5220559 | Freepik AI (Pikaso) | Vaquero pitillo negro extendido sobre fondo liso, visto desde arriba |
 | `corte-v3` | card 4:3 | 800×600 | 23 KB | 5220560517 | fp-5220560 | Freepik AI (Pikaso) | Vaquero ancho de lavado claro extendido sobre fondo liso |
@@ -268,6 +295,16 @@ new row looks different from the old ones.
 | `estor-taller` | card 4:3 | 800×600 | 88 KB | 5220848159 | fp-5220848 | Freepik AI (Pikaso) | Rollo de tejido cortándose a medida en el banco del taller |
 | `estor-cortina` | card 4:3 | 800×600 | 30 KB | 5220849652 | fp-5220849 | Freepik AI (Pikaso) | Cortina de lino con tabla montada en un dormitorio |
 | `estor-oficina` | card 4:3 | 800×600 | 28 KB | 5220850130 | fp-5220850 | Freepik AI (Pikaso) | Estores anchos montados en el ventanal de una oficina, vistos desde dentro |
+| `lumiere-cabina` | hero 16:9 | 1440×810 | 119 KB | 44121496 | fp-44121 | Freepik free | Camilla de estética vestida en blanco, con velas encendidas y una planta al fondo |
+| `lumiere-rostro` | card 4:3 de marca | 720×540 | 31 KB | 13296110 | fp-13296 | Freepik free | Clienta tumbada con banda en el pelo durante un tratamiento facial |
+| `lumiere-cuerpo` | card 4:3 de marca | 720×540 | 33 KB | 13341416 | fp-13341 | Freepik free | Manos de esteticista aplicando aceite en la pierna de una clienta tapada con toalla |
+| `lumiere-manos` | card 4:3 de marca | 720×540 | 32 KB | 20268070 | fp-20268 | Freepik free | Manos de una clienta sobre la toalla junto al torno y las herramientas de manicura |
+| `lumiere-depilacion` | card 4:3 de marca | 720×540 | 30 KB | 10025233 | fp-10025 | Freepik free | Esteticista con guantes extendiendo cera tibia en la pierna con una espátula |
+| `lumiere-recepcion` | card 4:3 de marca | 720×540 | 33 KB | 209152350 | fp-209152 | Freepik free | Mostrador de recepción en madera y terracota con flores y lámparas colgantes |
+| `lumiere-cosmetica` | card 4:3 de marca | 720×540 | 32 KB | 13983381 | fp-13983 | Freepik free | Frascos de cosmética sobre peanas rosas en un bodegón de estudio |
+| `lumiere-pilar` | square 1:1 | 600×600 | 36 KB | 5227011918 | fp-5227011 | Freepik AI (Pikaso) | Retrato de esteticista veterana de pelo blanco corto, fondo cálido liso |
+| `lumiere-hugo` | square 1:1 | 600×600 | 39 KB | 5227012641 | fp-5227012 | Freepik AI (Pikaso) | Retrato de masajista con barba corta, fondo cálido liso |
+| `lumiere-noa` | square 1:1 | 600×600 | 39 KB | 5227013872 | fp-5227013 | Freepik AI (Pikaso) | Retrato de técnica de uñas sonriendo, fondo cálido liso |
 
 Las veintiuna filas `corte-*`, `bajura-*` y `tueste-*` son las tres verticales de ecommerce que
 el catálogo tenía escritas y no podía enseñar. Están GENERADAS, como las `inmo-*`, y valen para
@@ -279,6 +316,52 @@ la caja es la caja que el cliente manda.
 Y una nota sobre las tres de `corte-cuerpo*`: son la MISMA prenda sobre tres cuerpos distintos,
 que es el dato entero de `COMP-FIT-GALLERY`. Sustituir una por otra prenda rompe la sección sin
 romper nada que un gate pueda ver.
+
+## Las siete de `lumiere-*` volvieron a ser fotografías, y dos no llegaron
+
+**Son de archivo de Freepik con licencia libre y ninguna está generada** — `aiGenerated`
+comprobado por ítem. Después de veintiocho filas seguidas de Pikaso conviene decir por qué: un
+centro de estética es de los pocos negocios de este catálogo cuya escena EXISTE en el archivo
+libre en cantidad, así que generar habría sido inventar lo que se podía fotografiar. Siete
+identificadores en siete cubos distintos, así que `RT_GALLERY_ONE_SHOOT` las mide como siete
+reportajes y no como uno.
+
+**Presupuesto exacto: un hero y seis apoyos.** Salieron OCHO del proceso y dos se cayeron al
+mirarlas en hoja de contactos —el paso 5 de «Adding one»—, que es donde este manifiesto lleva
+avisando desde el principio que aparecen los defectos que ninguna medición ve:
+
+- **Una sala con lámpara quirúrgica, camilla de papel y azulejo gris.** Fallaba dos veces a la
+  vez. Por REGISTRO: es el lenguaje visual de `TPL-C-10`, y `TPL-C-14` se prohíbe a sí mismo ese
+  lenguaje en su propio documento —sin antes/después, sin colegiado— porque promete acto médico
+  donde no lo hay; una foto puede romper esa promesa igual que un titular. Y por ENCUADRE: era
+  una camilla vacía en tres cuartos, o sea el hero otra vez, que es exactamente el defecto que
+  costó un hero y tres imágenes en el set de la casa.
+- **Un bodegón de spa de hotel** —biombo de bambú, orquídea, conchas, toallas enrolladas—. No
+  era falso, era genérico: iba a ilustrar los BONOS, y una concha no dice bono. Se cambió por el
+  bodegón de frascos sobre peanas rosas, que además fija la paleta de la marca en una imagen.
+
+Las siete que quedan cubren registros distintos a propósito: el espacio vacío (`cabina`), tres
+tratamientos en curso que además SON sus salas (`rostro`, `cuerpo`, `depilacion`), el detalle de
+oficio (`manos`), la puerta (`recepcion`) y el producto (`cosmetica`).
+
+**En un sitio de cliente ninguna de las siete vale.** La cabina es la cabina de ese centro, y la
+recepción es la suya: son justo las dos fotografías que este arquetipo pide que sean reales,
+porque su argumento entero es «mira dónde te lo hacemos».
+
+**Y tres retratos que SÍ están generados**, por lo mismo que los de `inmo-*`: `TPL-ABOUT-03`
+lleva `COMP-TEAM` como ADN y el archivo libre no da tres caras que se lean como un mismo equipo.
+La advertencia viaja con ellas sin cambiar una coma: **en la web de un centro real estas tres no
+valen** — ahí van las caras de quien abre la puerta, o no va la sección.
+
+El primer intento fue pedir tres variantes de UN encargo, y devolvió tres renderizados de la
+MISMA mujer: misma cara, mismo pelo, misma túnica. Tres tarjetas de una sola persona son peores
+que una, y es literalmente el defecto que este manifiesto lleva describiendo desde el apartado
+de los reportajes —«el mismo hombre con la misma camisa gris»— reaparecido por la puerta del
+generador en vez de por la del archivo. Un `count` alto varía el encuadre, no el sujeto: la
+diversidad hay que ENCARGARLA, un encargo por persona. Los tres de ahora son tres edades, dos
+géneros y tres tonos de piel, con la misma luz y la misma túnica para que sigan siendo un
+equipo y no tres fotos sueltas. Y se vio mirando, no midiendo: los dos juegos pesaban lo mismo,
+llevaban tres identificadores distintos y ningún cubo compartido.
 
 `alt` is Spanish because it lands on a Spanish site, and it describes what is in
 the frame rather than repeating the section heading — an `alt` that restates the

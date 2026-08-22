@@ -2210,6 +2210,18 @@ foreach ( $mockup_assets as $mockup_path ) {
 	   Every name here had to be justified out loud, which is the point of a whitelist. */
 	$bleed_media_ok = array( 'media', 'frame', 'figure', 'img', 'picture', 'video',
 		'slides', 'slide', 'hero-slides', 'shot', 'ph', 'slab' );
+	/* AND ONE NAME THAT IS NOT MEDIA EITHER, ADDED ON PURPOSE AND WITH ITS ARGUMENT.
+	   `bleedband` is a SECTION that spans the glass — not an item inside the band's grid.
+	   Every defect this row was built from is the same shape: an object that belongs to a ROW
+	   claimed the gutter its row-mates did not, so it was half bled and half inset and read as cut
+	   off. A band has no row-mates. It is the row, which is what container-hygiene already means by
+	   "the section IS the row", and its children keep their own padding, so no copy and no control
+	   ever reaches the glass — only the colour does. That is the same act as `slab`, which this
+	   list already admits, with the difference that a band is allowed to carry content INSIDE it.
+	   The claim is checked and not trusted: the readback below FAILs if `bleedband` is ever found
+	   on anything other than a `<section>`, which is the one way this exemption could be turned
+	   back into the defect it is carved out of. */
+	$bleed_media_ok[] = 'bleedband';
 	$bleed_offences = array();
 	/* COMMENTS COME OUT FIRST, AND THE ORDER IS THE WHOLE OF IT. Stripping them after splitting the
 	   selector list on `,` reported `/* the one bleed per section` and `always the SAME edge` as two
@@ -2263,6 +2275,36 @@ foreach ( $mockup_assets as $mockup_path ) {
 				. ' End the row at the band (`c 13` / `wide-end`) and let only `.media` reach `full-end`.'
 				. ' See layout-patterns.md § Sangrado'
 		);
+	}
+
+	/* ---- the `bleedband` exemption, read back ----
+	 *
+	 * An allow-list entry is a promise, and this repository has shipped enough promises that were
+	 * true when written. `bleedband` is admitted above ONLY as a section-level band; put it on a
+	 * card or a form wrapper and it becomes a licence for exactly the three defects the row exists
+	 * to catch. So the markup is read: every occurrence of the class must sit on a `<section>`.
+	 * Matched on the opening tag, which is where a class attribute lives, so a mention inside a
+	 * comment or a data attribute cannot make this pass or fail. */
+	if ( preg_match_all( '/<([a-z][\w-]*)\b[^>]*\bclass\s*=\s*"[^"]*\bbleedband\b[^"]*"/i', $mockup_src, $bb_m, PREG_SET_ORDER ) ) {
+		$bb_bad = array();
+		foreach ( $bb_m as $bb_one ) {
+			if ( 'section' !== strtolower( $bb_one[1] ) ) {
+				$bb_bad[] = '`<' . strtolower( $bb_one[1] ) . '>`';
+			}
+		}
+		if ( array() !== $bb_bad ) {
+			add(
+				'RT_MOCKUP_BLEED_NOT_MEDIA',
+				'FAIL',
+				'html-mockup',
+				'assets/' . $mockup_name . ' puts `bleedband` on ' . implode( ', ', array_unique( $bb_bad ) )
+					. ' and that class is admitted to the viewport glass ONLY as a section-level band.'
+					. ' On anything smaller it is an item inside a row claiming a gutter its row-mates do not,'
+					. ' which is the exact defect this row was built from — a sliced card, an amputated'
+					. ' paragraph, an unusable control. Move the class to the `<section>` and let the item'
+					. ' end at the band.'
+			);
+		}
 	}
 
 	/* ---- RT_MOCKUP_FONT_NOT_EMBEDDED ----

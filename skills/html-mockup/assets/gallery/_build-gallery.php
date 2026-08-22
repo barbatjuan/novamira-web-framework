@@ -609,6 +609,26 @@ $BRANDS = array(
 		'font_2' => "'Archivo', system-ui, sans-serif",
 		'ink'    => array( 'sat' => 0.70, 'gamma' => 0.15 ),
 	),
+
+	/* LUMIÈRE · centro de estética. Papel cálido ROSADO, que no es el papel cálido de Bergara ni el
+	   blanco frío de Arbea: los tres son fondos claros y lo que los separa es el matiz, que es
+	   justamente lo que un catálogo tiene que poder demostrar en tres tiras seguidas.
+
+	   EL ACENTO ES EL ROSA MÁS VIVO QUE PASA LA PUERTA, y esa frase es una medición. El sector
+	   entero se pinta con un rosa tipo #FF5EA5, que da 2,4:1 sobre blanco; aquí el acento pinta el
+	   eyebrow, o sea TEXTO, así que la puerta pide 4,5:1 contra los dos fondos y ese rosa no entra.
+	   #B03A5B da 5,49:1 sobre el fondo y 4,80:1 sobre el alterno — el más claro de los candidatos
+	   que pasaba, no el que gustaba más. La alternativa era bajar el rosa hasta el granate y
+	   perder el sector por el camino. */
+	'lumiere' => array(
+		'name'   => 'LUMIÈRE',
+		'sector' => 'Belleza · centro de estética',
+		'ground' => array( 'bg' => '#FDF7F4', 'alt' => '#F5E6E0', 'text' => '#2A1B1F' ),
+		'accent' => '#B03A5B',
+		'font_1' => "'Fraunces', Georgia, 'Times New Roman', serif",
+		'font_2' => "'Inter Tight', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.74, 'gamma' => 0.16 ),
+	),
 );
 
 $ACCENT_BY_GROUND = array(
@@ -1094,6 +1114,14 @@ $TOGGLES = array(
 	/* TPL-C-12 · Urgencias / Hoy. */
 	'TPL-C-12' => array(
 		'TGL-TEAM' => array( 'ask' => '¿Quién está de guardia?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-14 · Ritual / Bono — de su propio § 4. Los cuatro toggles de CONTEO de ese documento
+	   (`TGL-ZONE-COUNT`, `TGL-RITUAL-COUNT`, `TGL-CABIN-FRAMES`) no entran aquí por lo mismo que
+	   los de TPL-C-13: no cambian QUÉ secciones existen sino cuántas filas lleva una que ya está,
+	   y esta tabla gobierna presencia, no aforo. */
+	'TPL-C-14' => array(
+		'TGL-PROTOCOL-STEPS' => array( 'ask' => '¿La sesión contada en minutos?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+		'TGL-GIFT-CARD'      => array( 'ask' => '¿Tarjeta regalo junto a los bonos?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 	),
 	/* TPL-C-07 · Stock / Ocasión — de su propio § "Toggles admitidos". */
 	'TPL-C-07' => array(
@@ -1857,6 +1885,133 @@ $CONTENT = array(
 		),
 	),
 
+	/* ── LUMIÈRE · TPL-C-14 · la clienta YA QUIERE. Ése es el dato que separa este arquetipo de sus
+	   dos vecinos: TPL-C-05 enseña el local y esconde la carta, TPL-C-10 publica el procedimiento
+	   porque el freno es el miedo, y aquí el freno es no saber cuánto dura, cómo sales y cuánto
+	   cuesta volver. Por eso la carta lleva TRES datos y no dos, y por eso la página cierra en bono
+	   y no en cita. */
+	'TPL-C-14-lumiere' => array(
+		'tpl'          => 'TPL-C-14-lumiere',
+		'head_mode'    => 'emblem',
+		'arch'         => 'TPL-C-14',
+		'brand'        => 'lumiere',
+		'brand_name'   => 'Lumière',
+		'brand_sector' => 'Belleza · centro de estética',
+		'tpl_name'     => 'Ritual / Bono',
+		'site'         => 'corporate',
+		'site_es'      => 'Corporativa',
+		'fits'         => 'Centros de estética, cabinas de belleza, spas urbanos, depilación, uñas',
+		'dna'          => 'COMP-ZONE-SELECTOR · COMP-RITUAL-MENU · COMP-CABIN-TOUR · COMP-BONO-PACKS',
+		'wire'         => 'COMP-HEADER · COMP-HERO-FULL · COMP-ZONE-SELECTOR · COMP-RITUAL-MENU · COMP-CABIN-TOUR · COMP-PROTOCOL-STEPS · COMP-BONO-PACKS · COMP-BOOKING · COMP-FOOTER',
+		'nav'          => array( 'Servicios', 'Nosotros', 'Contacto' ),
+		'nav_cta'      => 'Reservar',
+		'phone'        => '944 00 00 00',
+		'topbar'       => array(
+			'items' => array( 'Alameda Urquijo 24 · Bilbao', 'Martes a sábado · 10:00–20:00' ),
+		),
+		'hero'         => array(
+			'eyebrow' => 'Centro de estética · Bilbao',
+			'h2'      => 'Te decimos cuánto dura y cómo sales',
+			'lede'    => 'Cada ritual con su tiempo, su precio y lo que notas al salir por la puerta. Para que la cita quepa en tu día antes de pedirla.',
+			'cta_1'   => 'Reservar',
+			'cta_2'   => 'Ver la carta',
+			'img'     => 'lumiere-cabina',
+		),
+		'strip'        => array(
+			'label' => 'La casa por dentro',
+			'items' => array( 'lumiere-cabina', 'lumiere-rostro', 'lumiere-manos', 'lumiere-depilacion', 'lumiere-recepcion', 'lumiere-cosmetica' ),
+		),
+		'zones'        => array(
+			'eyebrow' => 'Elige por zona',
+			'h2'      => '¿Qué te apetece cuidarte hoy?',
+			'items'   => array(
+				array( 'Rostro', '7 rituales', 'desde 45 €', 'Limpiezas, hidrataciones y aparatología facial.', 'crema' ),
+				array( 'Cuerpo', '6 rituales', 'desde 35 €', 'Masaje, presoterapia y envolturas.', 'piedras' ),
+				array( 'Manos y pies', '5 rituales', 'desde 22 €', 'Manicura, pedicura y esmaltado semipermanente.', 'esmalte' ),
+				array( 'Depilación', '8 rituales', 'desde 12 €', 'Cera tibia y láser diodo, en cabina aparte.', 'espatula' ),
+			),
+		),
+		'rituals'      => array(
+			'img'     => 'lumiere-recepcion',
+			'eyebrow' => 'Tratamientos y precios',
+			'h2'      => 'Seis rituales, con lo que duran y cómo sales',
+			'note'    => 'Los precios son cerrados e incluyen el producto. Si al llegar decidimos que hoy no toca, no se cobra la sesión.',
+			'items'   => array(
+				array( 'zone' => 'Rostro', 'h3' => 'Limpieza profunda', 'p' => 'Vapor, extracción manual y mascarilla calmante.',
+					'mins' => '60 min', 'price' => '55 €', 'after' => 'Sales sin maquillaje y con la piel algo roja media hora' ),
+				array( 'zone' => 'Rostro', 'h3' => 'Radiofrecuencia facial', 'p' => 'Calor controlado para tensar el óvalo.',
+					'mins' => '45 min', 'price' => '75 €', 'after' => 'Se puede maquillar encima el mismo día' ),
+				array( 'zone' => 'Cuerpo', 'h3' => 'Masaje descontracturante', 'p' => 'Espalda y cervicales, presión fuerte.',
+					'mins' => '50 min', 'price' => '48 €', 'after' => 'Sales con la espalda caliente; hoy no cargues peso' ),
+				array( 'zone' => 'Cuerpo', 'h3' => 'Presoterapia', 'p' => 'Botas de compresión para piernas cansadas.',
+					'mins' => '30 min', 'price' => '35 €', 'after' => 'Piernas ligeras; bebe agua al salir' ),
+				array( 'zone' => 'Manos y pies', 'h3' => 'Manicura rusa', 'p' => 'Cutícula al torno y esmaltado semipermanente.',
+					'mins' => '75 min', 'price' => '32 €', 'after' => 'Esmalte curado: puedes mojarte las manos al salir' ),
+				array( 'zone' => 'Depilación', 'h3' => 'Láser diodo · media pierna', 'p' => 'Seis sesiones separadas seis semanas.',
+					'mins' => '20 min', 'price' => '45 €', 'after' => 'Sin sol 48 horas y crema hidratante por la noche' ),
+			),
+		),
+		'cabin'        => array(
+			'eyebrow' => 'El centro por dentro',
+			'h2'      => 'Cuatro espacios, y para qué es cada uno',
+			'note'    => 'Puedes venir a verlo antes de reservar nada. Se tarda cinco minutos y no hay que avisar.',
+			'items'   => array(
+				array( 'img' => 'lumiere-cabina', 'name' => 'Cabina 1 · rostro', 'p' => 'Camilla térmica y lupa de luz fría. Aquí pasan las limpiezas y la radiofrecuencia.' ),
+				array( 'img' => 'lumiere-depilacion', 'name' => 'Cabina 2 · depilación', 'p' => 'Separada del resto por el olor de la cera. El láser vive aquí.' ),
+				array( 'img' => 'lumiere-manos', 'name' => 'Zona de manos', 'p' => 'Dos puestos junto a la ventana, con aspiración en la propia mesa.' ),
+				array( 'img' => 'lumiere-recepcion', 'name' => 'Recepción', 'p' => 'Se paga, se recogen los bonos y se espera aquí si vienes pronto.' ),
+			),
+		),
+		'protocol'     => array(
+			'eyebrow' => 'Cómo es una sesión',
+			'h2'      => 'Una limpieza profunda, minuto a minuto',
+			'note'    => 'Suman los sesenta minutos que dice la carta. Si un día sobran cinco, se van al masaje final.',
+			'items'   => array(
+				array( '10 min', 'Diagnóstico', 'Se mira la piel con lupa y se decide el activo del día.' ),
+				array( '15 min', 'Limpieza', 'Desmaquillado, vapor y extracción manual.' ),
+				array( '20 min', 'Activo', 'Ácido o vitamina C, según lo que se haya visto.' ),
+				array( '15 min', 'Masaje y frío', 'Mascarilla calmante y bajada de temperatura.' ),
+			),
+		),
+		'bonos'        => array(
+			'img'     => 'lumiere-cosmetica',
+			'eyebrow' => 'Bonos y tarjeta regalo',
+			'h2'      => 'Casi nadie viene una vez sola',
+			'note'    => 'Los bonos caducan a los doce meses, son nominales y se pueden pagar en dos veces. No se devuelven, pero se pueden cambiar por otro ritual del mismo importe.',
+			'items'   => array(
+				array( 'name' => 'Bono limpieza', 'q' => '5 sesiones', 'price' => '235 €', 'save' => 'Ahorras 40 €',
+					'p' => 'Una cada seis semanas, que es lo que la piel pide.', 'gift' => false ),
+				array( 'name' => 'Bono piernas', 'q' => '5 presoterapias', 'price' => '150 €', 'save' => 'Ahorras 25 €',
+					'p' => 'Para el verano y para quien pasa el día de pie.', 'gift' => false ),
+				array( 'name' => 'Tarjeta regalo', 'q' => 'Importe libre', 'price' => 'desde 30 €', 'save' => '',
+					'p' => 'Se envía por email o se recoge en papel, en un sobre.', 'gift' => true ),
+			),
+		),
+		'booking'      => array(
+			'eyebrow'  => 'Pedir cita',
+			'h2'       => 'Elige ritual, día y hora',
+			'lede'     => 'Te confirmamos por WhatsApp el mismo día. Si tienes que cambiarla, avisa con 24 horas y no cuenta.',
+			'fields'   => array(
+				array( 'nombre', 'Nombre', 'text' ),
+				array( 'tel', 'Teléfono', 'tel' ),
+			),
+			'pick_lbl' => 'Ritual',
+			'picks'    => array( 'Limpieza profunda', 'Radiofrecuencia', 'Masaje', 'Presoterapia', 'Manicura', 'Láser' ),
+			'day_lbl'  => 'Día',
+			'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+			'slot_lbl' => 'Hora',
+			'slots'    => array( '10:00', '11:30', '13:00', '17:00', '18:30' ),
+			'submit'   => 'Reservar',
+			'small'    => 'La primera vez pedimos diez minutos más para mirar la piel. No se cobran.',
+			'img'      => 'lumiere-cosmetica',
+		),
+		'footer'       => array(
+			'tag'   => 'Lumière · Alameda Urquijo 24, 48011 Bilbao · 944 00 00 00 · Martes a sábado',
+			'links' => array( 'Servicios', 'Nosotros', 'Privacidad' ),
+			'legal' => 'Lumière Estética SL · Maqueta interna NovaMira, no publicada.',
+		),
+	),
+
 	/* ── ALINEA · TPL-C-11 · un solo tratamiento que dura dieciocho meses. La pregunta no es «cuál»
 	   sino «cuánto tiempo, cuánto duele y cuánto al mes», y un catálogo de fichas sería la
 	   respuesta equivocada a las tres. */
@@ -2107,6 +2262,93 @@ $CONTENT = array(
 				array( 49, 80, '119.000 €' ),
 			),
 		),
+		/* EL PISO DESTACADO ES EL PRIMERO DE LA CARTERA, y su referencia es la que el formulario de
+		   la home ya traía escrita: PAM-0417. No es casualidad ni coincidencia afortunada — la home
+		   la puso ahí de ejemplo y la ficha es la página a la que ese ejemplo apuntaba. */
+		'producto' => array(
+			'crumbs'  => array( 'Inicio', 'Cartera', 'Piso reformado en el Ensanche' ),
+			'ref'     => array( 'Ref. PAM-0417', 'En cartera desde febrero. Visitas de lunes a sábado.' ),
+			'head'    => array(
+				'eyebrow' => 'En venta',
+				'h1'      => 'Piso reformado de 3 habitaciones · Ensanche · 289.000 €',
+				'lede'    => 'Noventa y dos metros útiles en cuarta planta con ascensor, reformado entero en 2022 y con la comunidad al día. Orientación sur al salón.',
+			),
+			'tour'    => array(
+				'eyebrow' => 'El recorrido',
+				'h2'      => 'Estancia por estancia',
+				'items'   => array(
+					array( 'Salón', '24 m² · orientación sur', 'inmo-reformado' ),
+					array( 'Cocina', '11 m² · office y tendedero', 'inmo-p-cocina' ),
+					array( 'Dormitorio principal', '14 m² · armario empotrado', 'inmo-p-dormitorio' ),
+					array( 'Baño principal', '6 m² · ducha de obra', 'inmo-p-bano' ),
+				),
+			),
+			'facts'   => array(
+				'eyebrow' => 'Ficha',
+				'h2'      => 'Los seis datos',
+				'items'   => array(
+					array( 'Útiles', '92 m²' ),
+					array( 'Construidos', '106 m²' ),
+					array( 'Habitaciones', '3' ),
+					array( 'Baños', '2' ),
+					array( 'Planta', '4ª con ascensor' ),
+					array( 'Construcción', '1974' ),
+				),
+			),
+			'plan'    => array(
+				'eyebrow' => 'El plano',
+				'h2'      => 'Cómo se reparte',
+				'img'     => 'inmo-p-plano',
+				'note'    => 'Plano acotado con las medidas de cada estancia. Va en la ficha y no en la visita: es lo que dice si el segundo dormitorio es un dormitorio o un trastero, y averiguarlo no debería costar un desplazamiento.',
+			),
+			'costs'   => array(
+				'eyebrow' => 'El coste real',
+				'h2'      => 'Lo que cuesta entrar a vivir',
+				'rows'    => array(
+					array( 'Precio de venta', '289.000 €' ),
+					array( 'Comunidad', '58 €/mes' ),
+					array( 'IBI', '412 €/año' ),
+					array( 'Gastos de compra estimados (ITP, notaría y registro)', '21.700 €' ),
+				),
+				'sum'     => array( 'Desembolso aproximado de entrada', '310.700 €' ),
+				'note'    => 'Estimación sobre segunda transmisión en Navarra al 6 % de ITP, sin hipoteca. Los gastos dependen de la comunidad autónoma y del tipo de transmisión, y los cierra la agencia con su caso delante: aquí están para que ninguno aparezca por primera vez en la notaría.',
+			),
+			'energy'  => array(
+				'eyebrow' => 'Certificado energético',
+				'h2'      => 'Consumo y emisiones',
+				'items'   => array(
+					array( 'D', 'Consumo de energía primaria no renovable', '142 kWh/m² al año' ),
+					array( 'E', 'Emisiones de CO₂', '31 kg CO₂/m² al año' ),
+				),
+				'note'    => 'Certificado emitido en 2022, tras la reforma. Va escrito en la página y no dentro de una imagen: un dato obligatorio metido en un JPG no lo lee ni un lector de pantalla ni un buscador.',
+			),
+			'visit'   => array(
+				'eyebrow'  => 'Verlo',
+				'h2'       => 'Pida la visita de este piso',
+				'lede'     => 'La referencia viaja con la solicitud. Con ella el comercial abre la agenda; sin ella tiene que llamarle para preguntar lo único que esta página ya sabía.',
+				'fields'   => array(
+					array( 'ref', 'Referencia', 'text', 'PAM-0417' ),
+					array( 'nombre', 'Nombre', 'text' ),
+					array( 'tel', 'Teléfono', 'tel' ),
+				),
+				'day_lbl'  => 'Día',
+				'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Lunes 26' ),
+				'slot_lbl' => 'Franja',
+				'slots'    => array( 'Mañana', 'Mediodía', 'Tarde' ),
+				'submit'   => 'Pedir la visita',
+				'small'    => 'Le llamamos para confirmar la hora. No cedemos su teléfono a terceros ni lo usamos para nada más.',
+			),
+			'related' => array(
+				'eyebrow' => 'De su zona',
+				'h2'      => 'Otros tres en el Ensanche y alrededor',
+				'note'    => 'Mismo rango y misma zona. Un «no» sobre este piso no tiene por qué ser un «no» sobre la cartera.',
+				'items'   => array(
+					array( 'img' => 'inmo-atico', 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
+					array( 'img' => 'inmo-piedra', 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
+					array( 'img' => 'inmo-estudio', 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
+				),
+			),
+		),
 		'visit'    => array(
 			'eyebrow' => 'Verlo',
 			'h2'      => 'Pida la visita del que le interese',
@@ -2198,6 +2440,94 @@ $CONTENT = array(
 				array( 'precio', 'Precio hasta', array( 'Sin límite', '10.000 €', '15.000 €', '20.000 €', '30.000 €' ) ),
 				array( 'kms', 'Kilómetros hasta', array( 'Sin límite', '50.000', '100.000', '150.000' ) ),
 				array( 'comb', 'Combustible', array( 'Todos', 'Gasolina', 'Diésel', 'Híbrido', 'Eléctrico' ) ),
+			),
+		),
+		/* LA UNIDAD DESTACADA ES LA PRIMERA DE LA REJILLA, y los quince datos de aquí abajo tienen
+		   que cuadrar con los cinco de allí arriba. El T-Roc de la rejilla dice 2021, 48.200 km,
+		   gasolina, manual y 150 CV; si la ficha dijera otra cosa, la página que existe para dar
+		   confianza sería la que la quita. Los 48.200 salen además EN LA FOTOGRAFÍA del cuadro de
+		   mandos, que es lo que `TPL-UNIT-01` exige por escrito. */
+		'producto'     => array(
+			'crumbs'  => array( 'Inicio', 'Stock', 'Volkswagen T-Roc 1.5 TSI' ),
+			'ref'     => array( 'Ref. MA-1184', 'En el patio, disponible para prueba desde mañana.' ),
+			'head'    => array(
+				'eyebrow' => 'Unidad de ocasión',
+				'h1'      => 'Volkswagen T-Roc 1.5 TSI · 2021 · 48.200 km',
+				'lede'    => 'Un propietario, libro sellado en red oficial y doce meses de garantía que empiezan el día de la entrega, no el de la matriculación.',
+			),
+			'gallery' => array(
+				'label' => 'Fotografías de la unidad',
+				'main'  => 'aranda-v1',
+				/* TRES TOMAS DE ESTA UNIDAD Y NINGUNA PRESTADA. La cuarta era `aranda-patio`, que es el
+				   hero de la home: un coche oscuro con otro claro detrás. Puesta entre las miniaturas de
+				   una ficha que promete «fotos de ESTA unidad», se lee como un coche distinto colado en
+				   la galería — y una foto que contradice la frase de debajo hace más daño que un hueco. */
+				'shots' => array( 'aranda-u-interior', 'aranda-u-cuadro', 'aranda-u-maletero' ),
+				'cap'   => 'Fotos de esta unidad, tomadas en el patio. El cuentakilómetros sale legible a propósito: es el único dato de la ficha que usted puede comprobar sin venir.',
+			),
+			'facts'   => array(
+				'eyebrow' => 'Ficha',
+				'h2'      => 'Los seis datos',
+				'items'   => array(
+					array( 'Año', '2021' ),
+					array( 'Kilómetros', '48.200' ),
+					array( 'Combustible', 'Gasolina' ),
+					array( 'Cambio', 'Manual' ),
+					array( 'Potencia', '150 CV' ),
+					array( 'Plazas', '5' ),
+				),
+			),
+			'price'   => array(
+				'eyebrow'   => 'Precio',
+				'h2'        => 'Al contado y en cuota, los dos',
+				'cash_lbl'  => 'Al contado',
+				'cash'      => '21.900 €',
+				'cash_note' => 'Transferencia e IVA incluidos. Es el precio que verá en el contrato.',
+				'quota_lbl' => 'Financiado',
+				'quota'     => '253 €/mes',
+				'terms'     => array(
+					array( 'Entrada', '4.380 €' ),
+					array( 'Plazo', '72 meses' ),
+					array( 'TAE', '7,95 %' ),
+					array( 'Total adeudado', '22.596 €' ),
+				),
+				'note'      => 'La cuota y la TAE las firma la entidad financiera y están sujetas a su aprobación; el precio al contado lo firma el patio. Publicamos los dos porque el número de la web tiene que ser el del despacho.',
+			),
+			'history' => array(
+				'eyebrow' => 'Historial',
+				'h2'      => 'De dónde viene',
+				'items'   => array(
+					array( 'Propietarios', 'Uno', 'Particular. Comprado nuevo en concesión oficial de Pamplona.' ),
+					array( 'Libro de mantenimiento', 'Al día', 'Cinco sellos, todos en red oficial. El último a 45.900 km.' ),
+					array( 'Última ITV', 'Favorable', 'Pasada en enero. La siguiente le toca en enero de 2027.' ),
+					array( 'Garantía', 'Doce meses', 'Mecánica y electrónica, sin límite de kilómetros. Empieza el día de la entrega.' ),
+				),
+			),
+			'drive'   => array(
+				'eyebrow'  => 'Prueba',
+				'h2'       => 'Pruébelo antes de decidir',
+				'lede'     => 'Cuarenta minutos y la conduce usted. La referencia viaja con la solicitud: sin ella no podríamos apartarle esta unidad y no otra.',
+				'fields'   => array(
+					array( 'ref', 'Referencia', 'text', 'MA-1184' ),
+					array( 'nombre', 'Nombre', 'text' ),
+					array( 'tel', 'Teléfono', 'tel' ),
+				),
+				'day_lbl'  => 'Día',
+				'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Lunes 26' ),
+				'slot_lbl' => 'Hora',
+				'slots'    => array( '10:00', '11:30', '13:00', '17:00', '18:30' ),
+				'submit'   => 'Reservar la prueba',
+				'small'    => 'Necesita carné con más de dos años. Le confirmamos por teléfono el mismo día.',
+			),
+			'related' => array(
+				'eyebrow' => 'Parecidas',
+				'h2'      => 'Otras tres en su rango',
+				'note'    => 'Del mismo patio y con la misma garantía. Si ninguna encaja, la rejilla completa tiene cuarenta.',
+				'items'   => array(
+					array( 'img' => 'aranda-v3', 'h3' => 'Toyota Corolla 1.8 HSD',   'facts' => array( '2022', '31.050 km', 'Híbrido',  'Auto',   '122 CV' ), 'price' => '23.700 €', 'quota' => '274 €/mes' ),
+					array( 'img' => 'aranda-v6', 'h3' => 'Seat León 1.0 TSI',        'facts' => array( '2020', '68.300 km', 'Gasolina', 'Manual', '110 CV' ), 'price' => '15.600 €', 'quota' => '180 €/mes' ),
+					array( 'img' => 'aranda-v2', 'h3' => 'Kia Sportage 1.6 CRDi',    'facts' => array( '2020', '76.400 km', 'Diésel',   'Manual', '136 CV' ), 'price' => '18.400 €', 'quota' => '212 €/mes' ),
+				),
 			),
 		),
 		'stock'        => array(
@@ -5278,6 +5608,250 @@ $CONTENT['TPL-C-13']['contacto'] = array(
 	),
 );
 
+/* LUMIÈRE (TPL-C-14) · las cuatro páginas internas. La casa reutiliza el recorrido por la cabina de
+   la home y la ficha reutiliza su protocolo: es el mismo centro un nivel más abajo, y reutilizar es
+   lo que hace que cinco páginas se lean como UN sitio y no como cinco maquetas de la misma carpeta.
+   Lo propio de cada una es lo que no cabía arriba — el índice entero, las contraindicaciones, las
+   caras y el horario. */
+$CONTENT['TPL-C-14-lumiere']['servicios'] = array(
+	'crumbs' => array( 'Inicio', 'Servicios' ),
+	'head'   => array(
+		'eyebrow' => 'Todos los tratamientos',
+		'h1'      => 'Tratamientos de estética en Bilbao',
+		'lede'    => 'Veintiséis rituales ordenados por zona del cuerpo, con lo que dura y lo que cuesta cada uno. La home enseña seis; aquí están todos.',
+	),
+	'index'  => array(
+		'eyebrow' => 'Todo lo que hacemos',
+		'h2'      => 'Por zona, y sin ninguno destacado',
+		'note'    => 'Los precios son cerrados e incluyen el producto. Un ritual que no está en esta lista es un ritual que no hacemos.',
+		'groups'  => array(
+			array(
+				'id'    => 'rostro',
+				'img'   => 'lumiere-rostro',
+				'name'  => 'Rostro',
+				'items' => array(
+					array( 'name' => 'Limpieza profunda', 'p' => 'Vapor, extracción manual y mascarilla calmante.', 'mins' => '60 min', 'price' => '55 €' ),
+					array( 'name' => 'Radiofrecuencia facial', 'p' => 'Calor controlado para tensar el óvalo.', 'mins' => '45 min', 'price' => '75 €' ),
+					array( 'name' => 'Hidratación con ácido hialurónico', 'p' => 'Para piel tirante después del invierno.', 'mins' => '45 min', 'price' => '48 €' ),
+				),
+			),
+			array(
+				'id'    => 'cuerpo',
+				'img'   => 'lumiere-cuerpo',
+				'name'  => 'Cuerpo',
+				'items' => array(
+					array( 'name' => 'Masaje descontracturante', 'p' => 'Espalda y cervicales, presión fuerte.', 'mins' => '50 min', 'price' => '48 €' ),
+					array( 'name' => 'Presoterapia', 'p' => 'Botas de compresión para piernas cansadas.', 'mins' => '30 min', 'price' => '35 €' ),
+					array( 'name' => 'Envoltura de algas', 'p' => 'Calor húmedo y sales, tumbada y tapada.', 'mins' => '60 min', 'price' => '52 €' ),
+				),
+			),
+			array(
+				'id'    => 'manos',
+				'img'   => 'lumiere-manos',
+				'name'  => 'Manos y pies',
+				'items' => array(
+					array( 'name' => 'Manicura rusa', 'p' => 'Cutícula al torno y esmaltado semipermanente.', 'mins' => '75 min', 'price' => '32 €' ),
+					array( 'name' => 'Pedicura completa', 'p' => 'Durezas, uñas y masaje de pie.', 'mins' => '60 min', 'price' => '35 €' ),
+					array( 'name' => 'Retirada de semipermanente', 'p' => 'Con torno, sin arrancar. Sola, sin otro servicio.', 'mins' => '25 min', 'price' => '12 €' ),
+				),
+			),
+			array(
+				'id'    => 'depilacion',
+				'img'   => 'lumiere-depilacion',
+				'name'  => 'Depilación',
+				'items' => array(
+					array( 'name' => 'Láser diodo · media pierna', 'p' => 'Seis sesiones separadas seis semanas.', 'mins' => '20 min', 'price' => '45 €' ),
+					array( 'name' => 'Cera tibia · axilas', 'p' => 'Cera de baja temperatura, de un tirón.', 'mins' => '15 min', 'price' => '12 €' ),
+					array( 'name' => 'Cera tibia · piernas enteras', 'p' => 'Incluye ingles básicas si se pide al reservar.', 'mins' => '45 min', 'price' => '28 €' ),
+				),
+			),
+		),
+	),
+	'faq'    => array(
+		'eyebrow' => 'De la carta',
+		'h2'      => 'Lo que se pregunta antes de elegir',
+		'items'   => array(
+			array( '¿Puedo juntar dos rituales el mismo día?', 'Sí, y sale mejor de tiempo: se descuentan diez minutos del segundo porque la preparación ya está hecha. Dilo al reservar para bloquear la cabina entera.' ),
+			array( '¿Hay que ser socia o pagar cuota?', 'No. Ni cuota, ni permanencia, ni tarjeta de puntos. Los bonos son la única forma de pago adelantado que existe aquí.' ),
+			array( '¿Atendéis a hombres?', 'Sí, todos los rituales de la carta. La depilación masculina de espalda y pecho lleva su propio tiempo, así que ésa se reserva por teléfono.' ),
+			array( '¿Qué pasa si llego tarde?', 'Se hace lo que quepa en el tiempo que quede, y se cobra el ritual entero: detrás hay otra clienta con su hora. Con más de veinte minutos de retraso, mejor cambiar el día.' ),
+		),
+	),
+	'cta'    => array(
+		'eyebrow' => 'Si no sabes cuál',
+		'h2'      => 'Cuéntanos qué te pasa en la piel',
+		'lede'    => 'Diez minutos, sin coste y sin compromiso: se mira, se dice qué haríamos y se decide después. Es la mejor manera de no gastarse cincuenta euros en el ritual equivocado.',
+		'cta_1'   => 'Reservar',
+		'cta_2'   => 'Ver la carta',
+	),
+);
+
+$CONTENT['TPL-C-14-lumiere']['servicio'] = array(
+	'crumbs'   => array( 'Inicio', 'Servicios', 'Limpieza profunda' ),
+	'head'     => array(
+		'eyebrow' => 'Rostro',
+		'h1'      => 'Limpieza profunda',
+		'lede'    => 'La sesión con la que empieza casi todo el mundo: se abre el poro con vapor, se vacía a mano y se cierra con frío. No es un tratamiento estético de escaparate, es mantenimiento.',
+		'price'   => '55 € · 60 min',
+		'cta'     => 'Reservar',
+		'img'     => 'lumiere-rostro',
+	),
+	'facts'    => array(
+		'eyebrow' => 'Los datos',
+		'h2'      => 'Los cuatro datos, sin ninguno en blanco',
+		'items'   => array(
+			array( 'Duración', '60 minutos' ),
+			array( 'Sesiones recomendadas', 'Una cada 6 semanas' ),
+			array( 'Dónde', 'Cabina 1 · rostro' ),
+			array( 'Cómo sales', 'Sin maquillaje y con la piel algo roja media hora' ),
+		),
+	),
+	'contra'   => array(
+		'eyebrow' => 'Antes de reservar',
+		'h2'      => 'Cuándo NO, y qué hacer antes',
+		'no'      => array(
+			'title' => 'Hoy no se puede si…',
+			'items' => array(
+				'Has tomado el sol o rayos UVA en las últimas 48 horas.',
+				'Tienes la piel irritada, con heridas abiertas o herpes activo.',
+				'Estás con roacután, o lo dejaste hace menos de seis meses.',
+				'Te has hecho un peeling médico en las últimas dos semanas.',
+			),
+		),
+		'before'  => array(
+			'title' => 'Y ven así',
+			'items' => array(
+				'Sin maquillaje, o con el mínimo — aquí se desmaquilla igual.',
+				'Con la agenda libre después: no es sesión para salir a cenar.',
+				'Habiendo comido algo. Son sesenta minutos tumbada.',
+				'Dinos si estás embarazada: cambia el activo, no la sesión.',
+			),
+		),
+		'note'    => 'Si al llegar vemos que hoy no toca, no se cobra la sesión y se cambia el día. Preferimos perder una cita que estropear una piel.',
+	),
+	'bono'     => array(
+		'eyebrow' => 'El bono de este ritual',
+		'h2'      => 'Si la piel te lo va a pedir otra vez',
+		'note'    => 'El bono caduca a los doce meses, es nominal y se puede pagar en dos veces.',
+		'items'   => array(
+			array( 'name' => 'Bono limpieza', 'q' => '5 sesiones', 'price' => '235 €', 'save' => 'Ahorras 40 €',
+				'p' => 'Una cada seis semanas: nueve meses de mantenimiento.', 'gift' => false ),
+		),
+	),
+	'faq'      => array(
+		'eyebrow' => 'De este ritual',
+		'h2'      => 'Lo que se pregunta en la camilla',
+		'items'   => array(
+			array( '¿Duele la extracción?', 'Molesta en la nariz y en la barbilla, que es donde el poro está más cerrado. En el resto de la cara, no. Se puede parar en cualquier momento y se sigue otro día.' ),
+			array( '¿Me puedo maquillar al salir?', 'Mejor no hasta la mañana siguiente: el poro tarda unas horas en cerrarse del todo y el maquillaje lo vuelve a llenar. Sí puedes ponerte protector solar, y de hecho deberías.' ),
+			array( '¿Cada cuánto tiene sentido repetirla?', 'Cada seis semanas si la piel es grasa, cada tres meses si es seca. Más a menudo no mejora nada y desprotege la barrera.' ),
+		),
+	),
+	'siblings' => array(
+		'eyebrow' => 'Otros de rostro',
+		'h2'      => 'Los hermanos de su zona',
+		'note'    => 'La carta entera, con las cuatro zonas y los veintiséis rituales, está en Servicios.',
+		'items'   => array(
+			array( 'zone' => 'Rostro', 'h3' => 'Radiofrecuencia facial', 'p' => 'Calor controlado para tensar el óvalo.',
+				'mins' => '45 min', 'price' => '75 €', 'after' => 'Se puede maquillar encima el mismo día' ),
+			array( 'zone' => 'Rostro', 'h3' => 'Hidratación con hialurónico', 'p' => 'Para piel tirante después del invierno.',
+				'mins' => '45 min', 'price' => '48 €', 'after' => 'Sales con la cara algo brillante una hora' ),
+		),
+	),
+);
+
+$CONTENT['TPL-C-14-lumiere']['nosotros'] = array(
+	'crumbs' => array( 'Inicio', 'Nosotros' ),
+	'head'   => array(
+		'eyebrow' => 'El centro',
+		'h1'      => 'Dos cabinas, tres personas y quince años en la misma calle',
+		'lede'    => 'Abrimos en 2010 en un bajo de Alameda Urquijo y seguimos ahí. No hemos crecido en metros: hemos crecido en el rato que se le dedica a cada clienta.',
+		'img'     => 'lumiere-recepcion',
+	),
+	'team'   => array(
+		'eyebrow' => 'Quién te atiende',
+		'h2'      => 'Tres personas, y sabes cuál te toca antes de venir',
+		'items'   => array(
+			array( 'img' => 'lumiere-pilar', 'name' => 'Pilar Egaña', 'role' => 'Rostro y aparatología', 'lic' => 'Abrió la casa en 2010' ),
+			array( 'img' => 'lumiere-hugo', 'name' => 'Hugo Belmonte', 'role' => 'Masaje y presoterapia', 'lic' => 'En la casa desde 2016' ),
+			array( 'img' => 'lumiere-noa', 'name' => 'Noa Ferreira', 'role' => 'Uñas y depilación', 'lic' => 'En la casa desde 2021' ),
+		),
+	),
+	'hours'  => array(
+		'eyebrow' => 'Horario',
+		'h2'      => 'Martes a sábado, y el lunes cerramos de verdad',
+		'rows'    => array(
+			array( 'Lunes', 'Cerrado' ),
+			array( 'Martes a viernes', '10:00 – 20:00' ),
+			array( 'Sábado', '09:30 – 14:00' ),
+			array( 'Domingo', 'Cerrado' ),
+		),
+		'addr'    => array( 'Alameda Urquijo 24, bajo', '48011 Bilbao' ),
+		'phone'   => '944 00 00 00',
+		'mail'    => 'hola@lumiere.example',
+		'note'    => 'En agosto cerramos las dos semanas centrales. Se avisa en junio, para que nadie compre un bono contando con ellas.',
+	),
+);
+
+$CONTENT['TPL-C-14-lumiere']['contacto'] = array(
+	'crumbs' => array( 'Inicio', 'Contacto' ),
+	'head'   => array(
+		'eyebrow' => 'Cómo llegar',
+		'h1'      => 'Estamos en el bajo, con el toldo rosa',
+		'lede'    => 'Lo más rápido es llamar: al teléfono contesta alguien de las tres, no un centro de llamadas. Si prefieres escribir, el WhatsApp lo miramos entre clienta y clienta.',
+		'img'     => 'lumiere-recepcion',
+	),
+	'direct' => array(
+		'eyebrow' => 'Contacto directo',
+		'h2'      => 'Por orden de rapidez',
+		'items'   => array(
+			array( 'Teléfono', '944 00 00 00', 'De 10:00 a 20:00. Si comunica, insiste: estamos en cabina.' ),
+			array( 'WhatsApp', '600 00 00 00', 'Contestamos entre clienta y clienta, nunca más tarde del mismo día.' ),
+			array( 'Email', 'hola@lumiere.example', 'Para facturas y para lo que no corre prisa. 48 horas.' ),
+		),
+		'note'    => 'No hay formulario en esta página a propósito: para pedir hora, el teléfono es más rápido que escribir y esperar.',
+	),
+	'nap'    => array(
+		'eyebrow' => 'Dónde',
+		'h2'      => 'Alameda Urquijo 24, bajo',
+		'addr'    => array( 'Alameda Urquijo 24, bajo', '48011 Bilbao' ),
+		'phone'   => '944 00 00 00',
+		'mail'    => 'hola@lumiere.example',
+		'hours'   => array(
+			array( 'Martes a viernes', '10:00 – 20:00' ),
+			array( 'Sábado', '09:30 – 14:00' ),
+			array( 'Lunes y domingo', 'Cerrado' ),
+		),
+		'note'    => 'Metro Indautxu a cuatro minutos. Parking Zabálburu a doscientos metros; la primera media hora sale por 1,20 €.',
+		'img'     => 'lumiere-recepcion',
+	),
+	'door'   => array(
+		'eyebrow' => 'Cómo se reconoce',
+		'h2'      => 'Para que no pases de largo la primera vez',
+		'note'    => 'El portal es el 24, entre una farmacia y una papelería. Si llegas y está cerrado a media mañana, estamos en cabina: llama y bajamos.',
+		'items'   => array(
+			array( 'img' => 'lumiere-recepcion', 'name' => 'La entrada', 'p' => 'Toldo rosa y mostrador de madera nada más entrar.' ),
+			array( 'img' => 'lumiere-cabina', 'name' => 'Al fondo a la izquierda', 'p' => 'Cabina 1, la de rostro. Es la que se ve desde la puerta.' ),
+		),
+	),
+	'hours'  => array(
+		'eyebrow' => 'Horario',
+		'h2'      => 'Cuándo hay alguien',
+		'rows'    => array(
+			array( 'Lunes', 'Cerrado' ),
+			array( 'Martes a viernes', '10:00 – 20:00' ),
+			array( 'Sábado', '09:30 – 14:00' ),
+			array( 'Domingo', 'Cerrado' ),
+		),
+		'addr'    => array( 'Alameda Urquijo 24, bajo', '48011 Bilbao' ),
+		'phone'   => '944 00 00 00',
+		'mail'    => 'hola@lumiere.example',
+		'travel'  => 'Metro Indautxu a cuatro minutos. Parking Zabálburu a doscientos metros; la primera media hora sale por 1,20 €.',
+		'note'    => 'La última cita se da una hora antes del cierre, porque una limpieza dura sesenta minutos y no se corre.',
+	),
+);
+
+
 // ── THE SECOND PHOTOGRAPH WITH TEXT ON IT, WHICH NOTHING HAD EVER SWEPT ────────────────────────
 //
 // `LP-BROKEN-GRID`'s corporate hero puts the h1 ON the picture, exactly as the slider does, and
@@ -5317,9 +5891,9 @@ foreach ( $CONTENT as $cn_k => $cn_v ) {
 	   (anchor × mode) is asserted unique across branded templates below. */
 	if ( ! isset( $CONTENT[ $cn_k ]['head_mode'] ) ) {
 		$CONTENT[ $cn_k ]['head_mode'] = 'index';
-	} elseif ( ! in_array( $CONTENT[ $cn_k ]['head_mode'], array( 'index', 'rule', 'tight' ), true ) ) {
+	} elseif ( ! in_array( $CONTENT[ $cn_k ]['head_mode'], array( 'index', 'rule', 'tight', 'emblem' ), true ) ) {
 		fail( "template `$cn_k` asks for head mode `{$CONTENT[ $cn_k ]['head_mode']}`, which is not one"
-			. ' of index / rule / tight' );
+			. ' of index / rule / tight / emblem' );
 	}
 	if ( ! isset( $CONTENT[ $cn_k ]['brand'] ) ) {
 		$CONTENT[ $cn_k ]['brand'] = '';
@@ -5453,6 +6027,18 @@ $STRIPS = array(
 	array( 'tpl' => 'TPL-C-10-arbea',    'anchor' => 'institutional' ),
 	array( 'tpl' => 'TPL-C-11-alinea',   'anchor' => 'editorial' ),
 	array( 'tpl' => 'TPL-C-12-urgencia', 'anchor' => 'direct' ),
+	/* LUMIÈRE sobre MATTER, y llegó ahí por una corrección que costó dos rondas.
+	   Primero fue `editorial`, porque el sector se ilustra con revistas y porque el cuarto modo de
+	   encabezado se abrió justo para poder entrar ahí. Renderizado, un lector lo resumió en una
+	   frase: «demasiado grande, grosero y sin sentido — no es delicado ni proporcional para una
+	   estética». Y la medición le daba la razón: `editorial` es h1 88px con interlínea 0,95, o sea
+	   una escala de PORTADA. Un centro de estética no grita; enseña una carta y una cabina.
+	   `classic` baja el h1 a 64 y el h2 a 48 sin tocar nada más de la marca —el fondo rosado y las
+	   tipografías son suyas, no del ancla—, y su elevación `hairline` es además la que ya usaban la
+	   retícula de zonas y la carta: el ancla y el arquetipo por fin dicen lo mismo.
+	   `matter × emblem` estaba libre (Bergara tiene `rule`, Corte Nueve `index`), así que el cuarto
+	   modo sigue siendo lo que abrió la puerta, sólo que a otra habitación. */
+	array( 'tpl' => 'TPL-C-14-lumiere', 'anchor' => 'matter' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
 	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
@@ -5964,7 +6550,27 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
   --radius-card:12px; --radius-button:8px; --radius-image:8px; --radius-input:8px; --radius-container:16px;
   --btn-padding:.875rem 1.75rem; --btn-border-width:1.5px;
   --ease:cubic-bezier(.22,1,.36,1);
-  --fs-body:clamp(1rem, 1.2vw, 1.25rem);
+/* EL CUERPO ERA UNA CONSTANTE DISFRAZADA DE CURVA, y esto se midió antes de tocarlo.
+     `clamp(1rem, 1.2vw, 1.25rem)`: el término medio sólo supera 1rem cuando la ventana pasa de
+     1333px, y sólo alcanza su techo de 20px a los 1667. Traducido: de 320 a 1333 el cuerpo vale
+     EXACTAMENTE 16px y no se mueve ni un píxel. Medido a 1280 en las siete marcas: 16, 16, 16,
+     16, 16, 16, 16. La curva existía en el código y no existía en pantalla.
+     Enfrente, los titulares SÍ cambian con el ancla: 48 en `contained`, 64 en `classic`, 88 en
+     `editorial`, 120 en `monumental`. Con el cuerpo clavado en 16, la distancia h1/cuerpo iba de
+     3,0× a 7,5× según el ancla, y nadie había elegido ese número: salía solo.
+     Un lector lo dijo mirando la primera versión de TPL-C-14 —«demasiado grande, grosero y sin
+     sentido»— y la corrección que funcionó allí fue subir el cuerpo, no bajar el titular. Esa
+     curva sube aquí, a la raíz, porque el defecto nunca fue de aquel arquetipo.
+     LA NUEVA: 17px a 320, 19px desde 1280. Fluida en el tramo donde hay pantallas, que es el
+     tramo entero que la anterior se saltaba. Las distancias quedan 2,5× / 3,4× / 4,6× / 6,3× —
+     siguen separadas, porque separar anclas es el trabajo de la galería, pero ya ninguna nace de
+     un suelo que no supo subir. */
+  --fs-body:clamp(1.0625rem, .75rem + .6vw, 1.1875rem);
+  /* Y UN ESCALÓN PARA LA COPIA SECUNDARIA. `--fs-small` son 14px y estaba cargando párrafos de
+     LECTURA —respuestas de FAQ, cuerpo de tarjeta—, no etiquetas. Con el cuerpo en 19 esa
+     diferencia pasaba de 2 a 5 puntos dentro de la misma sección. `--fs-meta` es el paso que
+     faltaba; `--fs-small` vuelve a ser lo que su nombre dice: rótulos, metadatos, pies. */
+  --fs-meta:calc(var(--fs-body) * .9);
   --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
   --fs-price:clamp(1.1rem, 1.6vw, 1.35rem);
 }';
@@ -6224,6 +6830,37 @@ $css[] = <<<'CSS'
   --fs-h3: clamp(calc(var(--n-h3) / var(--fs-base) * 1rem),
                  calc(var(--n-h3) / var(--fs-base) * 1rem + (var(--n-h3-cap) - var(--n-h3)) * var(--fluid)),
                  calc(var(--n-h3-cap) * 1px));
+
+  /* ── LOS DOS ESCALONES QUE FALTABAN ENTRE h3 Y EL CUERPO ────────────────────────────────────
+     Entre `--fs-h3` (33 a 46 según ancla) y `--fs-body` (19) no había nada, y el hueco se notó en
+     el sitio donde siempre se nota: 51 `font-size` en rem CRUDO repartidos por los componentes
+     —`.trcard h3{1.0625rem}`, `.trcard p{.875rem}` y 49 más—. Un número en rem no sabe qué ancla
+     lo está pintando, así que esas tarjetas medían 17/14 lo mismo bajo `contained` que bajo
+     `monumental`: el ancla movía los titulares y las tarjetas se quedaban quietas.
+     `--fs-item` es un TÍTULO DE TARJETA —un destino, una cabina, un tratamiento— y `--fs-name`
+     una ENTRADA DE LISTA, de las que hay muchas por pantalla. Nacieron dentro de TPL-C-14, que
+     es donde el hueco se hizo insoportable; suben aquí porque el hueco era de la casa.
+     EL `max()` NO ES ADORNO: un escalón sólo es un escalón si queda por encima del de abajo.
+     `contained` tiene h3=33,3, y 33,3 × .56 = 18,6 — por DEBAJO del cuerpo de 19. Sin el suelo,
+     el ancla más sobria renderizaría nombres de lista más pequeños que su propio párrafo. Con él,
+     el ancla manda cuando es generosa y el cuerpo manda cuando no. Los coeficientes 1.05 y 1.3
+     están elegidos para que `classic` —el ancla donde esta escala se aprobó mirándola— salga con
+     los mismos 20,2 y 26,6 que ya tenía. */
+  --fs-item: max(calc(var(--fs-body) * 1.3),  calc(var(--fs-h3) * .74));
+  --fs-name: max(calc(var(--fs-body) * 1.05), calc(var(--fs-h3) * .56));
+  /* LA PRUEBA DE QUE ESTOS DOS ESCALONES HACÍAN FALTA NO ES UN ARGUMENTO, ES UN RECUENTO.
+     Barrido de `font-size` en rem crudo por toda la hoja: `1.0625rem` aparecía SIETE veces y
+     `.875rem` DOCE. Y no en sitios cualesquiera — las siete son el NOMBRE DE UNA COSA EN UNA
+     FICHA: el plato de la carta, el coche del patio, el médico del equipo, el tratamiento, el pie
+     de un antes/después, el qué-incluye de un plan, la dirección del bloque de horarios. Las doce
+     son LA DESCRIPCIÓN QUE VA DEBAJO de ese nombre.
+     Siete componentes escritos en semanas distintas llegaron al mismo 17px por separado, y doce
+     al mismo 14px. Eso no es coincidencia: es un escalón que el sistema necesitaba y no tenía, y
+     cada autor lo reinventó a ojo. El precio de reinventarlo es que un número en rem no sabe qué
+     ancla lo está pintando — la ficha medía 17/14 bajo `contained` y 17/14 bajo `monumental`,
+     mientras su h2 pasaba de 40 a 74. El ancla movía la página y las fichas se quedaban quietas,
+     que es exactamente la sensación de «todas las plantillas se parecen» una capa por debajo de
+     donde se suele buscar. */
 
   --sp-xs: calc(0.5rem * var(--sp-scale));  --sp-s:  calc(1rem   * var(--sp-scale));
   --sp-m:  calc(1.5rem * var(--sp-scale));  --sp-l:  calc(3rem   * var(--sp-scale));
@@ -6722,10 +7359,15 @@ $css[] = <<<'CSS'
     border-top:1px solid var(--c-border)}
 }
 .faqlist > details{border-bottom:1px solid var(--c-border)}
-.faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-small);
+/* UNA PREGUNTA Y SU RESPUESTA SON TEXTO DE LECTURA, no un pie de foto. Iban las dos a
+   `--fs-small` (14px) cuando el cuerpo de la página era 16 — dos puntos de diferencia, casi
+   invisible. Con el cuerpo en 19 la diferencia pasaba a cinco y el acordeón entero se leía como
+   letra pequeña legal. La pregunta sube al escalón de entrada de lista, que es exactamente lo
+   que es; la respuesta al escalón de copia secundaria. */
+.faqlist summary{cursor:pointer;padding-block:var(--sp-s);font-size:var(--fs-name);
   font-weight:600;color:var(--c-text)}
 .faqlist summary::marker{color:var(--c-text-muted)}   /* budget: a disclosure triangle is furniture */
-.faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-small);color:var(--c-text-soft);
+.faqlist p{padding-bottom:var(--sp-s);font-size:var(--fs-meta);color:var(--c-text-soft);
   max-width:66ch}
 .chans{gap:var(--sp-s)}
 .chan{display:flex;flex-direction:column;gap:.15rem;min-width:0;
@@ -7204,6 +7846,21 @@ $css[] = <<<'CSS'
     color-mix(in srgb,#000 12%,transparent) 42%,
     color-mix(in srgb,#000 62%,transparent) 66%,
     color-mix(in srgb,#000 82%,transparent) 100%)}
+/* Y EN ESTRECHO EL MISMO VELO NO LLEGA, porque lo que cambia no es la foto sino la ALTURA DEL
+   TEXTO. A 1280 el bloque de copy ocupa el tercio de abajo y cae entero dentro de la parte oscura
+   del degradado. A 430 el mismo titular necesita tres líneas, el lede dos y los botones una fila
+   más: medido, el bloque pasa de ~230px a 439px sobre un hero de 769, así que su borde superior
+   sube al 14% de la altura, donde este degradado sólo pone un 12% de negro. Encima de una pared
+   lisa y clara —que es justo lo que un 16:9 recortado a vertical deja debajo del texto— el
+   titular blanco desaparece. No se oscurece la foto entera: se sube el degradado, que es la misma
+   decisión de arriba aplicada a una caja de texto que ha crecido. */
+@media(max-width:767px){
+  .hero-visual::after{background:linear-gradient(180deg,
+    color-mix(in srgb,#000 20%,transparent) 0%,
+    color-mix(in srgb,#000 48%,transparent) 28%,
+    color-mix(in srgb,#000 72%,transparent) 60%,
+    color-mix(in srgb,#000 86%,transparent) 100%)}
+}
 .hero-visual > .canvas{position:relative;z-index:2;min-height:min(60vh,34rem);
   align-content:end;padding-block:var(--sp-l)}
 /* The copy is white on a photograph, so it takes white REGARDLESS of the anchor's ground: an ink
@@ -7256,7 +7913,18 @@ $css[] = <<<'CSS'
 .figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-m);margin:0}
 @media(min-width:1024px){.figs{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .fig{min-width:0;padding-top:var(--sp-s);border-top:1px solid var(--c-border)}
-.fig dt{font-family:var(--font-primary);font-size:var(--fs-h1);line-height:1;
+/* UNA CIFRA DE FILA NO ES EL TITULAR DE LA PÁGINA, y durante mucho tiempo se pintó con su mismo
+   token. Medido en las 95 cifras del catálogo: DIECISÉIS desbordaban su columna, repartidas por
+   ocho arquetipos. La peor, «11 unidades» a 120px, pedía 584px dentro de una columna de 271 — más
+   del doble— y salía montada sobre su vecina. En la lonja las tres cifras se leían como una sola
+   palabra: «±15%AntesNunca».
+   La causa es de manual: `--fs-h1` es el tamaño de la promesa MÁS GRANDE de la página, de la que
+   hay una; aquí hay cuatro en fila dentro de columnas de ~250px. Bajo el ancla monumental eso son
+   cuatro titulares de 120px compitiendo en el ancho de uno.
+   El tope de 2.75rem conserva la variación entre anclas por debajo de él —una `contained` sigue
+   saliendo a 40px y una `classic` a 48— y sólo recorta donde el número ya no cabía. Un número que
+   no entra en su columna no es monumental: está roto. */
+.fig dt{font-family:var(--font-primary);font-size:min(var(--fs-h2), 2.75rem);line-height:1.05;
         letter-spacing:var(--track-h1);font-variant-numeric:tabular-nums}
 .fig dd{margin:.35rem 0 0;font-size:var(--fs-small);color:var(--c-text-soft)}
 
@@ -8003,13 +8671,13 @@ $css[] = <<<'CSS'
    than taken from --c-border: the border token is tuned for a 1px box edge and disappears at 40%
    opacity on a dark ground, which is exactly where this archetype lives. */
 .dish{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:.6rem;min-width:0}
-.dish .n{font-family:var(--font-primary);font-size:1.0625rem;min-width:0;order:1}
+.dish .n{font-family:var(--font-primary);font-size:var(--fs-name);min-width:0;order:1}
 .dish .dots{order:2;flex:1 1 1.5rem;min-width:1.5rem;transform:translateY(-.32em);
   border-bottom:1px dotted color-mix(in srgb,var(--c-text) 42%,transparent)}
 .dish .p{order:3;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
-.dish .d{order:4;flex:1 0 100%;margin:.2rem 0 0;color:var(--c-text-muted);font-size:.875rem;
+.dish .d{order:4;flex:1 0 100%;margin:.2rem 0 0;color:var(--c-text-muted);font-size:var(--fs-meta);
   max-width:46ch}
-.menu-list .foot{margin:var(--sp-l) 0 0;color:var(--c-text-muted);font-size:.875rem}
+.menu-list .foot{margin:var(--sp-l) 0 0;color:var(--c-text-muted);font-size:var(--fs-meta)}
 
 /* ── COMP-FIGURE-QUOTE ────────────────────────────────────────────────────────────────────────
    Full-bleed split, and the text half sits on --c-bg-alt so the section reads as a stop rather
@@ -8037,7 +8705,7 @@ $css[] = <<<'CSS'
   max-width:30ch}
 .figq .who{display:grid;gap:.15rem}
 .figq .who b{font-size:1rem}
-.figq .who span{color:var(--c-text-muted);font-size:.875rem}
+.figq .who span{color:var(--c-text-muted);font-size:var(--fs-meta)}
 .figq .sig{font-family:var(--font-primary);font-style:italic;
   font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1;opacity:.8}
 
@@ -8094,9 +8762,17 @@ $css[] = <<<'CSS'
 }
 
 /* ══════════ THE SECTION HEAD, PER TEMPLATE ══════════
-   Three treatments. `index` is what the four anchors already do — a numbered head, decorated the
-   anchor's own way. The other two switch that decoration off and put a different gesture in its
-   place, so two brands on one anchor no longer open every section identically. */
+   Four treatments. `index` is what the four anchors already do — a numbered head, decorated the
+   anchor's own way. The other three switch that decoration off and put a different gesture in its
+   place, so two brands on one anchor no longer open every section identically.
+
+   THE FOURTH ARRIVED BECAUSE THE THIRD RAN OUT, and that is worth writing down rather than
+   discovering again. Three modes give the uniqueness assertion below 5 anchors x 3 = 15 pairings,
+   and by the eleventh brand `editorial`, `institutional` and `direct` were each full: a twelfth
+   brand could only be born on `matter` or `vitrine`, which is the anchor picking the business
+   instead of the other way round. A fourth GESTURE — not a fourth variant of an existing one —
+   gives the choice back without weakening the rule: the assertion still fires the moment two
+   brands open their sections the same way. */
 
 /* `rule` — the eyebrow runs into a hairline that reaches the end of the measure. A horizontal
    gesture where `index` is a vertical one, and it costs one pseudo-element. */
@@ -8116,6 +8792,74 @@ $css[] = <<<'CSS'
 [data-head="tight"] .sec{padding-block:calc(var(--sp-section) * .74)}
 [data-comp="lp-centered"][data-head="tight"] .head{text-align:left;align-items:flex-start;
   margin-inline:0}
+
+/* `emblem` — a petal mark in the accent, centred over a centred head. Where `index` is a number in
+   the margin, `rule` a hairline running out to the measure and `tight` a border down the left edge,
+   this one leaves the left edge altogether: the head becomes a centred lockup, mark above heading,
+   the way a treatment menu announces a section. It is the only mode that moves the head off its
+   composition's own axis, which is what makes it a fourth GESTURE and not a second `rule`.
+
+   SCOPED AWAY FROM THE HERO. `:not([class*="hero"])` covers `hero`, `hero-full`, `hero-visual`,
+   `hero-search` and `mhero` in one predicate. Centring a hero head would throw away the asymmetry
+   the hero is built on, and it is not what this gesture is for: a section head announces a
+   REPEATED unit, the hero announces the page once.
+
+   THE SPECIFICITY IS THE POINT, not an accident. (0,4,1) on the pseudo-element is what lets these
+   rules beat the four `[data-anchor="..."] .head::before` renderings of the section index from
+   ABOVE them in the file — that block lives in $close_css. `rule` and `tight` only ever had to
+   switch the decoration OFF, which `[data-index]` alone was enough for; this one draws in its
+   place, so it cannot rely on source order. */
+/* `:not(.secrow):not(.bleedband)` — el lockup centrado es el gesto de una sección CONTENIDA.
+   Una fila cuyo texto vive en una columna estrecha al lado de un collage, y un panel de tinta
+   dentro de un damero, abren por su borde izquierdo: centrar ahí no es el mismo gesto, es el
+   mismo gesto aplicado donde no hay eje que ocupar. */
+[data-head="emblem"] .sec:not([class*="hero"]):not(.secrow):not(.bleedband) .head{
+  align-items:center;text-align:center;margin-inline:auto}
+/* `border-radius:50% 0` is TL/BR round, TR/BL square — a petal, not a circle and not a diamond.
+
+   `--c-text-muted` AND NOT `--c-accent`, and the first draft had it the other way round. The
+   accent-role gate refused it in as many words: the mark claims none of design-tokens.md's accent
+   roles — it is not a CTA, an action icon, a link or an active state — so it is decoration, and
+   decoration that paints the accent spends the page's one colour on a shape nobody can click. The
+   eyebrow beneath it is already muted; the mark joining it is what makes the two read as one
+   lockup instead of as a badge with a caption under it. */
+/* `position:static` Y `inset:auto` NO SON DEFENSIVOS, son la corrección de un defecto que se vio
+   en un render. `[data-anchor="editorial"] .head::before` cuelga el índice de sección en el margen
+   de la página —`position:absolute;right:100%`— y esa regla vive en un `@media(min-width:1280px)`
+   más abajo en el archivo. La especificidad de aquí (0,4,1) gana las propiedades que aquí se
+   escriben, pero NO apaga las que no se mencionan: la marca heredaba el `absolute` y el `right` y
+   aparecía flotando a la izquierda de la sección, leyéndose como una viñeta suelta en vez de como
+   el remate de un lockup centrado. Una regla que redefine un pseudo-elemento ajeno tiene que
+   apagar su posicionamiento, no sólo repintarlo. */
+/* AQUÍ HUBO UNA MARCA Y AHORA NO HAY NINGUNA, y la ausencia es la decisión.
+   Era un pétalo de 14px centrado sobre el encabezado. La puerta de roles ya la había obligado a
+   dejar el acento y bajar a `muted`, lo cual debería haber sido la primera pista: una forma que no
+   puede llevar el color de marca porque no se puede pulsar, y que tampoco dice nada por sí sola,
+   es un punto suelto encima de un texto. Un lector la rodeó en rojo junto al eyebrow y escribió
+   «no se sabe qué es». Exacto: no se sabía.
+   El modo `emblem` sobrevive sin ella. Su gesto es CENTRAR el encabezado en un ancla cuya
+   composición no centra nada —`strict-grid` alinea a la izquierda—, y eso sí se lee de un vistazo
+   y sí se puede nombrar. Lo que se va es el adorno, no el modo. */
+/* SIN EXCEPCIONES Y TAMBIÉN EN EL HERO, que es donde se vio. Las cuatro anclas decoran
+   `.head::before` con el índice de sección, y `matter` le añade un filete en `.head::after`. En un
+   modo que no numera, `attr(data-index)` resuelve a cadena vacía: el número desaparece y la RAYA
+   NO —el propio comentario de `matter` avisa de que eso «parece deliberado», y por eso merece
+   escribirse—. Mis primeras reglas apagaban las dos sólo en secciones contenidas, así que el hero
+   se quedó con una rayita flotando encima del eyebrow, que es exactamente el gesto sin
+   significado que un lector ya había tachado dos veces. Un modo de encabezado apaga la decoración
+   del ancla en TODA la tira, y luego decide dónde pone la suya. */
+/* `.sec .head` Y NO `.head`, y la diferencia es un píxel de rayita que sobrevivió a la primera
+   corrección. Estas reglas viven en el bloque de MODOS DE ENCABEZADO, que se emite pronto; la
+   decoración de índice de cada ancla vive en el bloque de cierre, que se emite mucho después. A
+   igualdad de especificidad —(0,2,1) las dos— gana la última, o sea el ancla, y el filete de
+   `matter` seguía dibujándose sobre el eyebrow. Con `.sec` en medio son (0,3,1) y ganan estén
+   donde estén. Apoyarse en el orden del fichero para desactivar algo es apoyarse en dónde alguien
+   decidió pegar un bloque hace meses. */
+[data-head="emblem"] .sec .head::before,
+[data-head="emblem"] .sec .head::after{content:none}
+/* The small print belongs to the head, so it follows it — the same finding as the lp-centered note
+   immediately below, arrived at from the other direction. */
+[data-head="emblem"] .sec:not([class*="hero"]):not(.secrow):not(.bleedband) .pnote{text-align:center;margin-inline:auto}
 
 /* ── ALIGNMENT, FOUND BY LOOKING AND NOT BY A PROBE ───────────────────────────────────────────
    The section note hung at the LEFT of a section whose heading was CENTRED, on every lp-centered
@@ -8141,8 +8885,11 @@ $css[] = <<<'CSS'
 .trcard .frame{aspect-ratio:16/10;border-radius:0}
 .trcard .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .trbody{display:flex;flex-direction:column;gap:.4rem;flex:1;padding:var(--sp-m)}
-.trcard h3{margin:0;font-size:1.0625rem}
-.trcard p{margin:0;color:var(--c-text-muted);font-size:.875rem}
+/* 1.0625rem Y .875rem ERAN DOS NÚMEROS QUE NO SABÍAN QUÉ ANCLA LOS PINTABA. Medido: la misma
+   tarjeta de tratamiento salía 17/14 bajo `contained` y 17/14 bajo `monumental`, mientras su h2
+   pasaba de 40 a 74. El ancla movía la página y la tarjeta se quedaba quieta. */
+.trcard h3{margin:0;font-size:var(--fs-name)}
+.trcard p{margin:0;color:var(--c-text-muted);font-size:var(--fs-meta)}
 /* A FIXED 2×2 GRID AND NOT A WRAPPING FLEX. The four facts are a FIXED SET of four, and flex-wrap
    made their line count depend on how long each label happened to be: one card broke 3+1, the next
    4+0, so the price sat on a different line in every card and the row of numbers never lined up
@@ -8162,8 +8909,8 @@ $css[] = <<<'CSS'
 .bashot .frame{aspect-ratio:4/3;border-radius:var(--radius-card);overflow:hidden}
 .bashot .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .bashot figcaption{display:flex;gap:.5rem;align-items:baseline;margin-top:var(--sp-s);flex-wrap:wrap}
-.bashot figcaption b{font-family:var(--font-primary);font-size:1.0625rem}
-.bashot figcaption span{color:var(--c-text-muted);font-size:.875rem}
+.bashot figcaption b{font-family:var(--font-primary);font-size:var(--fs-name)}
+.bashot figcaption span{color:var(--c-text-muted);font-size:var(--fs-meta)}
 
 /* REJILLA FIJA PARA UN CONJUNTO FIJO, que es la regla de la casa y la que estas rejillas no
    seguían. `auto-fill` reservaba una columna para elementos que no existen — tres retratos en un
@@ -8180,8 +8927,8 @@ $css[] = <<<'CSS'
 .medico .frame{aspect-ratio:1/1;border-radius:var(--radius-card);overflow:hidden}
 .medico .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .medbody{display:grid;gap:.1rem;margin-top:var(--sp-s)}
-.medbody b{font-family:var(--font-primary);font-size:1.0625rem}
-.medbody span{color:var(--c-text-muted);font-size:.875rem}
+.medbody b{font-family:var(--font-primary);font-size:var(--fs-name)}
+.medbody span{color:var(--c-text-muted);font-size:var(--fs-meta)}
 .medlic{font-variant-numeric:tabular-nums;font-size:.8125rem}
 
 .inslist{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--sp-s)}
@@ -8237,7 +8984,7 @@ $css[] = <<<'CSS'
 .planq span{color:var(--c-text-muted);font-size:.875rem;font-variant-numeric:tabular-nums}
 .planp{margin:0;color:var(--c-text-muted);font-size:.9375rem}
 .planfeats{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:grid;gap:.25rem;
-  font-size:.875rem}
+  font-size:var(--fs-meta)}
 .planfeats li{padding-left:1rem;position:relative}
 .planfeats li::before{content:"·";position:absolute;left:.25rem;color:var(--c-text-muted)}
 .planbox .btn{margin-top:var(--sp-s);align-self:flex-start}
@@ -8261,7 +9008,7 @@ $css[] = <<<'CSS'
   border-top:1px solid var(--c-border);align-items:baseline}
 .triagelist li:last-child{border-bottom:1px solid var(--c-border)}
 @media(min-width:900px){.trow{grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) auto}}
-.trow b{font-family:var(--font-primary);font-size:1.125rem}
+.trow b{font-family:var(--font-primary);font-size:var(--fs-name)}
 .trdo{color:var(--c-text-muted)}
 .trmin{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
 
@@ -8310,7 +9057,7 @@ $css[] = <<<'CSS'
 .vcard .frame{aspect-ratio:4/3;border-radius:0}
 .vcard .frame img{width:100%;height:100%;object-fit:cover;display:block}
 .vbody{display:flex;flex-direction:column;gap:.5rem;flex:1;padding:var(--sp-m)}
-.vcard h3{margin:0;font-size:1.0625rem;line-height:1.25}
+.vcard h3{margin:0;font-size:var(--fs-name);line-height:1.25}
 /* Same reasoning as `.tfacts`: five fixed facts on a fixed 3-column grid, so every vehicle card
    spends exactly two rows on them and the prices below line up across the whole listing. */
 .vfacts{list-style:none;margin:0;padding:0;display:grid;
@@ -8318,8 +9065,11 @@ $css[] = <<<'CSS'
 .vfacts li{font-size:.8125rem;color:var(--c-text-muted);border:1px solid var(--c-border);
   border-radius:var(--radius-button);padding:.08rem .45rem;text-align:center;min-width:0}
 .vprice{margin:auto 0 0;display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
-.vprice b{font-family:var(--font-primary);font-size:1.375rem;font-variant-numeric:tabular-nums}
-.vprice span{color:var(--c-text-muted);font-size:.875rem}
+/* UN PRECIO ES EL TITULAR DE SU FICHA, así que va al escalón de título de ficha y no a un
+   número suelto. 1.375rem eran 22px fijos: más grande que el nombre del coche (17) por decisión
+   correcta, pero igual de sordo al ancla que él. */
+.vprice b{font-family:var(--font-primary);font-size:var(--fs-item);font-variant-numeric:tabular-nums}
+.vprice span{color:var(--c-text-muted);font-size:var(--fs-meta)}
 .vcard .btn{margin-top:.25rem;align-self:flex-start}
 
 .tiform{display:grid;gap:var(--sp-m);width:min(100%,44rem)}
@@ -8363,7 +9113,7 @@ $css[] = <<<'CSS'
 .frow dt{color:var(--c-text-muted)}
 .frow dd{margin:0;font-variant-numeric:tabular-nums}
 .ftotal{border-bottom:none;border-top:2px solid var(--c-text);margin-top:.3rem}
-.ftotal dt,.ftotal dd{color:var(--c-text);font-weight:700;font-size:1.125rem}
+.ftotal dt,.ftotal dd{color:var(--c-text);font-weight:700;font-size:var(--fs-name)}
 
 .sec.badges{border-block:1px solid var(--c-border)}
 .badgelist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l)}
@@ -8372,7 +9122,7 @@ $css[] = <<<'CSS'
   font-size:clamp(1.25rem,2.1vw,1.75rem)}
 .badge span{display:block;margin-top:.3rem;color:var(--c-text-muted);font-size:.9375rem}
 
-.pnote{margin:var(--sp-l) auto 0;color:var(--c-text-muted);font-size:.875rem;max-width:64ch}
+.pnote{margin:var(--sp-l) auto 0;color:var(--c-text-muted);font-size:var(--fs-meta);max-width:64ch}
 
 /* ══════════ TPL-C-13 · CARTERA / BÚSQUEDA ══════════
    Written against tokens only. Reuses `.hero-search`/`.filterbar` from TPL-C-07 above and
@@ -8519,8 +9269,8 @@ $css[] = <<<'CSS'
 .prow{display:flex;gap:var(--sp-m);align-items:flex-start;justify-content:space-between;
   padding-block:calc(var(--sp-s) * 1.1);border-bottom:1px solid var(--c-border)}
 .pwhat{display:grid;gap:.15rem;min-width:0}
-.pwhat b{font-size:1.0625rem;line-height:1.3}
-.pwhat span{color:var(--c-text-muted);font-size:.875rem}
+.pwhat b{font-size:var(--fs-name);line-height:1.3}
+.pwhat span{color:var(--c-text-muted);font-size:var(--fs-meta)}
 .ptag{flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;
   background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:var(--radius-button);
   padding:.2rem .6rem}
@@ -8540,7 +9290,7 @@ $css[] = <<<'CSS'
 .hours-big .shut dt,.hours-big .shut dd{color:var(--c-text-muted)}
 .hours-big .where{display:grid;gap:var(--sp-s);align-content:start}
 .hours-big .where p{margin:0}
-.hours-big .where a{font-size:1.0625rem}
+.hours-big .where a{font-size:var(--fs-name)}
 CSS;
 
 // ── block 5a · the house ink, one filter per anchor ────────────────────────────────────────────
@@ -8820,7 +9570,20 @@ $COMP_CSS['broken-grid'] = <<<'CSS'
 
   /* EVERY OTHER SECTION: the heading crosses a column line, the grid is deliberately uneven,
      and one card is offset vertically by --sp-l. */
-  [data-comp="lp-broken-grid"] .grid-sec .head{grid-column:c 1/c 9}
+  /* `.canvas .head` Y NO `.grid-sec .head`, y la corrección vale para todo lo que venga después.
+     Esta colocación habla de LÍNEAS CON NOMBRE —`c 1`, `c 9`— y esos nombres sólo existen en la
+     rejilla del canvas. Escrita como `.grid-sec .head` alcanzaba también a las secciones que
+     cambian el canvas por otro envoltorio, y allí el navegador no encuentra la línea `c`, se
+     inventa columnas implícitas y coloca a los hermanos donde nadie eligió.
+     MEDIDO cuando pasó: en las cuatro variantes `direct` de las cuatro arquitecturas que
+     estrenaron banda, el encabezado salía pegado al borde derecho y el mapa de la cartera medía
+     DOS PÍXELES de ancho. Las otras cuatro anclas estaban bien, así que un vistazo a una sola no
+     lo habría visto — lo encontró un barrido de las veinticuatro bandas del catálogo.
+     La tentación era subir la especificidad de mi reset hasta ganar. Sería la tercera vez esta
+     semana que dos reglas se pelean por un empate, y la respuesta correcta no es gritar más alto:
+     es decir dónde vive cada una. Una colocación por líneas del canvas se escribe dentro del
+     canvas. */
+  [data-comp="lp-broken-grid"] .grid-sec .canvas .head{grid-column:c 1/c 9}
   /* `c 1 / c 13` AND NOT `c 1 / full-end`. THIS ROW USED TO BLEED AND THAT WAS THE DEFECT THE
      READER DREW A LINE THROUGH. `c 13` is the same line as `wide-end` — the band's right edge — so
      the row now ends where the section head ends and the page has a margin on BOTH sides.
@@ -9221,6 +9984,598 @@ $close_css[] = <<<'CSS'
 CSS;
 
 $css[] = implode( "\n", $close_css ) . "\n";
+
+/* LAST IN THE FILE ON PURPOSE. The class-name register below reads "is this class defined before
+   the block that OWNS it", so an archetype's own block has to come after every shared one. */
+$css[] = <<<'CSS'
+/* ══════════ TPL-C-14 · RITUAL / BONO ══════════ */
+
+/* ── DOS TAMAÑOS QUE SON MÍOS Y NO DEL ANCLA ──────────────────────────────────────────────────
+   La primera versión se leyó como «todo gigante», y medida a 1280 daba: h1 87 · h2 58 · h3 39 ·
+   CUERPO 16. El problema no era el titular: era el SALTO. `--fs-body` es `clamp(1rem,1.2vw,
+   1.25rem)`, y su tope de 20px no entra hasta los 1667px de ventana, así que a 1280 el cuerpo se
+   queda en su suelo de 16 y la distancia contra un h2 de 58 es de 3,6×. Una escala `editorial`
+   con densidad `generous` pide un cuerpo que la acompañe.
+
+   POR QUÉ SE PUEDE TOCAR AQUÍ. Los cinco ejes —escala, fondo, densidad, composición, elevación—
+   son del ancla y moverlos convertiría los chips de la tarjeta en una mentira. `--fs-body` NO es
+   uno de ellos: el propio bloque de tokens lo dice en su comentario («body is NOT an axis»), y va
+   colgado de `[data-arch]`, que es el gancho que el guide reserva para lo que un arquetipo puede
+   decidir por su cuenta. El h1 sigue siendo 88 y el h2 sigue siendo 58.
+
+   Y `--fs-item` es el escalón que faltaba. Precio, minutaje, nombre de cabina y nombre de zona
+   los había puesto yo en h3 (39px) y en h2 (58px) — un precio a 58px es un titular con forma de
+   número. No hay paso entre 16 y 39 en la escala, así que el arquetipo se declara el suyo. */
+/* LAS TRES DECLARACIONES QUE ESTABAN AQUÍ YA NO ESTÁN, y eso es el resultado y no una pérdida.
+   `--fs-body`, `--fs-item` y `--fs-name` nacieron colgadas de este arquetipo porque fue el
+   primero que chocó contra el hueco. Medido el resto del catálogo, el hueco estaba en las 67
+   tiras, así que las tres subieron a la raíz y al bloque de campos. Este bloque conserva sólo lo
+   que de verdad es suyo. */
+[data-arch="tpl-c-14"]{
+  /* Y un escalón más abajo para la carta. `--fs-item` (27px) es el tamaño de un DESTINO —una zona,
+     una cabina—, de los que hay cuatro por pantalla. Un ritual es una ENTRADA de lista y hay seis;
+     al mismo tamaño la carta se convierte en seis titulares apilados. 22px la deja fina y sigue
+     estando por encima del cuerpo. */
+  /* Nada propio que declarar hoy: las tres medidas que este arquetipo inventó son ahora del
+     sistema. El bloque se queda porque las reglas de abajo cuelgan de él.
+     SE VA CON UNA LECCIÓN QUE NO CADUCA: `body{font-size:var(--fs-body)}` resuelve la variable
+     ARRIBA, en la raíz, y todo párrafo hereda el valor YA CALCULADO. Redeclarar el token a media
+     página no reabre esa herencia — sólo afecta a quien vuelva a escribir `var(--fs-body)`.
+     Medido en su día: con el token en 19px el cuerpo seguía renderizando 16. Quien vuelva a
+     redefinir un token de tamaño dentro de un `[data-arch]` tiene que USARLO ahí mismo. */
+}
+
+/* ── LOS DOS ENVOLTORIOS QUE NO SON `.canvas` ─────────────────────────────────────────────────
+   `secrow` es la sección haciendo de fila: se lleva el ancho y el padding que llevaba el canvas,
+   y sus hijos son las columnas. Un nodo menos por sección, que en el build nativo es un
+   contenedor menos y un clic menos entre un humano y el widget que abrió el editor para tocar.
+   `bleedband` es la sección haciendo de banda: sin canvas y sin padding lateral, porque lo que
+   tiene que llegar al cristal es el color y la fotografía. El texto NO llega: cada panel de
+   dentro lleva su propio padding, que es la diferencia entera entre una banda y una tarjeta
+   cortada por el borde. */
+/* EL FONDO LLEGA AL BORDE Y EL CONTENIDO NO, en un solo nodo. La primera versión capaba el ancho
+   de la SECCIÓN, que es lo mismo que capar su fondo: en la página de Nosotros, donde esta fila cae
+   sobre banda alterna, la banda dejó de tocar los bordes y se leyó como un panel metido dentro de
+   la página. El padding lateral se calcula contra el ancho de contenido —`max(gutter, (100% −
+   contenido) / 2)`— así que la sección sigue siendo del ancho de la ventana, su color también, y
+   el texto se queda donde estaría dentro de un canvas. Ésta es la razón de que la fila NO
+   necesite el `<div>` que venía a quitar. */
+/* ── `max` DONDE TOCABA SUMAR, Y SE VE A SIMPLE VISTA SI SE SABE DÓNDE MIRAR ─────────────────
+   Una fila es la sección haciendo de canvas, así que su texto tiene que caer en la MISMA columna
+   que el de la sección de al lado. No caía. El canvas hace dos cosas —`max-width` con márgenes
+   automáticos, que a 1280 dan 70px por lado, y `padding-inline:32`— y el texto sale por tanto en
+   x=102. La fila las juntaba con `max(32, 70)` = 70, o sea se quedaba con la mayor y tiraba la
+   otra: 32px a la izquierda de sus vecinas, sección sí y sección no.
+   Medido en la home del centro de estética: hero en 102, tour de cabinas en 70. Los dos bordes
+   restantes de esa página —24 y 192— NO son de este defecto y no se tocan: el 24 es un mosaico a
+   sangre donde cada celda lleva su propio relleno, y el 192 un panel centrado dentro de una
+   banda. Las tres formas del chasis existen justamente para poder decir eso; lo que no podían
+   decir es que una fila empezara en otro sitio que su vecina.
+   La suma, y no el máximo: el margen automático LLEVA al borde del contenido, y el relleno separa
+   del borde. Son dos cosas distintas y se aplican las dos. */
+.secrow{padding-inline:max(var(--pad-x-mobile),
+          (100% - var(--content-width)) / 2 + var(--pad-x-mobile));
+  display:grid;gap:var(--sp-l);grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:768px){
+  .secrow{padding-inline:max(var(--pad-x-tablet),
+            (100% - var(--content-width)) / 2 + var(--pad-x-tablet))}}
+/* UNA BANDA TAMBIÉN NECESITA RITMO VERTICAL, y faltaba. `.secrow` lo tenía desde el primer día
+   —`gap: var(--sp-l)`— y `.bleedband` sólo apagaba el relleno lateral, así que sus hijos se
+   apilaban con los márgenes que cada uno trajera de casa. No se notó hasta ahora porque las dos
+   bandas que existían llevaban paneles con su propia caja dentro; la primera banda con un
+   encabezado como hijo DIRECTO sacó el titular montado encima de la primera fila de fotos.
+   Una columna con separación: la banda decide el ancho de sus hijos, no su respiración. */
+.bleedband{padding-inline:0;display:grid;gap:var(--sp-l);grid-template-columns:minmax(0,1fr)}
+/* ── Y LO PRIMERO QUE HACE UN ENVOLTORIO NUEVO ES APAGAR EL VIEJO ─────────────────────────────
+   Las tres composiciones colocan a mano los hijos del canvas por LÍNEAS CON NOMBRE — `.head` a
+   `c 1 / c 8`, la nota a su columna estrecha— y esos nombres sólo existen en la rejilla del
+   canvas. Dentro de una fila o de una banda no hay ninguna línea llamada `c`, así que el
+   navegador se inventa columnas implícitas y reparte los hijos por ellas: medido en el primer
+   render, el titular de «La casa» y su nota salieron en dos columnas de una palabra de ancho,
+   al lado de la lista. No es un fallo de esas reglas — es que no van dirigidas aquí. Un
+   envoltorio que no es `.canvas` tiene que decirlo, y esta es la línea que lo dice. */
+.secrow > *, .secrow .head, .secrow .pnote, .secrow .lede,
+.bleedband > *, .bleedband .head, .bleedband .pnote, .bleedband .lede{grid-column:auto}
+/* LO QUE SANGRA ES EL COLOR, NO LA LETRA, y una banda sin canvas se lleva por delante esa
+   distinción si no se dice. Medido en el primer render: la nota de los bonos empezaba en x=0,
+   pegada al cristal, porque `padding-inline:0` es lo que hace banda a la banda. Cada hijo de
+   texto directo recupera aquí el ancho de contenido que el canvas le daba; los paneles y las
+   fotografías no lo recuperan, que es justamente para lo que existe la banda. */
+/* EL ENCABEZADO ENTRA EN ESTA LISTA, y es la regla general dicha en voz alta: EL TEXTO NUNCA
+   SANGRA. Una banda existe para que el COLOR y la FOTOGRAFÍA lleguen al cristal; un titular
+   pegado al borde de la pantalla no es una banda, es un texto sin margen. Faltaba y se notó a la
+   primera: el primer arquetipo que pidió banda con encabezado propio lo sacó a 24px del borde
+   mientras el resto de su página empezaba en 102. */
+.bleedband > .pnote, .bleedband > .lede, .bleedband > .head{max-width:var(--content-width);
+  margin-inline:auto;padding-inline:var(--pad-x-mobile)}
+@media(min-width:768px){.bleedband > .pnote, .bleedband > .lede, .bleedband > .head{
+  padding-inline:var(--pad-x-tablet)}}
+
+/* ── LO QUE SÍ LLEGA AL CRISTAL ──────────────────────────────────────────────────────────────
+   Medido antes de tocar nada: de veintitrés arquitecturas, VEINTIDÓS no dejaban que ningún
+   elemento tocara el borde de la pantalla. Todas sus secciones acababan en la misma columna del
+   84–89 % del ancho, cinco a ocho veces seguidas. El inventario de secciones era distinto en cada
+   una —eso lo mide `RT_TPL_TOO_SIMILAR`— y la FORMA era idéntica, que es lo que un lector ve.
+   El color ya sangraba: las bandas `bg-alt` llegan al borde desde siempre. Lo que no sangraba
+   nunca era la FOTOGRAFÍA. Así que la banda se abre exactamente donde la fotografía es el
+   argumento y no la ilustración, y en ningún sitio más: una galería a sangre en un arquetipo que
+   enseña tres fotos de cortesía sería el gesto decorativo que este catálogo ya rechazó una vez. */
+/* Y AQUÍ LA REGLA SE PARTE EN DOS, porque «a sangre» no significa lo mismo para todo.
+   Un plano y una rejilla de fotos sin pie LLEGAN AL CRISTAL: no llevan una sola letra encima, así
+   que pegarlos al borde es exactamente lo que se quería.
+   Una rejilla de obra SÍ lleva letra —cada pieza con su nombre y su año debajo—, y medido en
+   pantalla el resultado fue «Palacio de Miraflores» empezando en x=0, pegado al cristal. Es el
+   mismo principio que ya obliga al encabezado a quedarse en su columna, un nivel más abajo: el
+   texto nunca sangra. Así que esa rejilla escapa de la columna de contenido (1.140px) pero se
+   detiene en el margen de página, y sus marcos siguen saliendo un 13 % más grandes que
+   contenidos. El gesto se conserva; lo que se va es la letra tocando el borde. */
+.bleedband .shots, .bleedband .mapwrap{padding-inline:0}
+.bleedband .works{padding-inline:var(--pad-x-mobile)}
+@media(min-width:768px){.bleedband .works{padding-inline:var(--pad-x-tablet)}}
+
+/* ── EL TITULAR DEL HERO RESPIRA MÁS ANCHO ───────────────────────────────────────────────────
+   La medida compartida (`min(34rem,78%)`) partía este titular en tres líneas cortas apiladas en
+   una esquina, y esa es la otra mitad de la sensación de «bloque enorme»: no era sólo el tamaño,
+   era el ancho. Con `min(46rem,90%)` entra en dos. Ensanchar una medida que uno mismo eligió es
+   gratis; bajar la escala no lo sería, y por eso la escala se arregló cambiando de ancla. */
+[data-arch="tpl-c-14"] .hero-full .head{max-width:min(46rem,90%)}
+
+/* ── LA BARRA DE DATOS SOBRE LA CABECERA ──────────────────────────────────────────────────────
+   Dónde, cuándo y a qué número. En el menú serían tres enlaces que nadie pulsa. */
+/* BLANCA Y OPACA, no un texto flotando sobre la fotografía. Transparente, la dirección y el
+   horario caían sobre la pared clara del hero y se leían a medias, y encima competían con el
+   titular por la misma zona de la imagen. Sobre su propia superficie son lo que son: un dato de
+   servicio, en pequeño, antes de que empiece la página. */
+.lumhead .topbar{background:var(--c-bg);color:var(--c-text);
+  border-bottom:1px solid var(--c-border)}
+.lumhead .topbar .canvas{display:flex;flex-wrap:wrap;gap:var(--sp-s);align-items:center;
+  padding-block:.5rem;font-size:var(--fs-small)}
+.lumhead .topbar a{margin-left:auto;font-weight:600;color:var(--c-text)}
+@media(max-width:599px){.lumhead .topbar span:nth-child(2){display:none}}
+
+/* ── ZONAS: RETÍCULA DE FILETES COMPARTIDOS ───────────────────────────────────────────────────
+   No son cuatro tarjetas: son cuatro columnas de la misma tabla, y una tabla se dibuja con las
+   líneas que SEPARAN. Los bordes se quitan en los bordes de la rejilla con `nth-child`, que es lo
+   que hace que la última columna no cierre una caja que no existe. Hover sin sombra ni relleno:
+   `elevation: none` no tiene con qué levantar, así que lo que cambia es el propio filete. */
+/* TARJETAS CON FILETE, y esto es un cambio de opinión con motivo. La primera versión eran cuatro
+   columnas de una misma tabla, separadas por filetes compartidos, con el argumento de que una
+   tabla se dibuja con las líneas que separan. El argumento se sostiene solo, pero la receta de
+   tarjeta de esta ancla dice otra cosa en sus propias palabras —«hairline border, text below; no
+   chips, no fills: el borde es todo el cromo»—, así que una caja de filete no es una concesión
+   aquí: es literalmente lo que `elevation: hairline` significa. Cuatro cajas iguales con su icono
+   dentro se leen además como cuatro DESTINOS, que es lo que son, y no como cuatro celdas de algo
+   más grande.
+   El hover no levanta ni rellena —no hay sombra en este sistema—: oscurece el filete y lleva el
+   icono al acento, que es un estado activo y no decoración. */
+/* ── LA BANDA DE CIERRE, CENTRADA ─────────────────────────────────────────────────────────────
+   Las tres composiciones colocan `.band .head` en la MITAD IZQUIERDA —`grid-column:1/7` en
+   strict-grid— porque la banda de cierre de la casa lleva texto a un lado y FORMULARIO al otro.
+   Las bandas de este arquetipo no llevan formulario: sólo un titular y dos botones. Sin la
+   segunda mitad, el bloque quedaba pegado a la izquierda con media sección vacía a su derecha, y
+   encima con el fondo de tarjeta del ancla, así que parecía una caja olvidada en una esquina.
+   Medido: 538px de tarjeta dentro de un canvas de 1140.
+   No es que la regla esté mal — es que no va dirigida a una banda sin formulario. Centrada entre
+   las columnas 3 y 11 vuelve a ser lo que es: un cierre. */
+[data-arch="tpl-c-14"] .band .head{grid-column:3 / 11}
+@media(max-width:767px){[data-arch="tpl-c-14"] .band .head{grid-column:1 / -1}}
+
+.zonegrid{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:900px){.zonegrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.zcell{border:1px solid var(--c-border);border-radius:var(--radius-card);
+  transition:border-color .35s var(--ease)}
+.zcell a{display:grid;gap:var(--sp-xs);align-content:start;text-decoration:none;color:inherit;
+  padding:var(--sp-m)}
+.zicon{color:var(--c-text-muted);margin-bottom:var(--sp-xs);
+  transition:color .35s var(--ease)}
+.zcell:hover{border-color:var(--c-text)}
+.zcell:hover .zicon{color:var(--c-accent)}
+.zcell h3{font-size:var(--fs-item);min-height:2.5em;margin:0}
+.zcount{font-family:var(--font-secondary);font-size:var(--fs-small);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--c-text-muted)}
+.zfrom{font-family:var(--font-primary);font-size:var(--fs-item);line-height:1.15}
+
+/* ── LA CARTA, APOYADA EN LA SALA ─────────────────────────────────────────────────────────────
+   La fotografía es el fondo de la banda y el panel es OPACO. Un panel translúcido pondría cada
+   precio sobre un píxel distinto de la foto y convertiría una lista de seis filas en seis
+   mediciones de contraste; lo que da el efecto es que la sala asome ALREDEDOR, no debajo. */
+.menuband{position:relative;isolation:isolate}
+.menu-ground{position:absolute;inset:0;margin:0;z-index:0}
+.menu-ground img{width:100%;height:100%;object-fit:cover;display:block}
+/* El panel es una rejilla con hueco propio: sin él, el titular y la primera etiqueta de grupo se
+   tocaban y el filete de la etiqueta parecía una raya cruzando el titular. Una banda no tiene el
+   `gap` del canvas, así que lo pone quien lo necesita. */
+/* MÁS ESTRECHO Y CON EL TITULAR UN ESCALÓN ABAJO. A todo el ancho de contenido esto no era una
+   carta, era una página dentro de otra: líneas de 1100px para entradas de tres palabras, y un
+   titular de sección de 48px mandando sobre una lista cuya gracia es lo fina que es. 62rem deja la
+   medida en algo que se lee de una pasada, y el titular baja a la altura de un h3 — bajar un
+   tamaño que uno mismo colocó es gratis; bajar la escala del ancla no lo sería. */
+.menu-panel{position:relative;z-index:1;max-width:min(var(--content-width), 62rem);
+  margin-inline:auto;background:var(--c-bg);padding:var(--sp-l) var(--sp-m);
+  display:grid;gap:var(--sp-m);align-content:start}
+@media(min-width:768px){.menu-panel{padding:var(--sp-l) var(--sp-l)}}
+.menu-panel h2{font-size:var(--fs-h3)}
+/* REJILLA Y NO `columns`, y esto es una corrección de la corrección. `columns` equilibra por
+   ALTURA total, y con grupos de 2, 2, 1 y 1 rituales eso significa meter los dos grupos largos en
+   la primera columna: cuatro entradas a la izquierda y dos a la derecha, con un hueco de media
+   sección debajo. Una rejilla de dos columnas reparte en zigzag —grupo 1 y 3 a la izquierda, 2 y 4
+   a la derecha— y empareja largo con largo y corto con corto sin que nadie se lo diga. El equilibrio
+   sale del ORDEN de reparto, no de una medición de alturas. */
+.rituals{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.rituals{grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:var(--sp-xl);align-items:start}}
+.rgroup{display:block}
+.rgroup ul{list-style:none;margin:0;padding:0}
+.rglabel{display:block;font-size:var(--fs-small);font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--c-text-muted);padding-bottom:var(--sp-xs);
+  border-bottom:1px solid var(--c-border)}
+.ritual{display:block;padding-block:var(--sp-xs)}
+.ritual + .ritual{border-top:1px solid var(--c-border)}
+/* NOMBRE Y PRECIO EN LA MISMA LÍNEA, con el precio a la derecha: es donde el ojo lo busca cuando
+   compara seis, y ahorra la línea entera que antes gastaban los datos. El punteado clásico de
+   carta se deja fuera a propósito — con tres rituales por grupo la distancia es corta y el
+   punteado sólo añadiría ruido a una tipografía que ya es fina. */
+.rline{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:var(--sp-xs) var(--sp-s);margin:0}
+.rname{font-family:var(--font-primary);font-size:var(--fs-name);line-height:1.2}
+.rname a{color:inherit;text-decoration:none}
+.rname a:hover{color:var(--c-accent)}
+.rfacts{display:flex;align-items:baseline;gap:var(--sp-s);margin:0}
+.rmin{font-family:var(--font-secondary);font-size:var(--fs-small);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--c-text-muted)}
+.rprice{font-family:var(--font-primary);font-size:var(--fs-name);line-height:1}
+.rdesc{margin:.1rem 0 0;font-size:var(--fs-small);color:var(--c-text-muted)}
+/* «Cómo sales» iba en una pastilla rellena, y seis pastillas rosas en dos columnas convertían una
+   carta en un tablero de avisos. Es una acotación, no una etiqueta: filete a la izquierda, cursiva
+   y ya. El dato sigue siendo el que distingue a este arquetipo; lo que se va es el envase. */
+.rafter{margin:.15rem 0 0;padding-left:var(--sp-s);border-left:1px solid var(--c-border);
+  font-size:var(--fs-small);font-style:italic;color:var(--c-text-muted)}
+
+/* ── LA CABINA: LA FILA ES LA SECCIÓN, Y EL COLLAGE LLEVA PASPARTÚ ────────────────────────────
+   El marco blanco ancho es el gesto; la sombra que lo acompaña en la referencia, no —
+   `elevation: none` es una posición de eje de esta ancla y una sombra la contradiría en la
+   sección más visible de la página. El paspartú se dibuja con el propio fondo y un filete, así
+   que sobre la banda alterna se lee como una foto apoyada en papel. */
+@media(min-width:900px){.cabintour{grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+  gap:var(--sp-xl)}}
+.cabinsay{display:grid;gap:var(--sp-m);align-content:start}
+.cabinlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-s)}
+.cabinlist li{display:grid;gap:.15rem;padding-top:var(--sp-xs);
+  border-top:1px solid var(--c-border)}
+.cabname{font-family:var(--font-primary);font-size:var(--fs-item);line-height:1.2}
+/* `align-items:start` EN LA REJILLA Y `height:auto` EN LA IMAGEN, las dos o ninguna. Medido: sin
+   ellas el paspartú se estiraba a la altura de su fila (839px) y la fotografía con él (810px),
+   así que un encuadre declarado 4:3 se renderizaba a 1:3,3 — una columna de retratos donde la
+   hoja de estilo decía apaisado. `aspect-ratio` calcula la altura desde el ancho sólo mientras
+   nadie le dé una altura; un ítem de rejilla estirado se la da sin escribirla en ninguna parte.
+
+   (Y una trampa del propio generador, aprendida aquí: este comentario vive dentro de un nowdoc
+   cerrado por la etiqueta `CSS`, y PHP 7.3+ termina el bloque en cuanto una línea EMPIEZA por esa
+   etiqueta. La primera redacción de este párrafo empezaba una línea con esa palabra y partió el
+   archivo en dos, con un error de indentación a doscientas líneas de distancia del sitio real.) */
+.collage{display:grid;gap:var(--sp-s);grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start}
+.mat{margin:0;background:var(--c-bg);border:1px solid var(--c-border);padding:.6rem}
+@media(min-width:768px){.mat{padding:.85rem}}
+.mat img{width:100%;max-width:100%;min-width:0;height:auto;aspect-ratio:4/3;object-fit:cover;
+  display:block}
+.collage .mat:nth-child(2){margin-top:var(--sp-l)}
+.collage .mat:nth-child(3){margin-bottom:var(--sp-l)}
+
+/* ── LA SESIÓN: EL MINUTAJE ES EL DATO, ASÍ QUE EL MINUTAJE ES LO GRANDE ──────────────────────*/
+.protos{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.protos{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.proto{display:grid;gap:var(--sp-xs);padding-left:var(--sp-s);
+  border-left:2px solid var(--c-border)}
+@media(min-width:900px){
+  .proto{padding-left:0;padding-top:var(--sp-s);border-left:none;
+    border-top:2px solid var(--c-border)}
+}
+.pmin{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1}
+
+/* ── LOS BONOS: DAMERO A SANGRE ───────────────────────────────────────────────────────────────
+   Panel de tinta, panel de tinta, fotografía. Los paneles llevan la superficie inversa del ancla
+   y no el acento: la referencia los pinta con su rosa de marca, y aquí ese rosa es la única tinta
+   de acción que la página tiene. La fotografía entra en tercera posición para que el damero rompa
+   antes de terminar — cuatro celdas alternas perfectas se leen como una tabla. */
+.checker{display:grid;grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.checker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1200px){.checker{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cpanel{display:grid;gap:var(--sp-xs);align-content:start;
+  padding:var(--sp-l) var(--sp-m);background:var(--c-surface-inverse);color:var(--c-on-inverse)}
+.cpanel .muted,.cpanel .bonoq{color:var(--c-on-inverse);opacity:.72}
+.chead{background:var(--c-bg-alt);color:var(--c-text)}
+/* El titular baja un escalón DENTRO del panel. Una columna de damero mide un cuarto de la página
+   y a tamaño de h2 el titular salía en cinco líneas de dos palabras. Bajar un tamaño que uno
+   mismo eligió es gratis; bajar `--fs-h1-max`, que es una posición de eje, no lo sería. */
+.chead .head{gap:var(--sp-xs)}
+.chead h2{font-size:var(--fs-h3)}
+.cshot{margin:0;min-height:100%}
+.cshot img{width:100%;height:100%;min-height:14rem;object-fit:cover;display:block}
+.bonoq{font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.bonop{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1}
+.bonosave{font-size:var(--fs-small);font-weight:700}
+.giftstrip{max-width:var(--content-width);margin:var(--sp-l) auto 0;
+  padding:var(--sp-m) var(--sp-m);display:grid;gap:var(--sp-xs);
+  border:1px dashed var(--c-border)}
+@media(min-width:900px){.giftstrip{grid-template-columns:auto auto auto 1fr;
+  align-items:baseline;gap:var(--sp-m)}}
+.bonos{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.bonos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bono{display:grid;gap:var(--sp-xs);align-content:start;padding:var(--sp-m);
+  background:var(--c-bg-alt);border-radius:var(--radius-card)}
+
+/* ── LA TIRA ANTES DEL PIE ────────────────────────────────────────────────────────────────────
+   Sólo fotografía en el cristal: no hay nada que amputar. Es la transición entre la página y el
+   pie, y de paso lo único de la home que se puede mirar sin leer. */
+.thumbs{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(min-width:900px){.thumbs{grid-template-columns:repeat(6,minmax(0,1fr))}}
+/* EL CUADRADO LO IMPONE LA CELDA, NO LA IMAGEN, y esta es la SEGUNDA vez que el mismo error se
+   cuela por la misma puerta. Un `aspect-ratio` sobre un `<img>` sólo manda mientras nadie le dé
+   altura, y un ítem de rejilla estirado se la da sin escribirla: seis fotos con alturas nativas
+   distintas —un hero 16:9 entre cinco 4:3— dieron una tira con una columna más alta que las otras
+   cinco y un bloque de fondo vacío debajo. Poniendo la proporción en el `<li>` y mandando la
+   imagen a llenarlo, la celda decide y la fotografía obedece, que es el orden correcto. */
+.thumbs li{aspect-ratio:1;overflow:hidden}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── EL EQUIPO DE LA CASA: REDONDO, CON PASPARTÚ Y SIN CREDENCIAL ─────────────────────────────*/
+.faces{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-l);
+  grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:700px){.faces{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.face{display:grid;gap:var(--sp-xs);justify-items:center;text-align:center}
+/* REDONDOS DE VERDAD, Y ES LA TERCERA VEZ QUE ESTE ERROR ENTRA POR LA MISMA PUERTA. Sin
+   `align-items:start` en la rejilla y sin `height:auto` en la imagen, el paspartú se estira a la
+   altura de su fila y la fotografía con él: tres retratos declarados 1:1 salieron como ÓVALOS, que
+   en una página que va de caras es de lo peor que puede pasar. `aspect-ratio` manda mientras nadie
+   dé una altura; un ítem de rejilla estirado la da sin escribirla. Y bajan de 208px a 160: tres
+   caras a tamaño de póster son tres pósters, no un equipo. */
+.round{margin:0;width:min(10rem,62%);background:var(--c-bg);border:1px solid var(--c-border);
+  padding:.5rem;border-radius:50%}
+.round img{width:100%;max-width:100%;min-width:0;height:auto;aspect-ratio:1;object-fit:cover;
+  display:block;border-radius:50%}
+.since{font-size:var(--fs-small);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+
+/* ── DÓNDE Y CUÁNDO, EN UNA FILA ──────────────────────────────────────────────────────────────
+   Los días a la izquierda con su columna de horas alineada, y la calle a la derecha. El día y la
+   hora se separan con un filete de puntos suspendidos —`justify-content:space-between`— porque lo
+   que se compara aquí es la COLUMNA DE HORAS, y para compararla tiene que estar alineada. */
+@media(min-width:900px){.hoursrow{grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+  gap:var(--sp-xl)}}
+.hourscol{display:grid;gap:var(--sp-m);align-content:start}
+.daylist{margin:0;display:grid}
+.dayrow{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-m);
+  padding-block:var(--sp-xs);border-top:1px solid var(--c-border)}
+.dayrow dt{font-family:var(--font-primary);font-size:var(--fs-name)}
+.dayrow dd{margin:0;font-size:var(--fs-body)}
+.dayrow.shut dt,.dayrow.shut dd{color:var(--c-text-muted)}
+.wherecol{display:grid;gap:var(--sp-s);align-content:start}
+.addr{margin:0;font-family:var(--font-primary);font-size:var(--fs-name);line-height:1.35}
+.reachline{margin:0}
+.reachline a{color:inherit}
+
+/* ── LAS TRES MANERAS DE LLEGAR, EN FILA ──────────────────────────────────────────────────────
+   El número baja de 36px a la medida de un nombre de carta: un teléfono es un dato para copiar,
+   no un titular. */
+.reachlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.reachlist{grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start}}
+.reachlist li{display:grid;gap:.15rem;padding-top:var(--sp-xs);
+  border-top:1px solid var(--c-border)}
+.reachbig{font-family:var(--font-primary);font-size:var(--fs-name);line-height:1.2;
+  color:inherit;text-decoration:none}
+.reachbig:hover{color:var(--c-accent)}
+
+/* El titular de una fila vive en una columna, no a todo lo ancho: un h2 de 48px en 5/12 de la
+   página sale en tres renglones de dos palabras. */
+.cabinsay h2,.hourscol h2{font-size:var(--fs-h3)}
+
+/* ── EL ÍNDICE DE SERVICIOS · TPL-SERVICES-01 ─────────────────────────────────────────────────*/
+.svcgroup{display:grid;gap:var(--sp-m);grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.svcgroup{grid-template-columns:minmax(0,4fr) minmax(0,8fr);
+  gap:var(--sp-l);align-items:start}}
+.svcgroup + .svcgroup{margin-top:var(--sp-xl);padding-top:var(--sp-l);
+  border-top:1px solid var(--c-border)}
+.svcshot img{width:100%;max-width:100%;min-width:0;aspect-ratio:4/3;object-fit:cover;
+  border-radius:var(--radius-image);display:block}
+@media(min-width:900px){.svcshot img{aspect-ratio:3/4}}
+.svcbody{display:grid;gap:var(--sp-s);align-content:start}
+.svccards{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.svccard a{display:grid;gap:.15rem;text-decoration:none;color:inherit;
+  padding:var(--sp-s) 0;border-top:1px solid var(--c-border);
+  transition:opacity .35s var(--ease)}
+.svccard a:hover{opacity:.62}
+.svccard h4{font-family:var(--font-primary);font-size:var(--fs-item);line-height:1.2;margin:0}
+.svcfacts{font-size:var(--fs-small);font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--c-text-muted)}
+
+/* ── LA FICHA DE TRATAMIENTO · TPL-SERVICE-02 ────────────────────────────────────────────────*/
+.tfactlist{margin:0;display:grid;gap:var(--sp-s);grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.tfactlist{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tfact{display:grid;gap:.2rem;padding-top:var(--sp-xs);border-top:1px solid var(--c-border)}
+.tfact dt{font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.tfact dd{margin:0;font-size:var(--fs-body);font-weight:600;line-height:1.35}
+.contrapair{display:grid;gap:var(--sp-l);grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.contrapair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.contracol{display:grid;gap:var(--sp-s);align-content:start}
+.contralist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-xs)}
+.contralist li{padding-left:var(--sp-s);border-left:2px solid var(--c-border)}
+CSS;
+
+$css[] = <<<'STYLES'
+/* ══════════ FICHAS DE INVENTARIO · TPL-UNIT-01 + TPL-PROPERTY-01 ══════════ */
+
+/* ── UN SOLO VOCABULARIO PARA DOS FICHAS, y la razón está en los propios documentos ──────────
+   `TPL-UNIT-01` y `TPL-PROPERTY-01` son la ficha de UNA unidad de un inventario que rota, y las
+   dos abren igual: la unidad fotografiada, seis datos que descartan o siguen, y la referencia que
+   viaja al formulario. Lo que cambia es el centro —el historial en una, el plano y el coste en la
+   otra— y ahí cada una tiene lo suyo.
+   Compartir el marco y separar el centro es exactamente la distancia que el arquetipo declara:
+   4 secciones comunes de 17. Si compartieran también el centro serían la misma página. */
+
+.refline{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-xs) var(--sp-s);margin:0}
+.refcode{font-family:var(--font-secondary);font-size:var(--fs-small);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--c-text-muted)}
+
+/* ── LA UNIDAD FOTOGRAFIADA ──────────────────────────────────────────────────────────────────
+   LA PROPORCIÓN LA IMPONE LA CELDA Y NO LA IMAGEN. Es la tercera vez que este sistema tropieza
+   con lo mismo, así que aquí se escribe de entrada: `aspect-ratio` sobre un `<img>` sólo manda
+   mientras nadie le dé altura, y un ítem de rejilla estirado se la da sin escribirla. Poniendo la
+   proporción en el `<li>` y mandando la imagen a llenarlo, la celda decide y la fotografía
+   obedece. */
+/* LAS MINIATURAS VAN DEBAJO Y NO AL LADO, y esto es una corrección con medición delante.
+   La primera versión las ponía en una columna de 168px a la derecha de la foto principal: tres
+   celdas a 4:3 dan unos 400px de alto contra los 700 de la principal, o sea 190 PÍXELES DE COLUMNA
+   VACÍA cada vez. Estirarlas para rellenar habría deformado tres fotos para tapar un hueco, que es
+   resolver el síntoma. Debajo, en una tira de tres, no sobra nada y además es como se mira una
+   ficha de verdad: la unidad grande primero, los detalles después. */
+.ugal{display:grid;gap:var(--sp-s);grid-template-columns:minmax(0,1fr)}
+.ushot{margin:0;aspect-ratio:4/3;overflow:hidden;border-radius:var(--radius-image)}
+.ushot img{width:100%;height:100%;object-fit:cover;display:block}
+.uthumbs{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-xs);
+  grid-template-columns:repeat(3,minmax(0,1fr))}
+.uthumbs li{aspect-ratio:4/3;overflow:hidden;border-radius:var(--radius-image)}
+.uthumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.ucap{margin:var(--sp-xs) 0 0;font-size:var(--fs-meta);color:var(--c-text-muted)}
+
+/* ── LOS SEIS DATOS ──────────────────────────────────────────────────────────────────────────
+   Seis y no cinco: la tarjeta de la rejilla enseña cinco porque cinco es lo que cabe, y quien
+   llega desde un buscador externo no ha visto esa tarjeta. Repetirlos aquí no es redundancia, es
+   la única vez que los ve.
+   El dato grande y el rótulo pequeño, no al revés: se leen en diagonal buscando un número. */
+.uspecs{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-s);
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:768px){.uspecs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:1100px){.uspecs{grid-template-columns:repeat(6,minmax(0,1fr))}}
+/* EL RÓTULO SE ALINEA CON SUS CINCO HERMANOS AUNQUE EL VALOR PARTA EN DOS LÍNEAS.
+   Medido: «4ª con ascensor» ocupa dos líneas y empujaba su PLANTA un renglón por debajo de los
+   otros cinco rótulos — una fila de seis datos con uno descolgado se lee como un error de carga.
+   `grid-template-rows: 1fr auto` da al valor todo el alto sobrante y clava el rótulo abajo, así
+   que la alineación no depende de cuántas líneas ocupe nada. Un `min-height` en em habría hecho lo
+   mismo sólo mientras nadie escribiera un valor de tres líneas. */
+.uspec{display:grid;gap:.15rem;grid-template-rows:1fr auto;padding-top:var(--sp-xs);
+  border-top:1px solid var(--c-border)}
+.uspec b{align-self:start}
+.uspec b{font-family:var(--font-primary);font-size:var(--fs-item);line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.uspec span{font-size:var(--fs-small);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+
+/* ── LOS DOS PRECIOS, CON EL MISMO PESO ──────────────────────────────────────────────────────
+   Al contado y en cuota, mismo tamaño y misma columna. Un patio que sólo publica cuota esconde el
+   precio; uno que sólo publica contado pierde a quien compra por mensualidad, que en ocasión es
+   la mayoría. Las condiciones —entrada, plazo, TAE— van AL LADO y no en una nota al pie: son las
+   que convierten «253 €» en lo que de verdad se paga. */
+/* CADA CAJA MIDE LO QUE TIENE QUE DECIR, y la asimetría es honesta.
+   Estiradas a la misma altura, el contado —un número y una línea— quedaba con media caja en
+   blanco al lado de la financiada, que lleva cuatro condiciones. Media caja vacía se lee como algo
+   que falta. Con `align-items:start` la corta es corta, y eso dice la verdad: comprar al contado
+   ES más simple, y ésa es justamente la información. */
+.pricepair{display:grid;gap:var(--sp-m);grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:768px){.pricepair{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pricebox{display:grid;gap:var(--sp-xs);align-content:start;padding:var(--sp-m);
+  border:1px solid var(--c-border);border-radius:var(--radius-card)}
+.pricebox > span{font-size:var(--fs-small);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.priceq{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1;
+  font-variant-numeric:tabular-nums}
+.pterms{list-style:none;margin:var(--sp-xs) 0 0;padding:0;display:grid;gap:.2rem}
+.pterms li{display:flex;justify-content:space-between;gap:var(--sp-s);
+  font-size:var(--fs-meta);color:var(--c-text-muted)}
+.pterms b{color:var(--c-text);font-variant-numeric:tabular-nums}
+
+/* ── EL HISTORIAL ────────────────────────────────────────────────────────────────────────────
+   La sección que justifica la página. Sin ella la ficha es la tarjeta de la rejilla con las fotos
+   más grandes, y la pregunta que trae a alguien al patio —«¿de qué viene este coche?»— sigue sin
+   contestar. Cuatro filas, y ninguna en blanco. */
+.histgrid{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.histgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.hist{display:grid;gap:.15rem;align-content:start;padding-left:var(--sp-s);
+  border-left:2px solid var(--c-border)}
+.hist span{font-size:var(--fs-small);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.hist b{font-family:var(--font-primary);font-size:var(--fs-name);line-height:1.2}
+.hist p{margin:0;font-size:var(--fs-meta);color:var(--c-text-muted)}
+
+/* ── EL RECORRIDO, QUE NO ES UNA GALERÍA ─────────────────────────────────────────────────────
+   Una galería es un carrusel de imágenes bonitas en orden arbitrario. Un recorrido tiene el orden
+   de la puerta hacia dentro, y cada foto dice QUÉ estás mirando y CUÁNTO mide. La diferencia se
+   nota en la visita: quien recorrió la ficha llega sabiendo si su sofá cabe. */
+.tourlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m);
+  grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.tourlist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:768px){.tourlist li:first-child{grid-column:1 / -1}}
+.tourcell figure{margin:0;aspect-ratio:4/3;overflow:hidden;border-radius:var(--radius-image)}
+@media(min-width:768px){.tourlist li:first-child figure{aspect-ratio:16/7}}
+.tourcell img{width:100%;height:100%;object-fit:cover;display:block}
+.tourmeta{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-xs) var(--sp-s);
+  margin:var(--sp-xs) 0 0}
+.tourmeta b{font-family:var(--font-primary);font-size:var(--fs-name);line-height:1.2}
+.tourmeta span{font-size:var(--fs-meta);color:var(--c-text-muted);font-variant-numeric:tabular-nums}
+
+/* ── EL PLANO ────────────────────────────────────────────────────────────────────────────────
+   Fondo claro FIJO y no `--c-bg`: un plano es tinta negra sobre papel blanco, y bajo un ancla de
+   fondo oscuro la imagen se quedaría flotando en un rectángulo blanco con el borde cortado. El
+   marco lo pone la caja, con su propio blanco, y así el dibujo se lee igual en las cinco anclas. */
+.floorplan{margin:0;background:#FFFFFF;border:1px solid var(--c-border);
+  border-radius:var(--radius-image);padding:var(--sp-s);max-width:100%}
+.floorplan img{width:100%;max-width:100%;min-width:0;height:auto;display:block}
+
+/* ── LO QUE CUESTA DE VERDAD ─────────────────────────────────────────────────────────────────
+   Precio, comunidad, IBI y gastos de compra, con la suma escrita. Un piso de 289.000 € cuesta
+   entrar en él bastante más, y quien descubre esa diferencia en la notaría no vuelve a esa
+   agencia. La suma lleva filete arriba y peso: es el número que la página existe para dar. */
+/* CENTRADA DESDE SU PROPIO BLOQUE, y el primer intento fue meterla en la regla compartida que
+   ya centra los otros siete bloques de medida tope. La puerta de nombres lo rechazó y llevaba
+   razón: esa regla va ANTES del bloque que posee esta clase, así que un nombre nuevo estilado allí
+   arriba es exactamente la colisión que la comprobación existe para impedir. Una clase compartida
+   no tiene dueño; ésta sí, y su dueño la estila en su casa. */
+.costlist{list-style:none;margin:0 auto;padding:0;display:grid;gap:0;max-width:44rem}
+.costrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:var(--sp-xs) var(--sp-s);padding-block:var(--sp-xs);
+  border-bottom:1px solid var(--c-border)}
+.costrow > span{font-size:var(--fs-meta);color:var(--c-text-muted)}
+.costrow b{font-family:var(--font-primary);font-size:var(--fs-name);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.costsum{border-bottom:none;border-top:2px solid var(--c-text);margin-top:.3rem;
+  padding-top:var(--sp-s)}
+.costsum > span{color:var(--c-text);font-size:var(--fs-body)}
+.costsum b{font-size:var(--fs-item)}
+
+/* ── EL CERTIFICADO ──────────────────────────────────────────────────────────────────────────
+   Va en el HTML y no dentro de un JPG. Un dato obligatorio metido en una imagen no lo lee ni un
+   lector de pantalla ni un buscador, y aquí además es exigible: un anuncio de venta sin
+   calificación energética está incumpliendo, no ahorrando espacio.
+   La letra NO lleva el color de la escala oficial: el verde y el rojo de esa escala no salen de la
+   paleta de ninguna marca, y meterlos convertiría el bloque en el único sitio de la página con
+   colores de fuera. La letra se dice con tipografía y con la cifra al lado. */
+.energy{display:grid;gap:var(--sp-m);grid-template-columns:minmax(0,1fr)}
+@media(min-width:600px){.energy{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.elabel{display:flex;align-items:center;gap:var(--sp-s);padding:var(--sp-s) var(--sp-m);
+  border:1px solid var(--c-border);border-radius:var(--radius-card)}
+/* `.elabel .eletter` Y NO `.eletter`, Y ES UNA LECCIÓN QUE YA COSTÓ CARA UNA VEZ.
+   `.elabel span` —una clase y un tipo, (0,1,1)— gana a `.eletter` —una clase, (0,1,0)—, así que la
+   letra de la calificación se renderizaba al tamaño de un pie de foto por debajo del bloque que
+   pretendía darle 33px. No lo dijo ninguna herramienta: se vio. Dos clases (0,2,0) ganan a una
+   clase más un tipo, y el orden en el fichero no pinta nada aquí.
+   Nunca apagar una regla confiando en que va después: se apaga con especificidad. */
+.elabel .eletter{font-family:var(--font-primary);font-size:var(--fs-h3);line-height:1;
+  min-width:1.6em;text-align:center;color:var(--c-text)}
+.elabel div{display:grid;gap:.1rem}
+.elabel b{font-size:var(--fs-meta);font-weight:600}
+.elabel span{font-size:var(--fs-small);color:var(--c-text-muted);
+  font-variant-numeric:tabular-nums}
+STYLES;
 
 // ═══════════════════════════════════════════════════════════════ HTML
 
@@ -10219,7 +11574,17 @@ function weight_note_html( $wn ) {
 /** COMP-ORIGIN-MAP · fotografía del puerto con las lonjas marcadas, no un plano dibujado. */
 function origin_map_html( $om ) {
 	$mi = img( $om['img'] );
-	$o  = '<section class="sec originmap grid-sec" aria-label="' . h( $om['h2'] ) . '"><div class="canvas">'
+	/* A SANGRE, Y ESTA ES LA SEGUNDA VEZ QUE SE INTENTA. La primera se revirtió: `.mapwrap`
+	   colapsaba a 63px y los cuatro pines salían con coordenada negativa, fuera de pantalla. El
+	   diagnóstico de entonces —«este mapa dimensiona sus pines sobre una caja que el canvas le
+	   daba»— era PLAUSIBLE Y FALSO, y sólo se vio al medir las veinticuatro bandas del catálogo en
+	   vez de mirar una: la culpa era de una colocación por líneas con nombre que alcanzaba fuera
+	   del canvas y rompía las CUATRO variantes `direct`, no sólo este mapa. Arreglado allí, aquí
+	   no había nada que arreglar.
+	   El argumento se sostiene solo: un mapa contenido en una columna se lee como una captura de
+	   pantalla; llegando al cristal se lee como territorio, y aquí el territorio es la promesa
+	   entera del arquetipo — de qué caladero sale la pieza que se está comprando. */
+	$o  = sec_open( 'originmap grid-sec', $om['h2'], 'bleed' )
 		. '<div class="head stack"><span class="eyebrow">' . h( $om['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $om['h2'] ) . '</h2><p class="muted">' . h( $om['lede'] ) . '</p></div>'
 		. '<div class="mapwrap"><figure class="frame mapshot"><img data-img="' . h( $mi['slug'] ) . '"'
@@ -10228,7 +11593,7 @@ function origin_map_html( $om ) {
 		$o .= '<span class="pin portpin" style="left:' . (int) $p[0] . '%;top:' . (int) $p[1] . '%">'
 			. h( $p[2] ) . '</span>';
 	}
-	return $o . '</div></div></section>';
+	return $o . '</div>' . sec_close( 'bleed' );
 }
 
 /** COMP-COLD-CHAIN · cómo viaja y qué hacer al abrirla. */
@@ -10770,7 +12135,12 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	   because a hover that is the sole signal is invisible on a touch screen. The caption is always
 	   there and the overlay only deepens it. */
 	$wk  = $C['work'];
-	$o[] = '<section class="sec work grid-sec" aria-label="Obra reciente"><div class="canvas">'
+	/* LA OBRA LLEGA AL CRISTAL, y en este arquetipo no es una decisión estética.
+	   `TPL-C-03` existe para ENSEÑAR TRABAJO TERMINADO: es lo único que hace y es su prueba
+	   entera. Seis obras dentro de la misma columna de 1140px en la que va el FAQ es la
+	   definición literal de «mismo esqueleto» — el inventario decía portfolio y la forma decía
+	   folleto. El encabezado se queda en la columna de texto; lo que sangra es la obra. */
+	$o[] = sec_open( 'work grid-sec', 'Obra reciente', 'bleed' )
 		. '<div class="head stack"><span class="eyebrow">' . h( $wk['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $wk['h2'] ) . '</h2></div><ul class="works">';
 	foreach ( $wk['items'] as $it ) {
@@ -10781,7 +12151,7 @@ function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 			. '<span class="work-cap"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></span>'
 			. '</a></li>';
 	}
-	$o[] = '</ul></div></section>';
+	$o[] = '</ul>' . sec_close( 'bleed' );
 
 	// 3 · COMP-SERVICES breve  [toggle TGL-SERVICES]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-SERVICES' ) ) {
@@ -11212,16 +12582,21 @@ function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * Six frames, no lightbox. A lightbox is script that must load before the reader can see the
  * second photograph, and on a mockup it would be a promise about a plugin nobody has chosen yet.
  */
-function gallery_html( $g ) {
-	$o = '<section class="sec gallery grid-sec" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots">';
+/* LA FORMA ES UN PARÁMETRO Y LA ELIGE EL ARQUETIPO, no el componente. Tres arquitecturas llaman a
+   esta función y sólo dos quieren banda: en `TPL-C-05` el local es media venta y en `TPL-E-01` el
+   lookbook ES el catálogo, pero en `TPL-C-08` la galería son tres cortesías de un lanzamiento y a
+   sangre pesarían más que el coche. Convertir la función entera habría decidido por los tres.
+   Es la misma forma que `ritual_menu_html` y `bono_packs_html` ya usan, y es lo que convierte el
+   envoltorio en algo que un documento de arquetipo puede DECLARAR — el hueco que
+   `RT_TPL_TOO_SIMILAR` no puede ver, porque mide inventario y nunca miró la forma. */
+function gallery_html( $g, $shape = 'contained' ) {
+	$o = sec_open( 'gallery grid-sec', $g['h2'], $shape ) . sec_head( $g ) . '<ul class="shots">';
 	foreach ( $g['items'] as $slug ) {
 		$gi = img( $slug );
 		$o .= '<li><figure class="frame sq"><img data-img="' . h( $gi['slug'] ) . '"'
 			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '"></figure></li>';
 	}
-	return $o . '</ul></div></section>';
+	return $o . '</ul>' . sec_close( $shape );
 }
 
 /**
@@ -11958,7 +13333,12 @@ function property_grid_html( $pg ) {
  * Every pin carries its price, because a pin the reader has to click to price is a pin that made
  * them work for something they could have read.
  */
-function map_search_html( $ms ) {
+/* A SANGRE EN `TPL-C-13`, y lo pide su propio documento: allí el plano no es una ilustración de
+   dónde está la agencia, es un MODO DE BÚSQUEDA con los mismos resultados dentro. Un modo de
+   búsqueda metido en una columna de 1140px se lee como una captura de pantalla; llegando al
+   cristal se lee como lo que es, un mapa que se recorre. El conmutador Lista/Mapa y la nota se
+   quedan en la columna de texto, porque son copia. */
+function map_search_html( $ms, $shape = 'contained' ) {
 	/* TRES INTENTOS Y LA TERCERA ES LA BUENA, y las dos anteriores explican por qué.
 	   (1) Un SVG de calles inventadas: el lector lo llamó «un mapa random», con razón — un plano de
 	   una ciudad que no existe AFIRMA algo falso. (2) Un hueco declarado, que no afirma nada pero
@@ -11975,7 +13355,7 @@ function map_search_html( $ms ) {
 	$mp  = img( $ms['img'] );
 	$svg = '<figure class="frame mapshot"><img data-img="' . h( $mp['slug'] ) . '"'
 		. ' alt="' . h( $mp['alt'] ) . '" width="' . $mp['w'] . '" height="' . $mp['h'] . '"></figure>';
-	$o = '<section class="sec mapsearch grid-sec" aria-label="' . h( $ms['h2'] ) . '"><div class="canvas">'
+	$o = sec_open( 'mapsearch grid-sec', $ms['h2'], $shape )
 		. '<div class="head stack"><span class="eyebrow">' . h( $ms['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $ms['h2'] ) . '</h2>'
 		. '<div class="mapswitch" role="group" aria-label="Modo de búsqueda">'
@@ -11986,7 +13366,7 @@ function map_search_html( $ms ) {
 		$o .= '<span class="pin" style="left:' . (float) $p[0] . '%;top:' . (float) $p[1] . '%">'
 			. h( $p[2] ) . '</span>';
 	}
-	return $o . '</div><p class="pnote">' . h( $ms['note'] ) . '</p></div></section>';
+	return $o . '</div><p class="pnote">' . h( $ms['note'] ) . '</p>' . sec_close( $shape );
 }
 
 /**
@@ -12056,7 +13436,7 @@ function strip_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = search_hero_html( $C['hero'], $C['search'], $uid );
 	$o[] = property_grid_html( $C['listing'] );
 	if ( 'off' !== tgl_of( $tgl_rows, 'TGL-MAP-MODE' ) ) {
-		$o[] = map_search_html( $C['map'] );
+		$o[] = map_search_html( $C['map'], 'bleed' );
 	}
 	$o[] = visit_request_html( $C['visit'], $uid );
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
@@ -12213,16 +13593,19 @@ function figure_quote_html( $f ) {
  * an unstyled cell and a fifth left a hole — the assertion was load-bearing. `columns` flows any
  * number, so a check that six is six would now be a rule with nothing behind it.
  */
-function gallery_masonry_html( $g ) {
-	$o = '<section class="sec gallery grid-sec" aria-label="' . h( $g['h2'] ) . '"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $g['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $g['h2'] ) . '</h2></div><ul class="shots masonry">';
+function gallery_masonry_html( $g, $shape = 'contained' ) {
+	/* A SANGRE EN LA HOME DEL RESTAURANTE Y CONTENIDA EN LA PÁGINA INTERIOR, con el mismo código.
+	   En `TPL-C-06` la sala ES el producto: se reserva por cómo se ve el comedor, no por la carta,
+	   y seis fotos de sala metidas en la misma columna que el horario dicen lo contrario de lo que
+	   el arquetipo afirma. En el Nosotros de otra marca ese mismo mosaico es apoyo de un texto, y
+	   ahí la columna es lo correcto. Una función, dos formas, y la elige quien conoce la página. */
+	$o = sec_open( 'gallery grid-sec', $g['h2'], $shape ) . sec_head( $g ) . '<ul class="shots masonry">';
 	foreach ( $g['items'] as $slug ) {
 		$gi = img( $slug );
 		$o .= '<li><figure class="frame"><img data-img="' . h( $gi['slug'] ) . '"'
 			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '"></figure></li>';
 	}
-	return $o . '</ul></div></section>';
+	return $o . '</ul>' . sec_close( $shape );
 }
 
 /** COMP-HOURS-BLOCK · the opening times as the graphic, and the address as copyable text. */
@@ -12283,7 +13666,7 @@ function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 
 	// 5 · COMP-GALLERY, offset  [toggle TGL-GALLERY]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_masonry_html( $C['gallery'] );
+		$o[] = gallery_masonry_html( $C['gallery'], 'bleed' );
 	}
 
 	// 6 · COMP-BOOKING  [fijo]
@@ -12354,7 +13737,7 @@ function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 
 	// 4 · COMP-GALLERY  [toggle TGL-GALLERY]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_html( $C['gallery'] );
+		$o[] = gallery_html( $C['gallery'], 'bleed' );
 	}
 
 	// 5 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
@@ -12430,15 +13813,31 @@ function booking_html( $bk, $uid ) {
 		. '<div class="head stack"><span class="eyebrow">' . h( $bk['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $bk['h2'] ) . '</h2><p class="muted">' . h( $bk['lede'] ) . '</p></div>'
 		. '<form class="bookform" onsubmit="return false">';
+	/* UN CAMPO PUEDE LLEGAR CON VALOR, y es la misma forma opcional que `$bk['img']` y
+	   `$bk['picks']` ya usan dos veces en esta función: se LEE, no se exige, así que los seis
+	   arquetipos que ya emiten este bloque con campos de tres celdas no mueven un byte.
+	   Existe porque las dos fichas de inventario lo exigen por escrito: la referencia de la unidad
+	   viaja DENTRO del formulario. Una solicitud de visita o de prueba sin referencia es una
+	   consulta genérica, y una consulta genérica no se puede meter en una agenda — el comercial
+	   tiene que llamar para preguntar lo único que la página ya sabía. */
 	foreach ( $bk['fields'] as $f ) {
 		$id = $uid . '-bk-' . $f[0];
 		$o .= '<div class="field"><label for="' . $id . '">' . h( $f[1] ) . '</label>'
-			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+			. '<input id="' . $id . '" name="' . $f[0] . '" type="' . $f[2] . '"'
+			. ( isset( $f[3] ) ? ' value="' . h( $f[3] ) . '" readonly' : '' ) . '></div>';
 	}
-	foreach ( array(
-		array( 'day', $bk['day_lbl'], $bk['days'] ),
-		array( 'slot', $bk['slot_lbl'], $bk['slots'] ),
-	) as $grp ) {
+	/* THE THIRD CHOOSER IS OPTIONAL AND READ, NOT REQUIRED — the same shape `$bk['img']` uses two
+	   lines above, and for the same reason: five archetypes already ship this block with two groups
+	   and their markup must not move. TPL-C-14 adds a ritual chooser because its own document says
+	   the booking carries the chosen ritual: without it the front desk has to ring to ask the one
+	   thing the page already knew. */
+	$bk_groups = array();
+	if ( isset( $bk['picks'] ) ) {
+		$bk_groups[] = array( 'pick', $bk['pick_lbl'], $bk['picks'] );
+	}
+	$bk_groups[] = array( 'day', $bk['day_lbl'], $bk['days'] );
+	$bk_groups[] = array( 'slot', $bk['slot_lbl'], $bk['slots'] );
+	foreach ( $bk_groups as $grp ) {
 		$o .= '<fieldset class="opts opts-wide"><legend>' . h( $grp[1] ) . '</legend>';
 		foreach ( $grp[2] as $i => $opt ) {
 			$oid = $uid . '-' . $grp[0] . $i;
@@ -12529,7 +13928,7 @@ function strip_visual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 
 	// 4 · COMP-GALLERY lookbook  [toggle TGL-GALLERY]
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_html( $C['gallery'] );
+		$o[] = gallery_html( $C['gallery'], 'bleed' );
 	}
 
 	// 5 · COMP-TESTIMONIAL  [fijo]
@@ -13163,15 +14562,35 @@ $PAGES = array(
 		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
 		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
+	/* CUATRO PÁGINAS, y la cuarta cierra ocho enlaces muertos. Las tarjetas de la rejilla decían
+	   «Ver ficha» y apuntaban a una clave de página que este juego no tenía; medido en la galería,
+	   ocho botones que no llevaban a ninguna parte. */
 	'TPL-C-07' => array(
 		array( 'key' => 'home',     'label' => 'Stock',     'doc' => 'TPL-C-07' ),
+		array( 'key' => 'producto', 'label' => 'La unidad', 'doc' => 'TPL-UNIT-01' ),
 		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
 		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
+	/* Lo mismo un arquetipo más allá: seis «Ver ficha» muertos en la cartera. */
 	'TPL-C-13' => array(
 		array( 'key' => 'home',     'label' => 'Cartera',   'doc' => 'TPL-C-13' ),
+		array( 'key' => 'producto', 'label' => 'El piso',   'doc' => 'TPL-PROPERTY-01' ),
 		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
 		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
+	),
+	/* CINCO PÁGINAS, donde las demás llevan tres — y las cinco existían en el catálogo sin haberse
+	   renderizado nunca. `TPL-ABOUT-03` y `TPL-CONTACT-02` llevaban escritas desde que Nosotros y
+	   Contacto dejaron de tener un solo arquetipo, y ninguna tira las había pedido: el recomendador
+	   podía ofrecerlas y la galería no podía enseñarlas. `TPL-SERVICES-01` es el eslabón que
+	   `TPL-SERVICE-01` migaja desde el día que se escribió —`Inicio · Servicios · <este>`— y que no
+	   tenía documento. Aquí las cuatro se estrenan a la vez porque es el primer negocio del
+	   catálogo que necesita las cuatro. */
+	'TPL-C-14' => array(
+		array( 'key' => 'home',      'label' => 'Home',      'doc' => 'TPL-C-14' ),
+		array( 'key' => 'servicios', 'label' => 'Servicios', 'doc' => 'TPL-SERVICES-01' ),
+		array( 'key' => 'servicio',  'label' => 'Ritual',    'doc' => 'TPL-SERVICE-02' ),
+		array( 'key' => 'nosotros',  'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-03' ),
+		array( 'key' => 'contacto',  'label' => 'Contacto',  'doc' => 'TPL-CONTACT-02' ),
 	),
 	'TPL-C-08' => array(
 		array( 'key' => 'home',     'label' => 'Modelo',    'doc' => 'TPL-C-08' ),
@@ -13247,6 +14666,824 @@ $PAGES = array(
 	),
 );
 
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+ * TPL-C-14 · RITUAL / BONO — un centro de estética
+ *
+ * Cinco secciones propias y ninguna prestada, que es lo que hace que el esqueleto sea otro y no
+ * la misma web repintada. La más barata de explicar es la tercera columna de la carta: `after`.
+ * Duración y precio los publica media docena de arquetipos; «cómo sales» no lo publica ninguno, y
+ * es el dato que decide si la cita cabe en el jueves de esa persona.
+ * ══════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Un icono de línea por zona, dibujado y no tomado de una fuente de iconos.
+ *
+ * OBJETOS Y NO PARTES DEL CUERPO, y la razón es un error anterior de esta misma página. Hubo un
+ * pétalo abstracto encima de cada encabezado y un lector lo rodeó en rojo: «no se sabe qué es». Un
+ * icono que hay que explicar no es un icono. Una cara, un torso o una pierna dibujados a línea en
+ * 24px se convierten en manchas ambiguas; un tarro de crema, tres piedras de masaje, un frasco de
+ * esmalte y una espátula de cera se reconocen de un vistazo Y dicen la zona, porque son lo que hay
+ * encima de la camilla en cada una.
+ *
+ * `currentColor` y `fill:none`: el icono hereda el color de su tarjeta, así que el hover lo mueve
+ * sin escribir un segundo color. Y NO lleva chip: la receta de tarjeta de `matter` dice «hairline
+ * border, text below, no chips, no fills — el borde es todo el cromo», y un disco relleno detrás
+ * del icono sería exactamente el chip que esa receta descarta.
+ */
+function zone_icon_svg( $key ) {
+	$paths = array(
+		/* Tarro de crema: tapa y cuerpo. */
+		'crema'    => '<rect x="4.5" y="6" width="15" height="3.2" rx="1.2"/>'
+			. '<path d="M6.2 9.2v8.6a2.2 2.2 0 0 0 2.2 2.2h7.2a2.2 2.2 0 0 0 2.2-2.2V9.2"/>',
+		/* Tres piedras de masaje apiladas. */
+		'piedras'  => '<ellipse cx="12" cy="17.6" rx="7" ry="2.6"/>'
+			. '<ellipse cx="12" cy="12.4" rx="5.2" ry="2.2"/>'
+			. '<ellipse cx="12" cy="7.8" rx="3.4" ry="1.8"/>',
+		/* Frasco de esmalte: tapón, cuello y cuerpo. */
+		'esmalte'  => '<rect x="10.4" y="3.4" width="3.2" height="4.6" rx="1.1"/>'
+			. '<path d="M10.7 8v2"/><path d="M13.3 8v2"/>'
+			. '<rect x="7.8" y="10" width="8.4" height="10" rx="1.6"/>',
+		/* Espátula de cera: pala LARGA Y ESTRECHA sobre el mango. La primera versión le puso una
+		   cabeza casi circular —radios 4,3 y 4,1— y a 30px eso no es una espátula, es una piruleta:
+		   se vio al ampliar la fila de iconos. Una pala mide el triple de largo que de ancho, y esa
+		   proporción es la que la distingue de un globo con palo. */
+		'espatula' => '<ellipse cx="12" cy="7.2" rx="2.6" ry="5.2"/>'
+			. '<path d="M12 12.4v8.2"/>',
+	);
+	if ( ! isset( $paths[ $key ] ) ) {
+		fail( "zone icon `$key` is not one of " . implode( ', ', array_keys( $paths ) )
+			. ' — a missing icon renders an empty box, which looks like a loading state forever' );
+	}
+	return '<svg class="zicon" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"'
+		. ' fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"'
+		. ' stroke-linejoin="round">' . $paths[ $key ] . '</svg>';
+}
+
+/**
+ * COMP-ZONE-SELECTOR · TPL-C-14.
+ *
+ * TIPOGRÁFICO Y SIN FOTOGRAFÍA, y eso se decidió mirando un render. La primera versión daba una
+ * imagen a cada zona y dos secciones más abajo `COMP-CABIN-TOUR` volvía a enseñar esas mismas
+ * salas: dos rejillas de cuatro imágenes casi iguales, una encima de otra. Una zona no es un lugar
+ * que enseñar sino un DESTINO al que ir, y lo que ayuda a elegirlo es cuántos rituales hay dentro
+ * y desde cuánto.
+ */
+function zone_selector_html( $zs ) {
+	/* UNA REJILLA DE FILETES COMPARTIDOS Y NO CUATRO TARJETAS. Las tarjetas dibujan cuatro cajas
+	   con cuatro bordes cada una; lo que aquí se compara son cuatro columnas de la MISMA tabla, y
+	   una tabla se dibuja con las líneas que separan, no con las que rodean. Además es lo único
+	   que el ancla permite: `elevation: none` no tiene sombra ni relleno con los que hacer una
+	   tarjeta, así que la retícula ES la tarjeta. El hover no levanta —no hay a dónde—: oscurece
+	   sus propios filetes, que es el gesto que le queda a una casa sin sombras. */
+	$o = sec_open( 'zonepick grid-sec', $zs['h2'] )
+		. sec_head( $zs )
+		. '<ul class="zonegrid">';
+	foreach ( $zs['items'] as $z ) {
+		$o .= '<li class="zcell"><a href="' . h( ihref_for_label( 'Servicios' ) ) . '">'
+			. zone_icon_svg( $z[4] )
+			. '<h3>' . h( $z[0] ) . '</h3>'
+			. '<span class="zcount">' . h( $z[1] ) . '</span>'
+			. '<span class="zfrom">' . h( $z[2] ) . '</span>'
+			. '<span class="muted small">' . h( $z[3] ) . '</span></a></li>';
+	}
+	return $o . '</ul>' . sec_close();
+}
+
+/**
+ * COMP-RITUAL-MENU · TPL-C-14.
+ *
+ * TRES DATOS Y EL PRECIO DELANTE. El precio no es un toggle en este arquetipo, y su documento lo
+ * dice: es lo que el sector esconde detrás de «consúltanos» y lo que hace que media web sobre.
+ */
+function ritual_menu_html( $rm, $extra = '', $variant = 'band' ) {
+	/* LA CARTA VA SOBRE UNA FOTOGRAFÍA, no sobre una banda plana, y el panel que la sostiene es
+	   opaco a propósito: el efecto que se busca —una carta apoyada en la sala— se consigue con el
+	   fondo asomando ALREDEDOR del panel, no debajo del texto. Un panel translúcido pondría cada
+	   precio sobre un píxel distinto y convertiría una lista en una medición de contraste.
+	   Y la fotografía es un `<img>` dentro de un `<figure>`, nunca un `background-image`: un fondo
+	   CSS necesita un elemento vacío donde vivir, es invisible para un lector de pantalla y para
+	   Google Imágenes, y es el contenedor que `es_photo()` existe para no crear.
+	   `plain` es la misma lista sin banda ni fondo, para la ficha de tratamiento — ahí los
+	   hermanos son un pie de página, no el argumento de la sección. */
+	$is_band = ( 'band' === $variant );
+	$o = $is_band
+		? sec_open( 'ritualmenu menuband', $rm['h2'], 'bleed' )
+			. '<figure class="menu-ground">' . img_tag( $rm['img'] ) . '</figure>'
+			. '<div class="menu-panel">' . sec_head( $rm )
+		: sec_open( 'ritualmenu' . $extra, $rm['h2'] ) . sec_head( $rm );
+	/* AGRUPADA POR ZONA, Y CADA RITUAL EN TRES LÍNEAS. La primera versión repetía el nombre de la
+	   zona como eyebrow encima de CADA ficha —«ROSTRO / ROSTRO / CUERPO / CUERPO»— y daba cinco
+	   líneas por ritual: eyebrow, nombre, descripción, datos y nota. Seis de esas en dos columnas
+	   no es una carta, es un tablero. Una carta de verdad agrupa una vez y luego sólo lista, y pone
+	   el precio EN LA LÍNEA DEL NOMBRE, que es donde el ojo lo busca cuando compara.
+	   Y va en `columns` y no en rejilla: los grupos tienen alturas distintas por naturaleza, y una
+	   rejilla los alinearía por filas dejando huecos debajo de los cortos. Una columna tipográfica
+	   fluye, que es lo que hace una carta impresa. */
+	$groups = array();
+	foreach ( $rm['items'] as $r ) {
+		$groups[ $r['zone'] ][] = $r;
+	}
+	$o .= '<ul class="rituals">';
+	foreach ( $groups as $gname => $gitems ) {
+		$o .= '<li class="rgroup"><b class="rglabel">' . h( $gname ) . '</b><ul>';
+		foreach ( $gitems as $r ) {
+			$o .= '<li class="ritual">'
+				. '<p class="rline"><span class="rname">'
+				. '<a href="' . h( ihref_for_label( 'Ritual' ) ) . '">' . h( $r['h3'] ) . '</a></span>'
+				. '<span class="rfacts"><span class="rmin">' . h( $r['mins'] ) . '</span>'
+				. '<b class="rprice">' . h( $r['price'] ) . '</b></span></p>'
+				. '<p class="rdesc">' . h( $r['p'] ) . '</p>'
+				. '<p class="rafter">' . h( $r['after'] ) . '</p></li>';
+		}
+		$o .= '</ul></li>';
+	}
+	$o .= '</ul><p class="pnote">' . h( $rm['note'] ) . '</p>';
+	return $is_band ? $o . '</div>' . sec_close( 'bleed' ) : $o . sec_close();
+}
+
+/** One `<img>` from a manifest slug, with its own alt and its own intrinsic size. */
+function img_tag( $slug, $cls = '' ) {
+	$it = img( $slug );
+	return '<img' . ( '' === $cls ? '' : ' class="' . $cls . '"' ) . ' data-img="' . h( $it['slug'] ) . '"'
+		. ' alt="' . h( $it['alt'] ) . '" width="' . $it['w'] . '" height="' . $it['h'] . '">';
+}
+
+/**
+ * COMP-CABIN-TOUR · TPL-C-14. No es `COMP-GALLERY`: cada frame lleva el nombre del espacio y para
+ * qué se usa. Un collage sin pies de foto es decoración; con ellos es una visita previa, que es lo
+ * que sustituye aquí a la credencial que este arquetipo se prohíbe.
+ */
+function cabin_tour_html( $ct, $extra = '', $variant = 'split' ) {
+	/* LA SECCIÓN ES LA FILA: dos hijos directos y ningún `.canvas`, que es lo que
+	   container-hygiene lleva pidiendo desde que se escribió y ningún strip hacía porque el único
+	   envoltorio disponible anidaba uno igual. Un nodo menos aquí es un contenedor menos en el
+	   build nativo, y un clic menos entre un humano y el widget que abrió el editor para tocar.
+	   EL COLLAGE LLEVA PASPARTÚ Y NO SOMBRA. El marco blanco ancho es el gesto de la referencia;
+	   la sombra que lo acompaña allí, no — `elevation: none` es una posición de eje de esta ancla y
+	   una sombra la contradiría en la sección más visible de la página. El paspartú se dibuja con
+	   el propio fondo (`--c-bg`) y un filete, así que sobre la banda alterna se lee como una foto
+	   apoyada en papel. */
+	$names = array();
+	$figs  = array();
+	foreach ( $ct['items'] as $c ) {
+		$names[] = '<li><b class="cabname">' . h( $c['name'] ) . '</b>'
+			. '<span class="muted small">' . h( $c['p'] ) . '</span></li>';
+		$figs[]  = '<figure class="mat">' . img_tag( $c['img'] ) . '</figure>';
+	}
+	return sec_open( 'cabintour' . $extra, $ct['h2'], 'row' )
+		. '<div class="cabinsay">' . sec_head( $ct )
+		. '<ul class="cabinlist">' . implode( '', $names ) . '</ul>'
+		. '<p class="pnote">' . h( $ct['note'] ) . '</p></div>'
+		. '<div class="collage">' . implode( '', $figs ) . '</div>'
+		. sec_close( 'row' );
+}
+
+/**
+ * COMP-PROTOCOL-STEPS · TPL-C-14 y TPL-SERVICE-02.
+ *
+ * MINUTOS REALES, Y LA SUMA TIENE QUE DAR. No son cuatro pasos genéricos de «cómo trabajamos»
+ * —eso es `COMP-PROCESS`—: son los minutos que la clienta va a pasar tumbada, y si no suman la
+ * duración que promete la carta, uno de los dos números es mentira y se nota el primer día.
+ */
+function protocol_steps_html( $ps, $extra = '' ) {
+	$o = '<section class="sec protosteps grid-sec' . $extra . '" aria-label="' . h( $ps['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $ps['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $ps['h2'] ) . '</h2></div><ol class="protos">';
+	foreach ( $ps['items'] as $st ) {
+		$o .= '<li class="proto"><span class="pmin">' . h( $st[0] ) . '</span>'
+			. '<h3>' . h( $st[1] ) . '</h3><p class="muted">' . h( $st[2] ) . '</p></li>';
+	}
+	return $o . '</ol><p class="pnote">' . h( $ps['note'] ) . '</p></div></section>';
+}
+
+/**
+ * COMP-BONO-PACKS · TPL-C-14 y TPL-SERVICE-02.
+ *
+ * NO ES `COMP-PRICING`. Ahí se elige entre niveles de servicio y una columna va destacada; aquí se
+ * elige CUÁNTAS VECES vuelves, y la tarjeta regalo no es un plan mejor ni peor sino otra cosa —de
+ * ahí que se pinte distinta y no como el tercer escalón de una escalera.
+ */
+function bono_packs_html( $bp, $gift_on = true, $extra = '', $variant = 'checker' ) {
+	/* UN DAMERO A SANGRE: panel de tinta, fotografía, panel de tinta. Es lo contrario de un
+	   `COMP-PRICING`, y a propósito — allí se compara entre escalones de un mismo producto y una
+	   columna va destacada; aquí no hay escalones, hay una decisión sola («¿vuelvo cinco veces?»)
+	   y una fotografía en medio que dice a qué vuelves.
+	   LOS PANELES VAN EN TINTA Y NO EN ACENTO. La referencia los pinta con su rosa de marca, y ese
+	   rosa aquí es el acento, que la puerta de roles reserva para lo que se puede pulsar. La
+	   superficie inversa del ancla hace el mismo trabajo —parar la página en seco— sin gastar la
+	   única tinta de acción que la página tiene.
+	   LA TARJETA REGALO SALE DEL DAMERO. No es un bono más barato ni más caro: es otra cosa, se
+	   compra para otra persona, y meterla como cuarta columna la convertía en el escalón bajo de
+	   una escalera que no existe. Va debajo, en una tira propia y con filete discontinuo. */
+	$packs = array();
+	$gift  = null;
+	foreach ( $bp['items'] as $b ) {
+		if ( $b['gift'] ) {
+			$gift = $b;
+			continue;
+		}
+		$packs[] = $b;
+	}
+	if ( 'plain' === $variant ) {
+		$o = sec_open( 'bonopacks grid-sec' . $extra, $bp['h2'] ) . sec_head( $bp ) . '<ul class="bonos">';
+		foreach ( $packs as $b ) {
+			$o .= bono_cell_html( $b, 'li', 'bono' );
+		}
+		return $o . '</ul><p class="pnote">' . h( $bp['note'] ) . '</p>' . sec_close();
+	}
+	$o = sec_open( 'bonopacks', $bp['h2'], 'bleed' ) . '<div class="checker">'
+		. '<div class="cpanel chead">' . sec_head( $bp ) . '</div>';
+	$first = true;
+	foreach ( $packs as $b ) {
+		$o .= bono_cell_html( $b, 'div', 'cpanel' );
+		if ( $first ) {
+			$o    .= '<figure class="cshot">' . img_tag( $bp['img'] ) . '</figure>';
+			$first = false;
+		}
+	}
+	$o .= '</div>';
+	if ( null !== $gift && $gift_on ) {
+		$o .= '<div class="giftstrip"><b>' . h( $gift['name'] ) . '</b>'
+			. '<span class="bonoq">' . h( $gift['q'] ) . '</span>'
+			. '<span class="bonop">' . h( $gift['price'] ) . '</span>'
+			. '<span class="muted small">' . h( $gift['p'] ) . '</span></div>';
+	}
+	return $o . '<p class="pnote">' . h( $bp['note'] ) . '</p>' . sec_close( 'bleed' );
+}
+
+/** One bono, in whatever box the section it lands in calls for. */
+function bono_cell_html( $b, $tag, $cls ) {
+	$o = '<' . $tag . ' class="' . $cls . '"><b>' . h( $b['name'] ) . '</b>'
+		. '<span class="bonoq">' . h( $b['q'] ) . '</span>'
+		. '<span class="bonop">' . h( $b['price'] ) . '</span>';
+	if ( '' !== $b['save'] ) {
+		$o .= '<span class="bonosave">' . h( $b['save'] ) . '</span>';
+	}
+	return $o . '<span class="muted small">' . h( $b['p'] ) . '</span></' . $tag . '>';
+}
+
+/** COMP-TEAM, la variante de `TPL-ABOUT-03`: retrato redondo con paspartú, sin credencial. */
+function house_team_html( $tm ) {
+	/* REDONDO Y CON PASPARTÚ, y sin número de colegiado — que es la diferencia entera con
+	   `med_team_html`. En una clínica la credencial es el dato; en una casa con puerta el dato es
+	   la cara y el tiempo que lleva ahí. El recorte circular no es decoración: iguala tres
+	   retratos que nunca van a estar encuadrados igual. */
+	$o = sec_open( 'houseteam grid-sec', $tm['h2'] ) . sec_head( $tm ) . '<ul class="faces">';
+	foreach ( $tm['items'] as $m ) {
+		$o .= '<li class="face"><figure class="round">' . img_tag( $m['img'] ) . '</figure>'
+			. '<b>' . h( $m['name'] ) . '</b>'
+			. '<span class="muted small">' . h( $m['role'] ) . '</span>'
+			. '<span class="since">' . h( $m['lic'] ) . '</span></li>';
+	}
+	return $o . '</ul>' . sec_close();
+}
+
+/**
+ * COMP-HOURS-BLOCK + COMP-MAP-NAP de TPL-C-14, en una sola fila.
+ *
+ * NO REUTILIZA `hours_block_html`, Y ESO ES UNA CORRECCIÓN. Aquel bloque nació para una
+ * composición centrada y coloca sus hijos con las líneas con nombre de aquella rejilla; bajo
+ * `strict-grid` se descuajeringa — medido en el render: el titular flotando solo a la derecha, la
+ * columna de días en 55px con «Martes a viernes» partido en tres renglones, y media sección vacía.
+ * Un componente compartido que se rompe al cambiar de composición no es compartido, es prestado.
+ *
+ * Y VAN JUNTOS PORQUE SON LA MISMA PREGUNTA. La página de contacto llevaba un bloque de dirección
+ * y otro de horario, uno detrás de otro, repitiendo la calle y el teléfono. Quien mira esto quiere
+ * saber dónde y cuándo, que es una sola decisión: si me da tiempo a ir hoy.
+ */
+function hours_row_html( $hb, $extra = '' ) {
+	$o = sec_open( 'hoursrow' . $extra, $hb['h2'], 'row' )
+		. '<div class="hourscol">' . sec_head( $hb ) . '<dl class="daylist">';
+	foreach ( $hb['rows'] as $r ) {
+		$shut = ( 'Cerrado' === $r[1] ) ? ' shut' : '';
+		$o   .= '<div class="dayrow' . $shut . '"><dt>' . h( $r[0] ) . '</dt><dd>' . h( $r[1] ) . '</dd></div>';
+	}
+	$o .= '</dl></div><div class="wherecol">';
+	$o .= '<p class="addr">' . h( $hb['addr'][0] ) . '<br>' . h( $hb['addr'][1] ) . '</p>'
+		. '<p class="reachline"><a href="#">' . h( $hb['phone'] ) . '</a></p>'
+		. '<p class="reachline"><a href="#">' . h( $hb['mail'] ) . '</a></p>';
+	if ( isset( $hb['travel'] ) ) {
+		$o .= '<p class="muted small">' . h( $hb['travel'] ) . '</p>';
+	}
+	$o .= '<p class="muted small">' . h( $hb['note'] ) . '</p></div>';
+	return $o . sec_close( 'row' );
+}
+
+/** La tira a sangre que separa la página del pie. Sólo fotografía: nada que amputar en el cristal. */
+function strip_row_html( $sr ) {
+	$o = sec_open( 'thumbstrip', $sr['label'], 'bleed' ) . '<ul class="thumbs">';
+	foreach ( $sr['items'] as $slug ) {
+		$o .= '<li>' . img_tag( $slug ) . '</li>';
+	}
+	return $o . '</ul>' . sec_close( 'bleed' );
+}
+
+/** COMP-HEADER de TPL-C-14: barra de datos encima de la cabecera flotante. */
+function head_lumiere( $C, $BRAND ) {
+	/* LA BARRA SUPERIOR ES LA DECISIÓN DE CABECERA DE ESTE ARQUETIPO. Un centro con puerta se
+	   busca por tres cosas que no caben en una nav —dónde está, cuándo abre y a qué número se
+	   llama— y meterlas en el menú las convierte en enlaces que nadie pulsa. Arriba, en texto
+	   plano, son lo primero que se lee y no compiten con el CTA. */
+	$tb = $C['topbar'];
+	$o  = '<header class="site-head head-over lumhead"><div class="topbar"><div class="canvas">';
+	foreach ( $tb['items'] as $t ) {
+		$o .= '<span>' . h( $t ) . '</span>';
+	}
+	$o .= '<a href="#">' . h( $C['phone'] ) . '</a></div></div>'
+		. '<div class="canvas"><div class="nav"><span class="logo">' . h( $BRAND ) . '</span>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $C['nav'] as $n ) {
+		$o .= '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
+	}
+	return $o . '</nav><a class="btn btn-primary btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">'
+		. h( $C['nav_cta'] ) . '</a></div></div></header>';
+}
+
+/**
+ * COMP-SERVICE-INDEX · TPL-SERVICES-01. Todas las entradas, agrupadas, y ninguna destacada.
+ *
+ * UNA FOTOGRAFÍA POR GRUPO Y NINGUNA POR ENTRADA, y esto se corrigió mirando el render. La primera
+ * versión daba imagen a cada tarjeta: doce tarjetas contra siete fotografías de marca, así que dos
+ * se repetían cuatro y tres veces cada una en la misma pantalla. Una rejilla que repite la foto se
+ * lee como relleno, y es justo la página donde el visitante viene a COMPARAR entradas — el ruido
+ * cae encima de lo único que hace.
+ *
+ * Y el arreglo no fue quitar fotos por quitarlas: la zona SÍ tiene una imagen que le corresponde,
+ * porque el grupo es un sitio del cuerpo y hay una foto de cada uno. Lo que no tiene imagen propia
+ * es el ritual individual, y por eso la entrada es una fila de carta —nombre, una línea, duración
+ * y precio— que además es como se lee un menú de tratamientos en papel.
+ */
+function service_index_html( $si ) {
+	$o = '<section class="sec svcindex grid-sec" aria-label="' . h( $si['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $si['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $si['h2'] ) . '</h2></div>';
+	foreach ( $si['groups'] as $g ) {
+		$gi  = img( $g['img'] );
+		$o  .= '<div class="svcgroup">'
+			. '<figure class="frame svcshot"><img data-img="' . h( $gi['slug'] ) . '"'
+			. ' alt="' . h( $gi['alt'] ) . '" width="' . $gi['w'] . '" height="' . $gi['h'] . '"></figure>'
+			. '<div class="svcbody"><h3 id="' . h( $g['id'] ) . '">' . h( $g['name'] ) . '</h3>'
+			. '<ul class="svccards">';
+		foreach ( $g['items'] as $it ) {
+			$o .= '<li class="svccard"><a href="' . h( ihref_for_label( 'Ritual' ) ) . '">'
+				. '<h4>' . h( $it['name'] ) . '</h4>'
+				. '<span class="muted small">' . h( $it['p'] ) . '</span>'
+				. '<span class="svcfacts">' . h( $it['mins'] ) . ' · ' . h( $it['price'] ) . '</span>'
+				. '</a></li>';
+		}
+		$o .= '</ul></div></div>';
+	}
+	return $o . '<p class="pnote">' . h( $si['note'] ) . '</p></div></section>';
+}
+
+/** COMP-TREATMENT-FACTS · TPL-SERVICE-02. Los cuatro, y ninguno en blanco. */
+function treatment_facts_html( $tf ) {
+	/* `factstrip` Y NO `tfacts`, Y ESTO COSTÓ DOS DIAGNÓSTICOS EQUIVOCADOS. La sección se dibujaba
+	   en 622px dentro de una de 1249, con la frase de «cómo sales» partida en seis renglones, y las
+	   dos primeras hipótesis —que faltaba `grid-sec`, que sobraba tamaño en el valor— eran plausibles
+	   y falsas. Una medición lo cerró en un intento: el `.canvas` medía la mitad exacta, o sea que
+	   no lo estaba encogiendo la tipografía sino una regla de layout ajena.
+	   `.tfacts` YA EXISTÍA: es la fila de chips de la ficha de tratamiento de `TPL-C-10`, con
+	   `display:grid` y `margin:auto 0 0` pensados para vivir DENTRO de una tarjeta. Dos arquetipos
+	   con la misma clase es CSS válido que renderiza — el perfil exacto del defecto que este
+	   generador ya documenta— y el registro de clases no lo cazó porque yo declaré `tfactlist` y
+	   `tfact` y no el nombre de la propia sección. Ahora los tres están declarados. */
+	$o = '<section class="sec factstrip grid-sec" aria-label="' . h( $tf['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $tf['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $tf['h2'] ) . '</h2></div><dl class="tfactlist">';
+	foreach ( $tf['items'] as $f ) {
+		$o .= '<div class="tfact"><dt>' . h( $f[0] ) . '</dt><dd>' . h( $f[1] ) . '</dd></div>';
+	}
+	return $o . '</dl></div></section>';
+}
+
+/**
+ * COMP-CONTRAINDICATIONS · TPL-SERVICE-02.
+ *
+ * VA EN LA PÁGINA Y NO EN EL EMAIL DE CONFIRMACIÓN. Quien lo lee después de reservar ya ha
+ * bloqueado una cabina que no va a usar, y el centro se come el hueco.
+ */
+function contraindications_html( $cx ) {
+	$o = '<section class="sec contra grid-sec bg-alt" aria-label="' . h( $cx['h2'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $cx['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $cx['h2'] ) . '</h2></div><div class="contrapair">';
+	foreach ( array( $cx['no'], $cx['before'] ) as $col ) {
+		$o .= '<div class="contracol"><b>' . h( $col['title'] ) . '</b><ul class="contralist">';
+		foreach ( $col['items'] as $i ) {
+			$o .= '<li>' . h( $i ) . '</li>';
+		}
+		$o .= '</ul></div>';
+	}
+	return $o . '</div><p class="pnote">' . h( $cx['note'] ) . '</p></div></section>';
+}
+
+/**
+ * TPL-C-14 · Ritual / Bono.
+ *
+ * NINGUNA DE SUS SECCIONES TIENE LA FORMA DE LA DE AL LADO, y ésa es la mitad del arquetipo que un
+ * documento no puede declarar. El titular escalonado sobre la fotografía, la retícula de filetes,
+ * la carta sobre una sala, la fila con el collage, el damero a sangre y la tira de fotos antes del
+ * pie son seis envoltorios distintos; el catálogo entero venía usando uno.
+ */
+function strip_ritual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$hero = $C['hero'];
+	$o    = array();
+	$o[]  = head_lumiere( $C, $BRAND );
+	$o[]  = '<main>';
+	$o[]  = '<section class="sec hero hero-visual hero-full" aria-label="El centro"><div class="media-full">'
+		. '<figure class="frame">' . img_tag( $hero['img'] ) . '</figure></div>'
+		. '<div class="canvas">' . sec_head( $hero, 'stack', 'h1' )
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
+		. '</div></section>';
+	$o[]  = zone_selector_html( $C['zones'] );
+	$o[]  = ritual_menu_html( $C['rituals'] );
+	$o[]  = cabin_tour_html( $C['cabin'], ' bg-alt' );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROTOCOL-STEPS' ) ) {
+		$o[] = protocol_steps_html( $C['protocol'], '' );
+	}
+	$o[]  = bono_packs_html( $C['bonos'], 'no' !== tgl_of( $tgl_rows, 'TGL-GIFT-CARD' ) );
+	$o[]  = booking_html( $C['booking'], $uid );
+	$o[]  = '</main>';
+	$o[]  = strip_row_html( $C['strip'] );
+	$o[]  = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-SERVICES-01 · el índice de servicios. Una por sitio, nunca una por grupo. */
+function page_services_index( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['servicios'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = page_head_html( $K['head'] );
+	$o[] = service_index_html( $K['index'] );
+	$o[] = faq_block_html( $K['faq'], ' bg-alt' );
+	$o[] = page_cta_html( $K['cta'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/** TPL-SERVICE-02 · la ficha de un ritual. */
+function page_treatment( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K  = $C['servicio'];
+	$hd = $K['head'];
+	$hi = img( $hd['img'] );
+	$o  = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero svc-head" aria-label="' . h( $hd['h1'] ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $hd['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hd['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hd['lede'] ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hd['cta'] ) ) . '">' . h( $hd['cta'] ) . '</a>'
+		. '<span class="rprice">' . h( $hd['price'] ) . '</span></div></div>'
+		. '<div class="media"><figure class="frame"><img data-img="' . h( $hi['slug'] ) . '"'
+		. ' alt="' . h( $hi['alt'] ) . '" width="' . $hi['w'] . '" height="' . $hi['h'] . '"></figure></div>'
+		. '</div></section>';
+	$o[] = treatment_facts_html( $K['facts'] );
+	$o[] = protocol_steps_html( $C['protocol'], ' bg-alt' );
+	$o[] = contraindications_html( $K['contra'] );
+	$o[] = bono_packs_html( $K['bono'], false, '', 'plain' );
+	$o[] = faq_block_html( $K['faq'], ' bg-alt' );
+	$o[] = ritual_menu_html( $K['siblings'], '', 'plain' );
+	$o[] = booking_html( $C['booking'], $uid );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-ABOUT-03 «La casa» · el Nosotros de un negocio cuya confianza está en el sitio.
+ *
+ * ESTE ARQUETIPO LLEVABA ESCRITO SIN RENDERIZARSE. Reutiliza el recorrido por la cabina de la home
+ * —es la misma casa un nivel más abajo, y reutilizar es lo que hace que dos páginas se lean como
+ * UN sitio— y añade lo suyo: la historia corta, las caras y el horario con el estado de ahora.
+ */
+function page_about_house( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	/* ABRE SIN FOTOGRAFÍA, y la ausencia se decidió contando. El centro tiene siete fotos y cuatro
+	   se van en el recorrido por la cabina, que empieza dos dedos más abajo. Un hero con imagen
+	   aquí repetía una de esas cuatro a media pantalla de distancia de sí misma — el mismo defecto
+	   que ya se corrigió en el índice de servicios. Un encabezado de texto abre más tranquilo y
+	   deja que la fotografía llegue toda junta y sin repetirse, que es lo que hace la sección
+	   siguiente. */
+	$K  = $C['nosotros'];
+	$o  = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = page_head_html( array(
+		'eyebrow' => $K['head']['eyebrow'],
+		'h1'      => $K['head']['h1'],
+		'lede'    => $K['head']['lede'],
+	) );
+	$o[] = cabin_tour_html( $C['cabin'], ' bg-alt' );
+	$o[] = house_team_html( $K['team'] );
+	$o[] = hours_row_html( $K['hours'] );
+	$o[] = booking_html( $C['booking'], $uid );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * Las secciones de las dos FICHAS DE INVENTARIO · TPL-UNIT-01 y TPL-PROPERTY-01.
+ *
+ * DOS ARQUETIPOS Y UN SOLO MARCO, y el reparto no es de conveniencia. Las dos páginas son la ficha
+ * de UNA unidad de un inventario que rota, así que comparten cómo abren —la unidad fotografiada,
+ * seis datos que descartan o siguen— y comparten la salida —la referencia dentro del formulario—.
+ * Lo que NO comparten es el centro: en un coche decide el HISTORIAL (de dónde viene, quién lo
+ * tuvo, qué le han hecho) y en un piso deciden el PLANO y el COSTE de mantenerlo. Nadie pregunta
+ * cuántos dueños tuvo un piso y todos preguntan cuánto se paga de comunidad.
+ * Medido contra los 22 documentos de página del catálogo, comparten 4 secciones de 17. Si
+ * compartieran también el centro serían la misma página con dos nombres.
+ */
+function ref_line_html( $code, $note ) {
+	return '<p class="refline"><span class="refcode">' . h( $code ) . '</span>'
+		. '<span class="muted small">' . h( $note ) . '</span></p>';
+}
+
+/**
+ * COMP-UNIT-GALLERY · TPL-UNIT-01.
+ *
+ * FOTOS DE ESTA UNIDAD Y NO DEL CATÁLOGO DEL FABRICANTE. Es la diferencia entre un patio y un
+ * anuncio, y el cuentakilómetros legible es la prueba: el único dato de la ficha que el comprador
+ * puede verificar sin bajarse del sofá. Ese frame se buscó, no se dio por bueno — el mejor
+ * candidato de stock marcaba 195.478 km contra los 48.200 de la unidad, y publicarlo habría sido
+ * escribir la regla y romperla en el único sitio donde se ve.
+ */
+function unit_gallery_html( $g ) {
+	$o = sec_open( 'unitgal', $g['label'] )
+		. '<div class="ugal"><figure class="ushot">' . img_tag( $g['main'] ) . '</figure>'
+		. '<ul class="uthumbs">';
+	foreach ( $g['shots'] as $sl ) {
+		$o .= '<li>' . img_tag( $sl ) . '</li>';
+	}
+	return $o . '</ul></div><p class="ucap">' . h( $g['cap'] ) . '</p>' . sec_close();
+}
+
+/**
+ * COMP-UNIT-FACTS y COMP-PROPERTY-FACTS · un helper, dos nombres de componente.
+ *
+ * Los dos documentos declaran esta sección «Reutilizable: SECCIÓN», y es literalmente la misma
+ * forma: seis pares de dato y rótulo que descartan o siguen en cinco segundos. Lo que cambia son
+ * los seis datos, que es contenido. Escribirla dos veces habría sido dos sitios donde arreglar el
+ * mismo defecto.
+ */
+function unit_specs_html( $sp, $extra = '' ) {
+	$o = sec_open( 'unitspecs grid-sec' . $extra, $sp['h2'] ) . sec_head( $sp ) . '<ul class="uspecs">';
+	foreach ( $sp['items'] as $it ) {
+		$o .= '<li class="uspec"><b>' . h( $it[1] ) . '</b><span>' . h( $it[0] ) . '</span></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/** COMP-PRICE-FINANCE · TPL-UNIT-01. Los dos precios con el mismo peso, y las condiciones al lado. */
+function price_finance_html( $pf, $extra = '' ) {
+	$o = sec_open( 'pricefin grid-sec' . $extra, $pf['h2'] ) . sec_head( $pf )
+		. '<div class="pricepair">'
+		. '<div class="pricebox"><span>' . h( $pf['cash_lbl'] ) . '</span>'
+		. '<b class="priceq">' . h( $pf['cash'] ) . '</b>'
+		. '<p class="muted small">' . h( $pf['cash_note'] ) . '</p></div>'
+		. '<div class="pricebox"><span>' . h( $pf['quota_lbl'] ) . '</span>'
+		. '<b class="priceq">' . h( $pf['quota'] ) . '</b><ul class="pterms">';
+	foreach ( $pf['terms'] as $t ) {
+		$o .= '<li><span>' . h( $t[0] ) . '</span><b>' . h( $t[1] ) . '</b></li>';
+	}
+	return $o . '</ul></div></div><p class="pnote">' . h( $pf['note'] ) . '</p>' . sec_close();
+}
+
+/** COMP-HISTORY-REPORT · TPL-UNIT-01. La sección que justifica la página. */
+function history_report_html( $hr, $extra = '' ) {
+	$o = sec_open( 'histrep grid-sec' . $extra, $hr['h2'] ) . sec_head( $hr ) . '<ul class="histgrid">';
+	foreach ( $hr['items'] as $it ) {
+		$o .= '<li class="hist"><span>' . h( $it[0] ) . '</span><b>' . h( $it[1] ) . '</b>'
+			. '<p>' . h( $it[2] ) . '</p></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * COMP-PROPERTY-TOUR · TPL-PROPERTY-01. NO es `COMP-GALLERY`.
+ *
+ * Una galería es un carrusel en orden arbitrario; un recorrido va de la puerta hacia dentro y cada
+ * foto dice qué se está mirando y cuánto mide. La primera estancia ocupa las dos columnas porque
+ * el salón es la que decide, y en una ficha de piso decidir no es mirar seis fotos iguales.
+ */
+function property_tour_html( $t, $extra = '' ) {
+	$o = sec_open( 'ptour grid-sec' . $extra, $t['h2'] ) . sec_head( $t ) . '<ul class="tourlist">';
+	foreach ( $t['items'] as $it ) {
+		$o .= '<li class="tourcell"><figure>' . img_tag( $it[2] ) . '</figure>'
+			. '<p class="tourmeta"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></p></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * COMP-FLOORPLAN · TPL-PROPERTY-01. Es FIJO y no un toggle.
+ *
+ * Un piso sin plano obliga a la visita para saber si el segundo dormitorio es un dormitorio o un
+ * trastero, y esa visita se la come la agencia. Si no hay plano se dibuja: sale más barato que
+ * cuatro visitas perdidas.
+ */
+function floorplan_html( $fp, $extra = '' ) {
+	return sec_open( 'planwrap grid-sec' . $extra, $fp['h2'] ) . sec_head( $fp )
+		. '<figure class="floorplan">' . img_tag( $fp['img'] ) . '</figure>'
+		. '<p class="pnote">' . h( $fp['note'] ) . '</p>' . sec_close();
+}
+
+/** COMP-COSTS-BREAKDOWN · TPL-PROPERTY-01. El número de la web tiene que ser el de la notaría. */
+function costs_breakdown_html( $cb, $extra = '' ) {
+	$o = sec_open( 'costs grid-sec' . $extra, $cb['h2'] ) . sec_head( $cb ) . '<ul class="costlist">';
+	foreach ( $cb['rows'] as $r ) {
+		$o .= '<li class="costrow"><span>' . h( $r[0] ) . '</span><b>' . h( $r[1] ) . '</b></li>';
+	}
+	$o .= '<li class="costrow costsum"><span>' . h( $cb['sum'][0] ) . '</span>'
+		. '<b>' . h( $cb['sum'][1] ) . '</b></li>';
+	return $o . '</ul><p class="pnote">' . h( $cb['note'] ) . '</p>' . sec_close();
+}
+
+/**
+ * COMP-ENERGY-LABEL · TPL-PROPERTY-01. FIJO por ley, no por diseño.
+ *
+ * En España un anuncio de venta o alquiler publica la calificación energética; un toggle aquí
+ * sería un interruptor para incumplir. Y va en HTML, no dentro de un JPG: un dato obligatorio
+ * metido en una imagen no lo lee ni un lector de pantalla ni un buscador.
+ */
+function energy_label_html( $el, $extra = '' ) {
+	$o = sec_open( 'energysec grid-sec' . $extra, $el['h2'] ) . sec_head( $el ) . '<div class="energy">';
+	foreach ( $el['items'] as $it ) {
+		$o .= '<div class="elabel"><span class="eletter">' . h( $it[0] ) . '</span>'
+			. '<div><b>' . h( $it[1] ) . '</b><span>' . h( $it[2] ) . '</span></div></div>';
+	}
+	return $o . '</div><p class="pnote">' . h( $el['note'] ) . '</p>' . sec_close();
+}
+
+/**
+ * TPL-UNIT-01 «Unidad de ocasión» · la ficha que las tarjetas de TPL-C-07 prometían.
+ *
+ * ESTE ENLACE ESTABA MUERTO Y SE MIDIÓ. Ocho botones «Ver ficha» en la rejilla del patio apuntaban
+ * a una clave de página que no existía en el juego de la marca. No era una decisión de alcance: un
+ * arquetipo cuyo componente central promete una página que nadie construyó está incompleto, y la
+ * rejilla no puede ser el final del camino en un sitio cuyo trabajo es que el usuario señale UNA.
+ *
+ * REUTILIZA la tasación y el cierre de la home, igual que `page_service` reutiliza el proceso de
+ * TPL-C-01: es el mismo patio un nivel más abajo, y reutilizar es lo que hace que dos páginas se
+ * lean como UN sitio y no como dos maquetas que comparten carpeta.
+ */
+function page_unit( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['producto'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = sec_open( 'pagehead unithead', $K['head']['h1'] )
+		. '<div class="head stack"><span class="eyebrow">' . h( $K['head']['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $K['head']['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $K['head']['lede'] ) . '</p>'
+		. ref_line_html( $K['ref'][0], $K['ref'][1] ) . '</div>' . sec_close();
+	$o[] = unit_gallery_html( $K['gallery'] );
+	$o[] = unit_specs_html( $K['facts'], ' bg-alt' );
+	$o[] = price_finance_html( $K['price'] );
+	$o[] = history_report_html( $K['history'], ' bg-alt' );
+	$o[] = trade_in_html( $C['tradein'], $uid );
+	$o[] = booking_html( $K['drive'], $uid );
+	$o[] = stock_grid_html( $K['related'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-PROPERTY-01 «Inmueble» · la ficha que las tarjetas de TPL-C-13 prometían.
+ *
+ * Mismo defecto medido que en el patio, seis enlaces en vez de ocho. Y la misma corrección: la
+ * cartera enseña precio, metros y zona porque es lo que cabe en una tarjeta; lo que decide la
+ * visita —el plano, el coste real de entrar a vivir, la orientación— vive aquí.
+ *
+ * LA SOLICITUD DE VISITA ES LA DE LA HOME CON LA REFERENCIA DENTRO. `TPL-C-13` lo escribe en su
+ * propia identidad: una solicitud sin referencia es una consulta genérica, y una consulta genérica
+ * no se puede meter en una agenda.
+ */
+function page_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['producto'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = sec_open( 'pagehead unithead', $K['head']['h1'] )
+		. '<div class="head stack"><span class="eyebrow">' . h( $K['head']['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $K['head']['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $K['head']['lede'] ) . '</p>'
+		. ref_line_html( $K['ref'][0], $K['ref'][1] ) . '</div>' . sec_close();
+	$o[] = property_tour_html( $K['tour'] );
+	$o[] = unit_specs_html( $K['facts'], ' bg-alt' );
+	$o[] = floorplan_html( $K['plan'] );
+	$o[] = costs_breakdown_html( $K['costs'], ' bg-alt' );
+	$o[] = energy_label_html( $K['energy'] );
+	$o[] = booking_html( $K['visit'], $uid );
+	$o[] = property_grid_html( $K['related'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-CONTACT-02 «Puerta abierta» · para cuando la respuesta útil se da en el mismo minuto.
+ *
+ * EL TELÉFONO VA ANTES QUE EL FORMULARIO, y ése es el arquetipo entero. En `TPL-CONTACT-01` la
+ * consulta hay que estudiarla y el formulario manda; aquí compite con el teléfono y pierde.
+ */
+function page_contact_open( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	/* TRES SECCIONES Y NINGUNA REPETIDA. Antes eran cinco y la fotografía de la recepción salía en
+	   TRES de ellas —hero, bloque de dirección y «cómo se reconoce»—, además de un bloque de
+	   dirección y otro de horario que decían la misma calle y el mismo teléfono uno detrás de otro.
+	   Quien entra aquí quiere hacer una de tres cosas: llamar, ir, o reconocer la puerta. Una
+	   sección para cada una. */
+	$K  = $C['contacto'];
+	$dr = $K['direct'];
+	$o  = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = page_head_html( array(
+		'eyebrow' => $K['head']['eyebrow'],
+		'h1'      => $K['head']['h1'],
+		'lede'    => $K['head']['lede'],
+	) );
+	/* POR ORDEN DE RAPIDEZ Y EN UNA FILA, no en una pila. Son tres maneras de llegar a la misma
+	   persona; apiladas se leen como tres pasos de un proceso, que es lo que no son. */
+	$o[] = sec_open( 'reachdirect grid-sec bg-alt', $dr['h2'] ) . sec_head( $dr )
+		. '<ul class="reachlist">';
+	foreach ( $dr['items'] as $it ) {
+		$o[] = '<li><span class="dlabel">' . h( $it[0] ) . '</span>'
+			. '<a class="reachbig" href="#">' . h( $it[1] ) . '</a>'
+			. '<span class="muted small">' . h( $it[2] ) . '</span></li>';
+	}
+	$o[] = '</ul><p class="pnote">' . h( $dr['note'] ) . '</p>' . sec_close();
+	$o[] = hours_row_html( $K['hours'] );
+	$o[] = cabin_tour_html( $K['door'], ' bg-alt' );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════════
+ * THE SECTION CHASSIS, WHICH USED TO BE A CONSTANT
+ *
+ * Every section of every one of the twenty-two templates was emitted as the same four nodes:
+ *   <section class="sec X"> <div class="canvas"> <div class="head stack"> <list> <p class="pnote">
+ * The catalogue's own argument is that a BRAND changes the skin and an ARCHETYPE changes the
+ * skeleton — and `RT_TPL_TOO_SIMILAR` measures that argument on the section INVENTORY, which is
+ * the half a document can declare. It cannot see the half that decides whether two pages LOOK
+ * alike: the shape each section takes. So an archetype could pass the distance check with nine
+ * sections nobody else has, and still render as the same page with a different palette, because
+ * the wrapper never moved. That is exactly what the fourteenth archetype did on its first pass,
+ * and it took a human looking at it to say so.
+ *
+ * These three functions make the wrapper a DECISION. `contained` is byte-for-byte what every
+ * existing strip already emits, so the other twenty-one do not move — verified by diffing the
+ * whole generated page before and after. The other two shapes are what a section can be instead:
+ *
+ *   contained  the band holds a centred canvas — the house default, unchanged
+ *   bleed      the section IS the band and spans the glass; children keep their own padding
+ *   row        the section IS the row — two direct children, no canvas, one node fewer
+ *
+ * `row` is not a new idea here: container-hygiene has said "the section IS the row" since it was
+ * written, and every strip ignored it because the only wrapper on offer nested one anyway.
+ * ══════════════════════════════════════════════════════════════════════════════════════════════ */
+function sec_open( $cls, $label, $shape = 'contained' ) {
+	$sec_extra = ( 'bleed' === $shape ) ? ' bleedband' : ( ( 'row' === $shape ) ? ' secrow' : '' );
+	$sec_o     = '<section class="sec ' . $cls . $sec_extra . '" aria-label="' . h( $label ) . '">';
+	return ( 'contained' === $shape ) ? $sec_o . '<div class="canvas">' : $sec_o;
+}
+
+function sec_close( $shape = 'contained' ) {
+	return ( 'contained' === $shape ) ? '</div></section>' : '</section>';
+}
+
+/** The head, in the gesture the section asks for: `stack` (the house shape) or `none`. */
+function sec_head( $hd, $mode = 'stack', $tag = 'h2' ) {
+	if ( 'none' === $mode ) {
+		return '';
+	}
+	/* HUBO UN TERCER MODO, `stepped`, Y SE RETIRÓ MIRÁNDOLO. Metía la segunda línea del titular y
+	   le ponía delante un filete corto. Sobre el papel era «dos tiempos en vez de un párrafo»; en
+	   pantalla, un lector lo señaló con una cruz y una palabra: «muy de IA». Tenía razón —era una
+	   raya que no significaba nada, puesta donde el ojo espera una palabra—. Un gesto que hay que
+	   explicar para que se entienda no es un gesto, es ruido, y vocabulario muerto en el chasis es
+	   peor que no tenerlo: el siguiente que lo encuentre lo usará. */
+	return '<div class="head stack"><span class="eyebrow">' . h( $hd['eyebrow'] ) . '</span>'
+		. '<' . $tag . '>' . h( $hd['h2'] ) . '</' . $tag . '>'
+		. ( isset( $hd['lede'] ) ? '<p class="lede muted">' . h( $hd['lede'] ) . '</p>' : '' )
+		. '</div>';
+}
+
 /**
  * One page of one variant. Fails loudly on an unknown pair rather than emitting an empty sample.
  *
@@ -13318,6 +15555,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-C-07' === $tpl && 'nosotros' === $page_key ) {
 		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-07' === $tpl && 'producto' === $page_key ) {
+		return page_unit( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-07' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -13336,8 +15576,26 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 		);
 		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
 	}
+	if ( 'TPL-C-13' === $tpl && 'producto' === $page_key ) {
+		return page_property( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
 	if ( 'TPL-C-13' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-14' === $tpl && 'home' === $page_key ) {
+		return strip_ritual( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-14' === $tpl && 'servicios' === $page_key ) {
+		return page_services_index( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-14' === $tpl && 'servicio' === $page_key ) {
+		return page_treatment( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-14' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_house( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-14' === $tpl && 'contacto' === $page_key ) {
+		return page_contact_open( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-08' === $tpl && 'home' === $page_key ) {
 		return strip_model( $anchor_key, $C, $BRAND, $suid, $tgl );
@@ -14293,6 +16551,35 @@ $CLASS_BLOCKS = array(
 	'══════════ TPL-C-12 · URGENCIAS / HOY'      => array( 'TPL-C-12', array(
 		'urgbar', 'urgstate', 'urgnote', 'btn-lg', 'triagelist', 'trow', 'trdo', 'trmin',
 		'waitlist' ) ),
+	/* `.frame`, `.pnote`, `.directlist` y `.dlabel` NO están en esta lista y eso es la regla, no un
+	   olvido: son COMPARTIDAS, la comprobación pregunta «¿está definida antes del bloque que la
+	   POSEE?» y una clase compartida no tiene dueño. `.rprice` sí entra aunque la use también la
+	   ficha de tratamiento, porque las dos páginas son de este arquetipo. */
+	/* `.frame`, `.pnote`, `.directlist` y `.dlabel` NO están aquí y eso es la regla, no un olvido:
+	   son COMPARTIDAS y una clase compartida no tiene dueño. Tampoco están `.secrow`, `.bleedband`,
+	   `.stepped` ni `.hbar`: son el CHASIS, o sea vocabulario que cualquier arquetipo puede pedir,
+	   y meterlas aquí convertiría la primera plantilla que las usó en su propietaria. */
+	/* LAS DOS FICHAS DE INVENTARIO COMPARTEN BLOQUE Y ESO ES LA REGLA, no un atajo. La comprobación
+	   pregunta «¿está definida antes del bloque que la POSEE?», y estas clases las poseen DOS
+	   arquetipos a la vez: `.uspecs` la emiten las dos, y separarlas en dos bloques obligaría a
+	   elegir una dueña arbitraria. Un solo marcador, un solo bloque. */
+	'══════════ FICHAS DE INVENTARIO'            => array( 'TPL-UNIT-01 + TPL-PROPERTY-01', array(
+		'refline', 'refcode', 'unithead', 'unitgal', 'ugal', 'ushot', 'uthumbs', 'ucap',
+		'unitspecs', 'uspecs', 'uspec', 'pricefin', 'pricepair', 'pricebox', 'priceq', 'pterms',
+		'histrep', 'histgrid', 'hist', 'ptour', 'tourlist', 'tourcell', 'tourmeta',
+		'planwrap', 'floorplan', 'costs', 'costlist', 'costrow', 'costsum',
+		'energysec', 'energy', 'elabel', 'eletter' ) ),
+	'══════════ TPL-C-14 · RITUAL / BONO'        => array( 'TPL-C-14', array(
+		'lumhead', 'topbar', 'zonegrid', 'zcell', 'zcount', 'zfrom', 'menuband', 'menu-ground',
+		'zicon', 'menu-panel', 'rituals', 'rgroup', 'rglabel', 'ritual', 'rline', 'rname', 'rdesc',
+		'rfacts', 'rmin', 'rprice', 'rafter',
+		'cabinsay', 'cabinlist', 'cabname', 'collage', 'mat', 'protos', 'proto', 'pmin',
+		'checker', 'cpanel', 'chead', 'cshot', 'bonos', 'bono', 'bonoq', 'bonop', 'bonosave',
+		'giftstrip', 'thumbs', 'faces', 'face', 'round', 'since', 'hoursrow', 'hourscol', 'daylist',
+		'dayrow', 'wherecol', 'addr', 'reachline', 'reachlist', 'reachbig',
+		'svcgroup', 'svcshot', 'svcbody',
+		'svccards', 'svccard', 'svcfacts', 'factstrip', 'tfactlist', 'tfact', 'contrapair',
+		'contracol', 'contralist' ) ),
 );
 foreach ( $CLASS_BLOCKS as $cb_marker => $cb_def ) {
 	list( $cb_tpl, $cb_classes ) = $cb_def;
