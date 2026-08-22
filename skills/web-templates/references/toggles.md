@@ -53,12 +53,12 @@ donde la plantilla lo admite.
 | `TGL-FEATURES` | ¿Detalle de "qué incluye"? | sí / no | COMP-FEATURES | TPL-C-04 |
 | `TGL-PRICING` | ¿Tabla de precios / planes? | sí / no | COMP-PRICING | TPL-C-04 |
 | `TGL-FAQ` | ¿Preguntas frecuentes? | sí / no | COMP-FAQ | TPL-C-04 |
-| `TGL-BOOKING` | ¿Cómo reserva el cliente? | form/embed / WhatsApp / teléfono | COMP-BOOKING | TPL-C-05 |
+| `TGL-BOOKING` | ¿Cómo reserva el cliente? | form/embed / WhatsApp / teléfono | COMP-BOOKING | TPL-C-05, TPL-C-14 |
 | `TGL-MAP` | ¿Mapa + ubicación? | sí / no | COMP-MAP-NAP | TPL-C-05 (fijo) |
 | `TGL-TESTIMONIALS` | ¿Testimonios / social proof? | sí / no | COMP-TESTIMONIAL | TPL-C-01, TPL-C-02, TPL-C-05 |
 | `TGL-CTA-STRENGTH` | ¿Qué tan agresivo el CTA? | suave / medio / fuerte | estilo de COMP-CTA | TPL-C-01, TPL-C-02, TPL-C-03, TPL-C-04, TPL-C-05 |
 
-## Catálogo de toggles — corporate, familia B (`TPL-C-06..12`)
+## Catálogo de toggles — corporate, familia B (`TPL-C-06..14`)
 
 Los siete arquetipos de vertical (`recommender.md` §3b, familia B) traen toggles propios porque su
 unidad de contenido no existe en los otros cinco: una carta no se ajusta con los mismos mandos que
@@ -85,6 +85,15 @@ negociable es cuántas filas publica.
 | `TGL-SYMPTOM-COUNT` | ¿Cuántas filas de triaje? | **4** (default) / otras | COMP-SYMPTOM-TRIAGE | TPL-C-12 |
 | `TGL-SEARCH-FIELDS` | ¿Cuántos filtros entran en el héroe? | **4 campos** (default) / 3 campos | COMP-SEARCH-HERO | TPL-C-13 |
 | `TGL-GRID-DENSITY` | ¿Cuántas fichas por fila? | 2 col / **3 col** (default) / 4 col | COMP-PROPERTY-GRID | TPL-C-13 |
+| `TGL-ZONE-COUNT` | ¿Cuántas zonas del cuerpo? | 3 / **4** (default) | COMP-ZONE-SELECTOR | TPL-C-14 |
+| `TGL-RITUAL-COUNT` | ¿Cuántos rituales en la carta de la home? | **6** (default) / menos; nunca más de 8 | COMP-RITUAL-MENU | TPL-C-14 |
+| `TGL-CABIN-FRAMES` | ¿Cuántos espacios se enseñan? | **4** (default) / 6 | COMP-CABIN-TOUR | TPL-C-14 |
+| `TGL-PROTOCOL-STEPS` | ¿Se cuenta la sesión en minutos? | **on, 4 pasos** (default) / off | COMP-PROTOCOL-STEPS | TPL-C-14 |
+| `TGL-GIFT-CARD` | ¿Hay tarjeta regalo junto a los bonos? | **sí** (default) / no | COMP-BONO-PACKS | TPL-C-14 |
+| `TGL-SERVICES-GROUP` | ¿Cómo se agrupa el índice? | por zona / **por área** (default) / sin agrupar | COMP-SERVICE-INDEX | TPL-SERVICES-01 |
+| `TGL-SERVICES-FACTS` | ¿Las tarjetas del índice llevan datos? | **sí** (default) / no | COMP-SERVICE-INDEX | TPL-SERVICES-01 |
+| `TGL-SERVICES-COMMON` | ¿Banda de "qué incluye siempre"? | sí / **no** (default) | COMP-FEATURES | TPL-SERVICES-01 |
+| `TGL-TREATMENT-BONO` | ¿La ficha enseña su bono? | **sí** (default) / no | COMP-BONO-PACKS | TPL-SERVICE-02 |
 | `TGL-MAP-MODE` | ¿Cómo entra el plano? | **conmutador** (default) / sección / off | COMP-MAP-SEARCH | TPL-C-13 |
 
 Un toggle de cantidad **no puede llegar a cero**: el bloque que gobierna es ADN del arquetipo. Una

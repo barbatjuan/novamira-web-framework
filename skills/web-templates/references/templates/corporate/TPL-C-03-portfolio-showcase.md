@@ -27,6 +27,18 @@ COMP-FOOTER (minimal) [fijo]
 
 El trabajo manda. Ausencia intencional: sin pricing, sin stats, sin formularios largos, sin urgencia.
 
+**El envoltorio de cada sección es parte del contrato.** `RT_TPL_TOO_SIMILAR` mide el INVENTARIO
+—lo único que un documento sabía declarar— y no ve la FORMA. Medido en la galería: veintidós de las
+veintitrés arquitecturas no dejaban que ningún elemento tocara el borde de la pantalla, así que dos
+arquetipos con inventarios distintos seguían leyéndose como la misma página con otra paleta. Los
+tres envoltorios (`contenido`, `banda`, `fila`) son vocabulario compartido; lo propio de cada
+arquetipo es CUÁL pide cada sección.
+
+| Sección | Envoltorio | Por qué |
+|---------|-----------|---------|
+| `COMP-PORTFOLIO-GRID` | **banda** | Este arquetipo existe para enseñar trabajo terminado: es lo único que hace y es su prueba entera. Seis obras dentro de la misma columna en la que va el FAQ decían «folleto» mientras el inventario decía «portfolio». La rejilla escapa de la medida de contenido; el encabezado y los pies de cada obra se quedan en su columna, porque el texto nunca sangra. |
+| El resto | contenido | |
+
 ## 3. Secciones
 
 ### COMP-HEADER — minimal `[fijo]`

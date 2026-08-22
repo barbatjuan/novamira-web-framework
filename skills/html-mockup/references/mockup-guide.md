@@ -247,6 +247,55 @@ nav items switch pages; on ecommerce the cart icon switches pages and product ca
 The per-page split survives only as the **handoff spec** — one section inventory per page for the
 native build — never as separate mockup files or URLs.
 
+## The section chassis — three wrappers, and the default is the old one
+
+Every section of every template used to be the same four nodes — `section > .canvas > .head.stack >
+list > .pnote` — and that constant is why two archetypes with different section INVENTORIES could
+still read as one page with a different palette. `RT_TPL_TOO_SIMILAR` measures the inventory, which
+is the half a document can declare; nothing measured the wrapper, so nothing stopped it from being
+identical everywhere. It took a reader looking at a finished archetype to say "sigue todo igual".
+
+There are three wrappers now. `contained` is byte-for-byte the old one, so nothing that does not ask
+for another moves:
+
+| Shape | What the section becomes | When |
+|---|---|---|
+| `contained` | band holding a centred `.canvas` | the default; a list, a grid, a form |
+| `row` | **the section IS the row** — direct children are the columns, no canvas | copy beside media; one node fewer |
+| `bleed` | the section IS the band and spans the glass, children keep their own padding | colour and photography edge to edge |
+
+Five rules travel with them, every one learned by rendering rather than by reading CSS:
+
+- **A wrapper that is not `.canvas` must switch off `.canvas`'s placements.** The three compositions
+  place canvas children by NAMED grid lines (`.head` at `c 1 / c 8`, the note in its own column) and
+  those names exist only on the canvas grid. Inside a row or a band the browser invents implicit
+  columns instead — measured, a heading and its note came out in two columns one word wide.
+- **What bleeds is the colour, not the copy.** A band has `padding-inline:0`; any direct text child
+  has to take the content width back, or it starts at x=0 on the glass. `RT_MOCKUP_BLEED_NOT_MEDIA`
+  admits the band class `bleedband` for exactly this shape and FAILs if it is ever found on anything
+  other than a `<section>` — an item inside a grid claiming the gutter is the defect that row exists
+  for, and a band is not an item.
+- **A band needs vertical rhythm too, and it is easy to forget.** `row` carried a `gap` from the
+  first day; `bleed` only switched off the side padding, so its children stacked on whatever margins
+  they brought from home. It went unnoticed while every band held panels with boxes of their own —
+  the first band with a heading as a DIRECT child rendered the title sitting on top of the first row
+  of photographs. Give the band one column and a gap: it decides its children's width, not their
+  breathing.
+- **"Bleed" does not mean the same thing for every kind of content.** A map or a grid of frames with
+  no captions reaches the glass, because there is not one letter on it. A grid of work with a name
+  and a year under each frame does not: measured, the first caption started at x=0, glued to the
+  edge. That grid still escapes `--content-width`, it just stops at the page gutter — and its frames
+  still come out ~13% larger than contained. Ask what the content carries before choosing the edge.
+- **Composition placements belong INSIDE the canvas selector, not beside it.** A rule written
+  `.grid-sec .head{grid-column:c 1/c 9}` also reaches sections that swapped the canvas for another
+  wrapper, where the line named `c` does not exist. Measured: in the `broken-grid` composition it
+  broke the FOUR `direct` variants of the four archetypes that had just gained a band — a heading
+  flush against the right edge and a map **two pixels wide**. The other four anchors were fine, so
+  looking at one strip would never have found it; a sweep of all twenty-four bands did.
+  The temptation is to raise the reset's specificity until it wins. That is the third tie this
+  system has had between two rules, and the answer is never to shout louder — it is to say where
+  each rule lives. A placement that speaks the canvas's line names is written inside the canvas.
+
 ## Container hygiene — the mockup's DOM is a blueprint
 
 The native build reproduces this file section by section, so every wrapper `<div>` here becomes an

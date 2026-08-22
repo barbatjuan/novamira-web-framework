@@ -59,6 +59,18 @@ Ausencia intencional: sin `COMP-SERVICES` (una rejilla de "qué hacemos" en una 
 relleno: lo que hace ya está en la cartera), sin `COMP-PRICING` (el precio es de cada inmueble, no
 de la agencia) y sin carrito de ninguna clase.
 
+**El envoltorio de cada sección es parte del contrato.** `RT_TPL_TOO_SIMILAR` mide el INVENTARIO
+—lo único que un documento sabía declarar— y no ve la FORMA. Medido en la galería: veintidós de las
+veintitrés arquitecturas no dejaban que ningún elemento tocara el borde de la pantalla, así que dos
+arquetipos con inventarios distintos seguían leyéndose como la misma página con otra paleta. Los
+tres envoltorios (`contenido`, `banda`, `fila`) son vocabulario compartido; lo propio de cada
+arquetipo es CUÁL pide cada sección.
+
+| Sección | Envoltorio | Por qué |
+|---------|-----------|---------|
+| `COMP-MAP-SEARCH` | **banda** | La identidad de este arquetipo ya dice que el plano es un MODO DE BÚSQUEDA con los mismos resultados dentro, no una ilustración de dónde está la agencia. Un modo de búsqueda dentro de una columna se lee como una captura de pantalla; llegando al cristal se lee como un mapa que se recorre. El conmutador Lista/Mapa y la nota se quedan en la columna de texto. |
+| El resto | contenido | |
+
 ## 3. Secciones
 
 ### COMP-HEADER `[fijo]`

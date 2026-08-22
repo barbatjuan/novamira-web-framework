@@ -34,6 +34,18 @@ beneficios operativos (envío/pago/cambios) — eso es mobiliario de catálogo y
 editorial; la confianza operativa vive en el footer vía `TGL-TRUST`. Sin bloques largos de
 imagen+texto alternado: eso es storytelling y es el ADN de TPL-E-03.
 
+**El envoltorio de cada sección es parte del contrato.** `RT_TPL_TOO_SIMILAR` mide el INVENTARIO
+—lo único que un documento sabía declarar— y no ve la FORMA. Medido en la galería: veintidós de las
+veintitrés arquitecturas no dejaban que ningún elemento tocara el borde de la pantalla, así que dos
+arquetipos con inventarios distintos seguían leyéndose como la misma página con otra paleta. Los
+tres envoltorios (`contenido`, `banda`, `fila`) son vocabulario compartido; lo propio de cada
+arquetipo es CUÁL pide cada sección.
+
+| Sección | Envoltorio | Por qué |
+|---------|-----------|---------|
+| `COMP-GALLERY` | **banda** | Aquí el lookbook ES el catálogo: se entra a la tienda mirando, no filtrando. Seis frames sin pie, a sangre. |
+| El resto | contenido | |
+
 ## 3. Secciones
 
 ### COMP-ANNOUNCEMENT `[toggle TGL-ANNOUNCEMENT]`

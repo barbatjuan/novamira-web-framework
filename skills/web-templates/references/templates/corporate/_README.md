@@ -1,6 +1,6 @@
 # Corporate templates (TPL-C-*)
 
-Trece arquetipos corporativos en **dos familias**. Misma mecánica en las dos: secciones FIJAS (ADN) /
+Catorce arquetipos corporativos en **dos familias**. Misma mecánica en las dos: secciones FIJAS (ADN) /
 TOGGLE, `design-system.md` y `toggles.md` compartidos (con toggles propios de corporate). El
 recomendador elige por perfil, y **pregunta primero por la familia B** (ver `recommender.md` §3b).
 
@@ -16,13 +16,14 @@ Para negocios que venden algo que el dueño describe una vez y no cambia.
 | TPL-C-04 | Landing / Single-Offer | Una oferta única, campañas, SaaS | Propuesta + CTA fuerte ~55vh | Conversión de 1 oferta |
 | TPL-C-05 | Local / Booking | Clínicas, gastronómico, servicios locales | Imagen + CTA reserva ~45vh | Reserva + ubicación |
 
-## Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..12`)
+## Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..14`)
 
 Existen porque el negocio **publica una cosa concreta** que no entra en una tarjeta de servicio.
 Las siete primeras llevan además su marca de referencia con bloque `[data-brand]` propio en la
 galería — ground, acento, par tipográfico y duotono. **`TPL-C-13` todavía no**: una marca propia
 exige reportaje fotográfico propio, porque `RT_GALLERY_ONE_SHOOT` prohíbe reutilizar el de otra, y
 hasta que exista el arquetipo es utilizable pero no aparece como tira de marca en la galería.
+**`TPL-C-14` sí la tiene** — Lumière, con su cabina fotografiada y su propio ground rosado.
 
 | ID | Nombre | Publica | Ideal para | Marca demo · ancla |
 |----|--------|---------|-----------|--------------------|
@@ -34,6 +35,7 @@ hasta que exista el arquetipo es utilizable pero no aparece como tira de marca e
 | TPL-C-11 | Plan por fases | Un plan largo, en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento | Alinea · EDITORIAL |
 | TPL-C-12 | Urgencias / Hoy | Disponibilidad AHORA | Guardia dental, cerrajería, fontanería, grúa, 24 h | Urgencia Dental · DIRECT |
 | TPL-C-13 | Cartera / Búsqueda | Una cartera de inmuebles buscable por zona | Inmobiliarias, administradores con cartera, promotoras | — *(sin marca demo)* |
+| TPL-C-14 | Ritual / Bono | Una carta de rituales por zona, que se compra en bono | Centros de estética, cabinas, spas urbanos, depilación, uñas | Lumière · MATTER |
 
 ## Diferenciación real (no mismo template)
 
@@ -54,12 +56,17 @@ hasta que exista el arquetipo es utilizable pero no aparece como tira de marca e
   porque en una consulta sanitaria el miedo no es el precio.
 - **C-11** tiene línea de tiempo con meses reales — no un `COMP-PROCESS` de cuatro pasos genéricos.
 - **C-12** **no tiene `COMP-HERO`**, y esa ausencia es su decisión de diseño principal.
+- **C-13** ordena por ZONA, que es geografía, y ninguna unidad es intercambiable con otra.
+- **C-14** publica el **efecto al salir** junto a la duración y el precio, y cierra en BONO y no
+  en cita: es el único cuya unidad de compra son cinco visitas. Y es el único que se prohíbe a sí
+  mismo el antes/después — el lenguaje de C-10 — porque promete resultado médico donde no lo hay.
 
 **Por qué la familia B no colapsa en la A.** Un taller y una clínica son los dos "local con cita" y
 caerían los dos en C-05, que enseña el local y esconde lo que el cliente vino a saber. Cada
 documento de la familia B abre con **"Por qué existe habiendo TPL-C-0X"**: ante la duda, la
 respuesta está ahí. Vecindades: `C-06`↔`C-05` · `C-07`↔`C-08` · `C-08`↔`C-04` · `C-09`↔`C-05` ·
-`C-10`↔`C-05`/`C-09` · `C-11`↔`C-10` · `C-12`↔`C-05`.
+`C-10`↔`C-05`/`C-09` · `C-11`↔`C-10` · `C-12`↔`C-05` · `C-13`↔`C-07`/`C-08` ·
+`C-14`↔`C-05`/`C-10`.
 
 ## Componentes corporate reutilizables
 
@@ -72,7 +79,9 @@ respuesta está ahí. Vecindades: `C-06`↔`C-05` · `C-07`↔`C-08` · `C-08`�
 `COMP-FIGURE-QUOTE`, `COMP-HOURS-BLOCK`, `COMP-SEARCH-FILTERS`, `COMP-STOCK-GRID`, `COMP-TRADE-IN`,
 `COMP-FINANCE`, `COMP-MODEL-HERO`, `COMP-SPEC-TABLE`, `COMP-OFFER-STRIP`, `COMP-PRICE-LIST`,
 `COMP-TREATMENT-CARDS`, `COMP-BEFORE-AFTER`, `COMP-INSURANCE`, `COMP-PHASE-TIMELINE`,
-`COMP-URGENT-BAR`, `COMP-SYMPTOM-TRIAGE`, `COMP-WAIT-PROMISE`.
+`COMP-URGENT-BAR`, `COMP-SYMPTOM-TRIAGE`, `COMP-WAIT-PROMISE`, `COMP-SEARCH-HERO`,
+`COMP-PROPERTY-GRID`, `COMP-ZONE-SELECTOR`, `COMP-RITUAL-MENU`, `COMP-CABIN-TOUR`,
+`COMP-PROTOCOL-STEPS`, `COMP-BONO-PACKS`.
 
 Compartidos: `COMP-HEADER` / `COMP-HERO` / `COMP-FOOTER` / `COMP-TESTIMONIAL` /
 `COMP-TRUST-BADGES` / `COMP-RELATED`.

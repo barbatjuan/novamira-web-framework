@@ -103,7 +103,7 @@ ese es el ADN de TPL-C-01 y en una tienda pide un dato sin devolver nada.
 
 ## 3b. Mapa señal → plantilla (corporate)
 
-Los doce arquetipos corporate se reparten en dos familias que se preguntan distinto, y **se
+Los catorce arquetipos corporate se reparten en dos familias que se preguntan distinto, y **se
 pregunta primero por la segunda**. Ver "Orden de decisión" al final de esta sección.
 
 ### Familia A — por OBJETIVO (`TPL-C-01..05`)
@@ -119,7 +119,7 @@ reputación, una obra, una oferta, una puerta.
 | Una sola oferta/servicio/campaña, secuencia persuasiva a un CTA | **TPL-C-04 Landing / Single-Offer** |
 | Local con reserva/turno, ubicación y horarios protagonistas | **TPL-C-05 Local / Booking** |
 
-### Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..12`)
+### Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..14`)
 
 No son variantes de las anteriores: existen porque el negocio **publica una cosa concreta** que no
 entra en una tarjeta de servicio. La pregunta que los enruta no es "¿qué objetivo tenés?" sino
@@ -150,24 +150,39 @@ tasación, que es la agencia decidiendo qué coge, no el usuario publicando.
 | **Tratamientos** con datos duros y quien los hace | Clínica dental, dermatología, fisio, podología, veterinaria; el miedo es el procedimiento, no el precio | **TPL-C-10 Clínica / Tratamientos** |
 | **Un plan largo** medido en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento, psicoterapia; un solo tratamiento de 12–18 meses | **TPL-C-11 Plan por fases** |
 | **Disponibilidad AHORA** | Guardia dental, cerrajería, fontanería, grúa, veterinaria 24 h; quien entra tiene dolor o una puerta cerrada y no va a leer | **TPL-C-12 Urgencias / Hoy** |
+| Una **carta de rituales** que se compra en bono | Centro de estética, cabina de belleza, spa urbano, depilación, uñas; se elige por zona del cuerpo y se vuelve cinco veces | **TPL-C-14 Ritual / Bono** |
+
+**`TPL-C-14` frente a `TPL-C-05` y `TPL-C-10`.** Los tres son un local con cita, y por eso hay
+que separarlos aquí y no dejarlo al gusto. `TPL-C-05` enseña el local y esconde la carta.
+`TPL-C-10` publica el PROCEDIMIENTO —duración, sesiones, anestesia, colegiado— porque en una
+consulta sanitaria el freno es el miedo. En estética la clienta **ya quiere**: el freno es no
+saber qué le hacen, cuánto dura, **cómo sale a la calle después** y cuánto cuesta volver cinco
+veces. Por eso `TPL-C-14` elige **por zona del cuerpo** antes que por nombre comercial, publica
+el efecto al salir junto al precio, y cierra en **bono**, no en cita suelta.
+Regla corta: **¿qué frena a quien entra?** El miedo al procedimiento → C-10. No encontrar la
+puerta ni el horario → C-05. No saber qué se hace, cuánto dura y cuánto cuesta repetir → C-14.
+Y una frontera de sector que engaña: la medicina estética con acto médico —bótox, hilos,
+láser vascular— es `TPL-C-10`, porque ahí el colegiado y el consentimiento vuelven a ser el
+dato. `TPL-C-14` es la estética que no lo lleva.
 
 ### Orden de decisión
 
 1. **Preguntar primero por la familia B.** Si el negocio publica una carta, un inventario, un
-   objeto único, una tarifa, tratamientos, un plan por fases o disponibilidad inmediata, **gana la
-   familia B**, aunque el objetivo declarado encaje con un `TPL-C-01..05`.
-2. Solo si ninguna de las siete aplica, enrutar por objetivo con la familia A.
+   objeto único, una tarifa, una cartera de inmuebles, tratamientos, un plan por fases,
+   disponibilidad inmediata o una carta de rituales, **gana la familia B**, aunque el objetivo
+   declarado encaje con un `TPL-C-01..05`.
+2. Solo si ninguna de las nueve aplica, enrutar por objetivo con la familia A.
 
 Este orden no es una preferencia: es lo que impide que arquetipos distintos colapsen en uno. Un
 taller y una clínica son los dos "local con cita" y caerían los dos en `TPL-C-05`, que publica el
 local y esconde justo lo que el cliente vino a saber — el precio en uno, el procedimiento en el
-otro. Cada documento `TPL-C-06..12` abre con un apartado **"Por qué existe habiendo TPL-C-0X"**:
+otro. Cada documento `TPL-C-06..14` abre con un apartado **"Por qué existe habiendo TPL-C-0X"**:
 cuando dudes entre una de la familia B y su vecina de la familia A, la respuesta está ahí, en el
 arquetipo, y no aquí.
 
 Vecindades que conviene leer antes de decidir:
 `C-06`↔`C-05` · `C-07`↔`C-08` · `C-08`↔`C-04` · `C-09`↔`C-05` · `C-10`↔`C-05`/`C-09` ·
-`C-11`↔`C-10` · `C-12`↔`C-05`.
+`C-11`↔`C-10` · `C-12`↔`C-05` · `C-13`↔`C-07`/`C-08` · `C-14`↔`C-05`/`C-10`.
 
 Empates: presentar las 2 candidatas con el trade-off y dejar elegir. Nunca decidir solo un empate.
 
@@ -214,6 +229,7 @@ Preguntarlas es ofrecer al cliente que diga que no a algo que igualmente hay que
 |--------|-----------|--------|
 | Servicio / área | `TPL-SERVICE-01` | Una **por servicio** en cuanto la home lleve `COMP-SERVICES`. El grid de la home enlaza a algún sitio, y sin ellas se pierde toda la búsqueda comercial "`<servicio> <ciudad>`", que nunca cae en la home |
 | Proyecto / caso | `TPL-PROJECT-01` | **Obligatoria** si la home es `TPL-C-03` Portfolio. Sin ella el portfolio es una galería: se ve bien y no demuestra nada |
+| Unidad de inventario | `TPL-UNIT-01` · `TPL-PROPERTY-01` | **Obligatoria** si la home es `TPL-C-07` Stock o `TPL-C-13` Cartera. Las tarjetas de esas rejillas dicen «ver ficha»: sin la ficha, el arquetipo promete una página que no existe — medido en la galería, ocho botones muertos en Stock y seis en Cartera |
 | Blog + Entrada | `TPL-BLOG-01` + `TPL-POST-01` | Solo si hay alguien que publique, **y se pregunta antes**: tres entradas de hace dos años restan confianza en vez de sumarla |
 
 ### 6.3 Set sugerido por tipo de sitio
@@ -222,6 +238,7 @@ Preguntarlas es ofrecer al cliente que diga que no a algo que igualmente hay que
 |---------------|-------------------------|
 | Ecommerce | Home + **Shop/Catálogo** (`TPL-SHOP-01`) + **Ficha de producto** (`TPL-PDP-01..05`, ver 6.4) + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1. Carrito (`TPL-CART-01`) y Checkout (`TPL-CHECKOUT-01`) existen como arquetipo de LAYOUT, pero quien los monta es `woocommerce`: no entran en este set, se citan al pasar el testigo |
 | Corporate | Home + **una `TPL-SERVICE-01` por servicio/área** + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1 |
+| Corporate con inventario | Home (`TPL-C-07` o `TPL-C-13`) + **una ficha por unidad** (`TPL-UNIT-01` / `TPL-PROPERTY-01`) + **Nosotros** + **Contacto** — más el bloque 6.1. Aquí las fichas no son cinco: son las que haya en stock, y las escribe quien mantiene el inventario, no quien monta la web |
 
 Los `TPL-C-06..12` publican su unidad de contenido **en la propia home** (la carta, el stock, la
 tarifa, los tratamientos, el plan, el triaje). No arrastran páginas de servicio por defecto: si la
@@ -264,6 +281,34 @@ no un esqueleto duplicado. Por lo mismo se retiró `TPL-SHOP-02 Full-width`: era
 | El oficio: cómo se hace y qué ha salido | `TPL-ABOUT-02` El oficio | Taller, cantería, imprenta, laboratorio |
 | El sitio: la sala, el horario, quién atiende | `TPL-ABOUT-03` La casa | Restaurante, clínica, hotel, tienda |
 
+**Servicio — se elige por lo que al visitante le falta saber.**
+
+| Lo que falta saber | Arquetipo | Home que suele acompañarla |
+|--------------------|-----------|----------------------------|
+| Si esto resuelve mi problema, y cuánto costaría | `TPL-SERVICE-01` El servicio | `TPL-C-01`, `TPL-C-02` |
+| Qué pasa dentro de la sesión, y cuándo NO puedo | `TPL-SERVICE-02` El tratamiento | `TPL-C-14` |
+
+La señal: **¿el cliente ya sabe el nombre de lo que quiere?** No → `TPL-SERVICE-01`, que abre
+por el problema. Sí → `TPL-SERVICE-02`, que abre por el minutaje. Y por encima de las dos,
+`TPL-SERVICES-01` es el índice al que apunta la miga de ambas: entra en cuanto el negocio
+publica más entradas de las que la home enseña.
+
+**Ficha de inventario — se elige por QUÉ SE COMPRA.**
+
+| Lo que decide la compra | Arquetipo | Home que la acompaña |
+|-------------------------|-----------|----------------------|
+| De dónde viene esta unidad y cuánto ha andado | `TPL-UNIT-01` La unidad de ocasión | `TPL-C-07` |
+| Cómo se reparte y cuánto cuesta mantenerla | `TPL-PROPERTY-01` El inmueble | `TPL-C-13` |
+
+La señal: **¿la unidad es intercambiable con otra igual?** En ocasión no lo es —cada coche tiene su
+historia, y por eso la sección central es el historial: propietarios, libro, ITV, garantía—. Un
+inmueble tampoco, pero por otro motivo: nadie pregunta cuántos dueños tuvo y todos preguntan cuánto
+paga de comunidad, así que el centro es el plano y el desglose de coste.
+
+Y ninguna de las dos es `TPL-PDP-01`. Una ficha de producto vende una unidad **fungible** —hay cien
+iguales en el almacén— y por eso gira alrededor de elegir variante y añadir al carrito. Aquí hay
+UNA. No se elige talla: se decide si te fías, y la conversión es una cita para verla.
+
 **Contacto — se elige por lo que el visitante va a HACER.**
 
 | Lo que quiere hacer | Arquetipo |
@@ -276,11 +321,17 @@ entonces el formulario compite con el teléfono y pierde.
 
 **Defaults coherentes con la home.** Se proponen; el usuario puede cambiar cualquiera.
 
-- `TPL-C-05`, `TPL-C-06`, `TPL-C-10`, `TPL-C-12` (negocio con puerta) → `TPL-ABOUT-03` + `TPL-CONTACT-02`.
+- `TPL-C-05`, `TPL-C-06`, `TPL-C-10`, `TPL-C-12`, `TPL-C-14` (negocio con puerta) → `TPL-ABOUT-03` + `TPL-CONTACT-02`.
 - `TPL-C-09`, `TPL-E-02` con taller propio → `TPL-ABOUT-02` + `TPL-CONTACT-01`.
+- Home `TPL-C-07` → **una `TPL-UNIT-01` por unidad en patio**. Home `TPL-C-13` → **una
+  `TPL-PROPERTY-01` por inmueble en cartera**. No se preguntan: la rejilla de la home ya enlaza a
+  ellas, y un enlace que no llega a ninguna parte no es una decisión de alcance, es un defecto.
 - El resto → `TPL-ABOUT-01` + `TPL-CONTACT-01`.
 - Home TPL-C-01 / TPL-C-02 (llevan `COMP-SERVICES`) → **una `TPL-SERVICE-01` por servicio o área**.
   TPL-C-04 es una oferta única y no las necesita; TPL-C-03 enlaza a páginas de proyecto, no de servicio.
+- Home `TPL-C-14` → `TPL-SERVICES-01` agrupado **por zona** + **una `TPL-SERVICE-02` por ritual**.
+  La home enseña seis; la carta entera vive en el índice, y cada ritual necesita su minutaje y sus
+  contraindicaciones, que no caben en una tarjeta.
 - Todas heredan tokens y tono de la home. Heredar el ASPECTO no es heredar la ESTRUCTURA.
 
 El usuario puede overridear cualquier arquetipo por página. Cada página pasa luego por sus toggles

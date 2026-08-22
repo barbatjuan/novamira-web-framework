@@ -39,6 +39,18 @@ El orden ES el argumento: se entra por la foto, se decide con la carta, se conf�
 se reserva al final. Ausencia intencional: sin rejilla de servicios, sin mapa embebido, sin
 reseñas como sección propia — la reseña, si la hay, vive dentro de `COMP-FIGURE-QUOTE`.
 
+**El envoltorio de cada sección es parte del contrato.** `RT_TPL_TOO_SIMILAR` mide el INVENTARIO
+—lo único que un documento sabía declarar— y no ve la FORMA. Medido en la galería: veintidós de las
+veintitrés arquitecturas no dejaban que ningún elemento tocara el borde de la pantalla, así que dos
+arquetipos con inventarios distintos seguían leyéndose como la misma página con otra paleta. Los
+tres envoltorios (`contenido`, `banda`, `fila`) son vocabulario compartido; lo propio de cada
+arquetipo es CUÁL pide cada sección.
+
+| Sección | Envoltorio | Por qué |
+|---------|-----------|---------|
+| `COMP-GALLERY` | **banda** | Se reserva mesa por cómo se ve el comedor, no por la carta. El mosaico de sala llena la pantalla; el encabezado se queda en su columna. |
+| El resto | contenido | |
+
 ## 3. Secciones
 
 ### COMP-HEADER `[fijo]`

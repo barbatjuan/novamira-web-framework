@@ -12,10 +12,12 @@ Precios siempre en **€** (regla de casa del orquestador).
 | Shop / Catálogo | `TPL-SHOP-01` (filtros en sidebar, barra superior o ninguno vía `TGL-SHOP-FILTERS`) | ecommerce |
 | Carrito | `TPL-CART-01` (drawer + página, una sola arquitectura) | ecommerce |
 | Checkout | `TPL-CHECKOUT-01` (solo layout — funcional = `woocommerce`) | ecommerce |
-| Servicio / Área | `TPL-SERVICE-01` (detalle de UN servicio) | corporate |
+| Servicios (índice) | `TPL-SERVICES-01` Índice de servicios | corporate; la página que la miga de la ficha ya prometía |
+| Servicio / Área | `TPL-SERVICE-01` El servicio · `TPL-SERVICE-02` El tratamiento | ¿qué falta saber? si resuelve tu problema · qué pasa dentro de la sesión |
 | Nosotros | `TPL-ABOUT-01` La empresa · `TPL-ABOUT-02` El oficio · `TPL-ABOUT-03` La casa | ¿qué da confianza aquí? la trayectoria · el oficio · el sitio |
 | Contacto | `TPL-CONTACT-01` Consulta · `TPL-CONTACT-02` Puerta abierta | ¿qué va a HACER el visitante? escribir · llamar o ir |
 | Proyecto / caso | `TPL-PROJECT-01` (detalle de UN trabajo) | corporate |
+| Unidad de inventario (ficha) | `TPL-UNIT-01` La unidad de ocasión · `TPL-PROPERTY-01` El inmueble | ¿qué se compra? una historia (de dónde viene, cuánto ha andado) · una forma y su coste de mantenerla |
 | Gracias | `TPL-THANKS-01` | ecommerce + corporate |
 | 404 | `TPL-404-01` | ecommerce + corporate |
 | Legales | `TPL-LEGAL-01` (los cuatro documentos) | ecommerce + corporate |
@@ -24,7 +26,9 @@ Precios siempre en **€** (regla de casa del orquestador).
 
 ## Resolución del set de páginas (recomendador)
 - **Ecommerce** → Home + Shop + PDP + About + Contacto (Cart/Checkout los arma `woocommerce`).
-- **Corporate** → Home + **una `TPL-SERVICE-01` por servicio/área** + About + Contacto.
+- **Corporate** → Home + **`TPL-SERVICES-01`** + **una ficha por servicio/área** + About +
+  Contacto. El índice entra en cuanto hay más entradas de las que la home enseña; con cinco o
+  menos, la home ya ES el índice y se pregunta antes de montarlo.
 - **Siempre, los dos tipos** → `TPL-LEGAL-01` ×4 (las escribe `wordpress-legal`), `TPL-404-01` y
   `TPL-THANKS-01` si hay formulario. No son opcionales y no se preguntan: un sitio sin legales no
   se entrega, uno sin 404 propio devuelve la página desnuda del tema, y un formulario sin página
@@ -56,11 +60,14 @@ que faltaban se escribieron. Ahora la regla mide también aquí, carpeta por car
 ## Componentes nuevos reutilizables
 `COMP-BREADCRUMB`, `COMP-GALLERY`, `COMP-PRODUCT-INFO` (precio €, variantes, qty, add-to-cart),
 `COMP-ACCORDION`, `COMP-FILTERS`, `COMP-TOOLBAR` (sort/filter), `COMP-PAGINATION`, `COMP-CONTACT-FORM`,
-`COMP-MAP-NAP`, `COMP-VALUES` (+ los ya definidos: PRODUCT-CARD, CATEGORY-CARD, TESTIMONIAL, CTA, etc.).
+`COMP-MAP-NAP`, `COMP-VALUES`, `COMP-SERVICE-INDEX` (el índice agrupado), `COMP-TREATMENT-FACTS`
+(duración · sesiones · cabina · cómo sales), `COMP-CONTRAINDICATIONS` (cuándo NO, y qué hacer
+antes) (+ los ya definidos: PRODUCT-CARD, CATEGORY-CARD, TESTIMONIAL, CTA, etc.).
 
 ## Toggles nuevos
 `TGL-PDP-LAYOUT` (standard/editorial), `TGL-PDP-STICKY` (info sticky en desktop), `TGL-RELATED`
 (relacionados sí/no), `TGL-SHOP-FILTERS` (sidebar/topbar/off), `TGL-SHOP-SORT`, `TGL-ABOUT-TEAM`,
 `TGL-ABOUT-STATS`, `TGL-ABOUT-CREDS`, `TGL-CONTACT-MAP`, `TGL-CONTACT-WHO`, `TGL-CONTACT-FORM`,
 `TGL-CONTACT-WHATSAPP`, `TGL-FIT-FINDER`, `TGL-ORIGIN`, `TGL-PLAN-COUNT`, `TGL-ONE-OFF`,
-`TGL-SAMPLE`, `TGL-INSTALL`, `TGL-BOOKING-TYPE`.
+`TGL-SAMPLE`, `TGL-INSTALL`, `TGL-BOOKING-TYPE`, `TGL-SERVICES-GROUP` (por zona/por área/sin
+agrupar), `TGL-SERVICES-FACTS`, `TGL-SERVICES-COMMON`, `TGL-TREATMENT-BONO`.

@@ -24,7 +24,7 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
 
 ## The 3 layers
 - **CAPA 1 — Archetypes** (`references/templates/<type>/TPL-*.md`): proven skeletons, each section
-  marked FIXED (DNA) or TOGGLE. 17 homes: 5 ecommerce, 12 corporate.
+  marked FIXED (DNA) or TOGGLE. 22 homes: 9 ecommerce, 14 corporate.
 - **CAPA 2 — Recommender** (`references/recommender.md`): analyze the brand, request
   references, recommend a `TPL-*`, confirm.
 - **CAPA 3 — Toggles** (`references/toggles.md`): fine-tuning limited to what the chosen
@@ -69,6 +69,6 @@ tokens, and per-breakpoint notes. No visual or builder-specific code.
 - `references/design-system.md` — shared tokens (type, color, spacing, buttons, containers, radii).
 - `references/recommender.md` — CAPA 2: analysis, reference intake, signal→template map, page set.
 - `references/toggles.md` — CAPA 3: modular toggle catalog.
-- `references/templates/ecommerce/` — TPL-E-01..05. See its `_README.md`.
-- `references/templates/corporate/` — TPL-C-01..13, two families. See its `_README.md`.
+- `references/templates/ecommerce/` — TPL-E-01..09. See its `_README.md`.
+- `references/templates/corporate/` — TPL-C-01..14, two families. See its `_README.md`.
 - `references/templates/pages/` — inner-page archetypes. See `pages/_README.md`.
