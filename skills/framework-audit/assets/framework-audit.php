@@ -115,6 +115,7 @@ const ROW_TYPES = array(
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
 	'RT_GALLERY_NOT_BUILT'       => 'FAIL  — the gallery generator is present but its index.html output is not: the tree was never built',
+	'RT_GALLERY_STALE'           => 'FAIL  — the gallery output records no input fingerprint, or one that no longer matches the inputs on disk',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
@@ -2611,6 +2612,64 @@ if ( file_exists( $gal_gen ) && ! file_exists( $gal_out ) ) {
 			. ' generated output and is no longer tracked, so a fresh clone has none until it is'
 			. ' built: php skills/html-mockup/assets/gallery/_build-gallery.php'
 	);
+}
+
+/* ---- RT_GALLERY_STALE ----
+ * The other half of the same question. RT_GALLERY_NOT_BUILT above asks "was it built?"; nothing
+ * asked "was it built from THESE inputs?", and since index.html stopped being tracked nothing
+ * else can: git no longer holds a version to diff the generated file against. Edit an archetype
+ * doc or the image manifest, skip the rebuild, and every gate in this repo stays green over
+ * output that no longer matches what produced it.
+ *
+ * THE DEFINITION OF THE INPUT SET IS NOT REPEATED HERE. It is required out of the audited tree,
+ * from the same file the generator requires, because a fingerprint stated twice is two
+ * fingerprints — and two answers to one question read as staleness the moment they drift, which
+ * is the failure this row exists to detect rather than to cause. skills/framework-audit/SKILL.md
+ * names which of two implementations loses; the honest way to obey it is to have only one.
+ *
+ * GATED ON THE DEFINITION'S PRESENCE IN THE AUDITED ROOT, exactly as its sibling gates on the
+ * generator's. That is what keeps the row out of every fixture root that writes an index.html and
+ * nothing else, and it is also the only conditional under which the require below is reachable.
+ */
+$gal_fp_lib = $mockup_asset_root . '/gallery/_gallery-fingerprint.php';
+if ( file_exists( $gal_gen ) && file_exists( $gal_out ) && file_exists( $gal_fp_lib ) ) {
+	require_once $gal_fp_lib;
+	$gal_dir    = $mockup_asset_root . '/gallery';
+	$gal_want   = nm_gallery_input_digest( $gal_dir );
+	$gal_have   = nm_gallery_embedded_digest( slurp( $gal_out ) );
+	$gal_inputs = count( nm_gallery_input_manifest( $gal_dir ) );
+	if ( '' === $gal_have ) {
+		/* Separated from the mismatch below because the two need different reactions. An output
+		   with no fingerprint at all was either built by a generator that predates this contract
+		   or edited by hand, and both are answered by the same command — but a reader told
+		   "different inputs" would go hunting for an edit that never happened. */
+		add(
+			'RT_GALLERY_STALE',
+			'FAIL',
+			'html-mockup',
+			'assets/gallery/index.html records no input fingerprint, so nothing can say whether it'
+				. ' still matches the ' . $gal_inputs . ' file(s) it is generated from — it predates the'
+				. ' fingerprint or was hand-edited. Regenerate:'
+				. ' php skills/html-mockup/assets/gallery/_build-gallery.php'
+		);
+	} elseif ( $gal_want !== $gal_have ) {
+		/* Both digests are quoted, truncated: the row has to be readable on one line, and the
+		   first 12 hex characters are enough for a human to tell two builds apart. Naming WHICH
+		   input moved would mean embedding the whole per-file manifest in the output and keeping
+		   a second format in sync — a bigger contract than the remedy needs, since the remedy is
+		   the same command whichever file it was. */
+		add(
+			'RT_GALLERY_STALE',
+			'FAIL',
+			'html-mockup',
+			'assets/gallery/index.html was generated from a different set of inputs than the ones on'
+				. ' disk now: over its ' . $gal_inputs . ' input file(s) — the image manifest, img/*.webp,'
+				. ' the TPL-*.md archetypes, fonts/_fonts.php and its woff2 files, design-tokens.md and'
+				. ' the generator itself — the tree hashes to ' . substr( $gal_want, 0, 12 ) . ' while the'
+				. ' output records ' . substr( $gal_have, 0, 12 ) . '. Regenerate:'
+				. ' php skills/html-mockup/assets/gallery/_build-gallery.php'
+		);
+	}
 }
 
 $gallery_manifests_seen = array();
