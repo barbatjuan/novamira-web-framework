@@ -81,6 +81,13 @@ The copy overwrites in place — it does **not** delete files that were removed 
 skill deleted from this repo keeps living in your `~/.claude/` until you remove it by hand.
 (Or symlink the folders into `~/.claude/` if you prefer live edits and exact mirroring.)
 
+The gallery is generated, not tracked. After the first clone — and after any `git pull` that
+touches `assets/gallery/` — build it:
+
+```bash
+php skills/html-mockup/assets/gallery/_build-gallery.php
+```
+
 ## Use
 In Claude Code, ask the orchestrator to drive a build:
 > "Use the **novamira-web-orchestrator** to redesign the home and shop of this WordPress site."
