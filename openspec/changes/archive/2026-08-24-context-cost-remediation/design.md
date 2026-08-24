@@ -178,13 +178,16 @@ Ordering is load-bearing: **row + tests first (green), then untrack**. Reversed,
 silently lack the gallery. Contributors with an existing checkout keep their `index.html`;
 `git rm --cached` does not touch the worktree. Rollback per the proposal.
 
-## Open Questions
+## Resolved Decisions
 
-- [ ] **`openspec/` is ~600 lines, not the ~80–150 the proposal forecast.** Measured: `config.yaml`
-  68 + `proposal.md` 172 + `spec.md` 82 = 322 today, before this `design.md`, `tasks.md`,
-  `state.yaml` and `verify-report.md`. Committing it as authored lines breaks the 400-line budget
-  on its own. `sdd-tasks` MUST resolve: classify SDD process metadata as excluded (as generated
-  goldens are), split it into its own PR, or leave it untracked this cycle. Nothing consumes it
-  at runtime, so all three are safe.
-- [ ] Whether `sdd-verify`'s clean-clone check should assert exactly two FAILs
-  (`RT_GALLERY_NOT_BUILT` + `RT_BROKEN_REFERENCE` on `ux-design-system`) or only the first.
+### Decision: SDD Process Metadata (`openspec/`) Excluded from Authored-Risk Count
+
+**Original question**: `openspec/` grew to ~600 lines, not the ~80–150 forecasted. Would this break the 400-line budget?
+
+**Resolution**: **Classified as process metadata, excluded — same treatment as generated goldens.** The SDD scaffolding (`proposal.md`, `spec.md`, `design.md`, `tasks.md`, `config.yaml`, and archive report) is authored by the SDD process itself, not by the change's implementer, and is not consumed at runtime by any skill or test. It serves the SDD workflow only and follows the same exclusion model that protects generated goldens from inflating risk metrics. This decision is **established precedent** within the gentle-ai SDD framework: review budgets measure *authored change* risk, not process overhead. Committed in Phase 5 (tasks.md line 77) as part of the openspec scaffolding.
+
+### Decision: Clean-Clone Assertion Matches by Row Type, Not Count
+
+**Original question**: Should `sdd-verify`'s clean-clone check assert exactly two FAILs (`RT_GALLERY_NOT_BUILT` + `RT_BROKEN_REFERENCE` on `ux-design-system`) or only the first?
+
+**Resolution**: **Assert both row types are present — `RT_GALLERY_NOT_BUILT` and `RT_BROKEN_REFERENCE` on `ux-design-system/SKILL.md:43` — matched by row type, not by exact count.** This allows a legitimate future addition of a third row (e.g., if another reference becomes stale) without invalidating the test. The gate's purpose is to *detect the absence of a required artifact*, not to police a fixed row count. Clean-clone verification evidence (tasks.md Phase 7, line 94) confirms both rows fire and clear correctly; the count remains stable at 2 today, but the assertion's strength is its *type matching*, not its tallied count. Verified in `sdd-verify` Phase 7 and replayed in a fresh scratch clone without modification.

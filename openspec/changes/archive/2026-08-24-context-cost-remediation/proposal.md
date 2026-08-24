@@ -142,17 +142,17 @@ The untracking *creates* a new silent-failure mode. Before it, a clone could not
 
 ## Success Criteria
 
-- [ ] `git ls-files` no longer lists the gallery `index.html`; the file still exists on disk.
-- [ ] `.git` stops growing across a gallery regeneration cycle.
-- [ ] Full chain from `rules.verify` passes: 1164 OK + the new tests, 0 FAIL; audit 0 FAIL / 4 WARN.
-- [ ] On a clean clone with the gallery absent, the audit **FAILs with `RT_GALLERY_NOT_BUILT`** and names the regeneration command.
-- [ ] After running that command on the clean clone, the full chain passes.
-- [ ] Bootstrap step is discoverable in both `README.md` `## Install` and `CONTRIBUTING.md` `## Testing a change`.
-- [ ] Local `main` equals `origin/main` (`2fd9438`).
-- [ ] A PR from `feat/visual-verification` to `main` is open and unmerged.
-- [ ] All seven branch verdicts are recorded; **no branch deleted**.
-- [ ] `.codegraph/` exists and is gitignored.
-- [ ] Git history unchanged — `git rev-list --count origin/main` matches its pre-change value.
+- [x] `git ls-files` no longer lists the gallery `index.html`; the file still exists on disk. *(Evidence: tasks.md Phase 4, line 72)*
+- [x] `.git` stops growing across a gallery regeneration cycle. *(Evidence: tasks.md Phase 7, line 94 — `.git` stayed 156M after regeneration cycle)*
+- [x] Full chain from `rules.verify` passes: 1164 OK + the new tests, 0 FAIL; audit 0 FAIL / 4 WARN. *(Evidence: tasks.md Phase 7, line 94 — `81/643/22/426 OK / 0 FAIL` across four suites)*
+- [x] On a clean clone with the gallery absent, the audit **FAILs with `RT_GALLERY_NOT_BUILT`** and names the regeneration command. *(Evidence: tasks.md Phase 7, line 94 — unbuilt clone showed `2 FAIL / 4 WARN` with both `RT_GALLERY_NOT_BUILT` and `RT_BROKEN_REFERENCE`)*
+- [x] After running that command on the clean clone, the full chain passes. *(Evidence: tasks.md Phase 7, line 94 — after build, `0 FAIL / 4 WARN` self-audit; target rows absent)*
+- [x] Bootstrap step is discoverable in both `README.md` `## Install` and `CONTRIBUTING.md` `## Testing a change`. *(Evidence: tasks.md Phase 3, lines 61–63; self-audit cleared `RT_ROWTYPE_UNDOCUMENTED`)*
+- [x] Local `main` equals `origin/main` (`2fd9438`). *(Evidence: tasks.md Phase 6, line 86 — fast-forward verified)*
+- [x] A PR from `feat/visual-verification` to `main` is open and unmerged. *(Evidence: tasks.md Phase 6, line 86 — PR #12 opened, state OPEN, not merged)*
+- [x] All seven branch verdicts are recorded; **no branch deleted**. *(Evidence: tasks.md Phase 6, line 86; openspec/changes/context-cost-remediation/branch-verdicts.md)*
+- [x] `.codegraph/` exists and is gitignored. *(Evidence: tasks.md Phase 5, line 79 — `codegraph init` succeeded; check-ignore confirmed)*
+- [x] Git history unchanged — `git rev-list --count origin/main` matches its pre-change value. *(Evidence: tasks.md Phase 7, line 94 — no commits added, only fast-forward of local main)*
 
 ## Review Budget Forecast
 
