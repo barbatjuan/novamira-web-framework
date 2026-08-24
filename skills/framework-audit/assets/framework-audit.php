@@ -114,6 +114,7 @@ const ROW_TYPES = array(
 	'RT_GALLERY_NOT_DISTINCT'    => 'FAIL  — two gallery strips are not two cards: a repeated pair, or one archetype under two anchors that barely differ',
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
+	'RT_GALLERY_NOT_BUILT'       => 'FAIL  — the gallery generator is present but its index.html output is not: the tree was never built',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
@@ -2590,6 +2591,26 @@ function gallery_used_slugs( $src ) {
 
 function gallery_slug_label( $s ) {
 	return ( '' === $s ) ? 'an empty data-img=""' : '`' . $s . '`';
+}
+
+/* ---- RT_GALLERY_NOT_BUILT ----
+ * Precondition of the walk below, not a member of it: discovery here is by glob
+ * (html_assets_deep(), fed via $mockup_assets), and a MISSING file is unreachable by discovery —
+ * absence emits nothing. Hardcoded paths, like $PROOF_MOCKUPS above and for the same reason: a
+ * missing generated artifact must FAIL rather than silently skip the check. Gated on the
+ * generator's own presence so this can never fire inside a fixture root that writes only
+ * index.html (fx_gal()) and never the generator — see tests/test-framework-audit.php. */
+$gal_gen = $mockup_asset_root . '/gallery/_build-gallery.php';
+$gal_out = $mockup_asset_root . '/gallery/index.html';
+if ( file_exists( $gal_gen ) && ! file_exists( $gal_out ) ) {
+	add(
+		'RT_GALLERY_NOT_BUILT',
+		'FAIL',
+		'html-mockup',
+		'assets/gallery/index.html is missing while its generator sits beside it. The gallery is'
+			. ' generated output and is no longer tracked, so a fresh clone has none until it is'
+			. ' built: php skills/html-mockup/assets/gallery/_build-gallery.php'
+	);
 }
 
 $gallery_manifests_seen = array();
