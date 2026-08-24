@@ -81,6 +81,7 @@ let it run that dialogue; don't front-run it.
 | Lazy load, image/CSS/JS weight, Core Web Vitals | `wordpress-performance` |
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
+| Judge a RENDER by eye — composition, alignment, proportion, responsive sweep | `visual-verification` |
 | Audit the FRAMEWORK itself (not a site) before merging a skill change | `framework-audit` |
 
 Not a skill: **`novamira-copywriter`** is a sibling SUBAGENT for writing the real copy. Reach it
@@ -91,16 +92,17 @@ the word "texto" mid-deploy would start rewriting a live site's content over a c
 **New site (greenfield) — no WordPress touched until the build gate:**
 `new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
 `ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
-`project-context` (now, to confirm the connected WP: connector, builder, theme) → builder-core
-`elementor-theme-parts` (header/footer FIRST, so the pages inherit them) → builder-core
-(`elementor-core` / `divi-core`) → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
-if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review`.
+`project-context` (now, to confirm the connected WP: connector, builder, theme) →
+`elementor-theme-parts` (header/footer FIRST, so the pages inherit them; **Elementor only** — on
+Divi the skill itself stops at step 1, no Theme Builder equivalent exists yet) →
+`elementor-core` | `divi-core` → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
+if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review` → `visual-verification`.
 
 **Existing site:**
 `new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
-`html-mockup` (approve) → **build gate** → `elementor-theme-parts` → builder-core →
-`woocommerce` if commerce → `wordpress-legal` → `wordpress-forms` if the site takes enquiries →
-`wordpress-performance` / `wordpress-seo` → `qa-review`.
+`html-mockup` (approve) → **build gate** → `elementor-theme-parts` (Elementor only, same caveat) →
+`elementor-core` | `divi-core` → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
+if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review` → `visual-verification`.
 
 Either way, the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
 builder-agnostic and needs no WordPress; WordPress is only touched after the build gate.
