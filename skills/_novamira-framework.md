@@ -20,7 +20,9 @@ their `assets/`.
   reconnaissance… Modifies nothing" — and `qa-review`, which verifies an already-built page
   server-side and reports PASS/FAIL with evidence. `framework-audit` is read-only too, but points
   the other way: it verifies THIS REPO rather than a site, because everything else here checks a
-  built site and nothing checked the framework. Run it before merging a skill change.
+  built site and nothing checked the framework. Run it before merging a skill change. `visual-verification`
+  is read-only as well: it judges a RENDER by eye — inside a subagent, on a capture budget —
+  because contrast, overflow and Lighthouse cannot see composition.
 - **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
   Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
   `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` and
@@ -41,13 +43,13 @@ inspected at all; do not run `project-context` reflexively.
 `project-context` (now, to confirm connector / builder / theme on the real target) →
 `elementor-theme-parts` (header/footer FIRST, so pages inherit one that already exists) →
 `elementor-core` | `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` /
-`wordpress-seo` → `wordpress-legal` → `wordpress-forms` → `qa-review` → hand off.
+`wordpress-seo` → `wordpress-legal` → `wordpress-forms` → `qa-review` + `visual-verification` → hand off.
 
 **Existing site** — inspect first, so routing is based on facts, never assumption:
 `project-context` → `web-templates` → `ux-design-system` → `html-mockup` (approve) →
 **BUILD GATE** → `elementor-theme-parts` (header/footer FIRST) → `elementor-core` |
 `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` / `wordpress-seo` →
-`wordpress-legal` → `wordpress-forms` → `qa-review` → hand off.
+`wordpress-legal` → `wordpress-forms` → `qa-review` + `visual-verification` → hand off.
 
 Either way the design phase (`web-templates` → `ux-design-system` → `html-mockup`) is
 builder-agnostic and needs no WordPress and no connector.
@@ -98,6 +100,7 @@ have reached it:
 | `web-templates` | `design-system.md`, `recommender.md`, `toggles.md`, `templates/` |
 | `html-mockup` | `mockup-guide.md` |
 | `qa-review` | `house-rules.md` — the most cross-referenced file in the framework |
+| `visual-verification` | `render-defects.md` — every defect found by looking, and the rule it produced |
 | `project-context`, `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` | none |
 
 Gotchas are the gold — grow them every time something surprises you. Shape and rules:
@@ -120,6 +123,8 @@ paste code inline. What exists:
 - `qa-review/assets/lighthouse-audit.mjs` — the server-side evidence script other skills' gates
   point at.
 - `framework-audit/assets/framework-audit.php` — verifies this repo itself, not a built site.
+- `visual-verification/assets/measure-context.js` — what a session actually cost, and the baseline
+  context it re-read on every turn.
 - `divi-core` has no `assets/` yet.
 
 ## Extending per project
