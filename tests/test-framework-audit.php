@@ -3865,6 +3865,109 @@ ok( array() === fx_lines_with( $out226, array( 'RT_GALLERY_NOT_BUILT' ) ), 'no g
 fx_rrmdir( $r226 );
 
 /* ---------------------------------------------------------------------------
+   RT_GALLERY_STALE -- the half RT_GALLERY_NOT_BUILT cannot see.
+
+   Its sibling above answers "was the gallery ever built?". Nothing answered "was it built from
+   THESE inputs?", and since index.html became untracked that question has no other asker: a
+   generated file nobody can diff against its own history is invisible to every other gate here.
+   Edit a TPL-*.md or the image manifest, never regenerate, and the whole chain stays green over
+   output that no longer matches what produced it.
+
+   The mechanism is an input fingerprint the generator EMBEDS in its own output and the audit
+   RECOMPUTES from disk. Both sides read it out of ONE file --
+   skills/html-mockup/assets/gallery/_gallery-fingerprint.php -- because a fingerprint written
+   twice is two fingerprints, and framework-audit/SKILL.md already names which of the two loses.
+   The fixtures below copy that same file rather than restating its rules, for the same reason.
+
+   Gated on that file's PRESENCE IN THE AUDITED ROOT, exactly as its sibling gates on the
+   generator's. No fixture except the four below writes it, so the row cannot fire inside a temp
+   root that never opted in -- asserted, not assumed, by the last scenario.
+   --------------------------------------------------------------------------- */
+
+$fx_gal_fp_lib = $root_dir . '/skills/html-mockup/assets/gallery/_gallery-fingerprint.php';
+
+echo "--- the input fingerprint has ONE definition, and both the generator and the audit read it there ---\n";
+ok( is_file( $fx_gal_fp_lib ), 'the shared fingerprint definition exists at the single path both sides require', $fx_gal_fp_lib );
+if ( is_file( $fx_gal_fp_lib ) ) {
+	require_once $fx_gal_fp_lib;
+}
+ok( function_exists( 'nm_gallery_input_digest' ), 'and it exposes the digest the two sides compare', 'nm_gallery_input_digest() is not defined' );
+ok( function_exists( 'nm_gallery_fingerprint_line' ), 'and the exact line the generator stamps into its output', 'nm_gallery_fingerprint_line() is not defined' );
+
+/** Copies the REAL fingerprint definition into a fixture root -- never a re-typed copy of its
+    rules, which is the duplicate this whole row exists to forbid. Returns false when the
+    definition does not exist yet, so a red run reports a missing row rather than a fatal. */
+function fx_gal_fingerprint( $root ) {
+	global $fx_gal_fp_lib;
+	if ( ! is_file( $fx_gal_fp_lib ) ) {
+		return false;
+	}
+	fx( $root, 'skills/html-mockup/assets/gallery/_gallery-fingerprint.php', file_get_contents( $fx_gal_fp_lib ) );
+	return true;
+}
+
+echo "--- output carrying NO fingerprint at all FAILs: nothing can vouch for it ---\n";
+$r227 = fx_tmp_root();
+fx_base( $r227 );
+fx_gal_generator( $r227 );
+fx_gal_fingerprint( $r227 );
+fx_gal( $r227, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( $code227, $out227 ) = fx_run_ok( $audit, $r227 );
+ok( 'FAIL' === fx_row_level( $out227, array( 'RT_GALLERY_STALE' ) ), 'index.html with no fingerprint line -> FAIL', fx_row_level( $out227, array( 'RT_GALLERY_STALE' ) ) );
+ok( array() !== fx_lines_with( $out227, array( 'RT_GALLERY_STALE', 'records no input fingerprint' ) ), 'and the row says WHICH of the two causes it is: no fingerprint, not a mismatched one', $out227 );
+ok( array() !== fx_lines_with( $out227, array( 'RT_GALLERY_STALE', 'php skills/html-mockup/assets/gallery/_build-gallery.php' ) ), 'and it names the exact remedy -- a FAIL that does not is noise', $out227 );
+ok( 1 === $code227, 'and the tree exits code 1', $code227 );
+fx_rrmdir( $r227 );
+
+echo "--- output whose fingerprint does not match the inputs on disk FAILs ---\n";
+$r228 = fx_tmp_root();
+fx_base( $r228 );
+fx_gal_generator( $r228 );
+fx_gal_fingerprint( $r228 );
+/* A syntactically perfect fingerprint of a DIFFERENT input set -- the shape a real stale gallery
+   has, and the one a "does the line exist?" check would wave through. */
+$fx_wrong_fp = str_repeat( 'a', 64 );
+fx_gal( $r228, '<!-- gallery-input-fingerprint: sha256:' . $fx_wrong_fp . " -->\n" . fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( $code228, $out228 ) = fx_run_ok( $audit, $r228 );
+ok( 'FAIL' === fx_row_level( $out228, array( 'RT_GALLERY_STALE' ) ), 'a well-formed fingerprint of the wrong inputs -> FAIL', fx_row_level( $out228, array( 'RT_GALLERY_STALE' ) ) );
+ok( array() !== fx_lines_with( $out228, array( 'RT_GALLERY_STALE', 'was generated from a different set of inputs' ) ), 'and this cause reads differently from the missing-fingerprint one', $out228 );
+ok( array() !== fx_lines_with( $out228, array( 'RT_GALLERY_STALE', 'php skills/html-mockup/assets/gallery/_build-gallery.php' ) ), 'and it too names the exact remedy', $out228 );
+ok( array() !== fx_lines_with( $out228, array( 'RT_GALLERY_STALE', substr( $fx_wrong_fp, 0, 12 ) ) ), 'and it quotes the fingerprint the output actually records, so the reader can tell them apart', $out228 );
+fx_rrmdir( $r228 );
+
+echo "--- output whose fingerprint MATCHES the inputs on disk is silent -- a current gallery is not accused ---\n";
+if ( function_exists( 'nm_gallery_input_digest' ) && function_exists( 'nm_gallery_fingerprint_line' ) ) {
+	$r229 = fx_tmp_root();
+	fx_base( $r229 );
+	fx_gal_generator( $r229 );
+	fx_gal_fingerprint( $r229 );
+	fx_gal( $r229, '', $FX_GAL_MAN );
+	/* Stamped AFTER every input is on disk, which is the order the generator itself runs in.
+	   index.html is not one of its own inputs, so rewriting it here cannot move the digest --
+	   and if it ever could, this scenario is where that shows up. */
+	$fp229 = nm_gallery_input_digest( $r229 . '/skills/html-mockup/assets/gallery' );
+	fx_gal( $r229, nm_gallery_fingerprint_line( $fp229 ) . "\n" . fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ) );
+	list( $code229, $out229 ) = fx_run_ok( $audit, $r229 );
+	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_STALE' ) ), 'matching fingerprint -> no staleness row', $out229 );
+	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_' ) ), 'and no other gallery row either: the stamp is inert scenery to every rule but this one', $out229 );
+	ok( 0 === $code229, 'and the tree exits code 0', $code229 );
+	/* The mutation that proves the digest is not a constant: move ONE input byte and re-run. */
+	fx( $r229, 'skills/html-mockup/assets/gallery/_gallery-images.md', $FX_GAL_MAN . "\n<!-- one more byte -->\n" );
+	list( , $out229b ) = fx_run_ok( $audit, $r229, array( '--row-types' ) );
+	ok( 'FAIL' === fx_row_level( $out229b, array( 'RT_GALLERY_STALE' ) ), 'and touching a single input file turns that same tree red', fx_row_level( $out229b, array( 'RT_GALLERY_STALE' ) ) );
+	fx_rrmdir( $r229 );
+}
+
+echo "--- no fingerprint definition in the audited root never produces RT_GALLERY_STALE ---\n";
+$r230 = fx_tmp_root();
+fx_base( $r230 );
+fx_gal_generator( $r230 );
+fx_gal( $r230, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( , $out230 ) = fx_run_ok( $audit, $r230 );
+ok( array() === fx_lines_with( $out230, array( 'RT_GALLERY_STALE' ) ), 'generator + index.html but no fingerprint definition -> still no row: the gate is conditioned on the definition', $out230 );
+fx_rrmdir( $r230 );
+
+/* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of
    the file a project is COPIED FROM, asked one hop later of the file that WRITES the site.
    elementor-core/SKILL.md told operators to "swap its palette/type constants" while es-builder.php
