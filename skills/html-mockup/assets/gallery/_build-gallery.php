@@ -3,7 +3,7 @@
  * _build-gallery.php — the template gallery, GENERATED rather than written.
  *
  * Run:  php skills/html-mockup/assets/gallery/_build-gallery.php
- * Out:  skills/html-mockup/assets/gallery/index.html   (committed alongside this file)
+ * Out:  skills/html-mockup/assets/gallery/index.html   (generated; untracked — see .gitignore)
  *
  * WHY A GENERATOR. Each strip is one `TPL-* x PERS-*` pair, and the pairs share everything
  * except the five perceptual axes. Written by hand, the shared half would be copied once per

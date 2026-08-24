@@ -3345,6 +3345,12 @@ function fx_gal( $root, $html, $manifest = null ) {
 	}
 }
 
+/** Writes only the gallery generator stub -- presence is the whole signal, contents are never
+    read. Mirrors fx_gal(), which writes only the output side of the same pair. */
+function fx_gal_generator( $root ) {
+	fx( $root, 'skills/html-mockup/assets/gallery/_build-gallery.php', "<?php\n// fixture stub: presence is the whole signal; contents are never read.\n" );
+}
+
 echo "--- una galeria conforme en un SUBDIRECTORIO no produce ninguna fila de galeria ---\n";
 $r200 = fx_tmp_root();
 fx_base( $r200 );
@@ -3822,6 +3828,41 @@ ok( array() !== fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', 'draws 3 
 ok( array() !== fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', 'the cap is ceil(4/4) = 1' ) ), 'y el tope se calcula sobre ese mismo N', $out223 );
 ok( array() === fx_lines_with( $out223, array( 'RT_GALLERY_ONE_SHOOT', '`fp-41000`' ) ), 'y la sesion que no se pasa no se nombra', $out223 );
 fx_rrmdir( $r223 );
+
+/* ---------------------------------------------------------------------------
+   RT_GALLERY_NOT_BUILT -- the gallery output (skills/html-mockup/assets/gallery/index.html) is
+   generated and, after this change, untracked: a fresh clone has none until the generator runs.
+   Discovery is by glob (html_assets_deep()), so a MISSING file emits nothing on its own -- the
+   same structural gap $PROOF_MOCKUPS already closed with hardcoded paths. Gated on the generator's
+   own presence so it never fires inside fx_gal()'s fixtures, which write index.html but never
+   _build-gallery.php.
+   --------------------------------------------------------------------------- */
+
+echo "--- the generator present without a built index.html FAILs, naming the exact fix command ---\n";
+$r224 = fx_tmp_root();
+fx_base( $r224 );
+fx_gal_generator( $r224 );
+list( $code224, $out224 ) = fx_run_ok( $audit, $r224 );
+ok( 'FAIL' === fx_row_level( $out224, array( 'RT_GALLERY_NOT_BUILT' ) ), 'generator present, no index.html built -> FAIL', fx_row_level( $out224, array( 'RT_GALLERY_NOT_BUILT' ) ) );
+ok( array() !== fx_lines_with( $out224, array( 'RT_GALLERY_NOT_BUILT', 'php skills/html-mockup/assets/gallery/_build-gallery.php' ) ), 'and the message names the exact fix command', $out224 );
+ok( 1 === $code224, 'and the tree exits code 1', $code224 );
+fx_rrmdir( $r224 );
+
+echo "--- the generator present WITH a built index.html stays silent -- a built tree is not accused ---\n";
+$r225 = fx_tmp_root();
+fx_base( $r225 );
+fx_gal_generator( $r225 );
+fx_gal( $r225, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( $code225, $out225 ) = fx_run_ok( $audit, $r225 );
+ok( array() === fx_lines_with( $out225, array( 'RT_GALLERY_NOT_BUILT' ) ), 'generator + built index.html -> no RT_GALLERY_NOT_BUILT row', $out225 );
+fx_rrmdir( $r225 );
+
+echo "--- no generator at all never produces RT_GALLERY_NOT_BUILT -- the gate never fires in a bare fixture root ---\n";
+$r226 = fx_tmp_root();
+fx_base( $r226 );
+list( $code226, $out226 ) = fx_run_ok( $audit, $r226 );
+ok( array() === fx_lines_with( $out226, array( 'RT_GALLERY_NOT_BUILT' ) ), 'no generator, no index.html -> still no row: the gate is conditioned on the generator', $out226 );
+fx_rrmdir( $r226 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of

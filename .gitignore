@@ -22,3 +22,10 @@ secrets.*
 _p*.php
 _wire*.php
 _ins*.php
+
+# Generated gallery output — reproducible from _build-gallery.php, never hand-edited. Anchored:
+# a bare "index.html" would ignore every such file in the repo, not just this one.
+/skills/html-mockup/assets/gallery/index.html
+
+# Local CodeGraph index; fully derived, machine-local
+.codegraph/
