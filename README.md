@@ -66,7 +66,24 @@ the gate). Only `elementor-core` and `woocommerce` currently have both a
 `references/` yet. See `skills/_novamira-framework.md` for the full map.
 
 ## Install
-Skills and agents load from `~/.claude/` (user scope). Run one:
+
+### Prerequisites
+
+- **Claude Code** — skills and agents load from `~/.claude/` (user scope).
+- **PHP on your PATH** — the gallery generator and this framework's own audit are PHP CLI
+  scripts. Developed and tested on 8.2; check yours with `php -v`.
+- **git** — to clone, and to pull updates later.
+
+### 1. Clone
+
+```bash
+git clone https://github.com/barbatjuan/novamira-web-framework.git
+cd novamira-web-framework
+```
+
+### 2. Install the skills and agents
+
+Run one:
 
 **Windows (PowerShell):**
 ```powershell
@@ -76,17 +93,54 @@ Skills and agents load from `~/.claude/` (user scope). Run one:
 ```bash
 ./install.sh
 ```
-Both copy `agents/` and `skills/` into `~/.claude/`. Re-run to update after `git pull`.
+
+Both copy `agents/` and `skills/` into `~/.claude/`. Skills reload live — no restart needed.
+Re-run after any `git pull` that touches `skills/**` or `agents/**`: merging upstream does
+**not** update your `~/.claude/`, and until you re-run it Claude Code keeps executing the older
+version of the framework.
+
+> **PowerShell users:** `cp -rf` is a Bash idiom and fails here — `cp` is an alias for
+> `Copy-Item`, which has no `-rf`. Use the installer above, or
+> `Copy-Item -Path skills\* -Destination "$HOME\.claude\skills" -Recurse -Force`.
+
 The copy overwrites in place — it does **not** delete files that were removed upstream, so a
-skill deleted from this repo keeps living in your `~/.claude/` until you remove it by hand.
+skill or reference deleted from this repo keeps living in your `~/.claude/` until you remove it
+by hand. That is not cosmetic: a retired template left behind can still be offered as a current
+one. To list the leftovers:
+
+```bash
+diff -rq skills ~/.claude/skills | grep "^Only in"
+```
+
 (Or symlink the folders into `~/.claude/` if you prefer live edits and exact mirroring.)
 
-The gallery is generated, not tracked. After the first clone — and after any `git pull` that
-touches `assets/gallery/` — build it:
+### 3. Build the template gallery
+
+The gallery is **generated output and is not tracked**, so a fresh clone does not have one.
+Build it:
 
 ```bash
 php skills/html-mockup/assets/gallery/_build-gallery.php
 ```
+
+Rebuild it after any `git pull` that changes one of its inputs — the image manifest,
+`assets/gallery/img/`, the `TPL-*.md` archetypes, the fonts, or `design-tokens.md`. You do not
+have to track that yourself: the built gallery records a fingerprint of its inputs, and the
+audit in step 4 fails with `RT_GALLERY_STALE` and names the command to run when the two no
+longer agree.
+
+### 4. Verify the install
+
+```bash
+php skills/framework-audit/assets/framework-audit.php
+```
+
+Expect **`0 FAIL`**. Run before step 3 it reports two, and both are expected on an unbuilt
+clone: `RT_GALLERY_NOT_BUILT`, and an `RT_BROKEN_REFERENCE` from a skill that points at the
+gallery. Building it clears both.
+
+WARN rows are informational and do not block. The full offline test chain lives in
+`CONTRIBUTING.md` under "Testing a change".
 
 ## Use
 In Claude Code, ask the orchestrator to drive a build:
