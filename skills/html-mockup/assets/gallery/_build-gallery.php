@@ -32,6 +32,14 @@ $MANIFEST = $DIR . '/_gallery-images.md';
 $IMG_DIR  = $DIR . '/img';
 $OUT      = $DIR . '/index.html';
 
+/* WHAT THIS BUILD WAS MADE OF, stamped into the output so the claim can be checked later rather
+   than trusted. Since index.html stopped being tracked, git can no longer show that it drifted
+   from its inputs — nothing could, which is how a gallery built before a TPL-*.md edit stayed
+   green in every gate here. The definition of the input set lives in ONE file, required by this
+   generator and by framework-audit.php alike (RT_GALLERY_STALE); a second copy of it would
+   answer a slightly different question and read as staleness whenever the two drifted. */
+require_once $DIR . '/_gallery-fingerprint.php';
+
 /* THE SIBLING SKILLS, so a rule this file quotes can be READ rather than remembered. `$SKILLS` is
    `skills/`, four levels up from `assets/gallery/`. Asserted rather than assumed: a build run from
    a copy of this directory outside the repository would otherwise fail much later, inside a regex
@@ -16014,6 +16022,16 @@ $head = '<!--
      `innerWidth` devolvía 980. Los cuatro assets de html-mockup que ya existen tampoco la llevan;
      está reportado como hueco preexistente, no lo introduce este fichero. -->
 <meta name="viewport" content="width=device-width, initial-scale=1">';
+
+/* THE RECEIPT FOR THE INPUTS, on the first line of the file, ahead of the human banner: it is the
+   one line here written for a machine, and burying it inside the banner would make its format a
+   hostage to the prose around it. Computed from disk at this point in the run, so it describes
+   the bytes this very build read — including this file's own source, which decides the output as
+   surely as any table it reads.
+
+   `index.html` is deliberately NOT one of its own inputs, so stamping the line cannot move the
+   digest it carries. */
+$head = nm_gallery_fingerprint_line( nm_gallery_input_digest( $DIR ) ) . "\n" . $head;
 
 /* THE PAGE'S OWN CLAIM ABOUT ITSELF, and it had to change the day a strip declared a toggle. The
    note used to end "la diferencia es el ancla — no la foto ni el texto", which a reader could check
