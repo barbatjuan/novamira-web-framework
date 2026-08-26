@@ -21,6 +21,12 @@ build, silently, in a way no gate here can see.
 
 ## Why one shared set
 
+**Superseded by `catalog-envato-grade`.** The house axis-proof strips this section describes left
+the catalogue gallery in Phase 2 (`RT_GALLERY_AXIS_LEAK`) along with eleven of the thirteen house
+rows below; the argument still holds wherever axis proof lives now (`ux-design-system`'s own
+surface), it just no longer describes anything in *this* manifest. Kept as history, not as a
+current claim about the rows below — every remaining row belongs to a `$BRANDS` demo.
+
 `_axis-proof-content.md` makes the same argument about copy: it is the constant,
 so any visible difference between two renderings is the axes and nothing else.
 Images are the other half of that. Every strip built on the HOUSE identity —
@@ -73,10 +79,12 @@ which is strictly more legible than a base64 blob. Only the pixels need the scri
 
 ## Sourcing and licence
 
-All thirteen are Freepik **free-licence** stock, pulled through the connected
-Freepik/Magnific MCP with `license: free`. None is AI-generated — checked per item
-on the `aiGenerated` flag, because a gallery that sells craftsmanship should not
-illustrate it with a synthesised craftsman.
+The house-quarry set below (`hero-cantera`, the one house row `catalog-envato-grade` kept — see
+its note in the manifest) is Freepik **free-licence** stock, pulled through the connected
+Freepik/Magnific MCP with `license: free`. None of the rows below are AI-generated unless their
+own `Licence` cell says so explicitly (`Freepik AI (Pikaso)`) — checked per item on the
+`aiGenerated` flag, because a gallery that sells craftsmanship should not illustrate it with a
+synthesised craftsman.
 
 Freepik's free licence requires **attribution where the images are published**.
 The gallery is an internal tool and is not published, so nothing is owed today;
@@ -107,56 +115,67 @@ Las dos se generaron: una con la cifra pedida dentro del prompt (y verificada en
 48.200), y otra con la cabina entera desde la puerta del conductor. La celda `Licence` lo dice fila
 por fila, que es donde tiene que decirse.
 
-## Las siete de `inmo-*` no son fotografías
+## Las siete de `inmo-*` no son fotografías (retirado)
 
-**Están GENERADAS, y la columna `Licence` lo dice en vez de dejarlas pasar por lo que no son.**
-El resto de este manifiesto son fotografías de archivo de Freepik; éstas salieron de **Freepik
-Pikaso**, que es el generador de la misma casa y entrena sobre la biblioteca propia de Freepik,
-así que llevan su licencia comercial. Esa es la razón de que estén aquí y no otra: la regla del
-repo es *imágenes sólo Freepik libre*, y ésta es la parte de Freepik que sabe dibujar un piso.
-
-**Por qué hicieron falta.** `TPL-C-13` publica una cartera de inmuebles y en las 45 filas
-anteriores no hay una sola vivienda: lo más cercano son una cantera y seis coches de ocasión.
-Meter un coche en una ficha de piso es el defecto que el § 5 del propio arquetipo prohíbe, y
-reutilizar el reportaje de Piedra Valdés habría cargado la cota de `RT_GALLERY_ONE_SHOOT` sin
-ganar nada. Durante un commit la tira fue con placeholder marcado, que era la respuesta honesta
-mientras no hubiera imágenes.
-
-**El `Shoot` se deriva igual que el de las demás** — el identificador sin sus tres últimos
-dígitos — y lleva el mismo prefijo `fp-`. Se intentó `pk-` para que la procedencia se leyera de un
-vistazo y la regla lo rechazó con razón: el `Shoot` es una CLAVE DE AGRUPACIÓN y la procedencia va
-en `Licence`, así que meter las dos cosas en una celda habría roto la derivación a cambio de nada.
-Cada una
-es una generación independiente con su propio encargo, así que no forman un reportaje en el
-sentido que `RT_GALLERY_ONE_SHOOT` persigue: siete escenas distintas, no siete encuadres de la
-misma tarde. La cota sigue midiéndolas de todos modos, que es como debe ser — la regla no se fía
-de la prosa de este párrafo y hace bien.
-
-**Las caras llegaron después, y con una advertencia que viaja con ellas.** Durante un commit
-`COMP-TEAM` fue con placeholder por un motivo que sigue siendo verdad: un retrato inventado en la
-web de una agencia rompe una promesa concreta —«éste es quien te abre la puerta»—. En la GALERÍA,
-que es una herramienta interna y no la web de nadie, no hay promesa que romper y un hueco a la
-derecha del último retrato se lee como una tarjeta que falta. **En un sitio de cliente estas tres
-no valen**: ahí van las caras reales o no va la sección.
+**Sección retirada en `catalog-envato-grade` PR2b junto con las 15 filas `inmo-*` que describía.**
+Existían para `TPL-C-13` (Cartera / Búsqueda), retirado en esta misma fase con reemplazo nombrado
+`TPL-C-15 · Cartera curada` (`catalog-wrapper-integrity` Requisito 5). El pilar de la
+inmobiliaria — incluida la decisión de generar en vez de fotografiar, y por qué — se retoma con su
+propio set `delao-*` cuando `TPL-C-15` aterrice (PR3b); no hereda estas filas, cuyo slug prefix se
+retira con ellas.
 
 ## Registers
 
-Four, deliberately. A single register would have shipped forty strips of the same
-man in the same grey shirt, which reads as exactly the cheap template the gallery
-exists to disprove.
+**One row per surviving catalogue demo, not per content category.** `catalog-envato-grade`
+Phase 2 replaced the four-register HOUSE table above — Quarry / Workshop / Finished / Material,
+which counted the shared Piedra Valdés axis-proof set — with this one, because the axis-proof set
+itself left the catalogue gallery (`RT_GALLERY_AXIS_LEAK`: a strip with no `$BRANDS` entry behind
+it is personality-anchor proof, not a demo, and belongs under `ux-design-system`'s own surface).
+Ten is the number of demos the catalogue commits to, built across this change's later phases;
+declaring all ten now, before six of them exist, makes `R` larger and the per-shoot cap it derives
+**tighter**, never looser — the conservative direction (`gallery-information-architecture` §
+Registers Divisor Is Per-Demo).
 
 | Register | Slugs | What it says |
 |---|---|---|
-| Quarry | `hero-cantera` | Where the material comes from |
-| Workshop | `hero-taller` `card-cantero` `card-patio` `card-labra` `card-detalle` `sq-manos` | The work itself |
-| Finished | `hero-encimera` `card-veta` `card-mueble` `pan-fachada` | What the client buys |
-| Material | `sq-marmol` `sq-pizarra` | The swatch |
+| Lumière | `lumiere-*` | Belleza · centro de estética |
+| Inmobiliaria de la O | *(pending — PR3b)* | Inmobiliaria · cartera curada, `TPL-C-15` |
+| Motor Aranda | `aranda-*` | Automoción · ocasión |
+| Lawyers | *(pending — PR9)* | Servicios legales |
+| Alinea | `alinea-*` | Salud · coaching / entrenamiento personal |
+| Gyms | *(pending — PR10)* | Fitness / gimnasios |
+| Corte Nueve | `corte-*` | Moda · vaquero con ajuste |
+| Bajura | `bajura-*` | Alimentación · pescado fresco |
+| Tueste Norte | `tueste-*` | Alimentación · café por suscripción |
+| Medida Justa | `estor-*` | Hogar · estores y cortinas a medida |
 
 The count in this table is load-bearing, not decoration: `RT_GALLERY_ONE_SHOOT`
 divides the set size by the number of rows here to get the per-shoot cap. Add a
 register and the cap loosens; delete this table and the row fails, because a set
 that declares no register structure has stated no diversity claim to measure a
-shoot against.
+shoot against. `RT_GALLERY_REGISTER_COUNT_MISMATCH` FAILs separately if this table
+ever carries fewer rows than the gallery renders surviving branded demos.
+
+**`Material`, generator-internal, is not a demo register and does not count toward the ten
+above — and unlike the note further down about the three orphaned hero rows, this ONE is not
+optional to reduce to a placeholder.** `_build-gallery.php` reads this row for two things, and
+the second is stricter than the first: (1) `$MATERIAL_SLUGS` must be non-empty (a literal match on
+a row reading exactly `Material`), or the build `fail()`s outright; (2) since the ink-exemption
+itself was retired in favour of a measurement (see `_build-gallery.php`'s own `$INK_SWATCH`
+comment, "THE SWATCH EXEMPTION IS RETIRED"), the build now requires **at least two** `square 1:1`
+slugs in this row, so it can measure that the house ink still keeps their colours apart — a single
+slug, or a slug of any other role, satisfies (1) and hard-`fail()`s on (2) with "no swatch PAIR to
+measure the house ink against". No surviving demo has a `square`-role material-swatch pair today
+(medida's `estor-muestras` is a `card 4:3` photo of physical fabric samples, not a colour
+specification image), so `sq-marmol`/`sq-pizarra` — the original pair — are kept exactly as they
+were, orphaned from every surviving archetype but load-bearing for this one generator check.
+Kept OUTSIDE the ten-row table above on purpose, so `gallery_register_count()` — which reads the
+FIRST table carrying a literal `Register` header cell — never counts it as an eleventh demo
+register:
+
+| Row | Slugs |
+|---|---|
+| Material | `sq-marmol` `sq-pizarra` |
 
 ## Shoots, and why the column is a proxy
 
@@ -203,28 +222,25 @@ blanket "all of these are free-licence" is true only until the fourteenth image
 arrives from somewhere else, and it becomes false in silence — nothing about the
 new row looks different from the old ones.
 
+**Five rows below back no surviving demo and are kept anyway**, for reasons that have nothing to
+do with any archetype: `hero-cantera`, `hero-taller` and `hero-encimera` are the fixed subjects of
+unconditional, build-time contrast sweeps in `_build-gallery.php` (`$BG_SLUG`'s LP-BROKEN-GRID
+scrim probe, `$SLIDER_FRAMES`'s slider-scrim/ink sweep, `$VIS_SLUG`'s visited-link probe) that run
+on every build regardless of which archetypes exist — none of the ten surviving demos currently
+resolve `TGL-HERO-TYPE` to `slider` (only the retired `TPL-C-01`/`TPL-E-01` admitted it), so these
+three rows are orphaned from the CATALOGUE but not from the GENERATOR. `sq-marmol`/`sq-pizarra` are
+kept for the same class of reason and are explained in full at their own `Material` row above.
+Deleting any of the five moves a green build to a hard `fail()` on the very next run (measured, not
+assumed, in `catalog-envato-grade` PR2b — the exact messages are "no image `hero-taller`" and
+"no swatch PAIR to measure the house ink against").
+
 | Slug | Role | Size | Weight | Freepik | Shoot | Licence | `alt` |
 |---|---|---|---|---|---|---|---|
-| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | fp-50621 | Freepik free | Cantero labrando un sillar a maceta y cincel en el taller |
 | `hero-cantera` | hero 16:9 | 1440×810 | 122 KB | 427777725 | fp-427777 | Freepik free | Vista aérea de una cantera a cielo abierto en bancadas |
+| `hero-taller` | hero 16:9 | 1440×810 | 117 KB | 50621482 | fp-50621 | Freepik free | Cantero labrando un sillar a maceta y cincel en el taller |
 | `hero-encimera` | hero 16:9 | 1440×810 | 114 KB | 427392968 | fp-427392 | Freepik free | Encimera de piedra natural con grifería negra en una cocina |
-| `card-cantero` | card 4:3 | 800×600 | 46 KB | 24492177 | fp-24492 | Freepik free | Operario cortando una placa de piedra en una tronzadora de raíl |
-| `card-patio` | card 4:3 | 800×600 | 38 KB | 22698676 | fp-22698 | Freepik free | Pulidora de disco repasando el canto de una placa clara |
-| `card-labra` | card 4:3 | 800×600 | 44 KB | 50621286 | fp-50621 | Freepik free | Labra de un bloque con herramienta neumática |
-| `card-detalle` | card 4:3 | 800×600 | 44 KB | 50621416 | fp-50621 | Freepik free | Detalle del cincel abriendo la superficie de la piedra |
-| `card-veta` | card 4:3 | 800×600 | 43 KB | 425368036 | fp-425368 | Freepik free | Panel de piedra con veta dorada junto a un frente de madera |
-| `card-mueble` | card 4:3 | 800×600 | 39 KB | 427487926 | fp-427487 | Freepik free | Mueble con frente de piedra y cajones abiertos |
-| `sq-manos` | square 1:1 | 600×600 | 39 KB | 3762376 | fp-3762 | Freepik free | Manos enguantadas tronzando un bloque de piedra con radial |
 | `sq-marmol` | square 1:1 | 600×600 | 75 KB | 1051443 | fp-1051 | Freepik free | Superficie de mármol beige con veta natural |
 | `sq-pizarra` | square 1:1 | 600×600 | 76 KB | 1033860 | fp-1033 | Freepik free | Granito gris de grano fino en placa |
-| `pan-fachada` | panoramic 21:9 | 1440×617 | 102 KB | 410749048 | fp-410749 | Freepik free | Fachada barroca en piedra labrada de Lecce |
-| `terrazza-sala` | hero 16:9 | 1440×810 | 114 KB | 7734844 | fp-7734 | Freepik free | Comedor de ladrillo visto con mesas corridas de madera y lámparas colgantes |
-| `terrazza-mesa` | card 4:3 | 720×540 | 34 KB | 11541171 | fp-11541 | Freepik free | Mesa larga vestida para una cena, con velas y sillas doradas |
-| `terrazza-plato` | card 4:3 | 720×540 | 33 KB | 5449221 | fp-5449 | Freepik free | Plato de carne con salsa de cerezas servido en una mesa oscura |
-| `terrazza-chef` | card 4:3 | 720×540 | 32 KB | 13273102 | fp-13273 | Freepik free | Cocinero terminando un plato con una cuchara en la cocina |
-| `terrazza-velas` | card 4:3 | 720×540 | 34 KB | 5697815 | fp-5697 | Freepik free | Velas encendidas sobre una repisa de madera del comedor |
-| `terrazza-coctel` | card 4:3 | 720×540 | 34 KB | 3421110 | fp-3421 | Freepik free | Rincón del comedor con pared de ladrillo y tablas de madera colgadas |
-| `terrazza-terraza` | card 4:3 | 720×540 | 34 KB | 3742308 | fp-3742 | Freepik free | Terraza de restaurante en la calle con mesas y sillas de mimbre |
 | `aranda-patio` | hero 16:9 | 1440×810 | 59 KB | 5876725 | fp-5876 | Freepik free | Frontal de un coche oscuro en primer plano con otro claro desenfocado detrás |
 | `aranda-v1` | card 4:3 | 720×540 | 33 KB | 423028458 | fp-423028 | Freepik free | Todoterreno azul de perfil en una carretera de otoño |
 | `aranda-v2` | card 4:3 | 720×540 | 34 KB | 426304833 | fp-426304 | Freepik free | Todoterreno oscuro circulando por una calle nevada |
@@ -235,39 +251,9 @@ new row looks different from the old ones.
 | `aranda-u-cuadro` | card 4:3 | 800×600 | 42 KB | 5234126956 | fp-5234126 | Freepik AI (Pikaso) | Cuadro de mandos con el cuentakilómetros marcando 48.200 km |
 | `aranda-u-interior` | card 4:3 | 800×600 | 42 KB | 5234127412 | fp-5234127 | Freepik AI (Pikaso) | Interior visto desde la puerta del conductor: dos asientos de tela gris y consola |
 | `aranda-u-maletero` | card 4:3 | 800×600 | 44 KB | 5234185348 | fp-5234185 | Freepik AI (Pikaso) | Maletero abierto y vacío, con el patio del concesionario detrás |
-| `auria-hero` | hero 16:9 | 1440×810 | 81 KB | 427093861 | fp-427093 | Freepik free | Deportivo oscuro de frente en una carretera de campo con el fondo barrido |
-| `auria-interior` | card 4:3 | 720×540 | 33 KB | 13337874 | fp-13337 | Freepik free | Interior de piel marrón y negra con salpicadero y consola |
-| `auria-puerta` | card 4:3 | 720×540 | 32 KB | 11678381 | fp-11678 | Freepik free | Puerta abierta de un coche con tapicería clara bajo luz de garaje |
-| `auria-arranque` | card 4:3 | 720×540 | 33 KB | 13554714 | fp-13554 | Freepik free | Detalle del botón de arranque en una consola central negra |
-| `bergara-nave` | card 4:3 | 720×540 | 34 KB | 12750560 | fp-12750 | Freepik free | Mecánico apretando una pieza bajo un coche elevado en el taller |
-| `bergara-rueda` | card 4:3 | 720×540 | 33 KB | 10001443 | fp-10001 | Freepik free | Operario sujetando un neumático en el taller de cambio |
-| `arbea-consulta` | hero 16:9 | 1440×810 | 116 KB | 17437967 | fp-17437 | Freepik free | Gabinete dental con sillón moderno y equipo junto a un ventanal |
-| `arbea-material` | card 4:3 | 720×540 | 32 KB | 18264637 | fp-18264 | Freepik free | Instrumental dental estéril dispuesto sobre la bandeja |
-| `arbea-micro` | card 4:3 | 720×540 | 34 KB | 416006272 | fp-416006 | Freepik free | Odontóloga trabajando con microscopio dental sobre una paciente |
-| `arbea-radio` | card 4:3 | 720×540 | 34 KB | 26766940 | fp-26766 | Freepik free | Profesional mostrando una radiografía dental en una tableta |
-| `arbea-doctor` | card 4:3 | 720×540 | 32 KB | 17296182 | fp-17296 | Freepik free | Retrato de odontólogo sonriendo en su gabinete |
-| `arbea-antes` | card 4:3 | 720×540 | 31 KB | 8404196 | fp-8404 | Freepik free | Paciente mostrando la dentadura en consulta |
-| `arbea-despues` | card 4:3 | 720×540 | 33 KB | 8896977 | fp-8896 | Freepik free | Paciente comprobando su dentadura en un espejo de mano |
 | `alinea-hero` | hero 16:9 | 1440×810 | 114 KB | 27071287 | fp-27071 | Freepik free | Joven con ortodoncia metálica sentado en el sillón dental |
 | `alinea-fase` | card 4:3 | 720×540 | 34 KB | 28031013 | fp-28031 | Freepik free | Mujer joven sonriendo sentada en la clínica dental |
 | `alinea-consulta` | card 4:3 | 720×540 | 34 KB | 26955735 | fp-26955 | Freepik free | Odontóloga y paciente conversando en el gabinete |
-| `urgencia-box` | card 4:3 | 720×540 | 32 KB | 22511062 | fp-22511 | Freepik free | Odontóloga tratando a un paciente con dolor en el box de urgencias |
-| `urgencia-turno` | card 4:3 | 720×540 | 34 KB | 15933809 | fp-15933 | Freepik free | Auxiliar de clínica dental de turno mirando a cámara |
-| `inmo-calle` | panoramic 21:9 | 1440×617 | 132 KB | 5215694971 | fp-5215694 | Freepik AI (Pikaso) | Calle residencial de manzana cerrada con balcones de forja, al atardecer |
-| `inmo-reformado` | card 4:3 | 800×600 | 30 KB | 5215695836 | fp-5215695 | Freepik AI (Pikaso) | Salón reformado con parqué de roble y ventanal al balcón |
-| `inmo-atico` | card 4:3 | 800×600 | 50 KB | 5215697660 | fp-5215697 | Freepik AI (Pikaso) | Terraza de ático con solado claro y barandilla de vidrio sobre los tejados |
-| `inmo-bajo` | card 4:3 | 800×600 | 34 KB | 5215697234 | fp-5215697 | Freepik AI (Pikaso) | Bajo sin reformar con salida a un patio interior enlosado |
-| `inmo-piedra` | card 4:3 | 800×600 | 56 KB | 5215699667 | fp-5215699 | Freepik AI (Pikaso) | Estancia con muro de piedra vista, vigas de madera y ventana pequeña |
-| `inmo-adosado` | card 4:3 | 800×600 | 57 KB | 5215700160 | fp-5215700 | Freepik AI (Pikaso) | Fachada de adosado con garaje doble y seto recortado |
-| `inmo-estudio` | card 4:3 | 800×600 | 32 KB | 5215701894 | fp-5215701 | Freepik AI (Pikaso) | Estudio de una sola pieza con cocina en un lateral |
-| `inmo-nerea` | square 1:1 | 600×600 | 18 KB | 5216694377 | fp-5216694 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria, fondo gris liso |
-| `inmo-julen` | square 1:1 | 600×600 | 17 KB | 5216695166 | fp-5216695 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris liso |
-| `inmo-leire` | square 1:1 | 600×600 | 20 KB | 5216696534 | fp-5216696 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris liso |
-| `inmo-plano` | panoramic 2:1 | 1200×570 | 119 KB | 5218258085 | fp-5218258 | Freepik AI (Pikaso) | Vista aérea cenital de un distrito urbano europeo con manzanas, un parque y un río |
-| `inmo-p-cocina` | card 4:3 | 800×600 | 42 KB | 5234118861 | fp-5234118 | Freepik AI (Pikaso) | Cocina con muebles blancos, encimera de piedra clara y ventana a un patio |
-| `inmo-p-dormitorio` | card 4:3 | 800×600 | 41 KB | 5234118808 | fp-5234118 | Freepik AI (Pikaso) | Dormitorio principal con cama vestida en blanco y armario empotrado |
-| `inmo-p-bano` | card 4:3 | 800×600 | 44 KB | 5234119696 | fp-5234119 | Freepik AI (Pikaso) | Baño con ducha de obra, mampara de vidrio y lavabo suspendido |
-| `inmo-p-plano` | plan 3:2 | 1200×800 | 71 KB | 5234119490 | fp-5234119 | Freepik AI (Pikaso) | Plano de planta de un piso de tres dormitorios, línea negra sobre blanco, con cotas |
 | `corte-v1` | card 4:3 | 800×600 | 38 KB | 5220559242 | fp-5220559 | Freepik AI (Pikaso) | Vaquero recto azul medio extendido sobre fondo liso, visto desde arriba |
 | `corte-v2` | card 4:3 | 800×600 | 9 KB | 5220559896 | fp-5220559 | Freepik AI (Pikaso) | Vaquero pitillo negro extendido sobre fondo liso, visto desde arriba |
 | `corte-v3` | card 4:3 | 800×600 | 23 KB | 5220560517 | fp-5220560 | Freepik AI (Pikaso) | Vaquero ancho de lavado claro extendido sobre fondo liso |
@@ -307,7 +293,7 @@ new row looks different from the old ones.
 | `lumiere-noa` | square 1:1 | 600×600 | 39 KB | 5227013872 | fp-5227013 | Freepik AI (Pikaso) | Retrato de técnica de uñas sonriendo, fondo cálido liso |
 
 Las veintiuna filas `corte-*`, `bajura-*` y `tueste-*` son las tres verticales de ecommerce que
-el catálogo tenía escritas y no podía enseñar. Están GENERADAS, como las `inmo-*`, y valen para
+el catálogo tenía escritas y no podía enseñar. Están GENERADAS, y valen para
 una maqueta por lo mismo: enseñan de qué va la sección sin afirmar que existan esa tienda, ese
 barco ni ese tostadero. En un sitio de cliente NINGUNA de las tres sirve — la ropa hay que
 fotografiarla sobre los cuerpos reales que la venden, el pescado es el de la lonja de ese día, y
@@ -348,7 +334,7 @@ oficio (`manos`), la puerta (`recepcion`) y el producto (`cosmetica`).
 recepción es la suya: son justo las dos fotografías que este arquetipo pide que sean reales,
 porque su argumento entero es «mira dónde te lo hacemos».
 
-**Y tres retratos que SÍ están generados**, por lo mismo que los de `inmo-*`: `TPL-ABOUT-03`
+**Y tres retratos que SÍ están generados**: `TPL-ABOUT-03`
 lleva `COMP-TEAM` como ADN y el archivo libre no da tres caras que se lean como un mismo equipo.
 La advertencia viaja con ellas sin cambiar una coma: **en la web de un centro real estas tres no
 valen** — ahí van las caras de quien abre la puerta, o no va la sección.

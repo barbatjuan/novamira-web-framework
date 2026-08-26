@@ -4982,18 +4982,18 @@ list( , $out157 ) = fx_run_ok( $audit, $r157 );
 ok( array() === fx_lines_with( $out157, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ), 'the identical signature in two different families produces no row: comparison is within a family only', $out157 );
 fx_rrmdir( $r157 );
 
-echo "--- acceptance test: all seven REAL Envoltorio tables, main@35a38b4 bytes unmodified, pass with no WARN ---\n";
-/* Not a fixture COPY of the shape -- the actual bytes of the seven files that already carry the
+echo "--- acceptance test: the REAL Envoltorio tables that survive PR2b, main@35a38b4 bytes unmodified, pass with no WARN ---\n";
+/* Not a fixture COPY of the shape -- the actual bytes of the files that already carry the
    convention, read straight off disk exactly like fx_gal_fingerprint() copies the real fingerprint
    definition rather than re-typing its rules. A gate that fails its own reference implementation
-   is not a gate: TPL-C-14-ritual-bono.md is named on its own line for that reason. */
+   is not a gate: TPL-C-14-ritual-bono.md is named on its own line for that reason.
+   Reduced from seven to two by catalog-envato-grade PR2b: TPL-C-03/05/06/13 and TPL-E-01 backed no
+   D1 demo brand and were deleted in that same amputation (T-C1) -- this acceptance test's own job
+   is to prove the row does not fire against real bytes, and a file that no longer exists cannot be
+   copied to prove that. The five survivors that still need a table authored (TPL-C-07/11,
+   TPL-E-06/08/09) get their own regression-pin task in PR4-PR8, one per archetype. */
 $fx_env_real = array(
-	'corporate/TPL-C-03-portfolio-showcase.md',
-	'corporate/TPL-C-05-local-booking.md',
-	'corporate/TPL-C-06-table-menu.md',
-	'corporate/TPL-C-13-property-search.md',
 	'corporate/TPL-C-14-ritual-bono.md',
-	'ecommerce/TPL-E-01-visual-brand.md',
 	'ecommerce/TPL-E-07-batch-weight.md',
 );
 $r158 = fx_tmp_root();

@@ -4,6 +4,17 @@ Convierte "no sé qué plantilla" en "el agente me guía". Bifurca por tipo de s
 marca, pide referencias, recomienda un `TPL-*` — o, si ninguno aplica, resuelve en lane bespoke
 (`lanes.md`). Nunca construye desde cero sin agotar antes el catálogo.
 
+**Catálogo de siete, no de veintitrés.** `catalog-envato-grade` retiró dieciséis arquetipos que no
+respaldaban ninguna demo D1 (`TPL-C-01..06`, `C-08..10`, `C-12`, `C-13`, `TPL-E-01..05`); el
+catálogo activo hoy son los siete que sí: `TPL-C-07` (Motor Aranda), `TPL-C-11` (Alinea), `TPL-C-14`
+(Lumière), `TPL-E-06` (Corte Nueve), `TPL-E-07` (Bajura), `TPL-E-08` (Tueste Norte), `TPL-E-09`
+(Medida Justa). Un brief que hoy habría encajado en uno de los dieciséis retirados **no encaja en
+ninguno de los siete** — eso no es un fallo de este documento, es agotar el catálogo honestamente y
+pasar a la lane bespoke (`lanes.md` § Carril bespoke), con el razonamiento negativo registrado. Tres
+arquetipos nuevos (`TPL-C-15` Cartera curada, y dos por confirmar para abogados y gimnasios) se
+suman en fases posteriores del mismo cambio; hasta entonces, un brief inmobiliario, legal o de
+fitness también resuelve en bespoke.
+
 ## Flujo
 
 ```
@@ -26,8 +37,8 @@ promoción: estricto, sin excepciones — detalle completo en `lanes.md`.
 Antes de nada, resolver: ¿ecommerce o corporativa? Si `project-context` no lo deja claro,
 preguntarlo (AskUserQuestion). Determina qué set de arquetipos entra:
 
-- `ecommerce` → `templates/ecommerce/TPL-E-01..05`
-- `corporate` → `templates/corporate/TPL-C-*`
+- `ecommerce` → `templates/ecommerce/TPL-E-06..09` (activos)
+- `corporate` → `templates/corporate/TPL-C-07`, `TPL-C-11`, `TPL-C-14` (activos)
 
 El design-system y los toggles son **compartidos** entre ambos tipos.
 
@@ -37,11 +48,11 @@ Con web existente o brief, extraer señales:
 
 | Señal | Preguntas guía |
 |-------|----------------|
-| **Qué publica** | ¿Una carta, un inventario que rota, un solo objeto, una tarifa con importes, tratamientos, un plan de meses, disponibilidad inmediata? Es la señal que enruta la familia B de corporate (§3b), y **se pregunta antes que el objetivo**. |
+| **Qué publica** | ¿Un inventario que rota, una tarifa con importes, un plan de meses, un lote con origen y fecha, un plan con cuota, un presupuesto de algo a medida? Es la señal que enruta el catálogo activo, y **se pregunta antes que el objetivo**. |
 | Objetivo primario | Descubrimiento, venta directa, confianza, navegación, urgencia, generación de leads. |
 | Peso de la marca | ¿La marca vende sola (branding) o el producto/precio/servicio manda? |
 | Catálogo (ecommerce) | ¿Pocos SKUs curados o catálogo grande? ¿Una categoría o muchas? |
-| Rubro | Moda/deco, electrónica/repuestos, autor/premium, multi-categoría, outlet (ecommerce); servicios, salud, inmobiliaria, agencia (corporate). |
+| Rubro | Automoción de ocasión, salud/ortodoncia, estética (corporate); moda con ajuste, fresco por lote, suscripción, fabricado a medida (ecommerce). |
 | Rol de la foto | ¿Fotografía protagonista o secundaria? |
 | Estacionalidad | ¿Campañas/promos permanentes o venta/actividad estable? |
 
@@ -60,24 +71,9 @@ defaults sugeridos, no en blanco).
 
 ## 3. Mapa señal → plantilla (ecommerce)
 
-### Familia A — por PERFIL (`TPL-E-01..05`)
-
-Para tiendas donde existe una referencia con precio cerrado que entra en un carrito.
-
-| Perfil dominante | Recomienda | Cierra con |
-|------------------|-----------|------------|
-| Marca visual, pocos SKUs, foto protagonista, descubrimiento | **TPL-E-01 Visual Brand** | cita de estilismo / medición (`COMP-BOOKING`) |
-| Catálogo grande, precio/producto manda, venta directa, search | **TPL-E-02 Catalog / Product-First** | dudas operativas + "¿no lo encontraste?" (`COMP-FAQ` + `COMP-CONTACT-DIRECT`) |
-| Marca de autor/premium, storytelling, confianza, poco catálogo | **TPL-E-03 Brand Story** | la palabra del taller: garantía y reposición (`COMP-CTA`) |
-| Muchas familias de producto, navegación por categoría | **TPL-E-04 Categories-First** | el índice completo del catálogo (`COMP-CTA` + `COMP-CATEGORY-CARD`) |
-| Outlet/campaña/estacional, urgencia, descuentos protagonistas | **TPL-E-05 Promo / Campaign** | última llamada + bases y condiciones (`COMP-CTA`) |
-
-### Familia B — por UNIDAD DE CONTENIDO (`TPL-E-06..09`)
-
-Los cinco de arriba comparten un supuesto: existe una referencia con un precio que entra en un
-carrito. Estas cuatro existen porque ese supuesto se rompe, y **cada una cambia además el mecanismo
-de conversión**, que es lo que de verdad las separa. Como en corporate, se pregunta primero por
-esta familia.
+Los cuatro activos comparten un supuesto: **no** existe una referencia con precio cerrado que entra
+sin más en un carrito — cada uno cambia el mecanismo de conversión, que es lo que de verdad los
+separa.
 
 | Lo que la tienda publica | Señales | Convierte con | Recomienda |
 |--------------------------|---------|---------------|-----------|
@@ -86,110 +82,59 @@ esta familia.
 | Un **plan** con cuota y cadencia | Café, pienso, cosmética de reposición, consumibles; se vende repetición, no una unidad | suscripción | **TPL-E-08 Suscripción** |
 | Un **presupuesto** de algo que aún no existe | Cortinas, mobiliario a medida, encimeras, rotulación; el precio no se sabe hasta configurar | **sin carrito** — formulario de presupuesto | **TPL-E-09 A medida** |
 
-### Orden de decisión (ecommerce)
+**Si la tienda vende por PERFIL** — marca visual de pocos SKUs, catálogo grande por precio, marca de
+autor/storytelling, navegación por categoría, o outlet/campaña estacional — ninguno de los cuatro
+activos encaja: son exactamente los cinco perfiles que cubrían `TPL-E-01..05`, retirados en
+`catalog-envato-grade`. Agotar primero los cuatro de arriba (ninguna referencia con precio cerrado
+que entra directo en el carrito, mecanismo de conversión distinto) y, si de verdad ninguno aplica,
+pasar a bespoke con el razonamiento negativo registrado — no forzar el brief dentro de `TPL-E-06..09`
+solo porque son los que hay.
 
-1. **Preguntar primero por la familia B.** Si la tienda vende ajuste, fresco por lote, suscripción
-   o fabricado a medida, gana la familia B aunque el catálogo parezca encajar en un `TPL-E-01..05`.
-2. Solo si ninguna de las cuatro aplica, enrutar por perfil con la familia A.
+Vecindades a leer antes de decidir dentro del set activo: `E-08`↔`TPL-C-11` (aquel plan TERMINA,
+éste no).
 
-El corte es más limpio que en corporate porque aquí es **mecánico**: si el visitante no puede
-añadir al carrito una referencia con precio cerrado, ninguna plantilla de la familia A funciona.
-Meter fabricado a medida en `TPL-E-02` produce el error clásico del sector — precios "desde" que no
-se parecen al final, un carrito que acepta la compra y un correo posterior pidiendo medidas, que es
-donde se cae la venta con el cobro ya hecho.
-
-Vecindades a leer antes de decidir: `E-06`↔`E-01` · `E-07`↔`E-02`/`E-03` · `E-08`↔`E-02` y
-↔`TPL-C-11` (aquel plan TERMINA, éste no) · `E-09`↔`E-02` y ↔`TPL-C-01` (si es un servicio y no un
-objeto fabricado).
-
-La columna de cierre no es decorativa: **las cinco cierran, y cada una con una banda distinta**.
-Si el cliente pide un cierre que no es el de la plantilla candidata — un formulario de contacto en
-una tienda de catálogo, un cupón en una marca de autor — eso es señal de que el arquetipo elegido
-es otro, no de que haya que añadirle una banda. Ninguna de las cinco cierra con `COMP-LEAD-FORM`:
-ese es el ADN de TPL-C-01 y en una tienda pide un dato sin devolver nada.
+La columna de cierre no es decorativa: **cada uno cierra con una banda distinta**. Si el cliente
+pide un cierre que no es el de la plantilla candidata, eso es señal de que el arquetipo elegido es
+otro (o que el brief cae fuera del catálogo activo), no de que haya que añadirle una banda.
 
 ## 3b. Mapa señal → plantilla (corporate)
 
-Los catorce arquetipos corporate se reparten en dos familias que se preguntan distinto, y **se
-pregunta primero por la segunda**. Ver "Orden de decisión" al final de esta sección.
-
-### Familia A — por OBJETIVO (`TPL-C-01..05`)
-
-Sirven cuando el negocio vende algo que el dueño describe una vez y no cambia: un servicio, una
-reputación, una obra, una oferta, una puerta.
-
-| Perfil dominante | Recomienda |
-|------------------|-----------|
-| Servicios B2B/profesionales, objetivo = leads, CTA/formulario protagonista | **TPL-C-01 Services / Lead-Gen** |
-| Empresa establecida, salud/legal/financiero, autoridad + credenciales + cifras | **TPL-C-02 Institutional / Trust** |
-| Estudio creativo/arquitectura/foto, el trabajo manda, mucho visual | **TPL-C-03 Portfolio / Showcase** |
-| Una sola oferta/servicio/campaña, secuencia persuasiva a un CTA | **TPL-C-04 Landing / Single-Offer** |
-| Local con reserva/turno, ubicación y horarios protagonistas | **TPL-C-05 Local / Booking** |
-
-### Familia B — por UNIDAD DE CONTENIDO (`TPL-C-06..14`)
-
-No son variantes de las anteriores: existen porque el negocio **publica una cosa concreta** que no
-entra en una tarjeta de servicio. La pregunta que los enruta no es "¿qué objetivo tenés?" sino
-**"¿qué publica este negocio, y cada cuánto cambia?"**.
+Los tres activos existen porque el negocio **publica una cosa concreta** que no entra en una
+tarjeta de servicio genérica. La pregunta que los enruta no es "¿qué objetivo tenés?" sino **"¿qué
+publica este negocio, y cada cuánto cambia?"**.
 
 | Lo que el negocio publica | Señales | Recomienda |
 |---------------------------|---------|-----------|
-| Una **carta** con precios, y una cocina que la firma | Restauración; la foto de la comida y el precio deciden antes que la reserva | **TPL-C-06 Mesa / Carta** |
 | Un **inventario volátil** de unidades, cada una con sus datos | Concesionario, ocasión, maquinaria, náutica; el stock rota cada semana; filtrar es la primera intención | **TPL-C-07 Stock / Ocasión** |
-| **Un solo objeto** caro, contado entero | Concesión oficial, lanzamiento, piso piloto; una unidad que se mira despacio, no cuarenta que se descartan | **TPL-C-08 Modelo / Lanzamiento** |
-| Una **tarifa** con importes por trabajo | Taller, chapa, neumáticos, reparación técnica; el miedo del cliente es el precio desconocido | **TPL-C-09 Taller / Tarifa** |
-| Una **cartera de inmuebles**, buscable por ZONA | Inmobiliaria, administrador de fincas con cartera, promotora comercializando; la primera intención es buscar, no leer | **TPL-C-13 Cartera / Búsqueda** |
-
-**`TPL-C-13` frente a `TPL-C-07` y `TPL-C-08`.** Los tres publican unidades, y la tabla sola no
-basta para separarlos. `TPL-C-07` filtra por ATRIBUTOS discretos —marca, modelo, año, kilómetros—
-y una unidad es intercambiable con otra igual: dos coches del mismo modelo y año son el mismo
-coche. `TPL-C-13` filtra por **ZONA**, que es geografía, y ninguna unidad es intercambiable con
-otra — de ahí que lleve el plano como MODO DE BÚSQUEDA, que `TPL-C-07` no tiene. `TPL-C-08` no es
-un listado en absoluto: es UNA unidad contada entera, y su mención de «piso piloto» va por ahí —
-la promotora que enseña un solo piso, no la que comercializa cuarenta.
-Regla corta: **¿cuántas, y se eligen por dónde están?** Cuarenta y por zona → C-13. Cuarenta y por
-ficha técnica → C-07. Una → C-08.
-
-Y una frontera que NO es de sector: una inmobiliaria publica SU cartera y el visitante mira y
-contacta. No hay perfil de vendedor, ranking ni «sube tu anuncio» — eso es un portal, que es otro
-negocio y no está en este catálogo. Lo que sí lleva `TPL-C-13` es captación de cartera vía
-tasación, que es la agencia decidiendo qué coge, no el usuario publicando.
-| **Tratamientos** con datos duros y quien los hace | Clínica dental, dermatología, fisio, podología, veterinaria; el miedo es el procedimiento, no el precio | **TPL-C-10 Clínica / Tratamientos** |
 | **Un plan largo** medido en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento, psicoterapia; un solo tratamiento de 12–18 meses | **TPL-C-11 Plan por fases** |
-| **Disponibilidad AHORA** | Guardia dental, cerrajería, fontanería, grúa, veterinaria 24 h; quien entra tiene dolor o una puerta cerrada y no va a leer | **TPL-C-12 Urgencias / Hoy** |
 | Una **carta de rituales** que se compra en bono | Centro de estética, cabina de belleza, spa urbano, depilación, uñas; se elige por zona del cuerpo y se vuelve cinco veces | **TPL-C-14 Ritual / Bono** |
 
-**`TPL-C-14` frente a `TPL-C-05` y `TPL-C-10`.** Los tres son un local con cita, y por eso hay
-que separarlos aquí y no dejarlo al gusto. `TPL-C-05` enseña el local y esconde la carta.
-`TPL-C-10` publica el PROCEDIMIENTO —duración, sesiones, anestesia, colegiado— porque en una
-consulta sanitaria el freno es el miedo. En estética la clienta **ya quiere**: el freno es no
-saber qué le hacen, cuánto dura, **cómo sale a la calle después** y cuánto cuesta volver cinco
-veces. Por eso `TPL-C-14` elige **por zona del cuerpo** antes que por nombre comercial, publica
-el efecto al salir junto al precio, y cierra en **bono**, no en cita suelta.
-Regla corta: **¿qué frena a quien entra?** El miedo al procedimiento → C-10. No encontrar la
-puerta ni el horario → C-05. No saber qué se hace, cuánto dura y cuánto cuesta repetir → C-14.
-Y una frontera de sector que engaña: la medicina estética con acto médico —bótox, hilos,
-láser vascular— es `TPL-C-10`, porque ahí el colegiado y el consentimiento vuelven a ser el
-dato. `TPL-C-14` es la estética que no lo lleva.
+**Si el negocio vende por OBJETIVO** — leads B2B, autoridad institucional, portfolio creativo, una
+oferta única, o un local con reserva/turno — ninguno de los tres activos encaja: son exactamente los
+cinco objetivos que cubría `TPL-C-01..05`, retirados en `catalog-envato-grade`. Lo mismo si publica
+una carta de mesa, un inventario por unidad única, una tarifa de taller, tratamientos clínicos,
+disponibilidad de urgencia o una cartera de inmuebles buscable por zona — `TPL-C-06`, `C-08`, `C-09`,
+`C-10` y `C-12` cubrían esas seis y también se retiraron. `TPL-C-13` (cartera de inmuebles) es un
+caso aparte: se retira con reemplazo nombrado, `TPL-C-15 · Cartera curada`, que llega en una fase
+posterior de este mismo cambio — hasta que aterrice, un brief inmobiliario también resuelve en
+bespoke. Un negocio de abogados o de gimnasios tampoco tiene hueco todavía: sus arquetipos llegan en
+fases posteriores de `catalog-envato-grade`. En cualquiera de estos casos, agotar los tres activos
+primero, registrar por qué ninguno sirve, y pasar a bespoke.
+
+**`TPL-C-11` frente a `TPL-C-14`.** Los dos son un servicio con cita, y conviene separarlos aquí.
+`TPL-C-11` vende un **plan que termina**: doce a dieciocho meses medidos en fases, con un final
+declarado (ortodoncia, implantología, un programa de entrenamiento). `TPL-C-14` vende una **carta
+que se repite**: la clienta vuelve, elige por zona del cuerpo cada vez, y la página cierra en un
+bono de sesiones sin fecha de término. Regla corta: **¿el tratamiento tiene un final declarado?**
+Sí, con fases → C-11. No, se repite indefinidamente → C-14.
 
 ### Orden de decisión
 
-1. **Preguntar primero por la familia B.** Si el negocio publica una carta, un inventario, un
-   objeto único, una tarifa, una cartera de inmuebles, tratamientos, un plan por fases,
-   disponibilidad inmediata o una carta de rituales, **gana la familia B**, aunque el objetivo
-   declarado encaje con un `TPL-C-01..05`.
-2. Solo si ninguna de las nueve aplica, enrutar por objetivo con la familia A.
-
-Este orden no es una preferencia: es lo que impide que arquetipos distintos colapsen en uno. Un
-taller y una clínica son los dos "local con cita" y caerían los dos en `TPL-C-05`, que publica el
-local y esconde justo lo que el cliente vino a saber — el precio en uno, el procedimiento en el
-otro. Cada documento `TPL-C-06..14` abre con un apartado **"Por qué existe habiendo TPL-C-0X"**:
-cuando dudes entre una de la familia B y su vecina de la familia A, la respuesta está ahí, en el
-arquetipo, y no aquí.
-
-Vecindades que conviene leer antes de decidir:
-`C-06`↔`C-05` · `C-07`↔`C-08` · `C-08`↔`C-04` · `C-09`↔`C-05` · `C-10`↔`C-05`/`C-09` ·
-`C-11`↔`C-10` · `C-12`↔`C-05` · `C-13`↔`C-07`/`C-08` · `C-14`↔`C-05`/`C-10`.
+1. **Preguntar primero qué publica el negocio.** Si es un inventario que rota, un plan largo por
+   fases, o una carta de rituales en bono, el catálogo activo tiene una respuesta. Para cualquier
+   otra cosa que un `TPL-C-*` cubría antes de esta fase, no hay arquetipo activo todavía.
+2. Antes de resolver en bespoke, confirmar que de verdad ninguno de los tres encaja — no descartar
+   por preferencia de estilo, solo por lo que el negocio publica.
 
 Empates: presentar las 2 candidatas con el trade-off y dejar elegir. Nunca decidir solo un empate.
 
@@ -234,51 +179,41 @@ Preguntarlas es ofrecer al cliente que diga que no a algo que igualmente hay que
 
 | Página | Arquetipo | Cuándo |
 |--------|-----------|--------|
-| Servicio / área | `TPL-SERVICE-01` | Una **por servicio** en cuanto la home lleve `COMP-SERVICES`. El grid de la home enlaza a algún sitio, y sin ellas se pierde toda la búsqueda comercial "`<servicio> <ciudad>`", que nunca cae en la home |
-| Proyecto / caso | `TPL-PROJECT-01` | **Obligatoria** si la home es `TPL-C-03` Portfolio. Sin ella el portfolio es una galería: se ve bien y no demuestra nada |
-| Unidad de inventario | `TPL-UNIT-01` · `TPL-PROPERTY-01` | **Obligatoria** si la home es `TPL-C-07` Stock o `TPL-C-13` Cartera. Las tarjetas de esas rejillas dicen «ver ficha»: sin la ficha, el arquetipo promete una página que no existe — medido en la galería, ocho botones muertos en Stock y seis en Cartera |
+| Unidad de inventario | `TPL-UNIT-01` | **Obligatoria** si la home es `TPL-C-07` Stock. La rejilla de esa home dice «ver ficha»: sin la ficha, el arquetipo promete una página que no existe |
+| Servicios / ritual | `TPL-SERVICES-01` + `TPL-SERVICE-02` | **Obligatoria** si la home es `TPL-C-14` Ritual/Bono. La home enseña un resumen de la carta; el índice y la ficha de cada ritual viven aquí |
 | Blog + Entrada | `TPL-BLOG-01` + `TPL-POST-01` | Solo si hay alguien que publique, **y se pregunta antes**: tres entradas de hace dos años restan confianza en vez de sumarla |
+
+`TPL-PROJECT-01` (portfolio) y `TPL-PROPERTY-01`/una `TPL-SERVICE-01` genérica quedan sin home activa
+que las requiera obligatoriamente hasta que `TPL-C-03`, `TPL-C-13`/`TPL-C-15` o `TPL-C-01`/`C-02`
+vuelvan a estar en catálogo (`TPL-PROPERTY-01` ya sobrevive como arquetipo de ficha y se re-engancha
+a `TPL-C-15` en cuanto esa home aterriza — ver `catalog-wrapper-integrity` Requisito 5).
 
 ### 6.3 Set sugerido por tipo de sitio
 
 | Tipo de sitio | Set de páginas sugerido |
 |---------------|-------------------------|
 | Ecommerce | Home + **Shop/Catálogo** (`TPL-SHOP-01`) + **Ficha de producto** (`TPL-PDP-01..05`, ver 6.4) + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1. Carrito (`TPL-CART-01`) y Checkout (`TPL-CHECKOUT-01`) existen como arquetipo de LAYOUT, pero quien los monta es `woocommerce`: no entran en este set, se citan al pasar el testigo |
-| Corporate | Home + **una `TPL-SERVICE-01` por servicio/área** + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1 |
-| Corporate con inventario | Home (`TPL-C-07` o `TPL-C-13`) + **una ficha por unidad** (`TPL-UNIT-01` / `TPL-PROPERTY-01`) + **Nosotros** + **Contacto** — más el bloque 6.1. Aquí las fichas no son cinco: son las que haya en stock, y las escribe quien mantiene el inventario, no quien monta la web |
-
-Los `TPL-C-06..12` publican su unidad de contenido **en la propia home** (la carta, el stock, la
-tarifa, los tratamientos, el plan, el triaje). No arrastran páginas de servicio por defecto: si la
-home no lleva `COMP-SERVICES`, no hay grid que enlace a ninguna parte. Dos excepciones que sí las
-piden cuando el negocio las tiene: `TPL-C-09` puede querer una `TPL-SERVICE-01` por línea de
-trabajo, y `TPL-C-10` una por tratamiento con búsqueda propia. Se pregunta; no se asume.
+| Corporate | Home + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1 |
+| Corporate con inventario | Home (`TPL-C-07`) + **una ficha por unidad** (`TPL-UNIT-01`) + **Nosotros** + **Contacto** — más el bloque 6.1. Aquí las fichas no son cinco: son las que haya en patio, y las escribe quien mantiene el inventario, no quien monta la web |
 
 ### 6.4 Qué arquetipo le toca a cada página interna
 
-Aquí había una línea que decía que Nosotros y Contacto **«no tienen variantes»**, y con un solo
-arquetipo cada una todos los sitios del catálogo se entregaban con la misma página de Nosotros y la
-misma de Contacto. Las páginas internas se eligen igual que la home: por lo que el visitante
-necesita decidir, no por el sector ni por el gusto.
+Las páginas internas se eligen igual que la home: por lo que el visitante necesita decidir, no por
+el sector ni por el gusto.
 
 **Ficha de producto — se elige por la DUDA que bloquea la compra.**
 
-| La duda que queda | Arquetipo | Home que suele acompañarla |
+| La duda que queda | Arquetipo | Home activa que la usa |
 |-------------------|-----------|----------------------------|
-| Cuál y cuántos: el producto está definido | `TPL-PDP-01` Estándar | `TPL-E-01`…`TPL-E-05` |
 | Si le va a caber | `TPL-PDP-02` Talla y ajuste | `TPL-E-06` |
 | Cuánto pesa, de dónde viene y qué día llega | `TPL-PDP-03` Lote y peso | `TPL-E-07` |
 | A qué se compromete y cómo se sale | `TPL-PDP-04` Suscripción | `TPL-E-08` |
 | Si se puede fabricar lo suyo y qué cuesta | `TPL-PDP-05` A medida | `TPL-E-09` |
 
-La frontera se comprueba con una pregunta: **¿el precio se sabe antes de que el cliente hable?**
-Sí y la pieza es siempre igual → `TPL-PDP-01`. Sí pero por kilo → `TPL-PDP-03`. Sí pero es una
-cuota → `TPL-PDP-04`. No → `TPL-PDP-05`. Y si el precio se sabe pero la talla no, → `TPL-PDP-02`.
-
-`TPL-E-01` Visual Brand y `TPL-E-03` Brand Story **no arrastran un arquetipo propio**: usan
-`TPL-PDP-01` con `TGL-PDP-LAYOUT: editorial`. Hubo un `TPL-PDP-02 Editorial` y medido compartía
-siete de sus ocho secciones con la estándar — el registro visual lo mueven las anclas y ese toggle,
-no un esqueleto duplicado. Por lo mismo se retiró `TPL-SHOP-02 Full-width`: era
-`TGL-SHOP-FILTERS: topbar` con nombre de arquetipo.
+`TPL-PDP-01` (Estándar) no tiene home activa que lo use hoy — cubría `TPL-E-01..05`, retirados. Sigue
+existiendo como arquetipo de ficha y vuelve a engancharse en fases posteriores del mismo cambio
+(`TPL-E-08` lo suma como su ficha "una bolsa" — decisión C1 — y `TPL-E-09` hereda su contenido
+`mtm` re-skinado como `TPL-PDP-05`).
 
 **Nosotros — se elige por lo que da confianza en ese negocio.**
 
@@ -290,27 +225,23 @@ no un esqueleto duplicado. Por lo mismo se retiró `TPL-SHOP-02 Full-width`: era
 
 **Servicio — se elige por lo que al visitante le falta saber.**
 
-| Lo que falta saber | Arquetipo | Home que suele acompañarla |
+| Lo que falta saber | Arquetipo | Home activa que suele acompañarla |
 |--------------------|-----------|----------------------------|
-| Si esto resuelve mi problema, y cuánto costaría | `TPL-SERVICE-01` El servicio | `TPL-C-01`, `TPL-C-02` |
 | Qué pasa dentro de la sesión, y cuándo NO puedo | `TPL-SERVICE-02` El tratamiento | `TPL-C-14` |
 
-La señal: **¿el cliente ya sabe el nombre de lo que quiere?** No → `TPL-SERVICE-01`, que abre
-por el problema. Sí → `TPL-SERVICE-02`, que abre por el minutaje. Y por encima de las dos,
-`TPL-SERVICES-01` es el índice al que apunta la miga de ambas: entra en cuanto el negocio
-publica más entradas de las que la home enseña.
+`TPL-SERVICE-01` (El servicio, abre por el problema) no tiene home activa hoy — cubría `TPL-C-01` y
+`TPL-C-02`, retirados. Por encima de las dos, `TPL-SERVICES-01` es el índice al que apunta la miga de
+ambas: entra en cuanto el negocio publica más entradas de las que la home enseña.
 
 **Ficha de inventario — se elige por QUÉ SE COMPRA.**
 
-| Lo que decide la compra | Arquetipo | Home que la acompaña |
+| Lo que decide la compra | Arquetipo | Home activa que la acompaña |
 |-------------------------|-----------|----------------------|
 | De dónde viene esta unidad y cuánto ha andado | `TPL-UNIT-01` La unidad de ocasión | `TPL-C-07` |
-| Cómo se reparte y cuánto cuesta mantenerla | `TPL-PROPERTY-01` El inmueble | `TPL-C-13` |
 
-La señal: **¿la unidad es intercambiable con otra igual?** En ocasión no lo es —cada coche tiene su
-historia, y por eso la sección central es el historial: propietarios, libro, ITV, garantía—. Un
-inmueble tampoco, pero por otro motivo: nadie pregunta cuántos dueños tuvo y todos preguntan cuánto
-paga de comunidad, así que el centro es el plano y el desglose de coste.
+`TPL-PROPERTY-01` (El inmueble) no tiene home activa hoy — acompañaba a `TPL-C-13`, retirado con
+reemplazo nombrado `TPL-C-15`. Sobrevive sin cambios y se re-engancha a `TPL-C-15` en cuanto esa home
+aterriza (`catalog-wrapper-integrity` Requisito 5).
 
 Y ninguna de las dos es `TPL-PDP-01`. Una ficha de producto vende una unidad **fungible** —hay cien
 iguales en el almacén— y por eso gira alrededor de elegir variante y añadir al carrito. Aquí hay
@@ -328,14 +259,11 @@ entonces el formulario compite con el teléfono y pierde.
 
 **Defaults coherentes con la home.** Se proponen; el usuario puede cambiar cualquiera.
 
-- `TPL-C-05`, `TPL-C-06`, `TPL-C-10`, `TPL-C-12`, `TPL-C-14` (negocio con puerta) → `TPL-ABOUT-03` + `TPL-CONTACT-02`.
-- `TPL-C-09`, `TPL-E-02` con taller propio → `TPL-ABOUT-02` + `TPL-CONTACT-01`.
-- Home `TPL-C-07` → **una `TPL-UNIT-01` por unidad en patio**. Home `TPL-C-13` → **una
-  `TPL-PROPERTY-01` por inmueble en cartera**. No se preguntan: la rejilla de la home ya enlaza a
-  ellas, y un enlace que no llega a ninguna parte no es una decisión de alcance, es un defecto.
-- El resto → `TPL-ABOUT-01` + `TPL-CONTACT-01`.
-- Home TPL-C-01 / TPL-C-02 (llevan `COMP-SERVICES`) → **una `TPL-SERVICE-01` por servicio o área**.
-  TPL-C-04 es una oferta única y no las necesita; TPL-C-03 enlaza a páginas de proyecto, no de servicio.
+- Home `TPL-C-14` → `TPL-ABOUT-03` + `TPL-CONTACT-02`.
+- Home `TPL-C-07` → **una `TPL-UNIT-01` por unidad en patio**. No se pregunta: la rejilla de la
+  home ya enlaza a ellas, y un enlace que no llega a ninguna parte no es una decisión de alcance, es
+  un defecto.
+- Home `TPL-C-11` → `TPL-ABOUT-01` + `TPL-CONTACT-01`.
 - Home `TPL-C-14` → `TPL-SERVICES-01` agrupado **por zona** + **una `TPL-SERVICE-02` por ritual**.
   La home enseña seis; la carta entera vive en el índice, y cada ritual necesita su minutaje y sus
   contraindicaciones, que no caben en una tarjeta.

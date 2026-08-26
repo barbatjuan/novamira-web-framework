@@ -456,20 +456,7 @@ $ANCHORS = array(
 // `gamma` is how deep the S-curve goes. A brand that names neither inherits the default, exactly
 // like an anchor whose § Imagery says nothing.
 $BRANDS = array(
-	'terrazza' => array(
-		'name'   => 'CASA TERRAZZA',
-		'sector' => 'Restaurante',
-		/* Ground: the room's own light. Brick, wood and candles photograph warm and DARK, and a
-		   restaurant read on a phone at 21:40 is read in a dark room — a paper ground would be the
-		   one surface in the whole design that argues with its own photographs. */
-		'ground' => array( 'bg' => '#171310', 'alt' => '#211B16', 'text' => '#F4EBDF' ),
-		/* Accent: brass. It is the metal actually in the photographs — the lamps, the cutlery, the
-		   chair frames — which is the only defensible way to pick one. Measured below like any other. */
-		'accent' => '#D9A441',
-		'font_1' => "'Fraunces', Georgia, 'Times New Roman', serif",
-		'font_2' => "'Source Sans 3', system-ui, sans-serif",
-		'ink'    => array( 'sat' => 0.88, 'gamma' => 0.18 ),
-	),
+	
 
 	/* MOTOR ARANDA · ocasión multimarca. Fondo claro y FRÍO, que es lo contrario de Terrazza a
 	   propósito: un patio de coches se lee de día, en el móvil, comparando cifras. El acento es
@@ -488,41 +475,17 @@ $BRANDS = array(
 	/* AURIA · lanzamiento de un modelo. Casi negro AZULADO, frente al casi negro CÁLIDO de
 	   Terrazza: los dos son oscuros y no se parecen, que es exactamente lo que un catálogo tiene
 	   que poder demostrar. */
-	'auria'  => array(
-		'name'   => 'AURIA',
-		'sector' => 'Automoción · concesión',
-		'ground' => array( 'bg' => '#0A0D12', 'alt' => '#141A23', 'text' => '#EDF1F6' ),
-		'accent' => '#5AA2FF',
-		'font_1' => "'Archivo Expanded', 'Arial Black', system-ui, sans-serif",
-		'font_2' => "'Inter Tight', system-ui, sans-serif",
-		'ink'    => array( 'sat' => 0.60, 'gamma' => 0.34 ),
-	),
+	
 
 	/* TALLER BERGARA · tarifa. Papel cálido de taller y naranja de señalización. Es el único de
 	   los tres cuyo argumento es un NÚMERO y no una fotografía, así que su fondo es el más plano
 	   y su acento el más ruidoso: el precio tiene que poder gritar sin ayuda de una imagen. */
-	'bergara' => array(
-		'name'   => 'TALLER BERGARA',
-		'sector' => 'Automoción · taller',
-		'ground' => array( 'bg' => '#FBF8F3', 'alt' => '#EFEAE1', 'text' => '#1B1815' ),
-		'accent' => '#A63D12',
-		'font_1' => "'Archivo', system-ui, sans-serif",
-		'font_2' => "'DM Sans', system-ui, sans-serif",
-		'ink'    => array( 'sat' => 0.80, 'gamma' => 0.16 ),
-	),
+	
 
 	/* CLÍNICA ARBEA · odontología general. Blanco frío casi puro y verde azulado. Es el fondo más
 	   CLARO de todo el catálogo a propósito: una consulta sanitaria compite con el miedo, y el miedo
 	   no se calma con contraste alto ni con acentos que gritan. */
-	'arbea'  => array(
-		'name'   => 'CLÍNICA ARBEA',
-		'sector' => 'Salud · odontología',
-		'ground' => array( 'bg' => '#FBFCFD', 'alt' => '#EDF2F4', 'text' => '#0F1E24' ),
-		'accent' => '#0E6E6E',
-		'font_1' => "'Source Sans 3', system-ui, sans-serif",
-		'font_2' => "'Inter Tight', system-ui, sans-serif",
-		'ink'    => array( 'sat' => 0.58, 'gamma' => 0.10 ),
-	),
+	
 
 	/* ALINEA · ortodoncia. Papel cálido y ciruela. Vende un tratamiento de dieciocho meses, así que
 	   se parece más a una marca de producto que a una clínica: el acento es el único de la casa que
@@ -542,15 +505,7 @@ $BRANDS = array(
 	   blanco #FFFFFF y ningún otro acento es rojo, y las dos cosas son la misma decisión: esta
 	   página se lee de pie, con dolor y con una mano, y todo lo que no sea contraste máximo le
 	   estorba a esa persona. */
-	'urgencia' => array(
-		'name'   => 'URGENCIA DENTAL',
-		'sector' => 'Salud · guardia 24 h',
-		'ground' => array( 'bg' => '#FFFFFF', 'alt' => '#F3F4F5', 'text' => '#131416' ),
-		'accent' => '#C22217',
-		'font_1' => "'Archivo', system-ui, sans-serif",
-		'font_2' => "'Source Sans 3', system-ui, sans-serif",
-		'ink'    => array( 'sat' => 0.74, 'gamma' => 0.22 ),
-	),
+	
 
 	/* CORTE NUEVE · vaquero con ajuste. El fondo es el GREIGE DEL PROPIO FONDO DE LAS FOTOS, y esa
 	   es la única forma defendible de elegirlo aquí: este arquetipo enseña la misma prenda sobre
@@ -1805,93 +1760,7 @@ $CONTENT = array(
 	/* ── CLÍNICA ARBEA · TPL-C-10 · el miedo no es el precio, es el procedimiento. La unidad de
 	   contenido no es un servicio con precio sino un TRATAMIENTO con cuatro datos que casi nadie
 	   publica: cuánto dura, cuántas sesiones, si lleva anestesia y desde cuánto. */
-	'TPL-C-10-arbea' => array(
-		'tpl'          => 'TPL-C-10-arbea',
-		'head_mode'    => 'tight',
-		'arch'         => 'TPL-C-10',
-		'brand'        => 'arbea',
-		'brand_name'   => 'Clínica Arbea',
-		'brand_sector' => 'Salud · odontología',
-		'tpl_name'     => 'Clínica / Tratamientos',
-		'site'         => 'corporate',
-		'site_es'      => 'Corporativa',
-		'fits'         => 'Clínicas dentales, dermatología, fisioterapia, podología, veterinaria',
-		'dna'          => 'COMP-TREATMENT-CARDS · COMP-BEFORE-AFTER · COMP-TEAM',
-		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-TREATMENT-CARDS · COMP-BEFORE-AFTER · COMP-TEAM · COMP-INSURANCE · COMP-BOOKING · COMP-FOOTER',
-		'nav'          => array( 'Tratamientos', 'Equipo', 'Coberturas' ),
-		'nav_cta'      => 'Pedir cita',
-		'phone'        => '945 00 00 00',
-		'hero'         => array(
-			'eyebrow' => 'Odontología general y estética · Vitoria-Gasteiz',
-			'h1'      => 'Le contamos qué le vamos a hacer antes de hacerlo',
-			'lede'    => 'Cada tratamiento con su duración, sus sesiones y si lleva anestesia. Sin presupuestos que aparecen a mitad y sin tratamientos que se alargan sin avisar.',
-			'cta_1'   => 'Pedir cita',
-			'cta_2'   => '945 00 00 00',
-			'img'     => 'arbea-consulta',
-		),
-		'treatments'   => array(
-			'eyebrow' => 'Tratamientos',
-			'h2'      => 'Seis cosas que hacemos, con sus números',
-			'note'    => 'Los precios «desde» corresponden al caso simple; la primera visita incluye radiografía y presupuesto cerrado por escrito.',
-			'items'   => array(
-				array( 'img' => 'arbea-material', 'h3' => 'Empaste', 'p' => 'Composite del color del diente, en una sola visita.',
-					'facts' => array( '35 min', '1 sesión', 'Con anestesia', 'desde 65 €' ) ),
-				array( 'img' => 'arbea-micro', 'h3' => 'Endodoncia', 'p' => 'Con microscopio: se ve el conducto en vez de buscarlo.',
-					'facts' => array( '75 min', '1–2 sesiones', 'Con anestesia', 'desde 190 €' ) ),
-				array( 'img' => 'arbea-radio', 'h3' => 'Implante', 'p' => 'Colocación, cicatrización y corona sobre él.',
-					'facts' => array( '60 min', '3 sesiones', 'Con anestesia', 'desde 1.100 €' ) ),
-				array( 'img' => 'arbea-antes', 'h3' => 'Blanqueamiento', 'p' => 'En clínica con férula para casa las dos semanas siguientes.',
-					'facts' => array( '50 min', '1 sesión', 'Sin anestesia', 'desde 290 €' ) ),
-				array( 'img' => 'arbea-despues', 'h3' => 'Limpieza y mantenimiento', 'p' => 'Con revisión de encías y consejo de cepillado.',
-					'facts' => array( '40 min', '1 sesión', 'Sin anestesia', '59 €' ) ),
-				array( 'img' => 'arbea-doctor', 'h3' => 'Primera visita', 'p' => 'Radiografía, exploración y presupuesto por escrito.',
-					'facts' => array( '30 min', '1 sesión', 'Sin anestesia', 'Gratuita' ) ),
-			),
-		),
-		'cases'        => array(
-			'eyebrow' => 'Un caso',
-			'h2'      => 'Antes y después, con las dos fechas',
-			'lede'    => 'Rehabilitación de sector anterior: dos implantes y cuatro carillas. El paciente autorizó la publicación de las imágenes.',
-			'before'  => array( 'img' => 'arbea-antes', 'label' => 'Antes', 'date' => '14 de marzo de 2025' ),
-			'after'   => array( 'img' => 'arbea-despues', 'label' => 'Después', 'date' => '2 de julio de 2025' ),
-			'note'    => 'Tres meses y medio, seis sesiones. Los resultados dependen de cada caso y se explican en la primera visita.',
-		),
-		'team'         => array(
-			'eyebrow' => 'Quién le atiende',
-			'h2'      => 'Tres personas, con su número de colegiado',
-			'items'   => array(
-				array( 'img' => 'arbea-doctor', 'name' => 'Dr. Íñigo Arbea', 'role' => 'Odontología general y endodoncia', 'lic' => 'Col. 01-0001234' ),
-				array( 'img' => 'arbea-micro', 'name' => 'Dra. Leire Otxoa', 'role' => 'Implantología y cirugía', 'lic' => 'Col. 01-0004567' ),
-				array( 'img' => 'arbea-radio', 'name' => 'Dr. Pablo Mendive', 'role' => 'Estética dental y prótesis', 'lic' => 'Col. 01-0007890' ),
-			),
-		),
-		'insurance'    => array(
-			'eyebrow' => 'Coberturas',
-			'h2'      => 'Con qué seguros trabajamos',
-			'items'   => array( 'Adeslas', 'Sanitas', 'DKV', 'Asisa', 'Mapfre Salud', 'Caser' ),
-			'note'    => 'Financiación hasta 24 meses sin intereses a partir de 600 €, con estudio previo. TAE 0 % — el resto de plazos se explican por escrito antes de firmar.',
-		),
-		'booking'      => array(
-			'eyebrow' => 'Cita',
-			'h2'      => 'Elija día y hora',
-			'lede'    => 'La primera visita es gratuita e incluye radiografía y presupuesto por escrito. Dura media hora.',
-			'fields'  => array(
-				array( 'nombre', 'Nombre', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl'  => 'Día',
-			'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
-			'slot_lbl' => 'Hora',
-			'slots'    => array( '09:30', '11:00', '12:30', '16:00', '18:00' ),
-			'submit'   => 'Pedir cita',
-			'small'    => 'Le confirmamos por teléfono el mismo día. Si necesita cambiarla, avise con 24 horas y no cuenta.',
-		),
-		'footer'       => array(
-			'tag'   => 'Clínica Arbea · Calle Postas 32, 01004 Vitoria-Gasteiz · 945 00 00 00 · Reg. sanitario 01-C21-0000',
-			'links' => array( 'Tratamientos', 'Equipo', 'Privacidad' ),
-			'legal' => 'Clínica Arbea SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* ── LUMIÈRE · TPL-C-14 · la clienta YA QUIERE. Ése es el dato que separa este arquetipo de sus
 	   dos vecinos: TPL-C-05 enseña el local y esconde la carta, TPL-C-10 publica el procedimiento
@@ -2126,77 +1995,7 @@ $CONTENT = array(
 	/* ── URGENCIA DENTAL · TPL-C-12 · siete secciones y ningún héroe. Quien entra tiene dolor, está
 	   de pie y con una mano. Todos los demás arquetipos empiezan por presentarse; éste empieza por
 	   responder. */
-	'TPL-C-12-urgencia' => array(
-		'tpl'          => 'TPL-C-12-urgencia',
-		'head_mode'    => 'tight',
-		'arch'         => 'TPL-C-12',
-		'brand'        => 'urgencia',
-		'brand_name'   => 'Urgencia Dental',
-		'brand_sector' => 'Salud · guardia 24 h',
-		'tpl_name'     => 'Urgencias / Hoy',
-		'site'         => 'corporate',
-		'site_es'      => 'Corporativa',
-		'fits'         => 'Urgencias dentales, cerrajería, fontanería, grúa, veterinaria 24 h',
-		'dna'          => 'COMP-URGENT-BAR · COMP-SYMPTOM-TRIAGE · COMP-WAIT-PROMISE',
-		'wire'         => 'COMP-HEADER · COMP-URGENT-BAR · COMP-SYMPTOM-TRIAGE · COMP-WAIT-PROMISE · COMP-TEAM · COMP-MAP-NAP · COMP-FOOTER',
-		'nav'          => array( 'Qué hacemos', 'Cómo llegar' ),
-		'nav_cta'      => 'Llamar ahora',
-		'phone'        => '944 00 00 00',
-		'urgent'       => array(
-			'state'   => 'Abierto ahora',
-			'h1'      => 'Guardia dental en Bilbao, hoy y sin cita',
-			'next'    => 'Próximo hueco: hoy a las 19:40',
-			'cta'     => 'Llamar al 944 00 00 00',
-			'note'    => 'De 09:00 a 01:00 todos los días del año, festivos incluidos.',
-		),
-		'triage'       => array(
-			'eyebrow' => 'Qué le pasa',
-			'h2'      => 'Cuatro cosas que resolvemos hoy mismo',
-			'items'   => array(
-				array( 'Se me ha roto un diente', 'Reconstrucción provisional en la misma visita; la definitiva se cita después.', '40 min' ),
-				array( 'Me duele mucho una muela', 'Radiografía, apertura y drenaje si hace falta. El dolor se va antes de que se vaya usted.', '50 min' ),
-				array( 'Se me ha caído una corona o un empaste', 'Se recementa en el momento si la trae. Tráigala aunque esté partida.', '30 min' ),
-				array( 'Se me ha salido un bracket y me clava', 'Se recoloca o se recorta el arco. Es lo más rápido de todo.', '20 min' ),
-			),
-			'note'    => 'Si ha habido un golpe con pérdida de un diente entero, llame ANTES de venir: hay media hora para reimplantarlo y le decimos qué hacer con él por teléfono.',
-		),
-		'wait'         => array(
-			'eyebrow' => 'Espera y precio',
-			'h2'      => 'Las dos cosas que nadie publica',
-			'items'   => array(
-				array( '22 minutos', 'de espera media en la última semana, contando fines de semana' ),
-				array( '49 €', 'la visita de urgencia, con radiografía incluida' ),
-			),
-			'note'    => 'La visita se descuenta del tratamiento si lo hace aquí. Lo que cueste el tratamiento se lo decimos antes de empezarlo, no al terminar.',
-		),
-		'team'         => array(
-			'eyebrow' => 'De guardia',
-			'h2'      => 'Quién está hoy',
-			'items'   => array(
-				array( 'img' => 'urgencia-box', 'name' => 'Dra. Nerea Zubiaur', 'role' => 'Odontóloga de guardia · turno de tarde', 'lic' => 'Col. 48-0002345' ),
-				array( 'img' => 'urgencia-turno', 'name' => 'Jon Aretxaga', 'role' => 'Auxiliar · recepción y radiología', 'lic' => 'Nº reg. 48-A-0678' ),
-			),
-		),
-		'nap'          => array(
-			'eyebrow' => 'Cómo llegar',
-			'h2'      => 'Indautxu, Bilbao',
-			'addr'    => array( 'Alameda de Urquijo 68, bajo', '48013 Bilbao · Bizkaia' ),
-			'phone'   => '944 00 00 00',
-			'mail'    => 'guardia@urgenciadental.example',
-			'hours'   => array(
-				array( 'Todos los días', '09:00 – 01:00' ),
-				array( 'Festivos', '09:00 – 01:00' ),
-				array( 'Fuera de ese horario', 'Llame igualmente' ),
-			),
-			'note'    => 'Metro Indautxu a 200 m. Portal a pie de calle, sin escalones. Hay parking público en la misma manzana.',
-			'img'     => 'urgencia-box',
-		),
-		'footer'       => array(
-			'tag'   => 'Urgencia Dental · Alameda de Urquijo 68, 48013 Bilbao · 944 00 00 00 · Reg. sanitario 48-C21-0000',
-			'links' => array( 'Qué hacemos', 'Cómo llegar', 'Privacidad' ),
-			'legal' => 'Urgencia Dental Bilbao SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* ── TPL-C-13 · CARTERA / BÚSQUEDA. SIETE FOTOGRAFÍAS PROPIAS Y NINGUNA MARCA, que no es una
 	   contradicción: la marca es ground + acento + par tipográfico + reportaje, y aquí sólo está lo
@@ -2207,214 +2006,7 @@ $CONTENT = array(
 	   Los RETRATOS del equipo siguen en placeholder a propósito: una cara inventada en la web de
 	   una agencia es peor que un hueco declarado, porque la promesa que rompe es «éste es quien te
 	   abre la puerta». */
-	'TPL-C-13' => array(
-		'tpl'      => 'TPL-C-13',
-		'tpl_name' => 'Cartera / Búsqueda',
-		'fits'     => 'Inmobiliarias, administradores de fincas con cartera, promotoras comercializando',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		'dna'      => 'COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-VALUATION-CTA',
-		'wire'     => 'COMP-HEADER · COMP-SEARCH-HERO · COMP-PROPERTY-GRID · COMP-MAP-SEARCH · COMP-VISIT-REQUEST · COMP-TEAM · COMP-FAQ · COMP-VALUATION-CTA · COMP-FOOTER',
-		'nav'      => array( 'Comprar', 'Alquilar', 'Nosotros' ),
-		/* NOMBRE sin paleta: no hay reportaje propio, así que no hay marca — pero un header que
-		   dijera «Piedra Valdés» sobre una cartera de pisos en Pamplona es peor que uno genérico. */
-		'wordmark' => 'ZUBIRI & OSÉS',  // en versales como los otros ocho: la caja del wordmark es una convención del catálogo, no del negocio
-		'nav_cta'  => 'Vender tu casa',
-		/* Su § 3 lo dice: secundario, porque el primario aquí es el teléfono. */
-		'nav_cta_weight' => 'secundario',
-		'phone'    => '948 00 00 00',
-		'hero'     => array(
-			'eyebrow' => 'Cartera propia · Pamplona y comarca',
-			'h1'      => 'Nadie entra aquí a leer sobre nosotros',
-			'lede'    => 'Entra a buscar piso, así que el buscador va primero y lo nuestro va al final. 54 inmuebles con precio cerrado, gastos calculados y la nota simple pedida antes de enseñarlos.',
-			'img'     => 'inmo-calle',
-		),
-		'search'   => array(
-			'count'  => '54 inmuebles disponibles',
-			'submit' => 'Ver resultados',
-			/* Cuatro campos y no cinco: el quinto es el que hace abandonar — TGL-SEARCH-FIELDS. */
-			'fields' => array(
-				array( 'op',     'Operación',     array( 'Comprar', 'Alquilar' ) ),
-				array( 'zona',   'Zona',          array( 'Todas', 'Casco Viejo', 'Ensanche', 'Rochapea', 'Mendebaldea', 'Comarca' ) ),
-				array( 'precio', 'Precio hasta',  array( 'Sin límite', '150.000 €', '250.000 €', '350.000 €', '500.000 €' ) ),
-				array( 'hab',    'Habitaciones',  array( 'Indiferente', '1', '2', '3', '4 o más' ) ),
-			),
-		),
-		'listing'  => array(
-			'eyebrow' => 'La cartera',
-			'h2'      => 'Lo que hay hoy',
-			'note'    => 'Precio de venta sin gastos de compraventa. Los gastos aproximados van en cada ficha, calculados sobre el precio publicado y no sobre el de tasación.',
-			'items'   => array(
-				array( 'img' => 'inmo-reformado', 'h3' => 'Piso reformado con ascensor', 'zone' => 'Ensanche · Calle San Ignacio', 'facts' => array( '92 m²', '3 hab', '2 baños', '4ª planta', 'Ascensor' ), 'price' => '289.000 €', 'unit' => '3.141 €/m²' ),
-				array( 'img' => 'inmo-atico', 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
-				array( 'img' => 'inmo-bajo', 'h3' => 'Bajo con patio para reformar', 'zone' => 'Rochapea · Calle Marcelo Celayeta', 'facts' => array( '78 m²', '2 hab', '1 baño', 'Bajo', 'Patio' ), 'price' => '148.000 €', 'unit' => '1.897 €/m²' ),
-				array( 'img' => 'inmo-piedra', 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
-				array( 'img' => 'inmo-adosado', 'h3' => 'Adosado con garaje doble',     'zone' => 'Comarca · Cizur Menor', 'facts' => array( '186 m²', '4 hab', '3 baños', 'Adosado', 'Jardín' ), 'price' => '412.000 €', 'unit' => '2.215 €/m²' ),
-				array( 'img' => 'inmo-estudio', 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
-			),
-		),
-		'map'      => array(
-			'eyebrow' => 'Buscar por dónde está',
-			'h2'      => 'Los mismos 54, sobre el plano',
-			'note'    => 'Mover el plano refiltra la lista, y volver a la lista conserva lo que el plano dejó: las dos vistas comparten una sola consulta. El plano navegable lo carga un tercero y necesita consentimiento previo, así que en la maqueta va como fotografía: se ve qué ocupa ese sitio sin pedirle nada al visitante.',
-			'img'     => 'inmo-plano',
-			/* left%, top%, precio. LEÍDAS SOBRE LA FOTOGRAFÍA, no repartidas a ojo: con las posiciones
-			   del plano dibujado, dos chinchetas caían una en el parque y otra en el río — un piso en
-			   mitad del agua es el detalle que hace que nadie se crea el resto de la página. */
-			'pins'    => array(
-				array( 30, 18, '289.000 €' ),
-				array( 52, 30, '345.000 €' ),
-				array( 73, 19, '148.000 €' ),
-				array( 63, 57, '167.500 €' ),
-				array( 86, 71, '412.000 €' ),
-				array( 49, 80, '119.000 €' ),
-			),
-		),
-		/* EL PISO DESTACADO ES EL PRIMERO DE LA CARTERA, y su referencia es la que el formulario de
-		   la home ya traía escrita: PAM-0417. No es casualidad ni coincidencia afortunada — la home
-		   la puso ahí de ejemplo y la ficha es la página a la que ese ejemplo apuntaba. */
-		'producto' => array(
-			'crumbs'  => array( 'Inicio', 'Cartera', 'Piso reformado en el Ensanche' ),
-			'ref'     => array( 'Ref. PAM-0417', 'En cartera desde febrero. Visitas de lunes a sábado.' ),
-			'head'    => array(
-				'eyebrow' => 'En venta',
-				'h1'      => 'Piso reformado de 3 habitaciones · Ensanche · 289.000 €',
-				'lede'    => 'Noventa y dos metros útiles en cuarta planta con ascensor, reformado entero en 2022 y con la comunidad al día. Orientación sur al salón.',
-			),
-			'tour'    => array(
-				'eyebrow' => 'El recorrido',
-				'h2'      => 'Estancia por estancia',
-				'items'   => array(
-					array( 'Salón', '24 m² · orientación sur', 'inmo-reformado' ),
-					array( 'Cocina', '11 m² · office y tendedero', 'inmo-p-cocina' ),
-					array( 'Dormitorio principal', '14 m² · armario empotrado', 'inmo-p-dormitorio' ),
-					array( 'Baño principal', '6 m² · ducha de obra', 'inmo-p-bano' ),
-				),
-			),
-			'facts'   => array(
-				'eyebrow' => 'Ficha',
-				'h2'      => 'Los seis datos',
-				'items'   => array(
-					array( 'Útiles', '92 m²' ),
-					array( 'Construidos', '106 m²' ),
-					array( 'Habitaciones', '3' ),
-					array( 'Baños', '2' ),
-					array( 'Planta', '4ª con ascensor' ),
-					array( 'Construcción', '1974' ),
-				),
-			),
-			'plan'    => array(
-				'eyebrow' => 'El plano',
-				'h2'      => 'Cómo se reparte',
-				'img'     => 'inmo-p-plano',
-				'note'    => 'Plano acotado con las medidas de cada estancia. Va en la ficha y no en la visita: es lo que dice si el segundo dormitorio es un dormitorio o un trastero, y averiguarlo no debería costar un desplazamiento.',
-			),
-			'costs'   => array(
-				'eyebrow' => 'El coste real',
-				'h2'      => 'Lo que cuesta entrar a vivir',
-				'rows'    => array(
-					array( 'Precio de venta', '289.000 €' ),
-					array( 'Comunidad', '58 €/mes' ),
-					array( 'IBI', '412 €/año' ),
-					array( 'Gastos de compra estimados (ITP, notaría y registro)', '21.700 €' ),
-				),
-				'sum'     => array( 'Desembolso aproximado de entrada', '310.700 €' ),
-				'note'    => 'Estimación sobre segunda transmisión en Navarra al 6 % de ITP, sin hipoteca. Los gastos dependen de la comunidad autónoma y del tipo de transmisión, y los cierra la agencia con su caso delante: aquí están para que ninguno aparezca por primera vez en la notaría.',
-			),
-			'energy'  => array(
-				'eyebrow' => 'Certificado energético',
-				'h2'      => 'Consumo y emisiones',
-				'items'   => array(
-					array( 'D', 'Consumo de energía primaria no renovable', '142 kWh/m² al año' ),
-					array( 'E', 'Emisiones de CO₂', '31 kg CO₂/m² al año' ),
-				),
-				'note'    => 'Certificado emitido en 2022, tras la reforma. Va escrito en la página y no dentro de una imagen: un dato obligatorio metido en un JPG no lo lee ni un lector de pantalla ni un buscador.',
-			),
-			'visit'   => array(
-				'eyebrow'  => 'Verlo',
-				'h2'       => 'Pida la visita de este piso',
-				'lede'     => 'La referencia viaja con la solicitud. Con ella el comercial abre la agenda; sin ella tiene que llamarle para preguntar lo único que esta página ya sabía.',
-				'fields'   => array(
-					array( 'ref', 'Referencia', 'text', 'PAM-0417' ),
-					array( 'nombre', 'Nombre', 'text' ),
-					array( 'tel', 'Teléfono', 'tel' ),
-				),
-				'day_lbl'  => 'Día',
-				'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Lunes 26' ),
-				'slot_lbl' => 'Franja',
-				'slots'    => array( 'Mañana', 'Mediodía', 'Tarde' ),
-				'submit'   => 'Pedir la visita',
-				'small'    => 'Le llamamos para confirmar la hora. No cedemos su teléfono a terceros ni lo usamos para nada más.',
-			),
-			'related' => array(
-				'eyebrow' => 'De su zona',
-				'h2'      => 'Otros tres en el Ensanche y alrededor',
-				'note'    => 'Mismo rango y misma zona. Un «no» sobre este piso no tiene por qué ser un «no» sobre la cartera.',
-				'items'   => array(
-					array( 'img' => 'inmo-atico', 'h3' => 'Ático con terraza de 30 m²',  'zone' => 'Mendebaldea · Avenida Barañain', 'facts' => array( '104 m²', '3 hab', '2 baños', 'Ático', 'Terraza' ), 'price' => '345.000 €', 'unit' => '3.317 €/m²' ),
-					array( 'img' => 'inmo-piedra', 'h3' => 'Vivienda en casa de piedra',   'zone' => 'Casco Viejo · Calle Descalzos', 'facts' => array( '61 m²', '2 hab', '1 baño', '2ª planta', 'Sin ascensor' ), 'price' => '167.500 €', 'unit' => '2.746 €/m²' ),
-					array( 'img' => 'inmo-estudio', 'h3' => 'Estudio para inversión',       'zone' => 'Ensanche · Calle Olite', 'facts' => array( '38 m²', '1 hab', '1 baño', '1ª planta', 'Alquilado' ), 'price' => '119.000 €', 'unit' => '3.132 €/m²' ),
-				),
-			),
-		),
-		'visit'    => array(
-			'eyebrow' => 'Verlo',
-			'h2'      => 'Pida la visita del que le interese',
-			'lede'    => 'La referencia viaja con la solicitud. Sin ella esto sería una consulta genérica, y una consulta genérica no se puede meter en una agenda.',
-			'fields'  => array(
-				array( 'ref',    'Referencia',   'text',   'PAM-0417', true ),
-				array( 'nombre', 'Nombre',       'text' ),
-				array( 'tel',    'Teléfono',     'tel' ),
-				array( 'franja', 'Franja',       'select', array( 'Mañanas', 'Tardes', 'Sábado por la mañana' ) ),
-			),
-			'submit'  => 'Pedir visita',
-			'small'   => 'Le llamamos para confirmar hora. No cedemos su teléfono a terceros ni lo usamos para nada más.',
-		),
-		'team'     => array(
-			'eyebrow' => 'Quién le abre la puerta',
-			'h2'      => 'Tres personas, tres zonas',
-			'items'   => array(
-				array( 'img' => 'inmo-nerea', 'name' => 'Nerea Zabalza', 'role' => 'Ensanche y Casco Viejo', 'lic' => '948 00 00 01' ),
-				array( 'img' => 'inmo-julen', 'name' => 'Julen Arraiza', 'role' => 'Rochapea y Chantrea',    'lic' => '948 00 00 02' ),
-				array( 'img' => 'inmo-leire', 'name' => 'Leire Osés',    'role' => 'Comarca y obra nueva',   'lic' => '948 00 00 03' ),
-			),
-		),
-		'faq'      => array(
-			'eyebrow' => 'Antes de firmar',
-			'h2'      => 'Lo que se pregunta y casi nadie explica',
-			'items'   => array(
-				array( '¿Cuánto son los gastos de compraventa?', 'Entre el 8 % y el 11 % del precio en Navarra, según si hay hipoteca. En cada ficha va el cálculo hecho sobre ese inmueble, no un porcentaje genérico.' ),
-				array( '¿Qué son las arras y cuánto se entrega?', 'Una señal que reserva el inmueble y fija el plazo, normalmente el 10 %. Si se echa atrás el comprador las pierde; si se echa atrás el vendedor devuelve el doble.' ),
-				array( '¿Pedís la nota simple antes de enseñar?', 'Sí, y la enseñamos en la visita. Si hay una carga, se sabe antes de que usted se ilusione.' ),
-				array( '¿Cobráis algo al comprador?', 'No. Los honorarios los paga quien nos encarga la venta.' ),
-				array( '¿Puedo visitar sin tener la hipoteca aprobada?', 'Sí, y conviene: la visita cuesta una hora y la aprobación tres semanas. Lo que no hacemos es firmar arras sin que el banco haya dado al menos un preacuerdo por escrito.' ),
-				array( '¿Qué pasa si el piso tiene una derrama pendiente?', 'Sale en el acta de la comunidad, que pedimos antes de publicar. Si la hay, se dice en la ficha y se negocia quién la asume — nunca aparece en la notaría.' ),
-				array( '¿Aceptáis ofertas por debajo del precio publicado?', 'Las trasladamos todas, sin filtrar. El precio lo pone el propietario y la decisión también; nuestro trabajo es que la reciba con los comparables de su calle delante.' ),
-				array( '¿Cuánto tarda desde las arras hasta la firma?', 'Entre cuatro y ocho semanas si hay hipoteca, y dos o tres si no la hay. El plazo lo fijan las arras y lo marca el banco, no nosotros.' ),
-			),
-		),
-		'valuation' => array(
-			'eyebrow' => 'Si lo que quiere es vender',
-			'h2'      => 'Le decimos por cuánto sale, en persona',
-			'lede'    => 'Sin calculadora automática. Un número que sale de un formulario es un número que luego hay que desdecir, y preferimos no empezar así.',
-			'stats'   => array(
-				array( '61 días', 'de media entre encargo y firma en 2025' ),
-				array( '94 %',    'de los inmuebles vendidos por encima del precio mínimo pactado' ),
-				array( '38',      'operaciones cerradas en la comarca el año pasado' ),
-			),
-			'fields'  => array(
-				array( 'dir', 'Dirección del inmueble', 'text' ),
-				array( 'tel', 'Teléfono',               'tel' ),
-			),
-			'submit'  => 'Pedir tasación',
-			'small'   => 'Vamos, lo vemos y le damos un rango con los comparables de su calle delante. Sin compromiso de encargo.',
-		),
-		'footer'   => array(
-			'tag'   => 'Maqueta interna NovaMira · arquetipo TPL-C-13, sin marca asignada',
-			'links' => array( 'Comprar', 'Alquilar', 'Vender', 'Privacidad' ),
-			'legal' => 'Agente inmobiliario · nº de registro donde la comunidad lo exija. Maqueta interna, no publicada.',
-		),
-	),
+	
 	/* ── MOTOR ARANDA · TPL-C-07 · un INVENTARIO, que es lo que ningún arquetipo corporativo tenía.
 	   El contenido no lo escribe el dueño una vez: son cuarenta unidades que entran y salen, y los
 	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
@@ -2613,232 +2205,11 @@ $CONTENT = array(
 
 	/* ── AURIA · TPL-C-08 · UN solo producto contado entero. TPL-C-07 tiene cuarenta unidades y su
 	   trabajo es descartarlas; éste tiene una y su trabajo es que la mires despacio. */
-	'TPL-C-08-auria' => array(
-		'tpl'          => 'TPL-C-08-auria',
-		'arch'         => 'TPL-C-08',
-		'brand'        => 'auria',
-		'brand_name'   => 'Auria',
-		'brand_sector' => 'Automoción · concesión',
-		'tpl_name'     => 'Modelo / Lanzamiento',
-		'site'         => 'corporate',
-		'site_es'      => 'Corporativa',
-		'fits'         => 'Concesión oficial, lanzamiento de un modelo, un producto caro y único',
-		'dna'          => 'COMP-MODEL-HERO · COMP-SPEC-TABLE · COMP-OFFER-STRIP · COMP-BOOKING',
-		'wire'         => 'COMP-HEADER · COMP-MODEL-HERO · COMP-SPEC-TABLE · COMP-GALLERY · COMP-OFFER-STRIP · COMP-FINANCE · COMP-BOOKING · COMP-FAQ · COMP-FOOTER',
-		'nav'          => array( 'El modelo', 'Versiones', 'Concesión' ),
-		'nav_cta'      => 'Reservar prueba',
-		'phone'        => '91 000 00 00',
-		'hero'         => array(
-			'eyebrow' => 'Nuevo · disponible en concesión desde marzo',
-			'h1'      => 'Auria GT',
-			'lede'    => 'Tracción trasera, 4,1 segundos y una caja que baja de marcha cuando usted todavía lo está pensando.',
-			'cta_1'   => 'Reservar prueba',
-			'cta_2'   => 'Ver versiones',
-			'img'     => 'auria-hero',
-			'figures' => array(
-				array( '385 CV', 'potencia' ),
-				array( '4,1 s', '0 a 100' ),
-				array( '2+2', 'plazas' ),
-				array( '78.400 €', 'desde' ),
-			),
-		),
-		'specs'        => array(
-			'eyebrow' => 'Versiones',
-			'h2'      => 'Tres acabados y lo que cambia entre ellos',
-			'cols'    => array( 'GT', 'GT Sport', 'GT Sport +' ),
-			'rows'    => array(
-				array( 'Potencia',        array( '385 CV', '450 CV', '510 CV' ), true ),
-				array( '0 a 100 km/h',    array( '4,1 s', '3,7 s', '3,4 s' ), true ),
-				array( 'Tracción',        array( 'Trasera', 'Trasera', 'Total' ), true ),
-				array( 'Llantas',         array( '19"', '20"', '20" forjadas' ), true ),
-				array( 'Suspensión',      array( 'Adaptativa', 'Adaptativa', 'Adaptativa' ), false ),
-				array( 'Garantía',        array( '3 años', '3 años', '3 años' ), false ),
-				array( 'Precio',          array( '78.400 €', '92.900 €', '114.600 €' ), true ),
-			),
-			'note'    => 'Lo que cambia entre versiones va marcado; lo que se repite se atenúa. Una tabla en la que todo pesa igual no ayuda a decidir nada.',
-		),
-		'gallery'      => array(
-			'eyebrow' => 'Por dentro',
-			'h2'      => 'Tres detalles que se notan al sentarse',
-			'items'   => array( 'auria-interior', 'auria-puerta', 'auria-arranque' ),
-		),
-		'offer'        => array(
-			'eyebrow' => 'Hasta el 31 de marzo',
-			'h2'      => 'Entrega en marzo con el equipamiento Sport sin coste',
-			'lede'    => 'Sobre las unidades ya en tránsito. Son once y se asignan por orden de reserva.',
-			'cta'     => 'Reservar prueba',
-			'small'   => 'Oferta válida hasta el 31 de marzo o fin de existencias, lo que ocurra antes. Sin cuenta atrás: la fecha es la fecha.',
-		),
-		'finance'      => array(
-			'eyebrow' => 'Financiación',
-			'h2'      => 'Cuota con valor futuro garantizado',
-			'rows'    => array(
-				array( 'Precio del vehículo', '78.400 €' ),
-				array( 'Entrada',             '23.520 €' ),
-				array( 'Plazo',               '48 meses' ),
-				array( 'Cuota',               '689 €/mes' ),
-				array( 'TAE',                 '6,45 %' ),
-				array( 'Valor futuro garantizado', '39.200 €' ),
-			),
-			'note'    => 'Ejemplo sobre la versión GT. Sujeto a aprobación de la entidad financiera.',
-		),
-		'booking'      => array(
-			'eyebrow' => 'Prueba de conducción',
-			'h2'      => 'Elija día y hora',
-			'lede'    => 'La prueba dura cuarenta minutos y la hace usted, no un comercial de copiloto explicando cosas.',
-			'fields'  => array(
-				array( 'nombre', 'Nombre', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl'  => 'Día',
-			'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Lunes 26', 'Martes 27' ),
-			'slot_lbl' => 'Hora',
-			'slots'    => array( '10:00', '11:30', '13:00', '17:00', '18:30' ),
-			'submit'   => 'Reservar prueba',
-			'small'    => 'Necesita carné con más de dos años. Le confirmamos por teléfono el mismo día.',
-		),
-		'faq'          => array(
-			'eyebrow' => 'Antes de preguntar',
-			'h2'      => 'Lo que se pregunta siempre',
-			'items'   => array(
-				array( '¿Cuánto tarda la entrega?', 'Las unidades en tránsito se entregan en marzo. Un pedido a fábrica hoy sale a cinco meses, y esa fecha se la damos por escrito.' ),
-				array( '¿Aceptan mi coche a cambio?', 'Sí. La tasación la hace el departamento de ocasión y el importe se descuenta de la entrada, no de la cuota.' ),
-				array( '¿Puedo ver una unidad antes de reservar?', 'Hay una GT y una GT Sport en exposición. La prueba de conducción se hace con la GT.' ),
-				array( '¿La garantía cubre uso en circuito?', 'No. Ninguna garantía de serie lo cubre, y quien le diga lo contrario le está vendiendo algo.' ),
-			),
-		),
-		'footer'       => array(
-			'tag'   => 'Auria · Concesión oficial · Avenida de Burgos 120, 28050 Madrid · 91 000 00 00',
-			'links' => array( 'El modelo', 'Versiones', 'Privacidad' ),
-			'legal' => 'Auria Motor SA · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* ── TALLER BERGARA · TPL-C-09 · el precio es lo que NO se sabe, y ése es el miedo que hace
 	   posponer la reparación. Por eso la tarifa es la segunda cosa de la página y lleva importes. */
-	'TPL-C-09-bergara' => array(
-		'tpl'          => 'TPL-C-09-bergara',
-		'head_mode'    => 'rule',
-		'arch'         => 'TPL-C-09',
-		'brand'        => 'bergara',
-		'brand_name'   => 'Taller Bergara',
-		'brand_sector' => 'Automoción · taller',
-		'tpl_name'     => 'Taller / Tarifa',
-		'site'         => 'corporate',
-		'site_es'      => 'Corporativa',
-		'fits'         => 'Talleres mecánicos, chapa y pintura, neumáticos, reparación técnica',
-		'dna'          => 'COMP-PRICE-LIST · COMP-PROCESS · COMP-BOOKING',
-		'wire'         => 'COMP-HEADER · COMP-HERO · COMP-PRICE-LIST · COMP-PROCESS · COMP-BOOKING · COMP-TRUST-BADGES · COMP-FAQ · COMP-MAP-NAP · COMP-FOOTER',
-		'nav'          => array( 'Tarifa', 'Cómo funciona', 'Dónde estamos' ),
-		'nav_cta'      => 'Pedir cita',
-		'phone'        => '943 00 00 00',
-		'hero'         => array(
-			'eyebrow' => 'Taller multimarca · Eibar',
-			'h1'      => 'Diagnóstico 39 €, y se descuenta si repara aquí',
-			'lede'    => 'La tarifa completa está debajo, con importes cerrados. Si al abrirlo sale otra cosa, le llamamos antes de tocar nada — y usted decide.',
-			'cta_1'   => 'Pedir cita',
-			'cta_2'   => '943 00 00 00',
-			'img'     => 'bergara-nave',
-		),
-		'prices'       => array(
-			'eyebrow' => 'Tarifa',
-			'h2'      => 'Lo que cuesta, escrito',
-			'note'    => 'Precios con IVA y mano de obra incluida. «Desde» siempre lleva su porqué escrito al lado: un «desde» sin explicar es peor que no publicar precio.',
-			'groups'  => array(
-				array(
-					'h3'    => 'Mantenimiento',
-					'items' => array(
-						array( 'Cambio de aceite y filtro', 'Aceite sintético 5W30 y filtro de la marca. Hasta 5 litros.', '89 €' ),
-						array( 'Revisión de 30 puntos', 'Con informe firmado. Incluye niveles y presiones.', '49 €' ),
-						array( 'Filtro de habitáculo', 'Antipolen. Quince minutos, se hace en el momento.', '35 €' ),
-					),
-				),
-				array(
-					'h3'    => 'Frenos',
-					'items' => array(
-						array( 'Pastillas delanteras', 'Juego completo y purgado. Piezas de primer equipo.', '125 €' ),
-						array( 'Discos y pastillas', 'Desde, porque el disco depende del diámetro del eje.', 'desde 265 €' ),
-						array( 'Líquido de frenos', 'Sustitución completa con máquina de purga.', '69 €' ),
-					),
-				),
-				array(
-					'h3'    => 'Neumáticos',
-					'items' => array(
-						array( 'Montaje y equilibrado', 'Por rueda. Incluye válvula nueva y reciclado.', '18 €' ),
-						array( 'Alineación de dirección', 'Cuatro ruedas, con ficha de ángulos antes y después.', '55 €' ),
-					),
-				),
-				array(
-					'h3'    => 'Diagnosis',
-					'items' => array(
-						array( 'Lectura de centralita', 'Con informe de códigos. Se descuenta si repara aquí.', '39 €' ),
-						array( 'Búsqueda de avería eléctrica', 'Desde, porque se cobra por hora de banco a partir de la primera.', 'desde 60 €/h' ),
-					),
-				),
-			),
-		),
-		'process'      => array(
-			'eyebrow' => 'Cómo funciona',
-			'h2'      => 'Cuatro pasos, y el tercero es suyo',
-			'steps'   => array(
-				array( 'Lo trae', 'Sin cita para diagnosis rápida; con cita si ya sabe qué hay que hacer.' ),
-				array( 'Diagnosticamos', 'Lectura de centralita y revisión física. Sale un presupuesto por partidas.' ),
-				array( 'Usted aprueba', 'Le llamamos con el importe. Nadie toca nada hasta que dice que sí.' ),
-				array( 'Reparamos', 'Con factura desglosada: piezas por un lado, horas por otro.' ),
-			),
-		),
-		'booking'      => array(
-			'eyebrow' => 'Cita',
-			'h2'      => 'Reserve hueco',
-			'lede'    => 'Dos elevadores y un banco de diagnosis. Lo que no aparece aquí está ocupado, no es que no cojamos el teléfono.',
-			'fields'  => array(
-				array( 'matricula', 'Matrícula', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl'  => 'Día',
-			'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
-			'slot_lbl' => 'Hora',
-			'slots'    => array( '08:30', '10:00', '11:30', '15:30', '17:00' ),
-			'submit'   => 'Pedir cita',
-			'img'      => 'bergara-rueda',
-			'small'    => 'Le confirmamos por WhatsApp. Si necesita coche de sustitución, dígalo al reservar: hay dos.',
-		),
-		'badges'       => array(
-			array( '24 meses', 'de garantía en la mano de obra de cualquier reparación' ),
-			array( 'Primer equipo', 'o equivalente homologado, y en el presupuesto pone cuál' ),
-			array( 'Factura', 'con piezas y horas separadas, siempre' ),
-			array( 'Piezas viejas', 'se las enseñamos y se las puede llevar' ),
-		),
-		'faq'          => array(
-			'eyebrow' => 'Lo que preocupa',
-			'h2'      => 'Preguntas que hacen todos',
-			'items'   => array(
-				array( '¿Y si al abrirlo sale más caro?', 'Paramos y le llamamos. El presupuesto no sube sin que usted lo apruebe, y si decide no seguir sólo paga la diagnosis.' ),
-				array( '¿Pierdo la garantía del concesionario?', 'No. La ley europea permite mantener el coche en un taller independiente sin perder la garantía de fábrica, siempre con piezas homologadas y factura. Se la damos.' ),
-				array( '¿Cuánto tardan?', 'El mantenimiento sale el mismo día. Una avería que necesita pieza depende del proveedor y se lo decimos al aprobar, no después.' ),
-				array( '¿Puedo llevar yo la pieza?', 'Sí, pero entonces la garantía cubre nuestra mano de obra y no la pieza. Se lo ponemos por escrito para que no haya dudas luego.' ),
-			),
-		),
-		'nap'          => array(
-			'eyebrow' => 'Dónde estamos',
-			'h2'      => 'Eibar, Gipuzkoa',
-			'addr'    => array( 'Polígono Azitain, pabellón 6', '20600 Eibar · Gipuzkoa' ),
-			'phone'   => '943 00 00 00',
-			'mail'    => 'citas@tallerbergara.example',
-			'hours'   => array(
-				array( 'Lunes a viernes', '08:30 – 13:30 · 15:00 – 19:00' ),
-				array( 'Sábado', '09:00 – 13:00 (sólo urgencias)' ),
-				array( 'Domingo', 'Cerrado' ),
-			),
-			'note'    => 'Aparcamiento delante del pabellón. Si viene con la avería en marcha, llame antes y le dejamos hueco.',
-			'img'     => 'bergara-rueda',
-		),
-		'footer'       => array(
-			'tag'   => 'Taller Bergara · Polígono Azitain pabellón 6, 20600 Eibar · 943 00 00 00',
-			'links' => array( 'Tarifa', 'Cita', 'Privacidad' ),
-			'legal' => 'Taller Bergara SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* ── CASA TERRAZZA · THE FIRST ENTRY IN THIS TABLE THAT IS A BUSINESS AND NOT A CONFIGURATION.
 	   Everything below it is Piedra Valdés — one company rendered through ten architectures and
@@ -2853,349 +2224,11 @@ $CONTENT = array(
 	   the tell that nobody wrote it. Which also means: the axis-proof argument that the copy is a
 	   constant is a HOUSE argument. It ends at the brand, on purpose, and § "Why one shared set" in
 	   `_gallery-images.md` records the same boundary for the photographs. */
-	'TPL-C-06-terrazza' => array(
-		'tpl'          => 'TPL-C-06-terrazza',
-		'arch'         => 'TPL-C-06',
-		'brand'        => 'terrazza',
-		'brand_name'   => 'Casa Terrazza',
-		'brand_sector' => 'Restaurante',
-		'tpl_name'     => 'Mesa / Carta',
-		'site'         => 'corporate',
-		'site_es'      => 'Corporativa',
-		'fits'         => 'Restaurantes, asadores, bares con cocina, cualquier mesa que se reserva',
-		'dna'          => 'COMP-HERO-FULL · COMP-MENU-LIST · COMP-FIGURE-QUOTE · COMP-HOURS-BLOCK',
-		'wire'         => 'COMP-HEADER · COMP-HERO-FULL · COMP-MARQUEE · COMP-MENU-LIST · COMP-FIGURE-QUOTE · COMP-GALLERY · COMP-BOOKING · COMP-HOURS-BLOCK · COMP-FOOTER',
-		'nav'          => array( 'Carta', 'La casa', 'Grupos' ),
-		'nav_cta'      => 'Reservar mesa',
-		'phone'        => '93 000 00 00',
-		'hero'         => array(
-			'eyebrow' => 'Cocina de brasa · Poblenou, Barcelona',
-			'h1'      => 'Se cocina lo que llegó esta mañana',
-			'lede'    => 'Carta corta que cambia cada lunes, encina en la brasa y sesenta referencias en bodega. Reservamos por servicio y no por turno: la mesa es suya hasta que usted se levante.',
-			'cta_1'   => 'Reservar mesa',
-			'cta_2'   => 'Ver la carta',
-			'img'     => 'terrazza-sala',
-		),
-		'marquee'      => array( 'Cocina de mercado', 'Brasa de encina', 'Pan de masa madre', 'Bodega de sesenta' ),
-		'menu'         => array(
-			'eyebrow' => 'La carta',
-			'h2'      => 'Doce platos, y el lunes son otros',
-			'note'    => 'Precios con IVA. Esta es la carta del 22 al 28; el lunes cambia entera. Si algo se acaba, se acaba.',
-			'groups'  => array(
-				array(
-					'h3'    => 'Para empezar',
-					'items' => array(
-						array( 'Anchoa del Cantábrico', 'Curada en casa, con mantequilla de leche cruda y pan de ayer tostado.', '4,80 € ud.' ),
-						array( 'Tomate de secano', 'De Alcarràs, con albahaca y aceite de arbequina de este año.', '11,00 €' ),
-						array( 'Croquetas de puchero', 'Seis. Del cocido del domingo, que es como tienen que ser.', '9,50 €' ),
-					),
-				),
-				array(
-					'h3'    => 'De la brasa',
-					'items' => array(
-						array( 'Presa ibérica', 'Encina y sarmiento, reposada ocho minutos. Al punto o no la servimos.', '24,00 €' ),
-						array( 'Pulpo a la llama', 'Cocido dos horas, marcado treinta segundos, con patata ahumada.', '22,50 €' ),
-						array( 'Alcachofas enteras', 'A la brasa con su tallo, sal en escamas y limón asado.', '14,00 €' ),
-						array( 'Chuleta de vaca vieja', 'Madurada sesenta días. Mínimo para dos, se pesa en sala.', '68,00 €/kg' ),
-					),
-				),
-				array(
-					'h3'    => 'Para terminar',
-					'items' => array(
-						array( 'Torrija de brioche', 'Caramelizada al momento, con helado de leche merengada.', '7,50 €' ),
-						array( 'Queso del Pallars', 'Tres cortes y membrillo de la casa. Pregunte cuáles hay hoy.', '9,00 €' ),
-					),
-				),
-				array(
-					'h3'    => 'Menú del mediodía',
-					'items' => array(
-						array( 'De martes a viernes', 'Dos platos, postre, pan y una copa de la casa. Sólo mediodía.', '19,50 €' ),
-						array( 'Maridaje de tres copas', 'Lo elige quien esté en sala ese día. No hay carta de maridaje.', '16,00 €' ),
-					),
-				),
-			),
-		),
-		'booking'      => array(
-			'eyebrow' => 'Reservas',
-			'h2'      => 'Elija día y hora',
-			'lede'    => 'Veinte mesas y dos servicios. Lo que no aparece aquí es que está lleno, no que no cogemos el teléfono.',
-			'fields'  => array(
-				array( 'nombre', 'Nombre', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl'  => 'Día',
-			'days'     => array( 'Jueves 22', 'Viernes 23', 'Sábado 24', 'Domingo 25', 'Martes 27' ),
-			'slot_lbl' => 'Hora',
-			'slots'    => array( '13:30', '15:00', '20:00', '21:30', '22:45' ),
-			'img'      => 'terrazza-mesa',
-			'submit'   => 'Reservar mesa',
-			'small'    => 'Le confirmamos en menos de una hora. Si al final no puede venir, avise y liberamos la mesa.',
-		),
-		'gallery'      => array(
-			'eyebrow' => 'El sitio',
-			'h2'      => 'Cómo es por dentro',
-			'items'   => array( 'terrazza-mesa', 'terrazza-terraza', 'terrazza-coctel', 'terrazza-plato', 'terrazza-velas', 'terrazza-chef' ),
-		),
-		'figq'         => array(
-			'eyebrow' => 'Quien firma',
-			'quote'   => 'Cocino lo que me traen, no lo que tenía pensado. Por eso la carta cambia el lunes: si el martes llega mejor tomate que alcachofa, mando la alcachofa a casa.',
-			'name'    => 'Èlia Ferrer',
-			'role'    => 'Cocinera y socia · en la casa desde 2016',
-			'sig'     => 'Èlia Ferrer',
-			'img'     => 'terrazza-chef',
-		),
-		'hours'        => array(
-			'eyebrow' => 'Horario y dirección',
-			'h2'      => 'Abrimos de martes a domingo',
-			'rows'    => array(
-				array( 'Martes a jueves', '13:00 – 16:00 · 20:00 – 23:30' ),
-				array( 'Viernes y sábado', '13:00 – 16:30 · 20:00 – 00:30' ),
-				array( 'Domingo', '13:00 – 16:30' ),
-				array( 'Lunes', 'Cerrado' ),
-			),
-			'addr'    => array( 'Carrer de Pujades, 118', '08005 Barcelona' ),
-			'phone'   => '93 000 00 00',
-			'mail'    => 'reservas@casaterrazza.example',
-			'note'    => 'Metro Llacuna a cuatro minutos. La terraza abre hasta que refresca.',
-		),
-		'footer'       => array(
-			'tag'   => 'Casa Terrazza · Carrer de Pujades 118, 08005 Barcelona · 93 000 00 00',
-			'links' => array( 'Carta', 'Reservas', 'Privacidad' ),
-			'legal' => 'Casa Terrazza SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
-	'TPL-C-01' => array(
-		'tpl'      => 'TPL-C-01',
-		'tpl_name' => 'Services / Lead-Gen',
-		/* `Ideal para`, transcribed from TPL-C-01-services-leadgen.md §1. */
-		'fits'     => 'Consultoras, agencias, estudios, desarrollo, marketing, servicios profesionales',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		'dna'      => 'COMP-HERO · COMP-SERVICES · COMP-CTA + COMP-LEAD-FORM',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-CASES · COMP-CTA + COMP-LEAD-FORM · COMP-FOOTER',
-		'nav'      => array( 'Taller', 'Materiales', 'Trabajos', 'Contacto' ),
-		'nav_cta'  => 'Pedir presupuesto',
-		'hero'     => array(
-			'eyebrow' => 'Taller de piedra natural · desde 1978',
-			'h1'      => 'Cortamos piedra que dura más que el edificio',
-			'lede'    => 'Mármol, granito y caliza medidos, cortados y colocados por el mismo equipo que los levanta. Sin intermediarios y sin plazos que se mueven.',
-			'cta_1'   => 'Pedir presupuesto',
-			'cta_2'   => 'Ver el taller',
-			'img'     => 'hero-cantera',
-		),
-		'services' => array(
-			'eyebrow' => 'Servicios',
-			'h2'      => 'Lo que hacemos',
-			'cards'   => array(
-				array( 'img' => 'card-cantero', 'h3' => 'Encimeras y baños', 'p' => 'Medición láser en obra, corte a medida y colocación en una sola visita.' ),
-				array( 'img' => 'card-patio', 'h3' => 'Fachadas y sillería', 'p' => 'Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.' ),
-				array( 'img' => 'card-labra', 'h3' => 'Restauración', 'p' => 'Reposición de piezas dañadas con la misma cantera y la misma herramienta.' ),
-			),
-		),
-		/* TPL-SERVICE-01 · the interior page. Its copy is NOT a second brand: it is the same taller
-		   going one level deeper into one of the three services the home already lists, which is what
-		   a service page IS. `_gallery-images.md`'s rule holds here too — no photograph this page has
-		   and its home does not. */
-		'service'  => array(
-			'crumbs'   => array( 'Inicio', 'Servicios', 'Encimeras y baños' ),
-			'eyebrow'  => 'Servicio',
-			'h1'       => 'Encimeras y baños en piedra natural',
-			'claim'    => 'Medimos con láser sobre la obra terminada, cortamos a medida y coloca el mismo equipo que ha cortado. Una sola pieza siempre que la pieza lo permita.',
-			'cta_1'    => 'Pedir presupuesto',
-			'cta_2'    => 'Ver materiales',
-			'img'      => 'hero-encimera',
-			'problems' => array(
-				'eyebrow' => 'Qué resolvemos',
-				'h2'      => 'Tres cosas que se tuercen sin un cantero',
-				'items'   => array(
-					array( 'La junta que aparece luego', 'Un frente de 3 metros resuelto con dos piezas enseña la junta el primer día de sol. Medimos antes de comprar el bloque.' ),
-					array( 'La veta que no continúa', 'Dos piezas del mismo material no son la misma piedra. Se despiezan del mismo bloque o no se despiezan.' ),
-					array( 'El fregadero que no encaja', 'El corte del seno se hace con el electrodoméstico delante, no con su ficha técnica.' ),
-				),
-			),
-			'features' => array(
-				'eyebrow' => 'Alcance',
-				'h2'      => 'Qué incluye',
-				'items'   => array(
-					array( 'Medición láser en obra', 'Con los muebles montados y los electrodomésticos presentes.' ),
-					array( 'Despiece del bloque', 'Elegimos de qué parte del bloque sale cada pieza para que la veta siga.' ),
-					array( 'Corte y pulido', 'Canto recto, romo o biselado, decidido sobre muestra física.' ),
-					array( 'Seno y grifería', 'Bajo encimera, enrasado o sobre encimera, con las perforaciones hechas en taller.' ),
-					array( 'Colocación y sellado', 'En una sola visita, y el sellado se repasa a los seis meses.' ),
-				),
-			),
-			'faq'      => array(
-				'eyebrow' => 'Dudas',
-				'h2'      => 'Lo que nos preguntan siempre',
-				'items'   => array(
-					array( '¿Cuánto tarda desde la medición?', 'Entre diez y quince días laborables según el material. Si la piedra está en stock, diez.' ),
-					array( '¿Se puede hacer sin junta a la vista?', 'Hasta 3,4 metros sí, que es el largo útil de nuestra bancada. Por encima, la junta se coloca donde menos se ve y se decide con el cliente.' ),
-					array( '¿El mármol se mancha?', 'Es calcáreo, así que sí: el limón y el vino dejan marca si se quedan. Se trata con hidrófugo y se repasa cada dos años.' ),
-					array( '¿Retiráis la encimera vieja?', 'Sí, y la gestionamos en punto limpio. Va en el presupuesto, no como extra.' ),
-				),
-			),
-			'others'   => array(
-				'eyebrow' => 'Otros servicios',
-				'h2'      => 'Lo demás que hacemos',
-				'items'   => array(
-					array( 'Fachadas y sillería', 'Despiece, labra y montaje de piedra vista para obra nueva y rehabilitación.', 'card-patio' ),
-					array( 'Restauración', 'Reposición de piezas dañadas con la misma cantera y la misma herramienta.', 'card-labra' ),
-				),
-			),
-		),
-		/* COMP-LOGOS · invented studios and institutions, like `Piedra Valdés` itself. Named
-		   plausibly but not after anyone real: a public repository is not the place to put a
-		   fabricated client list of actual companies. */
-		'logos'    => array(
-			'eyebrow' => 'Confían en el taller',
-			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
-				'Fundació Sant Roc', 'Vallmoll Interiors', 'Colegio de Aparejadores' ),
-		),
-		/* COMP-PROCESS · four steps. The archetype asks for 3–5 and for what the method is; each
-		   step here names a thing that is refused as much as a thing that is done, because that is
-		   what a process block is for on a lead-gen page. */
-		'process'  => array(
-			'eyebrow' => 'Cómo trabajamos',
-			'h2'      => 'Cuatro pasos y un solo interlocutor',
-			'steps'   => array(
-				array( 'Medición en obra', 'Vamos al sitio con láser y plantilla. Nada se corta sobre un plano que no hemos comprobado.' ),
-				array( 'Despiece y presupuesto', 'Cerrado por escrito: piezas, juntas, plazo y precio. Si algo cambia, se firma antes.' ),
-				array( 'Corte y labra', 'En nuestro taller y con nuestra gente. La pieza vista no se subcontrata.' ),
-				array( 'Colocación', 'El mismo equipo que la labró la monta. Quien responde es quien la hizo.' ),
-			),
-		),
-		/* COMP-TESTIMONIAL · three quotes, each tied to a job named elsewhere on the page. */
-		'quotes'   => array(
-			'eyebrow' => 'Lo que dicen',
-			'h2'      => 'Tres obras, tres encargantes',
-			'items'   => array(
-				array( '142 sillares repuestos sin cerrar el edificio al público, y cumplieron el plazo al día.',
-					'Marta Vilanova', 'Gerencia · Palacio de Miraflores' ),
-				array( 'Pedimos una encimera de una sola pieza de 3,4 metros. Nadie más se atrevió a medirla.',
-					'Jordi Camps', 'Cocina en Vallmoll' ),
-				array( 'Nos explicaron por qué la caliza que queríamos no aguantaba esa fachada. Nos ahorraron la obra dos veces.',
-					'Estudio Arnau', 'Dirección facultativa' ),
-			),
-		),
-		'cases'    => array(
-			'eyebrow' => 'Obra hecha',
-			'h2'      => 'Dos encargos recientes',
-			'cards'   => array(
-				array( 'img' => 'card-veta', 'h3' => 'Palacio de Miraflores', 'p' => '142 sillares repuestos sin cerrar el edificio al público.' ),
-				array( 'img' => 'card-mueble', 'h3' => 'Cocina en Vallmoll', 'p' => 'Encimera de una sola pieza, 3,4 m sin junta visible.' ),
-			),
-		),
-		'band'     => array(
-			'eyebrow' => 'Contacto',
-			'h2'      => 'Cuéntanos qué hay que cortar',
-			'lede'    => 'Respondemos con un presupuesto cerrado en 48 horas laborables, con la piedra y el plazo por escrito.',
-			'fields'  => array(
-				array( 'name', 'Nombre', 'text' ),
-				array( 'mail', 'Email', 'email' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'msg'     => 'Qué necesitas',
-			'submit'  => 'Enviar consulta',
-		),
-		'footer'   => array(
-			'tag'   => 'Taller de cantería · Novelda, Alicante',
-			'links' => array( 'Aviso legal', 'Privacidad', 'Cookies' ),
-			'legal' => '© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda',
-		),
-	),
+	
 
-	'TPL-C-02' => array(
-		'tpl'      => 'TPL-C-02',
-		'tpl_name' => 'Institutional Trust',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		/* `Ideal para`, transcribed from TPL-C-02-institutional-trust.md §1. */
-		'fits'     => 'Despachos, industria, sanidad, educación, instituciones y empresas consolidadas',
-		'dna'      => 'COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CTA',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-ABOUT · COMP-STATS · COMP-SERVICES · COMP-CREDENTIALS · COMP-TEAM · COMP-TESTIMONIAL · COMP-CTA · COMP-FOOTER',
-		'nav'      => array( 'La casa', 'Áreas', 'Obra', 'Contacto' ),
-		'nav_cta'  => 'Hablar con nosotros',
-		'hero'     => array(
-			'eyebrow' => 'Cantería Piedra Valdés · Lleida · desde 1978',
-			'h1'      => 'Cuarenta y siete años de la misma firma en la misma piedra',
-			'lede'    => 'Tres generaciones, una cantera propia y un taller que no ha cambiado de manos. Trabajamos para instituciones que necesitan que la obra siga en pie cuando ya no estemos.',
-			'cta_1'   => 'Hablar con nosotros',
-			'cta_2'   => 'Ver la obra',
-			'img'     => 'pan-fachada',
-		),
-		'about'    => array(
-			'eyebrow' => 'La casa',
-			'h2'      => 'Quiénes somos, sin adjetivos',
-			'body'    => array(
-				'Piedra Valdés nace en 1978 como taller de labra para la rehabilitación de la Seu Vella. Desde 1994 explotamos cantera propia en Alcarràs, lo que nos permite responder por el material y no sólo por el corte.',
-				'Somos veintiséis personas: catorce en taller, seis en obra, tres en oficina técnica y tres en cantera. No subcontratamos la pieza vista, y por eso el plazo que damos es el plazo que hay.',
-			),
-			'img'     => 'card-detalle',
-		),
-		'stats'    => array(
-			'eyebrow' => 'En cifras',
-			'items'   => array(
-				array( '1978', 'Año de fundación' ),
-				array( '312', 'Obras entregadas' ),
-				array( '26', 'Personas en plantilla' ),
-				array( '1', 'Cantera propia' ),
-			),
-		),
-		'services' => array(
-			'eyebrow' => 'Áreas',
-			'h2'      => 'En qué trabajamos',
-			'cards'   => array(
-				array( 'img' => 'card-labra', 'h3' => 'Patrimonio y rehabilitación', 'p' => 'Reposición con cantera compatible, informes previos y coordinación con dirección facultativa.' ),
-				array( 'img' => 'card-cantero', 'h3' => 'Obra nueva en piedra vista', 'p' => 'Despiece, labra y montaje de fachada y sillería para promotor y constructora.' ),
-				array( 'img' => 'card-veta', 'h3' => 'Suministro de material', 'p' => 'Bloque y tabla de cantera propia, con ficha técnica y ensayo por partida.' ),
-			),
-		),
-		'credentials' => array(
-			'eyebrow' => 'Acreditaciones',
-			'h2'      => 'Lo que nos han certificado',
-			'items'   => array(
-				array( 'ISO 9001', 'Gestión de calidad, recertificada en 2024' ),
-				array( 'CE 2+', 'Marcado de producto para piedra natural de construcción' ),
-				array( 'REA 12-…', 'Registro de Empresas Acreditadas del sector de la construcción' ),
-				array( 'Gremi de Pedra', 'Miembro desde 1981' ),
-			),
-		),
-		'team'     => array(
-			'eyebrow' => 'Quién firma',
-			'h2'      => 'Las personas que responden',
-			'items'   => array(
-				array( 'Ramon Valdés', 'Dirección · tercera generación', 'sq-manos' ),
-				array( 'Aina Serra', 'Oficina técnica · despiece', 'card-detalle' ),
-				array( 'Marc Puig', 'Jefe de taller', 'card-cantero' ),
-			),
-		),
-		'quotes'   => array(
-			'eyebrow' => 'Referencias',
-			'h2'      => 'Quien ya ha trabajado con nosotros',
-			'items'   => array(
-				array( 'Cumplieron el plazo del pliego sin una sola prórroga, que en patrimonio no es lo normal.', 'Servei de Patrimoni', 'Administración autonómica' ),
-				array( 'Entregaron ensayo por partida sin que se lo pidiéramos. Eso nos ahorró la discusión con la propiedad.', 'Estudio Arnau', 'Dirección facultativa' ),
-				array( 'Es la única cantería de la zona que te dice que no cuando el material no aguanta.', 'Ribera & Fills', 'Constructora' ),
-			),
-		),
-		/* COMP-CTA sobrio · NO lead form. TPL-C-02's wireframe says "COMP-CTA (contacto sobrio)" and
-		   NOT COMP-LEAD-FORM, which is the one place its DNA separates hardest from TPL-C-01: this
-		   archetype does not chase a lead, it opens a conversation. Rendering the form here would
-		   turn two different archetypes into one. */
-		'band'     => array(
-			'eyebrow' => 'Contacto',
-			'h2'      => 'Escríbanos y le contestamos por escrito',
-			'lede'    => 'Presupuesto cerrado en 48 horas laborables, con la piedra, el plazo y el ensayo por escrito. Sin visita comercial si no la pide.',
-			'cta_1'   => 'Hablar con nosotros',
-			'cta_2'   => '973 00 00 00',
-		),
-		'footer'   => array(
-			'tag'   => 'Cantería Piedra Valdés · Alcarràs, Lleida · desde 1978',
-			'links' => array( 'Aviso legal', 'Privacidad', 'Acreditaciones' ),
-			'legal' => 'Piedra Valdés SL · B-25000000 · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-C-03 · Portfolio / Showcase. Its doc is blunt about what it refuses: "NO pricing, NO
 	   stats, NO forms largos", and "bajo en texto, alto en visual". So this is the one archetype
@@ -3206,695 +2239,43 @@ $CONTENT = array(
 	   any of that here because the references do it would be the exact failure the ecommerce family
 	   was rebuilt to fix: five archetypes wearing one skeleton. An archetype earns its place by
 	   what it REFUSES. */
-	'TPL-C-03' => array(
-		'tpl'      => 'TPL-C-03',
-		'tpl_name' => 'Portfolio / Showcase',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		/* `Ideal para`, transcribed from TPL-C-03-portfolio-showcase.md §1. */
-		'fits'     => 'Estudios creativos, arquitectura, fotografía, diseño, productoras, artistas',
-		'dna'      => 'COMP-HERO visual · COMP-PORTFOLIO-GRID · COMP-CTA',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-PORTFOLIO-GRID · COMP-SERVICES · COMP-ABOUT · COMP-LOGOS · COMP-CTA · COMP-FOOTER',
-		'nav'      => array( 'Obra', 'Estudio', 'Contacto' ),
-		'nav_cta'  => 'Encargar',
-		'hero'     => array(
-			'eyebrow' => 'Piedra Valdés · obra 1978—2026',
-			'h1'      => 'La obra',
-			'lede'    => 'Trescientas doce entregas. Estas son doce.',
-			'cta_1'   => 'Encargar',
-			'cta_2'   => 'Sobre el estudio',
-			'img'     => 'hero-taller',
-		),
-		'work'     => array(
-			'eyebrow' => 'Selección',
-			'h2'      => 'Obra reciente',
-			'items'   => array(
-				array( 'Palacio de Miraflores', 'Patrimonio · 2025', 'pan-fachada' ),
-				array( 'Cocina en Vallmoll', 'Interior · 2025', 'hero-encimera' ),
-				array( 'Panel de veta dorada', 'Material · 2024', 'card-veta' ),
-				array( 'Mueble de frente pétreo', 'Interior · 2024', 'card-mueble' ),
-				array( 'Labra de capitel', 'Patrimonio · 2023', 'card-labra' ),
-				array( 'Cantera de Alcarràs', 'Origen · permanente', 'hero-cantera' ),
-			),
-		),
-		'services' => array(
-			'eyebrow' => 'Qué hacemos',
-			'h2'      => 'Tres cosas, bien',
-			'cards'   => array(
-				array( 'img' => 'card-cantero', 'h3' => 'Labra', 'p' => 'A mano y a máquina, sobre bloque propio.' ),
-				array( 'img' => 'card-patio', 'h3' => 'Corte a medida', 'p' => 'Encimera, peldaño, plaqueta y despiece de fachada.' ),
-				array( 'img' => 'card-detalle', 'h3' => 'Restauración', 'p' => 'Reposición con cantera compatible.' ),
-			),
-		),
-		'about'    => array(
-			'eyebrow' => 'El estudio',
-			'h2'      => 'Veintiséis personas y una cantera',
-			'body'    => array(
-				'Trabajamos la piedra de Alcarràs desde 1978. No damos plazos que no podamos cumplir y no subcontratamos la pieza vista.',
-			),
-			'img'     => 'sq-manos',
-		),
-		'logos'    => array(
-			'eyebrow' => 'Han encargado',
-			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
-				'Fundació Sant Roc', 'Vallmoll Interiors', 'Servei de Patrimoni' ),
-		),
-		'band'     => array(
-			'eyebrow' => 'Contacto',
-			'h2'      => 'Cuéntenos la pieza',
-			'lede'    => 'Una foto y una medida bastan para empezar.',
-			'cta_1'   => 'Encargar',
-			'cta_2'   => 'obra@piedravaldes.example',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · obra 1978—2026',
-			'links' => array( 'Obra', 'Estudio', 'Contacto' ),
-			'legal' => 'Piedra Valdés SL · Alcarràs, Lleida · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-E-03 · Brand Story. Its doc: "la marca y el relato venden; el producto ilustra". The
 	   catalogue is deliberately thin here — one carousel, no grid, no search-first header — and
 	   that thinness is the archetype, not an omission. TPL-E-02 is the shop that hides its brand;
 	   this is the brand that sells a shop. */
-	'TPL-E-03' => array(
-		'tpl'      => 'TPL-E-03',
-		'tpl_name' => 'Brand Story',
-		'site'     => 'ecommerce',
-		'site_es'  => 'Ecommerce',
-		/* `Ecommerce ideal`, transcribed from TPL-E-03-brand-story.md §1. */
-		'fits'     => 'Marcas de autor, artesanía, cosmética natural, café de especialidad, moda lenta',
-		'dna'      => 'COMP-HERO relato · COMP-VALUES · COMP-ABOUT · COMP-NEWSLETTER',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-VALUES · COMP-ABOUT · COMP-PRODUCT-CAROUSEL · COMP-TESTIMONIAL · COMP-CTA · COMP-NEWSLETTER · COMP-FOOTER',
-		'nav'      => array( 'La piedra', 'Catálogo', 'El taller' ),
-		'cart'     => 'Cesta',
-		'cart_n'   => '1',
-		'hero'     => array(
-			'eyebrow' => 'Alcarràs, Lleida',
-			'h1'      => 'La piedra sale de un sitio, y ese sitio importa',
-			'lede'    => 'Extraemos, cortamos y vendemos la misma piedra. Sin intermediario no hay teléfono al que llamar cuando algo sale mal: hay un nombre.',
-			'cta_1'   => 'Ver el catálogo',
-			'cta_2'   => 'Cómo trabajamos',
-			'img'     => 'hero-cantera',
-		),
-		'values'   => array(
-			'eyebrow' => 'Lo que defendemos',
-			'h2'      => 'Tres cosas que no negociamos',
-			'items'   => array(
-				array( 'Una sola cantera', 'Todo lo que vendemos sale del mismo frente de Alcarràs. Si se acaba, se acaba: no lo sustituimos por otra piedra parecida.' ),
-				array( 'Corte propio', 'No compramos tabla cortada. El despiece lo decide quien conoce el bloque.' ),
-				array( 'Un nombre detrás', 'Cada pedido lleva la firma del oficial que lo cortó. Si algo falla, sabe quién es.' ),
-			),
-		),
-		'about'    => array(
-			'eyebrow' => 'El taller',
-			'h2'      => 'Tres generaciones sin cambiar de manos',
-			'body'    => array(
-				'Ramon Valdés abrió el taller en 1978 con dos oficiales y una tronzadora de raíl. Su nieta lleva hoy la oficina técnica.',
-				'Vendemos poco y despacio, porque cortamos a medida y porque una cantera no da más de lo que da.',
-			),
-			'img'     => 'sq-manos',
-		),
-		'carousel' => array(
-			'eyebrow' => 'Del frente a tu casa',
-			'h2'      => 'Lo que hay ahora mismo',
-			'cards'   => array(
-				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',        'p' => '189 €/m²' ),
-				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',        'p' => '164 €/m²' ),
-				array( 'img' => 'card-veta',   'h3' => 'Veta dorada',          'p' => '236 €/m²' ),
-				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble',     'p' => '412 €' ),
-			),
-		),
-		'quotes'   => array(
-			'eyebrow' => 'Quien la tiene en casa',
-			'h2'      => 'Tres cocinas y una fachada',
-			'items'   => array(
-				array( 'Nos dijeron que esperáramos tres semanas a que saliera el bloque bueno. Esperamos. Acertaron.', 'Jordi Camps', 'Vallmoll' ),
-				array( 'Es la única piedra de la casa que no he tenido que explicar a nadie.', 'Marta Vilanova', 'Lleida' ),
-				array( 'Me mandaron la muestra con el nombre del que la cortó escrito detrás.', 'Aina Roca', 'Barcelona' ),
-			),
-		),
-		'band'     => array(
-			'eyebrow' => 'Empezar',
-			'h2'      => 'Pida una muestra física',
-			'lede'    => 'Gratuita y sin compromiso. Llega en cuatro días con su ficha técnica.',
-			'cta_1'   => 'Pedir muestra',
-			'cta_2'   => 'Ver el catálogo',
-		),
-		'news'     => array(
-			'eyebrow' => 'Boletín',
-			'h2'      => 'Le avisamos cuando salga bloque nuevo',
-			'lede'    => 'Un correo cada dos o tres meses, sólo cuando abrimos frente. Nunca ofertas.',
-			'label'   => 'Su correo',
-			'cta'     => 'Avisarme',
-			'small'   => 'Puede darse de baja en cualquier correo. No cedemos el dato.',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · cantera y taller · Alcarràs, Lleida',
-			'links' => array( 'Envíos', 'Devoluciones', 'Privacidad' ),
-			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-C-04 · Landing / Single Offer. One offer, one CTA, and the page repeats it. Its doc's
 	   DNA line is "una sola oferta, un solo CTA repetido, sin navegación que distraiga", so the
 	   header carries ONE link and the nav that every other corporate archetype prints is absent
 	   on purpose — the absence is the archetype. */
-	'TPL-C-04' => array(
-		'tpl'      => 'TPL-C-04',
-		'tpl_name' => 'Landing / Single Offer',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		'fits'     => 'Campañas, lanzamientos, infoproductos, servicios de entrada, captación pagada',
-		'dna'      => 'COMP-HERO oferta única · COMP-PROBLEM · COMP-SOLUTION · COMP-PRICING · COMP-CTA',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-PROBLEM · COMP-SOLUTION · COMP-FEATURES · COMP-LOGOS · COMP-PRICING · COMP-FAQ · COMP-CTA · COMP-FOOTER',
-		'nav'      => array(),
-		'nav_cta'  => 'Reservar medición',
-		'hero'     => array(
-			'eyebrow' => 'Oferta de temporada · hasta el 30 de septiembre',
-			'h1'      => 'Su encimera de piedra natural, medida y colocada en quince días',
-			'lede'    => 'Medición láser, corte a medida de una sola pieza y colocación por el mismo equipo. Precio cerrado antes de empezar.',
-			'cta_1'   => 'Reservar medición',
-			'cta_2'   => 'Ver qué incluye',
-			'img'     => 'hero-encimera',
-		),
-		'problem'  => array(
-			'eyebrow' => 'Por qué importa',
-			'h2'      => 'Lo que sale mal cuando no hay cantero',
-			'items'   => array(
-				array( 'Plazos que se mueven', 'La cocina lleva un mes montada y la encimera sigue "en fábrica". Sin taller propio nadie sabe dónde está la pieza.' ),
-				array( 'La junta que no estaba prevista', 'Se descubre el día del montaje, con los armarios puestos y sin margen para rehacer el despiece.' ),
-				array( 'Nadie responde', 'Cocinista, marmolista y colocador se señalan entre ellos. Usted paga la coordinación.' ),
-			),
-		),
-		'solution' => array(
-			'eyebrow' => 'La oferta',
-			'h2'      => 'Un interlocutor, un precio y una fecha',
-			'lede'    => 'Nosotros extraemos, cortamos y colocamos. No hay cadena en la que perder la pieza ni a quién derivar la culpa.',
-			'items'   => array(
-				array( 'Quince días', 'Desde la medición hasta la colocación, si el material está en stock.' ),
-				array( 'Precio cerrado', 'Por escrito antes de cortar. Si cambia el alcance, se firma otra vez.' ),
-				array( 'Una sola pieza', 'Hasta 3,4 m sin junta a la vista, que es el largo útil de nuestra bancada.' ),
-			),
-			'img'      => 'card-veta',
-		),
-		'features' => array(
-			'eyebrow' => 'Alcance',
-			'h2'      => 'Qué incluye',
-			'items'   => array(
-				array( 'Medición láser en obra', 'Con muebles montados y electrodomésticos presentes.' ),
-				array( 'Corte y pulido de canto', 'Recto, romo o biselado, decidido sobre muestra física.' ),
-				array( 'Seno y grifería', 'Perforaciones hechas en taller, no en su cocina.' ),
-				array( 'Retirada de la encimera vieja', 'Gestionada en punto limpio, incluida en el precio.' ),
-				array( 'Repaso de sellado a los seis meses', 'Una visita más, sin coste.' ),
-			),
-		),
-		'logos'    => array(
-			'eyebrow' => 'Han pasado por aquí',
-			'items'   => array( 'Estudio Arnau', 'Ribera & Fills', 'Obra Nova',
-				'Vallmoll Interiors', 'Cuina Lleida', 'Fundació Sant Roc' ),
-		),
-		'pricing'  => array(
-			'eyebrow' => 'Precio',
-			'h2'      => 'Tres materiales, un mismo servicio',
-			'note'    => 'Precios por metro cuadrado, IVA incluido, medición y colocación aparte según metros. El presupuesto cerrado se emite tras la medición.',
-			'plans'   => array(
-				array( 'Granito Gris Quintana', '164 €/m²', array( 'El más duro de los tres', 'No necesita hidrófugo', 'Canto recto o romo' ), 'no' ),
-				array( 'Mármol Crema Levante', '189 €/m²', array( 'Veta continua garantizada', 'Hidrófugo aplicado', 'Cualquier canto' ), 'sí' ),
-				array( 'Veta dorada', '236 €/m²', array( 'Pieza única por bloque', 'Despiece supervisado', 'Canto biselado incluido' ), 'no' ),
-			),
-		),
-		'faq'      => array(
-			'eyebrow' => 'Dudas',
-			'h2'      => 'Antes de reservar',
-			'items'   => array(
-				array( '¿Qué pasa si mi cocina no está terminada?', 'No medimos. Volvemos cuando lo esté, sin coste y sin perder el turno reservado.' ),
-				array( '¿La medición se paga?', 'Se cobra 60 € y se descuentan íntegros del presupuesto si acepta.' ),
-				array( '¿Y si no me gusta la pieza que sale del bloque?', 'La ve antes de cortar. Si no le convence, elegimos otro bloque o le devolvemos la medición.' ),
-			),
-		),
-		'band'     => array(
-			'eyebrow' => 'Último paso',
-			'h2'      => 'Reserve la medición',
-			'lede'    => 'Quedan once turnos antes del 30 de septiembre. Se asignan por orden.',
-			'cta_1'   => 'Reservar medición',
-			'cta_2'   => '973 00 00 00',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · Alcarràs, Lleida',
-			'links' => array( 'Condiciones de la oferta', 'Privacidad' ),
-			'legal' => 'Oferta válida hasta el 30/09. Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-E-05 · Promo / Campaign. Urgency is the archetype, so the deadline appears four times.
 	   THE DEADLINE IS A DATE IN THE HTML, NOT A COUNTDOWN. A ticking clock is the device the
 	   reference kits reach for, and it renders `00:00:00` until its script runs — on a page whose
 	   entire argument is "this ends soon", a timer that says zero is the worst possible failure
 	   mode, and it fails that way for every crawler permanently. A date needs nothing. */
-	'TPL-E-05' => array(
-		'tpl'      => 'TPL-E-05',
-		'tpl_name' => 'Promo / Campaign',
-		'site'     => 'ecommerce',
-		'site_es'  => 'Ecommerce',
-		'fits'     => 'Rebajas, liquidación de stock, campañas de temporada, outlet, lanzamientos con fecha',
-		'dna'      => 'COMP-ANNOUNCEMENT urgencia · COMP-HERO promo · COMP-PRODUCT-GRID ofertas · COMP-PROMO-BANNER',
-		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO · COMP-PRODUCT-GRID · COMP-PROMO-BANNER · COMP-PRODUCT-CAROUSEL · COMP-TRUST-BADGES · COMP-CTA · COMP-NEWSLETTER · COMP-FOOTER',
-		'announce' => 'Liquidación de bancada · hasta el 30 de septiembre o fin de existencias',
-		'nav'      => array( 'Ofertas', 'Catálogo', 'Cortes a medida' ),
-		'search'   => 'Buscar mármol, granito, pizarra…',
-		'tools'    => array( 'Cuenta' ),
-		'cart'     => 'Carrito',
-		'cart_n'   => '3',
-		'hero'     => array(
-			'eyebrow' => 'Termina el 30 de septiembre',
-			'h1'      => 'Restos de bancada al 40%',
-			'lede'    => 'Piezas de entre 0,8 y 2,1 m² que sobran de encargos cerrados. Mismo material, mismo corte, sin la espera del bloque.',
-			'cta_1'   => 'Ver los restos',
-			'cta_2'   => 'Cómo funciona',
-			'img'     => 'card-veta',
-		),
-		'prods'    => array(
-			'eyebrow' => 'Ofertas',
-			'h2'      => 'Lo que queda hoy',
-			'cards'   => array(
-				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante · 1,4 m²',  'p' => '113 €/m²' ),
-				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana · 2,1 m²',  'p' => '98 €/m²' ),
-				array( 'img' => 'card-veta',   'h3' => 'Veta dorada · 0,9 m²',    'p' => '142 €/m²' ),
-				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble',        'p' => '247 €' ),
-				array( 'img' => 'card-detalle','h3' => 'Plaqueta 30×15 · 3 m²',   'p' => '28 €/m²' ),
-				array( 'img' => 'hero-encimera','h3' => 'Peldaño macizo 120 cm',  'p' => '83 €' ),
-			),
-		),
-		'promos'   => array(
-			array( 'Segunda pieza al 50%', 'Sobre la de menor precio, en el mismo pedido y el mismo material.', 'Ver condiciones' ),
-			array( 'Corte a medida sin coste', 'En cualquier resto de más de 1 m². El despiece lo hacemos nosotros.', 'Pedir corte' ),
-		),
-		'carousel' => array(
-			'eyebrow' => 'También rebajado',
-			'h2'      => 'Última bajada de precio',
-			'cards'   => array(
-				array( 'img' => 'card-patio', 'h3' => 'Canto pulido a mano', 'p' => '19 €/ml' ),
-				array( 'img' => 'card-labra', 'h3' => 'Bloque para labra',   'p' => '224 €' ),
-				array( 'img' => 'sq-manos',   'h3' => 'Kit de sellado 1 L',  'p' => '17 €' ),
-				array( 'img' => 'pan-fachada','h3' => 'Sillar de arenisca',  'p' => '67 €' ),
-			),
-		),
-		'badges'   => array( 'Envío en 72 h a península', 'Devolución en 30 días si no se ha cortado', 'Muestra física gratuita' ),
-		'band'     => array(
-			'eyebrow' => 'Antes del 30 de septiembre',
-			'h2'      => 'Cuando se acaba el resto, se acaba',
-			'lede'    => 'No reponemos: son piezas de encargos cerrados. Lo que ve es lo que hay.',
-			'cta_1'   => 'Ver los restos',
-			'cta_2'   => 'Avisarme del próximo lote',
-		),
-		'news'     => array(
-			'eyebrow' => 'Cupón',
-			'h2'      => 'Diez euros en su primer pedido',
-			'lede'    => 'Le mandamos el código al momento y le avisamos cuando entre lote nuevo.',
-			'label'   => 'Su correo',
-			'cta'     => 'Enviarme el código',
-			'small'   => 'Un correo por lote, nunca más de uno al mes. Puede darse de baja en cualquiera.',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · liquidación de bancada · Alcarràs, Lleida',
-			'links' => array( 'Condiciones', 'Envíos', 'Devoluciones' ),
-			'legal' => 'Precios con IVA. Oferta hasta el 30/09 o fin de existencias. Maqueta interna NovaMira.',
-		),
-	),
+	
 
 	/* TPL-C-05 · Local / Booking. The archetype of a place you go to. Its header carries the PHONE
 	   as text, its close carries the address and the hours, and both are DNA: a local business
 	   whose phone number lives only inside a form is a local business you cannot ring from the car. */
-	'TPL-C-05' => array(
-		'tpl'      => 'TPL-C-05',
-		'tpl_name' => 'Local / Booking',
-		'site'     => 'corporate',
-		'site_es'  => 'Corporativa',
-		'fits'     => 'Restaurantes, peluquerías, clínicas, talleres, gimnasios, cualquier negocio con puerta',
-		'dna'      => 'COMP-HEADER con teléfono · COMP-HERO local · COMP-BOOKING · COMP-MAP-NAP',
-		'wire'     => 'COMP-HEADER · COMP-HERO · COMP-SERVICES · COMP-BOOKING · COMP-GALLERY · COMP-TESTIMONIAL · COMP-MAP-NAP · COMP-FOOTER',
-		'nav'      => array( 'Showroom', 'Materiales', 'Cómo llegar' ),
-		'nav_cta'  => 'Pedir cita',
-		'phone'    => '973 00 00 00',
-		'hero'     => array(
-			'eyebrow' => 'Showroom en Alcarràs · a 12 min de Lleida',
-			'h1'      => 'Venga a tocar la piedra antes de decidirla',
-			'lede'    => 'Cuatrocientas tablas a la vista y un cantero que le dice cuál aguanta lo que quiere hacer. La visita dura una hora y no se paga.',
-			'cta_1'   => 'Pedir cita',
-			'cta_2'   => '973 00 00 00',
-			'img'     => 'card-veta',
-		),
-		'services' => array(
-			'eyebrow' => 'En la visita',
-			'h2'      => 'Qué se puede hacer aquí',
-			'cards'   => array(
-				array( 'img' => 'sq-marmol',   'h3' => 'Ver tabla entera', 'p' => 'No una muestra de 10 cm: la tabla de la que saldría su pieza.' ),
-				array( 'img' => 'card-detalle','h3' => 'Probar acabados',  'p' => 'Pulido, apomazado y envejecido sobre el mismo material.' ),
-				array( 'img' => 'card-patio',  'h3' => 'Cerrar despiece',  'p' => 'Con su plano encima de la mesa y el oficial que va a cortar.' ),
-			),
-		),
-		'booking'  => array(
-			'eyebrow' => 'Cita',
-			'h2'      => 'Reserve una hora',
-			'lede'    => 'Atendemos de uno en uno para que el cantero esté con usted toda la visita.',
-			'fields'  => array(
-				array( 'nombre', 'Nombre', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl' => 'Día',
-			'days'    => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
-			'slot_lbl'=> 'Hora',
-			'slots'   => array( '09:00', '10:30', '12:00', '16:00', '17:30' ),
-			'submit'  => 'Pedir cita',
-			'small'   => 'Le confirmamos por teléfono el mismo día. Si no puede venir, avise y liberamos la hora.',
-		),
-		'gallery'  => array(
-			'eyebrow' => 'El sitio',
-			'h2'      => 'Cómo es por dentro',
-			'items'   => array( 'card-cantero', 'card-labra', 'sq-pizarra', 'card-mueble', 'sq-manos', 'hero-taller' ),
-		),
-		'quotes'   => array(
-			'eyebrow' => 'Reseñas',
-			'h2'      => 'Lo que dicen los que vinieron',
-			'items'   => array(
-				array( 'Fuimos con el plano de la cocina y salimos con el despiece cerrado. Una hora bien empleada.', 'Jordi Camps', 'Vallmoll' ),
-				array( 'Me enseñaron la tabla entera, no un trocito. Se ve la veta de verdad.', 'Aina Roca', 'Barcelona' ),
-				array( 'Nos dijeron que la caliza que queríamos no valía para el exterior. Nos ahorraron el disgusto.', 'Marta Vilanova', 'Lleida' ),
-			),
-		),
-		'nap'      => array(
-			'eyebrow' => 'Cómo llegar',
-			'h2'      => 'Alcarràs, Lleida',
-			'addr'    => array( 'Ctra. de la Cantera, 4', '25180 Alcarràs · Lleida' ),
-			'phone'   => '973 00 00 00',
-			'mail'    => 'showroom@piedravaldes.example',
-			'hours'   => array(
-				array( 'Lunes a jueves', '08:00 – 13:30 · 15:00 – 18:00' ),
-				array( 'Viernes', '08:00 – 14:00' ),
-				array( 'Sábado y domingo', 'Cerrado' ),
-			),
-			'note'    => 'Aparcamiento propio. Entrada por el patio de bloques, no por la nave.',
-			'img'     => 'pan-fachada',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · Ctra. de la Cantera 4, 25180 Alcarràs, Lleida · 973 00 00 00',
-			'links' => array( 'Cómo llegar', 'Horarios', 'Privacidad' ),
-			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-E-01 · Visual / Brand-Led. The catalogue arrives through CATEGORIES and a lookbook, never
 	   through a grid of SKUs: this is the shop where the reader is browsing a world, not looking up
 	   a part number. TPL-E-02 puts eight products above the fold; this one puts three doors. */
-	'TPL-E-01' => array(
-		'tpl'      => 'TPL-E-01',
-		'tpl_name' => 'Visual / Brand-Led',
-		'site'     => 'ecommerce',
-		'site_es'  => 'Ecommerce',
-		'fits'     => 'Moda, decoración, joyería, mobiliario, cosmética, cualquier compra que entra por el ojo',
-		'dna'      => 'COMP-HERO slider · COMP-CATEGORY-CARD · COMP-GALLERY lookbook · COMP-BOOKING',
-		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO slider · COMP-CATEGORY-CARD · COMP-PRODUCT-CAROUSEL · COMP-GALLERY · COMP-TESTIMONIAL · COMP-BOOKING · COMP-NEWSLETTER · COMP-FOOTER',
-		'announce' => 'Envío en 72 h · muestra física gratuita con cada pedido',
-		'nav'      => array( 'Encimeras', 'Suelos', 'Baño', 'Proyectos' ),
-		'search'   => 'Buscar material, acabado, formato…',
-		'tools'    => array( 'Cuenta' ),
-		'cart'     => 'Cesta',
-		'cart_n'   => '2',
-		'hero'     => array(
-			'eyebrow' => 'Colección 2026',
-			'h1'      => 'Piedra que se elige mirándola',
-			'lede'    => 'Tres familias de material, una sola cantera y el mismo taller detrás de cada corte.',
-			'cta_1'   => 'Ver la colección',
-			'cta_2'   => 'Pedir muestra',
-			/* El MISMO fotograma con el que arranca el slider, y no una foto elegida aparte. La
-			   puerta de arriba lo exige y tiene razon: si `TGL-HERO-TYPE` cambiara tambien la
-			   imagen, dejaria de ser un toggle de COMPORTAMIENTO y nadie podria leer en la barra
-			   de datos que la diferencia entre dos tiras es una sola posicion movida. */
-			'img'     => 'hero-cantera',
-		),
-		'cats'     => array(
-			'eyebrow' => 'Por dónde empezar',
-			'h2'      => 'Tres familias',
-			'items'   => array(
-				array( 'Mármoles', 'Veta viva, para interior', '18 referencias', 'sq-marmol' ),
-				array( 'Granitos', 'Grano cerrado, para todo', '11 referencias', 'sq-pizarra' ),
-				array( 'Piedra labrada', 'Fachada y patrimonio', '6 referencias', 'card-labra' ),
-			),
-		),
-		'carousel' => array(
-			'eyebrow' => 'Se llevan ahora',
-			'h2'      => 'Lo más pedido esta temporada',
-			'cards'   => array(
-				array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',    'p' => '189 €/m²' ),
-				array( 'img' => 'card-veta',   'h3' => 'Veta dorada',      'p' => '236 €/m²' ),
-				array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',    'p' => '164 €/m²' ),
-				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble', 'p' => '412 €' ),
-			),
-		),
-		'gallery'  => array(
-			'eyebrow' => 'Lookbook',
-			'h2'      => 'Cómo queda puesta',
-			'items'   => array( 'hero-encimera', 'card-mueble', 'card-veta', 'pan-fachada', 'card-detalle', 'card-patio' ),
-		),
-		'quotes'   => array(
-			'eyebrow' => 'Quien ya la tiene',
-			'h2'      => 'Tres casas',
-			'items'   => array(
-				array( 'Elegí por foto y acerté porque me mandaron la tabla entera antes de cortar.', 'Aina Roca', 'Barcelona' ),
-				array( 'La veta sigue de una pieza a la otra. Se nota que salió del mismo bloque.', 'Jordi Camps', 'Vallmoll' ),
-				array( 'Vinieron a medir con la cocina puesta y no hubo sorpresas.', 'Marta Vilanova', 'Lleida' ),
-			),
-		),
-		'booking'  => array(
-			'eyebrow' => 'Asesoramiento',
-			'h2'      => 'Pida una cita de medición',
-			'lede'    => 'Vamos a su obra con láser y muestras. La visita no se cobra si el pedido sale adelante.',
-			'fields'  => array(
-				array( 'nombre', 'Nombre', 'text' ),
-				array( 'tel', 'Teléfono', 'tel' ),
-			),
-			'day_lbl' => 'Día',
-			'days'    => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
-			'slot_lbl'=> 'Franja',
-			'slots'   => array( 'Mañana', 'Mediodía', 'Tarde' ),
-			'submit'  => 'Pedir cita',
-			'small'   => 'Le confirmamos por teléfono el mismo día.',
-		),
-		'news'     => array(
-			'eyebrow' => 'Boletín',
-			'h2'      => 'Le avisamos cuando entre material nuevo',
-			'lede'    => 'Un correo por colección. Nunca ofertas.',
-			'label'   => 'Su correo',
-			'cta'     => 'Avisarme',
-			'small'   => 'Puede darse de baja en cualquier correo.',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · colección 2026 · Alcarràs, Lleida',
-			'links' => array( 'Envíos', 'Devoluciones', 'Privacidad' ),
-			'legal' => 'Piedra Valdés SL · Maqueta interna NovaMira, no publicada.',
-		),
-	),
+	
 
 	/* TPL-E-04 · Categories First. The catalogue is WIDE, so the page routes before it sells: a
 	   dense category grid first, then products organised by tab. TPL-E-02 answers "I know what I
 	   want"; this one answers "I know roughly where to look". */
-	'TPL-E-04' => array(
-		'tpl'      => 'TPL-E-04',
-		'tpl_name' => 'Categories First',
-		'site'     => 'ecommerce',
-		'site_es'  => 'Ecommerce',
-		'fits'     => 'Catálogos amplios: ferretería, suministro industrial, papelería, repuestos, distribución',
-		'dna'      => 'COMP-CATEGORY-GRID · COMP-PRODUCT-TABS · COMP-BENEFITS',
-		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO · COMP-CATEGORY-GRID · COMP-PRODUCT-TABS · COMP-BENEFITS · COMP-CTA · COMP-CATEGORY-CARD · COMP-NEWSLETTER · COMP-FOOTER',
-		'announce' => 'Más de 400 referencias en stock · corte a medida en 72 h',
-		'nav'      => array( 'Catálogo', 'Formatos', 'Profesionales', 'Ayuda' ),
-		'search'   => 'Referencia, material o formato…',
-		'tools'    => array( 'Cuenta', 'Pedidos' ),
-		'cart'     => 'Carrito',
-		'cart_n'   => '5',
-		'hero'     => array(
-			'eyebrow' => 'Catálogo completo',
-			'h1'      => 'Cuatrocientas referencias, ordenadas',
-			'lede'    => 'Por material, por formato o por uso. Si sabe la referencia, búsquela arriba.',
-			'cta_1'   => 'Ver el catálogo',
-			'cta_2'   => 'Cuenta de profesional',
-			'img'     => 'card-veta',
-		),
-		'grid'     => array(
-			'eyebrow' => 'Por dónde empezar',
-			'h2'      => 'Categorías',
-			'items'   => array(
-				array( 'Encimeras', '84' ), array( 'Suelos', '112' ), array( 'Fachada', '46' ),
-				array( 'Baño', '38' ), array( 'Peldaños', '29' ), array( 'Plaqueta', '51' ),
-				array( 'Chimeneas', '17' ), array( 'Restos de bancada', '23' ),
-			),
-		),
-		'tabs'     => array(
-			'eyebrow' => 'Novedades',
-			'h2'      => 'Lo último por familia',
-			'panels'  => array(
-				array( 'Mármoles', array(
-					array( 'img' => 'sq-marmol',   'h3' => 'Crema Levante',      'p' => '189 €/m²' ),
-					array( 'img' => 'card-veta',   'h3' => 'Veta dorada',        'p' => '236 €/m²' ),
-					array( 'img' => 'card-detalle','h3' => 'Blanco Macael',      'p' => '212 €/m²' ),
-					array( 'img' => 'card-mueble', 'h3' => 'Travertino romano',  'p' => '178 €/m²' ),
-				) ),
-				array( 'Granitos', array(
-					array( 'img' => 'sq-pizarra',  'h3' => 'Gris Quintana',      'p' => '164 €/m²' ),
-					array( 'img' => 'card-patio',  'h3' => 'Negro Zimbabue',     'p' => '241 €/m²' ),
-					array( 'img' => 'card-labra',  'h3' => 'Rosa Porriño',       'p' => '156 €/m²' ),
-					array( 'img' => 'sq-manos',    'h3' => 'Blanco Cristal',     'p' => '183 €/m²' ),
-				) ),
-				array( 'Labrada', array(
-					array( 'img' => 'pan-fachada', 'h3' => 'Sillar de arenisca', 'p' => '96 €' ),
-					array( 'img' => 'card-labra',  'h3' => 'Capitel liso',       'p' => '340 €' ),
-					array( 'img' => 'hero-taller', 'h3' => 'Moldura corrida',    'p' => '48 €/ml' ),
-					array( 'img' => 'card-cantero','h3' => 'Peldaño macizo',     'p' => '138 €' ),
-				) ),
-			),
-		),
-		'benefits' => array( 'Corte a medida sin coste', 'Envío en 72 h a península', 'Cuenta de profesional con precios netos' ),
-		'band'     => array(
-			'eyebrow' => 'Profesionales',
-			'h2'      => '¿Compra para obra?',
-			'lede'    => 'Abrimos cuenta con precios netos, albarán por obra y pago a treinta días.',
-			'cta_1'   => 'Abrir cuenta',
-			'cta_2'   => 'Hablar con ventas',
-		),
-		'cats'     => array(
-			'eyebrow' => 'También buscan',
-			'h2'      => 'Tres entradas rápidas',
-			'items'   => array(
-				array( 'Restos de bancada', 'Piezas sueltas rebajadas', '23 referencias', 'card-veta' ),
-				array( 'Formato plaqueta', '30×15 y 40×20', '51 referencias', 'card-detalle' ),
-				array( 'Stock inmediato', 'Sale hoy del almacén', '96 referencias', 'sq-marmol' ),
-			),
-		),
-		'news'     => array(
-			'eyebrow' => 'Boletín',
-			'h2'      => 'Entradas de stock y bajadas de precio',
-			'lede'    => 'Un correo al mes con lo que ha entrado y lo que ha bajado.',
-			'label'   => 'Su correo',
-			'cta'     => 'Suscribirme',
-			'small'   => 'Puede darse de baja en cualquier correo.',
-		),
-		'footer'   => array(
-			'tag'   => 'Piedra Valdés · catálogo y suministro · Alcarràs, Lleida',
-			'links' => array( 'Formatos', 'Envíos', 'Profesionales' ),
-			'legal' => 'Precios sin IVA para cuenta profesional. Maqueta interna NovaMira.',
-		),
-	),
+	
 
-	'TPL-E-02' => array(
-		'tpl'      => 'TPL-E-02',
-		'tpl_name' => 'Catalog / Product-First',
-		/* `Ecommerce ideal`, transcribed from TPL-E-02-catalog-product-first.md §1. */
-		'fits'     => 'Electrónica, repuestos, librería, ferretería, insumos',
-		'site'     => 'ecommerce',
-		'site_es'  => 'Ecommerce',
-		'dna'      => 'COMP-HEADER search-first · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-FAQ + COMP-CONTACT-DIRECT',
-		'wire'     => 'COMP-ANNOUNCEMENT · COMP-HEADER · COMP-HERO mini · COMP-PRODUCT-GRID · COMP-PRODUCT-CAROUSEL · COMP-BENEFITS · COMP-FAQ · COMP-CONTACT-DIRECT · COMP-FOOTER',
-		'announce' => 'Envío en 72 h a península · Corte a medida sin coste',
-		'search'   => 'Buscar mármol, granito, pizarra…',
-		'tools'    => array( 'Cuenta' ),
-		'cart'     => 'Carrito',
-		'cart_n'   => '2',
-		'hero'     => array(
-			'h1'   => 'Tienda',
-			'lede' => 'Piedra natural cortada a medida, del bloque a tu obra.',
-			'cats' => array( 'Encimeras', 'Suelos', 'Fachada', 'Chimeneas', 'Baño', 'Restos de serie' ),
-			'img'  => 'pan-fachada',
-		),
-		'prods'    => array(
-			'eyebrow' => 'Catálogo',
-			'h2'      => 'Destacados',
-			'cards'   => array(
-				array( 'img' => 'sq-marmol', 'h3' => 'Mármol Crema Levante', 'p' => '189 €/m²' ),
-				array( 'img' => 'sq-pizarra', 'h3' => 'Granito Gris Quintana', 'p' => '164 €/m²' ),
-				array( 'img' => 'card-veta', 'h3' => 'Panel de veta dorada', 'p' => '236 €/m²' ),
-				array( 'img' => 'card-mueble', 'h3' => 'Frente de mueble en piedra', 'p' => '412 €' ),
-				array( 'img' => 'card-detalle', 'h3' => 'Plaqueta labrada 30×15', 'p' => '47 €/m²' ),
-				array( 'img' => 'card-labra', 'h3' => 'Bloque para labra', 'p' => '320 €' ),
-				array( 'img' => 'card-patio', 'h3' => 'Sillar de arenisca', 'p' => '96 €' ),
-				array( 'img' => 'sq-manos', 'h3' => 'Canto pulido a mano', 'p' => '28 €/ml' ),
-			),
-		),
-		/* TPL-PDP-01 · the product page for the FIRST tile of the grid on the home, so the two pages
-		   are demonstrably the same shop. Its price and its finish options match that tile. */
-		'pdp'      => array(
-			'crumbs'  => array( 'Inicio', 'Catálogo', 'Mármol Crema Levante' ),
-			'h1'      => 'Mármol Crema Levante',
-			'price'   => '189 €/m²',
-			'lede'    => 'Caliza marmórea de Novelda, grano fino y veta discreta. Corte a medida sobre plano o sobre medición en obra.',
-			'main'    => 'sq-marmol',
-			'thumbs'  => array( 'card-veta', 'card-detalle', 'card-mueble' ),
-			'opt_lbl' => 'Acabado',
-			'opts'    => array( 'Pulido', 'Apomazado', 'Envejecido' ),
-			'qty_lbl' => 'Metros cuadrados',
-			'cta'     => 'Añadir al carrito',
-			'ship'    => 'Corte a medida sin coste · envío en 72 h a península',
-			'acc'     => array(
-				array( 'Descripción', 'Bloque de Novelda, densidad 2.690 kg/m³ y absorción por debajo del 0,4%. Apto para interior en suelo, encimera y baño. En exterior sólo en fachada ventilada.' ),
-				array( 'Envíos', 'Palet completo a península en 72 h laborables. Piezas cortadas a medida, entre diez y quince días según despiece. Baleares y Canarias, consultar.' ),
-				array( 'Devoluciones', 'Material de stock sin cortar, treinta días. El corte a medida no admite devolución salvo defecto, y el defecto lo peritamos nosotros en 48 h.' ),
-			),
-			'badges'  => array( 'Muestra física gratuita', 'Despiece incluido en el precio', 'Garantía de veta continua' ),
-		),
-		'carousel' => array(
-			'eyebrow' => 'Cross-sell',
-			'h2'      => 'Más vendidos',
-			'cards'   => array(
-				array( 'img' => 'card-cantero', 'h3' => 'Peldaño macizo 120 cm', 'p' => '138 €' ),
-				array( 'img' => 'hero-encimera', 'h3' => 'Encimera Blanco Macael 3 m', 'p' => '890 €' ),
-				array( 'img' => 'hero-cantera', 'h3' => 'Zócalo pulido 8 cm', 'p' => '19 €/ml' ),
-				array( 'img' => 'hero-taller', 'h3' => 'Kit de sellado mineral 1 L', 'p' => '24 €' ),
-			),
-		),
-		'benefits' => array(
-			array( 'Envío en 72 h', 'A península, con seguimiento.' ),
-			array( 'Corte a medida', 'Sin coste sobre el precio de tabla.' ),
-			array( 'Pago en 3 plazos', 'Sin intereses desde 200 €.' ),
-			array( 'Devolución 30 días', 'En piezas de catálogo sin cortar.' ),
-		),
-		/* COMP-FAQ + COMP-CONTACT-DIRECT — TPL-E-02's closing pair, both `[fijo · ADN]` in the
-		   template doc, so both are rendered rather than treated as optional furniture. The
-		   questions are the ones a stone buyer actually asks: plazo, medida, factura, devolución. */
-		'faq'      => array(
-			'eyebrow' => 'Antes de pedir',
-			'h2'      => 'Lo que preguntan siempre',
-			'rows'    => array(
-				array( '¿Cuánto tarda una pieza cortada a medida?', 'De 5 a 9 días laborables desde que aprobás el plano de corte. El catálogo sin cortar sale en 72 h.' ),
-				array( '¿Cómo mando las medidas?', 'Plano, croquis a mano o las medidas por WhatsApp. Si la obra está en Alicante o Murcia, vamos a medir sin coste.' ),
-				array( '¿Hacéis factura con IVA desglosado?', 'Sí, en todos los pedidos. Para empresa, indicá el CIF en el paso de datos.' ),
-				array( '¿Puedo devolver una pieza cortada?', 'No: el corte es a medida y no vuelve a stock. Las piezas de catálogo sin cortar, 30 días.' ),
-				array( '¿Sirven muestras?', 'Sí, hasta 3 muestras de 10×10 gratis. La piedra natural varía de veta entre bloques.' ),
-			),
-		),
-		'close'    => array(
-			'eyebrow' => 'Mostrador',
-			'h2'      => '¿No encontraste tu pieza?',
-			'lede'    => 'Consultanos stock, plazo y presupuesto por pieza. Trabajamos material que no está publicado.',
-			/* THE CONTROL THIS BAND NEVER HAD. TPL-C-01 closes on a form and TPL-E-02 closed on
-			   three phone numbers — help, not an ask. The channels stay, because a counter still
-			   answers the phone and § "COMP-CONTACT-DIRECT" is right that a catalogue closes on
-			   what happens when finding failed; what was missing is that the band never ASKED for
-			   anything before listing the ways to ask. One control, one line of reassurance beside
-			   it, and the three channels underneath it rather than instead of it. */
-			'cta'     => 'Pedir presupuesto a medida',
-			'cta_sub' => 'Respuesta el mismo día laborable',
-			'chans'   => array(
-				array( 'Teléfono', '965 60 41 22', 'Lun a vie, 8:00–18:00' ),
-				array( 'WhatsApp', '+34 600 41 22 08', 'Mandá el croquis y te presupuestamos' ),
-				array( 'Email', 'mostrador@piedravaldes.es', 'Respuesta el mismo día laborable' ),
-			),
-		),
-		'footer'   => array(
-			'tag'   => 'Tienda de piedra natural · Novelda, Alicante',
-			'links' => array( 'Envíos', 'Devoluciones', 'Aviso legal', 'Privacidad', 'Cookies' ),
-			'legal' => '© 2026 Piedra Valdés S.L. · Ctra. de la Cantera 4, Novelda · IVA incluido',
-		),
-	),
+	
 
 	/* TPL-E-06 · CORTE NUEVE. La tienda cuyo cliente no duda del producto: duda de si le va a caber.
 	   La talla es la primera causa de devolución en moda online, así que el coste de no responderla
@@ -4374,25 +2755,7 @@ $CONTENT = array(
    esqueleto, misma tienda, misma piedra— se ve que lo que cambia es el reparto de columnas y el
    aire, y que eso es un toggle. Si hubiera que mirarlas dos veces para notar la diferencia, la
    conclusión sería la contraria y también estaría bien saberla. */
-$CONTENT['TPL-E-01']['pdp'] = array(
-	'crumbs'  => array( 'Inicio', 'Encimeras', 'Blanco Macael pulido' ),
-	'h1'      => 'Encimera Blanco Macael',
-	'price'   => '890 € / 3 m lineales',
-	'lede'    => 'Mármol de Macael, blanco de fondo limpio y veta gris muy fina. Canto recto pulido de serie; bisel o media caña sin coste sobre el mismo precio.',
-	'main'    => 'hero-encimera',
-	'thumbs'  => array( 'card-veta', 'sq-marmol', 'card-detalle' ),
-	'opt_lbl' => 'Canto',
-	'opts'    => array( 'Recto', 'Bisel', 'Media caña' ),
-	'qty_lbl' => 'Metros lineales',
-	'cta'     => 'Añadir a la cesta',
-	'ship'    => 'Plantilla en obra incluida · entrega en 12 días laborables',
-	'acc'     => array(
-		array( 'Descripción', 'Tabla de 3 cm sobre bancada de Macael. Poro cerrado y tratamiento antimancha de fábrica, que se renueva cada tres o cuatro años según uso. Apta para cocina, baño y mesa.' ),
-		array( 'Medición y montaje', 'Vamos a tomar plantilla cuando los muebles ya están colocados, no antes: una encimera medida sobre plano y montada sobre muebles reales falla en la esquina. La visita entra en el precio dentro de la provincia.' ),
-		array( 'Cuidados', 'Limpieza con jabón neutro. El mármol es calcáreo: limón, vinagre y descalcificador lo marcan en segundos, y esa marca no sale frotando, se pule.' ),
-	),
-	'badges'  => array( 'Plantilla en obra incluida', 'Muestra física gratuita', 'Garantía de veta continua' ),
-);
+
 
 /* TPL-ABOUT-02 «El oficio» sobre TPL-E-03.
    Es la página que la tienda de marca necesitaba y no tenía: su home afirma que extraen y cortan
@@ -4400,62 +2763,7 @@ $CONTENT['TPL-E-01']['pdp'] = array(
    proceso fotografiado, no una rejilla de retratos ni un contador de años — el ADN del arquetipo
    apaga `TGL-ABOUT-TEAM` y `TGL-ABOUT-STATS` a propósito: un taller de cuatro personas con cuatro
    retratos de estudio parece una consultora pequeña. */
-$CONTENT['TPL-E-03']['oficio'] = array(
-	'crumbs'  => array( 'Inicio', 'El taller' ),
-	'hero'    => array(
-		'eyebrow' => 'Alcarràs, Lleida',
-		'h1'      => 'Del bloque a la pieza, sin salir de casa',
-		'lede'    => 'Cuatro personas, una cantera y un taller a doscientos metros de ella. Lo que sale de aquí lo ha tocado alguien cuyo nombre está en esta página.',
-		'img'     => 'hero-taller',
-	),
-	'process' => array(
-		'eyebrow' => 'Cómo se hace',
-		'h2'      => 'Cuatro pasos y dos semanas',
-		'steps'   => array(
-			array( 'Se elige el bloque', 'En la cantera, mirando la veta mojada. Un bloque no se parece al de al lado, así que el material de un encargo grande sale del mismo bloque o no sale.', 'hero-cantera' ),
-			array( 'Se corta la tabla', 'Telar de hilo diamantado, 2 o 3 cm. De aquí salen las tablas que luego se despiezan, y el desperdicio de este paso es el que marca el precio por metro.', 'card-labra' ),
-			array( 'Se labra a mano lo que la máquina no hace', 'Cantos moldurados, encuentros en esquina, molduras de recuperación. Es el paso lento y el único que no se puede encargar fuera.', 'sq-manos' ),
-			array( 'Se pule y se monta', 'Pulido a grano progresivo hasta 3.000 y montaje en obra por los mismos que la cortaron. Quien monta ve el fallo del taller, y eso mejora el taller.', 'hero-encimera' ),
-		),
-	),
-	'gallery' => array(
-		'eyebrow' => 'El sitio y las herramientas',
-		'h2'      => 'Dónde y con qué',
-		'items'   => array( 'card-cantero', 'card-labra', 'sq-pizarra', 'card-patio', 'sq-marmol', 'card-detalle' ),
-	),
-	'figq'    => array(
-		'eyebrow' => 'Quién firma',
-		'quote'   => 'La piedra dice si la has entendido cuando la mojas. Por eso no doy un precio por teléfono: primero veo el bloque.',
-		'sig'     => 'Marc Puig',
-		'role'    => 'Jefe de taller · en la casa desde 2009',
-		'img'     => 'card-cantero',
-	),
-	'cases'   => array(
-		'eyebrow' => 'Trabajos hechos',
-		'h2'      => 'Tres que tenían algo difícil',
-		'items'   => array(
-			array( 'Encimera de 3,20 m en una pieza', 'Subida por una escalera de caracol, sin junta. Se cortó al milímetro con la plantilla puesta y entró con cuatro centímetros de margen.', 'hero-encimera' ),
-			array( 'Patio con sillar recuperado', 'Piedra de derribo de la misma comarca, relabrada cara a cara para que las juntas cerraran. Ochenta y dos piezas, ninguna igual.', 'card-patio' ),
-			array( 'Frente de mueble con veta continua', 'Cinco puertas cortadas seguidas del mismo bloque, de modo que la veta cruza el mueble entero. Si el bloque se acaba, el mueble no se termina.', 'card-mueble' ),
-		),
-	),
-	'creds'   => array(
-		'eyebrow' => 'Verificable',
-		'h2'      => 'Lo que se puede comprobar',
-		'items'   => array(
-			array( 'Cantera propia', 'Explotación inscrita en el registro minero de Lleida, nº 4.118.' ),
-			array( 'Marcado CE', 'Conforme a UNE-EN 1469 para revestimiento y UNE-EN 12057 para plaqueta.' ),
-			array( 'Seguro de responsabilidad', 'Cobertura de 600.000 € en obra, póliza a nombre del taller.' ),
-		),
-	),
-	'cta'     => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Traes una medida o traes una idea?',
-		'lede'    => 'Con la medida sale un presupuesto. Con la idea sale una visita al taller, que suele ser mejor punto de partida.',
-		'cta_1'   => 'Pedir presupuesto',
-		'cta_2'   => 'Ver el catálogo',
-	),
-);
+
 
 /* TPL-PDP-05 «A medida» sobre TPL-E-03.
    La misma tienda que la ficha estándar de TPL-E-02 y la editorial de TPL-E-01, con la MISMA
@@ -4463,7 +2771,27 @@ $CONTENT['TPL-E-03']['oficio'] = array(
    fichas del mismo negocio con la misma piedra, y una termina en presupuesto porque su producto no
    existe hasta que alguien lo configura. Ahí la diferencia no es el aire ni el tamaño de la foto:
    es que falta el botón de comprar. */
-$CONTENT['TPL-E-03']['mtm'] = array(
+
+
+/* R5 HARVEST — catalog-envato-grade PR2b, task 2b.4/2b.6. Was `$CONTENT['TPL-E-03']['mtm'] =
+ * array(...)`, the only rendering of `TPL-PDP-05` in this file, copied here as a LIVE reference
+ * one commit before this one (`$HARVEST['tpl-e03-mtm'] = $CONTENT['TPL-E-03']['mtm'];`) — valid
+ * then, because `$CONTENT['TPL-E-03']` still existed. This commit deletes it (T-C1: `TPL-E-09`
+ * medida survives, `TPL-E-03` does not), so the reference is inlined into a standalone snapshot:
+ * a harvest whose source is gone is a value, not a pointer. Byte-identical to the deleted block
+ * otherwise. design.md's Decision C1 re-skins this onto medida's own 6 photos as its second page
+ * in PR8; nothing reads `$HARVEST` yet, so this remains inert until then.
+ *
+ * AN ISOLATED GLOBAL, NEVER `$CONTENT['_harvest']`. `$CONTENT` is walked a few hundred lines below
+ * this point — `foreach ( $CONTENT as $cn_k => $cn_v ) { … $cn_v['tpl'] … }` — and every entry in
+ * that walk is required to carry its own `tpl`/`arch`/`brand`/`head_mode` keys or the walk `fail()`s
+ * on the first missing one, through the same `set_error_handler()` that turns any PHP warning into
+ * a build failure. A staging entry nested under `$CONTENT` is not a template and would `fail()` the
+ * very next build, which is a worse outcome than the "e.g." key `sdd-tasks` suggested for this
+ * task turning out not to fit this file's own invariants.
+ */
+$HARVEST = array();
+$HARVEST['tpl-e03-mtm'] = array(
 	'crumbs'  => array( 'Inicio', 'Catálogo', 'Encimera a medida' ),
 	'h1'      => 'Encimera a medida',
 	'lede'    => 'Dinos la medida y el material y devolvemos un presupuesto cerrado en 48 h laborables. Sin precios «desde»: el de tu encimera o ninguno.',
@@ -4535,91 +2863,13 @@ $CONTENT['TPL-E-03']['mtm'] = array(
 	),
 );
 
-/* R5 HARVEST, AHEAD OF THE AMPUTATION THAT KILLS TPL-E-03 — catalog-envato-grade PR2b, task 2b.4.
- * `$CONTENT['TPL-E-03']['mtm']` above is the only rendering of `TPL-PDP-05` in this file; T-C1
- * keeps `TPL-E-09` (medida) but retires `TPL-E-03`, and design.md's Decision C1 rescues this exact
- * content block, re-skinned onto medida's own 6 photos, as medida's second page in PR8. Copying it
- * now, before the deletion commit, is strictly cheaper than reconstructing it from a diff later.
- *
- * AN ISOLATED GLOBAL, NEVER `$CONTENT['_harvest']`. `$CONTENT` is walked a few hundred lines below
- * this point — `foreach ( $CONTENT as $cn_k => $cn_v ) { … $cn_v['tpl'] … }` — and every entry in
- * that walk is required to carry its own `tpl`/`arch`/`brand`/`head_mode` keys or the walk `fail()`s
- * on the first missing one, through the same `set_error_handler()` that turns any PHP warning into
- * a build failure. A staging entry nested under `$CONTENT` is not a template and would `fail()` the
- * very next build, which is a worse outcome than the "e.g." key `sdd-tasks` suggested for this
- * task turning out not to fit this file's own invariants.
- */
-$HARVEST = array();
-$HARVEST['tpl-e03-mtm'] = $CONTENT['TPL-E-03']['mtm'];
-
 /* TPL-PDP-01 sobre TPL-E-04, la tienda organizada por categorías.
    MISMO ESQUELETO QUE LA DE TPL-E-02 Y ESO ES LA RESPUESTA, no un descuido. La mayoría de las
    tiendas necesitan la ficha estándar; lo que las distingue es el ancla y el contexto, no un
    esqueleto propio. Aquí el contexto es la categoría: la miga de pan tiene un nivel más y el
    cross-sell no es «más vendidos» sino «más de Baño» — en una tienda que se navega por secciones,
    quien está en una ficha sigue dentro de una sección. */
-$CONTENT['TPL-E-04']['pdp'] = array(
-	'crumbs'  => array( 'Inicio', 'Baño', 'Platos de ducha', 'Plato de ducha en piedra' ),
-	'h1'      => 'Plato de ducha en piedra natural',
-	'price'   => '540 € / 120 × 80',
-	'lede'    => 'Pieza maciza rebajada en una sola pieza, con la pendiente labrada y el sumidero centrado o descentrado. Se corta a la medida del hueco.',
-	'main'    => 'card-detalle',
-	'thumbs'  => array( 'sq-pizarra', 'card-veta', 'sq-marmol' ),
-	'opt_lbl' => 'Acabado',
-	'opts'    => array( 'Apomazado', 'Flameado', 'Cepillado' ),
-	'qty_lbl' => 'Unidades',
-	'cta'     => 'Añadir al carrito',
-	'ship'    => 'Corte a la medida del hueco sin coste · entrega en 10 días',
-	'acc'     => array(
-		array( 'Descripción', 'Pizarra o caliza de 4 cm rebajada a 3 cm en el centro, con pendiente del 2% labrada hacia el sumidero. El acabado flameado es el más antideslizante de los tres y el único que recomendamos con niños en casa.' ),
-		array( 'Instalación', 'Se apoya sobre mortero de nivelación, no sobre patas. Pesa entre 90 y 130 kg según medida, así que suben dos personas: si el acceso tiene escalera estrecha, dilo al pedir y lo despiezamos en dos.' ),
-		array( 'Devoluciones', 'Treinta días en medidas de catálogo. El corte al hueco es a medida y no admite devolución salvo defecto.' ),
-	),
-	'badges'  => array( 'Corte al hueco incluido', 'Muestra física gratuita', 'Sumidero a elegir' ),
-	/* El cross-sell de una tienda por categorías es la categoría, no un carrusel de más vendidos. */
-	'related' => array(
-		'eyebrow' => 'Sigues en Baño',
-		'h2'      => 'Más de esta sección',
-		'cards'   => array(
-			array( 'img' => 'card-veta',    'h3' => 'Encimera de lavabo 100 cm', 'p' => '395 €' ),
-			array( 'img' => 'sq-marmol',    'h3' => 'Frente de bañera a medida', 'p' => '260 €' ),
-			array( 'img' => 'card-mueble',  'h3' => 'Repisa maciza 90 × 20',     'p' => '118 €' ),
-			array( 'img' => 'card-cantero', 'h3' => 'Zócalo de ducha 8 cm',      'p' => '19 €/ml' ),
-		),
-	),
-);
 
-/* TPL-PDP-01 sobre TPL-E-05, la campaña con fecha.
-   ES LA MISMA PIEDRA QUE VENDE TPL-E-02 A 189 €/m², y aquí es un resto de bancada de 1,4 m² a 113.
-   Esa coincidencia no es reciclaje: es la prueba de que las cinco tiendas del catálogo son un solo
-   negocio enseñado bajo arquitecturas distintas, así que una oferta se puede comprobar contra el
-   precio de tabla en vez de ser un número inventado con un porcentaje encima.
-   TPL-PDP-01 § 3 pedía «precio anterior tachado si hay oferta» desde que se escribió y ningún
-   renderizador lo hacía. Lo hace ésta, y con ella llega la fecha: el ADN de este arquetipo es la
-   urgencia CON fecha, y una ficha de campaña que no dice hasta cuándo es una ficha normal con un
-   descuento. */
-$CONTENT['TPL-E-05']['pdp'] = array(
-	'crumbs'    => array( 'Inicio', 'Ofertas', 'Restos de bancada', 'Crema Levante 1,4 m²' ),
-	'h1'        => 'Crema Levante · resto de 1,4 m²',
-	'price'     => '113 €/m²',
-	'price_was' => '189 €/m²',
-	'price_off' => '−40%',
-	'deadline'  => 'Al precio de liquidación hasta el 30 de septiembre, o mientras quede la pieza: es una sola y no se repone.',
-	'lede'      => 'Pieza sobrante de un encargo cerrado, 168 × 84 cm en tabla de 2 cm. Mismo bloque y mismo pulido que el material de catálogo — lo que cambia es que ya está cortada y no espera al bloque.',
-	'main'      => 'sq-marmol',
-	'thumbs'    => array( 'card-veta', 'card-detalle', 'hero-encimera' ),
-	'opt_lbl'   => 'Canto',
-	'opts'      => array( 'Sin cantear', 'Recto pulido', 'Bisel' ),
-	'qty_lbl'   => 'Metros cuadrados (quedan 1,4)',
-	'cta'       => 'Añadir al carrito',
-	'ship'      => 'Sale del almacén en 48 h · el cantado suma 3 días',
-	'acc'       => array(
-		array( 'Qué es un resto de bancada', 'Lo que sobra de una tabla después de despiezar un encargo. Es material de primera con una medida que no elegiste tú, y por eso vale un 40% menos: el descuento paga la restricción, no un defecto.' ),
-		array( 'La medida es la que es', 'Esta pieza mide 168 × 84 y no hay otra igual. Se puede cortar más pequeña, nunca más grande, y una vez cortada no vuelve a stock.' ),
-		array( 'Envíos', 'Palet a península en 48 h laborables desde el almacén. Baleares y Canarias, consultar antes de comprar.' ),
-	),
-	'badges'    => array( 'Pieza única · no se repone', 'Mismo bloque que el catálogo', 'Sale en 48 h' ),
-);
 
 /* TPL-PDP-02 «Talla y ajuste» sobre TPL-E-06.
    REUTILIZA el buscador de talla, la tabla de medidas, la galería de tres cuerpos y la promesa de
@@ -4684,93 +2934,13 @@ $CONTENT['TPL-E-08-tueste']['pdp'] = array(
    Reutiliza historia, cifras, equipo y testimonios del bloque de la home: es la misma empresa un
    nivel más abajo, no otra. Lo que añade son el encabezado propio, los compromisos —COMP-VALUES,
    que la home no lleva— y el cierre. */
-$CONTENT['TPL-C-02']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Desde 1974',
-		'h1'      => 'Tres generaciones cortando la misma piedra',
-		'lede'    => 'Empezamos sirviendo bordillo a los ayuntamientos de la comarca. Seguimos aquí porque el material sale de nuestra cantera y el corte de nuestro taller.',
-		'img'     => 'hero-cantera',
-	),
-	'values' => array(
-		'eyebrow' => 'Compromisos',
-		'h2'      => 'Cuatro cosas que sí ponemos por escrito',
-		'items'   => array(
-			array( 'Presupuesto en 48 h', 'Laborables, y cerrado. Si no llega a tiempo, el retraso se descuenta.' ),
-			array( 'Una sola veta por encargo', 'El material de un pedido sale del mismo bloque, o avisamos antes de cortar.' ),
-			array( 'Quien mide, monta', 'La misma persona toma la plantilla y coloca la pieza. No hay a quién echarle la culpa.' ),
-			array( 'Peritaje en 48 h', 'Si algo llega mal vamos a verlo en dos días. Sin fotos por correo.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Hablamos de un encargo concreto?',
-		'lede'    => 'Con una medida y un material sale un presupuesto. Sin ellos, sale una visita al taller.',
-		'cta_1'   => 'Pedir presupuesto',
-		'cta_2'   => 'Ver trabajos',
-	),
-);
+
 
 /* TPL-CONTACT-01 «Consulta» sobre TPL-C-01.
    Las dos secciones que casi ninguna página de contacto tiene: qué pasa después de darle a enviar,
    y con quién se va a hablar. Un formulario es una caja negra —se escribe, se pulsa y no se sabe si
    llegó ni quién lo lee— y esa incertidumbre es la que empuja a llamar a quien prefería escribir. */
-$CONTENT['TPL-C-01']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Cuéntanos el encargo',
-		'lede'    => 'Respondemos consultas de obra, medición y presupuesto. Si es urgente, el teléfono está aquí al lado y lo coge una persona.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntanos el encargo',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Cuatro campos y ninguno más. Cada campo de sobra baja el número de envíos, así que el teléfono sólo se pide cuando de verdad se va a llamar.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '973 00 00 00', 'De lunes a viernes, 8:00 – 18:00' ),
-			array( 'Email', 'obra@piedravaldes.example', 'Lo lee Aina, no un buzón compartido' ),
-			array( 'Taller', 'Ctra. de la Cantera 4, Alcarràs', 'Se puede pasar sin cita en horario de taller' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Tres pasos, con plazo',
-		'steps'   => array(
-			array( 'Lo lee una persona', 'El mismo día laborable. No hay respuesta automática, porque una respuesta automática no informa de nada.' ),
-			array( 'Te llamamos', 'En 24 h, para entender la obra. Cinco minutos de teléfono ahorran tres correos.' ),
-			array( 'Presupuesto por escrito', 'En 48 h desde esa llamada, con medidas, material y plazo. Cerrado, no orientativo.' ),
-		),
-		'note'    => 'Son plazos publicados, así que se cumplen o se cambia el número: un plazo que no se cumple hace más daño que no publicarlo.',
-	),
-	'team'   => array(
-		'eyebrow' => 'Con quién vas a hablar',
-		'h2'      => 'Somos tres y contestamos nosotros',
-		'items'   => array(
-			array( 'name' => 'Aina Serra', 'role' => 'Oficina técnica', 'lic' => 'Despiece y presupuestos', 'img' => 'card-detalle' ),
-			array( 'name' => 'Marc Puig', 'role' => 'Jefe de taller', 'lic' => 'Plazos y cortes especiales', 'img' => 'card-cantero' ),
-			array( 'name' => 'Ramon Valdés', 'role' => 'Dirección', 'lic' => 'Obra grande y peritajes', 'img' => 'sq-manos' ),
-		),
-	),
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta siempre',
-		'items'   => array(
-			array( '¿Dais precio por teléfono?', 'Un orden de magnitud, sí. Un precio, no: depende del bloque, del despiece y de si hay que labrar. Lo que sí damos por teléfono es si el plazo te sirve.' ),
-			array( '¿Trabajáis para particulares?', 'Sí, y son la mitad del taller. No hay pedido mínimo, aunque por debajo de un metro cuadrado el porte pesa más que la piedra.' ),
-			array( '¿Vais a medir fuera de la provincia?', 'Hasta 120 km sin coste. Más lejos se cobra el desplazamiento, y se descuenta del pedido si sale adelante.' ),
-			array( '¿Cuánto tardáis en contestar?', 'El mismo día laborable si escribes antes de las cinco. Los viernes por la tarde, el lunes.' ),
-		),
-	),
-);
+
 
 /* NOSOTROS + CONTACTO PARA LAS OCHO MARCAS QUE LLEGARON SIN ELLAS. TPL-C-06..13 se entregaron con
    una sola página cada una; el catálogo comparaba homes y las páginas internas quedaron para
@@ -4781,116 +2951,12 @@ $CONTENT['TPL-C-01']['contacto'] = array(
 /* CASA TERRAZZA · about/stats/team para su Nosotros. El home no lleva ninguna de las tres: llevaba
    `figq`, una sola cara con firma. Esa misma cara es el equipo — no se inventa una segunda persona
    para que la rejilla tenga más de un hueco. */
-$CONTENT['TPL-C-06-terrazza']['about'] = array(
-	'eyebrow' => 'La casa',
-	'h2'      => 'Un local, dos servicios, una brasa que no se apaga',
-	'body'    => array(
-		'Abrimos en 2016 con una idea sencilla: la carta la escribe lo que llega esa mañana, no una carta impresa que dura un año. Doce platos y el lunes son otros.',
-		'Veinte mesas, dos servicios, sin doblar ninguna en la misma franja. Lo que no cabe en una noche se queda para la siguiente, no se aprieta.',
-	),
-	'img'     => 'terrazza-terraza',
-);
-$CONTENT['TPL-C-06-terrazza']['stats'] = array(
-	'eyebrow' => 'En números',
-	'items'   => array(
-		array( '20 mesas', 'y dos servicios, sin turno compartido' ),
-		array( '60 referencias', 'en la bodega, elegidas por sala' ),
-		array( '2016', 'año en que Èlia entró en cocina' ),
-		array( '12 platos', 'en carta, y el lunes cambian' ),
-	),
-);
-$CONTENT['TPL-C-06-terrazza']['team'] = array(
-	'eyebrow' => 'Quién cocina',
-	'h2'      => 'La cocina la lleva la misma persona desde 2016',
-	'items'   => array(
-		array( 'Èlia Ferrer', 'Cocinera y socia', 'terrazza-chef' ),
-	),
-);
-$CONTENT['TPL-C-06-terrazza']['quotes'] = array(
-	'eyebrow' => 'Quien ya vino',
-	'h2'      => 'Dos mesas que volvieron',
-	'items'   => array(
-		array( 'La carta cambió entre mi primera visita y la segunda, tal como dicen. Se nota que no es un menú de imprenta.', 'Marta Coll', 'Cliente habitual' ),
-		array( 'Reservamos para ocho y nos dieron una mesa entera, no dos juntadas. Se ve poco.', 'Bernat Riera', 'Cena de empresa' ),
-	),
-);
-$CONTENT['TPL-C-06-terrazza']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Desde la brasa',
-		'h1'      => 'La carta la escribe el mercado, no nosotros',
-		'lede'    => 'Sin cámara de congelación grande a propósito: lo que no se puede comprar fresco esa semana, no está en la carta esa semana.',
-		'img'     => 'terrazza-sala',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo trabajamos',
-		'h2'      => 'Tres cosas que no negociamos',
-		'items'   => array(
-			array( 'Carta corta', 'Doce platos, no cuarenta. Lo que no está fresco esa semana, no está en la carta.' ),
-			array( 'Mesa por servicio', 'No se dobla una mesa en la misma franja. La reserva es la mesa entera, no un hueco compartido.' ),
-			array( 'Confirmación en una hora', 'Si no llega la confirmación en horario de sala, la mesa sigue libre — se avisa, no se da por hecho.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Reservamos su mesa?',
-		'lede'    => 'Elija día y hora, o llame directamente si prefiere hablar con sala.',
-		'cta_1'   => 'Reservar mesa',
-		'cta_2'   => 'Ver la carta',
-	),
-);
-$CONTENT['TPL-C-06-terrazza']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Reservas de grupo y eventos',
-		'lede'    => 'Para mesas de hasta seis, resérvela en la home. Esto es para grupos, menús cerrados y eventos privados — cada uno se habla antes.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntenos el motivo (grupo, evento, alergias)',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Para una mesa normal es más rápido reservar arriba. Esto es para lo que un formulario de reserva no cubre.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '93 000 00 00', 'De martes a domingo, en horario de sala' ),
-			array( 'Email', 'reservas@casaterrazza.example', 'Lo lee sala, no un buzón compartido' ),
-			array( 'Sala', 'Carrer de Pujades 118, Barcelona', 'Metro Llacuna a cuatro minutos' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Dos pasos',
-		'steps'   => array(
-			array( 'Lo lee sala', 'El mismo día, en horario de apertura. Fuera de horario, al abrir el servicio siguiente.' ),
-			array( 'Confirmamos por teléfono', 'Para grupos y eventos siempre llamamos — un email no basta para cerrar un menú.' ),
-		),
-		'note'    => 'No hay un tercer paso ni un email de confirmación aparte: la llamada es la confirmación.',
-	),
-	'team'   => array(
-		'eyebrow' => 'Con quién habla',
-		'h2'      => 'Cocina',
-		'items'   => array(
-			array( 'name' => 'Èlia Ferrer', 'role' => 'Cocinera y socia', 'lic' => 'Menús de grupo y alergias', 'img' => 'terrazza-chef' ),
-		),
-	),
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿Hacen menú para grupos?', 'Sí, a partir de ocho comensales, con menú cerrado que se acuerda antes de la reserva.' ),
-			array( '¿Aceptan alergias e intolerancias?', 'Sí — indíquelo al escribir y cocina lo prepara aparte.' ),
-			array( '¿Cuánto tardan en confirmar?', 'Menos de una hora en horario de sala; fuera de horario, al abrir.' ),
-		),
-	),
-);
+
+
+
+
+
+
 
 /* MOTOR ARANDA · about/stats/team. El home ya tiene `badges` (4 cifras de confianza) y `quotes` (3
    clientes reales); `stats` reutiliza las cifras de `badges` en vez de inventar unas nuevas, y el
@@ -5001,330 +3067,30 @@ $CONTENT['TPL-C-07-aranda']['contacto'] = array(
 /* AURIA · about/stats/team. El home ya trae `figures` (potencia, 0-100, plazas, precio) — esas cifras
    SON las de `stats`, no se duplican con otras. No hay retrato de nadie en el manifiesto: el equipo
    se cuenta con la foto del interior, que es lo que sí existe. */
-$CONTENT['TPL-C-08-auria']['about'] = array(
-	'eyebrow' => 'La concesión',
-	'h2'      => 'Un modelo, una concesión, cero vendedores a comisión por unidad',
-	'body'    => array(
-		'Auria GT es el único modelo que exponemos. No hay comparativa con otras marcas en el mostrador porque no vendemos otras marcas.',
-		'Las once unidades en tránsito se asignan por orden de reserva, no por quién insiste más. El precio de la oferta es el mismo para la primera reserva y la última.',
-	),
-	'img'     => 'auria-interior',
-);
-$CONTENT['TPL-C-08-auria']['stats'] = array(
-	'eyebrow' => 'El modelo, en cifras',
-	'items'   => array(
-		array( '385 CV', 'potencia de la versión de acceso' ),
-		array( '4,1 s', '0 a 100 en la GT' ),
-		array( '11 unidades', 'en tránsito, por orden de reserva' ),
-		array( '3 años', 'de garantía en las tres versiones' ),
-	),
-);
-$CONTENT['TPL-C-08-auria']['team'] = array(
-	'eyebrow' => 'Quién le enseña el coche',
-	'h2'      => 'La prueba la hace usted, no un comercial de copiloto',
-	'items'   => array(
-		array( 'Equipo de concesión', 'Pruebas de conducción y entregas', 'auria-interior' ),
-	),
-);
-$CONTENT['TPL-C-08-auria']['quotes'] = array(
-	'eyebrow' => 'Quien ya lo probó',
-	'h2'      => 'Dos entregas recientes',
-	'items'   => array(
-		array( 'Reservé en enero por orden de lista y me entregaron en la fecha que dijeron, sin retraso.', 'Fernando Uría', 'Auria GT Sport' ),
-		array( 'La prueba la conduje yo, cuarenta minutos sin nadie explicándome el volante.', 'Claudia Ibarra', 'Auria GT' ),
-	),
-);
-$CONTENT['TPL-C-08-auria']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Concesión oficial',
-		'h1'      => 'Un modelo en el mostrador, no un catálogo entero',
-		'lede'    => 'Exponemos el Auria GT en sus tres versiones y nada más. Quien entra a preguntar por él encuentra a alguien que solo vende eso.',
-		'img'     => 'auria-puerta',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo vendemos',
-		'h2'      => 'Tres cosas que no cambiamos',
-		'items'   => array(
-			array( 'La prueba la conduce usted', 'Cuarenta minutos sin comercial de copiloto explicando cosas.' ),
-			array( 'Orden de reserva, no de insistencia', 'Las unidades en tránsito se asignan por fecha de reserva, sin excepciones.' ),
-			array( 'Precio igual para todos', 'La oferta hasta el 31 de marzo es la misma cifra para la primera reserva y la última.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Reservamos su prueba?',
-		'lede'    => 'Cuarenta minutos, con la GT en exposición. Le confirmamos por teléfono el mismo día.',
-		'cta_1'   => 'Reservar prueba',
-		'cta_2'   => 'Ver versiones',
-	),
-);
-$CONTENT['TPL-C-08-auria']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Pregunte por una versión o su coche a cambio',
-		'lede'    => 'Para reservar la prueba use el formulario de la home. Esto es para financiación, tasación de su coche actual o preguntas de versión.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntenos qué necesita saber',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Si es sobre financiación, indique la versión que le interesa — la cuota cambia entre las tres.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '91 000 00 00', 'De lunes a sábado' ),
-			array( 'Email', 'concesion@auria.example', 'Lo lee ventas' ),
-			array( 'Concesión', 'Avenida de Burgos 120, Madrid', 'Exposición con las dos versiones' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Dos pasos',
-		'steps'   => array(
-			array( 'Le llamamos', 'El mismo día laborable, con disponibilidad real de la versión que pregunta.' ),
-			array( 'Queda la cita', 'Prueba, financiación o entrega — lo que haya pedido.' ),
-		),
-		'note'    => 'Si la versión que pregunta está agotada hasta marzo, se lo decimos en la primera llamada.',
-	),
-	'team'   => array(
-		'eyebrow' => 'Con quién habla',
-		'h2'      => 'Ventas',
-		'items'   => array(
-			array( 'name' => 'Equipo de concesión', 'role' => 'Versiones y financiación', 'lic' => '91 000 00 00', 'img' => 'auria-interior' ),
-		),
-	),
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿Puedo cambiar de versión tras reservar?', 'Sí, mientras su unidad no haya entrado en producción — se lo confirmamos al reservar.' ),
-			array( '¿La financiación es solo para la GT?', 'No, cubre las tres versiones; la cuota cambia con el precio de cada una.' ),
-			array( '¿Aceptan mi coche a cambio?', 'Sí, la tasación la hace ocasión y se descuenta de la entrada.' ),
-		),
-	),
-);
+
+
+
+
+
+
 
 /* TALLER BERGARA · about/stats/team. Sin retratos en el manifiesto: el equipo se cuenta con la nave,
    que es la foto que sí existe y la que un taller real enseñaría primero. */
-$CONTENT['TPL-C-09-bergara']['about'] = array(
-	'eyebrow' => 'El taller',
-	'h2'      => 'Dos elevadores, un banco de diagnosis, precio antes de tocar nada',
-	'body'    => array(
-		'Multimarca desde el primer día: no hay coche que rechacemos por marca. El presupuesto sale por partidas antes de empezar, y nadie toca nada hasta que usted dice que sí.',
-		'Piezas de primer equipo o equivalente homologado — y en el presupuesto pone cuál de las dos. Las piezas viejas se las enseñamos y se las puede llevar.',
-	),
-	'img'     => 'bergara-nave',
-);
-$CONTENT['TPL-C-09-bergara']['stats'] = array(
-	'eyebrow' => 'En números',
-	'items'   => array(
-		array( '24 meses', 'de garantía en mano de obra' ),
-		array( '2 elevadores', 'y un banco de diagnosis propio' ),
-		array( '39 €', 'la diagnosis, se descuenta si repara aquí' ),
-		array( '4 pasos', 'del proceso, y el tercero lo aprueba usted' ),
-	),
-);
-$CONTENT['TPL-C-09-bergara']['team'] = array(
-	'eyebrow' => 'Quién repara',
-	'h2'      => 'Taller propio, sin subcontratar',
-	'items'   => array(
-		array( 'Equipo de taller', 'Diagnosis, mecánica y chapa', 'bergara-nave' ),
-	),
-);
-$CONTENT['TPL-C-09-bergara']['quotes'] = array(
-	'eyebrow' => 'Quien ya reparó aquí',
-	'h2'      => 'Dos coches que salieron del taller',
-	'items'   => array(
-		array( 'Me llamaron antes de tocar nada porque la avería salía más cara de lo previsto. Dije que sí sabiendo el precio.', 'Josu Etxeberria', 'Cliente' ),
-		array( 'Me enseñaron las pastillas viejas al terminar, sin pedirlo yo.', 'Amaia Larrea', 'Cliente' ),
-	),
-);
-$CONTENT['TPL-C-09-bergara']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Taller multimarca',
-		'h1'      => 'El presupuesto se aprueba antes de tocar el coche',
-		'lede'    => 'Diagnosticamos, le llamamos con el importe por partidas, y no reparamos nada hasta que usted dice que sí.',
-		'img'     => 'bergara-rueda',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo trabajamos',
-		'h2'      => 'Tres cosas que no cambiamos',
-		'items'   => array(
-			array( 'Presupuesto por partidas', 'Piezas por un lado, horas por otro — antes de reparar, no en la factura final.' ),
-			array( 'Nada sin su aprobación', 'Si al abrirlo sale más caro, paramos y le llamamos.' ),
-			array( 'Piezas viejas a la vista', 'Se las enseñamos al terminar y se las puede llevar.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Reservamos su cita?',
-		'lede'    => 'Dos elevadores y un banco de diagnosis. Elija día y hora, o llame si prefiere hablar antes.',
-		'cta_1'   => 'Pedir cita',
-		'cta_2'   => 'Ver tarifa',
-	),
-);
-$CONTENT['TPL-C-09-bergara']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Consulte antes de traer el coche',
-		'lede'    => 'Para citar diagnosis o mantenimiento use la home — es más rápido. Esto es para averías fuera de tarifa o coche de sustitución.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Qué le pasa al coche', 'text' ),
-		),
-		'msg'    => 'Descríbalo con el mayor detalle posible',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Cuanto más detalle, menos vueltas en la diagnosis.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '943 00 00 00', 'De lunes a viernes' ),
-			array( 'Email', 'citas@tallerbergara.example', 'Lo lee taller' ),
-			array( 'Nave', 'Polígono Azitain pabellón 6, Eibar', 'Aparcamiento delante del pabellón' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Dos pasos',
-		'steps'   => array(
-			array( 'Le llamamos', 'El mismo día laborable, para entender la avería antes de citar.' ),
-			array( 'Queda la cita', 'Con coche de sustitución si lo pide — hay dos.' ),
-		),
-		'note'    => 'Si la avería suena a algo que necesita pieza, se lo decimos en la primera llamada, no al abrir el coche.',
-	),
-	'team'   => array(
-		'eyebrow' => 'Con quién habla',
-		'h2'      => 'Taller',
-		'items'   => array(
-			array( 'name' => 'Equipo de taller', 'role' => 'Diagnosis y presupuestos', 'lic' => '943 00 00 00', 'img' => 'bergara-nave' ),
-		),
-	),
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿Necesito cita para diagnosis?', 'No para diagnosis rápida; sí si ya sabe qué reparación necesita.' ),
-			array( '¿Dan coche de sustitución?', 'Hay dos — pídalo al escribir o al citar por teléfono.' ),
-			array( '¿Trabajan con todas las marcas?', 'Sí, multimarca desde el primer día.' ),
-		),
-	),
-);
+
+
+
+
+
+
 
 /* CLÍNICA ARBEA · about/stats/team. El home ya trae `team` con los tres profesionales y su colegiado
    — se reutiliza tal cual, sin duplicar. Sólo faltan `about` y `stats`, y `stats` sale de datos que
    ya existían en `treatments`/`insurance`, no de cifras nuevas. */
-$CONTENT['TPL-C-10-arbea']['about'] = array(
-	'eyebrow' => 'La clínica',
-	'h2'      => 'Tres profesionales, cada uno con su especialidad escrita',
-	'body'    => array(
-		'No hay un dentista que hace de todo: cada tratamiento lo lleva quien tiene la especialidad, y en la primera visita se dice quién será.',
-		'Presupuesto cerrado por escrito antes de empezar cualquier tratamiento, con duración y número de sesiones. Si algo cambia a mitad, se avisa antes de seguir.',
-	),
-	'img'     => 'arbea-consulta',
-);
-$CONTENT['TPL-C-10-arbea']['stats'] = array(
-	'eyebrow' => 'En números',
-	'items'   => array(
-		array( '3 especialistas', 'cada uno con su número de colegiado' ),
-		array( '6 tratamientos', 'con duración y precio publicados' ),
-		array( '6 aseguradoras', 'con las que trabajamos directamente' ),
-		array( '24 meses', 'de financiación sin intereses desde 600 €' ),
-	),
-);
-$CONTENT['TPL-C-10-arbea']['quotes'] = array(
-	'eyebrow' => 'Quien ya vino',
-	'h2'      => 'Dos pacientes recientes',
-	'items'   => array(
-		array( 'Me dijeron desde el primer día que mi endodoncia la llevaría la Dra. Otxoa, no un dentista distinto cada visita.', 'Iker Mendizabal', 'Paciente' ),
-		array( 'El presupuesto por escrito llegó igual que en la primera visita, sin sorpresas a mitad.', 'Ainhoa Gil', 'Paciente' ),
-	),
-);
-$CONTENT['TPL-C-10-arbea']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Odontología general y estética',
-		'h1'      => 'Le decimos quién le va a atender antes de la primera visita',
-		'lede'    => 'Tres especialistas, tres números de colegiado. Cada tratamiento lo lleva quien tiene la especialidad, no quien está libre esa hora.',
-		'img'     => 'arbea-doctor',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo trabajamos',
-		'h2'      => 'Tres cosas que no cambiamos',
-		'items'   => array(
-			array( 'Presupuesto cerrado, por escrito', 'Antes de empezar, con duración y sesiones. No aparece nada a mitad de tratamiento.' ),
-			array( 'Especialista, no generalista', 'Endodoncia, implantología y estética las lleva quien tiene esa especialidad.' ),
-			array( 'Primera visita gratuita', 'Radiografía, exploración y presupuesto por escrito, sin coste.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Pedimos su cita?',
-		'lede'    => 'La primera visita es gratuita y dura media hora. Le confirmamos por teléfono el mismo día.',
-		'cta_1'   => 'Pedir cita',
-		'cta_2'   => 'Ver tratamientos',
-	),
-);
-$CONTENT['TPL-C-10-arbea']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Consulte antes de pedir cita',
-		'lede'    => 'Para citar la primera visita gratuita use la home. Esto es para preguntas de tratamiento, seguro o financiación.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntenos su consulta',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Si tiene seguro, indique cuál — le decimos si trabajamos con él en la misma respuesta.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '945 00 00 00', 'De lunes a viernes' ),
-			array( 'Email', 'consultas@clinicaarbea.example', 'Lo lee recepción' ),
-			array( 'Clínica', 'Calle Postas 32, Vitoria-Gasteiz', 'Sin escalones en el acceso' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Dos pasos',
-		'steps'   => array(
-			array( 'Le llamamos', 'El mismo día laborable, para entender qué necesita.' ),
-			array( 'Queda la cita', 'Con el especialista que corresponda, no con quien esté libre.' ),
-		),
-		'note'    => 'Si su seguro no cubre el tratamiento, se lo decimos en la primera llamada, antes de citar.',
-	),
-	'team'   => $CONTENT['TPL-C-10-arbea']['team'],
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿La primera visita tiene coste?', 'No, incluye radiografía, exploración y presupuesto por escrito.' ),
-			array( '¿Trabajáis con mi seguro?', 'Indíquelo al escribir — trabajamos con Adeslas, Sanitas, DKV, Asisa, Mapfre Salud y Caser.' ),
-			array( '¿Hay financiación?', 'Sí, hasta 24 meses sin intereses desde 600 €, con estudio previo.' ),
-		),
-	),
-);
+
+
+
+
+
 
 /* ALINEA · about/stats/team. Sin retratos de equipo en el manifiesto: se cuenta con la foto de
    consulta, que es donde de verdad ocurre el seguimiento. */
@@ -5442,196 +3208,19 @@ $CONTENT['TPL-C-11-alinea']['contacto'] = array(
 /* URGENCIA DENTAL · about/stats/team. El home ya trae `team` (dos personas, con colegiado) — se
    reutiliza. `stats` sale de `wait` (espera y precio), que ya eran las dos cifras que el home
    publicaba sin sección de "quiénes somos" alrededor. */
-$CONTENT['TPL-C-12-urgencia']['about'] = array(
-	'eyebrow' => 'La guardia',
-	'h2'      => 'Guardia todos los días del año, festivos incluidos',
-	'body'    => array(
-		'No cerramos festivos ni fines de semana. La guardia la cubre siempre un odontólogo colegiado, nunca solo un auxiliar.',
-		'La visita de urgencia se descuenta del tratamiento si lo hace aquí. Lo que cueste el tratamiento se dice antes de empezarlo, no al terminar.',
-	),
-	'img'     => 'urgencia-box',
-);
-$CONTENT['TPL-C-12-urgencia']['stats'] = array(
-	'eyebrow' => 'En números',
-	'items'   => array(
-		array( '22 min', 'de espera media la última semana' ),
-		array( '49 €', 'la visita, con radiografía incluida' ),
-		array( '365 días', 'al año, festivos incluidos' ),
-		array( '30 min', 'de margen si hay un diente reimplantable' ),
-	),
-);
-$CONTENT['TPL-C-12-urgencia']['quotes'] = array(
-	'eyebrow' => 'Quien vino un festivo',
-	'h2'      => 'Dos urgencias resueltas',
-	'items'   => array(
-		array( 'Llamé un domingo a las once de la noche y me atendieron. No esperaba que cogieran el teléfono.', 'Xabier Goikoetxea', 'Paciente' ),
-		array( 'Se me cayó una corona en Nochebuena. Me la recementaron esa misma noche.', 'Miren Uranga', 'Paciente' ),
-	),
-);
-$CONTENT['TPL-C-12-urgencia']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Guardia dental 24 h',
-		'h1'      => 'Abrimos festivos porque el dolor no mira el calendario',
-		'lede'    => 'De 09:00 a 01:00 todos los días del año. La guardia la cubre siempre un odontólogo colegiado.',
-		'img'     => 'urgencia-turno',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo trabajamos',
-		'h2'      => 'Tres cosas que no cambiamos',
-		'items'   => array(
-			array( 'Siempre un odontólogo de guardia', 'Nunca solo un auxiliar — el diagnóstico lo hace quien tiene la colegiación.' ),
-			array( 'Precio antes de tratar', 'Lo que cueste el tratamiento se dice antes de empezarlo, no al terminar.' ),
-			array( 'La visita se descuenta', 'Si el tratamiento se hace aquí, los 49 € de la urgencia se restan del total.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Si tiene dolor ahora',
-		'h2'      => 'Llame, no espere a que empeore',
-		'lede'    => 'Abierto ahora. El próximo hueco se ve en la home, actualizado al minuto.',
-		'cta_1'   => 'Llamar al 944 00 00 00',
-		'cta_2'   => 'Cómo llegar',
-	),
-);
-$CONTENT['TPL-C-12-urgencia']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Si tiene dolor, mejor llame',
-		'lede'    => 'Para una urgencia real, el teléfono es más rápido que un formulario. Esto es para consultas que no son urgentes hoy mismo.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntenos su consulta',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Si es una urgencia ahora mismo, llame — no espere la respuesta de este formulario.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '944 00 00 00', 'Todos los días, 09:00 – 01:00' ),
-			array( 'Email', 'guardia@urgenciadental.example', 'Para consultas no urgentes' ),
-			array( 'Guardia', 'Alameda de Urquijo 68, Bilbao', 'Metro Indautxu a 200 m' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Un paso',
-		'steps'   => array(
-			array( 'Le llamamos', 'En horario de guardia, para consultas que no requieren venir hoy mismo.' ),
-		),
-		'note'    => 'Para dolor activo o un golpe con pérdida de diente, llame directamente — no escriba y espere.',
-	),
-	'team'   => $CONTENT['TPL-C-12-urgencia']['team'],
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿Necesito cita?', 'No, la guardia atiende sin cita en su horario.' ),
-			array( '¿Atienden fuera de las 09:00–01:00?', 'Llame igualmente — se indica qué hacer según el caso.' ),
-			array( '¿La visita de urgencia se descuenta del tratamiento?', 'Sí, si el tratamiento se hace aquí.' ),
-		),
-	),
-);
+
+
+
+
+
 
 /* ZUBIRI & OSÉS (TPL-C-13) · about/stats/team. El home ya trae `team` (tres agentes por zona) y
    `valuation.stats` (tres cifras de venta) — se reutilizan tal cual en vez de duplicarlas. */
-$CONTENT['TPL-C-13']['about'] = array(
-	'eyebrow' => 'La agencia',
-	'h2'      => 'Cartera propia, sin comisión al comprador',
-	'body'    => array(
-		'Cada inmueble de la cartera pasa por nota simple antes de publicarse — si hay una carga, se sabe antes de que usted se ilusione.',
-		'Tres agentes, cada uno con su zona. Quien le enseña un piso en el Casco Viejo conoce el Casco Viejo, no toda la ciudad a medias.',
-	),
-	'img'     => 'inmo-calle',
-);
-$CONTENT['TPL-C-13']['stats'] = array(
-	'eyebrow' => 'En números',
-	'items'   => $CONTENT['TPL-C-13']['valuation']['stats'],
-);
-$CONTENT['TPL-C-13']['quotes'] = array(
-	'eyebrow' => 'Quien ya compró o vendió',
-	'h2'      => 'Dos operaciones cerradas',
-	'items'   => array(
-		array( 'Pidieron la nota simple antes de enseñarme el piso. Había una carga y me lo dijeron en la primera llamada, no en la notaría.', 'Edurne Lasa', 'Compradora' ),
-		array( 'Trasladaron todas las ofertas que llegaron, incluida una por debajo del precio que puse. Decidí yo, no ellos.', 'Patxi Ollo', 'Vendedor' ),
-	),
-);
-$CONTENT['TPL-C-13']['nosotros'] = array(
-	'crumbs' => array( 'Inicio', 'Nosotros' ),
-	'hero'   => array(
-		'eyebrow' => 'Cartera propia',
-		'h1'      => 'Pedimos la nota simple antes de enseñar, no después',
-		'lede'    => 'Si un inmueble tiene una carga, se sabe antes de la visita — no en la notaría.',
-		'img'     => 'inmo-plano',
-	),
-	'values' => array(
-		'eyebrow' => 'Cómo trabajamos',
-		'h2'      => 'Tres cosas que no cambiamos',
-		'items'   => array(
-			array( 'Nota simple antes de enseñar', 'Si hay una carga, se sabe antes de la visita.' ),
-			array( 'Ofertas sin filtrar', 'Todas se trasladan al propietario, con los comparables de su calle delante.' ),
-			array( 'Sin comisión al comprador', 'Los honorarios los paga quien encarga la venta, nunca quien compra.' ),
-		),
-	),
-	'cta'    => array(
-		'eyebrow' => 'Siguiente paso',
-		'h2'      => '¿Buscamos su piso o tasamos el suyo?',
-		'lede'    => 'Filtre la cartera por zona y precio, o pida una tasación en persona sin compromiso.',
-		'cta_1'   => 'Ver cartera',
-		'cta_2'   => 'Pedir tasación',
-	),
-);
-$CONTENT['TPL-C-13']['contacto'] = array(
-	'crumbs' => array( 'Inicio', 'Contacto' ),
-	'head'   => array(
-		'eyebrow' => 'Contacto',
-		'h1'      => 'Consulte antes de pedir visita',
-		'lede'    => 'Para pedir visita de un inmueble concreto use la ficha — es más rápido, viaja la referencia. Esto es para preguntas generales o vender.',
-	),
-	'form'   => array(
-		'fields' => array(
-			array( 'nombre', 'Nombre', 'text' ),
-			array( 'mail', 'Email', 'email' ),
-			array( 'asunto', 'Asunto', 'text' ),
-		),
-		'msg'    => 'Cuéntenos qué busca o qué quiere vender',
-		'submit' => 'Enviar consulta',
-		'small'  => 'Si busca piso, indique zona y precio máximo — respondemos con lo que encaje aunque no esté publicado aún.',
-	),
-	'direct' => array(
-		'eyebrow' => 'O directamente',
-		'h2'      => 'Sin esperar respuesta',
-		'items'   => array(
-			array( 'Teléfono', '948 00 00 00', 'De lunes a viernes' ),
-			array( 'Email', 'info@zubiriyoses.example', 'Lo lee la agencia, no un buzón compartido' ),
-		),
-	),
-	'flow'   => array(
-		'eyebrow' => 'Qué pasa al enviar',
-		'h2'      => 'Dos pasos',
-		'steps'   => array(
-			array( 'Le llamamos', 'El mismo día laborable, para entender qué busca o qué quiere vender.' ),
-			array( 'Queda la cita', 'Visita de un inmueble o tasación en persona, según lo que haya pedido.' ),
-		),
-		'note'    => 'Si busca piso y nada de la cartera actual encaja, se lo decimos en la primera llamada.',
-	),
-	'team'   => $CONTENT['TPL-C-13']['team'],
-	'faq'    => array(
-		'eyebrow' => 'Antes de escribir',
-		'h2'      => 'Lo que se pregunta',
-		'items'   => array(
-			array( '¿Cobráis algo al comprador?', 'No. Los honorarios los paga quien nos encarga la venta.' ),
-			array( '¿Puedo visitar sin la hipoteca aprobada?', 'Sí, y conviene — la visita cuesta una hora y la aprobación tres semanas.' ),
-			array( '¿Aceptáis ofertas por debajo del precio publicado?', 'Las trasladamos todas, sin filtrar.' ),
-		),
-	),
-);
+
+
+
+
+
 
 /* LUMIÈRE (TPL-C-14) · las cuatro páginas internas. La casa reutiliza el recorrido por la cabina de
    la home y la ficha reutiliza su protocolo: es el mismo centro un nivel más abajo, y reutilizar es
@@ -5932,7 +3521,17 @@ foreach ( $CONTENT as $cn_k => $cn_v ) {
 
 $BG_FLOOR      = 0.64;
 $BG_ANCHOR     = 'direct';
-$BG_SLUG       = $CONTENT['TPL-C-01']['hero']['img'];
+/* Was `$CONTENT['TPL-C-01']['hero']['img']` — TPL-C-01 (the house "Piedra Valdés" archetype) is
+ * one of the 16 catalog-envato-grade PR2b amputees, so the lookup itself is gone. The literal slug
+ * is kept unchanged rather than repointed: this is the LP-BROKEN-GRID scrim probe below, a
+ * measurement of the actual pixels of ONE specific photograph, and swapping in a different image
+ * would re-run this exact contrast sweep against pixel data nobody has verified passes it.
+ * `hero-cantera` and its manifest row are therefore kept alive past the amputation purely to
+ * serve this probe — along with `hero-taller` and `hero-encimera`, which $SLIDER_FRAMES below and
+ * $VIS_SLUG further down need for the same reason. See _gallery-images.md's manifest for the same
+ * note, in one place, next to all three rows.
+ */
+$BG_SLUG       = 'hero-cantera';
 $bg_ground     = $GROUND[ $ANCHORS[ $BG_ANCHOR ]['ground'] ];
 $BG_HERO       = worst_pixel( $BG_SLUG, $bg_ground['bg'], $BG_FLOOR, $bg_ground['text'],
 	$INK[ $BG_ANCHOR ] );
@@ -6041,17 +3640,17 @@ $STRIPS = array(
 	   on top — the skin changed and the skeleton did not, which is the failure this repo already had
 	   in August with the eight "design personalities". TPL-C-06 declares its own wireframe, and the
 	   audit's `RT_TPL_TOO_SIMILAR` measures the distance instead of taking my word for it. */
-	array( 'tpl' => 'TPL-C-06-terrazza', 'anchor' => 'editorial' ),
+	
 	/* Los tres de automoción. Cada uno sobre un ANCLA distinta y un ESQUELETO distinto: entre los
 	   cuatro negocios de marca quedan cubiertas las cuatro anclas del sistema, que es la prueba de
 	   que la variedad no depende de la paleta. */
 	array( 'tpl' => 'TPL-C-07-aranda',  'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-C-08-auria',   'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-C-09-bergara', 'anchor' => 'matter' ),
+	
+	
 	/* Los tres de salud dental. */
-	array( 'tpl' => 'TPL-C-10-arbea',    'anchor' => 'institutional' ),
+	
 	array( 'tpl' => 'TPL-C-11-alinea',   'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-12-urgencia', 'anchor' => 'direct' ),
+	
 	/* LUMIÈRE sobre MATTER, y llegó ahí por una corrección que costó dos rondas.
 	   Primero fue `editorial`, porque el sector se ilustra con revistas y porque el cuarto modo de
 	   encabezado se abrió justo para poder entrar ahí. Renderizado, un lector lo resumió en una
@@ -6064,99 +3663,99 @@ $STRIPS = array(
 	   `matter × emblem` estaba libre (Bergara tiene `rule`, Corte Nueve `index`), así que el cuarto
 	   modo sigue siendo lo que abrió la puerta, sólo que a otra habitación. */
 	array( 'tpl' => 'TPL-C-14-lumiere', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'editorial', 'tgl' => array( 'TGL-HERO-TYPE' => 'slider' ) ),
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'institutional' ),
+	
+	
+	
+	
 	/* VITRINE sobre servicios + captacion. Es la combinacion mas incomoda del bloque corporativo y por
 	   eso esta: el ancla pide aire monumental y el arquetipo quiere el formulario cerca. Renderizada,
 	   se ve exactamente cuanto scroll cuesta esa densidad antes de llegar al cierre. */
-	array( 'tpl' => 'TPL-C-01', 'anchor' => 'vitrine' ),
+	
 	/* TPL-C-02 · the second corporate archetype. Its four anchors sit between C-01's and E-02's so
 	   the catalogue reads corporate → corporate → ecommerce rather than jumping. */
-	array( 'tpl' => 'TPL-C-02', 'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-C-02', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-02', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-02', 'anchor' => 'direct' ),
+	
+	
+	
+	
 	/* VITRINE sobre Institutional Trust. Contraste directo con la variante `institutional` de arriba:
 	   comparten UN eje (elevation `soft-shadow`) y ninguno mas, asi que la misma pagina se lee
 	   como despacho sobrio o como sala de exposicion segun donde caiga el ground. */
-	array( 'tpl' => 'TPL-C-02', 'anchor' => 'vitrine' ),
+	
 	/* TPL-C-03 · el tercer arquetipo corporativo. */
-	array( 'tpl' => 'TPL-C-03', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-03', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-03', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-C-03', 'anchor' => 'institutional' ),
+	
+	
+	
+	
 	/* VITRINE sobre el portfolio: es su caso de uso literal —obra iluminada contra un fondo oscuro,
 	   en rejilla estricta y con aire—. Sirve ademas de contraste directo con la variante `direct` de
 	   arriba: las dos son negras y no se parecen, que es lo que el eje de composicion decide. */
-	array( 'tpl' => 'TPL-C-03', 'anchor' => 'vitrine' ),
+	
 	/* TPL-E-03 · el segundo arquetipo de ecommerce. */
-	array( 'tpl' => 'TPL-E-03', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-E-03', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-03', 'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-E-03', 'anchor' => 'direct' ),
+	
+	
+	
+	
 	/* VITRINE sobre Brand Story. `la marca y el relato venden; el producto ilustra` dice su doc, y este
 	   ancla es la que mas subordina el producto al ambiente. La mas facil del bloque. */
-	array( 'tpl' => 'TPL-E-03', 'anchor' => 'vitrine' ),
+	
 	/* TPL-C-04 · la landing de oferta única. */
-	array( 'tpl' => 'TPL-C-04', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-C-04', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-04', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-04', 'anchor' => 'institutional' ),
+	
+	
+	
+	
 	/* VITRINE sobre la landing de oferta unica. Una oferta y un CTA repetido, servidos en la densidad
 	   mas alta del catalogo: es el caso donde se ve si el aire ayuda a la conversion o la entierra. */
-	array( 'tpl' => 'TPL-C-04', 'anchor' => 'vitrine' ),
+	
 	/* TPL-E-05 · la campaña con fecha. */
-	array( 'tpl' => 'TPL-E-05', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-E-05', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-E-05', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-05', 'anchor' => 'institutional' ),
+	
+	
+	
+	
 	/* VITRINE sobre Promo / Campaign. TENSA, y es el contraejemplo que faltaba: la urgencia con fecha
 	   quiere velocidad y este ancla es la unica que no la tiene. Deja de ser una opinion cuando la
 	   campana esta renderizada al lado de su version `direct`. */
-	array( 'tpl' => 'TPL-E-05', 'anchor' => 'vitrine' ),
+	
 	/* TPL-C-05 · el negocio con puerta. */
-	array( 'tpl' => 'TPL-C-05', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-05', 'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-C-05', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-05', 'anchor' => 'direct' ),
+	
+	
+	
+	
 	/* VITRINE sobre el negocio con puerta. TENSA a proposito: el arquetipo lleva el TELEFONO en el
 	   header y el ancla es la mas lenta en imagen del catalogo. Funciona para un restaurante caro y
 	   chirria para una clinica, y esa diferencia solo se ve mirandola. */
-	array( 'tpl' => 'TPL-C-05', 'anchor' => 'vitrine' ),
+	
 	/* TPL-C-13 · la cartera que se busca. Las cinco anclas, como los otros diez de la casa: un
 	   arquetipo que llega con tres tiras no se puede comparar con uno que llega con cinco, y este
 	   catalogo ya pago ese error una vez con VITRINE. Sin marca y sin foto -- ver su bloque en
 	   $CONTENT. */
-	array( 'tpl' => 'TPL-C-13', 'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-C-13', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-13', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-C-13', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-C-13', 'anchor' => 'vitrine' ),
+	
+	
+	
+	
+	
 	/* TPL-E-01 · la tienda que entra por el ojo. */
-	array( 'tpl' => 'TPL-E-01', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-01', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-E-01', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-E-01', 'anchor' => 'institutional' ),
+	
+	
+	
+	
 	/* La marca visual bajo VITRINE: es una tienda que vende mirando, y el ancla la pone en una
 	   sala a oscuras con la pieza iluminada. Tarjeta cuadrada (ratio 1/1) contra el 16/11 de las
 	   demas: el objeto se enseña completo, no recortado a formato editorial. */
-	array( 'tpl' => 'TPL-E-01', 'anchor' => 'vitrine' ),
+	
 	/* TPL-E-04 · el catálogo ancho. */
-	array( 'tpl' => 'TPL-E-04', 'anchor' => 'institutional' ),
-	array( 'tpl' => 'TPL-E-04', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-E-04', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-04', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-E-04', 'anchor' => 'vitrine' ),
-	array( 'tpl' => 'TPL-E-02', 'anchor' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-02', 'anchor' => 'direct' ),
-	array( 'tpl' => 'TPL-E-02', 'anchor' => 'matter' ),
-	array( 'tpl' => 'TPL-E-02', 'anchor' => 'institutional' ),
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/* VITRINE sobre Catalog / Product-First. Ocho tiles en rejilla estricta bajo un ground `ink`: es
 	   el escalon de superficie haciendo TODO el trabajo de separacion, porque sobre negro la sombra
 	   `soft-shadow` no se ve. La tira existe para comprobar que ese escalon basta a ocho piezas. */
-	array( 'tpl' => 'TPL-E-02', 'anchor' => 'vitrine' ),
+	
 	/* Las tres verticales de ecommerce que faltaban por renderizar. Una tira cada una, como el
 	   resto de las marcas: lo que un arquetipo con marca demuestra es SU esqueleto, y para eso
 	   basta una configuración — las cinco anclas son para los arquetipos de la casa, donde el
@@ -12011,117 +9610,7 @@ function lead_time_html( $ld, $extra = '' ) {
  * close; C-02 opens a conversation. Rendering a form here would collapse two archetypes into one,
  * which is exactly the defect the ecommerce family was rebuilt to fix.
  */
-function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_corporate( $C, $BRAND );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO — imagen fija + claim institucional  [fijo · ADN]
-	$o[] = '<section class="sec hero" aria-label="Presentación"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 2 · COMP-ABOUT  [fijo]
-	$ab  = $C['about'];
-	$ai  = img( $ab['img'] );
-	$o[] = '<section class="sec about bg-alt" aria-label="Quiénes somos"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $ab['h2'] ) . '</h2>';
-	foreach ( $ab['body'] as $para ) {
-		$o[] = '<p class="muted">' . h( $para ) . '</p>';
-	}
-	$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
-		. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	/* 3 · COMP-STATS  [fijo · ADN]
-	   THE NUMBERS ARE IN THE HTML. Two of the four reference kits ship theirs as `0+` and fill them
-	   with script on scroll, so their own live demo reads "0 clients" until the animation runs — and
-	   reads that way for good to anyone with JS blocked, and to every crawler. On an archetype whose
-	   entire job is credibility, a credential that only exists after a script is not a credential. */
-	$st  = $C['stats'];
-	$o[] = '<section class="sec stats" aria-label="Cifras"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $st['eyebrow'] ) . '</span></div>'
-		. '<dl class="figs">';
-	foreach ( $st['items'] as $it ) {
-		$o[] = '<div class="fig"><dt>' . h( $it[0] ) . '</dt><dd>' . h( $it[1] ) . '</dd></div>';
-	}
-	$o[] = '</dl></div></section>';
-
-	// 4 · COMP-SERVICES — áreas / especialidades  [fijo]
-	$sv  = $C['services'];
-	$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Áreas"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
-	foreach ( $sv['cards'] as $c ) {
-		$o[] = card_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 5 · COMP-CREDENTIALS  [toggle TGL-CREDENTIALS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-CREDENTIALS' ) ) {
-		$cd  = $C['credentials'];
-		$o[] = '<section class="sec creds grid-sec" aria-label="Acreditaciones"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $cd['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $cd['h2'] ) . '</h2></div><ul class="feats">';
-		foreach ( $cd['items'] as $it ) {
-			$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 6 · COMP-TEAM  [toggle TGL-TEAM]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
-		$tm  = $C['team'];
-		$o[] = '<section class="sec team grid-sec bg-alt" aria-label="Equipo"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $tm['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $tm['h2'] ) . '</h2></div><ul class="items cols-3">';
-		foreach ( $tm['items'] as $it ) {
-			$ti  = img( $it[2] );
-			$o[] = '<li class="member"><figure class="frame sq"><img data-img="' . h( $ti['slug'] ) . '"'
-				. ' alt="' . h( $ti['alt'] ) . '" width="' . $ti['w'] . '" height="' . $ti['h'] . '"></figure>'
-				. '<b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 7 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
-		$qt  = $C['quotes'];
-		$o[] = '<section class="sec quotes grid-sec" aria-label="Referencias"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
-		foreach ( $qt['items'] as $q ) {
-			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
-				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
-				. '</figure></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 8 · COMP-CTA sobrio  [fijo] — NO lead form; see the note on this archetype's `band` content
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * TPL-C-03 · Portfolio / Showcase.
@@ -12131,105 +9620,7 @@ function strip_institutional( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * here even though the four reference kits all have one, no lead form even though TPL-C-01's DNA
  * is built on one, and barely any prose. What there is, is the grid.
  */
-function strip_showcase( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_corporate( $C, $BRAND );
-	$o[] = '<main>';
-
-	/* 1 · COMP-HERO visual  [fijo · ADN]
-	   The photograph is the hero and the words are a caption on it — "título mínimo, sin ruido",
-	   says the doc. `.hero-visual` puts the copy OVER the image instead of beside it, which is the
-	   one structural difference between this archetype's hero and TPL-C-01's. */
-	$o[] = '<section class="sec hero hero-visual" aria-label="Obra"><div class="media-full">'
-		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '<div class="canvas"><div class="head stack">'
-		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
-		. '</div></div></section>';
-
-	/* 2 · COMP-PORTFOLIO-GRID  [fijo · ADN]
-	   Image large, title, category, and an overlay on hover — the doc's own recipe. The overlay is
-	   a HOVER state, so the accent whitelist never sees it; and it is not the only affordance,
-	   because a hover that is the sole signal is invisible on a touch screen. The caption is always
-	   there and the overlay only deepens it. */
-	$wk  = $C['work'];
-	/* LA OBRA LLEGA AL CRISTAL, y en este arquetipo no es una decisión estética.
-	   `TPL-C-03` existe para ENSEÑAR TRABAJO TERMINADO: es lo único que hace y es su prueba
-	   entera. Seis obras dentro de la misma columna de 1140px en la que va el FAQ es la
-	   definición literal de «mismo esqueleto» — el inventario decía portfolio y la forma decía
-	   folleto. El encabezado se queda en la columna de texto; lo que sangra es la obra. */
-	$o[] = sec_open( 'work grid-sec', 'Obra reciente', 'bleed' )
-		. '<div class="head stack"><span class="eyebrow">' . h( $wk['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $wk['h2'] ) . '</h2></div><ul class="works">';
-	foreach ( $wk['items'] as $it ) {
-		$wi  = img( $it[2] );
-		$o[] = '<li class="work-item"><a href="' . h( ihref_for_label( $it[0] ) ) . '">'
-			. '<figure class="frame"><img data-img="' . h( $wi['slug'] ) . '"'
-			. ' alt="' . h( $wi['alt'] ) . '" width="' . $wi['w'] . '" height="' . $wi['h'] . '"></figure>'
-			. '<span class="work-cap"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></span>'
-			. '</a></li>';
-	}
-	$o[] = '</ul>' . sec_close( 'bleed' );
-
-	// 3 · COMP-SERVICES breve  [toggle TGL-SERVICES]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-SERVICES' ) ) {
-		$sv  = $C['services'];
-		$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Servicios"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
-		foreach ( $sv['cards'] as $c ) {
-			$o[] = card_html( $anchor_key, $c );
-		}
-		$o[] = '</div></div></section>';
-	}
-
-	// 4 · COMP-ABOUT  [toggle TGL-ABOUT]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-ABOUT' ) ) {
-		$ab  = $C['about'];
-		$ai  = img( $ab['img'] );
-		$o[] = '<section class="sec about" aria-label="El estudio"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $ab['h2'] ) . '</h2>';
-		foreach ( $ab['body'] as $para ) {
-			$o[] = '<p class="muted">' . h( $para ) . '</p>';
-		}
-		$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
-			. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
-			. '</div></section>';
-	}
-
-	// 5 · COMP-LOGOS  [toggle TGL-LOGOS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
-		$lg  = $C['logos'];
-		$o[] = '<section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
-		foreach ( $lg['items'] as $l ) {
-			$o[] = '<li>' . h( $l ) . '</li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 6 · COMP-CTA contacto directo  [fijo] — no lead form; the doc refuses long ones
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Contacto"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * COMP-NEWSLETTER · four archetypes declare it, so it is emitted from one place.
@@ -12298,94 +9689,7 @@ function head_shop_plain( $C, $BRAND ) {
  * hides its brand; this is the brand that sells a shop, and the difference has to be visible before
  * the reader has scrolled.
  */
-function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_shop_plain( $C, $BRAND );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO — imagen fija ~40vh  [fijo]
-	$o[] = '<section class="sec hero" aria-label="La marca"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	/* 2 · COMP-VALUES  [fijo · ADN]
-	   Numbered, because a value that cannot be counted is a slogan. Three is the count the doc
-	   names, and three is also what fits on one line without becoming a wall of virtue. */
-	$vl  = $C['values'];
-	$o[] = '<section class="sec values grid-sec" aria-label="Valores"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $vl['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $vl['h2'] ) . '</h2></div><ol class="steps">';
-	foreach ( $vl['items'] as $i => $it ) {
-		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
-			. '<h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></li>';
-	}
-	$o[] = '</ol></div></section>';
-
-	// 3 · COMP-ABOUT  [fijo]
-	$ab  = $C['about'];
-	$ai  = img( $ab['img'] );
-	$o[] = '<section class="sec about bg-alt" aria-label="El taller"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $ab['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $ab['h2'] ) . '</h2>';
-	foreach ( $ab['body'] as $para ) {
-		$o[] = '<p class="muted">' . h( $para ) . '</p>';
-	}
-	$o[] = '</div><div class="media"><figure class="frame"><img data-img="' . h( $ai['slug'] ) . '"'
-		. ' alt="' . h( $ai['alt'] ) . '" width="' . $ai['w'] . '" height="' . $ai['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 4 · COMP-PRODUCT-CAROUSEL — the ONLY catalogue on this page
-	$cr  = $C['carousel'];
-	$o[] = '<section class="sec carousel grid-sec" aria-label="Catálogo"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
-	foreach ( $cr['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 5 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
-		$qt  = $C['quotes'];
-		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
-		foreach ( $qt['items'] as $q ) {
-			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
-				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
-				. '</figure></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 6 · COMP-CTA  [fijo]
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Muestra"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
-		$o[] = newsletter_html( $C['news'], $uid );
-	}
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * TPL-C-04 · Landing / Single Offer.
@@ -12395,119 +9699,7 @@ function strip_story( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * is empty, and the absence is the archetype rather than a missing feature. The same CTA label
  * appears four times on the page on purpose; on every other archetype that would be a defect.
  */
-function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_corporate( $C, $BRAND );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO — propuesta única + CTA fuerte  [fijo · ADN]
-	$o[] = '<section class="sec hero" aria-label="Oferta"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 2 · COMP-PROBLEM  [fijo · ADN] — same rails as TPL-SERVICE-01's "qué resolvemos"
-	$pb  = $C['problem'];
-	$o[] = '<section class="sec problems grid-sec bg-alt" aria-label="El problema"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $pb['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $pb['h2'] ) . '</h2></div><ul class="items cols-3">';
-	foreach ( $pb['items'] as $it ) {
-		$o[] = '<li class="prob"><h3>' . h( $it[0] ) . '</h3><p>' . h( $it[1] ) . '</p></li>';
-	}
-	$o[] = '</ul></div></section>';
-
-	/* 3 · COMP-SOLUTION  [fijo · ADN]
-	   The mirror of COMP-PROBLEM and it has to READ as the mirror: same three-count, same order,
-	   each item answering the problem above it. A solution block whose items do not line up with
-	   the problems is two lists that happen to be adjacent. */
-	$sl  = $C['solution'];
-	$si  = img( $sl['img'] );
-	$o[] = '<section class="sec solution" aria-label="La solución"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $sl['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $sl['h2'] ) . '</h2><p class="muted">' . h( $sl['lede'] ) . '</p>'
-		. '<ul class="feats">';
-	foreach ( $sl['items'] as $it ) {
-		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
-	}
-	$o[] = '</ul></div><div class="media"><figure class="frame"><img data-img="' . h( $si['slug'] ) . '"'
-		. ' alt="' . h( $si['alt'] ) . '" width="' . $si['w'] . '" height="' . $si['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 4 · COMP-FEATURES  [fijo]
-	$ft  = $C['features'];
-	$o[] = '<section class="sec features grid-sec bg-alt" aria-label="Alcance"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $ft['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $ft['h2'] ) . '</h2></div><ul class="feats">';
-	foreach ( $ft['items'] as $it ) {
-		$o[] = '<li><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></li>';
-	}
-	$o[] = '</ul></div></section>';
-
-	// 5 · COMP-LOGOS  [toggle TGL-LOGOS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
-		$lg  = $C['logos'];
-		$o[] = '<section class="sec logos" aria-label="Clientes"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
-		foreach ( $lg['items'] as $l ) {
-			$o[] = '<li>' . h( $l ) . '</li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	/* 6 · COMP-PRICING  [toggle TGL-PRICING]
-	   The recommended plan is marked with WEIGHT AND A WORD, never with colour alone: a plan set
-	   that reads only by hue is invisible to a monochrome reader and to most colour-blind ones,
-	   which is the same rule the filter chips follow. */
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PRICING' ) ) {
-		$pr  = $C['pricing'];
-		$o[] = '<section class="sec pricing grid-sec" aria-label="Precio"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $pr['h2'] ) . '</h2></div><ul class="plans">';
-		foreach ( $pr['plans'] as $pl ) {
-			$best = ( 'sí' === $pl[3] );
-			$o[]  = '<li class="plan' . ( $best ? ' plan-best' : '' ) . '">'
-				. ( $best ? '<span class="plan-tag">El más pedido</span>' : '' )
-				. '<b class="plan-name">' . h( $pl[0] ) . '</b>'
-				. '<span class="plan-price">' . h( $pl[1] ) . '</span><ul class="plan-list">';
-			foreach ( $pl[2] as $f ) {
-				$o[] = '<li>' . h( $f ) . '</li>';
-			}
-			$o[] = '</ul><a class="btn ' . ( $best ? 'btn-primary' : 'btn-outline' ) . '" href="'
-				. h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a></li>';
-		}
-		$o[] = '</ul><p class="small muted plan-note">' . h( $pr['note'] ) . '</p></div></section>';
-	}
-
-	// 7 · COMP-FAQ  [fijo]
-	$fq  = $C['faq'];
-	$o[] = '<section class="sec faq bg-alt" aria-label="Preguntas frecuentes"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
-	$o[] = disclosure_list_html( $fq['items'], 'qas' );
-	$o[] = '</div></section>';
-
-	// 8 · COMP-CTA cierre final  [fijo · ADN]
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Reservar"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * TPL-E-05 · Promo / Campaign.
@@ -12519,87 +9711,7 @@ function strip_landing( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * nothing to be true. It appears four times, which on any other archetype would be repetition and
  * here is the point.
  */
-function strip_promo( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_ecommerce( $C, $BRAND, $uid );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO promo  [fijo · ADN]
-	$o[] = '<section class="sec hero" aria-label="Campaña"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 2 · COMP-PRODUCT-GRID ofertas  [fijo · ADN]
-	$p   = $C['prods'];
-	$o[] = '<section class="sec prods grid-sec" aria-label="Ofertas"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $p['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $p['h2'] ) . '</h2></div><div class="items grid-prod">';
-	foreach ( $p['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	/* 3 · COMP-PROMO-BANNER ×2  [toggle TGL-PROMO-BANNER]
-	   A band, not a card: it interrupts the catalogue instead of joining it, which is the only way
-	   an offer reads as an offer and not as one more product. The accent stays off it — a whole
-	   surface shouting is the closing band's job once per page, and two more would make the accent
-	   a texture. */
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROMO-BANNER' ) ) {
-		foreach ( $C['promos'] as $i => $pm ) {
-			$o[] = '<section class="sec promo' . ( 0 === $i % 2 ? ' bg-alt' : '' ) . '"'
-				. ' aria-label="' . h( $pm[0] ) . '"><div class="canvas">'
-				. '<div class="promo-in"><b>' . h( $pm[0] ) . '</b>'
-				. '<span>' . h( $pm[1] ) . '</span>'
-				. '<a class="btn btn-outline btn-sm" href="' . h( ihref_for_label( $pm[2] ) ) . '">' . h( $pm[2] ) . '</a></div>'
-				. '</div></section>';
-		}
-	}
-
-	// 4 · COMP-PRODUCT-CAROUSEL  [fijo]
-	$cr  = $C['carousel'];
-	$o[] = '<section class="sec carousel grid-sec" aria-label="Más ofertas"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
-	foreach ( $cr['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 5 · COMP-TRUST-BADGES  [fijo]
-	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
-	foreach ( $C['badges'] as $b ) {
-		$o[] = '<p class="ben"><span class="bicon" aria-hidden="true">✓</span>' . h( $b ) . '</p>';
-	}
-	$o[] = '</div></div></section>';
-
-	// 6 · COMP-CTA  [fijo]
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Cierre"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	// 7 · COMP-NEWSLETTER cupón  [toggle TGL-NEWSLETTER]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
-		$o[] = newsletter_html( $C['news'], $uid );
-	}
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * COMP-GALLERY · declared by TPL-C-05 and TPL-E-01, so it is emitted from one place.
@@ -12803,32 +9915,7 @@ function wait_promise_html( $w ) {
 }
 
 /** TPL-C-10 · Clínica / Tratamientos. */
-function strip_clinic( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
-	$o[]  = head_phone( $C, $BRAND );
-	$o[]  = '<main>';
-	$o[]  = '<section class="sec hero" aria-label="La clínica"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-	$o[]  = treatment_cards_html( $C['treatments'] );
-	$o[]  = before_after_html( $C['cases'], ' bg-alt' );
-	$o[]  = med_team_html( $C['team'] );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-INSURANCE' ) ) {
-		$o[] = insurance_html( $C['insurance'] );
-	}
-	$o[]  = booking_html( $C['booking'], $uid );
-	$o[]  = '</main>';
-	$o[]  = footer_html( $C['footer'] );
-	return implode( "\n", $o );
-}
+
 
 /** TPL-C-11 · Plan por fases. */
 function strip_plan( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
@@ -12863,21 +9950,7 @@ function strip_plan( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 }
 
 /** TPL-C-12 · Urgencias / Hoy. No hero, on purpose: the first thing is an answer. */
-function strip_urgent( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$o   = array();
-	$o[] = head_phone( $C, $BRAND );
-	$o[] = '<main>';
-	$o[] = urgent_bar_html( $C['urgent'] );
-	$o[] = triage_html( $C['triage'] );
-	$o[] = wait_promise_html( $C['wait'] );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TEAM' ) ) {
-		$o[] = agent_list_html( $C['team'] );
-	}
-	$o[] = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-	return implode( "\n", $o );
-}
+
 
 /** COMP-HEADER with a phone: the local variant, in flow. */
 function head_phone( $C, $BRAND ) {
@@ -13478,58 +10551,10 @@ function strip_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	return implode( "\n", $o );
 }
 /** TPL-C-08 · Modelo / Lanzamiento. */
-function strip_model( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$o   = array();
-	$o[] = head_over( $C, $BRAND );
-	$o[] = '<main>';
-	$o[] = model_hero_html( $C['hero'] );
-	$o[] = spec_table_html( $C['specs'] );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_html( $C['gallery'] );
-	}
-	$o[] = offer_strip_html( $C['offer'] );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FINANCE' ) ) {
-		$o[] = finance_html( $C['finance'] );
-	}
-	$o[] = booking_html( $C['booking'], $uid );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
-		$o[] = faq_block_html( $C['faq'], ' closing' );
-	}
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-	return implode( "\n", $o );
-}
+
 
 /** TPL-C-09 · Taller / Tarifa. */
-function strip_workshop( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
-	$o[]  = head_phone( $C, $BRAND );
-	$o[]  = '<main>';
-	$o[]  = '<section class="sec hero" aria-label="El taller"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-	$o[]  = price_list_html( $C['prices'] );
-	$o[]  = process_block_html( $C['process'], ' bg-alt' );
-	$o[]  = booking_html( $C['booking'], $uid );
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-BADGES' ) ) {
-		$o[] = badges_html( $C['badges'] );
-	}
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-FAQ' ) ) {
-		$o[] = faq_block_html( $C['faq'], ' bg-alt' );
-	}
-	$o[]  = nap_block_html( $C['nap'], ' closing', isset( $C['nav_cta'] ) ? $C['nav_cta'] : '' );
-	$o[]  = '</main>';
-	$o[]  = footer_html( $C['footer'] );
-	return implode( "\n", $o );
-}
+
 
 /** COMP-HEADER floating on the hero: same contents as the local header, out of flow. */
 function head_over( $C, $BRAND ) {
@@ -13657,54 +10682,7 @@ function hours_block_html( $hb ) {
  * you meet a form. TPL-C-05 puts the booking block third, which is right for a clinic and wrong
  * for a table.
  */
-function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	// COMP-HEADER, transparent over the hero  [fijo]
-	$o[] = head_over( $C, $BRAND );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO-FULL  [fijo · ADN]
-	$o[] = '<section class="sec hero hero-visual hero-full" aria-label="La casa"><div class="media-full">'
-		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '<div class="canvas"><div class="head stack">'
-		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
-		. '</div></div></section>';
-
-	// 2 · COMP-MARQUEE  [toggle TGL-MARQUEE]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-MARQUEE' ) ) {
-		$o[] = marquee_html( $C['marquee'] );
-	}
-
-	// 3 · COMP-MENU-LIST  [fijo · ADN · toggle TGL-MENU-PRICES]
-	$o[] = menu_list_html( $C['menu'], tgl_of( $tgl_rows, 'TGL-MENU-PRICES' ) );
-
-	// 4 · COMP-FIGURE-QUOTE  [fijo · ADN]
-	$o[] = figure_quote_html( $C['figq'] );
-
-	// 5 · COMP-GALLERY, offset  [toggle TGL-GALLERY]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_masonry_html( $C['gallery'], 'bleed' );
-	}
-
-	// 6 · COMP-BOOKING  [fijo]
-	$o[] = booking_html( $C['booking'], $uid );
-
-	// 7 · COMP-HOURS-BLOCK  [fijo · ADN] — and it is the close
-	$o[] = hours_block_html( $C['hours'] );
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return implode( "\n", $o );
-}
 
 /**
  * TPL-C-05 · Local / Booking.
@@ -13714,110 +10692,7 @@ function strip_menu( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * business whose number lives only inside a form is one you cannot ring from the car, and hours
  * that are not on the page are a wasted trip.
  */
-function strip_local( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	/* COMP-HEADER con teléfono  [fijo · ADN] — its own header, because the phone number beside the
-	   CTA is the one thing this archetype's doc singles out about it. */
-	$o[] = '<header class="site-head"><div class="canvas"><div class="nav">'
-		. '<span class="logo">' . h( $BRAND ) . '</span>'
-		. '<nav class="mainnav" aria-label="Principal">';
-	foreach ( $C['nav'] as $n ) {
-		$o[] = '<a href="' . h( ihref_for_label( $n ) ) . '">' . h( $n ) . '</a>';
-	}
-	$o[] = '</nav><a class="tel" href="#">' . h( $C['phone'] ) . '</a>'
-		. '<a class="btn btn-primary btn-sm" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a>'
-		. '</div></div></header>';
-
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO local  [fijo · ADN]
-	$o[] = '<section class="sec hero" aria-label="El showroom"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	// 2 · COMP-SERVICES  [fijo]
-	$sv  = $C['services'];
-	$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Prestaciones"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
-	foreach ( $sv['cards'] as $c ) {
-		$o[] = card_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	/* 3 · COMP-BOOKING  [fijo · ADN]
-	   Day and slot are RADIO GROUPS, not a `<select>`. A select hides every option but one behind
-	   a tap, and on a booking block the available times ARE the argument: five visible slots say
-	   "there is room this week" and a closed dropdown says nothing at all. */
-	$o[] = booking_html( $C['booking'], $uid );
-
-	// 4 · COMP-GALLERY  [toggle TGL-GALLERY]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_html( $C['gallery'], 'bleed' );
-	}
-
-	// 5 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
-		$qt  = $C['quotes'];
-		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Reseñas"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
-		foreach ( $qt['items'] as $q ) {
-			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
-				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
-				. '</figure></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	/* 6 · COMP-MAP-NAP  [fijo · ADN]
-	   NO EMBEDDED MAP. An iframe to a map provider is a remote request the Artifact CSP blocks
-	   outright, and on a real build it is a third-party cookie before the visitor has consented to
-	   anything. What a NAP block owes the reader is the ADDRESS, the PHONE and the HOURS as text —
-	   copyable, searchable, and readable by a screen reader. The photograph stands in for the map. */
-	$np  = $C['nap'];
-	$ni  = img( $np['img'] );
-	$o[] = '<section class="sec nap closing" aria-label="Cómo llegar"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $np['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $np['h2'] ) . '</h2>'
-		. '<address class="nap-addr">';
-	foreach ( $np['addr'] as $line ) {
-		$o[] = '<span>' . h( $line ) . '</span>';
-	}
-	$o[] = '<a href="#">' . h( $np['phone'] ) . '</a><a href="#">' . h( $np['mail'] ) . '</a>'
-		. '</address><dl class="hours">';
-	foreach ( $np['hours'] as $hr ) {
-		$o[] = '<div><dt>' . h( $hr[0] ) . '</dt><dd>' . h( $hr[1] ) . '</dd></div>';
-	}
-	/* La banda de cierre pedia la direccion y no pedia NADA mas. Cuatro arquetipos —C-05, C-07,
-	   C-09 y C-12, los cuatro de negocio local— terminaban la pagina en un horario, sin una sola
-	   llamada a la accion en las dos ultimas secciones. Un cierre que informa y no pide es media
-	   conversion tirada justo donde el visitante ya decidio. La etiqueta NO se inventa aqui: es la
-	   misma 'nav_cta' que la cabecera ya usa, asi que la pagina cierra pidiendo exactamente lo que
-	   venia pidiendo arriba —tasacion, cita, reserva o llamada— en vez de estrenar un verbo nuevo
-	   en la ultima pantalla. El telefono ya esta como enlace en el <address>, asi que no se repite. */
-	$nap_cta = isset( $C['nav_cta'] ) && '' !== $C['nav_cta']
-		? '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $C['nav_cta'] ) ) . '">' . h( $C['nav_cta'] ) . '</a></div>'
-		: '';
-	$o[] = '</dl><p class="small muted">' . h( $np['note'] ) . '</p>' . $nap_cta . '</div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $ni['slug'] ) . '"'
-		. ' alt="' . h( $ni['alt'] ) . '" width="' . $ni['w'] . '" height="' . $ni['h'] . '"></figure></div>'
-		. '</div></section>';
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * COMP-BOOKING · declared by TPL-C-05 and TPL-E-01, so it is emitted from one place.
@@ -13915,72 +10790,7 @@ function category_cards_html( $anchor_key, $cs ) {
  * puts three doors, because a brand-led shop is something you browse. Same brand, same photographs,
  * and the two are not confusable after one screen — which is the only test that matters.
  */
-function strip_visual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	global $SLIDER_FRAMES;
-	$hero   = $C['hero'];
-	$im     = img( $hero['img'] );
-	$slider = ( 'slider' === tgl_of( $tgl_rows, 'TGL-HERO-TYPE' ) );
-	$o      = array();
 
-	$o[] = head_ecommerce( $C, $BRAND, $uid );
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO slider ~60vh  [fijo · ADN] — same toggle, same copy, one changed setting
-	$o[] = '<section class="sec hero' . ( $slider ? ' hero-slides' : '' ) . '" aria-label="Colección">'
-		. ( $slider ? hero_slider_html( $SLIDER_FRAMES ) : '' )
-		. '<div class="canvas"><div class="head stack">'
-		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
-		. '</div></section>';
-
-	// 2 · COMP-CATEGORY-CARD  [fijo · ADN]
-	$o[] = category_cards_html( $anchor_key, $C['cats'] );
-
-	// 3 · COMP-PRODUCT-CAROUSEL  [fijo]
-	$cr  = $C['carousel'];
-	$o[] = '<section class="sec carousel grid-sec bg-alt" aria-label="Destacados"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items grid-prod cols-4">';
-	foreach ( $cr['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 4 · COMP-GALLERY lookbook  [toggle TGL-GALLERY]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-GALLERY' ) ) {
-		$o[] = gallery_html( $C['gallery'], 'bleed' );
-	}
-
-	// 5 · COMP-TESTIMONIAL  [fijo]
-	$qt  = $C['quotes'];
-	$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
-	foreach ( $qt['items'] as $q ) {
-		$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
-			. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
-			. '</figure></li>';
-	}
-	$o[] = '</ul></div></section>';
-
-	// 6 · COMP-BOOKING  [fijo · ADN]
-	$o[] = booking_html( $C['booking'], $uid );
-
-	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
-		$o[] = newsletter_html( $C['news'], $uid );
-	}
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * TPL-E-04 · Categories First.
@@ -13989,193 +10799,9 @@ function strip_visual( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  * with eight products above the fold; this one answers "I know roughly where to look" with eight
  * doors and a count on each.
  */
-function strip_categories( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	$o[] = head_ecommerce( $C, $BRAND, $uid );
-	$o[] = '<main>';
 
-	// 1 · COMP-HERO banner medio  [fijo]
-	$o[] = '<section class="sec hero" aria-label="Catálogo"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '</div></section>';
 
-	/* 2 · COMP-CATEGORY-GRID  [fijo · ADN]
-	   TEXT TILES, NOT PHOTOGRAPHS. Eight photographic doors would be eight more images to decode
-	   before the reader can route, and routing is what this archetype is FOR — the picture is not
-	   the argument here, the count is. COMP-CATEGORY-CARD further down does carry photographs,
-	   because three doors can afford them. */
-	$gr  = $C['grid'];
-	$o[] = '<section class="sec catgrid grid-sec bg-alt" aria-label="Categorías"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $gr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $gr['h2'] ) . '</h2></div><ul class="tiles">';
-	foreach ( $gr['items'] as $it ) {
-		$o[] = '<li><a href="' . h( ihref_for_label( $it[0] ) ) . '"><b>' . h( $it[0] ) . '</b><span>' . h( $it[1] ) . '</span></a></li>';
-	}
-	$o[] = '</ul></div></section>';
-
-	/* 3 · COMP-PRODUCT-TABS  [fijo · ADN]
-	   TABS WITHOUT A LINE OF JAVASCRIPT — radio inputs and a sibling selector. A tab set that needs
-	   script shows one panel and three dead labels until it loads, and shows exactly that forever
-	   to a crawler. The labels are `<label>` elements, so they are keyboard-reachable and announced
-	   as the radio group they actually are. */
-	$tb  = $C['tabs'];
-	$o[] = '<section class="sec ptabs grid-sec" aria-label="Novedades"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $tb['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $tb['h2'] ) . '</h2></div><div class="tabset">';
-	foreach ( $tb['panels'] as $i => $pn ) {
-		$tid = $uid . '-tab' . $i;
-		$o[] = '<input class="tabin" type="radio" id="' . $tid . '" name="' . $uid . '-tabs"'
-			. ( 0 === $i ? ' checked' : '' ) . '>'
-			. '<label class="tablab" for="' . $tid . '">' . h( $pn[0] ) . '</label>';
-	}
-	$o[] = '<div class="tabpanels">';
-	foreach ( $tb['panels'] as $pn ) {
-		$o[] = '<div class="tabpanel"><div class="items grid-prod cols-4">';
-		foreach ( $pn[1] as $c ) {
-			$o[] = product_html( $anchor_key, $c );
-		}
-		$o[] = '</div></div>';
-	}
-	$o[] = '</div></div></div></section>';
-
-	// 4 · COMP-BENEFITS  [toggle TGL-BENEFITS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-BENEFITS' ) ) {
-		$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
-		foreach ( $C['benefits'] as $b ) {
-			$o[] = '<p class="ben"><span class="bicon" aria-hidden="true">✓</span>' . h( $b ) . '</p>';
-		}
-		$o[] = '</div></div></section>';
-	}
-
-	// 5 · COMP-CTA  [fijo]
-	$b   = $C['band'];
-	$o[] = '<section class="sec band closing sober" aria-label="Profesionales"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
-		. '</div></section>';
-
-	// 6 · COMP-CATEGORY-CARD  [fijo]
-	$o[] = category_cards_html( $anchor_key, $C['cats'] );
-
-	// 7 · COMP-NEWSLETTER  [toggle TGL-NEWSLETTER]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-NEWSLETTER' ) ) {
-		$o[] = newsletter_html( $C['news'], $uid );
-	}
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
-
-function strip_corporate( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
-	global $SLIDER_FRAMES;
-	$hero    = $C['hero'];
-	$im      = img( $hero['img'] );
-	$slider  = ( 'slider' === tgl_of( $tgl_rows, 'TGL-HERO-TYPE' ) );
-	$o       = array();
-
-	$o[] = head_corporate( $C, $BRAND );
-
-	$o[] = '<main>';
-
-	// 1 · COMP-HERO  [fijo · ADN] · TGL-HERO-TYPE
-	//
-	// The SECTION differs between the two hero types and the COPY does not — same eyebrow, same
-	// h1, same lede, same two CTAs, in the same order. That is what keeps the toggle readable as a
-	// toggle: a reader comparing this strip with its three siblings is looking at one changed
-	// setting, not at a second design.
-	$o[] = '<section class="sec hero' . ( $slider ? ' hero-slides' : '' ) . '" aria-label="Propuesta de valor">'
-		. ( $slider ? hero_slider_html( $SLIDER_FRAMES ) : '' )
-		. '<div class="canvas">'
-		. '<div class="head stack">'
-		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $hero['cta_1'] ) ) . '">' . h( $hero['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $hero['cta_2'] ) ) . '">' . h( $hero['cta_2'] ) . '</a></div>'
-		. '</div>'
-		. ( $slider ? '' : '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-			. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>' )
-		. '</div></section>';
-
-	// 2 · COMP-LOGOS  [toggle TGL-LOGOS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-LOGOS' ) ) {
-		$lg  = $C['logos'];
-		$o[] = '<section class="sec logos bg-alt" aria-label="Clientes"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $lg['eyebrow'] ) . '</span></div><ul>';
-		foreach ( $lg['items'] as $l ) {
-			$o[] = '<li>' . h( $l ) . '</li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 3 · COMP-SERVICES  [fijo · ADN]
-	$sv  = $C['services'];
-	$o[] = '<section class="sec services grid-sec" aria-label="Servicios"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $sv['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $sv['h2'] ) . '</h2></div><div class="items cols-3">';
-	foreach ( $sv['cards'] as $c ) {
-		$o[] = card_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 4 · COMP-PROCESS  [toggle TGL-PROCESS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-PROCESS' ) ) {
-		$pr  = $C['process'];
-		$o[] = '<section class="sec process grid-sec bg-alt" aria-label="Proceso"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $pr['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $pr['h2'] ) . '</h2></div><ol class="steps">';
-		foreach ( $pr['steps'] as $i => $st ) {
-			$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
-				. '<h3>' . h( $st[0] ) . '</h3><p>' . h( $st[1] ) . '</p></li>';
-		}
-		$o[] = '</ol></div></section>';
-	}
-
-	// 5 · COMP-CASES  [toggle TGL-CASES, default on]
-	$cs  = $C['cases'];
-	$o[] = '<section class="sec cases grid-sec" aria-label="Casos"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cs['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cs['h2'] ) . '</h2></div><div class="items cols-2">';
-	foreach ( $cs['cards'] as $c ) {
-		$o[] = card_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 6 · COMP-TESTIMONIAL  [toggle TGL-TESTIMONIALS]
-	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-TESTIMONIALS' ) ) {
-		$qt  = $C['quotes'];
-		$o[] = '<section class="sec quotes grid-sec bg-alt" aria-label="Testimonios"><div class="canvas">'
-			. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-			. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
-		foreach ( $qt['items'] as $q ) {
-			$o[] = '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
-				. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
-				. '</figure></li>';
-		}
-		$o[] = '</ul></div></section>';
-	}
-
-	// 7 · COMP-CTA + COMP-LEAD-FORM  [fijo · ADN] — the form exists and dominates the close
-	$o[] = band_closing_html( $C['band'], $uid );
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /** COMP-FOOTER — `[fijo]` in both archetypes, so it is emitted from one place. */
 function footer_html( $f ) {
@@ -14229,101 +10855,7 @@ function product_html( $anchor_key, $c ) {
  * The blueprint still governs everything else here: heading alignment, the banner's bleed, the
  * carousel, the benefits bar and the container geometry.
  */
-function strip_ecommerce( $anchor_key, $C, $BRAND, $uid ) {
-	$hero = $C['hero'];
-	$im   = img( $hero['img'] );
-	$o    = array();
 
-	// 0 · COMP-ANNOUNCEMENT + 1 · COMP-HEADER
-	$o[] = head_ecommerce( $C, $BRAND, $uid );
-
-	$o[] = '<main>';
-
-	// 2 · COMP-HERO mini ~20vh  [fijo · ADN] — a thin banner, never a big hero
-	$o[] = '<section class="sec mini" aria-label="Tienda"><div class="canvas">'
-		. '<div class="head stack"><h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p></div>'
-		. '<div class="media"><figure class="frame"><img data-img="' . h( $im['slug'] ) . '"'
-		. ' alt="' . h( $im['alt'] ) . '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
-		. '<nav class="cats" aria-label="Categorías">';
-	foreach ( $hero['cats'] as $c ) {
-		$o[] = '<a href="' . h( ihref_for_label( $c ) ) . '">' . h( $c ) . '</a>';
-	}
-	$o[] = '</nav></div></section>';
-
-	// 3 · COMP-PRODUCT-GRID  [fijo · ADN] — dense, and immediately after the header
-	$p   = $C['prods'];
-	$o[] = '<section class="sec prods grid-sec" aria-label="Destacados"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $p['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $p['h2'] ) . '</h2></div><div class="items grid-prod">';
-	foreach ( $p['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 4 · COMP-PRODUCT-CAROUSEL  [fijo]
-	$cr  = $C['carousel'];
-	$o[] = '<section class="sec carousel grid-sec bg-alt" aria-label="Más vendidos"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cr['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cr['h2'] ) . '</h2></div><div class="items rail">';
-	foreach ( $cr['cards'] as $c ) {
-		$o[] = product_html( $anchor_key, $c );
-	}
-	$o[] = '</div></div></section>';
-
-	// 5 · COMP-BENEFITS — barra fina  [toggle TGL-BENEFITS, default on]
-	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
-	foreach ( $C['benefits'] as $b ) {
-		$o[] = '<div class="ben"><span class="bicon" aria-hidden="true">'
-			. '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"'
-			. ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-			. '<path d="M20 6 9 17l-5-5"/></svg></span>'
-			. '<b>' . h( $b[0] ) . '</b><span class="muted small">' . h( $b[1] ) . '</span></div>';
-	}
-	$o[] = '</div></div></section>';
-
-	// 6 · COMP-FAQ — dudas operativas  [fijo · ADN]
-	//
-	// `<details>/<summary>`, which is `mockup-guide.md`'s recipe for COMP-FAQ and the same choice
-	// the handoff block below makes: the platform's own disclosure widget, no script, and it stays
-	// open-able with JS off. A panel built from divs would need state this generator cannot ship.
-	$fq  = $C['faq'];
-	$o[] = '<section class="sec faq" aria-label="Preguntas frecuentes"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $fq['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $fq['h2'] ) . '</h2></div>';
-	$o[] = disclosure_list_html( $fq['rows'] );
-	$o[] = '</div></section>';
-
-	// 7 · COMP-CONTACT-DIRECT — "¿no lo encontraste?"  [fijo · ADN] — the closing band
-	//
-	// The ecommerce close, and deliberately NOT the corporate one: TPL-C-01 above ends in a
-	// COMP-LEAD-FORM that takes a name and answers in 48 h. A catalogue whose whole DNA is FINDING
-	// closes on what happens when finding failed, at counter speed — three channels, each with the
-	// one fact that makes it usable (hours, what to send, how fast the reply comes).
-	$cl  = $C['close'];
-	$o[] = '<section class="sec close closing" aria-label="Contacto directo"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $cl['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $cl['h2'] ) . '</h2>'
-		. '<p class="lede muted">' . h( $cl['lede'] ) . '</p>'
-		/* INSIDE `.head`, NOT BESIDE IT. `.canvas > *` is placed column by column under three of
-		   the four blueprints, so a third child here would land unplaced — the same trap the note
-		   on `.faqlist` records for `.band`. The control belongs to the ask, so it belongs in the
-		   block that makes it. */
-		. '<div class="closecta"><a class="btn btn-primary btn-close" href="' . h( ihref_for_label( $cl['cta'] ) ) . '">' . h( $cl['cta'] ) . '</a>'
-		. '<span class="muted small">' . h( $cl['cta_sub'] ) . '</span></div>'
-		. '</div><div class="items chans">';
-	foreach ( $cl['chans'] as $c ) {
-		$o[] = '<div class="chan"><span class="muted small">' . h( $c[0] ) . '</span>'
-			. '<b>' . h( $c[1] ) . '</b>'
-			. '<span class="muted small">' . h( $c[2] ) . '</span></div>';
-	}
-	$o[] = '</div></div></section>';
-
-	$o[] = '</main>';
-	$o[] = footer_html( $C['footer'] );
-
-	return number_heads( implode( "\n", $o ) );
-}
 
 /**
  * ONE axis table per strip, rendered TWICE: as the visible readout and as the handoff spec.
@@ -14572,21 +11104,13 @@ function template_card_html( $C, $A, $anchor_key, $uid, $tpl_slug, $rows ) {
    so a reader can check the page against its own spec instead of against this file's memory. The
    first entry is the page a bare `#tplc01` opens on, which makes the ORDER here meaningful. */
 $PAGES = array(
-	'TPL-C-10' => array(
-		array( 'key' => 'home',     'label' => 'Clínica',   'doc' => 'TPL-C-10' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
+	
 	'TPL-C-11' => array(
 		array( 'key' => 'home',     'label' => 'Plan',      'doc' => 'TPL-C-11' ),
 		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
 		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
-	'TPL-C-12' => array(
-		array( 'key' => 'home',     'label' => 'Urgencias', 'doc' => 'TPL-C-12' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
+	
 	/* CUATRO PÁGINAS, y la cuarta cierra ocho enlaces muertos. Las tarjetas de la rejilla decían
 	   «Ver ficha» y apuntaban a una clave de página que este juego no tenía; medido en la galería,
 	   ocho botones que no llevaban a ninguna parte. */
@@ -14597,12 +11121,7 @@ $PAGES = array(
 		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
 	),
 	/* Lo mismo un arquetipo más allá: seis «Ver ficha» muertos en la cartera. */
-	'TPL-C-13' => array(
-		array( 'key' => 'home',     'label' => 'Cartera',   'doc' => 'TPL-C-13' ),
-		array( 'key' => 'producto', 'label' => 'El piso',   'doc' => 'TPL-PROPERTY-01' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
+	
 	/* CINCO PÁGINAS, donde las demás llevan tres — y las cinco existían en el catálogo sin haberse
 	   renderizado nunca. `TPL-ABOUT-03` y `TPL-CONTACT-02` llevaban escritas desde que Nosotros y
 	   Contacto dejaron de tener un solo arquetipo, y ninguna tira las había pedido: el recomendador
@@ -14617,56 +11136,18 @@ $PAGES = array(
 		array( 'key' => 'nosotros',  'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-03' ),
 		array( 'key' => 'contacto',  'label' => 'Contacto',  'doc' => 'TPL-CONTACT-02' ),
 	),
-	'TPL-C-08' => array(
-		array( 'key' => 'home',     'label' => 'Modelo',    'doc' => 'TPL-C-08' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
-	'TPL-C-09' => array(
-		array( 'key' => 'home',     'label' => 'Taller',    'doc' => 'TPL-C-09' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
-	'TPL-C-06' => array(
-		array( 'key' => 'home',     'label' => 'Home',      'doc' => 'TPL-C-06' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto',  'doc' => 'TPL-CONTACT-01' ),
-	),
-	'TPL-C-01' => array(
-		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-01' ),
-		array( 'key' => 'servicio', 'label' => 'Servicio', 'doc' => 'TPL-SERVICE-01' ),
-		array( 'key' => 'contacto', 'label' => 'Contacto', 'doc' => 'TPL-CONTACT-01' ),
-	),
-	'TPL-C-02' => array(
-		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-C-02' ),
-		array( 'key' => 'nosotros', 'label' => 'Nosotros', 'doc' => 'TPL-ABOUT-01' ),
-	),
-	'TPL-C-03' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-03' ),
-	),
-	'TPL-E-03' => array(
-		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-03' ),
-		array( 'key' => 'nosotros', 'label' => 'El taller', 'doc' => 'TPL-ABOUT-02' ),
-		array( 'key' => 'producto', 'label' => 'A medida',  'doc' => 'TPL-PDP-05' ),
-	),
-	'TPL-C-04' => array(
-		array( 'key' => 'home', 'label' => 'Landing', 'doc' => 'TPL-C-04' ),
-	),
-	'TPL-E-05' => array(
-		array( 'key' => 'home',     'label' => 'Campaña',  'doc' => 'TPL-E-05' ),
-		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · en oferta' ),
-	),
-	'TPL-C-05' => array(
-		array( 'key' => 'home', 'label' => 'Home', 'doc' => 'TPL-C-05' ),
-	),
-	'TPL-E-01' => array(
-		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-E-01' ),
-		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · editorial' ),
-	),
-	'TPL-E-04' => array(
-		array( 'key' => 'home',     'label' => 'Home',     'doc' => 'TPL-E-04' ),
-		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01 · cross-sell de sección' ),
-	),
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	'TPL-E-06' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-06' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-02' ),
@@ -14685,10 +11166,7 @@ $PAGES = array(
 	'TPL-E-09' => array(
 		array( 'key' => 'home', 'label' => 'Configurador', 'doc' => 'TPL-E-09' ),
 	),
-	'TPL-E-02' => array(
-		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-02' ),
-		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-01' ),
-	),
+	
 );
 
 
@@ -15525,28 +12003,9 @@ function render_page( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tgl ) {
 	ihref_set_context( tpl_slug( $C['tpl'] ), $anchor_key, $tpl );
 
-	if ( 'TPL-C-10' === $tpl && 'home' === $page_key ) {
-		return strip_clinic( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-10' === $tpl && 'nosotros' === $page_key ) {
-		/* `$C['team']` de esta arquitectura es asociativo (img/name/role/lic, lo que pinta la home
-		   con `strip_clinic`); `page_about_company_tail` lo lee posicional ([name,role,img], lo que
-		   pintan TPL-C-01/02). Se convierte en una COPIA — PHP copia arrays por valor, así que esto
-		   no toca el `$C['team']` que la home sigue usando. */
-		$C_nos = $C;
-		$C_nos['team'] = array(
-			'eyebrow' => $C['team']['eyebrow'],
-			'h2'      => $C['team']['h2'],
-			'items'   => array_map(
-				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
-				$C['team']['items']
-			),
-		);
-		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-10' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
+	
+	
+	
 	if ( 'TPL-C-11' === $tpl && 'home' === $page_key ) {
 		return strip_plan( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -15556,24 +12015,9 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-C-11' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-12' === $tpl && 'home' === $page_key ) {
-		return strip_urgent( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-12' === $tpl && 'nosotros' === $page_key ) {
-		$C_nos = $C;
-		$C_nos['team'] = array(
-			'eyebrow' => $C['team']['eyebrow'],
-			'h2'      => $C['team']['h2'],
-			'items'   => array_map(
-				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
-				$C['team']['items']
-			),
-		);
-		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-12' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
+	
+	
+	
 	if ( 'TPL-C-07' === $tpl && 'home' === $page_key ) {
 		return strip_stock( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -15622,86 +12066,34 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-C-14' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_open( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-08' === $tpl && 'home' === $page_key ) {
-		return strip_model( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-08' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-08' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-09' === $tpl && 'home' === $page_key ) {
-		return strip_workshop( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-09' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-09' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-06' === $tpl && 'home' === $page_key ) {
-		return strip_menu( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-06' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-06' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-01' === $tpl && 'home' === $page_key ) {
-		return strip_corporate( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-01' === $tpl && 'servicio' === $page_key ) {
-		return page_service( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-01' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-02' === $tpl && 'home' === $page_key ) {
-		return strip_institutional( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-02' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-C-03' === $tpl && 'home' === $page_key ) {
-		return strip_showcase( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-03' === $tpl && 'home' === $page_key ) {
-		return strip_story( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-03' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_workshop( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-03' === $tpl && 'producto' === $page_key ) {
-		return page_pdp_mtm( $anchor_key, $C, $BRAND, $suid );
-	}
-	if ( 'TPL-C-04' === $tpl && 'home' === $page_key ) {
-		return strip_landing( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-05' === $tpl && 'home' === $page_key ) {
-		return strip_promo( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-05' === $tpl && 'producto' === $page_key ) {
-		return page_pdp( $anchor_key, $C, $BRAND, $suid );
-	}
-	if ( 'TPL-C-05' === $tpl && 'home' === $page_key ) {
-		return strip_local( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-01' === $tpl && 'home' === $page_key ) {
-		return strip_visual( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/* La MISMA `page_pdp` que sirve a TPL-E-02, con el toggle en `editorial`. Un renderizador
 	   aparte habría sido la forma de código de volver a tener dos arquetipos donde hay uno. */
-	if ( 'TPL-E-01' === $tpl && 'producto' === $page_key ) {
-		return page_pdp( $anchor_key, $C, $BRAND, $suid, 'editorial' );
-	}
-	if ( 'TPL-E-04' === $tpl && 'home' === $page_key ) {
-		return strip_categories( $anchor_key, $C, $BRAND, $suid, $tgl );
-	}
-	if ( 'TPL-E-04' === $tpl && 'producto' === $page_key ) {
-		return page_pdp( $anchor_key, $C, $BRAND, $suid );
-	}
+	
+	
+	
 	if ( 'TPL-E-09' === $tpl && 'home' === $page_key ) {
 		return strip_made( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
@@ -15723,12 +12115,8 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-E-06' === $tpl && 'producto' === $page_key ) {
 		return page_pdp_fit( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-E-02' === $tpl && 'home' === $page_key ) {
-		return strip_ecommerce( $anchor_key, $C, $BRAND, $suid );
-	}
-	if ( 'TPL-E-02' === $tpl && 'producto' === $page_key ) {
-		return page_pdp( $anchor_key, $C, $BRAND, $suid );
-	}
+	
+	
 	fail( "no renderer for page `$page_key` of `$tpl`" );
 }
 
