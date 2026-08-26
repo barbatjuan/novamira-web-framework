@@ -645,10 +645,26 @@ function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
 		if ( isset( $st['pers'] ) ) {
 			$attrs .= ' data-pers="' . $st['pers'] . '"';
 		}
-		$body .= '<section class="strip" id="s' . $strip_ix . '"' . $attrs . '>' . "\n"
-			. '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' ) . '">' . "\n"
-			. "    <section class=\"sec\"><h2>Seccion</h2></section>\n"
-			. "  </div>\n</section>\n";
+		/* Additive, like fx_tpl()'s 2a-era 5th parameter: 'brand' is opt-in and every existing call
+		   site (no 'brand' key) renders byte-identical output to before RT_GALLERY_AXIS_LEAK existed. */
+		if ( isset( $st['brand'] ) ) {
+			$attrs .= ' data-brand="' . $st['brand'] . '"';
+		}
+		$body .= '<section class="strip" id="s' . $strip_ix . '"' . $attrs . '>' . "\n";
+		/* 'pages' is opt-in too: omitted, this renders the exact single anchor-only <div> every
+		   existing scenario already asserts around. Set, it renders one data-page div per page —
+		   the shape RT_GALLERY_SINGLE_PAGE_DEMO counts. */
+		if ( isset( $st['pages'] ) ) {
+			foreach ( $st['pages'] as $pg_key ) {
+				$body .= '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' )
+					. '" data-page="' . $pg_key . '">' . "\n"
+					. "    <section class=\"sec\"><h2>Seccion</h2></section>\n  </div>\n";
+			}
+		} else {
+			$body .= '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' ) . '">' . "\n"
+				. "    <section class=\"sec\"><h2>Seccion</h2></section>\n  </div>\n";
+		}
+		$body .= "</section>\n";
 	}
 	foreach ( $o['images'] as $img_slug ) {
 		$body .= '<figure class="frame"><img data-img="' . $img_slug . '" alt="fixture"></figure>' . "\n";
@@ -3357,12 +3373,15 @@ $FX_GAL_FAR = array(
 	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
 	'direct'    => array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ),
 );
-/* Two archetypes x two anchors: four cards, no repeated pair. */
+/* Two archetypes x two anchors: four cards, no repeated pair. Both carry a 'brand' — added when
+   RT_GALLERY_AXIS_LEAK/RT_GALLERY_REGISTER_COUNT_MISMATCH landed, so every scenario below this
+   shared fixture stays exactly as conforming as it was: two distinct demos, well under any
+   register count these scenarios declare. */
 $FX_GAL_STRIPS = array(
-	array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
-	array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
-	array( 'tpl' => 'TPL-E-02', 'pers' => 'editorial' ),
-	array( 'tpl' => 'TPL-E-02', 'pers' => 'direct' ),
+	array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial', 'brand' => 'fxbrand-a' ),
+	array( 'tpl' => 'TPL-C-01', 'pers' => 'direct', 'brand' => 'fxbrand-a' ),
+	array( 'tpl' => 'TPL-E-02', 'pers' => 'editorial', 'brand' => 'fxbrand-b' ),
+	array( 'tpl' => 'TPL-E-02', 'pers' => 'direct', 'brand' => 'fxbrand-b' ),
 );
 $FX_GAL_IMGS = array( 'hero-taller', 'card-veta' );
 $FX_GAL_MAN  = fx_gallery_manifest( array( 'hero-taller' => 'Freepik free', 'card-veta' => 'Freepik free' ) );
@@ -3379,6 +3398,29 @@ function fx_gal( $root, $html, $manifest = null ) {
     read. Mirrors fx_gal(), which writes only the output side of the same pair. */
 function fx_gal_generator( $root ) {
 	fx( $root, 'skills/html-mockup/assets/gallery/_build-gallery.php', "<?php\n// fixture stub: presence is the whole signal; contents are never read.\n" );
+}
+
+/**
+ * A `_build-gallery.php` stub whose `$BRANDS` block gallery_brands_block() can actually parse —
+ * for RT_GALLERY_ACCENT_TEXT_FAIL, which (unlike its siblings) reads this file's CONTENTS rather
+ * than only its presence. $brands maps brand_key => array(bg,alt,text,accent) hex strings.
+ * $drift_gates=false drops the `< 7.0` / `< 4.5` literal lines, for the drift-detection scenario.
+ */
+function fx_gal_generator_brands( $root, array $brands, $drift_gates = true ) {
+	$out = "<?php\n// fixture stub carrying a real \$BRANDS block for RT_GALLERY_ACCENT_TEXT_FAIL.\n";
+	if ( $drift_gates ) {
+		$out .= "// contrast(\$x,\$y) < 7.0 ground gate\n// contrast(\$x,\$y) < 4.5 accent-as-text gate\n";
+	}
+	$out .= "\$BRANDS = array(\n";
+	foreach ( $brands as $bk => $bv ) {
+		$out .= "\t'" . $bk . "' => array(\n"
+			. "\t\t'name'   => '" . strtoupper( $bk ) . "',\n"
+			. "\t\t'ground' => array( 'bg' => '" . $bv['bg'] . "', 'alt' => '" . $bv['alt'] . "', 'text' => '" . $bv['text'] . "' ),\n"
+			. "\t\t'accent' => '" . $bv['accent'] . "',\n"
+			. "\t),\n";
+	}
+	$out .= ");\n";
+	fx( $root, 'skills/html-mockup/assets/gallery/_build-gallery.php', $out );
 }
 
 echo "--- una galeria conforme en un SUBDIRECTORIO no produce ninguna fila de galeria ---\n";
@@ -3484,8 +3526,8 @@ fx_gal(
 	$r205,
 	fx_gallery(
 		array(
-			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
-			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial', 'brand' => 'fxbrand-d' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'direct', 'brand' => 'fxbrand-d' ),
 		),
 		$fx_gal_four,
 		array( 'images' => $FX_GAL_IMGS )
@@ -3512,8 +3554,8 @@ fx_gal(
 	$r206,
 	fx_gallery(
 		array(
-			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
-			array( 'tpl' => 'TPL-E-02', 'pers' => 'direct' ),
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial', 'brand' => 'fxbrand-e1' ),
+			array( 'tpl' => 'TPL-E-02', 'pers' => 'direct', 'brand' => 'fxbrand-e2' ),
 		),
 		$fx_gal_same,
 		array( 'images' => $FX_GAL_IMGS )
@@ -4970,6 +5012,170 @@ foreach ( $fx_env_real as $fx_env_rel ) {
 	ok( array() === fx_lines_with( $out158, array( 'RT_TPL_NO_ENVOLTORIO', $fx_env_base ) ), 'and neither does the real "' . $fx_env_base . '"', $out158 );
 }
 fx_rrmdir( $r158 );
+
+/* ---------------------------------------------------------------------------
+   PR2b — RT_GALLERY_AXIS_LEAK, RT_GALLERY_REGISTER_COUNT_MISMATCH, RT_GALLERY_SINGLE_PAGE_DEMO,
+   RT_MOCKUP_CONTAINER_FORK, RT_GALLERY_ACCENT_TEXT_FAIL. The gallery-IA + demo-authoring gates
+   that land BEFORE the 16-archetype amputation, so the gate proves the defect before the fix
+   removes it.
+   --------------------------------------------------------------------------- */
+
+echo "--- RT_GALLERY_AXIS_LEAK: a gallery strip with no data-brand FAILS; a branded one does not ---\n";
+$r240 = fx_tmp_root();
+fx_base( $r240 );
+fx_gal(
+	$r240,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-01', 'pers' => 'editorial' ),
+			array( 'tpl' => 'TPL-C-07-aranda', 'pers' => 'direct', 'brand' => 'aranda' ),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out240 ) = fx_run_ok( $audit, $r240 );
+ok(
+	'FAIL' === fx_row_level( $out240, array( 'RT_GALLERY_AXIS_LEAK', 'TPL-C-01' ) ),
+	'a strip with no data-brand FAILs',
+	fx_row_level( $out240, array( 'RT_GALLERY_AXIS_LEAK', 'TPL-C-01' ) )
+);
+ok( array() !== fx_lines_with( $out240, array( 'RT_GALLERY_AXIS_LEAK', 'ux-design-system' ) ), 'and says where it belongs instead', $out240 );
+ok( array() === fx_lines_with( $out240, array( 'RT_GALLERY_AXIS_LEAK', 'TPL-C-07-aranda' ) ), 'and does not accuse the branded strip beside it', $out240 );
+fx_rrmdir( $r240 );
+
+echo "--- RT_GALLERY_REGISTER_COUNT_MISMATCH: fewer registers than surviving branded demos FAILS ---\n";
+$r241 = fx_tmp_root();
+fx_base( $r241 );
+$fx_man241 = fx_gallery_manifest(
+	array( 'aranda-x' => 'Freepik free', 'lumiere-x' => 'Freepik free' ),
+	true,
+	array( 'registers' => 1, 'freepik' => array( 'aranda-x' => 5876725, 'lumiere-x' => 44121496 ) )
+);
+fx_gal(
+	$r241,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-07-aranda', 'pers' => 'direct', 'brand' => 'aranda' ),
+			array( 'tpl' => 'TPL-C-14-lumiere', 'pers' => 'matter', 'brand' => 'lumiere' ),
+		),
+		$FX_GAL_FAR,
+		array( 'images' => array( 'aranda-x', 'lumiere-x' ) )
+	),
+	$fx_man241
+);
+list( , $out241 ) = fx_run_ok( $audit, $r241 );
+ok(
+	'FAIL' === fx_row_level( $out241, array( 'RT_GALLERY_REGISTER_COUNT_MISMATCH' ) ),
+	'1 register against 2 surviving demos FAILs',
+	fx_row_level( $out241, array( 'RT_GALLERY_REGISTER_COUNT_MISMATCH' ) )
+);
+ok(
+	array() !== fx_lines_with( $out241, array( 'RT_GALLERY_REGISTER_COUNT_MISMATCH', 'declares 1 register row(s)', 'renders 2 surviving branded demo(s)' ) ),
+	'and names both counts',
+	$out241
+);
+fx_rrmdir( $r241 );
+
+echo "--- RT_GALLERY_REGISTER_COUNT_MISMATCH: one register per surviving demo does not fire ---\n";
+$r242 = fx_tmp_root();
+fx_base( $r242 );
+fx_gal(
+	$r242,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-C-07-aranda', 'pers' => 'direct', 'brand' => 'aranda' ),
+			array( 'tpl' => 'TPL-C-14-lumiere', 'pers' => 'matter', 'brand' => 'lumiere' ),
+		),
+		$FX_GAL_FAR,
+		array( 'images' => array( 'aranda-x', 'lumiere-x' ) )
+	),
+	fx_gallery_manifest(
+		array( 'aranda-x' => 'Freepik free', 'lumiere-x' => 'Freepik free' ),
+		true,
+		array( 'registers' => 2, 'freepik' => array( 'aranda-x' => 5876725, 'lumiere-x' => 44121496 ) )
+	)
+);
+list( , $out242 ) = fx_run_ok( $audit, $r242 );
+ok( array() === fx_lines_with( $out242, array( 'RT_GALLERY_REGISTER_COUNT_MISMATCH' ) ), '2 registers for 2 demos does not fire', $out242 );
+fx_rrmdir( $r242 );
+
+echo "--- RT_GALLERY_SINGLE_PAGE_DEMO: a branded demo with one page WARNs; a multi-page one does not ---\n";
+$r243 = fx_tmp_root();
+fx_base( $r243 );
+fx_gal(
+	$r243,
+	fx_gallery(
+		array(
+			array( 'tpl' => 'TPL-E-09-medida', 'pers' => 'editorial', 'brand' => 'medida', 'pages' => array( 'home' ) ),
+			array( 'tpl' => 'TPL-C-14-lumiere', 'pers' => 'matter', 'brand' => 'lumiere', 'pages' => array( 'home', 'servicios' ) ),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out243 ) = fx_run_ok( $audit, $r243 );
+ok(
+	'WARN' === fx_row_level( $out243, array( 'RT_GALLERY_SINGLE_PAGE_DEMO', 'TPL-E-09-medida' ) ),
+	'one declared page WARNs, not FAILs, this slice',
+	fx_row_level( $out243, array( 'RT_GALLERY_SINGLE_PAGE_DEMO', 'TPL-E-09-medida' ) )
+);
+ok( array() === fx_lines_with( $out243, array( 'RT_GALLERY_SINGLE_PAGE_DEMO', 'TPL-C-14-lumiere' ) ), 'and does not accuse the multi-page demo beside it', $out243 );
+fx_rrmdir( $r243 );
+
+echo "--- RT_MOCKUP_CONTAINER_FORK: a mockup forking --container-max FAILS, the house token does not ---\n";
+$fx_ds_container = fx_ds_conforming() . "\n\n## Contenedores\n\n| Token | Valor | Nota |\n|-------|-------|------|\n| `--container-max` | `1280px` | ancho maximo |\n";
+$r244 = fx_tmp_root();
+fx_base( $r244 );
+fx( $r244, 'skills/web-templates/references/design-system.md', $fx_ds_container );
+fx( $r244, 'skills/html-mockup/assets/container-fork-fixture.html', "<style>:root{--container-max:1024px;}</style><h1>x</h1>" );
+list( , $out244 ) = fx_run_ok( $audit, $r244 );
+ok(
+	'FAIL' === fx_row_level( $out244, array( 'RT_MOCKUP_CONTAINER_FORK' ) ),
+	'a forked --container-max FAILs',
+	fx_row_level( $out244, array( 'RT_MOCKUP_CONTAINER_FORK' ) )
+);
+ok( array() !== fx_lines_with( $out244, array( 'RT_MOCKUP_CONTAINER_FORK', '1024px', '1280px' ) ), 'and names both the fork and the house token', $out244 );
+fx_rrmdir( $r244 );
+
+$r245 = fx_tmp_root();
+fx_base( $r245 );
+fx( $r245, 'skills/web-templates/references/design-system.md', $fx_ds_container );
+fx( $r245, 'skills/html-mockup/assets/container-ok-fixture.html', "<style>:root{--container-max:1280px;}</style><h1>x</h1>" );
+list( , $out245 ) = fx_run_ok( $audit, $r245 );
+ok( array() === fx_lines_with( $out245, array( 'RT_MOCKUP_CONTAINER_FORK' ) ), 'the house token itself never fires', $out245 );
+fx_rrmdir( $r245 );
+
+echo "--- RT_GALLERY_ACCENT_TEXT_FAIL: an accent below 4.5:1 as text FAILS; a conforming one does not ---\n";
+$r246 = fx_tmp_root();
+fx_base( $r246 );
+fx_gal_generator_brands(
+	$r246,
+	array( 'badbrand' => array( 'bg' => '#FFFFFF', 'alt' => '#F0F0F0', 'text' => '#111111', 'accent' => '#CCCCCC' ) )
+);
+list( , $out246 ) = fx_run_ok( $audit, $r246 );
+ok( array() !== fx_lines_with( $out246, array( 'RT_GALLERY_ACCENT_TEXT_FAIL', 'badbrand', 'FAIL' ) ), 'a low-contrast accent FAILs, naming the brand', $out246 );
+fx_rrmdir( $r246 );
+
+$r247 = fx_tmp_root();
+fx_base( $r247 );
+fx_gal_generator_brands(
+	$r247,
+	array( 'goodbrand' => array( 'bg' => '#F3F6F7', 'alt' => '#E4EAED', 'text' => '#111A1F', 'accent' => '#0B5D6B' ) )
+);
+list( , $out247 ) = fx_run_ok( $audit, $r247 );
+ok( array() === fx_lines_with( $out247, array( 'RT_GALLERY_ACCENT_TEXT_FAIL' ) ), 'the real aranda accent, which already clears the build-time gate, produces no row', $out247 );
+fx_rrmdir( $r247 );
+
+echo "--- RT_GALLERY_ACCENT_TEXT_FAIL: the generator's own 4.5/7.0 gates going missing is drift, and FAILS ---\n";
+$r248 = fx_tmp_root();
+fx_base( $r248 );
+fx_gal_generator_brands(
+	$r248,
+	array( 'goodbrand' => array( 'bg' => '#F3F6F7', 'alt' => '#E4EAED', 'text' => '#111A1F', 'accent' => '#0B5D6B' ) ),
+	false
+);
+list( , $out248 ) = fx_run_ok( $audit, $r248 );
+ok( array() !== fx_lines_with( $out248, array( 'RT_GALLERY_ACCENT_TEXT_FAIL', 'no longer carries both' ) ), 'the drift assertion fires when both literal gates are gone', $out248 );
+fx_rrmdir( $r248 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

@@ -121,6 +121,11 @@ const ROW_TYPES = array(
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
 	'RT_GALLERY_NOT_BUILT'       => 'FAIL  — the gallery generator is present but its index.html output is not: the tree was never built',
 	'RT_GALLERY_STALE'           => 'FAIL  — the gallery output records no input fingerprint, or one that no longer matches the inputs on disk',
+	'RT_GALLERY_AXIS_LEAK'       => 'FAIL  — a catalogue gallery strip renders no data-brand, so it is personality-anchor proof rather than a demo',
+	'RT_GALLERY_REGISTER_COUNT_MISMATCH' => 'FAIL  — the manifest declares fewer registers than the gallery renders surviving branded demos',
+	'RT_GALLERY_SINGLE_PAGE_DEMO' => 'WARN  — a branded demo declares only one page (ratchets to FAIL once every surviving demo is multi-page)',
+	'RT_MOCKUP_CONTAINER_FORK'   => 'FAIL  — a mockup asset declares a --container-max literal other than design-system.md\'s own token value',
+	'RT_GALLERY_ACCENT_TEXT_FAIL' => 'FAIL  — a brand\'s accent measures below 4.5:1 as text against its own ground, re-measured independently of the generator\'s own gate',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
@@ -2827,17 +2832,162 @@ function gallery_manifest_table( $md ) {
 /** Every `<section class="strip">` a gallery renders, with the pair it declares, in document order. */
 function gallery_strips( $src ) {
 	$out = array();
-	if ( ! preg_match_all( '/<section\b[^>]*>/i', $src, $m ) ) {
+	if ( ! preg_match_all( '/<section\b[^>]*>/i', $src, $m, PREG_OFFSET_CAPTURE ) ) {
 		return $out;
 	}
-	foreach ( $m[0] as $tag ) {
-		if ( ! preg_match( '/\bclass\s*=\s*"[^"]*\bstrip\b[^"]*"/i', $tag ) ) {
-			continue;
+	$tags = array();
+	foreach ( $m[0] as $t ) {
+		if ( preg_match( '/\bclass\s*=\s*"[^"]*\bstrip\b[^"]*"/i', $t[0] ) ) {
+			$tags[] = $t;
 		}
+	}
+	$n = count( $tags );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$tag = $tags[ $i ][0];
+		$off = $tags[ $i ][1];
+		$end = ( $i + 1 < $n ) ? $tags[ $i + 1 ][1] : strlen( $src );
+		/* $seg is the strip's own HTML, used only to find its `data-brand` — everything else below
+		   still reads the OUTER `<section>` tag exactly as before this key was added. */
+		$seg = substr( $src, $off, $end - $off );
 		$out[] = array(
 			'tpl'  => preg_match( '/\bdata-tpl\s*=\s*"([^"]*)"/i', $tag, $t ) ? trim( $t[1] ) : '',
 			'pers' => preg_match( '/\bdata-pers\s*=\s*"([^"]*)"/i', $tag, $p ) ? trim( $p[1] ) : '',
+			/* Added for RT_GALLERY_AXIS_LEAK/RT_GALLERY_REGISTER_COUNT_MISMATCH, additively — every
+			   existing reader keys off 'tpl'/'pers' alone and a third key changes nothing for them.
+			   `data-brand` is the generator's OWN mark of "this strip carries a $BRANDS entry"
+			   (`_build-gallery.php`'s strip loop only ever prints it when `'' !== $C['brand']`), so
+			   reading it is reading the BUILT SITE's own claim rather than re-parsing $BRANDS out of
+			   PHP source — the audit's stated job is the built site, not the generator. It sits on
+			   the INNER `<div class="sample">`, not this outer `<section>` tag, hence the segment. */
+			'brand' => preg_match( '/\bdata-brand\s*=\s*"([^"]*)"/i', $seg, $b ) ? trim( $b[1] ) : '',
 		);
+	}
+	return $out;
+}
+
+/**
+ * Every `<section class="strip">`'s own HTML, from its opening tag to the next strip's (or EOF),
+ * plus the same tpl/pers/brand attributes gallery_strips() reads.
+ *
+ * A strip's inner pages (`<div class="sample" data-page="…">`) sit ONLY inside its own section —
+ * `_build-gallery.php` writes one `<section class="strip">` per `TPL-* × PERS-*` pair and one
+ * `data-page`-bearing `<div>` per page inside it — so RT_GALLERY_SINGLE_PAGE_DEMO needs the
+ * SEGMENT a `data-page` sits in, not just its bare presence somewhere in the document: counting
+ * every `data-page` in the whole file would sum every anchor's copy of the same page set instead
+ * of counting the page set once.
+ */
+function gallery_strip_segments( $src ) {
+	if ( ! preg_match_all( '/<section\b[^>]*>/i', $src, $m, PREG_OFFSET_CAPTURE ) ) {
+		return array();
+	}
+	$tags = array();
+	foreach ( $m[0] as $t ) {
+		if ( preg_match( '/\bclass\s*=\s*"[^"]*\bstrip\b[^"]*"/i', $t[0] ) ) {
+			$tags[] = $t;
+		}
+	}
+	$out = array();
+	$n   = count( $tags );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$tag  = $tags[ $i ][0];
+		$off  = $tags[ $i ][1];
+		$end  = ( $i + 1 < $n ) ? $tags[ $i + 1 ][1] : strlen( $src );
+		$html = substr( $src, $off, $end - $off );
+		$out[] = array(
+			'tpl'  => preg_match( '/\bdata-tpl\s*=\s*"([^"]*)"/i', $tag, $t2 ) ? trim( $t2[1] ) : '',
+			'pers' => preg_match( '/\bdata-pers\s*=\s*"([^"]*)"/i', $tag, $p2 ) ? trim( $p2[1] ) : '',
+			/* `data-brand` sits on the INNER `<div class="sample">`, not the outer `<section
+			   class="strip">` — `_build-gallery.php` writes it once per page-div, all identical
+			   within one strip, so the first match in the segment is the strip's own brand. */
+			'brand' => preg_match( '/\bdata-brand\s*=\s*"([^"]*)"/i', $html, $b2 ) ? trim( $b2[1] ) : '',
+			'html'  => $html,
+		);
+	}
+	return $out;
+}
+
+/** Every `--container-max:<value>` declaration in a built asset, trimmed, in document order. */
+function gallery_container_max_values( $src ) {
+	if ( ! preg_match_all( '/--container-max\s*:\s*([^;]+);/i', $src, $m ) ) {
+		return array();
+	}
+	return array_map( 'trim', $m[1] );
+}
+
+/** The `--container-max` value design-system.md's own § Contenedores table states, or null when
+ *  that row cannot be found — the canonical value this audit re-checks every mockup against,
+ *  read rather than retyped so the two can never drift without this row noticing. */
+function design_system_container_max( $ds_src ) {
+	if ( preg_match( '/\|\s*`--container-max`\s*\|\s*`([^`]+)`/', $ds_src, $m ) ) {
+		return trim( $m[1] );
+	}
+	return null;
+}
+
+/* WCAG 2.1 relative luminance / contrast ratio — the exact formula `_build-gallery.php`'s own
+   srgb_lum()/contrast() implement (0.04045 breakpoint), mirrored here rather than shared by
+   require: RT_GALLERY_ACCENT_TEXT_FAIL exists to catch the day the two drift, so it cannot import
+   the very implementation it is re-measuring against. */
+function nm_srgb_lum( $hex ) {
+	$hex = ltrim( (string) $hex, '#' );
+	if ( 6 !== strlen( $hex ) || ! ctype_xdigit( $hex ) ) {
+		return null;
+	}
+	$l = 0.0;
+	foreach ( array( 0 => 0.2126, 2 => 0.7152, 4 => 0.0722 ) as $off => $coeff ) {
+		$c  = hexdec( substr( $hex, $off, 2 ) ) / 255;
+		$c  = ( $c <= 0.04045 ) ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+		$l += $coeff * $c;
+	}
+	return $l;
+}
+function nm_contrast( $a, $b ) {
+	$la = nm_srgb_lum( $a );
+	$lb = nm_srgb_lum( $b );
+	if ( null === $la || null === $lb ) {
+		return null;
+	}
+	return ( max( $la, $lb ) + 0.05 ) / ( min( $la, $lb ) + 0.05 );
+}
+
+/**
+ * `$BRANDS`, read from `_build-gallery.php`'s own source rather than re-typed here — a colour
+ * table copied into a second file is two tables, and this row exists precisely to catch the day
+ * they disagree. Returns `array<brand_key, array('bg'=>hex,'alt'=>hex,'text'=>hex,'accent'=>hex)>`,
+ * or `array()` when the block cannot be located at all (a shape RT_GALLERY_ACCENT_TEXT_FAIL treats
+ * as "nothing to re-measure", never as a pass it reports).
+ *
+ * Anchored on a single-tab `'key' => array(` line, the same indentation discipline every real
+ * `$BRANDS` entry uses today — `'ground'`/`'accent'` sit one tab deeper, so this finds top-level
+ * entries without needing a full expression parser for a file this audit only ever reads, never
+ * evaluates.
+ */
+function gallery_brands_block( $src ) {
+	if ( ! preg_match( '/\$BRANDS\s*=\s*array\(\r?\n(.*?)\r?\n\)\s*;/s', $src, $m ) ) {
+		return array();
+	}
+	$block = $m[1];
+	if ( ! preg_match_all( "/^\t'([a-z][a-z0-9_]*)'\s*=>\s*array\(/m", $block, $keys, PREG_OFFSET_CAPTURE ) ) {
+		return array();
+	}
+	$out = array();
+	$n   = count( $keys[1] );
+	for ( $i = 0; $i < $n; $i++ ) {
+		$key   = $keys[1][ $i ][0];
+		$start = $keys[0][ $i ][1];
+		$end   = ( $i + 1 < $n ) ? $keys[0][ $i + 1 ][1] : strlen( $block );
+		$entry = substr( $block, $start, $end - $start );
+		if ( ! preg_match(
+			"/'ground'\s*=>\s*array\(\s*'bg'\s*=>\s*'(#[0-9A-Fa-f]{6})'\s*,\s*'alt'\s*=>\s*'(#[0-9A-Fa-f]{6})'\s*,\s*'text'\s*=>\s*'(#[0-9A-Fa-f]{6})'/",
+			$entry,
+			$gm
+		) ) {
+			continue;
+		}
+		if ( ! preg_match( "/'accent'\s*=>\s*'(#[0-9A-Fa-f]{6})'/", $entry, $am ) ) {
+			continue;
+		}
+		$out[ $key ] = array( 'bg' => $gm[1], 'alt' => $gm[2], 'text' => $gm[3], 'accent' => $am[1] );
 	}
 	return $out;
 }
@@ -2956,6 +3106,61 @@ if ( file_exists( $gal_gen ) && file_exists( $gal_out ) && file_exists( $gal_fp_
 	}
 }
 
+/* ---- RT_GALLERY_ACCENT_TEXT_FAIL ---- */
+if ( file_exists( $gal_gen ) ) {
+	$gal_gen_src    = slurp( $gal_gen );
+	$gal_brands_src = gallery_brands_block( $gal_gen_src );
+	foreach ( $gal_brands_src as $gal_bk => $gal_bv ) {
+		foreach ( array( 'bg' => $gal_bv['bg'], 'bg-alt' => $gal_bv['alt'] ) as $gal_surf_name => $gal_surf_hex ) {
+			$gal_ratio = nm_contrast( $gal_bv['accent'], $gal_surf_hex );
+			if ( null !== $gal_ratio && $gal_ratio < 4.5 ) {
+				add(
+					'RT_GALLERY_ACCENT_TEXT_FAIL',
+					'FAIL',
+					'html-mockup',
+					'assets/gallery/_build-gallery.php brand `' . $gal_bk . '` accent ' . $gal_bv['accent']
+						. ' measures ' . number_format( $gal_ratio, 2 ) . ':1 against its --c-' . $gal_surf_name
+						. ' (' . $gal_surf_hex . ') below the 4.5:1 the eyebrow needs wherever it paints the'
+						. ' accent as text; the fix is darkening the accent, never demoting the text role'
+				);
+			}
+		}
+	}
+	if ( array() !== $gal_brands_src
+		&& ( false === strpos( $gal_gen_src, '< 7.0' ) || false === strpos( $gal_gen_src, '< 4.5' ) ) ) {
+		add(
+			'RT_GALLERY_ACCENT_TEXT_FAIL',
+			'FAIL',
+			'html-mockup',
+			'assets/gallery/_build-gallery.php no longer carries both the ground `< 7.0` gate and the'
+				. ' accent-as-text `< 4.5` gate this row re-measures against - drift between the static'
+				. ' check and the build-time gate is itself a failure the re-measurement above cannot see'
+				. ' through on its own'
+		);
+	}
+}
+
+/* ---- RT_MOCKUP_CONTAINER_FORK ---- */
+$ds_container_max = ( '' !== $ds_src ) ? design_system_container_max( $ds_src ) : null;
+if ( null !== $ds_container_max ) {
+	foreach ( $mockup_assets as $cf_path ) {
+		$cf_name = substr( $cf_path, strlen( $mockup_asset_root ) + 1 );
+		$cf_src  = slurp( $cf_path );
+		foreach ( gallery_container_max_values( $cf_src ) as $cf_val ) {
+			if ( $cf_val !== $ds_container_max ) {
+				add(
+					'RT_MOCKUP_CONTAINER_FORK',
+					'FAIL',
+					'html-mockup',
+					'assets/' . $cf_name . ' declares `--container-max:' . $cf_val . '` - design-system.md section'
+						. ' Contenedores states `' . $ds_container_max . '` as the house token, and every demo'
+						. ' reconciles a design brief TO that token rather than forking a new one (D3)'
+				);
+			}
+		}
+	}
+}
+
 $gallery_manifests_seen = array();
 foreach ( $mockup_assets as $gal_path ) {
 	$gal_name = substr( $gal_path, strlen( $mockup_asset_root ) + 1 );
@@ -2968,6 +3173,42 @@ foreach ( $mockup_assets as $gal_path ) {
 		continue;
 	}
 	$gal_where = 'assets/' . $gal_name;
+
+	/* ---- RT_GALLERY_AXIS_LEAK / RT_GALLERY_SINGLE_PAGE_DEMO ---- */
+	$gal_seg_page_keys = array();
+	foreach ( gallery_strip_segments( $gal_src ) as $gal_seg ) {
+		if ( '' === $gal_seg['tpl'] ) {
+			continue;
+		}
+		if ( '' === $gal_seg['brand'] ) {
+			add(
+				'RT_GALLERY_AXIS_LEAK',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' strip `' . $gal_seg['tpl'] . ' x ' . $gal_seg['pers'] . '` renders no data-brand'
+					. ' — a strip with no $BRANDS entry behind it is personality-anchor proof, not a catalogue'
+					. ' demo, and belongs under ux-design-system\'s own surface, not this gallery'
+			);
+			continue;
+		}
+		if ( preg_match_all( '/\bdata-page\s*=\s*"([^"]*)"/i', $gal_seg['html'], $gal_pg_m ) ) {
+			foreach ( $gal_pg_m[1] as $gal_pg ) {
+				$gal_seg_page_keys[ $gal_seg['tpl'] ][ $gal_pg ] = true;
+			}
+		}
+	}
+	foreach ( $gal_seg_page_keys as $gal_pg_tpl => $gal_pg_set ) {
+		if ( 1 === count( $gal_pg_set ) ) {
+			add(
+				'RT_GALLERY_SINGLE_PAGE_DEMO',
+				'WARN',
+				'html-mockup',
+				$gal_where . ' demo `' . $gal_pg_tpl . '` declares only one page (`' . implode( '', array_keys( $gal_pg_set ) )
+					. '`) — an Envato-grade demo names a home plus at least one inner page even when only the home is'
+					. ' built so far (D5); transitional until every surviving demo is multi-page, then ratchets to FAIL'
+			);
+		}
+	}
 
 	/* ---- RT_GALLERY_NOT_DISTINCT ---- */
 
@@ -3197,6 +3438,25 @@ foreach ( $mockup_assets as $gal_path ) {
 	 */
 
 	$gal_reg_n = gallery_register_count( $gal_man_src );
+
+	/* ---- RT_GALLERY_REGISTER_COUNT_MISMATCH ----
+	 * `count($BRANDS)` read off the BUILT gallery itself — the number of distinct non-empty
+	 * data-brand values this asset actually renders — rather than re-parsed from `$BRANDS` in PHP
+	 * source: a catalogue's surviving-demo count is a fact about what got built, and the audit's
+	 * own stated job is the built site. */
+	$gal_brand_n = count( array_unique( array_filter( array_column( $gal_strips, 'brand' ) ) ) );
+	if ( 0 < $gal_brand_n && null !== $gal_reg_n && $gal_reg_n < $gal_brand_n ) {
+		add(
+			'RT_GALLERY_REGISTER_COUNT_MISMATCH',
+			'FAIL',
+			'html-mockup',
+			'assets/' . $gal_man_rel . ' declares ' . $gal_reg_n . ' register row(s) but ' . $gal_where
+				. ' renders ' . $gal_brand_n . ' surviving branded demo(s) — the Registers table must carry at'
+				. ' least one row per surviving catalogue demo or the per-shoot cap is measured against a'
+				. ' looser divisor than the catalogue actually has'
+		);
+	}
+
 	if ( null === $gal_reg_n || 0 === $gal_reg_n ) {
 		add(
 			'RT_GALLERY_ONE_SHOOT',
