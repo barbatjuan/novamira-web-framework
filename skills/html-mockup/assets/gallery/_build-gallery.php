@@ -4535,6 +4535,23 @@ $CONTENT['TPL-E-03']['mtm'] = array(
 	),
 );
 
+/* R5 HARVEST, AHEAD OF THE AMPUTATION THAT KILLS TPL-E-03 — catalog-envato-grade PR2b, task 2b.4.
+ * `$CONTENT['TPL-E-03']['mtm']` above is the only rendering of `TPL-PDP-05` in this file; T-C1
+ * keeps `TPL-E-09` (medida) but retires `TPL-E-03`, and design.md's Decision C1 rescues this exact
+ * content block, re-skinned onto medida's own 6 photos, as medida's second page in PR8. Copying it
+ * now, before the deletion commit, is strictly cheaper than reconstructing it from a diff later.
+ *
+ * AN ISOLATED GLOBAL, NEVER `$CONTENT['_harvest']`. `$CONTENT` is walked a few hundred lines below
+ * this point — `foreach ( $CONTENT as $cn_k => $cn_v ) { … $cn_v['tpl'] … }` — and every entry in
+ * that walk is required to carry its own `tpl`/`arch`/`brand`/`head_mode` keys or the walk `fail()`s
+ * on the first missing one, through the same `set_error_handler()` that turns any PHP warning into
+ * a build failure. A staging entry nested under `$CONTENT` is not a template and would `fail()` the
+ * very next build, which is a worse outcome than the "e.g." key `sdd-tasks` suggested for this
+ * task turning out not to fit this file's own invariants.
+ */
+$HARVEST = array();
+$HARVEST['tpl-e03-mtm'] = $CONTENT['TPL-E-03']['mtm'];
+
 /* TPL-PDP-01 sobre TPL-E-04, la tienda organizada por categorías.
    MISMO ESQUELETO QUE LA DE TPL-E-02 Y ESO ES LA RESPUESTA, no un descuido. La mayoría de las
    tiendas necesitan la ficha estándar; lo que las distingue es el ancla y el contexto, no un
