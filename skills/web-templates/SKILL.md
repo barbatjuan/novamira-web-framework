@@ -12,7 +12,6 @@ metadata:
 Decide the ARCHITECTURE of a page — which sections exist, in what order, with what
 hierarchy — before deciding how it looks (`ux-design-system`) or building it
 (`elementor-core` / `divi-core`). Holds the archetypes, the recommender, and the toggles.
-Not one design in many colors: many architectures + a layer that picks and tunes one.
 
 ## Activation Contract
 Runs before `ux-design-system`. Prerequisite is conditional:
@@ -32,7 +31,7 @@ Builder-agnostic. Produces a resolved architecture spec. Modifies nothing on the
 
 ## Hard Rules
 - Decide architecture only. No visual code, no builder data, no deploy here.
-- Pick a base archetype, then adjust via toggles. Never assemble sections ad-hoc.
+- Resolve via `references/lanes.md`: catalog lane (pick + toggles) or bespoke — never ad-hoc.
 - A request that contradicts the archetype's DNA → recommend switching archetype, never
   deform the current one (no "add storytelling to the Catalog template").
 - ONE shared token STRUCTURE across every template (`references/design-system.md`): same names,
@@ -66,6 +65,7 @@ section's state resolved (kept/removed/swapped), the toggle answers, a pointer t
 tokens, and per-breakpoint notes. No visual or builder-specific code.
 
 ## References
+- `references/lanes.md` — two-lane resolution (catalog vs bespoke) + the promotion gate.
 - `references/design-system.md` — shared tokens (type, color, spacing, buttons, containers, radii).
 - `references/recommender.md` — CAPA 2: analysis, reference intake, signal→template map, page set.
 - `references/toggles.md` — CAPA 3: modular toggle catalog.

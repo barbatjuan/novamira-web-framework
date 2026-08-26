@@ -200,6 +200,8 @@ Compartidos entre ecommerce y corporate: `TGL-HERO-TYPE`, `TGL-HERO-HEIGHT`, `TG
 
 ## Notas
 
+- **El carril bespoke (`lanes.md`) no usa este catálogo.** Sin `TPL-*` que admita toggles, sus
+  secciones se declaran inline con ajustes propios por sección — nunca elegidos de esta lista.
 - Un toggle marcado **FIJO** o **bloqueado** en una plantilla no se pregunta (ej: `TGL-TESTIMONIALS`
   en TPL-E-03, `TGL-FAQ` en TPL-E-02, `TGL-CATEGORIES` en TPL-E-04, `TGL-MAP` en TPL-C-05).
 - Los toggles nunca rompen el ADN. No hay toggle "poné storytelling en TPL-E-02" — si el cliente

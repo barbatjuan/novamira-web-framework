@@ -10,7 +10,7 @@ metadata:
 # HTML Mockup (approval preview)
 
 Turn the resolved architecture (`web-templates`) + visual spec (`ux-design-system`) into static,
-responsive HTML/CSS the client can approve before paying for the fragile native build.
+responsive HTML/CSS the client can approve before the native build.
 
 ## Activation Contract
 Run after `ux-design-system` (tokens + patterns decided), BEFORE `elementor-core` / `divi-core`.
@@ -44,14 +44,15 @@ Its approved output is the visual contract `qa-review` checks the build against.
 2. Build ONE responsive file: semantic `header/main/section/footer`, one `.page` per page, only
    the sections resolved as kept/on. **Ecommerce only**: € prices, cart badge.
 3. Publish as ONE **Artifact** (title `<brand> — maqueta`, favicon emoji, one-line description).
-   Share the URL as a structural preview needing the user's visual confirmation.
-4. Collect approval or a per-page change list. Iterate the same file → republish to the same URL.
+   Share the URL for the user's visual confirmation.
+4. Collect approval — emit the handoff block (`references/handoff-block.md`, all eight fields) —
+   or a per-page change list. Iterate → republish to the same URL.
 5. On approval: freeze it as the visual contract and hand inventories + tokens + the resolved axis
    positions its `:root` declares to `elementor-core` / `divi-core`; the build must match it.
 
 ## Output Contract
-Return the Artifact URL, the per-page section inventory and the toggle states baked in. On
-iteration, report what changed.
+Return the Artifact URL, the per-page section inventory and the toggle states. On iteration,
+report what changed.
 
 ## References
 - `assets/ecommerce-mockup.html` — chassis, 7 pages (home · shop · pdp · cart · checkout · about ·

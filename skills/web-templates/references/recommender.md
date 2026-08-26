@@ -1,7 +1,8 @@
 # CAPA 2 — Recomendador
 
-Convierte "no sé qué plantilla" en "el agente me guía". Nunca construye desde cero: bifurca por
-tipo de sitio, analiza la marca, pide referencias, recomienda un `TPL-*`, confirma.
+Convierte "no sé qué plantilla" en "el agente me guía". Bifurca por tipo de sitio, analiza la
+marca, pide referencias, recomienda un `TPL-*` — o, si ninguno aplica, resuelve en lane bespoke
+(`lanes.md`). Nunca construye desde cero sin agotar antes el catálogo.
 
 ## Flujo
 
@@ -10,9 +11,15 @@ tipo de sitio, analiza la marca, pide referencias, recomienda un `TPL-*`, confir
 1. ANÁLISIS de marca/web
 2. INTAKE de referencias
 3. RECOMENDACIÓN (TPL-* + por qué)
+3b. SIN COINCIDENCIA → lane bespoke (razonamiento negativo registrado; ver `lanes.md`)
 4. CONFIRMACIÓN del usuario
-5. → pasa a CAPA 3 (toggles de esa plantilla)
+5. → pasa a CAPA 3 (toggles de esa plantilla), salvo bespoke: sus secciones se declaran inline
 ```
+
+Un resultado **bespoke** solo se promueve a `TPL-*` cuando pasa la misma auditoría que un
+arquetipo nativo: `RT_TPL_NO_WIREFRAME`, `RT_TPL_UNROUTABLE`, `RT_TPL_TOO_SIMILAR` y, según
+`catalog-wrapper-integrity`, `RT_TPL_NO_ENVOLTORIO` / `RT_TPL_WRAPPER_DUPLICATE`. Criterio de
+promoción: estricto, sin excepciones — detalle completo en `lanes.md`.
 
 ## 0. Tipo de sitio (bifurcación)
 

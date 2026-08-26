@@ -4618,6 +4618,172 @@ ok( 'FAIL' === fx_row_level( $out140, array( 'RT_TPL_NO_WIREFRAME', 'TPL-CONTACT
 ok( array() !== fx_lines_with( $out140, array( 'RT_TPL_NO_WIREFRAME', 'pages/contact/TPL-CONTACT-01-fixture.md' ) ), 'nombrando el ROL dentro de la ruta, para que el lector sepa que carpeta abrir', $out140 );
 fx_rrmdir( $r140 );
 
+/* ---------------------------------------------------------------------------
+   RT_RECOMMENDER_NO_LANE_FORK / RT_RECOMMENDER_PROMOTION_GATE_MISSING -- the two-lane contract
+   (template-lane-contract spec). recommender.md's "## Flujo" section must fork to bespoke after
+   step 3 (RECOMENDACION) when no TPL-* matches, and the promotion criterion that lets a bespoke
+   design join the catalogue must be named somewhere in recommender.md OR web-templates/SKILL.md.
+
+   Both rows are gated on recommender.md's own PRESENCE in the audited root, exactly like
+   RT_GALLERY_NOT_BUILT/RT_GALLERY_STALE gate on the generator's/fingerprint's presence
+   (tests/test-framework-audit.php L3868-3967's shape) -- fx_base() writes no recommender.md, so
+   neither row fires in any of the scenarios above that never opted in.
+   --------------------------------------------------------------------------- */
+
+/** Writes a minimal recommender.md with a Flow block (steps 0-3 fixed, the caller supplies
+    everything from step 4 onward) plus optional trailing prose, and optionally a web-templates
+    SKILL.md carrying its own extra prose -- so a scenario can put the promotion criterion in
+    either file without duplicating the whole fixture shape for each combination. */
+function fx_rec( $root, $flow_after_step3, $extra = '', $skill_extra = '' ) {
+	fx(
+		$root,
+		'skills/web-templates/references/recommender.md',
+		"# CAPA 2 - Recomendador\n\n"
+			. "## Flujo\n\n```\n0. TIPO DE SITIO\n1. ANALISIS\n2. INTAKE\n3. RECOMENDACION (TPL-* + por que)\n"
+			. $flow_after_step3
+			. "```\n\n" . $extra
+	);
+	if ( '' !== $skill_extra ) {
+		fx(
+			$root,
+			'skills/web-templates/SKILL.md',
+			"---\nname: web-templates\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
+				. "Token names and values live in design-system.md.\n\n" . $skill_extra
+		);
+	}
+}
+
+echo "--- recommender.md with no bespoke fork after step 3 is RT_RECOMMENDER_NO_LANE_FORK ---\n";
+$r141 = fx_tmp_root();
+fx_base( $r141 );
+fx_rec( $r141, "4. CONFIRMACION del usuario\n5. -> pasa a CAPA 3\n" );
+list( , $out141 ) = fx_run_ok( $audit, $r141 );
+ok( 'FAIL' === fx_row_level( $out141, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ), 'no bespoke fork after step 3 FAILs', fx_row_level( $out141, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ) );
+fx_rrmdir( $r141 );
+
+echo "--- recommender.md WITH the bespoke fork after step 3, and a promotion criterion, clears both rows ---\n";
+$r142 = fx_tmp_root();
+fx_base( $r142 );
+fx_rec(
+	$r142,
+	"3b. SIN COINCIDENCIA -> lane bespoke (razonamiento negativo registrado)\n4. CONFIRMACION del usuario\n5. -> pasa a CAPA 3, salvo bespoke\n",
+	"Un resultado bespoke solo se promueve a `TPL-*` si pasa `RT_TPL_NO_WIREFRAME`, `RT_TPL_UNROUTABLE`, `RT_TPL_TOO_SIMILAR` y (per catalog-wrapper-integrity) `RT_TPL_NO_ENVOLTORIO` / `RT_TPL_WRAPPER_DUPLICATE`. Criterio de promocion: estricto, cero excepciones.\n"
+);
+list( , $out142 ) = fx_run_ok( $audit, $r142 );
+ok( array() === fx_lines_with( $out142, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ), 'the bespoke fork after step 3 clears the row', $out142 );
+ok( array() === fx_lines_with( $out142, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'and a stated promotion criterion clears its own row too', $out142 );
+fx_rrmdir( $r142 );
+
+echo "--- a bespoke mention BEFORE the Flow section does not count as the fork -- it must come after step 3 ---\n";
+$r143 = fx_tmp_root();
+fx_base( $r143 );
+fx(
+	$r143,
+	'skills/web-templates/references/recommender.md',
+	"# CAPA 2\n\nEste flujo nunca ofrece bespoke sin coincidencia real.\n\n## Flujo\n\n```\n0. TIPO\n1. ANALISIS\n2. INTAKE\n3. RECOMENDACION\n4. CONFIRMACION\n5. FIN\n```\n"
+);
+list( , $out143 ) = fx_run_ok( $audit, $r143 );
+ok( 'FAIL' === fx_row_level( $out143, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ), 'a bespoke mention before the Flow section (prose above it) does not satisfy the fork', fx_row_level( $out143, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ) );
+fx_rrmdir( $r143 );
+
+echo "--- the fork alone, with no promotion criterion anywhere, still leaves RT_RECOMMENDER_PROMOTION_GATE_MISSING ---\n";
+$r144 = fx_tmp_root();
+fx_base( $r144 );
+fx_rec( $r144, "3b. SIN COINCIDENCIA -> lane bespoke\n4. CONFIRMACION del usuario\n5. FIN\n" );
+list( , $out144 ) = fx_run_ok( $audit, $r144 );
+ok( array() === fx_lines_with( $out144, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ), 'the fork alone clears RT_RECOMMENDER_NO_LANE_FORK', $out144 );
+ok( 'FAIL' === fx_row_level( $out144, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'but naming no promotion criterion at all still FAILs', fx_row_level( $out144, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ) );
+fx_rrmdir( $r144 );
+
+echo "--- the bare word \"promocion\", with no RT_TPL_* row backticked beside it, is still MISSING ---\n";
+$r145 = fx_tmp_root();
+fx_base( $r145 );
+fx_rec( $r145, "3b. SIN COINCIDENCIA -> lane bespoke\n4. CONFIRMACION\n5. FIN\n", "Hay un criterio de promocion para el bespoke, pero esta frase no nombra ninguna fila.\n" );
+list( , $out145 ) = fx_run_ok( $audit, $r145 );
+ok( 'FAIL' === fx_row_level( $out145, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'the bare word "promocion" with no backticked RT_TPL_* row still FAILs -- naming the word alone is a slogan', fx_row_level( $out145, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ) );
+fx_rrmdir( $r145 );
+
+echo "--- the promotion word and an RT_TPL_* row in DIFFERENT paragraphs still MISSES -- proximity, not mere co-occurrence ---\n";
+/* Caught by running the detector against the real tree, not assumed: recommender.md already says
+   "promos"/"Promo / Campaign" for an unrelated ecommerce archetype, and web-templates/SKILL.md
+   already backticks `RT_TPL_TOO_SIMILAR` for an unrelated Hard Rule -- a bare co-occurrence check
+   over the whole haystack cleared the row on that alone, with no promotion criterion ever written. */
+$r145b = fx_tmp_root();
+fx_base( $r145b );
+fx_rec(
+	$r145b,
+	"3b. SIN COINCIDENCIA -> lane bespoke\n4. CONFIRMACION\n5. FIN\n",
+	"Este flujo tambien maneja promos de temporada, sin relacion con el bespoke.\n\nAparte, todo wireframe respeta `RT_TPL_TOO_SIMILAR` en su propio arquetipo.\n"
+);
+list( , $out145b ) = fx_run_ok( $audit, $r145b );
+ok( 'FAIL' === fx_row_level( $out145b, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'a stray "promo" word and an unrelated RT_TPL_* mention in two different paragraphs still FAILs', fx_row_level( $out145b, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ) );
+fx_rrmdir( $r145b );
+
+echo "--- the promotion criterion may live in web-templates/SKILL.md instead of recommender.md ---\n";
+$r146 = fx_tmp_root();
+fx_base( $r146 );
+fx_rec(
+	$r146,
+	"3b. SIN COINCIDENCIA -> lane bespoke\n4. CONFIRMACION\n5. FIN\n",
+	'',
+	"Criterio de promocion del bespoke: debe pasar `RT_TPL_NO_ENVOLTORIO` como cualquier arquetipo nativo.\n"
+);
+list( , $out146 ) = fx_run_ok( $audit, $r146 );
+ok( array() === fx_lines_with( $out146, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'a promotion criterion named in web-templates/SKILL.md alone also clears the row', $out146 );
+fx_rrmdir( $r146 );
+
+echo "--- no recommender.md at all never produces either row -- both are conditioned on its presence ---\n";
+$r147 = fx_tmp_root();
+fx_base( $r147 );
+list( , $out147 ) = fx_run_ok( $audit, $r147 );
+ok( array() === fx_lines_with( $out147, array( 'RT_RECOMMENDER_NO_LANE_FORK' ) ), 'no recommender.md -> no RT_RECOMMENDER_NO_LANE_FORK', $out147 );
+ok( array() === fx_lines_with( $out147, array( 'RT_RECOMMENDER_PROMOTION_GATE_MISSING' ) ), 'no recommender.md -> no RT_RECOMMENDER_PROMOTION_GATE_MISSING either', $out147 );
+fx_rrmdir( $r147 );
+
+/* ---------------------------------------------------------------------------
+   RT_ORCH_NO_GALLERY_STEP -- a router agent (one carrying "## Routing map") must name a
+   gallery-consultation step before web-templates commits to an archetype (gallery-information-
+   architecture spec). Not gated on any file's presence: fx_base() writes no agents/*.md at all, so
+   the row simply never fires above -- the same reason RT_AGENT_CODE_BLOCK/RT_AGENT_ROUTE_MISSING
+   never fire against fx_base() alone.
+   --------------------------------------------------------------------------- */
+
+echo "--- a router agent naming no gallery step anywhere is RT_ORCH_NO_GALLERY_STEP ---\n";
+$r148 = fx_tmp_root();
+fx_base( $r148 );
+fx(
+	$r148,
+	'agents/orchestrator.md',
+	"---\nname: orchestrator\n---\n\n## Routing map\n| Need | Skill |\n|------|-------|\n| Architecture | `web-templates` |\n\n"
+		. "## Order that works\n`web-templates` -> `ux-design-system` -> `html-mockup`.\n\n"
+		. "## House rules\n- Routes work.\n  (no verifier: a fixture rule, here only so the agent states something.)\n"
+);
+list( , $out148 ) = fx_run_ok( $audit, $r148 );
+ok( 'FAIL' === fx_row_level( $out148, array( 'RT_ORCH_NO_GALLERY_STEP' ) ), 'a router agent with no gallery mention anywhere FAILs', fx_row_level( $out148, array( 'RT_ORCH_NO_GALLERY_STEP' ) ) );
+fx_rrmdir( $r148 );
+
+echo "--- the same router agent, naming the gallery-consultation step, clears the row ---\n";
+$r149 = fx_tmp_root();
+fx_base( $r149 );
+fx(
+	$r149,
+	'agents/orchestrator.md',
+	"---\nname: orchestrator\n---\n\n## Routing map\n| Need | Skill |\n|------|-------|\n| Architecture | `web-templates` |\n\n"
+		. "## Order that works\nConsult the catalogue gallery (`skills/html-mockup/assets/gallery/`) -> `web-templates` -> `ux-design-system` -> `html-mockup`.\n\n"
+		. "## House rules\n- Routes work.\n  (no verifier: a fixture rule, here only so the agent states something.)\n"
+);
+list( , $out149 ) = fx_run_ok( $audit, $r149 );
+ok( array() === fx_lines_with( $out149, array( 'RT_ORCH_NO_GALLERY_STEP' ) ), 'naming the gallery step clears the row', $out149 );
+fx_rrmdir( $r149 );
+
+echo "--- an agent with NO routing map is never asked for a gallery step -- only a router owes one ---\n";
+$r150 = fx_tmp_root();
+fx_base( $r150 );
+fx( $r150, 'agents/sidekick.md', "---\nname: sidekick\n---\n\n## House rules\n- Does one thing.\n  (no verifier: a fixture rule, here only so the agent states something.)\n" );
+list( , $out150 ) = fx_run_ok( $audit, $r150 );
+ok( array() === fx_lines_with( $out150, array( 'RT_ORCH_NO_GALLERY_STEP' ) ), 'a non-router agent with no "## Routing map" is never accused of missing the gallery step', $out150 );
+fx_rrmdir( $r150 );
+
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );
 sort( $fx_observed );

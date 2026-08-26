@@ -81,6 +81,7 @@ const ROW_TYPES = array(
 	'RT_AGENT_CODE_BLOCK'        => 'FAIL  — an agent markdown file contains a code block',
 	'RT_AGENT_ROUTE_MISSING'     => 'FAIL  — an agent routes to a skill that does not exist',
 	'RT_AGENT_SKILL_UNMENTIONED' => 'WARN  — an agent never mentions an existing skill',
+	'RT_ORCH_NO_GALLERY_STEP'    => 'FAIL  — a router agent names no gallery-consultation step before it routes to web-templates',
 	'RT_HOUSERULES_NO_VERDICT'   => 'FAIL  — a house-rules.md row has no verdict source',
 	'RT_HOUSERULES_MISSING'      => 'FAIL  — qa-review/references/house-rules.md is missing',
 	'RT_QA_NO_AXIS_CHECK'        => 'FAIL  — the house rules never name an axis declaration the mockup gate demands',
@@ -96,6 +97,8 @@ const ROW_TYPES = array(
 	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
 	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
 	'RT_TPL_UNROUTABLE'          => 'FAIL  — a TPL-*.md exists that recommender.md or its folder _README.md never names, so nothing can route a client to it',
+	'RT_RECOMMENDER_NO_LANE_FORK' => 'FAIL  — recommender.md\'s Flow declares no bespoke fork after step 3',
+	'RT_RECOMMENDER_PROMOTION_GATE_MISSING' => 'FAIL  — recommender.md/web-templates/SKILL.md names no promotion criterion for a bespoke design',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
 	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
 	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
@@ -826,6 +829,16 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 				add( 'RT_AGENT_SKILL_UNMENTIONED', 'WARN', $name, 'never mentions skill "' . $sk . '" — unroutable through this agent, which carries a routing map' );
 			}
 		}
+		/* gallery-information-architecture: a router owes the gallery a step, not only every skill a
+		   mention. Before this, an archetype could be recommended by a router that had never sent
+		   anyone to look at what the catalogue already ships -- the same silent gap RT_CATALOG_UNMENTIONED
+		   closes one layer down, for ux-design-system's own personality catalog. Checked on the whole
+		   agent doc rather than one heading only, matching RT_QA_NO_AXIS_CHECK's presence shape: the
+		   step may legitimately live in "## Routing map" or in "## Order that works", and demanding one
+		   exact heading is a rule an author retitles their way out of by accident. */
+		if ( false === stripos( $src, 'gallery' ) ) {
+			add( 'RT_ORCH_NO_GALLERY_STEP', 'FAIL', $name, 'routing map names no gallery-consultation step — web-templates can commit to an archetype before anyone has looked at what the catalogue gallery already ships' );
+		}
 	}
 
 	/* The orchestrator's House rules get the SAME grammar as a write-capable skill's Hard Rules,
@@ -841,6 +854,91 @@ foreach ( glob( $root . '/agents/*.md' ) as $agent ) {
 		add( 'RT_AGENT_NO_HOUSE_RULES', 'FAIL', $name, 'this agent states no House rules — no "## House rules" section, or one with no "- " bullets under it' );
 	} else {
 		marker_walk( $name, $house, true, 'House rule', $name );
+	}
+}
+
+/* ------------------------------------- web-templates recommender: lane fork + promotion gate
+ *
+ * template-lane-contract: every recommendation resolves to catálogo or bespoke, never a forced
+ * TPL-* over a brief that matches none. Two rows, both document-section-presence checks (the
+ * RT_QA_NO_AXIS_CHECK shape), both gated on recommender.md's own PRESENCE in the audited root --
+ * exactly like RT_GALLERY_NOT_BUILT/RT_GALLERY_STALE gate on the generator's/fingerprint's
+ * presence -- so a fixture root that never opts into this file is never accused of a contract it
+ * never claimed to carry.
+ */
+$recommender_file = $root . '/skills/web-templates/references/recommender.md';
+if ( file_exists( $recommender_file ) ) {
+	$rec_src = slurp( $recommender_file );
+
+	/* The "## Flujo" (Spanish, current) or "## Flow" (a future rename) section, everything up to
+	   the next top-level heading or EOF. Plain string search rather than a single regex: the Flow
+	   step lines carry accented Spanish ("RECOMENDACIÓN") that a byte-oriented character class
+	   handles unreliably, and every boundary this needs -- the heading, the step-3 line, the
+	   "bespoke"/"sin coincidencia" tokens -- is itself plain ASCII. */
+	$flow_pos = stripos( $rec_src, '## Flujo' );
+	if ( false === $flow_pos ) {
+		$flow_pos = stripos( $rec_src, '## Flow' );
+	}
+	$fork_ok = false;
+	if ( false !== $flow_pos ) {
+		$flow_rest    = substr( $rec_src, $flow_pos );
+		$next_heading = strpos( $flow_rest, "\n## ", 1 );
+		$flow_block   = ( false !== $next_heading ) ? substr( $flow_rest, 0, $next_heading ) : $flow_rest;
+
+		/* Step 3 is RECOMENDACIÓN. The fork must come AFTER that step's own line, never before it
+		   (a "bespoke" glossary blurb earlier in the file does not prove the FLOW forks there) --
+		   found by mutating a fixture that moved the same prose above "## Flujo" entirely. */
+		$flow_lines = explode( "\n", $flow_block );
+		$step3_idx  = null;
+		foreach ( $flow_lines as $fl_i => $fl_line ) {
+			if ( 0 === strpos( ltrim( $fl_line ), '3.' ) ) {
+				$step3_idx = $fl_i;
+				break;
+			}
+		}
+		if ( null !== $step3_idx ) {
+			$after_step3 = implode( "\n", array_slice( $flow_lines, $step3_idx + 1 ) );
+			$fork_ok     = ( false !== stripos( $after_step3, 'bespoke' ) )
+				&& ( false !== stripos( $after_step3, 'sin coincidencia' ) );
+		}
+	}
+	if ( ! $fork_ok ) {
+		add(
+			'RT_RECOMMENDER_NO_LANE_FORK',
+			'FAIL',
+			'web-templates',
+			'recommender.md\'s Flow declares no "sin coincidencia -> bespoke" step after step 3 (RECOMENDACIÓN) — a brief matching no TPL-* has nowhere documented to go'
+		);
+	}
+
+	/* Promotion gate: the WORD alone is a slogan (recommender.md already says "promos"/"Promo
+	   Campaign" for an unrelated ecommerce archetype, and web-templates/SKILL.md already backticks
+	   `RT_TPL_TOO_SIMILAR` for an unrelated Hard Rule — found by running this against the real
+	   tree, not assumed), and a bare row id alone could be any other rule. So both must be named
+	   IN THE SAME PARAGRAPH, in either recommender.md or web-templates/SKILL.md, mirroring the
+	   proximity `RT_MOCKUP_GRID_AUTOFILL` already uses for its own justification comment. */
+	$wt_skill_file  = $root . '/skills/web-templates/SKILL.md';
+	$promo_haystack = $rec_src . "\n\n" . ( file_exists( $wt_skill_file ) ? slurp( $wt_skill_file ) : '' );
+	$promo_rt_ids   = array( 'RT_TPL_NO_WIREFRAME', 'RT_TPL_UNROUTABLE', 'RT_TPL_TOO_SIMILAR', 'RT_TPL_NO_ENVOLTORIO', 'RT_TPL_WRAPPER_DUPLICATE' );
+	$has_promo_gate = false;
+	foreach ( preg_split( '/\n[ \t]*\n/', $promo_haystack ) as $promo_para ) {
+		if ( false === stripos( $promo_para, 'promo' ) ) {
+			continue;
+		}
+		foreach ( $promo_rt_ids as $promo_rt_id ) {
+			if ( false !== strpos( $promo_para, '`' . $promo_rt_id . '`' ) ) {
+				$has_promo_gate = true;
+				break 2;
+			}
+		}
+	}
+	if ( ! $has_promo_gate ) {
+		add(
+			'RT_RECOMMENDER_PROMOTION_GATE_MISSING',
+			'FAIL',
+			'web-templates',
+			'recommender.md/web-templates/SKILL.md names no promotion criterion — a bespoke design has no stated gate before it can join the catalogue'
+		);
 	}
 }
 

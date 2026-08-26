@@ -69,7 +69,8 @@ let it run that dialogue; don't front-run it.
 | Need | Skill |
 |------|-------|
 | Detect stack, plugins, constraints, brand | `project-context` |
-| Choose page architecture (which sections, order) + recommend a template + references + toggles | `web-templates` |
+| Consult already-built demos in the catalogue gallery, before recommending an archetype | `html-mockup` (`skills/html-mockup/assets/gallery/`) |
+| Choose page architecture (which sections, order) + recommend a template + references + toggles, or resolve bespoke when no template fits | `web-templates` |
 | Visual language: layout, spacing, hovers, cards, responsive (builder-agnostic) | `ux-design-system` |
 | Static HTML mockup for client approval before the native build | `html-mockup` |
 | Build/deploy on Elementor (raw PHP → `_elementor_data`) | `elementor-core` |
@@ -90,7 +91,9 @@ the word "texto" mid-deploy would start rewriting a live site's content over a c
 
 ## Order that works
 **New site (greenfield) — no WordPress touched until the build gate:**
-`new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
+`new/existing?` (new) → consult the catalogue gallery for demos already proven
+(`skills/html-mockup/assets/gallery/`) → `web-templates` (site type → catalog-lane `TPL-*` match or
+bespoke fork when none fits, see `web-templates/references/lanes.md`; + references + toggles) →
 `ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
 `project-context` (now, to confirm the connected WP: connector, builder, theme) →
 `elementor-theme-parts` (header/footer FIRST, so the pages inherit them; **Elementor only** — on
@@ -99,8 +102,10 @@ Divi the skill itself stops at step 1, no Theme Builder equivalent exists yet) �
 if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review` → `visual-verification`.
 
 **Existing site:**
-`new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
-`html-mockup` (approve) → **build gate** → `elementor-theme-parts` (Elementor only, same caveat) →
+`new/existing?` (existing) → `project-context` (inspect) → consult the catalogue gallery
+(`skills/html-mockup/assets/gallery/`) → `web-templates` (catalog-lane match or bespoke fork) →
+`ux-design-system` → `html-mockup` (approve) → **build gate** → `elementor-theme-parts` (Elementor
+only, same caveat) →
 `elementor-core` | `divi-core` → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
 if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review` → `visual-verification`.
 
