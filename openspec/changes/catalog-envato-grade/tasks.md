@@ -144,37 +144,71 @@ Files: `framework-audit.php`, `tests/test-framework-audit.php`, `CONTRIBUTING.md
 `.md` deletions under `templates/corporate/` and `templates/ecommerce/`, `recommender.md`, both
 `_README.md`, `_build-gallery.php`, `_gallery-images.md`.
 
-- [ ] 2b.1 [RED] tests for `RT_GALLERY_AXIS_LEAK` (strip with no `$BRANDS` key), `RT_GALLERY_REGISTER_COUNT_MISMATCH`
+- [x] 2b.1 [RED] tests for `RT_GALLERY_AXIS_LEAK` (strip with no `$BRANDS` key), `RT_GALLERY_REGISTER_COUNT_MISMATCH`
       (`gallery_register_count() < count($BRANDS)`), `RT_MOCKUP_CONTAINER_FORK` (container-max
       literal ≠ `design-system.md:138`), `RT_GALLERY_ACCENT_TEXT_FAIL` (accent <4.5:1 re-measured
       against `$BRANDS` + drift check on the `4.5`/`7.0` literals at `:659-686`) — all FAIL.
-- [ ] 2b.2 [RED] test for `RT_GALLERY_SINGLE_PAGE_DEMO` at **WARN** (T-C5 — medida already violates
-      it; do not ship at FAIL here).
-- [ ] 2b.3 [GREEN] implement all five rows; register in `ROW_TYPES` + `CONTRIBUTING.md`.
-- [ ] 2b.4 **Harvest before delete**: copy `$CONTENT['TPL-E-03']['mtm']` (`_build-gallery.php:4466`)
+      DONE: 5 new scenarios, RED verified via `git stash` of the implementation (9 FAIL), GREEN
+      after restore (748 OK / 0 FAIL). Commit `d81ebcf`.
+- [x] 2b.2 [RED] test for `RT_GALLERY_SINGLE_PAGE_DEMO` at **WARN** (T-C5 — medida already violates
+      it; do not ship at FAIL here). DONE: included in the same RED/GREEN cycle as 2b.1, same commit.
+- [x] 2b.3 [GREEN] implement all five rows; register in `ROW_TYPES` + `CONTRIBUTING.md`. DONE, commit `d81ebcf`.
+      `RT_GALLERY_AXIS_LEAK`/`RT_GALLERY_REGISTER_COUNT_MISMATCH` read the BUILT gallery's own
+      `data-brand` attribute rather than re-parsing `$STRIPS`/`$BRANDS` PHP source (matches this
+      audit's stated "built site" scope); `RT_GALLERY_ACCENT_TEXT_FAIL` does parse `$BRANDS` from
+      PHP source, since it independently re-measures rather than trusting the built output.
+- [x] 2b.4 **Harvest before delete**: copy `$CONTENT['TPL-E-03']['mtm']` (`_build-gallery.php:4466`)
       to a staging key (e.g. `$CONTENT['_harvest']['tpl-e03-mtm']`) in its own commit, ahead of the
-      TPL-E-03 content-block removal in 2b.6.
-- [ ] 2b.5 Delete the 16 non-surviving `TPL-*.md` files; rewrite `recommender.md`'s active set to
+      TPL-E-03 content-block removal in 2b.6. DONE, commit `9cd1bca`, as an isolated `$HARVEST`
+      global rather than the illustrative `$CONTENT['_harvest']` key: `$CONTENT` is walked by a
+      validation loop requiring every entry to carry `tpl`/`arch`/`brand`/`head_mode`, and a staging
+      entry nested under `$CONTENT` fails that walk on the very next build. In the 2b.6 commit, once
+      `TPL-E-03` is actually deleted, the live reference is inlined into a standalone array literal
+      (same bytes, no longer a pointer to a key that no longer exists).
+- [x] 2b.5 Delete the 16 non-surviving `TPL-*.md` files; rewrite `recommender.md`'s active set to
       the 7 survivors; record `TPL-C-13`'s disposition explicitly (deleted, named replacement
       `TPL-C-15 · Cartera curada`, arriving PR3a) per `catalog-wrapper-integrity` Requirement 5.
       Rewrite both `templates/corporate/_README.md` and `templates/ecommerce/_README.md`
-      dispositions to match.
-- [ ] 2b.6 Prune `_build-gallery.php`: orphaned render functions/`$CONTENT`/`$STRIPS`/`$PAGES`/
+      dispositions to match. DONE, commit `c2bb1d1`.
+- [x] 2b.6 Prune `_build-gallery.php`: orphaned render functions/`$CONTENT`/`$STRIPS`/`$PAGES`/
       `$BRANDS` entries for the 16 dead archetypes (TPL-E-03's block only after 2b.4's harvest);
       move the 55 axis-proof strips out of the catalogue gallery surface (`RT_GALLERY_AXIS_LEAK`
-      target).
-- [ ] 2b.7 `_gallery-images.md`: **same commit as 2b.6** — replace the 4-row house Registers table
+      target). DONE, commit `c2bb1d1`, via a token-aware (`token_get_all()`) deletion script, never
+      line-based regex. Deleted 55 `$CONTENT` entries (16 top-level + 39 appended inner-page
+      statements), 60 of 67 `$STRIPS` entries, 16 `$PAGES` entries, 5 `$BRANDS` entries, 15 of 16
+      `strip_XXX()` home-render functions and their 34 dangling `render_page_inner()` dispatch
+      blocks. `strip_property()`/`TPL-C-13`'s four dispatch blocks are the one deliberate exception
+      — left untouched for PR3a to re-key in place, per the orchestrator's explicit citation of that
+      code region. Discovered mid-task: three unconditional, build-time contrast-sweep mechanisms
+      (`$BG_SLUG`, `$SLIDER_FRAMES`, `$INK_SWATCH`) hard-depend on five house images
+      (`hero-cantera`, `hero-taller`, `hero-encimera`, `sq-marmol`, `sq-pizarra`) regardless of which
+      archetypes exist; all five are kept alive in `_gallery-images.md` for that reason alone, not
+      because any surviving archetype renders them.
+- [x] 2b.7 `_gallery-images.md`: **same commit as 2b.6** — replace the 4-row house Registers table
       (`:148-159`) with a 10-row per-demo table (one per final demo, `lumiere`…`medida`, including
       placeholders for `delao`/lawyers/gyms not yet built). Delete the 15 `inmo-*` rows and retired
       brands' manifest rows. Commit body MUST print `N` (surviving manifest rows) and
       `R=10` and `ceil(N/R)`; if any `fp-` shoot exceeds the cap, diversify the shoot — do not
-      retune `R`.
-- [ ] 2b.8 Regenerate: `php skills/html-mockup/assets/gallery/_build-gallery.php` (~20s).
+      retune `R`. DONE, commit `c2bb1d1`. **N=55, R=10, ceil(N/R)=6, largest shoot bucket=2** (well
+      under the cap; no diversification needed). N is 55, not the ~51 estimated while writing this
+      checklist, because of the five generator-dependency images discovered during 2b.6 (see above)
+      that stay in the manifest with no owning archetype. A separate two-line `Row/Slug` table for
+      the Material-pair requirement (`sq-marmol`/`sq-pizarra`) is kept OUTSIDE the 10-row Registers
+      table so it is never counted as an eleventh demo register.
+- [x] 2b.8 Regenerate: `php skills/html-mockup/assets/gallery/_build-gallery.php` (~20s). DONE —
+      exit 0, ~12s, commit `c2bb1d1` (index.html itself is gitignored, not part of the diff).
 - [ ] 2b.9 Full-sweep `visual-verification` (`skills/visual-verification/SKILL.md`) — every strip
-      at every anchor, never a sample.
-- [ ] 2b.10 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
+      at every anchor, never a sample. **NOT DONE by sdd-apply — no browser tooling available in
+      this execution context.** Owned by the orchestrator, to run separately once the regenerated
+      gallery (commit `c2bb1d1`) is available.
+- [x] 2b.10 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
       → 0 FAIL, WARN drops to 4 (baseline) + 5 (`RT_TPL_NO_ENVOLTORIO` for the T-C3 survivors) + 1
-      (`RT_GALLERY_SINGLE_PAGE_DEMO` for medida) = 10, tests ≥1193 OK.
+      (`RT_GALLERY_SINGLE_PAGE_DEMO` for medida) = 10, tests ≥1193 OK. DONE, exact match:
+      `0 FAIL / 10 WARN / 0 JUDGE across 15 skills + 2 agent(s)`. Full chain:
+      `test-framework-audit` 738 + `test-write-path` 426 + `test-container-hygiene` 81 +
+      `test-audit-signals` 22 = **1267 OK / 0 FAIL** (was 1254 after PR2a). The PR2a-era acceptance
+      test for "all seven real Envoltorio tables" was updated to the two that still exist on disk
+      post-amputation (`TPL-C-14`, `TPL-E-07`); the other five it named are among the 16 deleted.
 
 ---
 
