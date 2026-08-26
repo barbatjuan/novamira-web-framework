@@ -97,6 +97,8 @@ const ROW_TYPES = array(
 	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
 	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
 	'RT_TPL_UNROUTABLE'          => 'FAIL  — a TPL-*.md exists that recommender.md or its folder _README.md never names, so nothing can route a client to it',
+	'RT_TPL_NO_ENVOLTORIO'       => 'WARN  — a home TPL-*.md declares no table with a header cell reading `Envoltorio`, or its catch-all row is ambiguous (ratchets to FAIL once every surviving archetype carries one)',
+	'RT_TPL_WRAPPER_DUPLICATE'   => 'FAIL  — two home archetypes of one family declare the identical ordered Envoltorio shape sequence',
 	'RT_RECOMMENDER_NO_LANE_FORK' => 'FAIL  — recommender.md\'s Flow declares no bespoke fork after step 3',
 	'RT_RECOMMENDER_PROMOTION_GATE_MISSING' => 'FAIL  — recommender.md/web-templates/SKILL.md names no promotion criterion for a bespoke design',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
@@ -1268,6 +1270,136 @@ function tpl_wireframe_comps( $src ) {
 	return array( array_keys( $comps ), $prose );
 }
 
+/* --------------------------------------------------------------- the wrapper is not the inventory
+ *
+ * `tpl_wireframe_comps()` above answers WHICH sections an archetype declares. It says nothing
+ * about HOW each one sits on the page, and that gap is exactly the one `TPL-C-14` (Lumière)
+ * closes with a table its own prose calls out: thirteen earlier archetypes wrapped every section
+ * the same way — band, centered container, header, list — so two archetypes with different
+ * inventories still read as the same page with a different palette. Seven archetypes already
+ * carry that table today (`TPL-C-03`, `TPL-C-05`, `TPL-C-06`, `TPL-C-13`, `TPL-C-14`, `TPL-E-01`,
+ * `TPL-E-07`); this closes the loop by reading it.
+ *
+ * FOUND BY HEADER CELL, never by heading — mirrors `gallery_register_count()` (`:2478`), for the
+ * identical reason: the table sits inside "## 2. Wireframe" with no heading of its own, so a
+ * heading search would find nothing on any of the seven files that already comply, `TPL-C-14`
+ * included, and the gate's own acceptance test is that it must NOT fail its own reference
+ * implementation.
+ *
+ * THE CATCH-ALL ROW IS THE SHAPE SIX OF THE SEVEN USE. `| El resto | contenido | |` is a real
+ * data row whose first cell is not a `COMP-*` id — a detector demanding one in every row would
+ * FAIL `TPL-C-03`, `TPL-C-05`, `TPL-C-06`, `TPL-C-13`, `TPL-E-01` and `TPL-E-07` on the exact
+ * convention the spec's own Purpose says they already follow. So a non-`COMP-*` row is read as
+ * THE catch-all, keyed `'*'`, and AT MOST ONE is legal — a second one means the table no longer
+ * says which default applies to an unlisted section, which is a table that stopped being a
+ * contract, not a table with one entry too many. Only `TPL-C-14` names a `COMP-*` id on every row
+ * and carries no catch-all at all; the six others have exactly one.
+ */
+
+/**
+ * The Envoltorio table out of a home `TPL-*.md`'s source.
+ *
+ * Returns:
+ *   null                      — no table carries a header cell reading, trimmed and
+ *                                case-insensitively, exactly `Envoltorio`
+ *   array( 'error' => $msg )  — a table was found but a SECOND catch-all row makes it ambiguous
+ *   array( 'rows'  => $rows ) — `$rows` maps a `COMP-*` id (or `'*'` for the one legal catch-all)
+ *                               to that cell's raw, un-normalized text
+ */
+function tpl_envoltorio_table( $src ) {
+	foreach ( gallery_md_tables( $src ) as $block ) {
+		$header = gallery_cells( $block[0][1] );
+		$col    = null;
+		foreach ( $header as $ci => $cell ) {
+			if ( 'envoltorio' === strtolower( trim( $cell, " \t`*" ) ) ) {
+				$col = $ci;
+			}
+		}
+		if ( null === $col ) {
+			continue;
+		}
+		$rows          = array();
+		$catchall_seen = false;
+		foreach ( array_slice( $block, 1 ) as $r ) {
+			$cells = gallery_cells( $r[1] );
+			if ( gallery_is_separator( $cells ) || ! isset( $cells[0] ) || ! isset( $cells[ $col ] ) ) {
+				continue;
+			}
+			$raw = $cells[ $col ];
+			if ( preg_match( '/COMP-[A-Z0-9-]+/', $cells[0], $cm ) ) {
+				$rows[ $cm[0] ] = $raw;
+				continue;
+			}
+			if ( $catchall_seen ) {
+				return array(
+					'error' => 'declares a SECOND catch-all row ("' . trim( $cells[0], " \t`*" ) . '") in its Envoltorio table — at most one row may skip a `COMP-*` id, or the table no longer says which default an unlisted section gets',
+				);
+			}
+			$catchall_seen = true;
+			$rows['*']     = $raw;
+		}
+		/* First matching table wins, same discipline as `gallery_register_count()`. */
+		return array( 'rows' => $rows );
+	}
+	return null;
+}
+
+/**
+ * Free Spanish prose, normalized to the three shapes `sec_open($cls, $label, $shape)` already
+ * accepts (`_build-gallery.php:15468`). `banda` is tested FIRST: `TPL-C-14` phrases one row
+ * `"banda a sangre"`, and testing order is what keeps that row from ever reading as `fila` —
+ * not an assumption about which word the vocabulary favours.
+ */
+function env_shape( $raw ) {
+	$v = strtolower( $raw );
+	if ( false !== strpos( $v, 'banda' ) ) {
+		return 'bleed';
+	}
+	if ( false !== strpos( $v, 'fila' ) ) {
+		return 'row';
+	}
+	return 'contained';
+}
+
+/**
+ * The ordered, normalized shape sequence for a home archetype — one entry per wireframe section,
+ * in the SAME order `tpl_wireframe_comps()` declares them, so two archetypes are only ever
+ * compared reading the sections the same way.
+ *
+ * A section absent from the Envoltorio table takes the catch-all's shape when one exists, or
+ * `contained` otherwise — `sec_open()`'s own default (`_build-gallery.php:15468`), never a value
+ * invented here.
+ *
+ * Returns null when either half is unreadable — no fenced wireframe block, a wireframe block
+ * carrying a prose row, no Envoltorio table, or an Envoltorio table with a second catch-all — so
+ * the caller can leave that file OUT of the comparison instead of inventing a signature for it.
+ * That file's own row (`RT_TPL_NO_WIREFRAME` or `RT_TPL_NO_ENVOLTORIO`) already reports the
+ * reason; folding sixteen tableless archetypes into one identical all-`contained` signature would
+ * report nothing new and bury any real duplicate under them.
+ */
+function tpl_wrapper_signature( $src ) {
+	$wire = tpl_wireframe_comps( $src );
+	if ( null === $wire || array() === $wire[0] || array() !== $wire[1] ) {
+		return null;
+	}
+	$table = tpl_envoltorio_table( $src );
+	if ( null === $table || isset( $table['error'] ) ) {
+		return null;
+	}
+	$rows = $table['rows'];
+	$sig  = array();
+	foreach ( $wire[0] as $comp ) {
+		if ( isset( $rows[ $comp ] ) ) {
+			$sig[] = env_shape( $rows[ $comp ] );
+		} elseif ( isset( $rows['*'] ) ) {
+			$sig[] = env_shape( $rows['*'] );
+		} else {
+			$sig[] = 'contained';
+		}
+	}
+	return $sig;
+}
+
 /* -------------------------------------------------- archetypes of one family must be distinct
  *
  * web-templates/SKILL.md promises "many architectures", and the personality catalog
@@ -1334,6 +1466,13 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 	   guaranteed, and a row whose subject depends on the host is a row nobody can reproduce. */
 	sort( $tpl_files );
 
+	/* Envoltorio applies to HOME archetypes only — the two family roots above, never a
+	   `pages/<role>/` subfolder. Inner pages carry no Envoltorio table in the source repo and the
+	   spec's own Purpose scopes the contract to "every home TPL-*.md", so `pages/*` is excluded
+	   here rather than left to fail a check it was never asked to satisfy. */
+	$tpl_is_home = in_array( $tpl_family, array( 'corporate', 'ecommerce' ), true );
+	$tpl_sig_inv = array();
+
 	$tpl_inv = array();
 	foreach ( $tpl_files as $tpl_file ) {
 		$tpl_base = basename( $tpl_file );
@@ -1341,12 +1480,34 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 		   narrower class it fell through to the bare filename — a label that still reads but no
 		   longer matches the id every other rule speaks in. */
 		$tpl_id   = preg_match( '/^(TPL-[A-Z0-9]+-\d+)/', $tpl_base, $im ) ? $im[1] : $tpl_base;
+		$tpl_src  = slurp( $tpl_file );
+		/* Envoltorio detection is INDEPENDENT of the wireframe-readability branches below — a
+		   table-less archetype still owes a row here even when its own wireframe block is also
+		   broken, and the two checks name two different defects. WARN, not FAIL, for this slice:
+		   `RT_TPL_NO_ENVOLTORIO` ratchets to FAIL only once every surviving archetype carries a
+		   table (see CONTRIBUTING.md's row entry). */
+		if ( $tpl_is_home ) {
+			$tpl_env = tpl_envoltorio_table( $tpl_src );
+			if ( null === $tpl_env ) {
+				add( 'RT_TPL_NO_ENVOLTORIO', 'WARN', 'web-templates', $tpl_family . '/' . $tpl_base . ' declares no table with a header cell reading `Envoltorio` — the wrapper contract every home archetype must state is entirely absent' );
+			} elseif ( isset( $tpl_env['error'] ) ) {
+				add( 'RT_TPL_NO_ENVOLTORIO', 'WARN', 'web-templates', $tpl_family . '/' . $tpl_base . ' ' . $tpl_env['error'] );
+			}
+			/* Excluded from the duplicate comparison, not zeroed into it: a file whose wireframe or
+			   Envoltorio table is unreadable already has its own row above; giving it a fabricated
+			   all-`contained` signature would let sixteen tableless archetypes collide with each
+			   other and drown any real `RT_TPL_WRAPPER_DUPLICATE` finding underneath the noise. */
+			$tpl_sig = tpl_wrapper_signature( $tpl_src );
+			if ( null !== $tpl_sig ) {
+				$tpl_sig_inv[ $tpl_id ] = $tpl_sig;
+			}
+		}
 		/* Every name in this block carries the `tpl_` prefix, and that is a rule here rather than a
 		   style: this file is 2,900 lines of top-level procedural code sharing one global scope,
 		   and an unprefixed `$prose` in this loop silently overwrote the concatenated-markdown
 		   blob assigned ~1,300 lines above and read ~1,500 lines below, killing the whole audit
 		   with a fatal at a preg_match that had nothing to do with templates. */
-		$tpl_parsed = tpl_wireframe_comps( slurp( $tpl_file ) );
+		$tpl_parsed = tpl_wireframe_comps( $tpl_src );
 		/* An archetype the parser cannot read is NOT skipped quietly. Dropping it would remove it
 		   from every pair it belongs to, so a botched heading or an unclosed fence would be a
 		   silent off switch for the check — the same shape `RT_PERS_DUPLICATE_ID` exists to close
@@ -1393,6 +1554,31 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 						. ' sections (' . implode( ', ', $tpl_shared )
 						. ') — two archetypes of one family may share at most half, the distance the corporate family already holds, or they ship as the same site with a different accent'
 				);
+			}
+		}
+	}
+
+	/* RT_TPL_TOO_SIMILAR above diffs section INVENTORY; this diffs the SHAPE each section takes,
+	   closing the gap the spec calls out — an inventory comparison alone cannot tell a bled hero
+	   from a boxed one. FAIL from the moment it lands, no ratchet: unlike RT_TPL_NO_ENVOLTORIO, it
+	   only ever compares files that already parsed a well-formed table, so it cannot be red over
+	   work nobody has done yet. Family-scoped for the same reason RT_TPL_TOO_SIMILAR is —
+	   `recommender.md` § 0 bifurcates on site type before any archetype is on the table, so a
+	   cross-family collision costs no one a choice — and skipped for `pages/*` entirely, since
+	   inner pages carry no Envoltorio contract to compare. */
+	if ( $tpl_is_home ) {
+		$tpl_sig_ids = array_keys( $tpl_sig_inv );
+		foreach ( $tpl_sig_ids as $tpl_si => $tpl_sa ) {
+			foreach ( array_slice( $tpl_sig_ids, $tpl_si + 1 ) as $tpl_sb ) {
+				if ( $tpl_sig_inv[ $tpl_sa ] === $tpl_sig_inv[ $tpl_sb ] ) {
+					add(
+						'RT_TPL_WRAPPER_DUPLICATE',
+						'FAIL',
+						'web-templates',
+						$tpl_sa . ' and ' . $tpl_sb . ' declare the identical ordered Envoltorio shape sequence (' . implode( ', ', $tpl_sig_inv[ $tpl_sa ] )
+							. ') — the wrapper contract collapses two archetypes into one silhouette, the gap RT_TPL_TOO_SIMILAR leaves open because that row diffs section inventory, never markup nesting'
+					);
+				}
 			}
 		}
 	}

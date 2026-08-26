@@ -317,8 +317,13 @@ function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
  * rows are ALL prose; $wire === 'mixed' writes the ids plus ONE prose row, which is the dangerous
  * shape — the block still parses and the archetype still enters the comparison, one section
  * lighter than it really is. Three causes, one row id: RT_TPL_NO_WIREFRAME.
+ *
+ * $env_table is raw markdown (see fx_tpl_env_table() below) spliced right after the fenced block
+ * and before "## 3. Secciones" — the exact position all seven real compliant archetypes use.
+ * Empty string (the default) writes no table at all, which is how a fixture opts into
+ * RT_TPL_NO_ENVOLTORIO.
  */
-function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
+function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced', $env_table = '' ) {
 	$out = "# $id — Fixture\n\n## 1. Identidad\n\nFixture archetype.\n\n## 2. Wireframe (top → bottom)\n\n";
 	if ( 'fenced' === $wire || 'mixed' === $wire ) {
 		$out .= "```\n";
@@ -332,6 +337,7 @@ function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
 	} elseif ( 'prose' === $wire ) {
 		$out .= "```\nCabecera        [fijo]\nBanda editorial [fijo]\nPie de pagina   [fijo]\n```\n\n";
 	}
+	$out .= $env_table;
 	$out .= "## 3. Secciones\n\n";
 	foreach ( $decoy as $d ) {
 		$out .= "### COMP-$d `[fijo]`\nObjetivo: fixture prose that names an id the wireframe does not carry.\n\n";
@@ -339,6 +345,30 @@ function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
 	$out .= "## 4. Toggles admitidos\n\n**Fijos:** fixture.\n\n## 5. SEO / semántica\n\nFixture.\n";
 
 	return $out;
+}
+
+/**
+ * An Envoltorio table body, in the three-column shape all seven real compliant archetypes use
+ * (`| Sección | Envoltorio | Por qué |`). $rows is ORDERED `comp-suffix => raw text` (e.g.
+ * `'GALLERY' => 'banda'` writes a `\`COMP-GALLERY\`` row reading `banda`).
+ *
+ * Two keys are special, matching the real catch-all shape (`| El resto | contenido | |`): `'*'`
+ * writes THE ONE legal catch-all row, whose first cell is not a `COMP-*` id; `'*2'` writes a
+ * SECOND such row under a different label, for the ambiguous-table scenario `RT_TPL_NO_ENVOLTORIO`
+ * exists to catch.
+ */
+function fx_tpl_env_table( array $rows ) {
+	$out = "| Sección | Envoltorio | Por qué |\n|---------|-----------|---------|\n";
+	foreach ( $rows as $key => $val ) {
+		if ( '*' === $key ) {
+			$out .= "| El resto | $val | |\n";
+		} elseif ( '*2' === $key ) {
+			$out .= "| Y también | $val | |\n";
+		} else {
+			$out .= '| `COMP-' . $key . '` | ' . $val . " | |\n";
+		}
+	}
+	return $out . "\n";
 }
 
 /**
@@ -4783,6 +4813,163 @@ fx( $r150, 'agents/sidekick.md', "---\nname: sidekick\n---\n\n## House rules\n- 
 list( , $out150 ) = fx_run_ok( $audit, $r150 );
 ok( array() === fx_lines_with( $out150, array( 'RT_ORCH_NO_GALLERY_STEP' ) ), 'a non-router agent with no "## Routing map" is never accused of missing the gallery step', $out150 );
 fx_rrmdir( $r150 );
+
+/* ---------------------------------------------------------------------------
+   RT_TPL_NO_ENVOLTORIO / RT_TPL_WRAPPER_DUPLICATE -- catalog-wrapper-integrity's Envoltorio
+   contract (PR2a: RT_TPL_NO_ENVOLTORIO ships at WARN this slice, ratchets to FAIL once every
+   surviving archetype carries a table; RT_TPL_WRAPPER_DUPLICATE ships at FAIL from the start,
+   since it only ever compares files whose table already parsed).
+
+   The table is found by header cell, exactly like RT_TPL_TOO_SIMILAR reads the wireframe block --
+   see fx_tpl_env_table() above -- and applies to HOME archetypes only (`corporate`/`ecommerce`),
+   never `pages/<role>/`, which carries no Envoltorio contract in the real repo.
+   --------------------------------------------------------------------------- */
+
+echo "--- a home archetype with no Envoltorio table at all is RT_TPL_NO_ENVOLTORIO, at WARN this slice ---\n";
+$r151 = fx_tmp_root();
+fx_base( $r151 );
+fx( $r151, $fx_tpl_dir . 'corporate/TPL-ENVA-01-fixture.md', fx_tpl( 'TPL-ENVA-01', array( 'HEADER', 'HERO', 'FOOTER' ) ) );
+list( , $out151 ) = fx_run_ok( $audit, $r151 );
+ok( 'WARN' === fx_row_level( $out151, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-ENVA-01-fixture.md' ) ), 'no table at all -> RT_TPL_NO_ENVOLTORIO, and it is a WARN, not a FAIL, in this slice', fx_row_level( $out151, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-ENVA-01-fixture.md' ) ) );
+fx_rrmdir( $r151 );
+
+echo "--- the same missing table under pages/ never produces the row -- only home archetypes owe an Envoltorio table ---\n";
+$r152 = fx_tmp_root();
+fx_base( $r152 );
+fx( $r152, $fx_tpl_dir . 'pages/product/TPL-ENVA-02-fixture.md', fx_tpl( 'TPL-ENVA-02', array( 'HEADER', 'PRODUCT-INFO', 'FOOTER' ) ) );
+list( , $out152 ) = fx_run_ok( $audit, $r152 );
+ok( array() === fx_lines_with( $out152, array( 'RT_TPL_NO_ENVOLTORIO' ) ), 'a pages/<role>/ archetype with no Envoltorio table is never accused -- home only', $out152 );
+fx_rrmdir( $r152 );
+
+echo "--- a named catch-all row and the same sections spelled out explicitly land on the identical signature ---\n";
+/* TPL-ENVC-01 states one section (GALLERY -> banda) and lets the catch-all default the other
+   three to `contenido`. TPL-ENVC-02 never uses a catch-all at all -- it spells out every section,
+   landing on the exact values the catch-all above stands in for. If they are read correctly, both
+   normalize to the SAME ordered signature (contained, contained, bleed, contained) and collide as
+   RT_TPL_WRAPPER_DUPLICATE -- proving the catch-all really does default an unlisted section to
+   `sec_open()`'s own `contained`, not a value this file invents. */
+$r153 = fx_tmp_root();
+fx_base( $r153 );
+fx(
+	$r153,
+	$fx_tpl_dir . 'corporate/TPL-ENVC-01-fixture.md',
+	fx_tpl( 'TPL-ENVC-01', array( 'HEADER', 'HERO', 'GALLERY', 'FOOTER' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda', '*' => 'contenido' ) ) )
+);
+fx(
+	$r153,
+	$fx_tpl_dir . 'corporate/TPL-ENVC-02-fixture.md',
+	fx_tpl( 'TPL-ENVC-02', array( 'HEADER', 'HERO', 'GALLERY', 'FOOTER' ), array(), 'fenced', fx_tpl_env_table( array( 'HEADER' => 'contenido', 'HERO' => 'contenido', 'GALLERY' => 'banda', 'FOOTER' => 'contenido' ) ) )
+);
+list( , $out153 ) = fx_run_ok( $audit, $r153 );
+ok( array() === fx_lines_with( $out153, array( 'RT_TPL_NO_ENVOLTORIO' ) ), 'both tables parse cleanly -- neither is a candidate for the WARN', $out153 );
+ok( 'FAIL' === fx_row_level( $out153, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ), 'catch-all-defaulted and fully-explicit land on the identical signature -> FAIL', fx_row_level( $out153, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ) );
+ok( array() !== fx_lines_with( $out153, array( 'RT_TPL_WRAPPER_DUPLICATE', 'TPL-ENVC-01', 'TPL-ENVC-02' ) ), 'and the row names both ids', $out153 );
+fx_rrmdir( $r153 );
+
+echo "--- the catch-all's OWN shape is what an unlisted section inherits, not a hardcoded contained ---\n";
+/* Same proof as above, this time with a catch-all reading `banda`: TPL-ENVD-01 leaves three
+   sections to that catch-all, TPL-ENVD-02 spells the same three out as `banda` by hand. If the
+   default were hardcoded to `contained` instead of reading the catch-all's own value, these two
+   would land on DIFFERENT signatures and this pair would go quiet while a spurious pair against
+   the `contenido`-catch-all fixtures above would light up instead. */
+$r154 = fx_tmp_root();
+fx_base( $r154 );
+fx(
+	$r154,
+	$fx_tpl_dir . 'corporate/TPL-ENVD-01-fixture.md',
+	fx_tpl( 'TPL-ENVD-01', array( 'HEADER', 'HERO', 'GALLERY', 'FOOTER' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'fila', '*' => 'banda' ) ) )
+);
+fx(
+	$r154,
+	$fx_tpl_dir . 'corporate/TPL-ENVD-02-fixture.md',
+	fx_tpl( 'TPL-ENVD-02', array( 'HEADER', 'HERO', 'GALLERY', 'FOOTER' ), array(), 'fenced', fx_tpl_env_table( array( 'HEADER' => 'banda', 'HERO' => 'banda', 'GALLERY' => 'fila', 'FOOTER' => 'banda' ) ) )
+);
+list( , $out154 ) = fx_run_ok( $audit, $r154 );
+ok( 'FAIL' === fx_row_level( $out154, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ), 'a non-contained catch-all still defaults the unlisted sections correctly -> the pair still collides', fx_row_level( $out154, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ) );
+ok( array() !== fx_lines_with( $out154, array( 'RT_TPL_WRAPPER_DUPLICATE', 'bleed, bleed, row, bleed' ) ), 'and the message quotes the ordered normalized sequence, not the raw Spanish text', $out154 );
+fx_rrmdir( $r154 );
+
+echo "--- a SECOND catch-all row makes the table ambiguous -- own message, and the file is EXCLUDED from duplicate comparison ---\n";
+/* TPL-ENVE-01 names GALLERY and TWO non-COMP-* rows (fx_tpl_env_table()'s '*'/'*2' keys) -- the
+   shape the real seven-table convention never produces, and the one case a bare "does a table
+   exist?" check would wave through. It sits beside a genuinely clean pair (ENVE-02/ENVE-03) that
+   DOES collide, on the exact same values ENVE-01 uses -- if the malformed file were not excluded,
+   it would join that collision as a THIRD name, which the assertions below rule out by name. */
+$r155 = fx_tmp_root();
+fx_base( $r155 );
+fx(
+	$r155,
+	$fx_tpl_dir . 'corporate/TPL-ENVE-01-fixture.md',
+	fx_tpl( 'TPL-ENVE-01', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda', '*' => 'contenido', '*2' => 'otra cosa' ) ) )
+);
+fx(
+	$r155,
+	$fx_tpl_dir . 'corporate/TPL-ENVE-02-fixture.md',
+	fx_tpl( 'TPL-ENVE-02', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda', '*' => 'contenido' ) ) )
+);
+fx(
+	$r155,
+	$fx_tpl_dir . 'corporate/TPL-ENVE-03-fixture.md',
+	fx_tpl( 'TPL-ENVE-03', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda', '*' => 'contenido' ) ) )
+);
+list( , $out155 ) = fx_run_ok( $audit, $r155 );
+ok( 'WARN' === fx_row_level( $out155, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-ENVE-01-fixture.md' ) ), 'a second catch-all row is its own WARN cause, distinct from a missing table', fx_row_level( $out155, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-ENVE-01-fixture.md' ) ) );
+ok( array() !== fx_lines_with( $out155, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-ENVE-01-fixture.md', 'SECOND catch-all' ) ), 'and the message names the cause: a SECOND catch-all row, not a generic parse failure', $out155 );
+ok( array() !== fx_lines_with( $out155, array( 'RT_TPL_WRAPPER_DUPLICATE', 'TPL-ENVE-02', 'TPL-ENVE-03' ) ), 'the two clean, identical tables still collide with each other', $out155 );
+ok( array() === fx_lines_with( $out155, array( 'RT_TPL_WRAPPER_DUPLICATE', 'TPL-ENVE-01' ) ), 'and the malformed table is EXCLUDED from the comparison entirely, not folded in with a guessed signature', $out155 );
+fx_rrmdir( $r155 );
+
+echo "--- \"banda\" is tested BEFORE \"fila\": a value naming both still normalizes to bleed ---\n";
+/* TPL-ENVF-01's GALLERY row reads "banda en la fila" -- both words appear. TPL-ENVF-02's GALLERY
+   row reads the unambiguous "banda a sangre". If order were reversed (fila checked first), F-01
+   would normalize to `row` and this pair would go quiet; testing order is what keeps it a FAIL. */
+$r156 = fx_tmp_root();
+fx_base( $r156 );
+fx( $r156, $fx_tpl_dir . 'corporate/TPL-ENVF-01-fixture.md', fx_tpl( 'TPL-ENVF-01', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda en la fila' ) ) ) );
+fx( $r156, $fx_tpl_dir . 'corporate/TPL-ENVF-02-fixture.md', fx_tpl( 'TPL-ENVF-02', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda a sangre' ) ) ) );
+list( , $out156 ) = fx_run_ok( $audit, $r156 );
+ok( 'FAIL' === fx_row_level( $out156, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ), 'a value naming both "banda" and "fila" still normalizes to bleed, testing banda first', fx_row_level( $out156, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ) );
+fx_rrmdir( $r156 );
+
+echo "--- an identical signature across families never collides -- recommender.md bifurcates by site type first ---\n";
+$r157 = fx_tmp_root();
+fx_base( $r157 );
+fx( $r157, $fx_tpl_dir . 'corporate/TPL-ENVH-01-fixture.md', fx_tpl( 'TPL-ENVH-01', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda' ) ) ) );
+fx( $r157, $fx_tpl_dir . 'ecommerce/TPL-ENVH-02-fixture.md', fx_tpl( 'TPL-ENVH-02', array( 'HEADER', 'GALLERY' ), array(), 'fenced', fx_tpl_env_table( array( 'GALLERY' => 'banda' ) ) ) );
+list( , $out157 ) = fx_run_ok( $audit, $r157 );
+ok( array() === fx_lines_with( $out157, array( 'RT_TPL_WRAPPER_DUPLICATE' ) ), 'the identical signature in two different families produces no row: comparison is within a family only', $out157 );
+fx_rrmdir( $r157 );
+
+echo "--- acceptance test: all seven REAL Envoltorio tables, main@35a38b4 bytes unmodified, pass with no WARN ---\n";
+/* Not a fixture COPY of the shape -- the actual bytes of the seven files that already carry the
+   convention, read straight off disk exactly like fx_gal_fingerprint() copies the real fingerprint
+   definition rather than re-typing its rules. A gate that fails its own reference implementation
+   is not a gate: TPL-C-14-ritual-bono.md is named on its own line for that reason. */
+$fx_env_real = array(
+	'corporate/TPL-C-03-portfolio-showcase.md',
+	'corporate/TPL-C-05-local-booking.md',
+	'corporate/TPL-C-06-table-menu.md',
+	'corporate/TPL-C-13-property-search.md',
+	'corporate/TPL-C-14-ritual-bono.md',
+	'ecommerce/TPL-E-01-visual-brand.md',
+	'ecommerce/TPL-E-07-batch-weight.md',
+);
+$r158 = fx_tmp_root();
+fx_base( $r158 );
+foreach ( $fx_env_real as $fx_env_rel ) {
+	$fx_env_src = $root_dir . '/skills/web-templates/references/templates/' . $fx_env_rel;
+	ok( is_file( $fx_env_src ), 'the real archetype "' . $fx_env_rel . '" exists to copy bytes from', $fx_env_src );
+	if ( is_file( $fx_env_src ) ) {
+		fx( $r158, $fx_tpl_dir . $fx_env_rel, file_get_contents( $fx_env_src ) );
+	}
+}
+list( , $out158 ) = fx_run_ok( $audit, $r158 );
+ok( array() === fx_lines_with( $out158, array( 'RT_TPL_NO_ENVOLTORIO', 'TPL-C-14-ritual-bono.md' ) ), 'TPL-C-14 (Lumiere), unmodified, is this row\'s own acceptance test and must never fire', $out158 );
+foreach ( $fx_env_real as $fx_env_rel ) {
+	$fx_env_base = basename( $fx_env_rel );
+	ok( array() === fx_lines_with( $out158, array( 'RT_TPL_NO_ENVOLTORIO', $fx_env_base ) ), 'and neither does the real "' . $fx_env_base . '"', $out158 );
+}
+fx_rrmdir( $r158 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

@@ -114,25 +114,25 @@ Files: `skills/web-templates/SKILL.md`, `skills/web-templates/references/lanes.m
 Files: `skills/framework-audit/assets/framework-audit.php`, `tests/test-framework-audit.php`,
 `CONTRIBUTING.md`.
 
-- [ ] 2a.1 [RED] fixture tests for `env_shape()`: `banda` (tested first) → `bleed`; `fila` → `row`;
+- [x] 2a.1 [RED] fixture tests for `env_shape()`: `banda` (tested first) → `bleed`; `fila` → `row`;
       else → `contained`.
-- [ ] 2a.2 [RED] fixture test: a row whose first cell is not `COMP-*` is the catch-all, mapped to
+- [x] 2a.2 [RED] fixture test: a row whose first cell is not `COMP-*` is the catch-all, mapped to
       `'*'`; unlisted sections default to `contained` (matches `sec_open()`'s own default,
       `_build-gallery.php:15468`).
-- [ ] 2a.3 [RED] fixture test: a **second** catch-all row is a parse FAIL (own message, reuse the
+- [x] 2a.3 [RED] fixture test: a **second** catch-all row is a parse FAIL (own message, reuse the
       three-causes-one-row-id shape at `:1263-1279`).
-- [ ] 2a.4 [RED] fixture test: no `Envoltorio` table on a home `TPL-*.md` → `RT_TPL_NO_ENVOLTORIO`
+- [x] 2a.4 [RED] fixture test: no `Envoltorio` table on a home `TPL-*.md` → `RT_TPL_NO_ENVOLTORIO`
       fires at **WARN** (not FAIL) for this slice.
-- [ ] 2a.5 [RED] acceptance test: all 7 existing tables (`TPL-C-03/05/06/13/14`, `TPL-E-01/07`)
+- [x] 2a.5 [RED] acceptance test: all 7 existing tables (`TPL-C-03/05/06/13/14`, `TPL-E-01/07`)
       parse with no WARN, against `main @ 35a38b4` bytes unmodified; `TPL-C-14` named explicitly.
-- [ ] 2a.6 [GREEN] implement `tpl_envoltorio_table($src)` — table found by a header cell reading
+- [x] 2a.6 [GREEN] implement `tpl_envoltorio_table($src)` — table found by a header cell reading
       exactly `Envoltorio` (mirrors `gallery_register_count()`, `:2478`), column index from header.
-- [ ] 2a.7 [GREEN] implement `env_shape($raw)` and `tpl_wrapper_signature($src)` per design.
-- [ ] 2a.8 [GREEN] register `RT_TPL_NO_ENVOLTORIO` (WARN) in `ROW_TYPES` + `CONTRIBUTING.md`.
-- [ ] 2a.9 [GREEN] implement `RT_TPL_WRAPPER_DUPLICATE` at **FAIL** (no ratchet needed — it only
+- [x] 2a.7 [GREEN] implement `env_shape($raw)` and `tpl_wrapper_signature($src)` per design.
+- [x] 2a.8 [GREEN] register `RT_TPL_NO_ENVOLTORIO` (WARN) in `ROW_TYPES` + `CONTRIBUTING.md`.
+- [x] 2a.9 [GREEN] implement `RT_TPL_WRAPPER_DUPLICATE` at **FAIL** (no ratchet needed — it only
       compares files that already have a table; family-scoped via `$tpl_families`, `:1212`; a file
       that fired `RT_TPL_NO_ENVOLTORIO` is reported then excluded, `:1258-1261` discipline).
-- [ ] 2a.10 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
+- [x] 2a.10 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
       → 0 FAIL, WARN rises 4→20 (16 new `RT_TPL_NO_ENVOLTORIO`, expected/transitional, not a
       regression), tests ≥1193 OK.
 
