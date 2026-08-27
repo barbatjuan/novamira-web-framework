@@ -4018,7 +4018,14 @@ if ( function_exists( 'nm_gallery_input_digest' ) && function_exists( 'nm_galler
 	   index.html is not one of its own inputs, so rewriting it here cannot move the digest --
 	   and if it ever could, this scenario is where that shows up. */
 	$fp229 = nm_gallery_input_digest( $r229 . '/skills/html-mockup/assets/gallery' );
-	fx_gal( $r229, nm_gallery_fingerprint_line( $fp229 ) . "\n" . fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ) );
+	/* Line 2 carries a charset meta, exactly where the real generator now stamps one (see
+	   RT_GALLERY_NO_CHARSET below) -- this fixture models what a genuinely CURRENT gallery looks
+	   like, and a current gallery is not missing its own charset declaration either. */
+	fx_gal(
+		$r229,
+		nm_gallery_fingerprint_line( $fp229 ) . "\n" . '<meta charset="utf-8">' . "\n"
+			. fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) )
+	);
 	list( $code229, $out229 ) = fx_run_ok( $audit, $r229 );
 	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_STALE' ) ), 'matching fingerprint -> no staleness row', $out229 );
 	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_' ) ), 'and no other gallery row either: the stamp is inert scenery to every rule but this one', $out229 );
@@ -4038,6 +4045,87 @@ fx_gal( $r230, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_G
 list( , $out230 ) = fx_run_ok( $audit, $r230 );
 ok( array() === fx_lines_with( $out230, array( 'RT_GALLERY_STALE' ) ), 'generator + index.html but no fingerprint definition -> still no row: the gate is conditioned on the definition', $out230 );
 fx_rrmdir( $r230 );
+
+/* ---------------------------------------------------------------------------
+   RT_GALLERY_NO_CHARSET -- found by eye in the published gallery, not by any gate that existed
+   before it: the generated index.html declared no character encoding at all, so a browser fell
+   back to a locale default (windows-1252) on UTF-8 bytes and every accented character rendered as
+   a two-character garble, an arrow among them. The audit had stayed green throughout, because
+   every row above reasons about STRUCTURE -- sections, tokens, contrast -- and none of them ever
+   asked what encoding the bytes on disk claim to be.
+
+   THE 1024-BYTE WINDOW IS THE WHOLE TEST. The HTML spec's encoding-sniffing prescan reads only a
+   document's FIRST 1024 BYTES looking for a <meta charset>; a declaration sitting past that offset
+   is as invisible to a real browser as no declaration at all. A check that merely greps the whole
+   file for the string "charset" would have passed on the exact broken document a human found --
+   the second scenario below pads a fixture past 1024 bytes on purpose to prove this row measures
+   POSITION, not mere presence.
+
+   Gated on the generator's AND the output's presence, exactly like RT_GALLERY_STALE's first two
+   conditions (it needs no fingerprint library, so that third condition does not apply here), so it
+   never fires against the bare HTML fragments the RT_GALLERY_* fixtures above write with no real
+   <head> and no _build-gallery.php stub beside them.
+   --------------------------------------------------------------------------- */
+
+echo "--- index.html with no charset declaration anywhere FAILs ---\n";
+$r231 = fx_tmp_root();
+fx_base( $r231 );
+fx_gal_generator( $r231 );
+fx_gal( $r231, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( $code231, $out231 ) = fx_run_ok( $audit, $r231 );
+ok( 'FAIL' === fx_row_level( $out231, array( 'RT_GALLERY_NO_CHARSET' ) ), 'no charset anywhere in the output -> FAIL', fx_row_level( $out231, array( 'RT_GALLERY_NO_CHARSET' ) ) );
+ok( array() !== fx_lines_with( $out231, array( 'RT_GALLERY_NO_CHARSET', '1024' ) ), 'and the message names the byte window the spec actually reads', $out231 );
+ok( array() !== fx_lines_with( $out231, array( 'RT_GALLERY_NO_CHARSET', 'php skills/html-mockup/assets/gallery/_build-gallery.php' ) ), 'and names the exact fix command', $out231 );
+ok( 1 === $code231, 'and the tree exits code 1', $code231 );
+fx_rrmdir( $r231 );
+
+echo "--- a charset declaration sitting past byte 1024 still FAILs -- position, not mere presence ---\n";
+$r232 = fx_tmp_root();
+fx_base( $r232 );
+fx_gal_generator( $r232 );
+/* A 1200-byte ASCII comment ahead of the tag, so <meta charset> itself lands at roughly byte 1210
+   -- past the window a real browser's prescan reads. A naive strpos($html,'charset') check would
+   pass this fixture; this row must not. */
+$fx_late_pad = '<!-- ' . str_repeat( 'x', 1200 ) . " -->\n";
+fx_gal(
+	$r232,
+	$fx_late_pad . '<meta charset="utf-8">' . fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	$FX_GAL_MAN
+);
+list( $code232, $out232 ) = fx_run_ok( $audit, $r232 );
+ok( 'FAIL' === fx_row_level( $out232, array( 'RT_GALLERY_NO_CHARSET' ) ), 'charset present but past byte 1024 -> still FAIL', fx_row_level( $out232, array( 'RT_GALLERY_NO_CHARSET' ) ) );
+fx_rrmdir( $r232 );
+
+echo "--- a charset declaration on line 2, right after the fingerprint line, is silent ---\n";
+$r233 = fx_tmp_root();
+fx_base( $r233 );
+fx_gal_generator( $r233 );
+fx_gal(
+	$r233,
+	'<!-- gallery-input-fingerprint: sha256:' . str_repeat( 'a', 64 ) . " -->\n"
+		. "<meta charset=\"utf-8\">\n"
+		. fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ),
+	$FX_GAL_MAN
+);
+list( $code233, $out233 ) = fx_run_ok( $audit, $r233 );
+ok( array() === fx_lines_with( $out233, array( 'RT_GALLERY_NO_CHARSET' ) ), 'charset on line 2, well inside the window -> no row', $out233 );
+fx_rrmdir( $r233 );
+
+echo "--- generator present without a built index.html never produces RT_GALLERY_NO_CHARSET -- RT_GALLERY_NOT_BUILT owns that gap ---\n";
+$r234 = fx_tmp_root();
+fx_base( $r234 );
+fx_gal_generator( $r234 );
+list( , $out234 ) = fx_run_ok( $audit, $r234 );
+ok( array() === fx_lines_with( $out234, array( 'RT_GALLERY_NO_CHARSET' ) ), 'no index.html at all -> no charset row either', $out234 );
+fx_rrmdir( $r234 );
+
+echo "--- no generator at all never produces RT_GALLERY_NO_CHARSET -- the gate is conditioned on the generator like its siblings ---\n";
+$r235 = fx_tmp_root();
+fx_base( $r235 );
+fx_gal( $r235, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+list( , $out235 ) = fx_run_ok( $audit, $r235 );
+ok( array() === fx_lines_with( $out235, array( 'RT_GALLERY_NO_CHARSET' ) ), 'bare index.html fixture with no generator stub -> no row', $out235 );
+fx_rrmdir( $r235 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of

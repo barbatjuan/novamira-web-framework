@@ -12436,7 +12436,21 @@ $head = '<!--
 
    `index.html` is deliberately NOT one of its own inputs, so stamping the line cannot move the
    digest it carries. */
-$head = nm_gallery_fingerprint_line( nm_gallery_input_digest( $DIR ) ) . "\n" . $head;
+/* THE CHARSET DECLARATION'S OWN EXPLANATION LIVES IN THE EMITTED PAGE, not only here — exactly
+   like the viewport meta's comment a few thousand bytes below does. This tag has to be LINE 2,
+   right after the fingerprint (RT_GALLERY_STALE reads that line and nothing else may sit ahead of
+   it), and it has to stay short: it is itself governed by the same 1024-byte ceiling it names, so
+   padding it with prose here would be the exact mistake it exists to prevent. */
+$charset_note = "<!-- Charset here, on LINE 2 -- not beside <title> below. A browser's encoding-\n"
+	. "     sniffing prescan reads ONLY a document's first 1024 BYTES for <meta charset>; past\n"
+	. "     that offset a declaration might as well not exist. The banner below alone runs past\n"
+	. "     1000 bytes and opens in accented Spanish, so the <title> spot is already too late to\n"
+	. "     govern even that banner. FOUND BY EYE in the published gallery, after this file's own\n"
+	. "     audit had gone green: with no charset declared, a browser fell back to windows-1252\n"
+	. "     on these UTF-8 bytes, and every accented character rendered as two garbled bytes, an\n"
+	. "     arrow among them. RT_GALLERY_NO_CHARSET now FAILs for this, measuring the first 1024\n"
+	. "     bytes rather than grepping the file for the word \"charset\". -->";
+$head = nm_gallery_fingerprint_line( nm_gallery_input_digest( $DIR ) ) . "\n" . $charset_note . "\n" . '<meta charset="utf-8">' . "\n" . $head;
 
 /* THE PAGE'S OWN CLAIM ABOUT ITSELF, and it had to change the day a strip declared a toggle. The
    note used to end "la diferencia es el ancla — no la foto ni el texto", which a reader could check

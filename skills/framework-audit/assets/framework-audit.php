@@ -121,6 +121,7 @@ const ROW_TYPES = array(
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
 	'RT_GALLERY_NOT_BUILT'       => 'FAIL  — the gallery generator is present but its index.html output is not: the tree was never built',
 	'RT_GALLERY_STALE'           => 'FAIL  — the gallery output records no input fingerprint, or one that no longer matches the inputs on disk',
+	'RT_GALLERY_NO_CHARSET'      => 'FAIL  — the gallery output declares no charset within its first 1024 bytes, the window a browser\'s encoding prescan actually reads',
 	'RT_GALLERY_AXIS_LEAK'       => 'FAIL  — a catalogue gallery strip renders no data-brand, so it is personality-anchor proof rather than a demo',
 	'RT_GALLERY_REGISTER_COUNT_MISMATCH' => 'FAIL  — the manifest declares fewer registers than the gallery renders surviving branded demos',
 	'RT_GALLERY_SINGLE_PAGE_DEMO' => 'WARN  — a branded demo declares only one page (ratchets to FAIL once every surviving demo is multi-page)',
@@ -3101,6 +3102,40 @@ if ( file_exists( $gal_gen ) && file_exists( $gal_out ) && file_exists( $gal_fp_
 				. ' the TPL-*.md archetypes, fonts/_fonts.php and its woff2 files, design-tokens.md and'
 				. ' the generator itself — the tree hashes to ' . substr( $gal_want, 0, 12 ) . ' while the'
 				. ' output records ' . substr( $gal_have, 0, 12 ) . '. Regenerate:'
+				. ' php skills/html-mockup/assets/gallery/_build-gallery.php'
+		);
+	}
+}
+
+/* ---- RT_GALLERY_NO_CHARSET ----
+ * Found by eye in the published artifact, not by any row above it: the generated gallery declared
+ * no character encoding, so a browser fell back to a locale default (windows-1252) reading UTF-8
+ * bytes, and every accented character on the page rendered as a two-character garble — an arrow
+ * among them. Every row in this file up to here reasons about STRUCTURE; none of them ever asked
+ * what encoding the bytes on disk claim to be, which is why the audit stayed green while it shipped.
+ *
+ * THE 1024-BYTE WINDOW IS THE WHOLE CHECK. The HTML spec's encoding-sniffing prescan reads only a
+ * document's FIRST 1024 BYTES looking for a <meta charset>; a declaration past that offset is as
+ * absent as no declaration at all. So this measures substr( slurp( $gal_out ), 0, 1024 ) and
+ * nothing past it — a check that merely grepped the whole file for "charset" would have passed on
+ * the exact broken document a human found.
+ *
+ * Gated on the generator's and the output's presence, exactly like RT_GALLERY_STALE's first two
+ * conditions (no fingerprint library is needed here), so it never fires against the bare HTML
+ * fragments the RT_GALLERY_* fixtures elsewhere write with no real <head>.
+ */
+if ( file_exists( $gal_gen ) && file_exists( $gal_out ) ) {
+	$gal_head_window = substr( slurp( $gal_out ), 0, 1024 );
+	if ( ! preg_match( '/<meta\s+charset\s*=\s*["\']?[\w-]+["\']?/i', $gal_head_window ) ) {
+		add(
+			'RT_GALLERY_NO_CHARSET',
+			'FAIL',
+			'html-mockup',
+			'assets/gallery/index.html declares no charset within its first 1024 bytes — the window'
+				. ' the HTML spec\'s encoding-sniffing prescan actually reads, so a declaration any'
+				. ' later is as absent as none at all. Without one, a browser falls back to a locale'
+				. ' default (windows-1252) on this file\'s UTF-8 bytes, and every accented character'
+				. ' breaks in two. Regenerate:'
 				. ' php skills/html-mockup/assets/gallery/_build-gallery.php'
 		);
 	}
