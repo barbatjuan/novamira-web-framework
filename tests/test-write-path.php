@@ -1125,6 +1125,23 @@ ok( 'elementor' === $m['sections']['site']['data']['builder'], 'la primera secci
 ok( 'PERS-EDITORIAL' === $m['sections']['design']['data']['personality'], 'y la segunda no la piso' );
 ok( '' !== $m['sections']['site']['at'], 'cada seccion lleva su propia marca de tiempo' );
 
+/* La lista de secciones deja de ser prosa repetida y pasa a ser un hecho invocable. */
+$secciones = es_manifest_sections();
+ok( array( 'site', 'design', 'pages', 'delivery' ) === $secciones, 'es_manifest_sections() devuelve las CUATRO secciones, en ese orden, sin una quinta' );
+
+$mal = array();
+$n   = 0;
+foreach ( $secciones as $s ) {
+	$n++;
+	wp_fake_reset();
+	es_manifest_record( $s, array( 'probe' => $s ) );
+	$leido = es_manifest_read();
+	if ( ! isset( $leido['sections'][ $s ]['data']['probe'] ) || $s !== $leido['sections'][ $s ]['data']['probe'] ) {
+		$mal[] = $s;
+	}
+}
+ok( 0 < $n && array() === $mal, 'cada nombre que es_manifest_sections() declara acepta un es_manifest_record() y se relee igual' );
+
 /* Escribir no es haber escrito, igual que en la portada y en el camino de escritura. */
 wp_fake_reset();
 $GLOBALS['wp']['option_ro'] = array( 'es_novamira_manifest' );
@@ -1173,7 +1190,9 @@ ok( ! has( $d[0], 'alguien la movio' ), 'y NO afirma quien lo hizo: eso es una c
    `front => 2` DENTRO del mapa `pages`, que es slug->id, asi que la clave no era un slug y nadie
    habia movido nada. La version anterior de esta fila diagnosticaba "alguien la movio fuera de este
    framework" con total seguridad, y mandaba al lector a buscar una edicion que nunca existio. Un
-   informe cuya regla es no afirmar lo que no leyo no puede permitirse un porque inventado. */
+   informe cuya regla es no afirmar lo que no leyo no puede permitirse un porque inventado. El home
+   correcto del id de portada es la seccion `site` (paso 8 de elementor-core), no `pages`: esta fila
+   sigue probando justo ese error. */
 wp_fake_reset();
 $h = wp_fake_page( 'inicio' );
 es_manifest_record( 'pages', array( 'front' => $h ) );

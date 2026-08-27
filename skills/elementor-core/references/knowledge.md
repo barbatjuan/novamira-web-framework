@@ -51,10 +51,12 @@
     moves: a hardcoded roster goes stale silently, which is why the live question comes first.
 - **Manifest** (state between sessions): `es_manifest_read()` → `{schema, updated, sections}`;
   `es_manifest_record($section,$data)` merges ONE section, stamps it, READS IT BACK and returns
-  false when it did not land. Sections are namespaced (`site`, `design`, `pages`, `delivery`) so
-  two skills never overwrite each other's, which a flat map guarantees they eventually will. It
-  lives in a WordPress option and NOT beside this library, because the library sits in a sandbox
-  the delivery phase deletes — state that dies with the sandbox is not state.
+  false when it did not land. Section names come from `es_manifest_sections()`, so two skills
+  writing different things never overwrite each other's, which a flat map guarantees they
+  eventually will — `pages` holds slug → id ONLY, the front page id lives in `site`'s
+  `front_page_id`. It lives in a WordPress option and NOT beside this library, because the
+  library sits in a sandbox the delivery phase deletes — state that dies with the sandbox is not
+  state.
   `es_manifest_verify()` contrasts the recorded page map and front page against the LIVE site and
   returns drift lines: page gone, slug moved by hand, same slug answered by a different post id
   (the worst, because everything looks fine), front page repointed. It reports and never repairs

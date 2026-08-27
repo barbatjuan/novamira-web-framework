@@ -171,6 +171,7 @@ to the same value on every project is precisely how the current system produces 
 
 The resolved position is recorded into the project manifest (`es_manifest_record('design', …)`)
 so a second session does not re-derive it. That path already exists and is tested.
+> **Unfulfilled as of `manifest-truth-repair` (2026-08-27)**: no skill calls `es_manifest_record('design', …)` today; `design` is a manifest section with a name (`es_manifest_sections()`, `elementor-core/assets/es-builder.php`) and no writer. Read this paragraph as intent, not as current behavior.
 
 ## The verifier
 

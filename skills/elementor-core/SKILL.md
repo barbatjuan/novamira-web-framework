@@ -65,8 +65,8 @@ yes yourself and stop until you get it.
    what `/` serves. Read what it returns.
 7. Verify server-side: fetch compiled `post-<id>.css` / front HTML, `substr_count` the expected
    selectors. State that visual confirmation needs the user.
-8. `es_manifest_record('pages', …)` — slug → id, and the front page. A `false` there means the
-   next session starts blind.
+8. `es_manifest_record('pages', …)` — slug → id **only**. Front page id: `'site'`. A `false`
+   means the next session starts blind.
 
 ## Output Contract
 Report pages/templates built (ids), the audit verdict line, and the server-side grep counts that

@@ -22,9 +22,10 @@ automatically: only the user knows which of the two truths was intended, so brin
 No manifest means a genuinely first session — say so rather than assuming it.
 
 Record back with `es_manifest_record($section, $data)` at the end of each phase, one section per
-concern (**site**, **design**, **pages**, **delivery**), so two skills never overwrite each other's. It
-reads back and returns false when the write did not land; a false there means the next session
-starts blind, which is worth stopping for.
+concern, so two skills never overwrite each other's. `es_manifest_sections()` names them — take
+the list from there, never from a copy in prose, because nothing checks a copy and it drifts in
+silence. It reads back and returns false when the write did not land; a false there means the
+next session starts blind, which is worth stopping for.
 
 ## First move: new site or existing site?
 Ask THIS before anything else — it decides whether to inspect WordPress at all. Don't waste the
@@ -285,10 +286,3 @@ A native build is NOT atomic, and partial failure is expected — the connector 
   — the earlier yes covered the original scope, not a second pass over pages that already exist.
 - Record whatever surprised you into the relevant `references/gotchas.md` in the CONTRIBUTING shape.
   Confirmed findings only.
-
-## Carry decisions across sessions
-A site build outlives one conversation and nothing in this framework persists state. Before a long
-build, and again after the mockup is approved, write down the decisions that are expensive to
-re-derive: site type, chosen `TPL-*`, the token block, approved mockup URL, builder, connector
-target, and which pages are already live. On resume, restate them and confirm they still hold
-rather than re-asking the whole intake or, worse, silently assuming the old answers.

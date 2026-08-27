@@ -2396,9 +2396,10 @@ function es_owns_control( $widget_type, $key ) {
  * are looking at.
  *
  * Shape: `array( 'schema' => 1, 'updated' => 'Ymd-His', 'sections' => array( name => array(
- * 'at' => 'Ymd-His', 'data' => array( … ) ) ) )`. Sections are namespaced per concern (`site`,
- * `design`, `pages`, `delivery`) so two skills writing different things never overwrite each
- * other's, which a flat map guarantees they eventually will.
+ * 'at' => 'Ymd-His', 'data' => array( … ) ) ) )`. Sections are namespaced per concern so two
+ * skills writing different things never overwrite each other's, which a flat map guarantees
+ * they eventually will. The names are `es_manifest_sections()`, below — spelled out here for a
+ * while, in a docblock nothing reads, next to two other copies that had already drifted from it.
  */
 function es_manifest_read() {
 	$raw = get_option( 'es_novamira_manifest' );
@@ -2411,6 +2412,22 @@ function es_manifest_read() {
 	}
 
 	return $raw;
+}
+
+/**
+ * The four sections the manifest knows how to hold, in order. A flat list, not a writer map:
+ * who writes a section is a fact about the tree, established by grepping for
+ * `es_manifest_record( '<name>'` call sites, not by this function asserting it. A map baked
+ * into the return value would be the code making a claim about itself that nothing re-reads —
+ * the exact failure class this function exists to repair. Never claim what you did not read.
+ *
+ * Observed today: `pages` is written by `elementor-core` step 8 (slug => id); `site` is written
+ * by that same step (`front_page_id`) and read back by `es_manifest_verify()`, below. `design`
+ * and `delivery` are written by nothing and read by nothing — named here so the gap is
+ * countable, not backfilled with a promise nothing keeps.
+ */
+function es_manifest_sections() {
+	return array( 'site', 'design', 'pages', 'delivery' );
 }
 
 /**
@@ -2451,14 +2468,15 @@ function es_manifest_record( $section, array $data ) {
  * renamed by hand, replaced by a plugin import, or repointed as the front page — and a second
  * session trusting the recorded ids would write into whatever now sits there.
  *
- * Reads the `pages` section (`slug => post_id`) and the `front_page` id, and reports DRIFT rather
- * than repairing it: repairing would mean guessing which of the two truths is the intended one,
- * and the whole point is that only a human knows.
+ * Reads the `pages` section (`slug => post_id`) and the `site` section's `front_page_id`, and
+ * reports DRIFT rather than repairing it: repairing would mean guessing which of the two truths
+ * is the intended one, and the whole point is that only a human knows.
  *
  * The lines state what was OBSERVED and never why. An earlier version of the first one said
  * "somebody moved it outside this framework", which is a cause, and a live test proved it wrong the
  * first time it fired: the manifest had a key that was not a slug at all (`front` written into the
- * `pages` map, where the front page does not belong), and nobody had moved anything. A report whose
+ * `pages` map, where the front page does not belong — its home is `site`'s `front_page_id`, read
+ * above), and nobody had moved anything. A report whose
  * whole rule is "never claim what you did not read" cannot afford a confident wrong diagnosis in
  * its own rows — the reader who believes it goes hunting for an edit that never happened. So the
  * row gives the two facts side by side and leaves the inference where it belongs.
