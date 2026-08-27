@@ -2052,12 +2052,15 @@ $CONTENT = array(
 	   responder. */
 	
 
-	/* ── INMOBILIARIA DE LA O · TPL-C-15 · CARTERA CURADA, no cartera entera. El home enseña TRES
-	   fichas de las diecisiete de la cartera a propósito — la fotografía vende antes de que el
-	   visitante toque un filtro, y una rejilla con diecisiete tarjetas iguales sería exactamente el
-	   contador-que-presume que este arquetipo se prohíbe en su propio documento. Las doce
-	   fotografías son GENERADAS con Freepik AI (Pikaso), igual que el resto del catálogo cuya
-	   escena no existe en el archivo libre; el manifiesto lo dice en su columna de licencia. */
+	/* ── INMOBILIARIA DE LA O · TPL-C-15 · CARTERA CURADA. PR3d — content authored VERBATIM from the
+	   client artboards (`Inicio.dc.html`, `Propiedades.dc.html`, `Ficha Propiedad.dc.html`,
+	   `Nosotros.dc.html`, `Contacto.dc.html`, `Nav.dc.html`, `Pie.dc.html`), not from the prose
+	   README that PR3b/PR3c worked from. Copy, badge states, field labels/options and reference
+	   codes are the artboards' own strings; only the three departures the launch brief names as
+	   forced (container 1280, accent `#8A5A2A`, `Instrument Serif` for the missing `Libre Caslon
+	   Display`) and the photo-count constraint (three real portraits, not the design's four
+	   fictional ones) differ from what is drawn. The twelve `delao-*.webp` slugs are never renamed;
+	   they are mapped onto the artboards' own properties/roles below. */
 	'TPL-C-15-delao' => array(
 		'tpl'            => 'TPL-C-15-delao',
 		'arch'           => 'TPL-C-15',
@@ -2073,88 +2076,90 @@ $CONTENT = array(
 		'nav'            => array( 'Propiedades', 'Nosotros', 'Contacto' ),
 		'nav_cta'        => 'Valorar mi casa',
 		'nav_cta_weight' => 'secundario',
-		'phone'          => '952 00 00 00',
+		'phone'          => '+34 952 00 00 00',
+		/* `Inicio.dc.html` — verbatim eyebrow/H1/lede/stats. The H1 keeps its own `<br>` as an
+		   explicit two-line array (never raw markup through `h()`), the same convention this file
+		   already uses for a two-line address (`<br>` joined between two escaped parts). */
 		'hero'           => array(
-			'eyebrow' => 'Sierra Blanca · Marbella',
-			'h1'      => 'Diecisiete propiedades, ninguna al azar',
-			'lede'    => 'Villas contemporáneas, áticos y fincas de autor entre Sierra Blanca y la Milla de Oro. Cada una tratada como pieza, no como stock.',
-			'img'     => 'delao-hero',
-			'stats'   => array(
-				array( '17', 'propiedades en cartera, todas verificadas' ),
-				array( '6 M€+', 'valor medio de la última venta cerrada' ),
+			'eyebrow'  => 'Marbella · Costa del Sol',
+			'h1'       => 'Casas que no se anuncian solas',
+			'h1_lines' => array( 'Casas que no', 'se anuncian solas' ),
+			'lede'     => 'Seleccionamos un número corto de propiedades cada temporada y las representamos con el nivel de detalle que exige su precio.',
+			'img'      => 'delao-hero',
+			'stats'    => array(
+				array( '17', 'Mandatos activos' ),
+				array( '2,4 M€', 'Precio medio de cierre' ),
 			),
 		),
+		/* COMP-SEARCH-BAND, home — `Inicio.dc.html`'s own four fields: three selects and ONE free
+		   text field ("Zona o municipio", a placeholder input, never a select — PR3c's mistake).
+		   Field tuple: `array($key,$label,array($options))` for a select, or
+		   `array($key,$label,'input',$placeholder)` for a text field. */
 		'search'         => array(
 			'fields' => array(
-				array( 'operacion', 'Operación', array( 'Comprar', 'Alquilar' ) ),
-				array( 'zona', 'Zona', array( 'Sierra Blanca', 'Milla de Oro', 'Nueva Andalucía', 'Puerto Banús' ) ),
-				array( 'tipo', 'Tipo', array( 'Villa', 'Ático', 'Finca', 'Apartamento' ) ),
-				array( 'precio', 'Precio máximo', array( '2 M€', '4 M€', '6 M€', 'Sin límite' ) ),
+				array( 'operacion', 'Operación', array( 'Venta', 'Alquiler', 'Alquiler de temporada' ) ),
+				array( 'zona', 'Zona o municipio', 'input', 'Marbella, Sierra Blanca…' ),
+				array( 'tipo', 'Tipo', array( 'Villa', 'Ático', 'Apartamento', 'Finca' ) ),
+				array( 'precio', 'Precio', array( 'Sin límite', 'Hasta 1,5 M€', '1,5 – 3 M€', '3 – 6 M€', 'Más de 6 M€' ) ),
 			),
-			'count'  => '17 propiedades disponibles',
 			'submit' => 'Buscar',
 		),
+		/* COMP-FEATURED-GRID — the three cards `Inicio.dc.html` actually draws (`destacadas`), not
+		   PR3c's invented set. Only Villa Alameda has its own photographed slug among the three;
+		   "Ático Mar de Plata" and "Casa Los Cipreses" borrow the two other real property shots
+		   (`delao-atico-mar`/`delao-finca`) without renaming either slug — the copy changes, the
+		   file does not. */
 		'listing'        => array(
 			'eyebrow' => 'Selección 2026',
 			'h2'      => 'Propiedades destacadas',
 			'link'    => 'Ver las 17 propiedades',
 			'items'   => array(
-				array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'img' => 'delao-villa-alameda' ),
-				array( 'badge' => 'Nueva', 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
-				array( 'badge' => 'Off market', 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
+				array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '4.950.000 €', 'img' => 'delao-villa-alameda' ),
+				array( 'badge' => 'Nueva', 'h3' => 'Ático Mar de Plata', 'zone' => 'Milla de Oro', 'facts' => array( '318 m²', '3 hab.', '3 baños' ), 'price' => '3.200.000 €', 'img' => 'delao-atico-mar' ),
+				array( 'badge' => 'Off market', 'h3' => 'Casa Los Cipreses', 'zone' => 'La Zagaleta', 'facts' => array( '1.140 m²', '7 hab.', '8 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
 			),
 		),
+		/* COMP-VALUATION-CTA — `Inicio.dc.html`'s own copy verbatim. The design draws ONE button
+		   ("Solicitar valoración", to Contacto) plus a plain `tel:` link ("o llámenos"), never a
+		   second page-routed button — `valuation_row_html()` below is rewritten to match instead of
+		   the archetype doc's generic two-button paraphrase, and the primary CTA is routed by an
+		   EXPLICIT page key (`ihref('contacto')`), never `ihref_for_label()`: this copy matches none
+		   of TPL-C-15's five page labels, and the documented fallback for an unmatched label is the
+		   home route — silently wrong for the one button whose entire job is reaching Contacto. */
 		'valuation'      => array(
-			'eyebrow' => '¿Vendes?',
-			'h2'      => 'Valoramos tu propiedad sin compromiso',
-			'lede'    => 'Un técnico visita la vivienda y entrega un rango de precio en 48 horas. Nunca prometemos una cifra sin pisarla.',
-			'cta'     => 'Valorar mi casa',
-			'cta_2'   => 'Cómo vendemos',
-			'img'     => 'delao-cta',
+			'eyebrow'   => 'Vender con nosotros',
+			'h2'        => 'Sabemos lo que vale su casa antes de fotografiarla',
+			'lede'      => 'Preparamos un informe de valoración con comparables reales de cierre, no de publicación. Sin compromiso y en 48 horas.',
+			'cta'       => 'Solicitar valoración',
+			'tel_label' => 'o llámenos',
+			'phone'     => '+34 952 00 00 00',
+			'img'       => 'delao-cta',
 		),
+		/* COMP-TESTIMONIAL — `Inicio.dc.html`'s own three reviews, verbatim. `quotes_block_html()`
+		   is the shared shape every archetype's testimonial section already uses (`.head.stack`:
+		   eyebrow line above H2), not the design's own side-by-side H2 + rating-line composition —
+		   forking a shared function for one section's header geometry would cost every OTHER
+		   archetype's testimonial block a silent behaviour change for a gain that is layout, not
+		   copy. The real two-line heading and the real rating both survive verbatim, only their
+		   relative position differs from the artboard. */
 		'quotes'         => array(
-			'eyebrow' => 'Antes de escribir',
-			'h2'      => '4,9 / 5 · 68 reseñas verificadas',
+			'eyebrow' => '4,9 / 5 · 68 reseñas verificadas',
+			'h2'      => 'Lo que dicen nuestros clientes',
 			'items'   => array(
-				array( 'Vendieron nuestra villa en cinco semanas, al precio que habían tasado.', 'Familia Bergmann', 'Venta en Sierra Blanca' ),
-				array( 'Encontraron el ático antes de que saliera a portales.', 'C. Guerrero', 'Compra en Puerto Banús' ),
-				array( 'La tasación fue la única cifra que se cumplió de las tres agencias que llamamos.', 'J. van Dijk', 'Venta en Benahavís' ),
+				array( 'Vendieron la casa en cinco semanas al precio que nos dijeron el primer día. Nadie más se atrevió a darnos esa cifra.', 'Elena Marchetti', 'Venta · Sierra Blanca, 2025' ),
+				array( 'Nos enseñaron cuatro propiedades. Compramos la segunda. Es la primera vez que una agencia me hace perder poco tiempo.', 'Javier Ollero', 'Compra · Milla de Oro, 2025' ),
+				array( 'Discretos con los datos, exigentes con el reportaje y firmes en la negociación. Repetiría con los ojos cerrados.', 'Familia Duarte', 'Venta · Sotogrande, 2024' ),
 			),
 		),
 		'footer'         => array(
-			'tag'   => 'Inmobiliaria de la O · Marbella · 952 00 00 00 · Cartera de Sierra Blanca',
+			'tag'   => 'Inmobiliaria de la O · Marbella · +34 952 00 00 00 · Cartera de Sierra Blanca',
 			'links' => array( 'Propiedades', 'Nosotros', 'Contacto' ),
 			'legal' => 'Inmobiliaria de la O SL · Maqueta interna NovaMira, no publicada.',
 		),
-		'about'          => array(
-			'eyebrow' => 'La agencia',
-			'h2'      => 'Curamos la cartera antes de enseñarla',
-			'body'    => array(
-				'No publicamos todo lo que nos llega. Cada propiedad se visita, se verifica su situación registral y se fotografía antes de entrar en la cartera — por eso son diecisiete y no cuarenta.',
-				'Trabajamos una sola zona porque es la que conocemos casa por casa: sabemos qué villa tiene vistas al mar todo el año y cuál las pierde en verano por el crecimiento de los pinos del vecino.',
-			),
-			'img'     => 'delao-oficina',
-		),
-		'stats'          => array(
-			'eyebrow' => 'En números',
-			'items'   => array(
-				array( '17 propiedades', 'en cartera activa, verificadas una a una' ),
-				array( '68 operaciones', 'cerradas en Sierra Blanca desde 2014' ),
-				array( '48 horas', 'para entregar una tasación con visita' ),
-				array( '1 sola zona', 'Sierra Blanca y su Milla de Oro, ninguna otra' ),
-			),
-		),
-		'team'           => array(
-			'eyebrow' => 'Quién le atiende',
-			'h2'      => 'Tres personas, una sola zona',
-			'items'   => array(
-				array( 'Nerea Otxoa', 'Dirección y ventas', 'delao-nerea' ),
-				array( 'Julen Zabala', 'Captación y tasaciones', 'delao-julen' ),
-				array( 'Leire Andonegi', 'Gestión y postventa', 'delao-leire' ),
-			),
-		),
-		/* PR3c REWRITE — authored to `Nosotros.dc.html` (empresa, método, cifras, equipo) instead of
-		   reused from `page_about_company()`'s generic hero/about/features/stats/team/quotes shape. */
+		/* TPL-ABOUT-01 «Nosotros», authored to `Nosotros.dc.html` verbatim (head/method/figures were
+		   already literal in PR3c; the four método items below are now byte-for-byte the design's
+		   own text, not PR3c's paraphrase — item 02 in particular was an entirely different practice
+		   in PR3c ("verificación de cargas") where the design says "reportaje y documentación"). */
 		'nosotros'       => array(
 			'crumbs' => array( 'Inicio', 'Nosotros' ),
 			'head'   => array(
@@ -2166,10 +2171,10 @@ $CONTENT = array(
 			'method' => array(
 				'h2'    => 'Cómo trabajamos',
 				'items' => array(
-					array( '01', 'Valoración con comparables de cierre', 'Partimos de precios realmente firmados en la zona en los últimos dieciocho meses, no de precios publicados: es la única cifra que sostiene una negociación.' ),
-					array( '02', 'Verificación antes de publicar', 'Cargas, superficie y titularidad comprobadas, y la propiedad visitada por alguien de la casa antes de que entre en la cartera.' ),
-					array( '03', 'Difusión selectiva', 'Primero nuestra cartera de compradores registrados y una red corta de colaboradores internacionales; los portales llegan después, si hacen falta.' ),
-					array( '04', 'Acompañamiento hasta la notaría', 'Coordinamos abogados, tasación bancaria y firma. El propietario sólo toma decisiones; el papeleo es nuestro.' ),
+					array( '01', 'Valoración con comparables de cierre', 'Partimos de precios realmente firmados en la zona en los últimos dieciocho meses, no de precios publicados. Es la única cifra que sostiene una negociación.' ),
+					array( '02', 'Reportaje y documentación completos', 'Fotografía de arquitectura, vídeo, plano acotado y dossier con todo lo que un comprador y su abogado van a preguntar. Antes de publicar, no después.' ),
+					array( '03', 'Difusión selectiva', 'Primero nuestra cartera de compradores registrados y una red corta de colaboradores internacionales. Los portales llegan más tarde, si hacen falta.' ),
+					array( '04', 'Acompañamiento hasta la notaría', 'Coordinamos abogados, tasación bancaria, cédula de habitabilidad y firma. El vendedor solo toma decisiones; el papeleo es nuestro.' ),
 				),
 			),
 			'figures' => array(
@@ -2181,6 +2186,12 @@ $CONTENT = array(
 					array( '96 %', 'Cierres sobre precio de salida' ),
 				),
 			),
+			/* Design draws FOUR fictional agents with placeholder "retrato" captions; delao's own
+			   manifest photographs THREE real ones. Copying the design's headcount here would be
+			   exactly the "`cols-3` grid holding one item" defect the launch brief warns against,
+			   just counted from the other side — a fourth, empty portrait slot. `team_portraits_html()`
+			   columns dynamically off the REAL count via `cols_attr()`, and the eyebrow states three,
+			   not the design's four, so the copy never claims a headcount the cartera does not staff. */
 			'team'   => array(
 				'eyebrow' => 'Tres personas · una oficina',
 				'h2'      => 'El equipo',
@@ -2191,16 +2202,14 @@ $CONTENT = array(
 				),
 			),
 			'cta'    => array(
-				'h2'    => '¿Tiene una casa que merece este trato?',
-				'lede'  => 'Hablamos primero, visitamos después y sólo entonces decidimos si somos la casa adecuada para venderla.',
-				'cta'   => 'Contactar',
+				'h2'   => '¿Tiene una casa que merece este trato?',
+				'lede' => 'Hablamos primero, visitamos después y solo entonces decidimos si somos la casa adecuada para venderla.',
+				'cta'  => 'Contactar',
 			),
 		),
-		/* PR3c REWRITE — authored to `Contacto.dc.html` instead of reused from
-		   `page_contact_enquiry()` (`process`/`medteam`/`faq`, a medical clinic's contact page). The
-		   old `flow`/`team`/`faq` keys are gone: TGL-CONTACT-WHO and TGL-FAQ are OFF on this screen
-		   (the source design shows neither), and COMP-PROCESS's ADN is honoured in `head.lede`
-		   itself — see `page_contact_cartera()`'s own docblock for the full reasoning. */
+		/* TPL-CONTACT-01 «Contacto», authored to `Contacto.dc.html` verbatim — this page was already
+		   byte-for-byte literal in PR3c (head/form/office/direct all matched); kept unchanged here
+		   except the phone's `+34` prefix, for consistency with the header and the visit panel. */
 		'contacto'       => array(
 			'crumbs' => array( 'Inicio', 'Contacto' ),
 			'head'   => array(
@@ -2225,12 +2234,26 @@ $CONTENT = array(
 				'addr'    => "Avda. Ricardo Soriano 42\n29601 Marbella, Málaga",
 				'hours'   => "Lunes a viernes, 9:30 – 19:00\nSábados con cita previa",
 			),
+			/* `.example`, not the artboard's literal `.es`: RFC 2606's reserved test TLD is this
+			   whole file's own house convention for every demo's contact e-mail (lumiere, aranda,
+			   alinea all use it) — the one place a systemic safety convention outranks the artboard's
+			   own string, because the alternative is a fake e-mail address that reads as a real,
+			   possibly-registrable domain. */
 			'direct' => array(
 				'eyebrow' => 'Directo',
 				'phone'   => '+34 952 00 00 00',
 				'email'   => 'hola@inmobiliariadelao.example',
 			),
 		),
+		/* TPL-SERVICES-01 reuse «Propiedades» — `Propiedades.dc.html` verbatim: head, the sticky
+		   filter band (same four fields as home's search band, Zona also an input here), the results
+		   bar and its nine listed properties (design's own JS array, in its own order), and the
+		   "cargar más" ghost close. The closing "no encuentra lo que busca" band below the listing is
+		   NOT in the artboard — `Propiedades.dc.html` ends at "cargar más" — but is kept as the
+		   reused pattern's own closing convention (TPL-SERVICES-01's "index for a home with more
+		   entries than fit" ADN) rather than removed outright; its own "Valorar mi casa" CTA is
+		   routed by an EXPLICIT `cta_2_href` override (`page_cta_html()` below), fixing the same
+		   fallback-to-home bug `valuation_row_html()` had. */
 		'propiedades'    => array(
 			'crumbs'  => array( 'Inicio', 'Propiedades' ),
 			'head'    => array(
@@ -2238,15 +2261,12 @@ $CONTENT = array(
 				'h1'      => 'Propiedades',
 				'lede'    => 'Diecisiete propiedades bajo mandato. Las operaciones off market se comparten solo tras una primera conversación.',
 			),
-			/* Same four fields as the home's own COMP-SEARCH-BAND (TPL-C-15's own "cuatro campos
-			   como máximo, herencia directa de TPL-C-13") — the design draws this bar as literally
-			   the same form, only sticky and with tighter field padding, never a second field set. */
 			'filters' => array(
 				'fields' => array(
-					array( 'operacion', 'Operación', array( 'Comprar', 'Alquilar' ) ),
-					array( 'zona', 'Zona', array( 'Todas', 'Sierra Blanca', 'Milla de Oro', 'Nueva Andalucía', 'Puerto Banús', 'Sotogrande' ) ),
-					array( 'tipo', 'Tipo', array( 'Todos', 'Villa', 'Ático', 'Finca', 'Apartamento' ) ),
-					array( 'precio', 'Precio máximo', array( '2 M€', '4 M€', '6 M€', 'Sin límite' ) ),
+					array( 'operacion', 'Operación', array( 'Venta', 'Alquiler', 'Alquiler de temporada' ) ),
+					array( 'zona', 'Zona o municipio', 'input', 'Todas las zonas' ),
+					array( 'tipo', 'Tipo', array( 'Todos', 'Villa', 'Ático', 'Apartamento', 'Finca' ) ),
+					array( 'precio', 'Precio', array( 'Sin límite', 'Hasta 1,5 M€', '1,5 – 3 M€', '3 – 6 M€', 'Más de 6 M€' ) ),
 				),
 				'submit' => 'Filtrar',
 			),
@@ -2256,49 +2276,51 @@ $CONTENT = array(
 					'sort_label' => 'Ordenar',
 					'sorts'      => array( 'Recientes', 'Precio ↑', 'Precio ↓' ),
 				),
+				/* The design's own nine-row JS array, in its own order. Only three rows carry a real
+				   photographed slug (Villa Alameda / Ático Mar de Plata / Casa Los Cipreses, the same
+				   three the home page already features); the other six are honestly placeholder — the
+				   manifest holds no fourth-through-ninth property photo, and repeating one of the
+				   three real shots under a different name would be a false listing. */
 				'items'   => array(
-					array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'ref' => 'SB-1042', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'img' => 'delao-villa-alameda' ),
-					array( 'badge' => 'Nueva', 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'ref' => 'PB-0918', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
-					array( 'badge' => 'Off market', 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'ref' => 'BH-0803', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
-					/* Sin fotografía propia todavía -- placeholder marcado, nunca una de las tres
-					   fotos reales repetida: repetir una foto real bajo un nombre distinto sería una
-					   ficha falsa, y el manifiesto de delao sólo tiene doce fotos, tres de propiedad. */
+					array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'ref' => 'MB-1042', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '4.950.000 €', 'img' => 'delao-villa-alameda' ),
+					array( 'badge' => 'Nueva', 'h3' => 'Ático Mar de Plata', 'zone' => 'Milla de Oro', 'ref' => 'MB-1039', 'facts' => array( '318 m²', '3 hab.', '3 baños' ), 'price' => '3.200.000 €', 'img' => 'delao-atico-mar' ),
+					array( 'badge' => 'Off market', 'h3' => 'Casa Los Cipreses', 'zone' => 'La Zagaleta', 'ref' => 'MB-1031', 'facts' => array( '1.140 m²', '7 hab.', '8 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
 					array( 'badge' => 'En exclusiva', 'h3' => 'Villa Bruma', 'zone' => 'Sotogrande', 'ref' => 'SG-0918', 'facts' => array( '505 m²', '4 hab.', '5 baños' ), 'price' => '2.750.000 €' ),
 					array( 'badge' => 'Nueva', 'h3' => 'Casa Vela', 'zone' => 'Nueva Andalucía', 'ref' => 'NA-0877', 'facts' => array( '388 m²', '4 hab.', '4 baños' ), 'price' => '1.980.000 €' ),
-					array( 'badge' => 'Reservada', 'h3' => 'Ático Los Arcos', 'zone' => 'Marbella Club', 'ref' => 'MC-1027', 'facts' => array( '264 m²', '3 hab.', '3 baños' ), 'price' => '2.400.000 €' ),
+					array( 'badge' => 'Reservada', 'h3' => 'Ático Los Arcos', 'zone' => 'Marbella Club', 'ref' => 'MB-1027', 'facts' => array( '264 m²', '3 hab.', '3 baños' ), 'price' => '2.400.000 €' ),
+					array( 'badge' => 'En exclusiva', 'h3' => 'Finca El Almendral', 'zone' => 'Benahavís', 'ref' => 'BH-0803', 'facts' => array( '2.100 m²', '6 hab.', '6 baños' ), 'price' => '5.600.000 €' ),
 					array( 'badge' => 'Nueva', 'h3' => 'Villa Serena', 'zone' => 'Estepona', 'ref' => 'EP-0791', 'facts' => array( '412 m²', '4 hab.', '4 baños' ), 'price' => '1.650.000 €' ),
 					array( 'badge' => 'Off market', 'h3' => 'Casa Duna', 'zone' => 'Guadalmina', 'ref' => 'GM-0754', 'facts' => array( '576 m²', '5 hab.', '5 baños' ), 'price' => 'Precio a consultar' ),
-					array( 'badge' => 'En exclusiva', 'h3' => 'Ático Mirador', 'zone' => 'Milla de Oro', 'ref' => 'MO-1015', 'facts' => array( '298 m²', '3 hab.', '3 baños' ), 'price' => '3.100.000 €' ),
 				),
 				'more'    => 'Cargar más propiedades',
 			),
 			'cta'     => array(
-				'eyebrow' => 'No encuentra lo que busca',
-				'h2'      => 'Cuéntenos qué zona y qué presupuesto maneja',
-				'lede'    => 'Muchas propiedades entran en cartera antes de publicarse. Díganos qué busca y le avisamos primero.',
-				'cta_1'   => 'Contacto',
-				'cta_2'   => 'Valorar mi casa',
+				'eyebrow'      => 'No encuentra lo que busca',
+				'h2'           => 'Cuéntenos qué zona y qué presupuesto maneja',
+				'lede'         => 'Muchas propiedades entran en cartera antes de publicarse. Díganos qué busca y le avisamos primero.',
+				'cta_1'        => 'Contacto',
+				'cta_2'        => 'Valorar mi casa',
+				'cta_2_href'   => 'contacto',
 			),
 		),
-		/* PR3c REWRITE — TPL-PROPERTY-01's own content, authored to the source design instead of
-		   TPL-UNIT-01's used-vehicle shape. `plan`/`costs`/`energy` as three separate content keys
-		   are GONE, folded into `features`'s own 10-row table (Certificado energético, Comunidad,
-		   IBI live there now) — the source design draws exactly one features table, never three
-		   standalone bands, and COMP-FLOORPLAN's own "plano, ampliable" duty is honoured as a row
-		   in that same table rather than invented as a photograph delao's twelve do not include. */
+		/* TPL-PROPERTY-01 «Ficha» — `Ficha Propiedad.dc.html`'s own Villa Alameda, verbatim
+		   (price/parcela/certificado/comunidad were PR3c inventions that drifted from the design;
+		   fixed here to the artboard's own 4.950.000 €, 1.860 m², "A" and "520 €/mes"). The three
+		   description paragraphs are now the design's own three, in full, including the "sala de
+		   cine" and "apartamento de servicio independiente" PR3c's paraphrase dropped. */
 		'producto'       => array(
 			'crumbs' => array( 'Inicio', 'Propiedades', 'Villa Alameda' ),
 			'head'   => array(
 				'eyebrow' => 'Sierra Blanca, Marbella · En exclusiva',
 				'h1'      => 'Villa Alameda',
-				'lede'    => 'Obra de 2019 sobre una parcela en ladera, con orientación sur y vistas continuas a Sierra Blanca y al mar.',
+				'lede'    => 'Obra de 2019 sobre una parcela en ladera, con orientación sur y vistas continuas a La Concha y al mar.',
 			),
 			'price'  => array(
 				'label' => 'Precio de salida',
-				'value' => '6.200.000 €',
-				'm2'    => '9.657 €/m² construido',
+				'value' => '4.950.000 €',
+				'm2'    => '7.710 €/m² construido',
 			),
-			'ref'    => array( 'Ref. SB-1042', 'Cítela al pedir la visita: viaja con el formulario' ),
+			'ref'    => array( 'Ref. MB-1042', 'Cítela al pedir la visita: viaja con el formulario' ),
 			'tour'   => array(
 				'more'  => 'Ver 34 fotos',
 				'items' => array(
@@ -2310,7 +2332,7 @@ $CONTENT = array(
 			'facts'  => array(
 				'items' => array(
 					array( '642 m²', 'Construidos' ),
-					array( '2.100 m²', 'Parcela' ),
+					array( '1.860 m²', 'Parcela' ),
 					array( '5 / 6', 'Habitaciones / baños' ),
 					array( '2019', 'Año de construcción' ),
 				),
@@ -2318,9 +2340,9 @@ $CONTENT = array(
 			'desc'   => array(
 				'eyebrow' => 'La propiedad',
 				'paras'   => array(
-					'Villa Alameda ocupa la cota más alta de su calle, con acceso por un patio cerrado: la casa no se muestra hasta que se atraviesa el vestíbulo y el salón se abre por completo hacia el sur.',
-					'La planta principal reúne salón, comedor y cocina en un solo volumen con carpintería de suelo a techo y salida directa a la terraza y la piscina de desbordamiento. Los dormitorios tienen baño propio, vestidor y terraza propia.',
-					'En el sótano hay garaje para cuatro vehículos, bodega climatizada y gimnasio con spa. La casa cuenta con domótica integrada, suelo radiante por agua y aerotermia. Se vende amueblada por acuerdo separado.',
+					'Villa Alameda ocupa la cota más alta de su calle. El acceso se produce por un patio cerrado, de modo que la casa no se muestra hasta que se atraviesa el vestíbulo y el salón se abre por completo hacia el sur.',
+					'La planta principal reúne salón, comedor y cocina en un solo volumen de 132 m² con carpintería de suelo a techo y salida directa a la terraza y la piscina de desbordamiento. Todos los dormitorios tienen baño propio, vestidor y terraza; el principal ocupa el ala oeste completa, con estudio anexo.',
+					'En el sótano hay garaje para cuatro vehículos, bodega climatizada, gimnasio con spa, sala de cine y apartamento de servicio independiente. La casa cuenta con domótica integrada, suelo radiante por agua, aerotermia y certificación energética A. Se vende amueblada por acuerdo separado.',
 				),
 			),
 			'features' => array(
@@ -2329,9 +2351,9 @@ $CONTENT = array(
 				array( 'Plantas', '3 + sótano' ),
 				array( 'Piscina', 'Desbordamiento, climatizada' ),
 				array( 'Garaje', '4 plazas' ),
-				array( 'Certificado energético', 'B' ),
+				array( 'Certificado energético', 'A' ),
 				array( 'Climatización', 'Aerotermia y suelo radiante' ),
-				array( 'Comunidad', '480 €/mes · seguridad 24 h' ),
+				array( 'Comunidad', '520 €/mes · seguridad 24 h' ),
 				array( 'IBI', '6.140 €/año' ),
 				array( 'Disponibilidad', 'Inmediata' ),
 			),
@@ -2346,18 +2368,23 @@ $CONTENT = array(
 				),
 			),
 			'visit'  => array(
-				'eyebrow'    => 'Visitas concertadas',
-				'line'       => 'Enseñamos esta villa dos días por semana, con cita previa.',
-				'cta'        => 'Solicitar visita',
-				'phone_label' => 'o llame al 952 00 00 00',
-				'phone'      => '+34 952 00 00 00',
+				'eyebrow'     => 'Visitas concertadas',
+				'line'        => 'Enseñamos esta villa dos días por semana, con cita previa.',
+				'cta'         => 'Solicitar visita',
+				'phone_label' => 'o llame al +34 952 00 00 00',
+				'phone'       => '+34 952 00 00 00',
 			),
+			/* Design's own three "similares": only "Casa Los Cipreses" (La Zagaleta) carries a real
+			   photographed slug, the same `delao-finca` shot the home page and the listing already
+			   use for that same property — one file, reused consistently across all three pages it
+			   appears on, never renamed. "Finca El Almendral" and "Villa Bruma" have no photographed
+			   match in the twelve-slug manifest and stay honestly placeholder. */
 			'related' => array(
-				'h2'   => 'Propiedades similares',
-				'link' => 'Ver toda la cartera',
+				'h2'    => 'Propiedades similares',
+				'link'  => 'Ver toda la cartera',
 				'items' => array(
-					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
-					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
+					array( 'h3' => 'Casa Los Cipreses', 'zone' => 'La Zagaleta', 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
+					array( 'h3' => 'Finca El Almendral', 'zone' => 'Benahavís', 'price' => '5.600.000 €' ),
 					array( 'h3' => 'Villa Bruma', 'zone' => 'Sotogrande', 'price' => '2.750.000 €' ),
 				),
 			),
@@ -7183,51 +7210,97 @@ $css[] = <<<'CSS'
 .valuation .vstats span{font-size:.8125rem;color:var(--c-text-muted)}
 
 /* ══════════ TPL-C-15 · CARTERA CURADA — Inmobiliaria de la O ══════════
-   Tres piezas nuevas: el héroe de persuasión (bleed + retícula decorativa + panel de cifras), el
-   plato de búsqueda (superficie inversa DEL ANCHO DEL CONTENEDOR, nunca a sangre) y la fila de
-   valoración (dos hijos directos con `gap:1px` de filete — el mismo truco que `.checker` de
-   TPL-C-14, adaptado a dos columnas en vez de cuatro). Todo lo demás del arquetipo — buscador
-   embebido, rejilla de fichas, plano de búsqueda, testimonios — reutiliza CSS que TPL-C-13/C-07/
-   C-14 ya declaran verbatim. */
+   PR3d — the hero veil, the rule-grid hairlines and the search band below were all reproducing
+   this file's OWN generic dark-photo-hero recipe (`.mhero`/`.hero-visual`: black vignette rising
+   from the bottom, white text, a card-shaped filter bar borrowed from `TPL-C-07`) instead of the
+   artboard's actual geometry — exactly the defect the launch brief names by name ("NovaMira's
+   component system wearing the client's colours"). `Inicio.dc.html`'s own hero is a LIGHT,
+   horizontal veil (`linear-gradient(100deg, ground 95% → 6%)`) that the INK text sits on, not a
+   dark one white text sits on; its search band is a full-width inverse-surface BAND with unequal
+   field widths, not a floating rounded-shadow card. Fixed below, literally. */
 .herocartera{position:relative;isolation:isolate;min-height:78vh}
 .herocartera .media-full{position:absolute;inset:0;z-index:0}
-.herocartera .media-full .frame{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+.herocartera .media-full .frame{width:100%;height:100%;aspect-ratio:auto;border-radius:0;
+  background-color:var(--c-bg-alt);
+  background-image:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
 .herocartera .media-full img{width:100%;height:100%;object-fit:cover}
+/* `100deg`, ground → transparent: the artboard's own veil rises from the TEXT side (left) and
+   fades toward the photograph (right), not from the bottom — `color-mix` against `--c-bg` keeps
+   this a token-derived value rather than a re-typed literal hex. */
 .herocartera::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.5) 42%,rgba(0,0,0,.06) 75%,
-    rgba(0,0,0,0) 100%)}
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--c-bg) 95%,transparent) 0%,
+    color-mix(in srgb,var(--c-bg) 78%,transparent) 38%,
+    color-mix(in srgb,var(--c-bg) 28%,transparent) 70%,
+    color-mix(in srgb,var(--c-bg) 6%,transparent) 100%)}
 /* Decorativa a propósito: sólo filetes, `pointer-events:none`, y limitada al ancho del contenedor
    como el resto del contenido — la retícula de cuatro columnas del diseño de origen, reexpresada
-   como proporción sobre el token de la casa (D3: 1280 gana sobre los 1440 del diseño). Bajo
-   1024px se oculta: a ese ancho ya no se lee como retícula, se lee como ruido sobre la cara. */
+   como proporción sobre el token de la casa (D3: 1280 gana sobre los 1440 del diseño). Bajo 900px
+   se oculta: a ese ancho ya no se lee como retícula, se lee como ruido sobre la cara. Filetes DE
+   TINTA, no blancos — el veil ahora es claro, así que un filete blanco desaparecería sobre él; el
+   diseño de origen mismo los pinta `rgba(23,24,26,.09)` sobre su propio fondo claro. Un quinto
+   filete cierra la retícula por la derecha — el diseño da a su cuarta columna `border-left` Y
+   `border-right`, cuatro columnas piden cinco líneas, no cuatro. */
 .rulegrid{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;
   grid-template-columns:repeat(4,1fr);max-width:var(--container-max);margin-inline:auto;
   padding-inline:var(--pad-x-tablet)}
-.rulegrid span{border-left:1px solid rgba(255,255,255,.16)}
-@media(min-width:1024px){.rulegrid{display:grid}}
+.rulegrid span{border-left:1px solid color-mix(in srgb,var(--c-text) 9%,transparent)}
+.rulegrid span:last-child{border-right:1px solid color-mix(in srgb,var(--c-text) 9%,transparent)}
+@media(min-width:900px){.rulegrid{display:grid}}
+/* `1.45fr 1fr`, el diseño de origen — no el `7fr 3fr` (≈2.33) que aquí había, casi el doble de
+   desequilibrado. Sin `padding-block` simétrico: el diseño ancla el contenido abajo con
+   `padding:0 40px 72px`, cero arriba. */
 .herocartera > .canvas{position:relative;z-index:3;min-height:78vh;display:grid;
-  grid-template-columns:minmax(0,1fr);align-content:end;gap:var(--sp-l);padding-block:var(--sp-xl)}
-@media(min-width:1024px){.herocartera > .canvas{grid-template-columns:minmax(0,7fr) minmax(0,3fr);
+  grid-template-columns:minmax(0,1fr);align-content:end;gap:var(--sp-l);
+  padding-block:0 var(--sp-xl)}
+@media(min-width:900px){.herocartera > .canvas{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);
   align-items:end}}
-.herocartera .head h1,.herocartera .head .lede,.herocartera .head .eyebrow{color:#fff}
-.herocartera .head .lede{opacity:.92;max-width:42ch}
+.herocartera .head .lede{max-width:42ch}
 /* Filete NEUTRO, no de acento: design-tokens.md reserva `--c-accent` para CTAs, iconos de acción,
-   enlaces importantes y estados activos — un filete decorativo no es ninguno de los cuatro, y
-   `RT_MOCKUP_ACCENT_ROLE`-equivalente (la comprobación de este mismo generador) lo `fail()`ea. */
-.statspanel{background:rgba(0,0,0,.42);border-left:2px solid rgba(255,255,255,.55);
-  padding:var(--sp-m) var(--sp-l)}
+   enlaces importantes y estados activos — un filete decorativo no es ninguno de los cuatro, y el
+   accent-role gate de este mismo generador lo `fail()`ea. El diseño de origen lo pinta en su propio
+   acento (`rgba(138,123,92,.55)`); aquí es `--c-border` sobre fondo claro, la misma sustitución que
+   `proplux_card_html()` ya hace para la etiqueta de zona y `property_location_html()` para la
+   chincheta del mapa. */
+.statspanel{background:color-mix(in srgb,var(--c-bg) 93%,transparent);
+  border-left:2px solid var(--c-border);padding:var(--sp-m) var(--sp-l)}
 .statspanel ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m)}
-.statspanel b{display:block;font-family:var(--font-primary);color:#fff;
+.statspanel b{display:block;font-family:var(--font-primary);color:var(--c-text);
   font-size:clamp(1.4rem,2.6vw,2.1rem);line-height:1.1}
-.statspanel span{display:block;margin-top:.2rem;font-size:.8125rem;color:rgba(255,255,255,.78)}
+.statspanel span{display:block;margin-top:.2rem;font-size:.8125rem;color:var(--c-text-muted)}
 
 /* «Del ancho del contenedor de página, sin tocar el borde de la ventana»: el plato inverso vive
    DENTRO de `.canvas` (ya limitado a `--container-max`), nunca en el `<section>` completo — a
-   diferencia de `.bg-alt`, que sí pinta de borde a borde. */
+   diferencia de `.bg-alt`, que sí pinta de borde a borde. Sin `border-radius`: el diseño de origen
+   dibuja este plato a bordes rectos, y `.sbplate` es una superficie propia de este arquetipo, no
+   `.card`, así que no hereda la excepción de radio que sí necesitaría un `.card` reutilizado. */
 .sbplate{background:var(--c-surface-inverse);color:var(--c-on-inverse);
-  border-radius:var(--radius-card);padding:var(--sp-l) var(--pad-x-mobile)}
+  border-radius:0;padding:var(--sp-l) var(--pad-x-mobile)}
 @media(min-width:768px){.sbplate{padding:var(--sp-l) var(--pad-x-tablet)}}
-.sbplate .filterbar label{color:var(--c-on-inverse)}
+/* `.filterbar` REUSED FOR ITS FIELD LAYOUT ONLY. Its own base rule (`TPL-C-07`, above) is a
+   FLOATING CARD — light background, rounded corners, a drop shadow and a negative top margin that
+   pulls it up onto a photograph's bottom edge. None of that belongs to `COMP-SEARCH-BAND`, which
+   the artboard draws as a plain full-width band sitting in normal flow below the hero — PR3c
+   nested `.filterbar` inside `.sbplate` and only ever overrode the label colour, so every one of
+   those four card properties survived, invisibly, underneath a dark backdrop that was fighting its
+   own light-card child. Neutralised here, all four properties, scoped to this nesting only. */
+.sbplate .filterbar{position:static;margin:0;width:100%;background:transparent;border:0;
+  border-radius:0;padding:0;box-shadow:none}
+.sbplate .filterbar label{color:var(--c-on-inverse);opacity:.65}
+/* `1fr 1.2fr 1fr 1.1fr auto` — the artboard's own unequal column set (zona wider, precio slightly
+   wider, submit sized to its own content), not `TPL-C-07`'s equal `repeat(4,…)`. `auto` for the
+   fifth column is the submit control living IN the row, not below it. */
+@media(min-width:900px){
+  .sbplate .filterbar{grid-template-columns:1fr 1.2fr 1fr 1.1fr auto}
+  .sbplate .filterbar .field{padding:1.875rem 1.625rem 1.75rem;
+    border-right:1px solid color-mix(in srgb,var(--c-on-inverse) 14%,transparent)}
+  .sbplate .filterbar .btn{border-radius:0;padding-inline:2.75rem;align-self:stretch}
+}
+/* Select AND input both need an explicit colour here: the base `.filterbar select` rule paints
+   `var(--c-text)`, which is dark ink — invisible on this dark inverse ground. This is the bug that
+   made the search bar's own values unreadable, not merely mistinted. */
+.sbplate .filterbar select,.sbplate .filterbar input{color:var(--c-on-inverse);border-radius:0}
+.sbplate .filterbar input::placeholder{color:color-mix(in srgb,var(--c-on-inverse) 55%,transparent)}
 
 /* La fila de valoración: dos hijos directos, `gap:1px` sobre `--c-border` como fondo hace de
    filete — un panel oscuro y una fotografía, apilados bajo 768px y en fila a partir de ahí. */
@@ -7238,11 +7311,10 @@ $css[] = <<<'CSS'
 @media(min-width:768px){.vlpanel{padding:var(--sp-xl) var(--pad-x-tablet)}}
 .vlpanel .head *{color:var(--c-on-inverse)}
 .vlpanel .lede{opacity:.85}
-.vlpanel .ctas{display:flex;flex-wrap:wrap;gap:var(--sp-m);align-items:center}
-/* `.btn-outline` on an inverse ground, same correction `.mhero` already applies: the token's
-   default border/colour assume a light surface, so a panel this dark needs its own override. */
-.vlpanel .btn-outline{color:var(--c-on-inverse);
-  border-color:color-mix(in srgb,var(--c-on-inverse) 55%,transparent)}
+.vlpanel .ctas{display:flex;flex-wrap:wrap;gap:var(--sp-l);align-items:center}
+/* PR3d — the artboard's own second action is a plain `tel:` LINK ("o llámenos"), never a second
+   button: `.btn-outline` (and its inverse-ground override) is gone with it. */
+.valuetel{color:var(--c-on-inverse);opacity:.7;font-size:.8125rem}
 .vlshot{margin:0;min-height:18rem}
 @media(min-width:768px){.vlshot{min-height:100%}}
 .vlshot img{width:100%;height:100%;object-fit:cover;display:block}
@@ -9253,12 +9325,21 @@ function craft_steps_html( $pr ) {
 }
 
 /** COMP-CTA sobrio, sin formulario. Tres páginas internas cierran igual, así que hay uno. */
+/**
+ * PR3d — `$b['cta_1_href']`/`$b['cta_2_href']` are OPTIONAL explicit page-key overrides. Every
+ * pre-existing caller omits them and keeps the old `ihref_for_label()` best-effort match byte for
+ * byte; delao's `propiedades` page supplies `cta_2_href` because its own "Valorar mi casa" copy
+ * matches none of TPL-C-15's five page labels, and the documented fallback for an unmatched label
+ * is the home route — silently wrong for a button whose entire job is reaching Contacto.
+ */
 function page_cta_html( $b ) {
+	$href_1 = isset( $b['cta_1_href'] ) ? ihref( $b['cta_1_href'] ) : ihref_for_label( $b['cta_1'] );
+	$href_2 = isset( $b['cta_2_href'] ) ? ihref( $b['cta_2_href'] ) : ihref_for_label( $b['cta_2'] );
 	return '<section class="sec band closing sober" aria-label="' . h( $b['h2'] ) . '"><div class="canvas">'
 		. '<div class="head stack"><span class="eyebrow">' . h( $b['eyebrow'] ) . '</span>'
 		. '<h2>' . h( $b['h2'] ) . '</h2><p class="muted">' . h( $b['lede'] ) . '</p>'
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $b['cta_1'] ) ) . '">' . h( $b['cta_1'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $b['cta_2'] ) ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( $href_1 ) . '">' . h( $b['cta_1'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( $href_2 ) . '">' . h( $b['cta_2'] ) . '</a></div></div>'
 		. '</div></section>';
 }
 
@@ -11322,14 +11403,18 @@ function hero_cartera_html( $hero ) {
 	   class, and `.bleedband`'s `display:grid` only ever sees `.media-full`/`.rulegrid` (both
 	   `position:absolute`, so out of grid flow) and `.canvas` (the one flowed child) — the 78vh
 	   photo, the veil and the 4-column rule grid are unaffected. */
+	/* PR3d — `$hero['h1_lines']` is the artboard's own two-line break (`Casas que no<br>se anuncian
+	   solas`), kept as an array and joined through `h()` per part rather than passed as raw markup:
+	   the same convention this file already uses for a two-line address. `$hero['h1']` (plain,
+	   single string) stays the `aria-label`/SEO value — `sec_open()` takes a label, not markup. */
 	$o  = sec_open( 'hero herocartera', $hero['h1'], 'bleed' ) . '<div class="media-full">'
 		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '" alt="' . h( $im['alt'] )
 		. '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '<div class="rulegrid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>'
 		. '<div class="canvas"><div class="head stack">'
 		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $hero['h1'] ) . '</h1>'
-		. '<p class="lede">' . h( $hero['lede'] ) . '</p></div>'
+		. '<h1>' . implode( '<br>', array_map( 'h', $hero['h1_lines'] ) ) . '</h1>'
+		. '<p class="lede muted">' . h( $hero['lede'] ) . '</p></div>'
 		. '<div class="statspanel"><ul>';
 	foreach ( $hero['stats'] as $st ) {
 		$o .= '<li><b>' . h( $st[0] ) . '</b><span>' . h( $st[1] ) . '</span></li>';
@@ -11347,17 +11432,32 @@ function hero_cartera_html( $hero ) {
  * superficie inversa vive en `.sbplate`, dentro del `.canvas` que `sec_open()` ya limita al
  * contenedor, y no en el `<section>` entero.
  */
+/**
+ * PR3d — one field tuple now covers BOTH controls the artboard actually draws: a select,
+ * `array($key,$label,array($options))`, or a free-text input, `array($key,$label,'input',
+ * $placeholder)` — "Zona o municipio" is a placeholder INPUT on both `Inicio.dc.html` and
+ * `Propiedades.dc.html`, never a select, which is what PR3c's select-only field renderer got
+ * wrong. `sbfield_html()` is shared by `search_band_html()` and `filter_band_html()` below, the
+ * same "one field recipe" `filter_band_html()`'s own docblock already argued for.
+ */
+function sbfield_html( $fl, $id ) {
+	if ( 'input' === $fl[2] ) {
+		return '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<input id="' . $id . '" name="' . $fl[0] . '" type="text" placeholder="' . h( $fl[3] ) . '"></div>';
+	}
+	$o = '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+		. '<select id="' . $id . '" name="' . $fl[0] . '">';
+	foreach ( $fl[2] as $opt ) {
+		$o .= '<option>' . h( $opt ) . '</option>';
+	}
+	return $o . '</select></div>';
+}
+
 function search_band_html( $sf, $uid ) {
 	$o = sec_open( 'searchband', 'Buscador de propiedades' ) . '<div class="sbplate">'
 		. '<form class="filterbar" onsubmit="return false">';
 	foreach ( $sf['fields'] as $fl ) {
-		$id = $uid . '-sb-' . $fl[0];
-		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
-			. '<select id="' . $id . '" name="' . $fl[0] . '">';
-		foreach ( $fl[2] as $opt ) {
-			$o .= '<option>' . h( $opt ) . '</option>';
-		}
-		$o .= '</select></div>';
+		$o .= sbfield_html( $fl, $uid . '-sb-' . $fl[0] );
 	}
 	return $o . '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
 		. '</form></div>' . sec_close();
@@ -11368,12 +11468,21 @@ function search_band_html( $sf, $uid ) {
  * directos, sin contenedor intermedio, separados por el mismo `gap:1px` que actúa de filete que el
  * damero de `COMP-BONO-PACKS` en `TPL-C-14` — el mismo truco, aplicado aquí a la otra conversión.
  * Nunca promete un precio en la página; la tasación es presencial.
+ *
+ * PR3d FIX — `Inicio.dc.html` draws exactly ONE button here ("Solicitar valoración") plus a plain
+ * `tel:` link ("o llámenos"), never a second page-routed button. The primary CTA is routed by an
+ * EXPLICIT page key (`ihref('contacto')`), never `ihref_for_label($vl['cta'])`: that copy matches
+ * none of TPL-C-15's five page labels (Cartera/Propiedades/Ficha/Nosotros/Contacto), and
+ * `ihref_match()`'s own documented fallback for an unmatched label is the HOME route — silently
+ * wrong for the one button whose entire job is reaching Contacto. This is the bug the launch brief
+ * names; PR3c's own second button (`cta_2` through the same fuzzy match) had the identical defect,
+ * and is gone rather than fixed in place because the artboard never drew a second button to fix.
  */
 function valuation_row_html( $vl, $uid ) {
 	$o = sec_open( 'valuerow', $vl['h2'], 'row' )
 		. '<div class="vlpanel">' . sec_head( $vl )
-		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $vl['cta'] ) ) . '">' . h( $vl['cta'] ) . '</a>'
-		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $vl['cta_2'] ) ) . '">' . h( $vl['cta_2'] ) . '</a></div></div>'
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref( 'contacto' ) ) . '">' . h( $vl['cta'] ) . '</a>'
+		. '<a class="valuetel" href="tel:' . h( preg_replace( '/\s+/', '', $vl['phone'] ) ) . '">' . h( $vl['tel_label'] ) . '</a></div></div>'
 		. '<figure class="vlshot">' . img_tag( $vl['img'] ) . '</figure>';
 	return $o . sec_close( 'row' );
 }
@@ -11442,13 +11551,7 @@ function filter_band_html( $sf, $uid ) {
 	$o = sec_open( 'searchband filterband', 'Filtrar propiedades' ) . '<div class="sbplate">'
 		. '<form class="filterbar" onsubmit="return false">';
 	foreach ( $sf['fields'] as $fl ) {
-		$id = $uid . '-fb-' . $fl[0];
-		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
-			. '<select id="' . $id . '" name="' . $fl[0] . '">';
-		foreach ( $fl[2] as $opt ) {
-			$o .= '<option>' . h( $opt ) . '</option>';
-		}
-		$o .= '</select></div>';
+		$o .= sbfield_html( $fl, $uid . '-fb-' . $fl[0] );
 	}
 	return $o . '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
 		. '</form></div>' . sec_close();

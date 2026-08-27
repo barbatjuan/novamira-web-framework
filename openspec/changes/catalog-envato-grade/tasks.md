@@ -413,6 +413,110 @@ Files: `_build-gallery.php` (bleed fix + new render functions + expanded `$CONTE
 - [ ] 3c.9 Orchestrator: full-sweep `visual-verification` over the regenerated `delao` strip at its
       one anchor, all 5 pages.
 
+## PR3d — Reproduce the design literally (PR3c also rejected by the user — "no tiene nada que ver")
+
+**Root cause of both PR3b and PR3c's rejection**: both were authored from the handoff's prose
+README, which lists a section inventory but loses the design — the exact measurements, gradients,
+texture and above all the COPY. PR3c invented an H1 ("Diecisiete propiedades, ninguna al azar")
+where the artboard says "Casas que no<br>se anuncian solas", and reused this file's own generic
+dark-photo-hero recipe (black vignette, white text, `TPL-C-07`'s floating rounded-shadow search
+card) instead of the artboard's literal light horizontal veil and full-width inverse search band —
+NovaMira's component system wearing the client's colours, in the user's own words. Fixed by reading
+the seven extracted artboard HTML files (`Inicio.dc.html`, `Propiedades.dc.html`,
+`Ficha Propiedad.dc.html`, `Nosotros.dc.html`, `Contacto.dc.html`, `Nav.dc.html`, `Pie.dc.html`)
+directly, not the README, and reproducing their literal copy and geometry.
+
+Files: `_build-gallery.php` only (content array rewrite, `hero_cartera_html()`, `search_band_html()`/
+`filter_band_html()` + new shared `sbfield_html()`, `valuation_row_html()`, `page_cta_html()`, CSS).
+
+- [x] 3d.1 `$CONTENT['TPL-C-15-delao']` rewritten wholesale, verbatim from the seven artboards: home
+      hero (eyebrow "Marbella · Costa del Sol", H1 "Casas que no<br>se anuncian solas" as a two-line
+      array, lede, stats "17/Mandatos activos" + "2,4 M€/Precio medio de cierre"), search fields
+      (Zona o municipio is a text INPUT, not a select — PR3c's mistake), featured/listing/producto
+      property data (Villa Alameda's real price 4.950.000 €, parcela 1.860 m², certificado "A",
+      comunidad "520 €/mes", full 3-paragraph description including "sala de cine" and "apartamento
+      de servicio independiente" PR3c's paraphrase dropped), Nosotros método items (item 02 was an
+      entirely different practice in PR3c), valuation CTA copy, propiedades' 9-item listing (design's
+      own JS array, in order, real refs MB-1042/MB-1039/MB-1031). The three real photographed slugs
+      (`delao-villa-alameda`/`delao-atico-mar`/`delao-finca`) are never renamed; only the copy tied
+      to each slug now matches the artboard's own property (Ático Mar de Plata/Milla de Oro, Casa
+      Los Cipreses/La Zagaleta). Team keeps delao's own 3 real portraits (Nerea/Julen/Leire), not the
+      design's 4 fictional names — no fourth, unphotographed portrait slot.
+- [x] 3d.2 `hero_cartera_html()`: H1 rendered from a `h1_lines` two-part array joined with `<br>`
+      through `h()` per part (never raw markup), the same convention this file already uses for a
+      two-line address; the plain single-string `h1` stays the `aria-label`.
+- [x] 3d.3 [RED→GREEN, threat-matrix: mis-scoped shared-component reuse] `sbfield_html()` new shared
+      helper for `search_band_html()`/`filter_band_html()`: one field tuple now covers both a select
+      (`array($key,$label,array($options))`) and a free-text input
+      (`array($key,$label,'input',$placeholder)`) — the artboard's own "Zona o municipio" is always
+      an input, never a select. RED observed first: rendering the old select-only path against the
+      new `'input'` tuple shape emitted a broken `<select><option>Marbella, Sierra Blanca…</option>`
+      instead of a real text field; GREEN after `sbfield_html()` branches on the tuple shape.
+- [x] 3d.4 [RED→GREEN] Hero + search-band CSS rewritten to the artboard's literal geometry instead of
+      this file's own generic dark-hero/floating-card recipes:
+      - `.herocartera::after` — RED: the veil was `linear-gradient(to top, black 82%→0%)` (a vertical
+        dark vignette meant for WHITE text); the artboard's own veil is
+        `linear-gradient(100deg, ground 95%→6%)`, horizontal, rising from the TEXT side. Fixed with
+        `color-mix(in srgb, var(--c-bg) N%, transparent)` at the artboard's own four stops.
+      - `.herocartera .head` — RED: `h1`/`.lede`/`.eyebrow` were forced `color:#fff` for a veil that
+        is now light; removed, so ink/muted defaults apply (matching every other section on the page).
+      - `.herocartera > .canvas` — RED: `grid-template-columns:7fr 3fr` (≈2.33 ratio) against the
+        artboard's own `1.45fr 1fr` (≈1.45) — nearly double the imbalance. Fixed to the literal ratio.
+      - `.rulegrid span` — RED: white hairlines (`rgba(255,255,255,.16)`) invisible over the new light
+        veil; the artboard paints its own rule grid `rgba(23,24,26,.09)` over its own light hero.
+        Fixed to `color-mix(in srgb, var(--c-text) 9%, transparent)`, plus a `border-right` on the
+        last span — the artboard's own 4th rule-grid column carries both `border-left` AND
+        `border-right`, closing the grid; 4 columns need 5 lines, not 4.
+      - `.statspanel` — RED: `background:rgba(0,0,0,.42)` (dark) with a white border and white text,
+        against the artboard's own near-opaque LIGHT panel with ink numbers. Fixed to
+        `color-mix(in srgb, var(--c-bg) 93%, transparent)` background, ink numbers, muted labels.
+        Border stays NEUTRAL (`var(--c-border)`, not the artboard's own accent-toned
+        `rgba(138,123,92,.55)`) — a decorative border-left claims none of `$ACCENT_ROLES`'s four
+        roles and the accent-budget gate would `fail()` it on sight; same substitution
+        `proplux_card_html()`'s zone label and `property_location_html()`'s map pin already made.
+      - `.sbplate .filterbar` — RED: nested `.filterbar` (`TPL-C-07`'s own floating card: rounded
+        corners, box-shadow, negative top margin pulling it onto a photo's bottom edge, LIGHT
+        background) inside `.sbplate` (a dark inverse band) with only the label colour overridden —
+        every other card property survived, invisibly, under a dark backdrop fighting its own
+        light-card child. Neutralised (`background:transparent;border:0;border-radius:0;margin:0;
+        width:100%;box-shadow:none`), literal unequal column ratio `1fr 1.2fr 1fr 1.1fr auto`
+        (was equal `repeat(4,1fr)`), literal field padding, `border-right` hairline separators.
+      - `.sbplate .filterbar select,input` — RED: base `.filterbar select` paints `var(--c-text)`
+        (dark ink) — invisible on the dark inverse ground, an unreadable-values bug, not merely a
+        mistint. Fixed to `var(--c-on-inverse)`.
+      GREEN: `php _build-gallery.php` exit 0; rendered hero/search-band markup inspected directly
+      against the artboard byte-for-byte for eyebrow/H1/lede/stats/field-order/field-type.
+- [x] 3d.5 Fixed the two "Valorar mi casa" CTAs named in the launch brief:
+      - `valuation_row_html()`: the artboard draws exactly ONE button here ("Solicitar valoración")
+        plus a plain `tel:` link ("o llámenos"), never a second page-routed button. Rewritten to
+        route the primary CTA through an EXPLICIT `ihref('contacto')` (never
+        `ihref_for_label($vl['cta'])`, whose fuzzy match against TPL-C-15's five page labels fails
+        and falls back to home) and render the second action as a `tel:` anchor, not a button.
+      - `page_cta_html()`: now accepts OPTIONAL `cta_1_href`/`cta_2_href` overrides — every
+        pre-existing caller omits them and keeps the old `ihref_for_label()` behaviour byte for byte;
+        delao's `propiedades` page (whose own closing CTA is not in the artboard but is kept as
+        `TPL-SERVICES-01`'s own reused "index" closing convention) supplies `cta_2_href: 'contacto'`
+        for its "Valorar mi casa" button, fixing the identical fallback-to-home bug.
+- [x] 3d.6 Regenerate + verify: `php _build-gallery.php` exit 0; `php framework-audit.php` →
+      **0 FAIL / 10 WARN / 0 JUDGE** (byte-identical WARN set); full chain `test-framework-audit` 765
+      + `test-write-path` 426 + `test-container-hygiene` 81 + `test-audit-signals` 22 =
+      **1294 OK / 0 FAIL**. Nav reachability re-proven: 5 distinct hash destinations
+      (`#tplc15delao/editorial`, `.../propiedades`, `.../producto`, `.../nosotros`, `.../contacto`).
+      Rendered fidelity check (quoted from the real generated `index.html`): home H1
+      `<h1>Casas que no<br>se anuncian solas</h1>`, eyebrow `<span class="eyebrow">Marbella · Costa
+      del Sol</span>`; accent `#8A5A2A` on `b-delao` → 5.35:1 bg / 4.94:1 bg-alt (matches the launch
+      brief's own quoted figures exactly). Section sweep unchanged from 3c.8 (this batch is content
+      + CSS fidelity, not a section-shape change): home `hero herocartera bleedband, searchband,
+      featuredgrid grid-sec, valuerow secrow, quotes grid-sec`; propiedades `pagehead splithead,
+      searchband filterband, proplisting grid-sec, band closing sober`; producto `pagehead splithead
+      prophead, propgallery, propfacts, propdetail grid-sec, propsimilar grid-sec`; nosotros
+      `pagehead splithead, aboutphoto, methodsec grid-sec, figuresband, teamsec grid-sec, aboutcta`;
+      contacto `pagehead splithead, contactbody grid-sec`.
+      Full-sweep `visual-verification` NOT run by sdd-apply — no browser tooling in this execution
+      context, same limitation recorded for 2b.9/3b.8/3c.9; owned by the orchestrator.
+- [ ] 3d.7 Orchestrator: full-sweep `visual-verification` over the regenerated `delao` strip, all 5
+      pages, checked against the actual artboard screenshots this time (not the README).
+
 ---
 
 ## PR4 — `TPL-C-07` (aranda) Envoltorio table
