@@ -98,7 +98,9 @@ orden: fotografía a sangre → velo en degradado que sube de transparente a opa
 texto → retícula de cuatro columnas superpuesta (`z-index:2`, `pointer-events:none`, sólo filetes,
 decoración y no contenedor) → contenido. El contenido reparte antetítulo + H1 a dos líneas + párrafo
 a un lado, y al otro un panel de cifras (dos datos, valor grande + etiqueta) sobre un fondo casi
-opaco con filete de acento a la izquierda — la casa se afirma con números que la agencia puede
+opaco con filete NEUTRO a la izquierda (blanco translúcido, no `--c-accent`: un filete decorativo
+no es CTA, icono de acción, enlace importante ni estado activo, y el generador lo `fail()`ea si
+pinta con acento fuera de esos cuatro roles) — la casa se afirma con números que la agencia puede
 sostener, no con un claim vacío.
 **Nunca lleva el formulario encima en este modo**: eso es lo que distinguía a `TPL-C-13`, y aquí
 sigue vivo como el otro extremo del toggle.

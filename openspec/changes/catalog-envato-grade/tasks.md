@@ -247,27 +247,91 @@ Files: `templates/corporate/TPL-C-15-cartera-curada.md` (NEW), `recommender.md`,
 ### PR3b — delao brand (human decision required)
 Files: `_build-gallery.php` (`$BRANDS`, `$CONTENT`, `$STRIPS`, `$PAGES` for `delao`),
 `_gallery-images.md` (delao manifest rows + Registers row), handoff block content.
-- [ ] 3b.1 **Verify accent with the generator's own `contrast()`** (`_build-gallery.php:203`)
-      before adding the brand block: ground `#F6F4F0` / alt `#EFEBE4` / text `#17181A`, accent
-      `#756547`. Confirm ≥4.5 on both `bg`/`bg-alt` and ≥7.0 text-on-ground/alt. `#8A7B5C` and
-      `#7A6B4E` are known-bad controls — running them first proves the check actually gates.
-- [ ] 3b.2 Container: consume `--container-max` from `design-system.md:138` unmodified (1280,
-      D3) — no forked value.
-- [ ] 3b.3 Font: confirm `Instrument Serif` + `Archivo` (both already in
-      `skills/html-mockup/assets/fonts/`) are used; no new `.woff2`/OFL/`_fonts.php` entry —
-      resolved by design, this is verification only.
-- [ ] 3b.4 Source/generate the `delao-*` photo set (new slug prefix; the 15 `inmo-*` rows already
-      retired in 2b.7) — human decision: asset sourcing via Freepik AI/Pikaso/Magnific per
-      proposal Dependencies.
-- [ ] 3b.5 Resolve the pilot's responsive behaviour (currently "pendiente de definir"); the
-      `mockup-handoff-persistence` Build Gate MUST reject the handoff otherwise.
-- [ ] 3b.6 Add `$BRANDS['delao']`, `$CONTENT`/`$STRIPS`/`$PAGES` (home `TPL-C-15`, `PROPERTY-01`,
-      `ABOUT-01`, `CONTACT-01`), manifest rows with slug=filename + licence.
-- [ ] 3b.7 Add delao's Registers row to the 10-row table from 2b.7 (was a placeholder).
-- [ ] 3b.8 Regenerate + full-sweep `visual-verification`.
-- [ ] 3b.9 Verify: full chain 0 FAIL; `RT_GALLERY_AXIS_LEAK`, `RT_GALLERY_REGISTER_COUNT_MISMATCH`,
-      `RT_MOCKUP_CONTAINER_FORK`, `RT_GALLERY_ACCENT_TEXT_FAIL`, `RT_GALLERY_SINGLE_PAGE_DEMO`,
-      `RT_GALLERY_NO_MANIFEST` all pass for `delao`.
+- [x] 3b.1 **Verify accent with the generator's own `contrast()`** (`_build-gallery.php:203`)
+      before adding the brand block. DONE, but the launch value was WRONG and this task's own run
+      of `contrast()` is what caught it: `#756547` clears the AA text-contrast gate (5.15 bg /
+      4.77 alt, re-measured — ≥4.5) but FAILS a second, independent gate this task's literal text
+      did not name — `ink_ends()` (§ 5a), which requires the accent-tinted shadow ink to carry a
+      channel spread ≥ 20 (`fail()`: "#28251D ... spread of 11 ... a two-colour map whose dark ink
+      is grey is not a two-colour map"). The whole `#8A7B5C → #7A6B4E → #756547` lineage is one
+      family of *desaturated* khakis: darkening without raising saturation clears AA text-contrast
+      but not ink-spread. Final: **`#8A5A2A`** (terracotta/bronze) — 5.35 bg / 4.94 alt (both
+      ≥4.5) **and** shadow ink `#2F2317`, spread 24 (≥20). `#8A7B5C` (3.77/3.49) and `#7A6B4E`
+      (4.73/**4.37**) both re-confirmed as known-bad controls on the AA gate, as this task
+      expected. Ground `text`/`bg`/`bg-alt`: 16.17:1 / 14.95:1, both ≫7.0. `design.md`'s decision
+      note updated with this correction (see its "PR3b correction" addendum).
+- [x] 3b.2 Container: DONE — verification only, as written. `--container-max:1280px` is a single
+      literal in the generated page shared by every brand (`_build-gallery.php`); `delao` adds no
+      forked value, confirmed by `RT_MOCKUP_CONTAINER_FORK` staying silent (0 FAIL).
+- [x] 3b.3 Font: DONE — `Instrument Serif` (`font_1`) + `Archivo` (`font_2`), both already in
+      `skills/html-mockup/assets/fonts/`; no new `.woff2`/OFL/`_fonts.php` entry. Substitution for
+      the design's Libre Caslon Display recorded as a comment on `$BRANDS['delao']` itself, same
+      precedent as D3's container note.
+- [x] 3b.4 DONE — the 12 `delao-*.webp` files (669 KB total) were generated and placed in
+      `img/` ahead of this batch; this task's scope was adding their manifest rows (folded into
+      3b.6/3b.7 below), not generation.
+- [x] 3b.5 DONE — pilot responsive resolved (adopting the design handoff's own recommendation, per
+      this batch's launch prompt, qualitatively: grids collapse toward fewer columns as the
+      viewport narrows, the search bar stacks, the detail mosaic collapses, the nav goes mobile,
+      44px touch targets). **Note on the exact breakpoints**: the launch prompt's own numbers
+      (1024px / 720px) do not match the house's real, already-audited breakpoints — verified rather
+      than assumed. `COMP-FEATURED-GRID` (`.stockgrid`, reused from `TPL-C-07`) drops from `--cols`
+      to 2 at `max-width:900px` and to 1 at `max-width:599px`; `COMP-SEARCH-BAND`'s `.filterbar`
+      stacks below `min-width:900px`; `TPL-PROPERTY-01`'s tour mosaic (`.tourlist`, pre-existing CSS,
+      never rendered before this batch) collapses to 1 column below `min-width:768px`; `.rulegrid`
+      (new, this batch) hides below `min-width:1024px` — decorative-only, so its own threshold does
+      not need to match the others'. Reusing the house's real numbers rather than forcing new
+      768/900/599 media queries to read "1024/720" keeps one set of breakpoints for the whole
+      catalogue instead of a second set that only `delao` uses. 44px touch targets are the house
+      `.btn`/`.field` sizing, unchanged.
+      **Gap, not silently absorbed: "nav becomes a drop-down" is NOT met.** Checked the real
+      `.mainnav` CSS rather than assuming: on a narrow viewport it is
+      `display:flex;overflow-x:auto` — a horizontally-scrolling row, the SAME pattern all ten
+      demos share, not a drop-down/hamburger. Building a real drop-down means changing `.nav`/
+      `.mainnav`, chrome shared by every archetype in the catalogue, which is a catalogue-wide
+      interaction change affecting nine OTHER demos' rendered chrome — not a `delao`-scoped edit,
+      and outside this PR's `$BRANDS`/`$CONTENT`/`$STRIPS`/`$PAGES`-for-`delao` file list. Left
+      for a dedicated follow-up (Phase 4 handoff, PR12, or its own ticket) rather than smuggled into
+      one brand's PR; recorded here and in the apply-progress risk list, not silently dropped.
+      No longer "pendiente de definir" in the handoff sense for the parts that ARE resolved above.
+- [x] 3b.6 DONE — `$BRANDS['delao']`, `$CONTENT['TPL-C-15-delao']` (home + `nosotros` + `contacto`
+      + `producto` + `propiedades`), `$STRIPS` (one entry, anchor `editorial`), `$PAGES['TPL-C-15']`
+      (5 pages), manifest rows (12, slug=filename, licence `Freepik AI (Pikaso)`) all added.
+      **Deviation from design.md's literal page map, recorded, not silent**: design.md named 3
+      inner pages (`PROPERTY-01`/`ABOUT-01`/`CONTACT-01`, 4 pages total); this batch's launch
+      prompt carried a newer decision, **D5** ("an Envato-grade demo is a complete multi-page
+      site"), requiring 5 pages — home, a full portfolio listing, the property detail, Nosotros,
+      Contacto. The listing page reuses `TPL-SERVICES-01`'s own "index for a home with more entries
+      than fit" pattern (its own § "Por qué existe") rather than inventing a new archetype —
+      `page_property_index()` is new PHP, `TPL-SERVICES-01` is not a new archetype doc. Also
+      completed in this touch of `_build-gallery.php`, per PR3a's own recorded deferral: the four
+      `'TPL-C-13' === $tpl` render-dispatch branches re-keyed to `'TPL-C-15'` (home now calls the
+      new `strip_cartera_curada()`, not `strip_property()` — see design C2; `producto`/`contacto`
+      reuse `page_property()`/`page_contact_enquiry()` verbatim, exactly as C2 promised), plus one
+      new `propiedades` branch added.
+- [x] 3b.7 DONE — `Inmobiliaria de la O` row in the 10-row Registers table replaced
+      `*(pending — PR3b)*` with `delao-*`. **N=67** (55 pre-PR3b + 12 delao), **R=10** (unchanged —
+      filling an already-declared row, not adding one), **ceil(N/R)=7**. Largest `fp-` shoot
+      bucket **2** (ties: `fp-5220559/564/565/580/582/586/587` from earlier PRs, and delao's own
+      `fp-5278369` — villa-alameda + atico-mar — and `fp-5278379` — nerea + leire); well under the
+      cap of 7, no diversification needed. All three numbers verified by parsing the live manifest
+      table with the same regex `_build-gallery.php` itself uses, not computed by hand.
+- [x] 3b.8 Regenerate: DONE, `php _build-gallery.php` exit 0. **Full-sweep `visual-verification`
+      NOT DONE by sdd-apply** — no browser tooling in this execution context, same limitation
+      recorded for 2b.9. Owned by the orchestrator, to run over the regenerated gallery.
+- [x] 3b.9 Verify: DONE. `php framework-audit.php` → **`0 FAIL / 10 WARN / 0 JUDGE across 15
+      skills + 2 agent(s)`** — same 10 WARN lines as pre-PR3b (`RT_GALLERY_SINGLE_PAGE_DEMO` does
+      NOT fire for `delao`, confirmed by name absent from every WARN/FAIL line; it still fires for
+      `medida`, which ships 1 page). `RT_GALLERY_AXIS_LEAK`, `RT_GALLERY_REGISTER_COUNT_MISMATCH`,
+      `RT_MOCKUP_CONTAINER_FORK`, `RT_GALLERY_ACCENT_TEXT_FAIL`, `RT_GALLERY_NO_MANIFEST` all
+      silent for `delao`. Full chain: `test-framework-audit` 751 + `test-write-path` 426 +
+      `test-container-hygiene` 81 + `test-audit-signals` 22 = **1280 OK / 0 FAIL** (unchanged from
+      pre-PR3b — no new fixture tests were requested by design.md/tasks.md for this batch; the new
+      brand/archetype-instance was verified against the real, already-existing audit/build binaries,
+      not synthetic fixtures). Nav reachability proven by counting distinct rendered hash
+      destinations for the strip in `index.html`: **5** — `#tplc15delao/editorial` (home),
+      `.../propiedades`, `.../producto`, `.../nosotros`, `.../contacto` — matching all 5 declared
+      pages, none unreachable.
 
 ---
 

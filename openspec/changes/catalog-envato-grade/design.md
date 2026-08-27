@@ -90,20 +90,34 @@ occupies the same high-contrast display role; `Fraunces` is avoided because lumi
 
 ### Decision: contrast is measured once, in the generator; the audit checks the gate has not moved
 
-**Choice**: pilot ground `#F6F4F0` / alt `#EFEBE4` / text `#17181A`, accent **`#756547`**
-(5.16 bg · 4.77 alt — orchestrator-computed, to be re-verified with the generator's own
-`contrast()` before the brand is committed). `RT_GALLERY_ACCENT_TEXT_FAIL` statically re-measures
-the `$BRANDS` block **and** asserts the literals `4.5` and `7.0` are still present in
-`_build-gallery.php:659-682` — drift between the two implementations is itself a failure.
+**Choice**: pilot ground `#F6F4F0` / alt `#EFEBE4` / text `#17181A`, accent **`#8A5A2A`** (5.35 bg
+· 4.94 alt, re-verified with the generator's own `contrast()`). `RT_GALLERY_ACCENT_TEXT_FAIL`
+statically re-measures the `$BRANDS` block **and** asserts the literals `4.5` and `7.0` are still
+present in `_build-gallery.php` — drift between the two implementations is itself a failure.
 **Alternatives**: audit-only re-implementation of WCAG maths; audit checks gate presence only.
 **Rationale**: the build already `fail()`s (it aborts, it does not warn), so a second contrast engine
 is duplication; but the spec requires an audit row, and a row that only greps for a gate cannot name
 the offending brand. The drift assertion buys both.
 
-`#8A7B5C` (3.77 bg) and `#7A6B4E` (4.73 bg / **4.38 alt**) both stop the build. `bg-alt` is the
+`#8A7B5C` (3.77 bg) and `#7A6B4E` (4.73 bg / **4.37 alt**) both stop the build. `bg-alt` is the
 binding surface. The design's accent-on-dark uses (footer email, accent button) are section
 treatments following the system `ink` pattern (`$ACCENT_BY_GROUND['ink'] = '#FF6A1A'`), never the
 brand accent — so the "one accent cannot clear both grounds" impossibility never binds.
+
+**PR3b correction — `#756547` also stops the build, on a SECOND gate this note did not check.**
+`#756547` (5.15 bg / 4.77 alt) clears the text-contrast gate above with margin, but
+`_build-gallery.php`'s house-ink derivation (`ink_ends()`, § 5a) mixes the accent into the ground's
+own dark extreme at 45% and renormalizes to that extreme's luminance; the resulting shadow ink must
+carry a channel spread ≥ 20 or the build `fail()`s ("a two-colour map whose dark ink is grey is not
+a two-colour map" — the same regression the retired duotone caused). `#756547` produces `#28251D`,
+spread 11. The whole `#8A7B5C → #7A6B4E → #756547` lineage is one family of *desaturated* khakis:
+darkening without raising saturation clears text-contrast but not ink-spread, because a
+low-saturation accent mixed into a near-black stays near-neutral regardless of how dark it is.
+`#8A5A2A` — a terracotta/bronze, closer to Andalusian roof tile than the original stone-khaki —
+raises saturation rather than just lowering luminance: shadow ink `#2F2317`, spread 24. Both gates
+re-verified against the real `contrast()`/`ink_ends()` implementation before commit, not computed
+separately. Discovered running the real generator, not by inspection — the build's own `fail()`
+message named the exact spread and the exact hex.
 
 ### Decision: container 1280 — the design's 4-column rule grid reconciles as a ratio
 

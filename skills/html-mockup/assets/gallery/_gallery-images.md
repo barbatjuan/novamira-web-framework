@@ -139,7 +139,7 @@ Registers Divisor Is Per-Demo).
 | Register | Slugs | What it says |
 |---|---|---|
 | Lumière | `lumiere-*` | Belleza · centro de estética |
-| Inmobiliaria de la O | *(pending — PR3b)* | Inmobiliaria · cartera curada, `TPL-C-15` |
+| Inmobiliaria de la O | `delao-*` | Inmobiliaria · cartera curada, `TPL-C-15` |
 | Motor Aranda | `aranda-*` | Automoción · ocasión |
 | Lawyers | *(pending — PR9)* | Servicios legales |
 | Alinea | `alinea-*` | Salud · coaching / entrenamiento personal |
@@ -291,6 +291,18 @@ assumed, in `catalog-envato-grade` PR2b — the exact messages are "no image `he
 | `lumiere-pilar` | square 1:1 | 600×600 | 36 KB | 5227011918 | fp-5227011 | Freepik AI (Pikaso) | Retrato de esteticista veterana de pelo blanco corto, fondo cálido liso |
 | `lumiere-hugo` | square 1:1 | 600×600 | 39 KB | 5227012641 | fp-5227012 | Freepik AI (Pikaso) | Retrato de masajista con barba corta, fondo cálido liso |
 | `lumiere-noa` | square 1:1 | 600×600 | 39 KB | 5227013872 | fp-5227013 | Freepik AI (Pikaso) | Retrato de técnica de uñas sonriendo, fondo cálido liso |
+| `delao-hero` | hero 16:9 | 1440×810 | 93 KB | 5278346885 | fp-5278346 | Freepik AI (Pikaso) | Villa contemporánea en Sierra Blanca al atardecer, con piscina desbordante en primer término |
+| `delao-villa-alameda` | card 4:3 | 800×600 | 80 KB | 5278369177 | fp-5278369 | Freepik AI (Pikaso) | Villa blanca de volúmenes rectos vista desde el jardín, entre olivos y cipreses |
+| `delao-atico-mar` | card 4:3 | 800×600 | 33 KB | 5278369498 | fp-5278369 | Freepik AI (Pikaso) | Terraza de ático con solado de piedra clara, barandilla de vidrio y horizonte de mar |
+| `delao-finca` | card 4:3 | 800×600 | 90 KB | 5278370080 | fp-5278370 | Freepik AI (Pikaso) | Cortijo encalado tras un muro de piedra seca, con hileras de olivos viejos |
+| `delao-cta` | vertical 3:4 | 800×1067 | 95 KB | 5278371869 | fp-5278371 | Freepik AI (Pikaso) | Salón de doble altura con ventanal al jardín y suelo de piedra clara |
+| `delao-galeria-1` | hero 16:9 | 1440×810 | 117 KB | 5278374108 | fp-5278374 | Freepik AI (Pikaso) | Salón principal de doble altura con chimenea de piedra y pared acristalada a la terraza |
+| `delao-galeria-2` | card 4:3 | 800×600 | 32 KB | 5278375420 | fp-5278375 | Freepik AI (Pikaso) | Cocina abierta con isla de piedra clara y ventana a un patio plantado |
+| `delao-galeria-3` | card 4:3 | 800×600 | 36 KB | 5278377994 | fp-5278377 | Freepik AI (Pikaso) | Dormitorio principal vestido en lino blanco con salida a terraza privada |
+| `delao-oficina` | card 4:3 | 800×600 | 34 KB | 5278380742 | fp-5278380 | Freepik AI (Pikaso) | Oficina de la agencia con mesa de reuniones, planos y muestrario de materiales |
+| `delao-nerea` | square 1:1 | 600×600 | 17 KB | 5278379272 | fp-5278379 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria, fondo gris cálido liso |
+| `delao-julen` | square 1:1 | 600×600 | 20 KB | 5278378860 | fp-5278378 | Freepik AI (Pikaso) | Retrato de agente inmobiliario, fondo gris cálido liso |
+| `delao-leire` | square 1:1 | 600×600 | 21 KB | 5278379552 | fp-5278379 | Freepik AI (Pikaso) | Retrato de agente inmobiliaria veterana, fondo gris cálido liso |
 
 Las veintiuna filas `corte-*`, `bajura-*` y `tueste-*` son las tres verticales de ecommerce que
 el catálogo tenía escritas y no podía enseñar. Están GENERADAS, y valen para
@@ -355,6 +367,26 @@ the frame rather than repeating the section heading — an `alt` that restates t
 FRAME and not the card's heading, which is why `card-patio` reads "pulidora …
 canto" under a services card headed *Fachadas y sillería*: the heading is the
 axis-proof constant, the photograph is what the reader actually sees.
+
+## Las doce de `delao-*` (PR3b)
+
+**GENERADAS con Freepik AI (Pikaso), como el resto de la fotografía de arquitectura y retrato del
+catálogo** — una villa de Sierra Blanca de 6 M€+ no es una escena que el archivo libre entregue en
+cantidad, así que generar no compite con fotografiar algo que existía. `aiGenerated` es verdadero
+por construcción, no por omisión de comprobarlo.
+
+Presupuesto: un héroe de portada, tres exteriores de propiedad, una vertical de interior para la
+banda de valoración, un héroe y dos apoyos para el recorrido de la ficha, una fotografía de oficina
+y tres retratos de equipo. Ningún par comparte encuadre ni sujeto — a diferencia del defecto que
+abrió este mismo manifiesto («el mismo hombre con la misma camisa gris»), aquí tres cubos de
+Freepik distintos (`fp-5278369`, `fp-5278378/79/80`) ya bastan para que `RT_GALLERY_ONE_SHOOT` las
+mida como reportajes separados, y se comprobó mirando la hoja de contactos igualmente — paso 5 de
+«Adding one» — antes de darlas por buenas.
+
+**No hay fotografía de plano de planta.** `TPL-PROPERTY-01` la pide como sección `[fijo]`, y las
+doce imágenes de esta cartera no incluyen una: `floorplan_html()` la marca como placeholder
+declarado en vez de fingir un plano sin datos reales detrás — la misma disciplina que ya usan las
+tres superficies sin fotografía de `TPL-C-13`.
 
 ## Weights are measured, not chosen
 

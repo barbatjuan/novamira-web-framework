@@ -472,6 +472,52 @@ $BRANDS = array(
 		'ink'    => array( 'sat' => 0.68, 'gamma' => 0.14 ),
 	),
 
+	/* INMOBILIARIA DE LA O · cartera curada de Sierra Blanca. Papel cálido casi idéntico al de
+	   Alinea y Medida Justa — es el mismo registro claro-cálido porque las tres vienen de una
+	   fotografía de interior, no de estudio — y ahí termina el parecido: `text` mide 16,17:1 sobre
+	   `bg` y 14,95:1 sobre `bg-alt`, muy por encima del suelo AAA de 7:1 que exige este bloque.
+	   EL ACENTO PASA POR DOS PUERTAS, NO UNA, Y ESO CORRIGE LA NOTA DE DISEÑO ANTERIOR A ESTE
+	   COMMIT. El brief pedía `#8A7B5C` (un caqui de piedra), que mide 3,77:1 sobre `bg` — no pasa la
+	   primera puerta, la de contraste AA de texto (`foreach` de este mismo archivo, 4,5:1 sobre
+	   `bg`/`bg-alt`). Oscurecerlo a `#7A6B4E` sube a 4,73:1 en `bg` pero se queda en 4,37:1 en
+	   `bg-alt` — sigue sin pasar. Y `#756547`, la corrección que la nota anterior daba por buena
+	   (5,15:1 / 4,77:1, re-verificado aquí con la función `contrast()` real: pasa la primera
+	   puerta con margen) FALLA la SEGUNDA, la que mide el grado de tinta de la casa (§ 5a,
+	   `ink_ends()`): mezclado con el acento al 45% sobre el extremo oscuro del ground y renormalizado
+	   a su propia luminancia, el negro de sombra resultante es `#28251D` — un recorrido de canal de
+	   sólo 11, por debajo del suelo de 20 que el propio `ink_ends()` exige («un mapa de dos colores
+	   cuya tinta oscura es gris no es un mapa de dos colores»). Es la misma familia de caquis
+	   desaturados de origen (`#8A7B5C` → `#7A6B4E` → `#756547`): oscurecer sin subir la saturación
+	   basta para el contraste de texto pero no para que la tinta de sombra cargue color. La solución
+	   no es más oscuro, es más SATURADO: `#8A5A2A`, un terracota/bronce (más propio de una fachada
+	   andaluza que el caqui de origen), mide 5,35:1 / 4,94:1 — pasa la primera puerta con más margen
+	   que `#756547` — y su tinta de sombra da `#2F2317`, recorrido de canal 24 — pasa también la
+	   segunda. Ambas puertas re-verificadas contra la implementación real de este archivo antes de
+	   comprometer el bloque, no sólo calculadas aparte.
+	   TIPOGRAFÍA: el diseño de origen pide Libre Caslon Display para los titulares, y la casa no la
+	   tiene embebida. Sustituye `Instrument Serif` — la serifa de alto contraste más cercana del
+	   set de la casa (`skills/html-mockup/assets/fonts/instrument-serif-latin.woff2`, ya presente),
+	   frente a `Fraunces`, una serifa variable de trazo suave que no persigue el mismo contraste
+	   vertical. Es el mismo tipo de sustitución de sistema que ya fijó D3 para el contenedor
+	   (`--container-max: 1280px` de la casa gana sobre los 1440 del diseño): el set de fuentes de
+	   la casa es una restricción del mismo orden, y añadir un woff2 nuevo movería la huella de la
+	   galería (`_gallery-fingerprint.php`) sin necesidad y exigiría su propia licencia OFL.
+	   INK: `sat 0,64 / gamma 0,12`. Fondo claro y cálido como Alinea y Medida Justa, así que
+	   comparte su curva suave (`gamma 0,12`) — mantiene honestos los tonos medios de la piedra y el
+	   verde de olivo sin aplanarlos. La saturación queda un peldaño por debajo de Alinea (0,66):
+	   esto es arquitectura de exterior con luz natural, no un acento de marca de producto, así que
+	   pide un grado más neutro; y un peldaño por encima de Corte Nueve (0,62), cuya fotografía es un
+	   still de estudio y no un jardín. */
+	'delao' => array(
+		'name'   => 'INMOBILIARIA DE LA O',
+		'sector' => 'Inmobiliaria · cartera curada',
+		'ground' => array( 'bg' => '#F6F4F0', 'alt' => '#EFEBE4', 'text' => '#17181A' ),
+		'accent' => '#8A5A2A',
+		'font_1' => "'Instrument Serif', Georgia, 'Times New Roman', serif",
+		'font_2' => "'Archivo', system-ui, sans-serif",
+		'ink'    => array( 'sat' => 0.64, 'gamma' => 0.12 ),
+	),
+
 	/* AURIA · lanzamiento de un modelo. Casi negro AZULADO, frente al casi negro CÁLIDO de
 	   Terrazza: los dos son oscuros y no se parecen, que es exactamente lo que un catálogo tiene
 	   que poder demostrar. */
@@ -1099,6 +1145,15 @@ $TOGGLES = array(
 		'TGL-MAP-MODE' => array( 'ask' => '¿Plano de búsqueda?', 'default' => 'conmutador', 'options' => array( 'conmutador', 'sección', 'off' ) ),
 		'TGL-TEAM'     => array( 'ask' => '¿Equipo?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 		'TGL-FAQ'      => array( 'ask' => '¿Preguntas frecuentes?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
+	),
+	/* TPL-C-15 · Cartera curada — de su propio § 4. `TGL-FEATURED-COUNT` no entra aquí por la misma
+	   razón que en `TPL-C-13`: no cambia QUÉ secciones existen sino cuántas tarjetas lleva una que
+	   ya está. `TGL-HERO-MODE` sí entra: cambia de sección (héroe de persuasión vs. buscador como
+	   portada), la misma clase de admisión que ya tiene `TGL-HERO-TYPE` en `TPL-C-01`. */
+	'TPL-C-15' => array(
+		'TGL-HERO-MODE' => array( 'ask' => '¿Héroe de persuasión o buscador como portada?', 'default' => 'retrato', 'options' => array( 'retrato', 'buscador-portada' ) ),
+		'TGL-MAP-MODE'  => array( 'ask' => '¿Plano de búsqueda?', 'default' => 'off', 'options' => array( 'conmutador', 'sección', 'off' ) ),
+		'TGL-REVIEWS'   => array( 'ask' => '¿Reseñas?', 'default' => 'sí', 'options' => array( 'sí', 'no' ) ),
 	),
 	/* TPL-C-08 · Modelo / Lanzamiento. */
 	'TPL-C-08' => array(
@@ -1997,16 +2052,291 @@ $CONTENT = array(
 	   responder. */
 	
 
-	/* ── TPL-C-13 · CARTERA / BÚSQUEDA. SIETE FOTOGRAFÍAS PROPIAS Y NINGUNA MARCA, que no es una
-	   contradicción: la marca es ground + acento + par tipográfico + reportaje, y aquí sólo está lo
-	   último. Durante un commit no estuvo ni eso — el repo tenía 45 imágenes y ninguna era una
-	   vivienda, así que las tres superficies que piden foto iban con placeholder marcado. Las siete
-	   de ahora son GENERADAS con Freepik Pikaso, no fotografía de archivo, y el manifiesto lo dice
-	   en su columna de licencia en vez de dejarlas pasar por lo que no son.
-	   Los RETRATOS del equipo siguen en placeholder a propósito: una cara inventada en la web de
-	   una agencia es peor que un hueco declarado, porque la promesa que rompe es «éste es quien te
-	   abre la puerta». */
-	
+	/* ── INMOBILIARIA DE LA O · TPL-C-15 · CARTERA CURADA, no cartera entera. El home enseña TRES
+	   fichas de las diecisiete de la cartera a propósito — la fotografía vende antes de que el
+	   visitante toque un filtro, y una rejilla con diecisiete tarjetas iguales sería exactamente el
+	   contador-que-presume que este arquetipo se prohíbe en su propio documento. Las doce
+	   fotografías son GENERADAS con Freepik AI (Pikaso), igual que el resto del catálogo cuya
+	   escena no existe en el archivo libre; el manifiesto lo dice en su columna de licencia. */
+	'TPL-C-15-delao' => array(
+		'tpl'            => 'TPL-C-15-delao',
+		'arch'           => 'TPL-C-15',
+		'brand'          => 'delao',
+		'brand_name'     => 'Inmobiliaria de la O',
+		'brand_sector'   => 'Inmobiliaria · cartera curada',
+		'tpl_name'       => 'Cartera curada',
+		'site'           => 'corporate',
+		'site_es'        => 'Corporativa',
+		'fits'           => 'Inmobiliarias de lujo residencial, promotoras boutique, agencias con cartera reducida y curada',
+		'dna'            => 'COMP-HERO-CARTERA · COMP-SEARCH-BAND · COMP-FEATURED-GRID · COMP-VALUATION-CTA',
+		'wire'           => 'COMP-HEADER · COMP-HERO-CARTERA · COMP-SEARCH-BAND · COMP-FEATURED-GRID · COMP-MAP-SEARCH · COMP-VALUATION-CTA · COMP-TESTIMONIAL · COMP-FOOTER',
+		'nav'            => array( 'Propiedades', 'Nosotros', 'Contacto' ),
+		'nav_cta'        => 'Valorar mi casa',
+		'nav_cta_weight' => 'secundario',
+		'phone'          => '952 00 00 00',
+		'hero'           => array(
+			'eyebrow' => 'Sierra Blanca · Marbella',
+			'h1'      => 'Diecisiete propiedades, ninguna al azar',
+			'lede'    => 'Villas contemporáneas, áticos y fincas de autor entre Sierra Blanca y la Milla de Oro. Cada una tratada como pieza, no como stock.',
+			'img'     => 'delao-hero',
+			'stats'   => array(
+				array( '17', 'propiedades en cartera, todas verificadas' ),
+				array( '6 M€+', 'valor medio de la última venta cerrada' ),
+			),
+		),
+		'search'         => array(
+			'fields' => array(
+				array( 'operacion', 'Operación', array( 'Comprar', 'Alquilar' ) ),
+				array( 'zona', 'Zona', array( 'Sierra Blanca', 'Milla de Oro', 'Nueva Andalucía', 'Puerto Banús' ) ),
+				array( 'tipo', 'Tipo', array( 'Villa', 'Ático', 'Finca', 'Apartamento' ) ),
+				array( 'precio', 'Precio máximo', array( '2 M€', '4 M€', '6 M€', 'Sin límite' ) ),
+			),
+			'count'  => '17 propiedades disponibles',
+			'submit' => 'Buscar',
+		),
+		'listing'        => array(
+			'eyebrow' => 'Selección destacada',
+			'h2'      => 'Tres piezas de la cartera, para empezar',
+			'items'   => array(
+				array( 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'unit' => '', 'img' => 'delao-villa-alameda' ),
+				array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
+				array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+			),
+			'note'    => 'Ver la cartera completa: diecisiete propiedades, no sólo estas tres.',
+		),
+		'valuation'      => array(
+			'eyebrow' => '¿Vendes?',
+			'h2'      => 'Valoramos tu propiedad sin compromiso',
+			'lede'    => 'Un técnico visita la vivienda y entrega un rango de precio en 48 horas. Nunca prometemos una cifra sin pisarla.',
+			'cta'     => 'Valorar mi casa',
+			'cta_2'   => 'Cómo vendemos',
+			'img'     => 'delao-cta',
+		),
+		'quotes'         => array(
+			'eyebrow' => 'Antes de escribir',
+			'h2'      => '4,9 / 5 · 68 reseñas verificadas',
+			'items'   => array(
+				array( 'Vendieron nuestra villa en cinco semanas, al precio que habían tasado.', 'Familia Bergmann', 'Venta en Sierra Blanca' ),
+				array( 'Encontraron el ático antes de que saliera a portales.', 'C. Guerrero', 'Compra en Puerto Banús' ),
+				array( 'La tasación fue la única cifra que se cumplió de las tres agencias que llamamos.', 'J. van Dijk', 'Venta en Benahavís' ),
+			),
+		),
+		'footer'         => array(
+			'tag'   => 'Inmobiliaria de la O · Marbella · 952 00 00 00 · Cartera de Sierra Blanca',
+			'links' => array( 'Propiedades', 'Nosotros', 'Contacto' ),
+			'legal' => 'Inmobiliaria de la O SL · Maqueta interna NovaMira, no publicada.',
+		),
+		'about'          => array(
+			'eyebrow' => 'La agencia',
+			'h2'      => 'Curamos la cartera antes de enseñarla',
+			'body'    => array(
+				'No publicamos todo lo que nos llega. Cada propiedad se visita, se verifica su situación registral y se fotografía antes de entrar en la cartera — por eso son diecisiete y no cuarenta.',
+				'Trabajamos una sola zona porque es la que conocemos casa por casa: sabemos qué villa tiene vistas al mar todo el año y cuál las pierde en verano por el crecimiento de los pinos del vecino.',
+			),
+			'img'     => 'delao-oficina',
+		),
+		'stats'          => array(
+			'eyebrow' => 'En números',
+			'items'   => array(
+				array( '17 propiedades', 'en cartera activa, verificadas una a una' ),
+				array( '68 operaciones', 'cerradas en Sierra Blanca desde 2014' ),
+				array( '48 horas', 'para entregar una tasación con visita' ),
+				array( '1 sola zona', 'Sierra Blanca y su Milla de Oro, ninguna otra' ),
+			),
+		),
+		'team'           => array(
+			'eyebrow' => 'Quién le atiende',
+			'h2'      => 'Tres personas, una sola zona',
+			'items'   => array(
+				array( 'Nerea Otxoa', 'Dirección y ventas', 'delao-nerea' ),
+				array( 'Julen Zabala', 'Captación y tasaciones', 'delao-julen' ),
+				array( 'Leire Andonegi', 'Gestión y postventa', 'delao-leire' ),
+			),
+		),
+		'nosotros'       => array(
+			'crumbs' => array( 'Inicio', 'Nosotros' ),
+			'hero'   => array(
+				'eyebrow' => 'Quiénes somos',
+				'h1'      => 'Diecisiete propiedades caben en una sola conversación',
+				'lede'    => 'Somos tres personas y una sola zona. Preferimos conocer cada casa de la cartera que abrir una segunda oficina.',
+				'img'     => 'delao-oficina',
+			),
+			'values' => array(
+				'eyebrow' => 'A qué nos comprometemos',
+				'h2'      => 'Tres cosas que no negociamos',
+				'items'   => array(
+					array( 'Visita antes de publicar', 'Ninguna propiedad entra en la cartera sin que alguien de la casa la haya pisado.' ),
+					array( 'Verificación registral', 'Cargas, superficie y titularidad comprobadas antes de enseñar una sola fotografía.' ),
+					array( 'Tasación con visita, nunca a distancia', 'Un número sin pisar la vivienda es una promesa que luego hay que romper en la mesa de negociación.' ),
+				),
+			),
+			'cta'    => array(
+				'eyebrow' => 'Siguiente paso',
+				'h2'      => '¿Buscamos su casa o valoramos la suya?',
+				'lede'    => 'Filtre la cartera por zona y presupuesto, o pida una visita de valoración esta misma semana.',
+				'cta_1'   => 'Propiedades',
+				'cta_2'   => 'Valorar mi casa',
+			),
+		),
+		'contacto'       => array(
+			'crumbs' => array( 'Inicio', 'Contacto' ),
+			'head'   => array(
+				'eyebrow' => 'Contacto',
+				'h1'      => 'Escríbanos o pida una visita',
+				'lede'    => 'Para valorar su propiedad use el botón de la home — llega directo al equipo de tasaciones. Esto es para preguntar por una propiedad concreta.',
+			),
+			'form'   => array(
+				'fields' => array(
+					array( 'nombre', 'Nombre', 'text' ),
+					array( 'mail', 'Email', 'email' ),
+					array( 'asunto', 'Propiedad de interés', 'text' ),
+				),
+				'msg'    => 'Cuéntenos qué busca',
+				'submit' => 'Enviar consulta',
+				'small'  => 'Si ya vio una ficha, indique su referencia y llegamos antes al detalle.',
+			),
+			'direct' => array(
+				'eyebrow' => 'O directamente',
+				'h2'      => 'Sin esperar respuesta',
+				'items'   => array(
+					array( 'Teléfono', '952 00 00 00', 'De lunes a sábado, de 9:00 a 20:00' ),
+					array( 'Email', 'hola@inmobiliariadelao.example', 'Lo lee el equipo de ventas, no un buzón compartido' ),
+					array( 'Oficina', 'Avenida Ricardo Soriano 45, Marbella', 'Con cita, para dedicarle el tiempo que la operación merece' ),
+				),
+			),
+			'flow'   => array(
+				'eyebrow' => 'Qué pasa al enviar',
+				'h2'      => 'Dos pasos',
+				'steps'   => array(
+					array( 'Le llamamos', 'El mismo día laborable, para entender qué busca o qué quiere vender.' ),
+					array( 'Queda la visita', 'A la propiedad de interés, o a la suya si es una tasación.' ),
+				),
+				'note'    => 'Si la propiedad ya tiene una oferta aceptada, se lo decimos en la primera llamada.',
+			),
+			'team'   => array(
+				'eyebrow' => 'Con quién habla',
+				'h2'      => 'Dirección y ventas',
+				'items'   => array(
+					array( 'name' => 'Nerea Otxoa', 'role' => 'Dirección y ventas', 'lic' => '952 00 00 00', 'img' => 'delao-nerea' ),
+					array( 'name' => 'Julen Zabala', 'role' => 'Captación y tasaciones', 'lic' => '952 00 00 01', 'img' => 'delao-julen' ),
+				),
+			),
+			'faq'    => array(
+				'eyebrow' => 'Antes de escribir',
+				'h2'      => 'Lo que se pregunta',
+				'items'   => array(
+					array( '¿Trabajan en exclusiva?', 'Sí, todas las propiedades de la cartera son en exclusiva — es lo que nos permite conocerlas una a una.' ),
+					array( '¿Cobran algo por la tasación?', 'No, la visita de valoración no tiene coste ni compromiso.' ),
+					array( '¿Atienden a compradores internacionales?', 'Sí, la mitad de las operaciones cerradas el año pasado fueron con compradores extranjeros.' ),
+				),
+			),
+		),
+		'propiedades'    => array(
+			'crumbs'  => array( 'Inicio', 'Propiedades' ),
+			'head'    => array(
+				'eyebrow' => 'Toda la cartera',
+				'h1'      => 'Diecisiete propiedades en Sierra Blanca',
+				'lede'    => 'La home enseña tres. Aquí está el resto de la cartera curada, con precio, superficie y zona en cada ficha.',
+			),
+			'listing' => array(
+				'eyebrow' => 'La cartera',
+				'h2'      => 'Todas las propiedades activas',
+				'items'   => array(
+					array( 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'unit' => '', 'img' => 'delao-villa-alameda' ),
+					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
+					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+				),
+				'note'    => 'La cartera completa suma diecisiete propiedades; esta maqueta muestra las tres con fotografía propia.',
+			),
+			'cta'     => array(
+				'eyebrow' => 'No encuentra lo que busca',
+				'h2'      => 'Cuéntenos qué zona y qué presupuesto maneja',
+				'lede'    => 'Muchas propiedades entran en cartera antes de publicarse. Díganos qué busca y le avisamos primero.',
+				'cta_1'   => 'Contacto',
+				'cta_2'   => 'Valorar mi casa',
+			),
+		),
+		'producto'       => array(
+			'crumbs' => array( 'Inicio', 'Propiedades', 'Villa Alameda' ),
+			'head'   => array(
+				'eyebrow' => 'Sierra Blanca',
+				'h1'      => 'Villa Alameda',
+				'lede'    => 'Villa contemporánea de volúmenes rectos entre olivos y cipreses, con piscina desbordante y vistas abiertas a la costa.',
+			),
+			'ref'    => array( 'Ref. SB-014', 'Cítela al pedir la visita: viaja con el formulario' ),
+			'tour'   => array(
+				'eyebrow' => 'La casa por dentro',
+				'h2'      => 'Recorrido por la propiedad',
+				'items'   => array(
+					array( 'Salón principal', 'Doble altura, chimenea de piedra y pared acristalada a la terraza', 'delao-galeria-1' ),
+					array( 'Cocina', 'Isla de piedra clara, abierta al patio plantado', 'delao-galeria-2' ),
+					array( 'Dormitorio principal', 'En lino blanco, con salida directa a terraza privada', 'delao-galeria-3' ),
+				),
+			),
+			'facts'  => array(
+				'eyebrow' => 'Los datos',
+				'h2'      => 'Seis datos, sin ninguno en blanco',
+				'items'   => array(
+					array( 'Superficie construida', '642 m²' ),
+					array( 'Parcela', '2.100 m²' ),
+					array( 'Habitaciones', '5' ),
+					array( 'Baños', '6' ),
+					array( 'Orientación', 'Sur' ),
+					array( 'Año de construcción', '2019' ),
+				),
+			),
+			'plan'   => array(
+				'eyebrow' => 'Distribución',
+				'h2'      => 'Plano de planta',
+				'note'    => 'Plano orientativo, a disposición en la oficina en formato acotado.',
+			),
+			'costs'  => array(
+				'eyebrow' => 'El coste real de entrar a vivir',
+				'h2'      => 'Lo que hay que sumar al precio',
+				'rows'    => array(
+					array( 'Impuesto de Transmisiones (7%)', '434.000 €' ),
+					array( 'Notaría y registro', '4.200 €' ),
+					array( 'Gestoría', '1.100 €' ),
+				),
+				'sum'     => array( 'Total aproximado sobre el precio', '439.300 €' ),
+				'note'    => 'Cifras orientativas para vivienda usada en Andalucía; la gestoría confirma el importe exacto antes de firmar.',
+			),
+			'energy' => array(
+				'eyebrow' => 'Calificación energética',
+				'h2'      => 'Certificado vigente',
+				'items'   => array(
+					array( 'D', 'Consumo de energía', '145 kWh/m² año' ),
+				),
+				'note'    => 'Certificado registrado; copia disponible junto con la nota simple en la oficina.',
+			),
+			'visit'  => array(
+				'eyebrow'  => 'Pedir visita',
+				'h2'       => 'Vea la villa en persona',
+				'lede'     => 'La referencia viaja con el formulario: confirmamos por teléfono el mismo día laborable.',
+				'fields'   => array(
+					array( 'nombre', 'Nombre', 'text' ),
+					array( 'tel', 'Teléfono', 'tel' ),
+					array( 'ref', 'Referencia', 'text', 'SB-014' ),
+				),
+				'day_lbl'  => 'Día',
+				'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
+				'slot_lbl' => 'Hora',
+				'slots'    => array( '10:00', '12:00', '17:00', '19:00' ),
+				'submit'   => 'Pedir visita',
+				'small'    => 'La visita la acompaña siempre un agente de la casa, nunca un tercero.',
+			),
+			'related' => array(
+				'eyebrow' => 'Otras piezas de la cartera',
+				'h2'      => 'Propiedades cercanas',
+				'items'   => array(
+					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
+					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+				),
+				'note'    => 'Ver la cartera completa en Propiedades.',
+			),
+		),
+	),
+
 	/* ── MOTOR ARANDA · TPL-C-07 · un INVENTARIO, que es lo que ningún arquetipo corporativo tenía.
 	   El contenido no lo escribe el dueño una vez: son cuarenta unidades que entran y salen, y los
 	   cinco datos que deciden la compra no caben en una tarjeta de servicio. */
@@ -3724,15 +4054,18 @@ $STRIPS = array(
 	   header y el ancla es la mas lenta en imagen del catalogo. Funciona para un restaurante caro y
 	   chirria para una clinica, y esa diferencia solo se ve mirandola. */
 	
-	/* TPL-C-13 · la cartera que se busca. Las cinco anclas, como los otros diez de la casa: un
-	   arquetipo que llega con tres tiras no se puede comparar con uno que llega con cinco, y este
-	   catalogo ya pago ese error una vez con VITRINE. Sin marca y sin foto -- ver su bloque en
-	   $CONTENT. */
-	
-	
-	
-	
-	
+	/* TPL-C-15 · la cartera curada de Inmobiliaria de la O. Una sola tira, como el resto de los
+	   arquetipos con marca: lo que una marca demuestra es SU esqueleto, y basta una configuración
+	   -- las cinco anclas son para los arquetipos de la casa. Ancla `editorial` (`PERS-EDITORIAL`):
+	   la marca reemplaza su ground `paper` por el propio, cálido y claro (`#F6F4F0`), que es el
+	   único de los cuatro ejes que R1 permite tocar (ground/acento/tipo/fotos, nunca
+	   escala/densidad/composición/elevación) -- escala, densidad, composición y elevación siguen
+	   siendo las de `editorial`, sin tocar. */
+	array( 'tpl' => 'TPL-C-15-delao', 'anchor' => 'editorial' ),
+
+
+
+
 	/* TPL-E-01 · la tienda que entra por el ojo. */
 	
 	
@@ -6821,6 +7154,72 @@ $css[] = <<<'CSS'
 .valuation .vstats b{display:block;font-family:var(--font-primary);font-size:var(--fs-h3);
   line-height:1.1}
 .valuation .vstats span{font-size:.8125rem;color:var(--c-text-muted)}
+
+/* ══════════ TPL-C-15 · CARTERA CURADA — Inmobiliaria de la O ══════════
+   Tres piezas nuevas: el héroe de persuasión (bleed + retícula decorativa + panel de cifras), el
+   plato de búsqueda (superficie inversa DEL ANCHO DEL CONTENEDOR, nunca a sangre) y la fila de
+   valoración (dos hijos directos con `gap:1px` de filete — el mismo truco que `.checker` de
+   TPL-C-14, adaptado a dos columnas en vez de cuatro). Todo lo demás del arquetipo — buscador
+   embebido, rejilla de fichas, plano de búsqueda, testimonios — reutiliza CSS que TPL-C-13/C-07/
+   C-14 ya declaran verbatim. */
+.herocartera{position:relative;isolation:isolate;min-height:78vh}
+.herocartera .media-full{position:absolute;inset:0;z-index:0}
+.herocartera .media-full .frame{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+.herocartera .media-full img{width:100%;height:100%;object-fit:cover}
+.herocartera::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.5) 42%,rgba(0,0,0,.06) 75%,
+    rgba(0,0,0,0) 100%)}
+/* Decorativa a propósito: sólo filetes, `pointer-events:none`, y limitada al ancho del contenedor
+   como el resto del contenido — la retícula de cuatro columnas del diseño de origen, reexpresada
+   como proporción sobre el token de la casa (D3: 1280 gana sobre los 1440 del diseño). Bajo
+   1024px se oculta: a ese ancho ya no se lee como retícula, se lee como ruido sobre la cara. */
+.rulegrid{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;
+  grid-template-columns:repeat(4,1fr);max-width:var(--container-max);margin-inline:auto;
+  padding-inline:var(--pad-x-tablet)}
+.rulegrid span{border-left:1px solid rgba(255,255,255,.16)}
+@media(min-width:1024px){.rulegrid{display:grid}}
+.herocartera > .canvas{position:relative;z-index:3;min-height:78vh;display:grid;
+  grid-template-columns:minmax(0,1fr);align-content:end;gap:var(--sp-l);padding-block:var(--sp-xl)}
+@media(min-width:1024px){.herocartera > .canvas{grid-template-columns:minmax(0,7fr) minmax(0,3fr);
+  align-items:end}}
+.herocartera .head h1,.herocartera .head .lede,.herocartera .head .eyebrow{color:#fff}
+.herocartera .head .lede{opacity:.92;max-width:42ch}
+/* Filete NEUTRO, no de acento: design-tokens.md reserva `--c-accent` para CTAs, iconos de acción,
+   enlaces importantes y estados activos — un filete decorativo no es ninguno de los cuatro, y
+   `RT_MOCKUP_ACCENT_ROLE`-equivalente (la comprobación de este mismo generador) lo `fail()`ea. */
+.statspanel{background:rgba(0,0,0,.42);border-left:2px solid rgba(255,255,255,.55);
+  padding:var(--sp-m) var(--sp-l)}
+.statspanel ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-m)}
+.statspanel b{display:block;font-family:var(--font-primary);color:#fff;
+  font-size:clamp(1.4rem,2.6vw,2.1rem);line-height:1.1}
+.statspanel span{display:block;margin-top:.2rem;font-size:.8125rem;color:rgba(255,255,255,.78)}
+
+/* «Del ancho del contenedor de página, sin tocar el borde de la ventana»: el plato inverso vive
+   DENTRO de `.canvas` (ya limitado a `--container-max`), nunca en el `<section>` completo — a
+   diferencia de `.bg-alt`, que sí pinta de borde a borde. */
+.sbplate{background:var(--c-surface-inverse);color:var(--c-on-inverse);
+  border-radius:var(--radius-card);padding:var(--sp-l) var(--pad-x-mobile)}
+@media(min-width:768px){.sbplate{padding:var(--sp-l) var(--pad-x-tablet)}}
+.sbplate .filterbar label{color:var(--c-on-inverse)}
+
+/* La fila de valoración: dos hijos directos, `gap:1px` sobre `--c-border` como fondo hace de
+   filete — un panel oscuro y una fotografía, apilados bajo 768px y en fila a partir de ahí. */
+.valuerow{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;background:var(--c-border)}
+@media(min-width:768px){.valuerow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vlpanel{background:var(--c-surface-inverse);padding:var(--sp-xl) var(--pad-x-mobile);
+  display:grid;gap:var(--sp-m);align-content:center}
+@media(min-width:768px){.vlpanel{padding:var(--sp-xl) var(--pad-x-tablet)}}
+.vlpanel .head *{color:var(--c-on-inverse)}
+.vlpanel .lede{opacity:.85}
+.vlpanel .ctas{display:flex;flex-wrap:wrap;gap:var(--sp-m);align-items:center}
+/* `.btn-outline` on an inverse ground, same correction `.mhero` already applies: the token's
+   default border/colour assume a light surface, so a panel this dark needs its own override. */
+.vlpanel .btn-outline{color:var(--c-on-inverse);
+  border-color:color-mix(in srgb,var(--c-on-inverse) 55%,transparent)}
+.vlshot{margin:0;min-height:18rem}
+@media(min-width:768px){.vlshot{min-height:100%}}
+.vlshot img{width:100%;height:100%;object-fit:cover;display:block}
+
 /* ══════════ TPL-C-08 · MODELO / LANZAMIENTO ══════════ */
 
 /* Same full-bleed machinery as `.hero-visual`, and measured by the same sweep — see $VIS_ARCHS.
@@ -8154,6 +8553,14 @@ $css[] = <<<'STYLES'
 .floorplan{margin:0;background:#FFFFFF;border:1px solid var(--c-border);
   border-radius:var(--radius-image);padding:var(--sp-s);max-width:100%}
 .floorplan img{width:100%;max-width:100%;min-width:0;height:auto;display:block}
+/* `.floorplan.ph` — TPL-PROPERTY-01's first real render (TPL-C-15/delao) has no floor-plan
+   photograph among its twelve; `floorplan_html()` marks the gap instead of inventing a plan. Same
+   hatch as `.pcard .frame.ph` above, kept local to this block per the class-ownership check. */
+.floorplan.ph{aspect-ratio:16/10;display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
+.floorplan.ph span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--c-text-muted);background:var(--c-bg);padding:.25rem .6rem;
+  border:1px solid var(--c-border);border-radius:var(--radius-pill,999px)}
 
 /* ── LO QUE CUESTA DE VERDAD ─────────────────────────────────────────────────────────────────
    Precio, comunidad, IBI y gastos de compra, con la suma escrita. Un piso de 289.000 € cuesta
@@ -10550,6 +10957,132 @@ function strip_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = footer_html( $C['footer'] );
 	return implode( "\n", $o );
 }
+
+/**
+ * COMP-HERO-CARTERA · TPL-C-15, `TGL-HERO-MODE=retrato` (el valor por defecto).
+ *
+ * LA CASA ANTES QUE EL BUSCADOR. Bleed a 78vh con velo y una retícula de cuatro columnas
+ * decorativa superpuesta (`z-index:2`, `pointer-events:none`, sólo filetes) — la persuasión que a
+ * `TPL-C-13` le faltaba: una casa que se vende por cómo se ve, no por cuántos filtros tiene
+ * delante. El panel de cifras a la derecha son números que la agencia puede sostener, no un claim
+ * vacío. El otro extremo del toggle es `search_hero_html()`, prestado tal cual de `TPL-C-13`.
+ */
+function hero_cartera_html( $hero ) {
+	$im = img( $hero['img'] );
+	$o  = '<section class="sec hero herocartera" aria-label="' . h( $hero['h1'] ) . '"><div class="media-full">'
+		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '" alt="' . h( $im['alt'] )
+		. '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
+		. '<div class="rulegrid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>'
+		. '<div class="canvas"><div class="head stack">'
+		. '<span class="eyebrow">' . h( $hero['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hero['h1'] ) . '</h1>'
+		. '<p class="lede">' . h( $hero['lede'] ) . '</p></div>'
+		. '<div class="statspanel"><ul>';
+	foreach ( $hero['stats'] as $st ) {
+		$o .= '<li><b>' . h( $st[0] ) . '</b><span>' . h( $st[1] ) . '</span></li>';
+	}
+	return $o . '</ul></div></div></section>';
+}
+
+/**
+ * COMP-SEARCH-BAND · TPL-C-15. La herramienta, no la portada.
+ *
+ * Reutiliza `.filterbar`, la misma forma que `TPL-C-07` y `TPL-C-13` ya usan para sus cuatro
+ * campos — la composición ES la misma, inventar una segunda sería piel distinta con extra pasos.
+ * Lo que cambia es el envoltorio: un plato de superficie inversa DEL ANCHO DEL CONTENEDOR, nunca a
+ * sangre — «sin tocar el borde de la ventana», dice el propio documento del arquetipo — así que la
+ * superficie inversa vive en `.sbplate`, dentro del `.canvas` que `sec_open()` ya limita al
+ * contenedor, y no en el `<section>` entero.
+ */
+function search_band_html( $sf, $uid ) {
+	$o = sec_open( 'searchband', 'Buscador de propiedades' ) . '<div class="sbplate">'
+		. '<form class="filterbar" onsubmit="return false">';
+	foreach ( $sf['fields'] as $fl ) {
+		$id = $uid . '-sb-' . $fl[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<select id="' . $id . '" name="' . $fl[0] . '">';
+		foreach ( $fl[2] as $opt ) {
+			$o .= '<option>' . h( $opt ) . '</option>';
+		}
+		$o .= '</select></div>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
+		. '</form></div>' . sec_close();
+}
+
+/**
+ * COMP-VALUATION-CTA · TPL-C-15. «La sección ES la fila»: panel de captación y fotografía, hijos
+ * directos, sin contenedor intermedio, separados por el mismo `gap:1px` que actúa de filete que el
+ * damero de `COMP-BONO-PACKS` en `TPL-C-14` — el mismo truco, aplicado aquí a la otra conversión.
+ * Nunca promete un precio en la página; la tasación es presencial.
+ */
+function valuation_row_html( $vl, $uid ) {
+	$o = sec_open( 'valuerow', $vl['h2'], 'row' )
+		. '<div class="vlpanel">' . sec_head( $vl )
+		. '<div class="ctas"><a class="btn btn-primary" href="' . h( ihref_for_label( $vl['cta'] ) ) . '">' . h( $vl['cta'] ) . '</a>'
+		. '<a class="btn btn-outline" href="' . h( ihref_for_label( $vl['cta_2'] ) ) . '">' . h( $vl['cta_2'] ) . '</a></div></div>'
+		. '<figure class="vlshot">' . img_tag( $vl['img'] ) . '</figure>';
+	return $o . sec_close( 'row' );
+}
+
+/**
+ * TPL-C-15 · Cartera curada — la home de Inmobiliaria de la O.
+ *
+ * NO ES `strip_property()` CON OTRA PIEL. `TPL-C-13` abría con el buscador porque su visitante
+ * llega FILTRANDO; aquí el visitante llega siendo CONVENCIDO, así que el héroe de persuasión abre
+ * y el buscador baja a su propia banda, nunca encima — ver design.md decisión C2. `TGL-HERO-MODE`
+ * conserva la ruta de `TPL-C-13` para el brief de volumen urbano: en `buscador-portada` la imagen
+ * deja de ir a sangre y el buscador se dibuja encima de ella, exactamente como allí, y
+ * `COMP-SEARCH-BAND` no se repite como sección aparte más abajo.
+ */
+function strip_cartera_curada( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$o   = array();
+	$o[] = head_phone( $C, $BRAND );
+	$o[] = '<main>';
+	if ( 'buscador-portada' === tgl_of( $tgl_rows, 'TGL-HERO-MODE' ) ) {
+		$o[] = search_hero_html( $C['hero'], $C['search'], $uid );
+	} else {
+		$o[] = hero_cartera_html( $C['hero'] );
+		$o[] = search_band_html( $C['search'], $uid );
+	}
+	$o[] = property_grid_html( $C['listing'] );
+	if ( 'off' !== tgl_of( $tgl_rows, 'TGL-MAP-MODE' ) ) {
+		$o[] = map_search_html( $C['map'], 'bleed' );
+	}
+	$o[] = valuation_row_html( $C['valuation'], $uid );
+	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-REVIEWS' ) ) {
+		$o[] = quotes_block_html( $C['quotes'] );
+	}
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * TPL-C-15 · «Propiedades» — el índice completo, reutilizando `TPL-SERVICES-01`.
+ *
+ * La home enseña tres fichas curadas de las diecisiete de la cartera («ver la cartera completa»,
+ * dice su propio `pnote`) y una selección de tres necesita dónde enseñar el resto — exactamente el
+ * vacío que `TPL-SERVICES-01` ya resuelve para «un negocio con más entradas de las que caben en la
+ * home» (su propia § «Por qué existe»). Aquí las entradas son inmuebles y la ficha de destino es
+ * `TPL-PROPERTY-01`, no `TPL-SERVICE-02` — el mismo patrón de página, reutilizado, no un arquetipo
+ * nuevo (`property_grid_html()` en vez de un índice agrupado por zona: la cartera es curada, no
+ * lo bastante ancha para pedir agrupación por categoría).
+ */
+function page_property_index( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['propiedades'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = crumbs_html( $K['crumbs'] );
+	$o[] = '<main>';
+	$o[] = page_head_html( $K['head'] );
+	$o[] = property_grid_html( $K['listing'] );
+	$o[] = page_cta_html( $K['cta'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
 /** TPL-C-08 · Modelo / Lanzamiento. */
 
 
@@ -11136,18 +11669,32 @@ $PAGES = array(
 		array( 'key' => 'nosotros',  'label' => 'Nosotros',  'doc' => 'TPL-ABOUT-03' ),
 		array( 'key' => 'contacto',  'label' => 'Contacto',  'doc' => 'TPL-CONTACT-02' ),
 	),
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	/* CINCO PÁGINAS (D5: «una demo de grado Envato es un sitio multi-página completo»), donde el
+	   diseño de origen sólo pedía tres páginas internas. `propiedades` reutiliza `TPL-SERVICES-01`
+	   -- el mismo vacío que ese arquetipo ya resuelve para «un negocio con más entradas de las que
+	   caben en la home», sólo que aquí las entradas son inmuebles y la ficha de destino es
+	   `TPL-PROPERTY-01`, no `TPL-SERVICE-02`. Etiquetas de nav elegidas para que SÍ resuelvan contra
+	   `ihref_match()`: `nav` trae exactamente `Propiedades`/`Nosotros`/`Contacto`, que normalizan
+	   igual que estas tres etiquetas de página. */
+	'TPL-C-15' => array(
+		array( 'key' => 'home',        'label' => 'Cartera',     'doc' => 'TPL-C-15' ),
+		array( 'key' => 'propiedades', 'label' => 'Propiedades', 'doc' => 'TPL-SERVICES-01' ),
+		array( 'key' => 'producto',    'label' => 'Ficha',       'doc' => 'TPL-PROPERTY-01' ),
+		array( 'key' => 'nosotros',    'label' => 'Nosotros',    'doc' => 'TPL-ABOUT-01' ),
+		array( 'key' => 'contacto',    'label' => 'Contacto',    'doc' => 'TPL-CONTACT-01' ),
+	),
+
+
+
+
+
+
+
+
+
+
+
 	'TPL-E-06' => array(
 		array( 'key' => 'home',     'label' => 'Tienda',   'doc' => 'TPL-E-06' ),
 		array( 'key' => 'producto', 'label' => 'Producto', 'doc' => 'TPL-PDP-02' ),
@@ -11792,11 +12339,18 @@ function property_tour_html( $t, $extra = '' ) {
  * Un piso sin plano obliga a la visita para saber si el segundo dormitorio es un dormitorio o un
  * trastero, y esa visita se la come la agencia. Si no hay plano se dibuja: sale más barato que
  * cuatro visitas perdidas.
+ *
+ * PLACEHOLDER MARCADO, no un plano inventado — la misma disciplina que `hero_shot_html()` ya
+ * establece para `TPL-C-13`. Esta función se estrena con `TPL-C-15`/`delao` (nunca antes se había
+ * renderizado) y las doce fotografías de la marca no incluyen un plano de planta; un hueco
+ * declarado es honesto, un plano dibujado sin datos reales no lo sería.
  */
 function floorplan_html( $fp, $extra = '' ) {
+	$shot = isset( $fp['img'] )
+		? '<figure class="floorplan">' . img_tag( $fp['img'] ) . '</figure>'
+		: '<figure class="floorplan ph"><span>Placeholder</span></figure>';
 	return sec_open( 'planwrap grid-sec' . $extra, $fp['h2'] ) . sec_head( $fp )
-		. '<figure class="floorplan">' . img_tag( $fp['img'] ) . '</figure>'
-		. '<p class="pnote">' . h( $fp['note'] ) . '</p>' . sec_close();
+		. $shot . '<p class="pnote">' . h( $fp['note'] ) . '</p>' . sec_close();
 }
 
 /** COMP-COSTS-BREAKDOWN · TPL-PROPERTY-01. El número de la web tiene que ser el de la notaría. */
@@ -12030,25 +12584,32 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 	if ( 'TPL-C-07' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-13' === $tpl && 'home' === $page_key ) {
-		return strip_property( $anchor_key, $C, $BRAND, $suid, $tgl );
+	/* Re-keyed from `TPL-C-13` to `TPL-C-15` (design.md decision C2): `TPL-C-13` is fully retired
+	   (no `$CONTENT`/`$STRIPS`/`$BRANDS` entry names it any more), so its four branches were dead
+	   code since PR2b's amputation — deferred here per PR3a's own recorded deviation, done in the
+	   same touch of this file as the real `$BRANDS`/`$CONTENT` addition. `producto` and `contacto`
+	   reuse `page_property`/`page_contact_enquiry` verbatim, exactly as C2 promised ("TPL-PROPERTY-01
+	   survives untouched"); `nosotros` drops the old assoc→indexed `$C_nos['team']` remap because
+	   `TPL-C-13`'s own home used `agent_list_html()`'s assoc team shape and `TPL-C-15` has no team on
+	   its home at all (design: "sin equipo en portada") — `$CONTENT['TPL-C-15-delao']['team']` is
+	   authored directly in `page_about_company_tail()`'s indexed-triple shape, so no remap is
+	   needed. `home` calls the new `strip_cartera_curada()`, not `strip_property()`, because the
+	   two homes differ structurally (persuasion hero vs. buscador-como-portada — see C2's
+	   rationale). `propiedades` is new: D5's fifth page, reusing `TPL-SERVICES-01`'s own "index for
+	   a home with more entries than fit" pattern for the full portfolio listing. */
+	if ( 'TPL-C-15' === $tpl && 'home' === $page_key ) {
+		return strip_cartera_curada( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-13' === $tpl && 'nosotros' === $page_key ) {
-		$C_nos = $C;
-		$C_nos['team'] = array(
-			'eyebrow' => $C['team']['eyebrow'],
-			'h2'      => $C['team']['h2'],
-			'items'   => array_map(
-				function ( $m ) { return array( $m['name'], $m['role'], $m['img'] ); },
-				$C['team']['items']
-			),
-		);
-		return page_about_company( $anchor_key, $C_nos, $BRAND, $suid, $tgl );
+	if ( 'TPL-C-15' === $tpl && 'propiedades' === $page_key ) {
+		return page_property_index( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-13' === $tpl && 'producto' === $page_key ) {
+	if ( 'TPL-C-15' === $tpl && 'nosotros' === $page_key ) {
+		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+	}
+	if ( 'TPL-C-15' === $tpl && 'producto' === $page_key ) {
 		return page_property( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
-	if ( 'TPL-C-13' === $tpl && 'contacto' === $page_key ) {
+	if ( 'TPL-C-15' === $tpl && 'contacto' === $page_key ) {
 		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-14' === $tpl && 'home' === $page_key ) {
