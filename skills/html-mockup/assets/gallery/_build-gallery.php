@@ -442,9 +442,10 @@ $ANCHORS = array(
 // strips below each stand at one chosen anchor and no brand chose vitrine.
 //
 // So a brand supplies exactly what an anchor deliberately does not: its own GROUND, its own
-// ACCENT, its own TYPE PAIRING and its own PHOTOGRAPHS. It BORROWS scale, density, composition and
-// elevation from the anchor it starts on, so the five axes keep meaning what they meant and the
-// anchor stops being a variant you flip between — it becomes the preset a brand starts from.
+// ACCENT, its own TYPE PAIRING, its own PHOTOGRAPHS and, optionally, its own CORNER-RADIUS SCALE.
+// It BORROWS scale, density, composition and elevation from the anchor it starts on, so the five
+// axes keep meaning what they meant and the anchor stops being a variant you flip between — it
+// becomes the preset a brand starts from.
 //
 // THE GROUND AND THE ACCENT ARE REGISTERED INTO THE SAME TWO TABLES THE ANCHORS USE, under a `b-`
 // key. That is the whole mechanism, and it is the reason this file needed almost no new gates:
@@ -455,6 +456,28 @@ $ANCHORS = array(
 // `ink` is this brand's own GRADE, in the two terms § 5a's table uses: `sat` is how much colour,
 // `gamma` is how deep the S-curve goes. A brand that names neither inherits the default, exactly
 // like an anchor whose § Imagery says nothing.
+//
+// ── PR3e · RADIUS JOINS THE LIST, AND HERE IS WHY IT BELONGS HERE AND NOT ABOVE ──────────────────
+//
+// `--radius-card/-button/-image/-input/-container` were a house constant no brand had ever
+// touched — twelve brands and none of them asked. That silence was read, twice, as "radius is the
+// anchor's", and both readings were wrong for the same reason: RADIUS IS NOT ONE OF THE FIVE AXES
+// LISTED TWO PARAGRAPHS UP. Scale, ground, density, composition, elevation — that is the whole
+// list an anchor owns, and corner treatment is not on it. Not being an axis does not make it
+// nobody's; it makes it a BRAND's, exactly like the ground and the typeface two lines above it,
+// because a brutalist brand and a soft consumer brand genuinely do not share corners any more than
+// they share a palette. The two facts — "not an axis" and "is identity" — are what separate this
+// from a styling knob: an anchor may not touch it (that would be a sixth axis nobody asked for),
+// but a brand may, because a brand is a business and a business has a personality about corners.
+//
+// `radius` is this brand's own SCALE, one value per house token — `card`, `button`, `image`,
+// `input`, `container` — plus `pill` for the file's own fully-round chips (cart badge, category
+// tag, filter chip, back-link, tax tag), which were never a documented house token but were always
+// rendered at a fixed 999px nobody could reach. A brand that names none inherits the house values
+// UNCHANGED, exactly like `ink` and exactly like an anchor whose § Imagery says nothing: the
+// override lives ONLY in that brand's own `[data-brand]` block, never in `:root`, so leaving the
+// key out costs a brand nothing and the house scale is not one byte different from before this
+// paragraph existed.
 $BRANDS = array(
 	
 
@@ -508,6 +531,12 @@ $BRANDS = array(
 	   esto es arquitectura de exterior con luz natural, no un acento de marca de producto, así que
 	   pide un grado más neutro; y un peldaño por encima de Corte Nueve (0,62), cuya fotografía es un
 	   still de estudio y no un jardín. */
+	/* RADIUS (PR3e): `Inicio.dc.html`'s own source brief says it in as many words — "Sin radios de
+	   borde y sin sombras en ningún elemento. Todo son ángulos rectos." — and the badge in the
+	   featured-listing card is drawn flush to the corner with no rounding at all. Every house token
+	   goes to zero, `pill` included: a chip that stayed circular while every card and button around
+	   it went square would be the exact "generic component under brand colours" defect this change
+	   exists to stop repeating. */
 	'delao' => array(
 		'name'   => 'INMOBILIARIA DE LA O',
 		'sector' => 'Inmobiliaria · cartera curada',
@@ -516,6 +545,10 @@ $BRANDS = array(
 		'font_1' => "'Instrument Serif', Georgia, 'Times New Roman', serif",
 		'font_2' => "'Archivo', system-ui, sans-serif",
 		'ink'    => array( 'sat' => 0.64, 'gamma' => 0.12 ),
+		'radius' => array(
+			'card' => '0', 'button' => '0', 'image' => '0',
+			'input' => '0', 'container' => '0', 'pill' => '0',
+		),
 	),
 
 	/* AURIA · lanzamiento de un modelo. Casi negro AZULADO, frente al casi negro CÁLIDO de
@@ -2135,17 +2168,18 @@ $CONTENT = array(
 			'phone'     => '+34 952 00 00 00',
 			'img'       => 'delao-cta',
 		),
-		/* COMP-TESTIMONIAL — `Inicio.dc.html`'s own three reviews, verbatim. `quotes_block_html()`
-		   is the shared shape every archetype's testimonial section already uses (`.head.stack`:
-		   eyebrow line above H2), not the design's own side-by-side H2 + rating-line composition —
-		   forking a shared function for one section's header geometry would cost every OTHER
-		   archetype's testimonial block a silent behaviour change for a gain that is layout, not
-		   copy. The real two-line heading and the real rating both survive verbatim, only their
-		   relative position differs from the artboard. */
+		/* COMP-TESTIMONIAL — `Inicio.dc.html`'s own three reviews, verbatim. PR3d shipped this
+		   through the shared `.head.stack` shape (eyebrow above H2) because forking
+		   `quotes_block_html()` for one caller's header geometry would have cost every OTHER
+		   archetype's testimonial block a silent behaviour change. PR3e removes that trade-off:
+		   the function now takes an opt-in `$layout` parameter (every other caller's default is
+		   untouched), so delao alone renders the artboard's own side-by-side H2 + rating-line
+		   composition — `'between'` below, wired at the call site in `strip_cartera_curada()`. */
 		'quotes'         => array(
-			'eyebrow' => '4,9 / 5 · 68 reseñas verificadas',
-			'h2'      => 'Lo que dicen nuestros clientes',
-			'items'   => array(
+			'eyebrow'  => '4,9 / 5 · 68 reseñas verificadas',
+			'h2'       => 'Lo que dicen nuestros clientes',
+			'h2_lines' => array( 'Lo que dicen', 'nuestros clientes' ),
+			'items'    => array(
 				array( 'Vendieron la casa en cinco semanas al precio que nos dijeron el primer día. Nadie más se atrevió a darnos esa cifra.', 'Elena Marchetti', 'Venta · Sierra Blanca, 2025' ),
 				array( 'Nos enseñaron cuatro propiedades. Compramos la segunda. Es la primera vez que una agencia me hace perder poco tiempo.', 'Javier Ollero', 'Compra · Milla de Oro, 2025' ),
 				array( 'Discretos con los datos, exigentes con el reportaje y firmes en la negociación. Repetiría con los ojos cerrados.', 'Familia Duarte', 'Venta · Sotogrande, 2024' ),
@@ -5010,6 +5044,14 @@ a{color:inherit;text-decoration:none} img,svg{max-width:100%} ol,ul{list-style:n
    than the area it was given and lays every line across territory belonging to something else. */
 .stack > h1,.stack > h2,.stack > h3,.stack > p{align-self:stretch;min-width:0}
 
+/* PR3e — `.between` is `.stack`'s sibling, not its replacement: a second, opt-in shape for a
+   `.head` that needs the artboard's own side-by-side geometry (heading on one side, a short label
+   on the other) instead of the house's default eyebrow-above-heading column. Additive only —
+   nothing here touches `.stack` or the bare `.head{position:relative}` rule both shapes still
+   share, so every one of the 94 existing `class="head stack"` call sites is untouched. */
+.between{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:var(--sp-m)}
+.between h2{margin:0}
+
 /* A PHOTO IS AN `<img>` WITH `object-fit:cover` AND A REAL `alt` (mockup-guide.md § Container
    hygiene), never a `background-image`: a CSS background needs an otherwise-empty element, is
    invisible to screen readers and to Google Images, and maps to the exact container `es_photo()`
@@ -5291,7 +5333,7 @@ $css[] = <<<'CSS'
 .tools a{color:var(--c-text-muted);white-space:nowrap}
 .tools a:hover{color:var(--c-text)}
 .cart b{display:inline-grid;place-items:center;min-width:1.4rem;height:1.4rem;padding-inline:.35rem;
-  border-radius:999px;background:var(--c-accent);color:var(--c-on-accent);
+  border-radius:var(--radius-pill,999px);background:var(--c-accent);color:var(--c-on-accent);
   font-size:.7rem;font-weight:700;line-height:1}
 /* COMP-HERO mini: ~20vh is the ADN, so the height is pinned here rather than by --ratio-hero.
    With an explicit height and no `aspect-ratio`, the automatic-minimum-size transfer that makes
@@ -5301,7 +5343,7 @@ $css[] = <<<'CSS'
 .cats{display:flex;gap:var(--sp-s);overflow-x:auto;scrollbar-width:none;font-size:var(--fs-nav)}
 .cats::-webkit-scrollbar{display:none}
 .cats a{white-space:nowrap;padding:.35rem .75rem;border:1px solid var(--c-border);
-  border-radius:999px;color:var(--c-text-soft);transition:border-color var(--dur-color) var(--ease)}
+  border-radius:var(--radius-pill,999px);color:var(--c-text-soft);transition:border-color var(--dur-color) var(--ease)}
 .cats a:hover{border-color:var(--c-accent);color:var(--c-text)}
 .price{font-size:var(--fs-price);font-weight:700;line-height:1.2}
 /* The price and the button sit at the BOTTOM of the card, not under the title.
@@ -5426,7 +5468,7 @@ $css[] = <<<'CSS'
    does — these sit in a wrapping flex row that can stretch them. */
 .fbtn{display:inline-flex;align-items:center;justify-content:center;
       font:inherit;font-size:var(--fs-small);line-height:1.2;padding:.3rem .7rem;
-      border:1px solid var(--c-border);border-radius:999px;background:transparent;
+      border:1px solid var(--c-border);border-radius:var(--radius-pill,999px);background:transparent;
       color:var(--c-text-soft);cursor:pointer;white-space:nowrap;
       transition:background var(--dur-color) var(--ease),color var(--dur-color) var(--ease),
                  border-color var(--dur-color) var(--ease)}
@@ -5598,7 +5640,7 @@ $css[] = <<<'CSS'
 .backlink{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
           gap:.4rem;font-size:var(--fs-small);line-height:1.2;color:var(--c-on-inverse);
           border:1px solid color-mix(in srgb,var(--c-on-inverse) 34%,transparent);
-          border-radius:999px;padding:.3rem .8rem;white-space:nowrap;text-decoration:none;
+          border-radius:var(--radius-pill,999px);padding:.3rem .8rem;white-space:nowrap;text-decoration:none;
           transition:background var(--dur-color) var(--ease),border-color var(--dur-color) var(--ease)}
 /* A page rule with `display` BEATS the UA sheet's `[hidden]{display:none}` — same specificity,
    later origin. `.strip[hidden]` and `.tgrid > li[hidden]` above exist for exactly this reason;
@@ -5655,7 +5697,7 @@ $css[] = <<<'CSS'
    line would align the last lines and leave the axis rows ragged one row up. */
 .taxes{list-style:none;margin:auto 0 0;padding:var(--sp-s) 0 0;display:flex;flex-wrap:wrap;gap:.3rem}
 .tax{font-size:.68rem;line-height:1.4;letter-spacing:.03em;white-space:nowrap;
-     border:1px solid var(--c-border);border-radius:999px;padding:.12rem .5rem;
+     border:1px solid var(--c-border);border-radius:var(--radius-pill,999px);padding:.12rem .5rem;
      color:var(--c-text-muted)}
 /* Neutral AT REST and accent only under the pointer. Forty cards each printing an accent line is
    a catalogue of accents, which is the tell design-tokens.md forbids by name — and the whitelist
@@ -6567,10 +6609,29 @@ foreach ( $ANCHORS as $k => $A ) {
    the same rule, so the muted tone, the border and the inverse surface all re-resolve against the
    brand's two colours without a line of code knowing it.
 
-   WHAT IS NOT HERE IS THE POINT. Colour, type, and nothing else. A brand that also moved scale or
-   density would be a fifth anchor wearing a business name, and the five axis chips on its own card
-   would be describing a page that no longer matches them. */
-$brand_css = array( '/* ══════════ THE BRANDS — ground, accent and type. Never an axis. ══════════ */' );
+   WHAT IS NOT HERE IS THE POINT. Colour, type, an OPTIONAL radius scale since PR3e, and nothing
+   else. A brand that also moved scale or density would be a fifth anchor wearing a business name,
+   and the five axis chips on its own card would be describing a page that no longer matches them. */
+/**
+ * PR3e — a brand's own corner-radius scale, or '' when it names none.
+ *
+ * Six tokens, not five: the house's own documented scale (`card`/`button`/`image`/`input`/
+ * `container`, design-system.md §Border radius) plus `pill`, this file's own fully-round chip
+ * shape (cart badge, category tag, filter chip, back-link, tax tag) — never a documented house
+ * token, always rendered at a bare 999px no brand could reach before this function existed. A
+ * brand that sets none of the six returns '', so its `[data-brand]` block is byte-identical to
+ * every build before this change: the override lives ONLY here, never in `:root`.
+ */
+function brand_radius_css( $b_v ) {
+	if ( ! isset( $b_v['radius'] ) ) {
+		return '';
+	}
+	$r = $b_v['radius'];
+	return '--radius-card:' . $r['card'] . ';--radius-button:' . $r['button'] . ';'
+		. '--radius-image:' . $r['image'] . ';--radius-input:' . $r['input'] . ';'
+		. '--radius-container:' . $r['container'] . ';--radius-pill:' . $r['pill'] . ';';
+}
+$brand_css = array( '/* ══════════ THE BRANDS — ground, accent, type and an optional radius scale. Never an axis. ══════════ */' );
 foreach ( $BRANDS as $b_k => $b_v ) {
 	if ( ! isset( $used_brands[ $b_k ] ) ) {
 		continue;
@@ -6583,10 +6644,15 @@ foreach ( $BRANDS as $b_k => $b_v ) {
 		. '   accent ' . $b_ac['hex'] . ' measured ' . $b_ac['r_bg'] . ' on --c-bg, ' . $b_ac['r_alt']
 		. " on --c-bg-alt;\n" . '   --c-on-accent resolves to ' . $b_ac['on_is'] . ' (' . $b_ac['on']
 		. ') at ' . $b_ac['r_on'] . ' on the fill. ══════════ */';
+	/* The radius string carries its own trailing `;` when non-empty, so a brand that names none
+	   appends '' here and the block closes exactly as it did before this function existed — not
+	   one byte different for the eleven brands that have never touched radius. */
+	$b_radius     = brand_radius_css( $b_v );
 	$brand_css[] = '[data-brand="' . $b_k . '"]{'
 		. '--c-bg:' . $b_gr['bg'] . ';--c-bg-alt:' . $b_gr['alt'] . ';--c-text:' . $b_gr['text'] . ';'
 		. '--c-accent:' . $b_ac['hex'] . ';--c-on-accent:' . $b_ac['on'] . ';'
-		. '--font-primary:' . $b_v['font_1'] . ';--font-secondary:' . $b_v['font_2'] . '}';
+		. '--font-primary:' . $b_v['font_1'] . ';--font-secondary:' . $b_v['font_2']
+		. ( '' === $b_radius ? '' : ';' . $b_radius ) . '}';
 }
 $css[] = implode( "\n", $brand_css ) . "\n";
 
@@ -10829,11 +10895,30 @@ function badges_html( $bd ) {
 	return $o . '</ul></div></section>';
 }
 
-/** COMP-TESTIMONIAL, the shared shape. */
-function quotes_block_html( $qt, $extra = '' ) {
+/**
+ * COMP-TESTIMONIAL, the shared shape.
+ *
+ * PR3e — `$layout` is a third, opt-in parameter, `'stack'` by default: every one of the four
+ * existing call sites passes zero or two arguments today, so every one of them keeps rendering
+ * exactly the `.head.stack` markup it always has. `'between'` is `Inicio.dc.html`'s OWN header —
+ * `justify-content:space-between; align-items:flex-end`, the H2 on one side and the rating line on
+ * the other, never an eyebrow stacked above a heading. Forking the whole function for one caller's
+ * header geometry would have cost every other archetype's testimonial block a silent behaviour
+ * change for a gain that is layout, not copy — the same reasoning `sbfield_html()`'s field-shape
+ * branch and `page_cta_html()`'s href overrides already used, applied to a third caller.
+ *
+ * `$qt['h2_lines']`, if present, joins its parts with `<br>` the same way `hero_cartera_html()`'s
+ * `h1_lines` does — `Inicio.dc.html` breaks this exact heading across two lines
+ * ("Lo que dicen<br>nuestros clientes"). `$qt['h2']` stays the plain single-line string every
+ * caller already supplies, used for `aria-label` regardless of which layout renders.
+ */
+function quotes_block_html( $qt, $extra = '', $layout = 'stack' ) {
+	$h2   = isset( $qt['h2_lines'] ) ? implode( '<br>', array_map( 'h', $qt['h2_lines'] ) ) : h( $qt['h2'] );
+	$head = ( 'between' === $layout )
+		? '<div class="head between"><h2>' . $h2 . '</h2><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span></div>'
+		: '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span><h2>' . $h2 . '</h2></div>';
 	$o = '<section class="sec quotes grid-sec' . $extra . '" aria-label="' . h( $qt['h2'] ) . '"><div class="canvas">'
-		. '<div class="head stack"><span class="eyebrow">' . h( $qt['eyebrow'] ) . '</span>'
-		. '<h2>' . h( $qt['h2'] ) . '</h2></div><ul class="items">';
+		. $head . '<ul class="items">';
 	foreach ( $qt['items'] as $q ) {
 		$o .= '<li><figure><blockquote>' . h( $q[0] ) . '</blockquote>'
 			. '<figcaption><b>' . h( $q[1] ) . '</b><span>' . h( $q[2] ) . '</span></figcaption>'
@@ -11513,7 +11598,8 @@ function strip_cartera_curada( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	}
 	$o[] = valuation_row_html( $C['valuation'], $uid );
 	if ( 'no' !== tgl_of( $tgl_rows, 'TGL-REVIEWS' ) ) {
-		$o[] = quotes_block_html( $C['quotes'] );
+		// PR3e — `Inicio.dc.html`'s own side-by-side testimonial head, not the shared `.head.stack`.
+		$o[] = quotes_block_html( $C['quotes'], '', 'between' );
 	}
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );

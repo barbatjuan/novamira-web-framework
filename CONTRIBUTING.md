@@ -243,7 +243,7 @@ php skills/html-mockup/assets/gallery/_build-gallery.php
 First, offline — no WordPress, no connector, both run in a second:
 
 ```bash
-php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php && php tests/test-audit-signals.php && php tests/test-write-path.php
+php skills/framework-audit/assets/framework-audit.php && php tests/test-container-hygiene.php && php tests/test-framework-audit.php && php tests/test-audit-signals.php && php tests/test-write-path.php && php tests/test-gallery-brand-radius.php
 ```
 
 The audit enforces everything on this page that a machine can decide: frontmatter, the word
