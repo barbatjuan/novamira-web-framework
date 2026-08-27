@@ -4,15 +4,16 @@ Convierte "no sé qué plantilla" en "el agente me guía". Bifurca por tipo de s
 marca, pide referencias, recomienda un `TPL-*` — o, si ninguno aplica, resuelve en lane bespoke
 (`lanes.md`). Nunca construye desde cero sin agotar antes el catálogo.
 
-**Catálogo de siete, no de veintitrés.** `catalog-envato-grade` retiró dieciséis arquetipos que no
-respaldaban ninguna demo D1 (`TPL-C-01..06`, `C-08..10`, `C-12`, `C-13`, `TPL-E-01..05`); el
-catálogo activo hoy son los siete que sí: `TPL-C-07` (Motor Aranda), `TPL-C-11` (Alinea), `TPL-C-14`
-(Lumière), `TPL-E-06` (Corte Nueve), `TPL-E-07` (Bajura), `TPL-E-08` (Tueste Norte), `TPL-E-09`
-(Medida Justa). Un brief que hoy habría encajado en uno de los dieciséis retirados **no encaja en
-ninguno de los siete** — eso no es un fallo de este documento, es agotar el catálogo honestamente y
-pasar a la lane bespoke (`lanes.md` § Carril bespoke), con el razonamiento negativo registrado. Tres
-arquetipos nuevos (`TPL-C-15` Cartera curada, y dos por confirmar para abogados y gimnasios) se
-suman en fases posteriores del mismo cambio; hasta entonces, un brief inmobiliario, legal o de
+**Catálogo de ocho, no de veintitrés.** `catalog-envato-grade` retiró dieciséis arquetipos que no
+respaldaban ninguna demo D1 (`TPL-C-01..06`, `C-08..10`, `C-12`, `C-13`, `TPL-E-01..05`) y sumó uno
+nuevo con reemplazo nombrado (`TPL-C-15`, sucesor de `TPL-C-13`); el catálogo activo hoy son los
+ocho que sí: `TPL-C-07` (Motor Aranda), `TPL-C-11` (Alinea), `TPL-C-14` (Lumière), `TPL-C-15`
+(cartera curada, demo de marca pendiente de `PR3b`), `TPL-E-06` (Corte Nueve), `TPL-E-07` (Bajura),
+`TPL-E-08` (Tueste Norte), `TPL-E-09` (Medida Justa). Un brief que hoy habría encajado en uno de los
+dieciséis retirados **no encaja en ninguno de los ocho** — eso no es un fallo de este documento, es
+agotar el catálogo honestamente y pasar a la lane bespoke (`lanes.md` § Carril bespoke), con el
+razonamiento negativo registrado. Dos arquetipos nuevos más (por confirmar para abogados y
+gimnasios) se suman en fases posteriores del mismo cambio; hasta entonces, un brief legal o de
 fitness también resuelve en bespoke.
 
 ## Flujo
@@ -38,7 +39,7 @@ Antes de nada, resolver: ¿ecommerce o corporativa? Si `project-context` no lo d
 preguntarlo (AskUserQuestion). Determina qué set de arquetipos entra:
 
 - `ecommerce` → `templates/ecommerce/TPL-E-06..09` (activos)
-- `corporate` → `templates/corporate/TPL-C-07`, `TPL-C-11`, `TPL-C-14` (activos)
+- `corporate` → `templates/corporate/TPL-C-07`, `TPL-C-11`, `TPL-C-14`, `TPL-C-15` (activos)
 
 El design-system y los toggles son **compartidos** entre ambos tipos.
 
@@ -99,7 +100,7 @@ otro (o que el brief cae fuera del catálogo activo), no de que haya que añadir
 
 ## 3b. Mapa señal → plantilla (corporate)
 
-Los tres activos existen porque el negocio **publica una cosa concreta** que no entra en una
+Los cuatro activos existen porque el negocio **publica una cosa concreta** que no entra en una
 tarjeta de servicio genérica. La pregunta que los enruta no es "¿qué objetivo tenés?" sino **"¿qué
 publica este negocio, y cada cuánto cambia?"**.
 
@@ -108,17 +109,18 @@ publica este negocio, y cada cuánto cambia?"**.
 | Un **inventario volátil** de unidades, cada una con sus datos | Concesionario, ocasión, maquinaria, náutica; el stock rota cada semana; filtrar es la primera intención | **TPL-C-07 Stock / Ocasión** |
 | **Un plan largo** medido en meses y cuotas | Ortodoncia, implantología, nutrición, entrenamiento, psicoterapia; un solo tratamiento de 12–18 meses | **TPL-C-11 Plan por fases** |
 | Una **carta de rituales** que se compra en bono | Centro de estética, cabina de belleza, spa urbano, depilación, uñas; se elige por zona del cuerpo y se vuelve cinco veces | **TPL-C-14 Ritual / Bono** |
+| Una **cartera curada** de inmuebles únicos, cada uno tratado como pieza | Inmobiliaria de lujo residencial, promotora boutique; la agencia CURA la cartera, no la deja rotar como un inventario | **TPL-C-15 Cartera curada** |
 
 **Si el negocio vende por OBJETIVO** — leads B2B, autoridad institucional, portfolio creativo, una
-oferta única, o un local con reserva/turno — ninguno de los tres activos encaja: son exactamente los
-cinco objetivos que cubría `TPL-C-01..05`, retirados en `catalog-envato-grade`. Lo mismo si publica
-una carta de mesa, un inventario por unidad única, una tarifa de taller, tratamientos clínicos,
-disponibilidad de urgencia o una cartera de inmuebles buscable por zona — `TPL-C-06`, `C-08`, `C-09`,
-`C-10` y `C-12` cubrían esas seis y también se retiraron. `TPL-C-13` (cartera de inmuebles) es un
-caso aparte: se retira con reemplazo nombrado, `TPL-C-15 · Cartera curada`, que llega en una fase
-posterior de este mismo cambio — hasta que aterrice, un brief inmobiliario también resuelve en
-bespoke. Un negocio de abogados o de gimnasios tampoco tiene hueco todavía: sus arquetipos llegan en
-fases posteriores de `catalog-envato-grade`. En cualquiera de estos casos, agotar los tres activos
+oferta única, o un local con reserva/turno — ninguno de los cuatro activos encaja: son exactamente
+los cinco objetivos que cubría `TPL-C-01..05`, retirados en `catalog-envato-grade`. Lo mismo si
+publica una carta de mesa, un inventario por unidad única, una tarifa de taller, tratamientos
+clínicos o disponibilidad de urgencia — `TPL-C-06`, `C-08`, `C-09`, `C-10` y `C-12` cubrían esas
+cinco y también se retiraron, sin reemplazo. Una cartera de inmuebles buscable por zona ya NO cae en
+bespoke: `TPL-C-13` cubría ese caso, se retiró en esta misma iniciativa, y `TPL-C-15 · Cartera
+curada` es su reemplazo nombrado — activo desde ya, aunque su demo de marca (`delao`) llega en
+`PR3b`. Un negocio de abogados o de gimnasios tampoco tiene hueco todavía: sus arquetipos llegan en
+fases posteriores de `catalog-envato-grade`. En cualquiera de estos casos, agotar los cuatro activos
 primero, registrar por qué ninguno sirve, y pasar a bespoke.
 
 **`TPL-C-11` frente a `TPL-C-14`.** Los dos son un servicio con cita, y conviene separarlos aquí.
@@ -128,13 +130,20 @@ que se repite**: la clienta vuelve, elige por zona del cuerpo cada vez, y la pá
 bono de sesiones sin fecha de término. Regla corta: **¿el tratamiento tiene un final declarado?**
 Sí, con fases → C-11. No, se repite indefinidamente → C-14.
 
+**`TPL-C-15` frente a los otros tres.** Los tres publican un contenido que avanza o se repite solo
+—un plan que progresa, una carta que se repite, un stock que rota cada semana—. `TPL-C-15` publica
+una CARTERA casi estática (una veintena de inmuebles, no cientos) en la que lo que convence es la
+fotografía antes que el filtro: no compite con los otros tres, cubre el caso en el que el negocio
+vende UNIDADES únicas de alto valor que se curan, no que rotan.
+
 ### Orden de decisión
 
 1. **Preguntar primero qué publica el negocio.** Si es un inventario que rota, un plan largo por
-   fases, o una carta de rituales en bono, el catálogo activo tiene una respuesta. Para cualquier
-   otra cosa que un `TPL-C-*` cubría antes de esta fase, no hay arquetipo activo todavía.
-2. Antes de resolver en bespoke, confirmar que de verdad ninguno de los tres encaja — no descartar
-   por preferencia de estilo, solo por lo que el negocio publica.
+   fases, una carta de rituales en bono, o una cartera curada de inmuebles, el catálogo activo tiene
+   una respuesta. Para cualquier otra cosa que un `TPL-C-*` cubría antes de esta fase, no hay
+   arquetipo activo todavía.
+2. Antes de resolver en bespoke, confirmar que de verdad ninguno de los cuatro encaja — no
+   descartar por preferencia de estilo, solo por lo que el negocio publica.
 
 Empates: presentar las 2 candidatas con el trade-off y dejar elegir. Nunca decidir solo un empate.
 
@@ -181,12 +190,14 @@ Preguntarlas es ofrecer al cliente que diga que no a algo que igualmente hay que
 |--------|-----------|--------|
 | Unidad de inventario | `TPL-UNIT-01` | **Obligatoria** si la home es `TPL-C-07` Stock. La rejilla de esa home dice «ver ficha»: sin la ficha, el arquetipo promete una página que no existe |
 | Servicios / ritual | `TPL-SERVICES-01` + `TPL-SERVICE-02` | **Obligatoria** si la home es `TPL-C-14` Ritual/Bono. La home enseña un resumen de la carta; el índice y la ficha de cada ritual viven aquí |
+| Ficha de inmueble | `TPL-PROPERTY-01` | **Obligatoria** si la home es `TPL-C-15` Cartera curada. La rejilla de esa home dice «ver ficha»: sin la ficha, el arquetipo promete una página que no existe |
 | Blog + Entrada | `TPL-BLOG-01` + `TPL-POST-01` | Solo si hay alguien que publique, **y se pregunta antes**: tres entradas de hace dos años restan confianza en vez de sumarla |
 
-`TPL-PROJECT-01` (portfolio) y `TPL-PROPERTY-01`/una `TPL-SERVICE-01` genérica quedan sin home activa
-que las requiera obligatoriamente hasta que `TPL-C-03`, `TPL-C-13`/`TPL-C-15` o `TPL-C-01`/`C-02`
-vuelvan a estar en catálogo (`TPL-PROPERTY-01` ya sobrevive como arquetipo de ficha y se re-engancha
-a `TPL-C-15` en cuanto esa home aterriza — ver `catalog-wrapper-integrity` Requisito 5).
+`TPL-PROJECT-01` (portfolio) y una `TPL-SERVICE-01` genérica quedan sin home activa que las requiera
+obligatoriamente hasta que `TPL-C-03` o `TPL-C-01`/`C-02` vuelvan a estar en catálogo.
+`TPL-PROPERTY-01` ya no está en ese grupo: acompañaba a `TPL-C-13`, retirado en esta misma
+iniciativa, y ahora es la ficha obligatoria de su reemplazo nombrado, `TPL-C-15` (ver
+`catalog-wrapper-integrity` Requisito 5).
 
 ### 6.3 Set sugerido por tipo de sitio
 
@@ -195,6 +206,7 @@ a `TPL-C-15` en cuanto esa home aterriza — ver `catalog-wrapper-integrity` Req
 | Ecommerce | Home + **Shop/Catálogo** (`TPL-SHOP-01`) + **Ficha de producto** (`TPL-PDP-01..05`, ver 6.4) + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1. Carrito (`TPL-CART-01`) y Checkout (`TPL-CHECKOUT-01`) existen como arquetipo de LAYOUT, pero quien los monta es `woocommerce`: no entran en este set, se citan al pasar el testigo |
 | Corporate | Home + **Nosotros** (`TPL-ABOUT-01..03`) + **Contacto** (`TPL-CONTACT-01..02`) — más el bloque 6.1 |
 | Corporate con inventario | Home (`TPL-C-07`) + **una ficha por unidad** (`TPL-UNIT-01`) + **Nosotros** + **Contacto** — más el bloque 6.1. Aquí las fichas no son cinco: son las que haya en patio, y las escribe quien mantiene el inventario, no quien monta la web |
+| Corporate con cartera inmobiliaria | Home (`TPL-C-15`) + **una ficha por inmueble** (`TPL-PROPERTY-01`) + **Nosotros** + **Contacto** — más el bloque 6.1 |
 
 ### 6.4 Qué arquetipo le toca a cada página interna
 
@@ -238,10 +250,10 @@ ambas: entra en cuanto el negocio publica más entradas de las que la home ense�
 | Lo que decide la compra | Arquetipo | Home activa que la acompaña |
 |-------------------------|-----------|----------------------|
 | De dónde viene esta unidad y cuánto ha andado | `TPL-UNIT-01` La unidad de ocasión | `TPL-C-07` |
+| Si confías en una vivienda única, con precio, metros y zona | `TPL-PROPERTY-01` El inmueble | `TPL-C-15` |
 
-`TPL-PROPERTY-01` (El inmueble) no tiene home activa hoy — acompañaba a `TPL-C-13`, retirado con
-reemplazo nombrado `TPL-C-15`. Sobrevive sin cambios y se re-engancha a `TPL-C-15` en cuanto esa home
-aterriza (`catalog-wrapper-integrity` Requisito 5).
+`TPL-PROPERTY-01` acompañaba a `TPL-C-13`, retirado en esta misma iniciativa; sobrevive sin cambios
+y es la ficha de su reemplazo nombrado, `TPL-C-15` (`catalog-wrapper-integrity` Requisito 5).
 
 Y ninguna de las dos es `TPL-PDP-01`. Una ficha de producto vende una unidad **fungible** —hay cien
 iguales en el almacén— y por eso gira alrededor de elegir variante y añadir al carrito. Aquí hay

@@ -216,15 +216,33 @@ Files: `framework-audit.php`, `tests/test-framework-audit.php`, `CONTRIBUTING.md
 
 ### PR3a — `TPL-C-15` archetype doc (no human decision)
 Files: `templates/corporate/TPL-C-15-cartera-curada.md` (NEW), `recommender.md`, both `_README.md`.
-- [ ] 3a.1 Author `TPL-C-15` with `TGL-HERO-MODE` (`buscador-portada`|`retrato`, default `retrato`)
+- [x] 3a.1 Author `TPL-C-15` with `TGL-HERO-MODE` (`buscador-portada`|`retrato`, default `retrato`)
       and inherited `TGL-MAP-MODE` (default `off`); include its own `Envoltorio` table from day one
-      (no catch-all-only shortcut — this is a new file, author it complete).
-- [ ] 3a.2 Re-key `recommender.md` and `corporate/_README.md` from `TPL-C-13` to `TPL-C-15` for the
-      real-estate pilot; `TPL-PROPERTY-01`'s render functions re-key at `_build-gallery.php:15370`
-      and its `if ('TPL-C-13' === $tpl ...)` branches (`:15572-15590`) switch to `TPL-C-15`.
-- [ ] 3a.3 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
-      → `RT_TPL_WRAPPER_DUPLICATE` does not fire against `TPL-C-14` (shared ≈4 of ≥15 union,
-      `2·4=8≤15`); 0 FAIL.
+      (no catch-all-only shortcut — this is a new file, author it complete). DONE — 6 real rows
+      (`COMP-HERO-CARTERA` bleed, `COMP-SEARCH-BAND` contained, `COMP-FEATURED-GRID` contained,
+      `COMP-MAP-SEARCH` bleed, `COMP-VALUATION-CTA` row, `COMP-TESTIMONIAL` contained), no catch-all.
+- [x] 3a.2 Re-key `recommender.md` and `corporate/_README.md` from `TPL-C-13` to `TPL-C-15` for the
+      real-estate pilot. DONE for both docs (active-set tables, §3b routing table + prose, §6.2/§6.3/
+      §6.4 page-dependency tables, `TPL-C-13` disposition row updated to present tense). **Deviation,
+      recorded per the orchestrator's explicit scope fence for this batch ("Do NOT touch
+      `_build-gallery.php`")**: `TPL-PROPERTY-01`'s render-function re-key at `_build-gallery.php`
+      (the `if ('TPL-C-13' === $tpl ...)` dispatch branches) was NOT done this batch. Verified safe to
+      defer — the literal `'TPL-C-13'` string is dead code right now (no `$CONTENT`/`$STRIPS` entry
+      sets `tpl` to that value since PR2b's amputation), so leaving it costs nothing until PR3b wires
+      the `delao` brand and can re-key it alongside the real `$BRANDS`/`$CONTENT` addition in the same
+      touch of that file.
+- [x] 3a.3 Verify: `php skills/framework-audit/assets/framework-audit.php && php tests/test-framework-audit.php`
+      → `RT_TPL_WRAPPER_DUPLICATE` does not fire against `TPL-C-14` (shared exactly `COMP-HEADER` +
+      `COMP-FOOTER` = 2 of a 15-id union, `2·2=4≤15`, better margin than the ≈4/15 forecast); 0 FAIL.
+      DONE. Exact match: `0 FAIL / 10 WARN / 0 JUDGE across 15 skills + 2 agent(s)` (same 10 as
+      post-PR2b — no new WARN/FAIL introduced). Full chain: `test-framework-audit` 751 +
+      `test-write-path` 426 + `test-container-hygiene` 81 + `test-audit-signals` 22 =
+      **1280 OK / 0 FAIL** (unchanged from pre-PR3a — no new fixture tests needed, the new file was
+      verified against the real audit run, not a synthetic fixture). Adding the new file also shifted
+      the gallery's own input fingerprint (`RT_GALLERY_STALE`, unrelated to the Envoltorio gate);
+      regenerated `index.html` (gitignored, zero `$CONTENT`/`$STRIPS`/`$BRANDS`/`_build-gallery.php`
+      change — confirmed via `git status` before and after) to clear it, staying inside the "no
+      photography, no `$BRANDS` entry, no `_build-gallery.php` edit" fence.
 
 ### PR3b — delao brand (human decision required)
 Files: `_build-gallery.php` (`$BRANDS`, `$CONTENT`, `$STRIPS`, `$PAGES` for `delao`),
