@@ -2095,14 +2095,14 @@ $CONTENT = array(
 			'submit' => 'Buscar',
 		),
 		'listing'        => array(
-			'eyebrow' => 'Selección destacada',
-			'h2'      => 'Tres piezas de la cartera, para empezar',
+			'eyebrow' => 'Selección 2026',
+			'h2'      => 'Propiedades destacadas',
+			'link'    => 'Ver las 17 propiedades',
 			'items'   => array(
-				array( 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'unit' => '', 'img' => 'delao-villa-alameda' ),
-				array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
-				array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+				array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'img' => 'delao-villa-alameda' ),
+				array( 'badge' => 'Nueva', 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
+				array( 'badge' => 'Off market', 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
 			),
-			'note'    => 'Ver la cartera completa: diecisiete propiedades, no sólo estas tres.',
 		),
 		'valuation'      => array(
 			'eyebrow' => '¿Vendes?',
@@ -2153,100 +2153,124 @@ $CONTENT = array(
 				array( 'Leire Andonegi', 'Gestión y postventa', 'delao-leire' ),
 			),
 		),
+		/* PR3c REWRITE — authored to `Nosotros.dc.html` (empresa, método, cifras, equipo) instead of
+		   reused from `page_about_company()`'s generic hero/about/features/stats/team/quotes shape. */
 		'nosotros'       => array(
 			'crumbs' => array( 'Inicio', 'Nosotros' ),
-			'hero'   => array(
-				'eyebrow' => 'Quiénes somos',
-				'h1'      => 'Diecisiete propiedades caben en una sola conversación',
-				'lede'    => 'Somos tres personas y una sola zona. Preferimos conocer cada casa de la cartera que abrir una segunda oficina.',
-				'img'     => 'delao-oficina',
+			'head'   => array(
+				'eyebrow' => 'Casa fundada en 2004',
+				'h1'      => 'Pocas casas, mucho tiempo en cada una',
+				'lede'    => 'Somos una casa de intermediación pequeña por decisión. Aceptamos los mandatos que podemos representar bien y rechazamos el resto.',
 			),
-			'values' => array(
-				'eyebrow' => 'A qué nos comprometemos',
-				'h2'      => 'Tres cosas que no negociamos',
+			'img'    => 'delao-oficina',
+			'method' => array(
+				'h2'    => 'Cómo trabajamos',
+				'items' => array(
+					array( '01', 'Valoración con comparables de cierre', 'Partimos de precios realmente firmados en la zona en los últimos dieciocho meses, no de precios publicados: es la única cifra que sostiene una negociación.' ),
+					array( '02', 'Verificación antes de publicar', 'Cargas, superficie y titularidad comprobadas, y la propiedad visitada por alguien de la casa antes de que entre en la cartera.' ),
+					array( '03', 'Difusión selectiva', 'Primero nuestra cartera de compradores registrados y una red corta de colaboradores internacionales; los portales llegan después, si hacen falta.' ),
+					array( '04', 'Acompañamiento hasta la notaría', 'Coordinamos abogados, tasación bancaria y firma. El propietario sólo toma decisiones; el papeleo es nuestro.' ),
+				),
+			),
+			'figures' => array(
+				'eyebrow' => 'En números',
 				'items'   => array(
-					array( 'Visita antes de publicar', 'Ninguna propiedad entra en la cartera sin que alguien de la casa la haya pisado.' ),
-					array( 'Verificación registral', 'Cargas, superficie y titularidad comprobadas antes de enseñar una sola fotografía.' ),
-					array( 'Tasación con visita, nunca a distancia', 'Un número sin pisar la vivienda es una promesa que luego hay que romper en la mesa de negociación.' ),
+					array( '22 años', 'Operando en la Costa del Sol' ),
+					array( '310 M€', 'Intermediados desde 2004' ),
+					array( '11 semanas', 'Tiempo medio de venta' ),
+					array( '96 %', 'Cierres sobre precio de salida' ),
+				),
+			),
+			'team'   => array(
+				'eyebrow' => 'Tres personas · una oficina',
+				'h2'      => 'El equipo',
+				'items'   => array(
+					array( 'Nerea Otxoa', 'Dirección y ventas', 'delao-nerea' ),
+					array( 'Julen Zabala', 'Captación y tasaciones', 'delao-julen' ),
+					array( 'Leire Andonegi', 'Gestión y postventa', 'delao-leire' ),
 				),
 			),
 			'cta'    => array(
-				'eyebrow' => 'Siguiente paso',
-				'h2'      => '¿Buscamos su casa o valoramos la suya?',
-				'lede'    => 'Filtre la cartera por zona y presupuesto, o pida una visita de valoración esta misma semana.',
-				'cta_1'   => 'Propiedades',
-				'cta_2'   => 'Valorar mi casa',
+				'h2'    => '¿Tiene una casa que merece este trato?',
+				'lede'  => 'Hablamos primero, visitamos después y sólo entonces decidimos si somos la casa adecuada para venderla.',
+				'cta'   => 'Contactar',
 			),
 		),
+		/* PR3c REWRITE — authored to `Contacto.dc.html` instead of reused from
+		   `page_contact_enquiry()` (`process`/`medteam`/`faq`, a medical clinic's contact page). The
+		   old `flow`/`team`/`faq` keys are gone: TGL-CONTACT-WHO and TGL-FAQ are OFF on this screen
+		   (the source design shows neither), and COMP-PROCESS's ADN is honoured in `head.lede`
+		   itself — see `page_contact_cartera()`'s own docblock for the full reasoning. */
 		'contacto'       => array(
 			'crumbs' => array( 'Inicio', 'Contacto' ),
 			'head'   => array(
 				'eyebrow' => 'Contacto',
-				'h1'      => 'Escríbanos o pida una visita',
-				'lede'    => 'Para valorar su propiedad use el botón de la home — llega directo al equipo de tasaciones. Esto es para preguntar por una propiedad concreta.',
+				'h1'      => 'Hablemos de su casa',
+				'lede'    => 'Respondemos todas las consultas en menos de 24 horas laborables, siempre una persona del equipo y nunca un formulario automático.',
 			),
 			'form'   => array(
 				'fields' => array(
-					array( 'nombre', 'Nombre', 'text' ),
-					array( 'mail', 'Email', 'email' ),
-					array( 'asunto', 'Propiedad de interés', 'text' ),
+					array( 'nombre', 'Nombre y apellidos', 'text' ),
+					array( 'tel', 'Teléfono', 'tel' ),
+					array( 'mail', 'Correo electrónico', 'email' ),
+					array( 'motivo', 'Motivo', 'select', array( 'Quiero vender', 'Quiero comprar', 'Solicitar una visita', 'Valoración de mi propiedad', 'Otro asunto' ) ),
 				),
-				'msg'    => 'Cuéntenos qué busca',
-				'submit' => 'Enviar consulta',
-				'small'  => 'Si ya vio una ficha, indique su referencia y llegamos antes al detalle.',
+				'msg'         => 'Cuéntenos brevemente',
+				'placeholder' => 'Zona, tipo de propiedad, plazos…',
+				'privacy'     => 'He leído y acepto la política de privacidad. Sus datos no se comparten con terceros.',
+				'submit'      => 'Enviar consulta',
+			),
+			'office' => array(
+				'eyebrow' => 'Oficina',
+				'addr'    => "Avda. Ricardo Soriano 42\n29601 Marbella, Málaga",
+				'hours'   => "Lunes a viernes, 9:30 – 19:00\nSábados con cita previa",
 			),
 			'direct' => array(
-				'eyebrow' => 'O directamente',
-				'h2'      => 'Sin esperar respuesta',
-				'items'   => array(
-					array( 'Teléfono', '952 00 00 00', 'De lunes a sábado, de 9:00 a 20:00' ),
-					array( 'Email', 'hola@inmobiliariadelao.example', 'Lo lee el equipo de ventas, no un buzón compartido' ),
-					array( 'Oficina', 'Avenida Ricardo Soriano 45, Marbella', 'Con cita, para dedicarle el tiempo que la operación merece' ),
-				),
-			),
-			'flow'   => array(
-				'eyebrow' => 'Qué pasa al enviar',
-				'h2'      => 'Dos pasos',
-				'steps'   => array(
-					array( 'Le llamamos', 'El mismo día laborable, para entender qué busca o qué quiere vender.' ),
-					array( 'Queda la visita', 'A la propiedad de interés, o a la suya si es una tasación.' ),
-				),
-				'note'    => 'Si la propiedad ya tiene una oferta aceptada, se lo decimos en la primera llamada.',
-			),
-			'team'   => array(
-				'eyebrow' => 'Con quién habla',
-				'h2'      => 'Dirección y ventas',
-				'items'   => array(
-					array( 'name' => 'Nerea Otxoa', 'role' => 'Dirección y ventas', 'lic' => '952 00 00 00', 'img' => 'delao-nerea' ),
-					array( 'name' => 'Julen Zabala', 'role' => 'Captación y tasaciones', 'lic' => '952 00 00 01', 'img' => 'delao-julen' ),
-				),
-			),
-			'faq'    => array(
-				'eyebrow' => 'Antes de escribir',
-				'h2'      => 'Lo que se pregunta',
-				'items'   => array(
-					array( '¿Trabajan en exclusiva?', 'Sí, todas las propiedades de la cartera son en exclusiva — es lo que nos permite conocerlas una a una.' ),
-					array( '¿Cobran algo por la tasación?', 'No, la visita de valoración no tiene coste ni compromiso.' ),
-					array( '¿Atienden a compradores internacionales?', 'Sí, la mitad de las operaciones cerradas el año pasado fueron con compradores extranjeros.' ),
-				),
+				'eyebrow' => 'Directo',
+				'phone'   => '+34 952 00 00 00',
+				'email'   => 'hola@inmobiliariadelao.example',
 			),
 		),
 		'propiedades'    => array(
 			'crumbs'  => array( 'Inicio', 'Propiedades' ),
 			'head'    => array(
-				'eyebrow' => 'Toda la cartera',
-				'h1'      => 'Diecisiete propiedades en Sierra Blanca',
-				'lede'    => 'La home enseña tres. Aquí está el resto de la cartera curada, con precio, superficie y zona en cada ficha.',
+				'eyebrow' => 'Cartera · Agosto 2026',
+				'h1'      => 'Propiedades',
+				'lede'    => 'Diecisiete propiedades bajo mandato. Las operaciones off market se comparten solo tras una primera conversación.',
+			),
+			/* Same four fields as the home's own COMP-SEARCH-BAND (TPL-C-15's own "cuatro campos
+			   como máximo, herencia directa de TPL-C-13") — the design draws this bar as literally
+			   the same form, only sticky and with tighter field padding, never a second field set. */
+			'filters' => array(
+				'fields' => array(
+					array( 'operacion', 'Operación', array( 'Comprar', 'Alquilar' ) ),
+					array( 'zona', 'Zona', array( 'Todas', 'Sierra Blanca', 'Milla de Oro', 'Nueva Andalucía', 'Puerto Banús', 'Sotogrande' ) ),
+					array( 'tipo', 'Tipo', array( 'Todos', 'Villa', 'Ático', 'Finca', 'Apartamento' ) ),
+					array( 'precio', 'Precio máximo', array( '2 M€', '4 M€', '6 M€', 'Sin límite' ) ),
+				),
+				'submit' => 'Filtrar',
 			),
 			'listing' => array(
-				'eyebrow' => 'La cartera',
-				'h2'      => 'Todas las propiedades activas',
-				'items'   => array(
-					array( 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'unit' => '', 'img' => 'delao-villa-alameda' ),
-					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
-					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+				'results' => array(
+					'count'      => '17 propiedades',
+					'sort_label' => 'Ordenar',
+					'sorts'      => array( 'Recientes', 'Precio ↑', 'Precio ↓' ),
 				),
-				'note'    => 'La cartera completa suma diecisiete propiedades; esta maqueta muestra las tres con fotografía propia.',
+				'items'   => array(
+					array( 'badge' => 'En exclusiva', 'h3' => 'Villa Alameda', 'zone' => 'Sierra Blanca', 'ref' => 'SB-1042', 'facts' => array( '642 m²', '5 hab.', '6 baños' ), 'price' => '6.200.000 €', 'img' => 'delao-villa-alameda' ),
+					array( 'badge' => 'Nueva', 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'ref' => 'PB-0918', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
+					array( 'badge' => 'Off market', 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'ref' => 'BH-0803', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
+					/* Sin fotografía propia todavía -- placeholder marcado, nunca una de las tres
+					   fotos reales repetida: repetir una foto real bajo un nombre distinto sería una
+					   ficha falsa, y el manifiesto de delao sólo tiene doce fotos, tres de propiedad. */
+					array( 'badge' => 'En exclusiva', 'h3' => 'Villa Bruma', 'zone' => 'Sotogrande', 'ref' => 'SG-0918', 'facts' => array( '505 m²', '4 hab.', '5 baños' ), 'price' => '2.750.000 €' ),
+					array( 'badge' => 'Nueva', 'h3' => 'Casa Vela', 'zone' => 'Nueva Andalucía', 'ref' => 'NA-0877', 'facts' => array( '388 m²', '4 hab.', '4 baños' ), 'price' => '1.980.000 €' ),
+					array( 'badge' => 'Reservada', 'h3' => 'Ático Los Arcos', 'zone' => 'Marbella Club', 'ref' => 'MC-1027', 'facts' => array( '264 m²', '3 hab.', '3 baños' ), 'price' => '2.400.000 €' ),
+					array( 'badge' => 'Nueva', 'h3' => 'Villa Serena', 'zone' => 'Estepona', 'ref' => 'EP-0791', 'facts' => array( '412 m²', '4 hab.', '4 baños' ), 'price' => '1.650.000 €' ),
+					array( 'badge' => 'Off market', 'h3' => 'Casa Duna', 'zone' => 'Guadalmina', 'ref' => 'GM-0754', 'facts' => array( '576 m²', '5 hab.', '5 baños' ), 'price' => 'Precio a consultar' ),
+					array( 'badge' => 'En exclusiva', 'h3' => 'Ático Mirador', 'zone' => 'Milla de Oro', 'ref' => 'MO-1015', 'facts' => array( '298 m²', '3 hab.', '3 baños' ), 'price' => '3.100.000 €' ),
+				),
+				'more'    => 'Cargar más propiedades',
 			),
 			'cta'     => array(
 				'eyebrow' => 'No encuentra lo que busca',
@@ -2256,83 +2280,86 @@ $CONTENT = array(
 				'cta_2'   => 'Valorar mi casa',
 			),
 		),
+		/* PR3c REWRITE — TPL-PROPERTY-01's own content, authored to the source design instead of
+		   TPL-UNIT-01's used-vehicle shape. `plan`/`costs`/`energy` as three separate content keys
+		   are GONE, folded into `features`'s own 10-row table (Certificado energético, Comunidad,
+		   IBI live there now) — the source design draws exactly one features table, never three
+		   standalone bands, and COMP-FLOORPLAN's own "plano, ampliable" duty is honoured as a row
+		   in that same table rather than invented as a photograph delao's twelve do not include. */
 		'producto'       => array(
 			'crumbs' => array( 'Inicio', 'Propiedades', 'Villa Alameda' ),
 			'head'   => array(
-				'eyebrow' => 'Sierra Blanca',
+				'eyebrow' => 'Sierra Blanca, Marbella · En exclusiva',
 				'h1'      => 'Villa Alameda',
-				'lede'    => 'Villa contemporánea de volúmenes rectos entre olivos y cipreses, con piscina desbordante y vistas abiertas a la costa.',
+				'lede'    => 'Obra de 2019 sobre una parcela en ladera, con orientación sur y vistas continuas a Sierra Blanca y al mar.',
 			),
-			'ref'    => array( 'Ref. SB-014', 'Cítela al pedir la visita: viaja con el formulario' ),
+			'price'  => array(
+				'label' => 'Precio de salida',
+				'value' => '6.200.000 €',
+				'm2'    => '9.657 €/m² construido',
+			),
+			'ref'    => array( 'Ref. SB-1042', 'Cítela al pedir la visita: viaja con el formulario' ),
 			'tour'   => array(
-				'eyebrow' => 'La casa por dentro',
-				'h2'      => 'Recorrido por la propiedad',
-				'items'   => array(
+				'more'  => 'Ver 34 fotos',
+				'items' => array(
 					array( 'Salón principal', 'Doble altura, chimenea de piedra y pared acristalada a la terraza', 'delao-galeria-1' ),
 					array( 'Cocina', 'Isla de piedra clara, abierta al patio plantado', 'delao-galeria-2' ),
 					array( 'Dormitorio principal', 'En lino blanco, con salida directa a terraza privada', 'delao-galeria-3' ),
 				),
 			),
 			'facts'  => array(
-				'eyebrow' => 'Los datos',
-				'h2'      => 'Seis datos, sin ninguno en blanco',
-				'items'   => array(
-					array( 'Superficie construida', '642 m²' ),
-					array( 'Parcela', '2.100 m²' ),
-					array( 'Habitaciones', '5' ),
-					array( 'Baños', '6' ),
-					array( 'Orientación', 'Sur' ),
-					array( 'Año de construcción', '2019' ),
+				'items' => array(
+					array( '642 m²', 'Construidos' ),
+					array( '2.100 m²', 'Parcela' ),
+					array( '5 / 6', 'Habitaciones / baños' ),
+					array( '2019', 'Año de construcción' ),
 				),
 			),
-			'plan'   => array(
-				'eyebrow' => 'Distribución',
-				'h2'      => 'Plano de planta',
-				'note'    => 'Plano orientativo, a disposición en la oficina en formato acotado.',
-			),
-			'costs'  => array(
-				'eyebrow' => 'El coste real de entrar a vivir',
-				'h2'      => 'Lo que hay que sumar al precio',
-				'rows'    => array(
-					array( 'Impuesto de Transmisiones (7%)', '434.000 €' ),
-					array( 'Notaría y registro', '4.200 €' ),
-					array( 'Gestoría', '1.100 €' ),
+			'desc'   => array(
+				'eyebrow' => 'La propiedad',
+				'paras'   => array(
+					'Villa Alameda ocupa la cota más alta de su calle, con acceso por un patio cerrado: la casa no se muestra hasta que se atraviesa el vestíbulo y el salón se abre por completo hacia el sur.',
+					'La planta principal reúne salón, comedor y cocina en un solo volumen con carpintería de suelo a techo y salida directa a la terraza y la piscina de desbordamiento. Los dormitorios tienen baño propio, vestidor y terraza propia.',
+					'En el sótano hay garaje para cuatro vehículos, bodega climatizada y gimnasio con spa. La casa cuenta con domótica integrada, suelo radiante por agua y aerotermia. Se vende amueblada por acuerdo separado.',
 				),
-				'sum'     => array( 'Total aproximado sobre el precio', '439.300 €' ),
-				'note'    => 'Cifras orientativas para vivienda usada en Andalucía; la gestoría confirma el importe exacto antes de firmar.',
 			),
-			'energy' => array(
-				'eyebrow' => 'Calificación energética',
-				'h2'      => 'Certificado vigente',
-				'items'   => array(
-					array( 'D', 'Consumo de energía', '145 kWh/m² año' ),
+			'features' => array(
+				array( 'Tipo', 'Villa independiente' ),
+				array( 'Orientación', 'Sur' ),
+				array( 'Plantas', '3 + sótano' ),
+				array( 'Piscina', 'Desbordamiento, climatizada' ),
+				array( 'Garaje', '4 plazas' ),
+				array( 'Certificado energético', 'B' ),
+				array( 'Climatización', 'Aerotermia y suelo radiante' ),
+				array( 'Comunidad', '480 €/mes · seguridad 24 h' ),
+				array( 'IBI', '6.140 €/año' ),
+				array( 'Disponibilidad', 'Inmediata' ),
+			),
+			'location' => array(
+				'h2'        => 'Ubicación',
+				'note'      => 'La dirección exacta se facilita en la visita',
+				'distances' => array(
+					array( '6 min', 'Puerto Banús' ),
+					array( '9 min', 'Centro de Marbella' ),
+					array( '12 min', 'Colegio internacional' ),
+					array( '42 min', 'Aeropuerto de Málaga' ),
 				),
-				'note'    => 'Certificado registrado; copia disponible junto con la nota simple en la oficina.',
 			),
 			'visit'  => array(
-				'eyebrow'  => 'Pedir visita',
-				'h2'       => 'Vea la villa en persona',
-				'lede'     => 'La referencia viaja con el formulario: confirmamos por teléfono el mismo día laborable.',
-				'fields'   => array(
-					array( 'nombre', 'Nombre', 'text' ),
-					array( 'tel', 'Teléfono', 'tel' ),
-					array( 'ref', 'Referencia', 'text', 'SB-014' ),
-				),
-				'day_lbl'  => 'Día',
-				'days'     => array( 'Lunes 22', 'Martes 23', 'Miércoles 24', 'Jueves 25', 'Viernes 26' ),
-				'slot_lbl' => 'Hora',
-				'slots'    => array( '10:00', '12:00', '17:00', '19:00' ),
-				'submit'   => 'Pedir visita',
-				'small'    => 'La visita la acompaña siempre un agente de la casa, nunca un tercero.',
+				'eyebrow'    => 'Visitas concertadas',
+				'line'       => 'Enseñamos esta villa dos días por semana, con cita previa.',
+				'cta'        => 'Solicitar visita',
+				'phone_label' => 'o llame al 952 00 00 00',
+				'phone'      => '+34 952 00 00 00',
 			),
 			'related' => array(
-				'eyebrow' => 'Otras piezas de la cartera',
-				'h2'      => 'Propiedades cercanas',
-				'items'   => array(
-					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'facts' => array( '210 m²', '3 hab.', '3 baños' ), 'price' => '2.850.000 €', 'unit' => '', 'img' => 'delao-atico-mar' ),
-					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'facts' => array( '480 m²', '4 hab.', '4 baños' ), 'price' => '3.400.000 €', 'unit' => '', 'img' => 'delao-finca' ),
+				'h2'   => 'Propiedades similares',
+				'link' => 'Ver toda la cartera',
+				'items' => array(
+					array( 'h3' => 'Ático Puerto', 'zone' => 'Puerto Banús', 'price' => '2.850.000 €', 'img' => 'delao-atico-mar' ),
+					array( 'h3' => 'Finca Los Olivos', 'zone' => 'Benahavís', 'price' => 'Precio a consultar', 'img' => 'delao-finca' ),
+					array( 'h3' => 'Villa Bruma', 'zone' => 'Sotogrande', 'price' => '2.750.000 €' ),
 				),
-				'note'    => 'Ver la cartera completa en Propiedades.',
 			),
 		),
 	),
@@ -7220,6 +7247,241 @@ $css[] = <<<'CSS'
 @media(min-width:768px){.vlshot{min-height:100%}}
 .vlshot img{width:100%;height:100%;object-fit:cover;display:block}
 
+/* ══════════ TPL-C-15 / TPL-PROPERTY-01 · PR3c, la reforma de fidelidad ══════════
+   Todo lo que sigue es propio de `delao`: la tarjeta de lujo, la cabecera partida, el mosaico de
+   la ficha, la tabla de caracteristicas, el bloque de visita y las paginas de Nosotros/Contacto
+   propias. Ningun nombre de clase colisiona con el listado de propiedad de `$CLASS_BLOCKS`
+   (`_build-gallery.php`, la comprobacion de colision de clases) por diseno. */
+
+/* ── LA TARJETA `proplux`, la propia de esta marca ─────────────────────────────────────────── */
+.proplux-grid{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--c-border)}
+.proplux-grid>li{background:var(--c-bg)}
+@media(max-width:899px){.proplux-grid{grid-template-columns:repeat(min(var(--cols,1),2),minmax(0,1fr))}}
+@media(max-width:599px){.proplux-grid{grid-template-columns:1fr}}
+.proplux{display:flex;flex-direction:column;height:100%;color:inherit;text-decoration:none;
+  padding-bottom:var(--sp-m);transition:background var(--dur-lift) var(--ease)}
+.proplux:hover{background:var(--c-bg-alt)}
+.proplux-shot{position:relative;margin:0;aspect-ratio:4/3.2;background:var(--c-bg-alt);overflow:hidden}
+.proplux-listing .proplux-shot{aspect-ratio:4/3.1}
+.proplux-similar .proplux-shot{aspect-ratio:4/3}
+.proplux-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.proplux-ph{position:absolute;inset:0;display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,var(--c-bg-alt) 0 8px,var(--c-bg) 8px 16px)}
+.proplux-ph span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--c-text-muted);background:var(--c-bg);padding:.25rem .6rem;border:1px solid var(--c-border)}
+/* Pegada al borde, SIN radio: el propio brief mide esto orquestador-a-orquestador ("pinned hard
+   into the top-left corner ... no radius, flush to the edge"). Superficie inversa, nunca acento —
+   una etiqueta de estado no es un CTA, un icono de accion, un enlace importante ni un estado
+   activo, los cuatro unicos roles que design-tokens.md concede al acento. */
+.proplux-badge{position:absolute;left:0;top:1.25rem;z-index:1;
+  background:var(--c-surface-inverse);color:var(--c-on-inverse);
+  font:600 .53125rem/1 var(--font-secondary);letter-spacing:.22em;text-transform:uppercase;
+  padding:.5rem .875rem}
+.proplux-body{display:flex;flex-direction:column;gap:.85rem;padding:1.5rem 1.5rem 0}
+.proplux-listing .proplux-body{padding:1.375rem 1.375rem 0;gap:.75rem}
+.proplux-zonerow{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem}
+/* LA ZONA ES TEXTO MUTADO, NO ACENTO — desviacion deliberada del diseno de origen (que la pinta en
+   #8A7B5C): design-tokens.md's own accent row reads "Never body text, never decoration", y una
+   etiqueta de zona es exactamente eso. Ver `proplux_card_html()`'s propio docblock. */
+.proplux-zone{font:600 .59375rem/1 var(--font-secondary);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.proplux-ref{font:.59375rem/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;color:var(--c-text-muted)}
+.proplux h3{margin:0;font-family:var(--font-primary);font-size:1.5rem;line-height:1.15}
+.proplux-facts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:1rem;
+  font-size:.78125rem;color:var(--c-text-muted)}
+.proplux-price{margin:.4rem 0 0;font-family:var(--font-primary);font-size:1.1875rem}
+
+/* ── COMP-FEATURED-GRID / COMP-RELATED, la cabecera con enlace de salida ───────────────────── */
+.fgridhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;
+  gap:var(--sp-m);padding-bottom:var(--sp-m);margin-bottom:var(--sp-l);border-bottom:1px solid var(--c-border)}
+.fgridhead h2{margin:0}
+.fgridlink{font:600 .65625rem/1 var(--font-secondary);letter-spacing:.14em;text-transform:uppercase;
+  padding-bottom:.4rem;border-bottom:1px solid var(--c-border);white-space:nowrap}
+.fgridlink:hover{border-color:var(--c-accent)}
+
+/* ── COMP-SEARCH-BAND pegajosa, el listado ("Propiedades") ─────────────────────────────────── */
+/* Sticky a `top:0`, no al `top:78px` literal del diseno de origen — este chasis no fija
+   `.site-head` para ninguna de las diez demos (`.site-head{border-bottom:1px solid ...}`, sin
+   `position`), asi que no hay una cabecera de 78px bajo la que encajar. Pegarse al propio borde
+   del visor es la misma conducta (la barra sigue alcanzable mientras la lista se desplaza)
+   expresada contra el chasis que esta galeria realmente tiene. */
+.filterband{position:sticky;top:0;z-index:40}
+.filterband .sbplate{padding:1.125rem var(--pad-x-mobile)}
+@media(min-width:768px){.filterband .sbplate{padding:1.125rem var(--pad-x-tablet)}}
+.filterband .filterbar .field{padding-block:.5rem}
+
+/* ── La barra de resultados: recuento + orden ──────────────────────────────────────────────── */
+.resultsbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+  gap:var(--sp-m);padding-bottom:var(--sp-m);margin-bottom:var(--sp-l);border-bottom:1px solid var(--c-border)}
+.rescount{font-size:.78125rem;color:var(--c-text-muted)}
+.sortgroup{display:flex;align-items:center;gap:1.375rem;flex-wrap:wrap}
+.sortlabel{font:600 .59375rem/1 var(--font-secondary);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.sortlink{font:600 .625rem/1 var(--font-secondary);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c-text-muted);padding-bottom:.25rem;border-bottom:1px solid transparent}
+/* El sort activo ES un estado activo — el mismo rol que `.mapswitch` ya ocupa en $ACCENT_ROLES, la
+   unica otra vez que este archivo pinta "cual esta seleccionado" con el acento de marca. */
+.sortlink[aria-current]{color:var(--c-text);border-bottom-color:var(--c-accent)}
+
+/* ── El cierre fantasma "cargar mas" ────────────────────────────────────────────────────────── */
+.loadmore{display:flex;justify-content:center;padding-top:var(--sp-xl)}
+.btn-ghost{border:1px solid var(--c-border);color:var(--c-text);background:transparent}
+.btn-ghost:hover{background:var(--c-surface-inverse);color:var(--c-on-inverse);border-color:var(--c-surface-inverse)}
+
+/* ── La cabecera partida, compartida por Propiedades / Ficha / Nosotros / Contacto ─────────── */
+.splithead .canvas{display:grid;gap:var(--sp-l);align-items:end}
+@media(min-width:900px){.splithead .canvas{grid-template-columns:1.5fr 1fr;gap:var(--sp-xl)}}
+.splithead .lede{margin:0}
+
+/* ── Migas de la ficha, con la referencia en la misma barra ────────────────────────────────── */
+/* The monospace/size override for the reference code that rides this bar lives beside its base
+   rule in the "FICHAS DE INVENTARIO" block further down this stylesheet, not here — this PR3c
+   block sits earlier in the file than that marker, and the class-ownership collision check below
+   reads plain text, so even naming that selector inside a COMMENT this early would trip it. */
+.propcrumbs .canvas{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+  gap:var(--sp-s)}
+
+/* ── El panel de precio de la cabecera de ficha ────────────────────────────────────────────── */
+.propprice{display:flex;flex-direction:column;gap:.625rem;border-left:1px solid var(--c-border);
+  padding-left:var(--sp-l)}
+.propprice-v{font-family:var(--font-primary);font-size:clamp(2.125rem,3.6vw,3.125rem);line-height:1}
+.propprice-m2{font-size:.8125rem;color:var(--c-text-muted)}
+
+/* ── El mosaico de la ficha, COMP-PROPERTY-TOUR ────────────────────────────────────────────── */
+.propgallery .canvas{padding-block:0}
+.propmosaic{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:repeat(2,minmax(0,1fr));
+  gap:1px;background:var(--c-border);height:clamp(440px,58vw,45rem)}
+@media(max-width:767px){.propmosaic{grid-template-columns:1fr;grid-template-rows:none;height:auto}
+  .propcell{aspect-ratio:4/3}}
+.propcell{position:relative;margin:0;background:var(--c-bg-alt)}
+.propcell-big{grid-row:span 2}
+@media(max-width:767px){.propcell-big{grid-row:auto}}
+.propcell img{width:100%;height:100%;object-fit:cover;display:block}
+.propcap{position:absolute;left:.875rem;bottom:.75rem;font:.5625rem/1 ui-monospace,Menlo,monospace;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--c-on-inverse);
+  text-shadow:0 1px 6px rgba(0,0,0,.45)}
+.propmore{position:absolute;right:0;bottom:0;background:var(--c-surface-inverse);color:var(--c-on-inverse);
+  font:600 .59375rem/1 var(--font-secondary);letter-spacing:.14em;text-transform:uppercase;
+  padding:1rem 1.375rem}
+.propmore:hover{background:var(--c-accent);color:var(--c-on-accent)}
+
+/* ── Los datos clave, COMP-PROPERTY-FACTS ──────────────────────────────────────────────────── */
+.propfacts .canvas{padding-block:0;border-bottom:1px solid var(--c-border)}
+.propkeydata{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:899px){.propkeydata{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:599px){.propkeydata{grid-template-columns:1fr}}
+.propkey{padding:var(--sp-m) 0;border-right:1px solid var(--c-border);
+  display:flex;flex-direction:column;gap:.5rem}
+.propkey:last-child{border-right:0}
+@media(max-width:899px){.propkey:nth-child(2n){border-right:0}}
+@media(max-width:599px){.propkey{border-right:0;border-bottom:1px solid var(--c-border)}
+  .propkey:last-child{border-bottom:0}}
+.propkey-v{font-family:var(--font-primary);font-size:1.875rem;line-height:1}
+.propkey-l{font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;color:var(--c-text-muted)}
+
+/* ── El cuerpo: descripcion + tabla + ubicacion, y el panel de visita pegajoso ─────────────── */
+.propbody{display:grid;gap:var(--sp-xxl)}
+@media(min-width:1024px){.propbody{grid-template-columns:1.55fr 1fr;align-items:start}}
+.propmain{display:flex;flex-direction:column;gap:var(--sp-xxl)}
+.propdesc{display:flex;flex-direction:column;gap:var(--sp-m)}
+.proplede{margin:0;font-family:var(--font-primary);font-size:1.4375rem;line-height:1.55}
+.propdesc>p.muted{margin:0}
+/* La tabla de caracteristicas — COMP-COSTS-BREAKDOWN y COMP-ENERGY-LABEL viven aqui ahora. */
+.propfeat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--c-border)}
+@media(max-width:599px){.propfeat{grid-template-columns:1fr}}
+.propfeatrow{background:var(--c-bg);display:flex;justify-content:space-between;align-items:baseline;
+  gap:var(--sp-m);padding:.9rem 0}
+.propfeat-k{font-size:.59375rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-text-muted)}
+.propfeat-v{font-size:.875rem;text-align:right}
+/* La ubicacion, con el mapa dibujado — nunca un proveedor real (fuera de alcance) ni un acento. */
+.proploc{display:flex;flex-direction:column;gap:var(--sp-m)}
+.proploc-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:var(--sp-m)}
+.proploc-head h2{margin:0}
+.proploc-note{font-size:.78125rem;color:var(--c-text-muted)}
+.mapdrawn{position:relative;aspect-ratio:4/3;background-color:var(--c-bg-alt);
+  background-image:linear-gradient(var(--c-border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--c-border) 1px,transparent 1px);
+  background-size:2.5rem 2.5rem}
+.mapdrawn-wide{aspect-ratio:16/9}
+.mapdrawn-dot{position:absolute;left:47%;top:44%;width:.875rem;height:.875rem;border-radius:50%;
+  background:var(--c-text);box-shadow:0 0 0 .5rem var(--c-border)}
+.propdist{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--c-border)}
+@media(max-width:599px){.propdist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.propdist-cell{background:var(--c-bg);padding:1.125rem 0;display:flex;flex-direction:column;gap:.4rem}
+.propdist-v{font-family:var(--font-primary);font-size:1.0625rem}
+.propdist-l{font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-text-muted)}
+/* El panel de visita, pegajoso — el simulador de hipoteca del diseno de origen es fuera de alcance
+   (launch brief), asi que este es el UNICO bloque, no dos con `gap:1px` entre ellos. */
+.propaside{position:relative}
+@media(min-width:1024px){.propaside{position:sticky;top:6.875rem;align-self:start}}
+.propvisit{background:var(--c-surface-inverse);color:var(--c-on-inverse);
+  padding:var(--sp-l) var(--sp-m);display:flex;flex-direction:column;gap:var(--sp-m)}
+.propvisit .eyebrow{color:var(--c-on-inverse);opacity:.55}
+.propvisit-line{margin:0;font-family:var(--font-primary);font-size:1.25rem;line-height:1.45}
+.propvisit-cta{width:100%;text-align:center}
+.propvisit-tel{text-align:center;color:var(--c-on-inverse);opacity:.7;font-size:.8125rem}
+
+/* ── COMP-RELATED, "propiedades similares" ─────────────────────────────────────────────────── */
+.propsimilar .fgridhead h2{margin:0}
+
+/* ── TPL-ABOUT-01 «Nosotros», autoria propia ───────────────────────────────────────────────── */
+.aboutphoto .canvas{padding-block:0}
+.aboutphoto img,.aboutphoto figure{display:block;width:100%}
+.aboutphoto figure{margin:0;aspect-ratio:21/9;overflow:hidden}
+.aboutphoto figure img{width:100%;height:100%;object-fit:cover}
+.methodhead h2{margin:0}
+@media(min-width:900px){.methodsec .canvas{display:grid;grid-template-columns:1fr 1.5fr;gap:var(--sp-xl);
+  align-items:start}}
+.methodlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;
+  background:var(--c-border)}
+.methoditem{background:var(--c-bg);display:grid;grid-template-columns:2.75rem 1fr;gap:var(--sp-m);
+  padding:var(--sp-m) 0}
+.methodnum{font:.8125rem/1.2 ui-monospace,Menlo,monospace;color:var(--c-text-muted)}
+.methoditem h3{margin:0 0 .5rem;font-size:1.375rem}
+.methoditem p{margin:0}
+.figuresband{background:var(--c-surface-inverse);color:var(--c-on-inverse)}
+.figuresgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:color-mix(in srgb,var(--c-on-inverse) 14%,transparent)}
+@media(min-width:768px){.figuresgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.figurecell{background:var(--c-surface-inverse);padding:var(--sp-m) var(--sp-s);
+  display:flex;flex-direction:column;gap:.6rem}
+.figure-v{font-family:var(--font-primary);font-size:clamp(1.875rem,3.6vw,2.75rem);line-height:1}
+.figure-l{font:600 .59375rem/1.5 var(--font-secondary);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--c-on-inverse);opacity:.6}
+.teamhead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;
+  gap:var(--sp-m);padding-bottom:var(--sp-m);margin-bottom:var(--sp-l);border-bottom:1px solid var(--c-border)}
+.teamhead h2{margin:0}
+.teamcount{font:600 .59375rem/1 var(--font-secondary);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.teamgrid .team-shot{aspect-ratio:3/4}
+.teamcard{display:flex;flex-direction:column}
+.team-body{padding:1.375rem 0 0;display:flex;flex-direction:column;gap:.5rem}
+.team-body h3{margin:0;font-size:1.3125rem}
+.team-role{font:600 .59375rem/1.4 var(--font-secondary);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--c-text-muted)}
+.aboutcta .canvas{padding-block:var(--sp-xl)}
+.aboutctapanel{background:var(--c-bg-alt);padding:var(--sp-xl) var(--sp-l);display:grid;gap:var(--sp-l);
+  align-items:center}
+@media(min-width:768px){.aboutctapanel{grid-template-columns:1.2fr 1fr}}
+.aboutctapanel h2{margin:0 0 .75rem}
+.aboutctapanel .head{gap:0}
+.aboutcta-btn{justify-self:start}
+@media(min-width:768px){.aboutcta-btn{justify-self:end}}
+
+/* ── TPL-CONTACT-01 «Contacto», autoria propia ─────────────────────────────────────────────── */
+.contactgrid{display:grid;gap:var(--sp-xl)}
+@media(min-width:1024px){.contactgrid{grid-template-columns:1.4fr 1fr;gap:5.5rem}}
+.contactform{display:flex;flex-direction:column;gap:var(--sp-l)}
+.formgrid{display:grid;gap:var(--sp-l)}
+@media(min-width:600px){.formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.privacy{display:flex;gap:var(--sp-s);align-items:flex-start;font-size:.78125rem;color:var(--c-text-muted)}
+.privacy input{margin-top:.2rem}
+.contactaside{display:flex;flex-direction:column;gap:1px;background:var(--c-border)}
+.contactblk{background:var(--c-bg);padding:var(--sp-l) 0;display:flex;flex-direction:column;gap:.75rem}
+.contactblk-addr{margin:0;font-family:var(--font-primary);font-size:1.1875rem;line-height:1.5}
+.contactblk-tel{font-family:var(--font-primary);font-size:1.1875rem;color:var(--c-text)}
+.contactblk-mail{font-size:.875rem;color:var(--c-text)}
+
 /* ══════════ TPL-C-08 · MODELO / LANZAMIENTO ══════════ */
 
 /* Same full-bleed machinery as `.hero-visual`, and measured by the same sweep — see $VIS_ARCHS.
@@ -8448,6 +8710,9 @@ $css[] = <<<'STYLES'
 .refline{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-xs) var(--sp-s);margin:0}
 .refcode{font-family:var(--font-secondary);font-size:var(--fs-small);font-weight:600;
   letter-spacing:.12em;text-transform:uppercase;color:var(--c-text-muted)}
+/* PR3c — the same class riding a breadcrumb bar instead of `.refline`'s own paragraph
+   (`property_crumbs_html()`), so it inherits monospace + a tighter size in that ONE context. */
+.propcrumbs .refcode{font-family:ui-monospace,Menlo,monospace;font-size:.59375rem;letter-spacing:.08em}
 
 /* ── LA UNIDAD FOTOGRAFIADA ──────────────────────────────────────────────────────────────────
    LA PROPORCIÓN LA IMPONE LA CELDA Y NO LA IMAGEN. Es la tercera vez que este sistema tropieza
@@ -10830,6 +11095,83 @@ function property_grid_html( $pg ) {
 }
 
 /**
+ * PR3c — Inmobiliaria de la O's OWN property card, authored to match the source design instead of
+ * borrowed from Motor Aranda's used-car `.stockgrid`/`.vcard` (`property_grid_html()` above), which
+ * is PR3b's own measured defect: badge/photo-ratio/price-rhythm belong to a stock of VEHICLES, and
+ * they read that way under a luxury villa's photograph regardless of the copy sitting beside them.
+ *
+ * Deliberately NEW class names (`proplux-*`), never `.vcard`/`.pcard`/`.vfacts`/`.vprice` — those
+ * belong to `TPL-C-07` in the stylesheet's own class-ownership ledger, and this card's geometry
+ * (badge flush at the photo's top-left corner, a monospace reference sharing the zone row, price on
+ * its own line under a fact row) does not reduce to that recipe with a class added.
+ *
+ * $variant: 'featured' (home, aspect 4/3.2, no reference — TGL-FEATURED-COUNT's own three cards) |
+ * 'listing' (propiedades, aspect 4/3.1, monospace reference right-aligned on the zone row) |
+ * 'similar' (the ficha's own closing set: aspect 4/3, no badge, no fact row — the source design's
+ * own "tarjetas simplificadas": foto, zona, título, precio, nothing else).
+ *
+ * THE ZONE IS MUTED TEXT, NOT ACCENT, and that is a deviation from the source design's own token
+ * table on purpose. design-tokens.md's real accent row — the one `_build-gallery.php`'s own
+ * accent-role gate re-measures — reads "ONE colour. CTAs, action icons, important links, active
+ * states. Never body text, never decoration." A zone label is a scanning aid, which is exactly
+ * "decoration" in that row's own words; painting it in accent would `fail()` the build the moment
+ * this file ran, the same class of correction PR3b already made once for `.statspanel`'s border.
+ */
+function proplux_card_html( $p, $variant = 'featured' ) {
+	$pi = isset( $p['img'] ) ? img( $p['img'] ) : null;
+	$o  = '<a class="proplux proplux-' . h( $variant ) . '" href="' . h( ihref( 'producto' ) ) . '">'
+		. '<figure class="frame proplux-shot">';
+	if ( 'similar' !== $variant && isset( $p['badge'] ) ) {
+		$o .= '<span class="proplux-badge">' . h( $p['badge'] ) . '</span>';
+	}
+	$o .= ( null === $pi )
+		? '<span class="proplux-ph"><span>Placeholder</span></span>'
+		: '<img data-img="' . h( $pi['slug'] ) . '" alt="' . h( $pi['alt'] ) . '" width="' . $pi['w'] . '" height="' . $pi['h'] . '">';
+	$o .= '</figure><div class="proplux-body"><div class="proplux-zonerow">'
+		. '<span class="proplux-zone">' . h( $p['zone'] ) . '</span>';
+	if ( 'listing' === $variant && isset( $p['ref'] ) ) {
+		$o .= '<span class="proplux-ref">' . h( $p['ref'] ) . '</span>';
+	}
+	$o .= '</div><h3>' . h( $p['h3'] ) . '</h3>';
+	if ( 'similar' !== $variant && isset( $p['facts'] ) ) {
+		$o .= '<ul class="proplux-facts">';
+		foreach ( $p['facts'] as $fa ) {
+			$o .= '<li>' . h( $fa ) . '</li>';
+		}
+		$o .= '</ul>';
+	}
+	return $o . '<p class="proplux-price">' . h( $p['price'] ) . '</p></div></a>';
+}
+
+/** The grid of `proplux` cards, `gap:1px` acting as the filete over `--c-border` — the same trick
+ *  `.valuerow`/the source design's own card grids already use, never `box-shadow`/`border-radius`. */
+function proplux_grid_html( array $items, $variant = 'featured', $cap = 3 ) {
+	$o = '<ul class="proplux-grid"' . cols_attr( count( $items ), $cap ) . '>';
+	foreach ( $items as $p ) {
+		$o .= '<li>' . proplux_card_html( $p, $variant ) . '</li>';
+	}
+	return $o . '</ul>';
+}
+
+/**
+ * COMP-FEATURED-GRID · TPL-C-15, home. `contenido` in the archetype's own Envoltorio table —
+ * `sec_open()`'s default shape, no `bleedband`/`secrow` — a curated sample inside the page canvas,
+ * never a sangre. The "ver la cartera completa" link routes by explicit page key
+ * (`ihref('propiedades')`), never `ihref_for_label()`: the home page's own label is "Cartera", and a
+ * link whose COPY also contains that word — this design's own "ver la cartera completa" among them —
+ * would fuzzy-match the home page first under label matching. Explicit beats fuzzy whenever the
+ * destination is already known, which it is here.
+ */
+function featured_grid_html( $pg ) {
+	return sec_open( 'featuredgrid grid-sec', $pg['h2'] )
+		. '<div class="fgridhead"><div class="head stack"><span class="eyebrow">' . h( $pg['eyebrow'] ) . '</span>'
+		. '<h2>' . h( $pg['h2'] ) . '</h2></div>'
+		. '<a class="fgridlink" href="' . h( ihref( 'propiedades' ) ) . '">' . h( $pg['link'] ) . '</a></div>'
+		. proplux_grid_html( $pg['items'], 'featured' )
+		. sec_close();
+}
+
+/**
  * COMP-MAP-SEARCH · TPL-C-13. The section that separates this archetype from every other listing
  * in the catalogue: a car has no place, a flat is nothing but its place.
  *
@@ -10969,7 +11311,18 @@ function strip_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
  */
 function hero_cartera_html( $hero ) {
 	$im = img( $hero['img'] );
-	$o  = '<section class="sec hero herocartera" aria-label="' . h( $hero['h1'] ) . '"><div class="media-full">'
+	/* PR3c FIX — this used to hand-write its own `<section>` tag instead of calling `sec_open()`,
+	   so it never received `bleedband` even though TPL-C-15's own Envoltorio table declares
+	   `COMP-HERO-CARTERA` as "banda a sangre (en retrato, su valor por defecto)". The document said
+	   bleed, the render said contained, and RT_TPL_ENVOLTORIO_RENDER_MISMATCH below exists to catch
+	   exactly that gap. Routing through `sec_open( ..., 'bleed' )` costs nothing visually: `bleed`
+	   shape omits the `<div class="canvas">` sec_open() would otherwise add, and this function
+	   already opens its own `.canvas` by hand for the head/statspanel — `.herocartera > .canvas`'s
+	   own CSS still targets it as a direct child regardless of the section's extra `bleedband`
+	   class, and `.bleedband`'s `display:grid` only ever sees `.media-full`/`.rulegrid` (both
+	   `position:absolute`, so out of grid flow) and `.canvas` (the one flowed child) — the 78vh
+	   photo, the veil and the 4-column rule grid are unaffected. */
+	$o  = sec_open( 'hero herocartera', $hero['h1'], 'bleed' ) . '<div class="media-full">'
 		. '<figure class="frame"><img data-img="' . h( $im['slug'] ) . '" alt="' . h( $im['alt'] )
 		. '" width="' . $im['w'] . '" height="' . $im['h'] . '"></figure></div>'
 		. '<div class="rulegrid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>'
@@ -10981,7 +11334,7 @@ function hero_cartera_html( $hero ) {
 	foreach ( $hero['stats'] as $st ) {
 		$o .= '<li><b>' . h( $st[0] ) . '</b><span>' . h( $st[1] ) . '</span></li>';
 	}
-	return $o . '</ul></div></div></section>';
+	return $o . '</ul></div></div>' . sec_close( 'bleed' );
 }
 
 /**
@@ -11045,7 +11398,7 @@ function strip_cartera_curada( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 		$o[] = hero_cartera_html( $C['hero'] );
 		$o[] = search_band_html( $C['search'], $uid );
 	}
-	$o[] = property_grid_html( $C['listing'] );
+	$o[] = featured_grid_html( $C['listing'] );
 	if ( 'off' !== tgl_of( $tgl_rows, 'TGL-MAP-MODE' ) ) {
 		$o[] = map_search_html( $C['map'], 'bleed' );
 	}
@@ -11059,15 +11412,93 @@ function strip_cartera_curada( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 }
 
 /**
+ * PR3c — the "split page head" the source design draws on FOUR of its five screens (Propiedades,
+ * Ficha, Nosotros, Contacto all open with eyebrow+H1 on one side and a lede paragraph on the
+ * other), never the single stacked column `page_head_html()` gives every other archetype in the
+ * catalogue. One shared function rather than four near-identical ones — genuinely the same
+ * component wherever it appears, which is what licenses reusing it instead of authoring it twice.
+ * `$cls` lets a caller add its own class alongside `pagehead splithead` without a second function.
+ */
+function split_head_html( $hd, $cls = '' ) {
+	return sec_open( trim( 'pagehead splithead ' . $cls ), $hd['h1'] )
+		. '<div class="head stack"><span class="eyebrow">' . h( $hd['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hd['h1'] ) . '</h1></div>'
+		. '<p class="lede muted">' . h( $hd['lede'] ) . '</p>'
+		. sec_close();
+}
+
+/**
+ * COMP-SEARCH-BAND, sticky variant, for TPL-C-15's own "Propiedades" listing. The design's own
+ * words: "barra de filtros idéntica al buscador de la home" — same `.filterbar` shape
+ * `search_band_html()` already uses, never a second field recipe. `.filterband`'s own CSS is what
+ * differs: sticky, not static, and tighter field padding. Sticky to `top:0` and not the source
+ * design's literal `top:78px` — this house's `.site-head` (`_build-gallery.php`, `.site-head{
+ * border-bottom:1px solid var(--c-border)}`) is never `position:sticky` for any of the ten demos,
+ * so there is no pinned 78px header to sit under here; sticking to the viewport's own top edge is
+ * the same behaviour (a filter bar that stays reachable while the list scrolls) expressed against
+ * the chassis this gallery actually has, not the one the design's own prototype assumed.
+ */
+function filter_band_html( $sf, $uid ) {
+	$o = sec_open( 'searchband filterband', 'Filtrar propiedades' ) . '<div class="sbplate">'
+		. '<form class="filterbar" onsubmit="return false">';
+	foreach ( $sf['fields'] as $fl ) {
+		$id = $uid . '-fb-' . $fl[0];
+		$o .= '<div class="field"><label for="' . $id . '">' . h( $fl[1] ) . '</label>'
+			. '<select id="' . $id . '" name="' . $fl[0] . '">';
+		foreach ( $fl[2] as $opt ) {
+			$o .= '<option>' . h( $opt ) . '</option>';
+		}
+		$o .= '</select></div>';
+	}
+	return $o . '<button class="btn btn-primary" type="submit">' . h( $sf['submit'] ) . '</button>'
+		. '</form></div>' . sec_close();
+}
+
+/**
+ * The results bar between the filter band and the grid: a count on the left, "ORDENAR" plus three
+ * sort links on the right. Filtering and sorting do not actually reorder anything here — the launch
+ * brief scopes "URL-reflected filters" out — so the three links are static and the FIRST one alone
+ * carries `aria-current`, matching the source design's own resting state. `.sortlink[aria-current]`
+ * is registered under 'active states' in $ACCENT_ROLES below, the same role `.mapswitch` already
+ * holds for the one other "which one is selected" control in this file.
+ */
+function results_bar_html( $rb ) {
+	$o = '<div class="resultsbar"><span class="rescount">' . h( $rb['count'] ) . '</span>'
+		. '<div class="sortgroup"><span class="sortlabel">' . h( $rb['sort_label'] ) . '</span>';
+	foreach ( $rb['sorts'] as $i => $s ) {
+		$o .= '<a class="sortlink" href="#"' . ( 0 === $i ? ' aria-current="true"' : '' ) . '>' . h( $s ) . '</a>';
+	}
+	return $o . '</div></div>';
+}
+
+/**
+ * The listing section proper: results bar + the 3-column `proplux` grid in its 'listing' variant
+ * (nine cards, each carrying the monospace reference the home's featured three never show) + a
+ * centred ghost "cargar más" button. `contenido` shape: this page reuses `TPL-SERVICES-01`'s own
+ * "index for a home with more entries than fit" pattern rather than TPL-C-15's home archetype, so
+ * it carries no Envoltorio row of its own to honour — the house default stands.
+ */
+function property_listing_html( $lst ) {
+	return sec_open( 'proplisting grid-sec', 'Cartera completa' )
+		. results_bar_html( $lst['results'] )
+		. proplux_grid_html( $lst['items'], 'listing' )
+		. '<div class="loadmore"><a class="btn btn-ghost" href="#">' . h( $lst['more'] ) . '</a></div>'
+		. sec_close();
+}
+
+/**
  * TPL-C-15 · «Propiedades» — el índice completo, reutilizando `TPL-SERVICES-01`.
  *
- * La home enseña tres fichas curadas de las diecisiete de la cartera («ver la cartera completa»,
- * dice su propio `pnote`) y una selección de tres necesita dónde enseñar el resto — exactamente el
- * vacío que `TPL-SERVICES-01` ya resuelve para «un negocio con más entradas de las que caben en la
- * home» (su propia § «Por qué existe»). Aquí las entradas son inmuebles y la ficha de destino es
- * `TPL-PROPERTY-01`, no `TPL-SERVICE-02` — el mismo patrón de página, reutilizado, no un arquetipo
- * nuevo (`property_grid_html()` en vez de un índice agrupado por zona: la cartera es curada, no
- * lo bastante ancha para pedir agrupación por categoría).
+ * La home enseña tres fichas curadas de las diecisiete de la cartera y una selección de tres
+ * necesita dónde enseñar el resto — exactamente el vacío que `TPL-SERVICES-01` ya resuelve para «un
+ * negocio con más entradas de las que caben en la home» (su propia § «Por qué existe»). Aquí las
+ * entradas son inmuebles y la ficha de destino es `TPL-PROPERTY-01`, no `TPL-SERVICE-02` — el mismo
+ * patrón de página, reutilizado, no un arquetipo nuevo.
+ *
+ * PR3c REWRITE: la página que faltaba casi entera. `property_grid_html()` (Motor Aranda) sale de
+ * aquí — sustituida por `proplux_grid_html()`, la tarjeta propia de esta marca — y se añaden la
+ * cabecera partida, la barra de filtros pegajosa y la barra de resultados que el diseño de origen
+ * dibuja y que esta plantilla nunca había renderizado.
  */
 function page_property_index( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$K = $C['propiedades'];
@@ -11075,8 +11506,9 @@ function page_property_index( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$o[] = head_corporate( $C, $BRAND );
 	$o[] = crumbs_html( $K['crumbs'] );
 	$o[] = '<main>';
-	$o[] = page_head_html( $K['head'] );
-	$o[] = property_grid_html( $K['listing'] );
+	$o[] = split_head_html( $K['head'] );
+	$o[] = filter_band_html( $K['filters'], $uid );
+	$o[] = property_listing_html( $K['listing'] );
 	$o[] = page_cta_html( $K['cta'] );
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
@@ -12416,34 +12848,388 @@ function page_unit( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 }
 
 /**
- * TPL-PROPERTY-01 «Inmueble» · la ficha que las tarjetas de TPL-C-13 prometían.
+ * COMP-BREADCRUMB · TPL-PROPERTY-01, with the reference riding the SAME bar — the source design's
+ * own composition ("migas: Inicio / Propiedades / Villa Alameda a la izquierda, Ref. MB-1042 en
+ * monospace a la derecha"), not the separate `.refline` paragraph the shared "FICHAS DE INVENTARIO"
+ * block stacks under an `<h1>` for `TPL-UNIT-01`. `.refcode` is reused as-is — this archetype pair
+ * already owns that class name — only its context moves.
+ */
+function property_crumbs_html( $trail, $ref ) {
+	$o    = '<nav class="crumbs propcrumbs" aria-label="Migas"><div class="canvas"><ol>';
+	$last = count( $trail ) - 1;
+	foreach ( $trail as $i => $t ) {
+		$o .= ( $i === $last )
+			? '<li aria-current="page">' . h( $t ) . '</li>'
+			: '<li><a href="' . h( ihref_for_label( $t ) ) . '">' . h( $t ) . '</a></li>';
+	}
+	return $o . '</ol><span class="refcode">' . h( $ref ) . '</span></div></nav>';
+}
+
+/**
+ * The header: `.splithead`'s own 1.5fr/1fr grid (shared with `split_head_html()` above), right
+ * column a border-left price panel instead of a plain paragraph — the source design's own
+ * "PRECIO DE SALIDA" treatment, `border-left` + `padding-left:34px` translated to this house's
+ * token names.
+ */
+function property_head_html( $hd, $price ) {
+	return sec_open( 'pagehead splithead prophead', $hd['h1'] )
+		. '<div class="head stack"><span class="eyebrow">' . h( $hd['eyebrow'] ) . '</span>'
+		. '<h1>' . h( $hd['h1'] ) . '</h1>'
+		. '<p class="lede muted">' . h( $hd['lede'] ) . '</p></div>'
+		. '<div class="propprice"><span class="eyebrow">' . h( $price['label'] ) . '</span>'
+		. '<span class="propprice-v">' . h( $price['value'] ) . '</span>'
+		. '<span class="propprice-m2">' . h( $price['m2'] ) . '</span></div>'
+		. sec_close();
+}
+
+/**
+ * COMP-PROPERTY-TOUR, mosaic form — TPL-PROPERTY-01's own "recorrido estancia por estancia" ADN is
+ * fixed (`web-templates/references/templates/pages/listing/TPL-PROPERTY-01-home-listing.md` § 3:
+ * "no es COMP-GALLERY … cada foto dice qué estás mirando"), expressed here in the source design's
+ * own mosaic geometry — `2fr 1fr`, two rows, the first photo spanning both — instead of
+ * `TPL-UNIT-01`'s thumbnail strip. THE ROOM NAME NEVER DROPS: every cell keeps the small monospace
+ * caption naming its room, the same caption convention the source design's own Nosotros screen
+ * already uses on its placeholder photos, extended here to real captions. The full descriptive
+ * prose these three rooms also carry lives in `property_body_html()`'s own "LA PROPIEDAD" copy —
+ * this mosaic states WHAT each photo shows, not everything about it.
+ */
+function property_mosaic_html( $tour ) {
+	$o = '<div class="propmosaic">';
+	foreach ( $tour['items'] as $i => $it ) {
+		$mi = isset( $it[2] ) ? img( $it[2] ) : null;
+		$o .= '<figure class="frame propcell' . ( 0 === $i ? ' propcell-big' : '' ) . '">'
+			. ( null === $mi
+				? '<span class="proplux-ph"><span>Placeholder</span></span>'
+				: '<img data-img="' . h( $mi['slug'] ) . '" alt="' . h( $mi['alt'] ) . '" width="' . $mi['w'] . '" height="' . $mi['h'] . '">' )
+			. '<span class="propcap">' . h( $it[0] ) . '</span>';
+		if ( 2 === $i ) {
+			$o .= '<a class="propmore" href="#propfotos">' . h( $tour['more'] ) . '</a>';
+		}
+		$o .= '</figure>';
+	}
+	return $o . '</div>';
+}
+
+/**
+ * COMP-PROPERTY-FACTS · TPL-PROPERTY-01, key-data strip form — the source design's own four-column
+ * band (constructed / plot / rooms-and-baths / year) with a `border-right` rule between cells,
+ * instead of `TPL-UNIT-01`'s bordered fact CARDS (`.uspecs`/`.uspec`, the shared "FICHAS DE
+ * INVENTARIO" block). Deliberately new class names (`.propkeydata`/`.propkey`): this is a distinct
+ * visual object, not `.uspecs` with a modifier riding on top of it.
+ */
+function property_keydata_html( array $items ) {
+	$o = sec_open( 'propfacts', 'Datos clave' ) . '<div class="propkeydata">';
+	foreach ( $items as $it ) {
+		$o .= '<div class="propkey"><span class="propkey-v">' . h( $it[0] ) . '</span>'
+			. '<span class="propkey-l">' . h( $it[1] ) . '</span></div>';
+	}
+	return $o . '</div>' . sec_close();
+}
+
+/**
+ * The 10-row features table — Tipo/Orientación/Plantas/Piscina/Garaje/Certificado
+ * energético/Climatización/Comunidad/IBI/Disponibilidad, exactly the rows the source design draws.
+ * This is where COMP-COSTS-BREAKDOWN's Comunidad/IBI and COMP-ENERGY-LABEL's certificate now live —
+ * the source design folds all three into one features table rather than three standalone bands,
+ * and the calificación energética still lands in real HTML text, never only inside a photograph
+ * (TPL-PROPERTY-01 § 6's own SEO requirement).
+ */
+function property_features_html( array $rows ) {
+	$o = '<div class="propfeat">';
+	foreach ( $rows as $r ) {
+		$o .= '<div class="propfeatrow"><span class="propfeat-k">' . h( $r[0] ) . '</span>'
+			. '<span class="propfeat-v">' . h( $r[1] ) . '</span></div>';
+	}
+	return $o . '</div>';
+}
+
+/**
+ * The location block: H2 + the "exact address at the visit" notice, a DRAWN map (never a real
+ * provider — out of scope per the launch brief, and `map_search_html()`'s own docblock gives the
+ * same reason: no third-party tiles without consent in a structural mockup) and four distances.
+ * THE DOT IS NOT ACCENT. `map_search_html()`'s own `.pin` already settled this in as many words
+ * ("THE PIN IS NOT AN ACCENT MARK … a price label is none of [the four accent roles], it is a
+ * label") — a location marker is the same kind of mark, so `.mapdrawn-dot` paints `--c-text`, never
+ * `--c-accent`, or the build's own accent-role gate would `fail()` it on sight. `.mapdrawn` itself
+ * is shared with `contact_aside_html()` below — the office map on Contacto is the identical drawn
+ * object at a different aspect ratio, not a second implementation.
+ */
+function property_location_html( $loc ) {
+	$o = '<div class="proploc"><div class="proploc-head"><h2>' . h( $loc['h2'] ) . '</h2>'
+		. '<span class="proploc-note">' . h( $loc['note'] ) . '</span></div>'
+		. '<div class="mapdrawn mapdrawn-wide" aria-hidden="true"><span class="mapdrawn-dot"></span></div>'
+		. '<div class="propdist">';
+	foreach ( $loc['distances'] as $d ) {
+		$o .= '<div class="propdist-cell"><span class="propdist-v">' . h( $d[0] ) . '</span>'
+			. '<span class="propdist-l">' . h( $d[1] ) . '</span></div>';
+	}
+	return $o . '</div></div>';
+}
+
+/**
+ * COMP-VISIT-REQUEST, sticky panel form — the source design's dark `#17181A` block (system
+ * `ink` ground, not the brand accent: `$ACCENT_BY_GROUND['ink']` already governs accent-on-dark
+ * elsewhere in this file and the brand accent has no business inside it) with a full-width accent
+ * CTA and a phone fallback. Routed by EXPLICIT page key (`ihref('contacto')`), never
+ * `ihref_for_label('Solicitar visita')`: that copy matches none of TPL-C-15's five page labels
+ * (Cartera/Propiedades/Ficha/Nosotros/Contacto), and `ihref_match()`'s own documented fallback for
+ * an unmatched label is the HOME route — silently wrong for a button whose entire job is to reach
+ * Contacto. The mortgage simulator the source design pairs this with is out of scope (launch
+ * brief), so the panel is the one block the design draws here, not two.
+ */
+function property_visit_panel_html( $vp ) {
+	return '<aside class="propaside"><div class="propvisit">'
+		. '<span class="eyebrow">' . h( $vp['eyebrow'] ) . '</span>'
+		. '<p class="propvisit-line">' . h( $vp['line'] ) . '</p>'
+		. '<a class="btn btn-primary propvisit-cta" href="' . h( ihref( 'contacto' ) ) . '">' . h( $vp['cta'] ) . '</a>'
+		. '<a class="propvisit-tel" href="tel:' . h( preg_replace( '/\s+/', '', $vp['phone'] ) ) . '">' . h( $vp['phone_label'] ) . '</a>'
+		. '</div></aside>';
+}
+
+/**
+ * The body: `.propbody`'s own 1.55fr/1fr grid, left column description + features table +
+ * location, right column the sticky visit panel (`position:sticky;top:110px`, the source design's
+ * own offset — this house's `.site-head` is not itself sticky, but 110px still reads as "comfortably
+ * clear of the header" and nothing else on the page claims that number, so there is no collision to
+ * reconcile the way `filter_band_html()` had to for its own sticky top).
+ */
+function property_body_html( $desc, $feat, $loc, $visit ) {
+	$o = '<div class="propbody"><div class="propmain">'
+		. '<div class="propdesc"><span class="eyebrow">' . h( $desc['eyebrow'] ) . '</span>';
+	foreach ( $desc['paras'] as $i => $p ) {
+		$o .= '<p class="' . ( 0 === $i ? 'proplede' : 'muted' ) . '">' . h( $p ) . '</p>';
+	}
+	$o .= '</div>' . property_features_html( $feat ) . property_location_html( $loc ) . '</div>';
+	return $o . property_visit_panel_html( $visit ) . '</div>';
+}
+
+/**
+ * COMP-RELATED · TPL-PROPERTY-01, "de su misma zona y rango" — three of the source design's own
+ * "tarjetas simplificadas" (`proplux` in its 'similar' variant: photo, zone, title, price, no badge,
+ * no fact row) plus "ver toda la cartera", routed by explicit page key for the same reason
+ * `featured_grid_html()`'s own link is: that copy contains the word "cartera", which is the home
+ * page's own label, and a fuzzy match would send the reader back to the home instead of the listing.
+ */
+function property_similar_html( $rel ) {
+	return sec_open( 'propsimilar grid-sec', $rel['h2'] )
+		. '<div class="fgridhead"><h2>' . h( $rel['h2'] ) . '</h2>'
+		. '<a class="fgridlink" href="' . h( ihref( 'propiedades' ) ) . '">' . h( $rel['link'] ) . '</a></div>'
+		. proplux_grid_html( $rel['items'], 'similar' )
+		. sec_close();
+}
+
+/**
+ * TPL-PROPERTY-01 «Inmueble» · la ficha que las tarjetas de `proplux_grid_html()` prometen.
  *
- * Mismo defecto medido que en el patio, seis enlaces en vez de ocho. Y la misma corrección: la
- * cartera enseña precio, metros y zona porque es lo que cabe en una tarjeta; lo que decide la
- * visita —el plano, el coste real de entrar a vivir, la orientación— vive aquí.
- *
- * LA SOLICITUD DE VISITA ES LA DE LA HOME CON LA REFERENCIA DENTRO. `TPL-C-13` lo escribe en su
- * propia identidad: una solicitud sin referencia es una consulta genérica, y una consulta genérica
- * no se puede meter en una agenda.
+ * PR3c REWRITE. Antes renderizaba las secciones de `TPL-UNIT-01` (coche de ocasión) sobre una
+ * villa: `unithead`, `property_tour_html()` (galería de coche), `unit_specs_html()`,
+ * `floorplan_html()`, `costs_breakdown_html()`, `energy_label_html()`, `booking_html()` — siete
+ * funciones prestadas de un patio de coches, ninguna autora. Ahora: migas con referencia,
+ * encabezado partido con panel de precio, mosaico con recorrido rotulado, datos clave en fila,
+ * cuerpo con descripción + tabla de características + ubicación + panel de visita pegajoso, y
+ * similares — la ficha que el diseño de origen dibuja, sección por sección.
  */
 function page_property( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
 	$K = $C['producto'];
 	$o = array();
 	$o[] = head_corporate( $C, $BRAND );
+	$o[] = property_crumbs_html( $K['crumbs'], $K['ref'][0] );
+	$o[] = '<main>';
+	$o[] = property_head_html( $K['head'], $K['price'] );
+	$o[] = '<section class="sec propgallery" aria-label="Galería"><div class="canvas">'
+		. property_mosaic_html( $K['tour'] ) . '</div></section>';
+	$o[] = property_keydata_html( $K['facts']['items'] );
+	$o[] = sec_open( 'propdetail grid-sec', 'Detalle de la propiedad' )
+		. property_body_html( $K['desc'], $K['features'], $K['location'], $K['visit'] )
+		. sec_close();
+	$o[] = property_similar_html( $K['related'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════════
+ * PR3c — TPL-C-15/delao's OWN Nosotros (`TPL-ABOUT-01`) and Contacto (`TPL-CONTACT-01`), authored
+ * to the source design instead of the shared `page_about_company()` (a clinic/dealer's "about" page
+ * — the orchestrator's own defect list: hero/about/features/stats/team/quotes/band-closing-sober)
+ * and `page_contact_enquiry()` (`process`/`medteam`/`faq` — a MEDICAL clinic's contact page,
+ * `med_team_html()` by name). Both archetypes' own fixed ADN survives; only the FORM changes.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * COMP-ABOUT's photograph, as its own full-bleed-width band — the source design's own composition
+ * (a plain `aspect-ratio:21/9` photo directly under the header, no text over it) rather than the
+ * side-by-side text+image `page_about_company()` uses. `delao-oficina` is a 4:3 CARD shot in the
+ * manifest; the box shape here is this class's own `aspect-ratio`, and `object-fit:cover` crops to
+ * it exactly as every other photo in this file already does under a shape its manifest role never
+ * promised (`.vcard .frame{aspect-ratio:4/3}` over a photo the manifest calls "card 4:3" is the
+ * same relationship the whole catalogue already runs on).
+ */
+function about_photo_band_html( $img_slug ) {
+	return '<section class="sec aboutphoto" aria-label="La agencia"><div class="canvas">'
+		. '<figure>' . img_tag( $img_slug ) . '</figure></div></section>';
+}
+
+/**
+ * COMP-VALUES · TPL-ABOUT-01 — "3–4 compromisos verificables, no adjetivos" — expressed as the
+ * source design's own numbered método list (mono `01`–`04`, `gap:1px` acting as the row filete)
+ * rather than the generic `.feats` two-line list `page_about_company()` gives every other archetype.
+ * Every one of delao's four items already reads as a verifiable practice ("comparables de cierre de
+ * los últimos dieciocho meses", not "excelencia") — exactly what the archetype's own § 3 demands.
+ */
+function method_list_html( $md ) {
+	$o = sec_open( 'methodsec grid-sec', $md['h2'] )
+		. '<div class="methodhead"><h2>' . h( $md['h2'] ) . '</h2></div><ol class="methodlist">';
+	foreach ( $md['items'] as $it ) {
+		$o .= '<li class="methoditem"><span class="methodnum">' . h( $it[0] ) . '</span>'
+			. '<div><h3>' . h( $it[1] ) . '</h3><p class="muted">' . h( $it[2] ) . '</p></div></li>';
+	}
+	return $o . '</ol>' . sec_close();
+}
+
+/**
+ * COMP-STATS · TPL-ABOUT-01, on `ground:ink` — the source design's own dark band, `repeat(4,1fr)`
+ * with `gap:1px` acting as the filete over `rgba(246,244,240,.14)`. Real, verifiable numbers only
+ * (archetype's own warning: "una cifra inventada hunde la página entera") — delao's four are the
+ * same ones the home's `stats` block already states (22 años, 310 M€, 11 semanas, 96 %), never a
+ * second invented set.
+ */
+function figures_band_html( $cf ) {
+	$o = '<section class="sec figuresband" aria-label="' . h( $cf['eyebrow'] ) . '"><div class="canvas figuresgrid">';
+	foreach ( $cf['items'] as $it ) {
+		$o .= '<div class="figurecell"><span class="figure-v">' . h( $it[0] ) . '</span>'
+			. '<span class="figure-l">' . h( $it[1] ) . '</span></div>';
+	}
+	return $o . '</div></section>';
+}
+
+/**
+ * COMP-TEAM · TPL-ABOUT-01 — "caras reales o la sección no va". Three real portraits
+ * (`delao-nerea`/`delao-julen`/`delao-leire`), dynamically columned to the ACTUAL headcount via
+ * `cols_attr()` rather than a hardcoded `cols-3`/`cols-4` — the source design's own team is four
+ * people and delao's manifest holds three photographed agents, so copying the design's column
+ * count here would be exactly the "`cols-3` grid holding one item" defect this launch brief warns
+ * against, just with the numbers moved: a fixed 4-column grid holding three real cards and one
+ * empty track is the same bug from the other side.
+ */
+function team_portraits_html( $tm ) {
+	$o = sec_open( 'teamsec grid-sec', $tm['h2'] )
+		. '<div class="teamhead"><h2>' . h( $tm['h2'] ) . '</h2>'
+		. '<span class="teamcount">' . h( $tm['eyebrow'] ) . '</span></div>'
+		. '<ul class="proplux-grid teamgrid"' . cols_attr( count( $tm['items'] ) ) . '>';
+	foreach ( $tm['items'] as $it ) {
+		$mi = img( $it[2] );
+		$o .= '<li class="teamcard"><figure class="frame team-shot">'
+			. '<img data-img="' . h( $mi['slug'] ) . '" alt="' . h( $mi['alt'] ) . '" width="' . $mi['w'] . '" height="' . $mi['h'] . '"></figure>'
+			. '<div class="team-body"><h3>' . h( $it[0] ) . '</h3>'
+			. '<span class="team-role">' . h( $it[1] ) . '</span></div></li>';
+	}
+	return $o . '</ul></div></section>';
+}
+
+/**
+ * COMP-CTA · TPL-ABOUT-01, sober close — the source design's own light `bg-alt` panel,
+ * `1.2fr 1fr` with the button aligned to the end, rather than `page_cta_html()`'s centred stack.
+ */
+function about_cta_html( $cta ) {
+	return '<section class="sec aboutcta" aria-label="' . h( $cta['h2'] ) . '"><div class="canvas">'
+		. '<div class="aboutctapanel"><div class="head stack"><h2>' . h( $cta['h2'] ) . '</h2>'
+		. '<p class="muted">' . h( $cta['lede'] ) . '</p></div>'
+		. '<a class="btn btn-primary aboutcta-btn" href="' . h( ihref( 'contacto' ) ) . '">' . h( $cta['cta'] ) . '</a></div>'
+		. '</div></section>';
+}
+
+/**
+ * TPL-ABOUT-01 «Nosotros» — Inmobiliaria de la O, authored to `Nosotros.dc.html` instead of reused
+ * from `page_about_company()`. COMP-TESTIMONIAL stays OFF: the source design carries no quotes on
+ * this page (they already live on the home), and that component is a toggle, not fixed ADN.
+ */
+function page_about_cartera( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$A = $C['nosotros'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
+	$o[] = '<main>';
+	$o[] = split_head_html( $A['head'] );
+	$o[] = about_photo_band_html( $A['img'] );
+	$o[] = method_list_html( $A['method'] );
+	$o[] = figures_band_html( $A['figures'] );
+	$o[] = team_portraits_html( $A['team'] );
+	$o[] = about_cta_html( $A['cta'] );
+	$o[] = '</main>';
+	$o[] = footer_html( $C['footer'] );
+	return implode( "\n", $o );
+}
+
+/**
+ * COMP-CONTACT-FORM · TPL-CONTACT-01 — the source design's own 2×2 field grid (Nombre/Teléfono/
+ * Correo/Motivo) + a 4-row textarea + a privacy checkbox, never the three-field-plus-message shape
+ * `page_contact_enquiry()`'s `.leadform` gives every other TPL-CONTACT-* demo. Labels stay visible
+ * on every field (archetype ADN); the textarea's placeholder is a SUPPLEMENT to its own visible
+ * label, not a replacement for one.
+ */
+function contact_form_html( $fm, $uid ) {
+	$o = '<form class="leadform contactform" onsubmit="return false"><div class="formgrid">';
+	foreach ( $fm['fields'] as $f ) {
+		$fid = $uid . '-cf-' . $f[0];
+		if ( 'select' === $f[2] ) {
+			$o .= '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
+				. '<select id="' . $fid . '" name="' . $f[0] . '">';
+			foreach ( $f[3] as $opt ) {
+				$o .= '<option>' . h( $opt ) . '</option>';
+			}
+			$o .= '</select></div>';
+			continue;
+		}
+		$o .= '<div class="field"><label for="' . $fid . '">' . h( $f[1] ) . '</label>'
+			. '<input id="' . $fid . '" name="' . $f[0] . '" type="' . $f[2] . '"></div>';
+	}
+	$o .= '</div><div class="field"><label for="' . $uid . '-cf-msg">' . h( $fm['msg'] ) . '</label>'
+		. '<textarea id="' . $uid . '-cf-msg" name="msg" rows="4" placeholder="' . h( $fm['placeholder'] ) . '"></textarea></div>'
+		. '<label class="privacy"><input type="checkbox"><span>' . h( $fm['privacy'] ) . '</span></label>'
+		. '<button class="btn btn-primary" type="submit">' . h( $fm['submit'] ) . '</button>';
+	return $o . '</form>';
+}
+
+/**
+ * COMP-CONTACT-DIRECT · TPL-CONTACT-01 — three stacked blocks with `gap:1px` acting as the filete
+ * (Oficina / Directo / mapa), the source design's own composition, next to the form rather than
+ * below the whole page (archetype ADN: "quien prefiere llamar tiene que verlo sin bajar").
+ * `.mapdrawn` is shared with `property_location_html()` above — the same drawn object, `4:3` here.
+ */
+function contact_aside_html( $office, $direct ) {
+	return '<aside class="contactaside">'
+		. '<div class="contactblk"><span class="eyebrow">' . h( $office['eyebrow'] ) . '</span>'
+		. '<p class="contactblk-addr">' . nl2br( h( $office['addr'] ), false ) . '</p>'
+		. '<span class="muted small">' . nl2br( h( $office['hours'] ), false ) . '</span></div>'
+		. '<div class="contactblk"><span class="eyebrow">' . h( $direct['eyebrow'] ) . '</span>'
+		. '<a class="contactblk-tel" href="tel:' . h( preg_replace( '/\s+/', '', $direct['phone'] ) ) . '">' . h( $direct['phone'] ) . '</a>'
+		. '<a class="contactblk-mail" href="mailto:' . h( $direct['email'] ) . '">' . h( $direct['email'] ) . '</a></div>'
+		. '<div class="mapdrawn" aria-hidden="true"><span class="mapdrawn-dot"></span></div>'
+		. '</aside>';
+}
+
+/**
+ * TPL-CONTACT-01 «Contacto» — Inmobiliaria de la O, authored to `Contacto.dc.html` instead of
+ * reused from `page_contact_enquiry()`. COMP-PROCESS ("qué pasa después de enviar, con plazos
+ * reales") is FIJO·ADN and stays honoured, but not as its own visible band: the source design draws
+ * no such band on this screen, and the page's own header lede already states it in full — "Respondemos
+ * todas las consultas en menos de 24 horas laborables, siempre una persona del equipo y nunca un
+ * formulario automático" IS a real deadline plus a real answer to "what happens next", the exact
+ * two things the archetype's § 3 asks for, just spoken once instead of drawn as a second section.
+ * COMP-TEAM and COMP-FAQ stay OFF (toggles, and the source design carries neither on this screen).
+ */
+function page_contact_cartera( $anchor_key, $C, $BRAND, $uid, $tgl_rows ) {
+	$K = $C['contacto'];
+	$o = array();
+	$o[] = head_corporate( $C, $BRAND );
 	$o[] = crumbs_html( $K['crumbs'] );
 	$o[] = '<main>';
-	$o[] = sec_open( 'pagehead unithead', $K['head']['h1'] )
-		. '<div class="head stack"><span class="eyebrow">' . h( $K['head']['eyebrow'] ) . '</span>'
-		. '<h1>' . h( $K['head']['h1'] ) . '</h1>'
-		. '<p class="lede muted">' . h( $K['head']['lede'] ) . '</p>'
-		. ref_line_html( $K['ref'][0], $K['ref'][1] ) . '</div>' . sec_close();
-	$o[] = property_tour_html( $K['tour'] );
-	$o[] = unit_specs_html( $K['facts'], ' bg-alt' );
-	$o[] = floorplan_html( $K['plan'] );
-	$o[] = costs_breakdown_html( $K['costs'], ' bg-alt' );
-	$o[] = energy_label_html( $K['energy'] );
-	$o[] = booking_html( $K['visit'], $uid );
-	$o[] = property_grid_html( $K['related'] );
+	$o[] = split_head_html( $K['head'] );
+	$o[] = sec_open( 'contactbody grid-sec', 'Formulario de contacto' )
+		. '<div class="contactgrid">'
+		. contact_form_html( $K['form'], $uid )
+		. contact_aside_html( $K['office'], $K['direct'] )
+		. '</div>' . sec_close();
 	$o[] = '</main>';
 	$o[] = footer_html( $C['footer'] );
 	return implode( "\n", $o );
@@ -12604,13 +13390,13 @@ function render_page_inner( $page_key, $tpl, $anchor_key, $C, $BRAND, $suid, $tg
 		return page_property_index( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-15' === $tpl && 'nosotros' === $page_key ) {
-		return page_about_company( $anchor_key, $C, $BRAND, $suid, $tgl );
+		return page_about_cartera( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-15' === $tpl && 'producto' === $page_key ) {
 		return page_property( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-15' === $tpl && 'contacto' === $page_key ) {
-		return page_contact_enquiry( $anchor_key, $C, $BRAND, $suid, $tgl );
+		return page_contact_cartera( $anchor_key, $C, $BRAND, $suid, $tgl );
 	}
 	if ( 'TPL-C-14' === $tpl && 'home' === $page_key ) {
 		return strip_ritual( $anchor_key, $C, $BRAND, $suid, $tgl );
@@ -13914,7 +14700,10 @@ $ACCENT_ROLES = array(
 	   the pressed half IS the active state the role names — the same object as a tab that is open.
 	   The unpressed half stays on --c-bg, because a control where both halves are accented has
 	   stopped saying which one you are looking at. */
-	'active states'    => array( 'mapswitch' ),
+	/* `.sortlink[aria-current]` (PR3c, TPL-C-15's own "Propiedades" listing) is the SAME object one
+	   more time: which of Recientes/Precio ↑/Precio ↓ is selected, exactly the role `.mapswitch`
+	   already names for Lista/Mapa. */
+	'active states'    => array( 'mapswitch', 'sortlink' ),
 
 	/* NOT A ROLE, AND THAT IS THE POINT: the closing band is a whole SURFACE painted in the accent
 	   on PERS-DIRECT, not a mark on one. layout-patterns.md § "The close is a designed moment"

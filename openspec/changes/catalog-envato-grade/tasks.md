@@ -333,6 +333,86 @@ Files: `_build-gallery.php` (`$BRANDS`, `$CONTENT`, `$STRIPS`, `$PAGES` for `del
       `.../propiedades`, `.../producto`, `.../nosotros`, `.../contacto` — matching all 5 declared
       pages, none unreachable.
 
+## PR3c — Rework `delao` for design fidelity (PR3b rejected by the user)
+
+**Rule inversion for this slice only**: fidelity to `design_handoff_inmobiliaria_de_la_o` wins over
+component reuse. `TPL-C-15` and `TPL-PROPERTY-01` remain the only archetypes (no new archetype doc);
+their SECTIONS are authored to match the design instead of borrowed from `TPL-C-07`/`TPL-UNIT-01`
+(cars) or the clinic-shaped `page_about_company()`/`page_contact_enquiry()`.
+
+Files: `_build-gallery.php` (bleed fix + new render functions + expanded `$CONTENT`), `CSS`,
+`framework-audit.php` (new gate), `tests/test-framework-audit.php` (new fixtures),
+`CONTRIBUTING.md` (new row doc).
+
+- [x] 3c.1 [RED→GREEN] The bleed bug: `hero_cartera_html()` hand-wrote its `<section>` tag instead
+      of calling `sec_open(..., 'bleed')`, so `TPL-C-15`'s own Envoltorio table said "banda a
+      sangre" and the render said "contained". Fixed by routing through `sec_open()`/`sec_close()`;
+      verified `.canvas`'s own grid still drives the 78vh photo/veil/4-column rule grid (`.bleedband`
+      only touches `.media-full`/`.rulegrid`, both `position:absolute`, so out of grid flow).
+- [x] 3c.2 [RED→GREEN] New audit row `RT_TPL_ENVOLTORIO_RENDER_MISMATCH`: for every home archetype
+      with an Envoltorio table, counts DECLARED unconditional `bleed`/`row` rows (a row naming its
+      own condition — "cuando el conmutador…" — is excluded) against RENDERED `bleedband`/`secrow`
+      section counts on that archetype's actual home demo (`data-arch`+`data-page="home"` in the
+      generated gallery). New helpers `gallery_page_segments()`/`gallery_section_shape_counts()`/
+      `env_row_is_conditional()`. Failing test written FIRST (3 FAIL observed, genuine RED — gate
+      code did not exist), then implemented (765 OK / 0 FAIL, GREEN). Acceptance test against REAL
+      bytes: `TPL-C-14` (3 bleed + 1 row), `TPL-E-07` (1 bleed), `TPL-C-15` (1 bleed + 1 row post-fix)
+      all pass; the other 5 surviving archetypes have no table yet (`RT_TPL_NO_ENVOLTORIO` owns
+      that gap), so this row is silent for them. ROW_TYPES + `CONTRIBUTING.md` both updated.
+- [x] 3c.3 Home `COMP-FEATURED-GRID` + listing card: new `proplux_card_html()`/`proplux_grid_html()`/
+      `featured_grid_html()` replace `property_grid_html()` (Motor Aranda's `.stockgrid`/`.vcard`) at
+      the two live call sites (home, and `page_property()`'s related section stays via the new
+      'similar' variant). Badge flush top-left (no radius), zone as MUTED text (not accent —
+      design-tokens.md's real accent row: "Never body text, never decoration"; the source design's
+      own `#8A7B5C` zone would `fail()` the accent-role gate), serif title, facts row, serif price;
+      listing variant adds a right-aligned monospace reference on the zone row.
+- [x] 3c.4 `propiedades` page rebuilt: `split_head_html()` (1.5fr/1fr split header, shared with
+      producto/nosotros/contacto), `filter_band_html()` (sticky filter bar — `top:0`, not the
+      design's literal `top:78px`, since this chassis's `.site-head` is never itself sticky),
+      `results_bar_html()` (count + 3 sort links, active one an `active states` accent role like
+      `.mapswitch`), `property_listing_html()` (9-card `proplux` grid, ghost "cargar más" button).
+      Content expanded to 9 properties (3 with delao's real photos, 6 honestly placeholder-marked —
+      no new photography sourced, no real photo reused under a false name).
+- [x] 3c.5 `producto` (`TPL-PROPERTY-01`) fully rewritten off `TPL-UNIT-01`'s car sections: breadcrumb
+      bar with monospace ref riding it (`.refcode` reused from its rightful owner, repositioned),
+      split header with a border-left price panel, mosaic gallery (`2fr 1fr`, room captions honour
+      COMP-PROPERTY-TOUR's "no es COMP-GALLERY" ADN), 4-col key-data row, body (description + 10-row
+      features table folding COMP-COSTS-BREAKDOWN/COMP-ENERGY-LABEL in, drawn location map, sticky
+      visit panel — mortgage simulator out of scope so one block, not two), 3 similar cards.
+- [x] 3c.6 `nosotros` (`TPL-ABOUT-01`) and `contacto` (`TPL-CONTACT-01`) each get a dedicated bespoke
+      page function (`page_about_cartera()`, `page_contact_cartera()`) instead of the shared
+      clinic/dealer-shaped `page_about_company()`/`page_contact_enquiry()`; TPL-C-15 dispatch
+      re-keyed. Nosotros: split header, full-width photo band, numbered método list (COMP-VALUES'
+      own "compromisos verificables" ADN), dark cifras band, 3-card team grid using the 3 REAL
+      portraits with a DYNAMIC `cols_attr()` (never a hardcoded `cols-3`/`cols-4` holding the wrong
+      count — the exact defect class the brief warned was already present twice elsewhere), sober
+      CTA. Contacto: split header, 2×2 form grid + textarea + privacy checkbox, 3-block aside
+      (Oficina/Directo/drawn map). COMP-PROCESS (`TPL-CONTACT-01` fijo·ADN) honoured via the header's
+      own 24h-reply lede rather than a second visible band the source design does not draw.
+- [x] 3c.7 CSS authored throughout: new `proplux-*`/`propmosaic`/`propkeydata`/`propfeat`/`proploc`/
+      `mapdrawn`/`propvisit`/`propbody`/`methodsec`/`figuresband`/`teamsec`/`contactaside`/etc.
+      classes, none colliding with `$CLASS_BLOCKS`'s reserved names. Map markers paint `--c-text`,
+      never `--c-accent` (`map_search_html()`'s own "THE PIN IS NOT AN ACCENT MARK" precedent).
+      `.sortlink[aria-current]` registered under `$ACCENT_ROLES['active states']`. One genuine
+      `fail()` hit and fixed: a comment in the new CSS literally named `.refcode` before the
+      "FICHAS DE INVENTARIO" ownership marker, tripping the (plain-text) collision check on its own
+      prose — reworded without the literal selector.
+- [x] 3c.8 Regenerate + verify: `php _build-gallery.php` exit 0; `php framework-audit.php` →
+      **0 FAIL / 10 WARN / 0 JUDGE** (byte-identical WARN set to pre-PR3c); full chain
+      `test-framework-audit` 765 + `test-write-path` 426 + `test-container-hygiene` 81 +
+      `test-audit-signals` 22 = **1294 OK / 0 FAIL**. Nav reachability re-proven: 5 distinct hash
+      destinations, matching all 5 declared pages. Rendered section sweep (before → after):
+      `home: hero herocartera→+bleedband, stock grid-sec→featuredgrid`;
+      `propiedades: pagehead→+splithead, +searchband filterband, stock grid-sec→proplisting`;
+      `producto: unithead/ptour/unitspecs/planwrap/costs/energysec/booking/stock→propgallery/
+      propfacts/propdetail/propsimilar`; `nosotros: hero/about/features/stats/team/quotes/band
+      closing sober→pagehead splithead/aboutphoto/methodsec/figuresband/teamsec/aboutcta`;
+      `contacto: band contactblock/process/medteam/faq→pagehead splithead/contactbody`.
+      Full-sweep `visual-verification` NOT run by sdd-apply — no browser tooling in this execution
+      context, same limitation recorded for 2b.9/3b.8; owned by the orchestrator.
+- [ ] 3c.9 Orchestrator: full-sweep `visual-verification` over the regenerated `delao` strip at its
+      one anchor, all 5 pages.
+
 ---
 
 ## PR4 — `TPL-C-07` (aranda) Envoltorio table

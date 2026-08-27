@@ -125,6 +125,56 @@ message named the exact spread and the exact hex.
 four equal columns of the 1280 measure.
 **Rationale**: D3. The grid is a proportion, not a pixel constant; only the gutter changes.
 
+**PR3c correction — PR3b was rejected: it wired the brand but never the design.** The standing
+framework rule "reuse existing inner-page archetypes; do not invent new ones" won over fidelity in
+PR3b and produced a NovaMira template wearing delao's colours. `strip_cartera_curada()`'s hero also
+hand-wrote its `<section>` instead of calling `sec_open(..., 'bleed')`, so `TPL-C-15`'s own
+Envoltorio table said "banda a sangre" while the render said "contained" — undetected, because no
+gate compared the DOCUMENT against the BUILD. PR3c's rule for this slice only: fidelity wins over
+component reuse, archetype IDENTITY (the two archetypes, their fixed ADN, their wireframe) does not
+change, only how each declared section is AUTHORED.
+
+**Decision: `RT_TPL_ENVOLTORIO_RENDER_MISMATCH`, counted rather than positionally matched.** The
+generator marks no `<section>` with which `COMP-*` it renders, so a per-row 1:1 walk between the
+document and the build would invent a mapping the generator itself never declares. Comparing TOTALS
+— how many `bleedband`/`secrow` sections a home archetype's demo actually renders vs. how many
+UNCONDITIONAL rows its own table declares of each shape — survives without one, and generalizes to
+the five archetypes still owed a table (PR4/PR6/PR7/PR8) with no further code. Conditional rows
+(`COMP-MAP-SEARCH`: "banda a sangre cuando el conmutador está en on") are excluded from the declared
+count: `TPL-C-15` ships that toggle off by default, so under the default render the section does
+not exist, and counting a self-admitted condition as unconditional would fail every archetype with
+an optional off-by-default band. Verified against real bytes: lumiere (3 bleed + 1 row) and bajura
+(1 bleed) already comply; delao (1 bleed + 1 row, after the conditional exclusion) was the one
+violator, closed by the same commit that fixes `hero_cartera_html()`.
+
+**Decision: the zone label stays muted text, not the design's own `#8A7B5C`.** design-tokens.md's
+real accent row — the one `_build-gallery.php`'s own build-time gate re-measures — reads "ONE
+colour. CTAs, action icons, important links, active states. Never body text, never decoration." A
+property card's zone is a scanning label, which is "decoration" in that row's own words; painting
+it in accent would `fail()` the build the instant this generator ran. Same reasoning, same
+conclusion `map_search_html()`'s own docblock already reached for its pins ("THE PIN IS NOT AN
+ACCENT MARK") — extended here to the new drawn location markers on the ficha and Contacto pages.
+Where the design DOES draw a genuine active-state accent (the listing's sort control), it is
+registered under `$ACCENT_ROLES['active states']` alongside `.mapswitch` — the sanctioned path, not
+a workaround.
+
+**Decision: COMP-FLOORPLAN/COMP-COSTS-BREAKDOWN/COMP-ENERGY-LABEL fold into one features table.**
+`TPL-PROPERTY-01`'s fixed ADN requires all three; the source design draws exactly one 10-row
+key/value table (Tipo…Disponibilidad, Certificado energético and Comunidad/IBI among the rows) and
+no separate floorplan visual (delao's 12 photos include none, and the design's own Ficha screen
+does not show one either). The archetype's own wireframe list is a DOCUMENT contract about section
+IDENTITY, not a contract that each one renders as its own visual band — nothing in
+`framework-audit.php` checks a page's rendered HTML against its archetype's wireframe (confirmed:
+`RT_TPL_TOO_SIMILAR`/`RT_TPL_WRAPPER_DUPLICATE` compare archetype DOCUMENTS to each other, never to
+a render). Consolidating is therefore a presentation choice within the archetype's own latitude, not
+a silent drop — recorded here rather than hidden.
+
+**Decision: `TPL-CONTACT-01`'s COMP-PROCESS is honoured in prose, not a second band.** The archetype
+requires "qué pasa después de enviar, con plazos reales"; the source design's Contacto screen draws
+no process band at all, and its own header lede already states a real deadline and a real answer
+("Respondemos … en menos de 24 horas laborables, siempre una persona del equipo y nunca un
+formulario automático"). Same latitude as the floorplan/costs/energy consolidation above.
+
 ## Parser Designs (new `framework-audit.php` helpers)
 
 ```php
@@ -141,6 +191,18 @@ env_shape( $raw ) : 'bleed' | 'row' | 'contained'
 tpl_wrapper_signature( $src ) : array<'bleed'|'row'|'contained'>
     foreach tpl_wireframe_comps($src)[0] as $comp:
         $shape = $table[$comp] ?? $table['*'] ?? 'contained'   // sec_open()'s own default
+
+/* PR3c — RT_TPL_ENVOLTORIO_RENDER_MISMATCH's own three helpers. A row naming its own toggle
+   condition ("cuando…") is excluded from the DECLARED count env_shape() would otherwise assign it. */
+env_row_is_conditional( $raw ) : bool           // true iff $raw contains "cuando" (case-insensitive)
+
+/* One `<div class="sample" data-page="…">` per page inside a strip's HTML, boundary-delimited the
+   same way gallery_strip_segments() delimits strips (next sibling's start, or EOF — never the
+   closing tag). Reads data-arch off the same div. */
+gallery_page_segments( $strip_html ) : array<{ page, arch, html }>
+
+/* How many <section class="sec …"> in $html carry bleedband, and how many carry secrow. */
+gallery_section_shape_counts( $html ) : { bleed: int, row: int }
 ```
 
 **The catch-all row.** Six of the seven compliant archetypes (`C-03`, `C-05`, `C-06`, `C-13`,

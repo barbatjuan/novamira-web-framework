@@ -651,17 +651,33 @@ function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
 			$attrs .= ' data-brand="' . $st['brand'] . '"';
 		}
 		$body .= '<section class="strip" id="s' . $strip_ix . '"' . $attrs . '>' . "\n";
+		/* 'arch' is additive too, for RT_TPL_ENVOLTORIO_RENDER_MISMATCH: it writes `data-arch` on
+		   the `.sample` div the same way the real generator does (`strtolower($C['arch'])`), and is
+		   opt-in — omitted, output is byte-identical to every scenario written before this row
+		   existed. */
+		$arch_attr = isset( $st['arch'] ) ? ' data-arch="' . $st['arch'] . '"' : '';
 		/* 'pages' is opt-in too: omitted, this renders the exact single anchor-only <div> every
 		   existing scenario already asserts around. Set, it renders one data-page div per page —
-		   the shape RT_GALLERY_SINGLE_PAGE_DEMO counts. */
+		   the shape RT_GALLERY_SINGLE_PAGE_DEMO counts.
+		   'page_sections', keyed by that same page key, is ALSO additive and is how
+		   RT_TPL_ENVOLTORIO_RENDER_MISMATCH's fixtures control exactly which `<section class="sec
+		   X">` classes a page renders — omitted, a page still renders the one bare
+		   `<section class="sec">` every existing scenario counts on. */
 		if ( isset( $st['pages'] ) ) {
 			foreach ( $st['pages'] as $pg_key ) {
 				$body .= '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' )
-					. '" data-page="' . $pg_key . '">' . "\n"
-					. "    <section class=\"sec\"><h2>Seccion</h2></section>\n  </div>\n";
+					. '"' . $arch_attr . ' data-page="' . $pg_key . '">' . "\n";
+				if ( isset( $st['page_sections'][ $pg_key ] ) ) {
+					foreach ( $st['page_sections'][ $pg_key ] as $pg_sec_cls ) {
+						$body .= '    <section class="sec ' . trim( $pg_sec_cls ) . '"><h2>Seccion</h2></section>' . "\n";
+					}
+				} else {
+					$body .= "    <section class=\"sec\"><h2>Seccion</h2></section>\n";
+				}
+				$body .= "  </div>\n";
 			}
 		} else {
-			$body .= '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' ) . '">' . "\n"
+			$body .= '  <div class="sample" data-anchor="' . ( isset( $st['pers'] ) ? $st['pers'] : '' ) . '"' . $arch_attr . '>' . "\n"
 				. "    <section class=\"sec\"><h2>Seccion</h2></section>\n  </div>\n";
 		}
 		$body .= "</section>\n";
@@ -5208,6 +5224,157 @@ ok(
 );
 ok( array() === fx_lines_with( $out243, array( 'RT_GALLERY_SINGLE_PAGE_DEMO', 'TPL-C-14-lumiere' ) ), 'and does not accuse the multi-page demo beside it', $out243 );
 fx_rrmdir( $r243 );
+
+/* ---------------------------------------------------------------------------
+   PR3c — RT_TPL_ENVOLTORIO_RENDER_MISMATCH. catalog-wrapper-integrity's other half: the two
+   RT_TPL_NO_ENVOLTORIO/RT_TPL_WRAPPER_DUPLICATE rows above only ever read the DOCUMENT. This one
+   opens the generated gallery and counts how many `bleedband`/`secrow` sections a home archetype's
+   demo actually renders, against how many its own Envoltorio table declares.
+   --------------------------------------------------------------------------- */
+
+echo "--- RT_TPL_ENVOLTORIO_RENDER_MISMATCH: a table declaring 1 bleed whose demo renders 0 FAILS ---\n";
+$r260 = fx_tmp_root();
+fx_base( $r260 );
+fx( $r260, $fx_tpl_dir . 'corporate/TPL-ENVR-01-fixture.md', fx_tpl(
+	'TPL-ENVR-01',
+	array( 'HERO', 'FOOTER' ),
+	array(),
+	'fenced',
+	fx_tpl_env_table( array( 'HERO' => 'banda a sangre' ) )
+) );
+fx_gal(
+	$r260,
+	fx_gallery(
+		array(
+			array(
+				'tpl'  => 'TPL-ENVR-01-fixture',
+				'pers' => 'editorial',
+				'brand' => 'envr',
+				'arch' => 'tpl-envr-01',
+				'pages' => array( 'home' ),
+				'page_sections' => array( 'home' => array( '' ) ), // renders zero bleedband
+			),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out260 ) = fx_run_ok( $audit, $r260 );
+ok(
+	'FAIL' === fx_row_level( $out260, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH', 'TPL-ENVR-01' ) ),
+	'a declared bleed the demo never renders FAILS',
+	fx_row_level( $out260, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH', 'TPL-ENVR-01' ) )
+);
+ok(
+	array() !== fx_lines_with( $out260, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH', 'renders 0 `bleedband`', 'declares 1 unconditional' ) ),
+	'and the message quotes both counts',
+	$out260
+);
+fx_rrmdir( $r260 );
+
+echo "--- RT_TPL_ENVOLTORIO_RENDER_MISMATCH: the same table with a matching render produces no row ---\n";
+$r261 = fx_tmp_root();
+fx_base( $r261 );
+fx( $r261, $fx_tpl_dir . 'corporate/TPL-ENVR-01-fixture.md', fx_tpl(
+	'TPL-ENVR-01',
+	array( 'HERO', 'FOOTER' ),
+	array(),
+	'fenced',
+	fx_tpl_env_table( array( 'HERO' => 'banda a sangre' ) )
+) );
+fx_gal(
+	$r261,
+	fx_gallery(
+		array(
+			array(
+				'tpl'  => 'TPL-ENVR-01-fixture',
+				'pers' => 'editorial',
+				'brand' => 'envr',
+				'arch' => 'tpl-envr-01',
+				'pages' => array( 'home' ),
+				'page_sections' => array( 'home' => array( 'bleedband' ) ),
+			),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out261 ) = fx_run_ok( $audit, $r261 );
+ok( array() === fx_lines_with( $out261, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH' ) ), 'declared and rendered counts agree -- no row', $out261 );
+fx_rrmdir( $r261 );
+
+echo "--- RT_TPL_ENVOLTORIO_RENDER_MISMATCH: a row naming its own condition is excluded from the declared count ---\n";
+/* COMP-MAP-SEARCH's own real cell reads "banda a sangre cuando el conmutador esta en on"; TPL-C-15
+   ships that toggle off by default, so the section renders 0 times and the declared count must
+   also read 0 for that row -- otherwise every archetype with an optional off-by-default band would
+   FAIL this row forever. */
+$r262 = fx_tmp_root();
+fx_base( $r262 );
+fx( $r262, $fx_tpl_dir . 'corporate/TPL-ENVR-02-fixture.md', fx_tpl(
+	'TPL-ENVR-02',
+	array( 'HERO', 'MAP', 'FOOTER' ),
+	array(),
+	'fenced',
+	fx_tpl_env_table( array( 'HERO' => 'banda a sangre', 'MAP' => 'banda a sangre cuando el conmutador esta en on' ) )
+) );
+fx_gal(
+	$r262,
+	fx_gallery(
+		array(
+			array(
+				'tpl'  => 'TPL-ENVR-02-fixture',
+				'pers' => 'editorial',
+				'brand' => 'envr2',
+				'arch' => 'tpl-envr-02',
+				'pages' => array( 'home' ),
+				'page_sections' => array( 'home' => array( 'bleedband' ) ), // MAP off: only HERO renders
+			),
+		),
+		$FX_GAL_FAR
+	)
+);
+list( , $out262 ) = fx_run_ok( $audit, $r262 );
+ok( array() === fx_lines_with( $out262, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH' ) ), 'a conditional row off by default does not count against the demo -- no row', $out262 );
+fx_rrmdir( $r262 );
+
+echo "--- acceptance test: the REAL Envoltorio tables of lumiere, bajura and delao match their real demos' counts ---\n";
+/* Real bytes, exactly like RT_TPL_NO_ENVOLTORIO's own acceptance test above: TPL-C-14 declares 3
+   bleed + 1 row, TPL-E-07 declares 1 bleed, TPL-C-15 declares 1 unconditional bleed (HERO-CARTERA)
+   + 1 row (VALUATION-CTA) once COMP-MAP-SEARCH's conditional row is excluded -- and this is
+   PR3c's own regression pin: before hero_cartera_html() was routed through sec_open(...,'bleed'),
+   TPL-C-15's synthetic render below (rigged to the real, PRE-fix shape) would have FAILED here. */
+$fx_env3c_real = array(
+	'corporate/TPL-C-14-ritual-bono.md' => array( 'arch' => 'tpl-c-14', 'sections' => array( 'bleedband', '', 'bleedband', 'secrow', '', 'bleedband' ) ),
+	'ecommerce/TPL-E-07-batch-weight.md' => array( 'arch' => 'tpl-e-07', 'sections' => array( 'bleedband' ) ),
+	'corporate/TPL-C-15-cartera-curada.md' => array( 'arch' => 'tpl-c-15', 'sections' => array( 'bleedband', 'secrow' ) ),
+);
+$r263 = fx_tmp_root();
+fx_base( $r263 );
+$fx_env3c_strips = array();
+foreach ( $fx_env3c_real as $fx_env3c_rel => $fx_env3c_cfg ) {
+	$fx_env3c_src = $root_dir . '/skills/web-templates/references/templates/' . $fx_env3c_rel;
+	ok( is_file( $fx_env3c_src ), 'the real archetype "' . $fx_env3c_rel . '" exists to copy bytes from', $fx_env3c_src );
+	if ( is_file( $fx_env3c_src ) ) {
+		fx( $r263, $fx_tpl_dir . $fx_env3c_rel, file_get_contents( $fx_env3c_src ) );
+	}
+	$fx_env3c_strips[] = array(
+		'tpl'  => $fx_env3c_cfg['arch'] . '-fixture',
+		'pers' => 'editorial',
+		'brand' => str_replace( 'tpl-', '', $fx_env3c_cfg['arch'] ),
+		'arch' => $fx_env3c_cfg['arch'],
+		'pages' => array( 'home' ),
+		'page_sections' => array( 'home' => $fx_env3c_cfg['sections'] ),
+	);
+}
+fx_gal( $r263, fx_gallery( $fx_env3c_strips, $FX_GAL_FAR ) );
+list( , $out263 ) = fx_run_ok( $audit, $r263 );
+foreach ( array_keys( $fx_env3c_real ) as $fx_env3c_rel ) {
+	$fx_env3c_id = preg_replace( '/^.*\/(TPL-[A-Z0-9]+-\d+).*$/', '$1', $fx_env3c_rel );
+	ok(
+		array() === fx_lines_with( $out263, array( 'RT_TPL_ENVOLTORIO_RENDER_MISMATCH', $fx_env3c_id ) ),
+		$fx_env3c_id . '\'s real Envoltorio table matches its (rigged) real demo -- no row',
+		$out263
+	);
+}
+fx_rrmdir( $r263 );
 
 echo "--- RT_MOCKUP_CONTAINER_FORK: a mockup forking --container-max FAILS, the house token does not ---\n";
 $fx_ds_container = fx_ds_conforming() . "\n\n## Contenedores\n\n| Token | Valor | Nota |\n|-------|-------|------|\n| `--container-max` | `1280px` | ancho maximo |\n";

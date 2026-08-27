@@ -99,6 +99,7 @@ const ROW_TYPES = array(
 	'RT_TPL_UNROUTABLE'          => 'FAIL  — a TPL-*.md exists that recommender.md or its folder _README.md never names, so nothing can route a client to it',
 	'RT_TPL_NO_ENVOLTORIO'       => 'WARN  — a home TPL-*.md declares no table with a header cell reading `Envoltorio`, or its catch-all row is ambiguous (ratchets to FAIL once every surviving archetype carries one)',
 	'RT_TPL_WRAPPER_DUPLICATE'   => 'FAIL  — two home archetypes of one family declare the identical ordered Envoltorio shape sequence',
+	'RT_TPL_ENVOLTORIO_RENDER_MISMATCH' => 'FAIL  — a home archetype\'s built demo renders a different count of `bleedband`/`secrow` sections than its own Envoltorio table declares',
 	'RT_RECOMMENDER_NO_LANE_FORK' => 'FAIL  — recommender.md\'s Flow declares no bespoke fork after step 3',
 	'RT_RECOMMENDER_PROMOTION_GATE_MISSING' => 'FAIL  — recommender.md/web-templates/SKILL.md names no promotion criterion for a bespoke design',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
@@ -1368,6 +1369,19 @@ function env_shape( $raw ) {
 }
 
 /**
+ * A row's shape counts toward RT_TPL_ENVOLTORIO_RENDER_MISMATCH's declared total UNLESS its own
+ * cell text makes the shape CONDITIONAL on a toggle — `COMP-MAP-SEARCH`'s real cell in
+ * `TPL-C-15-cartera-curada.md` reads "banda a sangre cuando el conmutador está en on", and that
+ * archetype ships the toggle `off` by default. A row that names its own condition is not an
+ * unconditional commitment: under the default render the section does not exist at all, so
+ * counting it as a fixed `bleed` would FAIL every archetype whose optional band ships off by
+ * default, which is not what "cuando" means in any of the tables that use it.
+ */
+function env_row_is_conditional( $raw ) {
+	return false !== stripos( $raw, 'cuando' );
+}
+
+/**
  * The ordered, normalized shape sequence for a home archetype — one entry per wireframe section,
  * in the SAME order `tpl_wireframe_comps()` declares them, so two archetypes are only ever
  * compared reading the sections the same way.
@@ -1445,7 +1459,13 @@ function tpl_wrapper_signature( $src ) {
  * mechanical reason every site in this catalogue shipped the same product page with a different
  * photo size. Same class of finding as `RT_TPL_UNROUTABLE`: nothing failed, and the audit was
  * green the whole time it was true. */
-$tpl_families = array(
+/* Accumulated across every family below, for RT_TPL_ENVOLTORIO_RENDER_MISMATCH further down this
+ * file — one entry per home TPL-*.md whose Envoltorio table parsed cleanly, keyed by TPL id, value
+ * the table's raw `rows` (comp-or-'*' => raw cell text). `$tpl_sig_inv` a few lines below resets
+ * per family and cannot be read after this loop; this map is declared here, OUTSIDE it, so it
+ * survives to where the gallery is actually opened. */
+$ENVOLTORIO_TABLE_ROWS = array();
+$tpl_families          = array(
 	'ecommerce' => $root . '/skills/web-templates/references/templates/ecommerce',
 	'corporate' => $root . '/skills/web-templates/references/templates/corporate',
 );
@@ -1498,6 +1518,10 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 				add( 'RT_TPL_NO_ENVOLTORIO', 'WARN', 'web-templates', $tpl_family . '/' . $tpl_base . ' declares no table with a header cell reading `Envoltorio` — the wrapper contract every home archetype must state is entirely absent' );
 			} elseif ( isset( $tpl_env['error'] ) ) {
 				add( 'RT_TPL_NO_ENVOLTORIO', 'WARN', 'web-templates', $tpl_family . '/' . $tpl_base . ' ' . $tpl_env['error'] );
+			} else {
+				/* Stashed by TPL id for RT_TPL_ENVOLTORIO_RENDER_MISMATCH, which runs later in this
+				 * file once the generated gallery is open — see $ENVOLTORIO_TABLE_ROWS above. */
+				$ENVOLTORIO_TABLE_ROWS[ $tpl_id ] = $tpl_env['rows'];
 			}
 			/* Excluded from the duplicate comparison, not zeroed into it: a file whose wireframe or
 			   Envoltorio table is unreadable already has its own row above; giving it a fabricated
@@ -2907,6 +2931,58 @@ function gallery_strip_segments( $src ) {
 	return $out;
 }
 
+/**
+ * Every `<div class="sample" data-page="…">` inside ONE strip's own HTML (as `gallery_strip_segments()`
+ * hands it back), boundary-delimited the same way that function delimits strips: from one sample's
+ * start to the next sample's start, or the end of the strip — never by matching the closing `</div>`,
+ * because a page's real markup nests far too many divs for that to be reliable, and the generator's
+ * own loop proves siblings never interleave (`_build-gallery.php`: one `.sample` per page, in order).
+ */
+function gallery_page_segments( $strip_html ) {
+	if ( ! preg_match_all( '/<div\b[^>]*\bclass\s*=\s*"[^"]*\bsample\b[^"]*"[^>]*>/i', $strip_html, $m, PREG_OFFSET_CAPTURE ) ) {
+		return array();
+	}
+	$tags = $m[0];
+	$n    = count( $tags );
+	$out  = array();
+	for ( $i = 0; $i < $n; $i++ ) {
+		$tag  = $tags[ $i ][0];
+		$off  = $tags[ $i ][1];
+		$end  = ( $i + 1 < $n ) ? $tags[ $i + 1 ][1] : strlen( $strip_html );
+		$html = substr( $strip_html, $off, $end - $off );
+		$out[] = array(
+			'page' => preg_match( '/\bdata-page\s*=\s*"([^"]*)"/i', $tag, $pk ) ? trim( $pk[1] ) : '',
+			'arch' => preg_match( '/\bdata-arch\s*=\s*"([^"]*)"/i', $tag, $ak ) ? trim( $ak[1] ) : '',
+			'html' => $html,
+		);
+	}
+	return $out;
+}
+
+/**
+ * How many `<section class="sec …">` in $html carry `bleedband`, and how many carry `secrow` — the
+ * two counted shapes RT_TPL_ENVOLTORIO_RENDER_MISMATCH compares against a home archetype's own
+ * Envoltorio table. `sec_open()` (`_build-gallery.php`) writes at most one of the two extra classes
+ * per section, so the two counts never double-count the same tag.
+ */
+function gallery_section_shape_counts( $html ) {
+	$counts = array(
+		'bleed' => 0,
+		'row'   => 0,
+	);
+	if ( preg_match_all( '/<section\b[^>]*\bclass\s*=\s*"([^"]*)"/i', $html, $m ) ) {
+		foreach ( $m[1] as $cls ) {
+			$parts = preg_split( '/\s+/', trim( $cls ) );
+			if ( in_array( 'bleedband', $parts, true ) ) {
+				$counts['bleed']++;
+			} elseif ( in_array( 'secrow', $parts, true ) ) {
+				$counts['row']++;
+			}
+		}
+	}
+	return $counts;
+}
+
 /** Every `--container-max:<value>` declaration in a built asset, trimmed, in document order. */
 function gallery_container_max_values( $src ) {
 	if ( ! preg_match_all( '/--container-max\s*:\s*([^;]+);/i', $src, $m ) ) {
@@ -3241,6 +3317,65 @@ foreach ( $mockup_assets as $gal_path ) {
 				$gal_where . ' demo `' . $gal_pg_tpl . '` declares only one page (`' . implode( '', array_keys( $gal_pg_set ) )
 					. '`) — an Envato-grade demo names a home plus at least one inner page even when only the home is'
 					. ' built so far (D5); transitional until every surviving demo is multi-page, then ratchets to FAIL'
+			);
+		}
+	}
+
+	/* ---- RT_TPL_ENVOLTORIO_RENDER_MISMATCH ----
+	 * catalog-wrapper-integrity's OTHER half. RT_TPL_NO_ENVOLTORIO and RT_TPL_WRAPPER_DUPLICATE
+	 * (above, in the $tpl_families walk) only ever read the DOCUMENT; neither one opens this file.
+	 * `TPL-C-15`'s own hero used to hand-write its `<section>` tag instead of calling
+	 * `sec_open(..., 'bleed')`, so the table said "banda a sangre" and the build said "contained",
+	 * and both existing rows stayed green over the gap because neither reads built HTML.
+	 *
+	 * COUNTED, NOT POSITIONALLY MATCHED. The generator marks no `<section>` with which `COMP-*` it
+	 * renders, so a per-row walk would invent a mapping the generator itself never declares. Totals
+	 * survive without one: how many `bleedband` sections does the archetype's home actually render,
+	 * how many `secrow`, against how many unconditional rows the table declares of each.
+	 */
+	foreach ( $ENVOLTORIO_TABLE_ROWS as $env_tpl_id => $env_rows ) {
+		$env_declared_bleed = 0;
+		$env_declared_row   = 0;
+		foreach ( $env_rows as $env_comp => $env_raw ) {
+			if ( '*' === $env_comp || env_row_is_conditional( $env_raw ) ) {
+				continue;
+			}
+			$env_shp = env_shape( $env_raw );
+			if ( 'bleed' === $env_shp ) {
+				$env_declared_bleed++;
+			} elseif ( 'row' === $env_shp ) {
+				$env_declared_row++;
+			}
+		}
+		$env_arch_lc   = strtolower( $env_tpl_id );
+		$env_home_html = null;
+		foreach ( gallery_strip_segments( $gal_src ) as $env_seg ) {
+			if ( '' === $env_seg['tpl'] ) {
+				continue;
+			}
+			foreach ( gallery_page_segments( $env_seg['html'] ) as $env_pg ) {
+				if ( $env_arch_lc === $env_pg['arch'] && 'home' === $env_pg['page'] ) {
+					$env_home_html = $env_pg['html'];
+					break 2;
+				}
+			}
+		}
+		/* No demo backs this archetype in THIS asset yet — RT_GALLERY_AXIS_LEAK/RT_TPL_UNROUTABLE
+		 * own that gap, not this row, so it is silent here rather than inventing a 0-vs-N mismatch
+		 * for an archetype nobody has built. */
+		if ( null === $env_home_html ) {
+			continue;
+		}
+		$env_counts = gallery_section_shape_counts( $env_home_html );
+		if ( $env_counts['bleed'] !== $env_declared_bleed || $env_counts['row'] !== $env_declared_row ) {
+			add(
+				'RT_TPL_ENVOLTORIO_RENDER_MISMATCH',
+				'FAIL',
+				'html-mockup',
+				$gal_where . ' ' . $env_tpl_id . '\'s home renders ' . $env_counts['bleed'] . ' `bleedband` and '
+					. $env_counts['row'] . ' `secrow` section(s), but its own Envoltorio table declares '
+					. $env_declared_bleed . ' unconditional banda-a-sangre and ' . $env_declared_row
+					. ' fila row(s) — the document and the build disagree about which sections span the glass'
 			);
 		}
 	}
