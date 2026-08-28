@@ -461,7 +461,8 @@ therefore the one most easily forgotten. `RT_MOCKUP_AXES_MISMATCH` reads the lab
 `design-personalities.md` and names each axis that disagrees with both positions, so a half-done
 re-point FAILs instead of shipping as a site that is neither anchor.
 
-What that row does NOT check is the VALUE: a `scale: contained` label beside a hand-typed
-`--fs-h1-max: 53` passes, because the label agrees with the anchor. Copy the numbers from
-`design-system.md` § "Perceptual axes — token values" and never derive one — the `:root` comment
-has said so since the axes landed, and this is the half of it that still has no gate.
+That row also checks the VALUE: a `scale: contained` label beside a hand-typed `--fs-h1-max: 53`
+now FAILs even though the label agrees with the anchor, because `--fs-h1-max` disagrees with
+`contained`'s own row in `design-system.md` § "Perceptual axes — token values". Copy the numbers
+from that table and never derive one — the `:root` comment has said so since the axes landed, and
+this is the half of it that used to have no gate.

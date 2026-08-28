@@ -230,23 +230,54 @@ $FX_AXIS_POSITIONS = array(
 
 /* A conforming design-system.md: every position $FX_AXIS_POSITIONS names gets its OWN table row,
    backticked, once (`monumental` covers both scale and density, so it is de-duplicated rather than
-   repeated), with a token-shaped value beside it.
-   The value is `1` and not the old `x`: RT_AXIS_VALUE_MISSING no longer asks whether the position
-   NAME appears somewhere in the file, it reads the value cell on the position's own row and
-   requires something a builder could actually apply. `x` is an adjective with one letter. A bare
-   number is axis-agnostic on purpose -- this skeleton must stay neutral, so the blueprint-valued
-   form gets its own scenario instead of riding along in every fixture. */
+   repeated -- same first-axis-wins order as before; no fixture in this suite value-checks density
+   at `monumental`), with a token-shaped value beside it.
+   REAL numbers, transcribed verbatim from design-system.md's own tables, not the placeholder `1`
+   this fixture used before style-catalog PR 1e: RT_MOCKUP_AXES_MISMATCH's new value check
+   (axis_token_values()) reads THIS file exactly the way it reads the real one, so a `:root` token
+   fx_mockup()/fx_proof() declare has to agree with a REAL row here or every scenario using them
+   would carry a false FAIL that has nothing to do with what it tests -- the same trap this
+   fixture was already written once to avoid, for RT_AXIS_VALUE_MISSING, one check earlier. Column
+   SHAPE matches axis_token_props(): scale/ground need three cells, density/elevation one; a
+   position outside $real (composition has no token to check) keeps the neutral `1`. */
 function fx_ds_conforming() {
 	global $FX_AXIS_POSITIONS;
+	$real = array(
+		'scale'     => array(
+			'contained'  => '1.200 | 1.25 | 48',
+			'classic'    => '1.333 | 1.10 | 64',
+			'editorial'  => '1.500 | 0.95 | 88',
+			'monumental' => '1.618 | 0.82 | 120',
+		),
+		'ground'    => array(
+			'paper' => '#FFFFFF | #F6F7F8 | #15181A',
+			'warm'  => '#FFF3E3 | #F7E8D4 | #241C14',
+			'cool'  => '#F2F5F8 | #E8EDF3 | #141C24',
+			'ink'   => '#0E1113 | #171B1E | #F4F6F7',
+		),
+		'density'   => array(
+			'compact'    => '0.8',
+			'standard'   => '1.0',
+			'generous'   => '1.35',
+			'monumental' => '1.7',
+		),
+		'elevation' => array(
+			'none'        => 'none',
+			'hairline'    => '`0 0 0 1px var(--c-border)`',
+			'soft-shadow' => '`0 1px 2px rgba(0,0,0,.04)`',
+			'accent-glow' => '`0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent)`',
+		),
+	);
 	$seen = array();
 	$out  = "# Tokens fixture\n\n| position | value |\n|---|---|\n";
-	foreach ( $FX_AXIS_POSITIONS as $positions ) {
+	foreach ( $FX_AXIS_POSITIONS as $axis => $positions ) {
 		foreach ( $positions as $pos ) {
 			if ( isset( $seen[ $pos ] ) ) {
 				continue;
 			}
 			$seen[ $pos ] = true;
-			$out         .= '| `' . $pos . '` | 1 |' . "\n";
+			$val           = isset( $real[ $axis ][ $pos ] ) ? $real[ $axis ][ $pos ] : '1';
+			$out          .= '| `' . $pos . '` | ' . $val . ' |' . "\n";
 		}
 	}
 	return $out;
@@ -438,12 +469,17 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
  *              whole-file half of the scan gets a fixture; a `:root`-only reader misses it
  *   'faces'  — family => src, emitted as `@font-face` ahead of `:root`, exactly as production does
  */
-function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array(), array $band = array(), $anchor = null ) {
+function fx_mockup( array $omit = array(), array $outside = array(), array $fonts = array(), array $band = array(), $anchor = null, $fs_h1_max = null ) {
 	/* array( 'PERS-X', 'ground-position' ) — the anchor line plus the one label that has no token of
 	   its own to ride on. Default is the conforming pair; a scenario passes something else to make
 	   RT_MOCKUP_AXES_MISMATCH fire. */
 	$anchor_pid    = ( null === $anchor ) ? 'PERS-INSTITUTIONAL' : $anchor[0];
 	$anchor_ground = ( null === $anchor ) ? 'cool' : $anchor[1];
+	/* style-catalog PR 1e: $fs_h1_max hand-types a WRONG number beside a label that still reads
+	   `contained` — the LABEL stays correct while the VALUE drifts, which is the one shape $anchor
+	   above cannot produce (it corrupts every label at once). Default null keeps the conforming 48,
+	   byte-identical to every scenario written before this parameter existed. */
+	$fs_h1_max = ( null === $fs_h1_max ) ? '48' : $fs_h1_max;
 	/* One source for every declaration so `:root` and $outside emit byte-identical text — a
 	   fixture whose two copies differed could pass the scoping test for the wrong reason. */
 	/* PERS-INSTITUTIONAL throughout — the same anchor the real corporate-mockup.html stands at, and
@@ -457,7 +493,7 @@ function fx_mockup( array $omit = array(), array $outside = array(), array $font
 	$axis_decl = array(
 		'--type-ratio' => '--type-ratio: 1.200;  /* scale: contained */',
 		'--display-lh' => '--display-lh: 1.25;',
-		'--fs-h1-max'  => '--fs-h1-max: 48;',
+		'--fs-h1-max'  => '--fs-h1-max: ' . $fs_h1_max . ';',
 		'--sp-scale'   => '--sp-scale: 1.0;  /* density: standard */',
 		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;  /* elevation: soft-shadow */',
 		'composition'  => '/* composition: LP-CENTERED */',
@@ -4172,6 +4208,41 @@ fx_base( $r234 );
 list( , $out234 ) = fx_run_ok( $audit, $r234 );
 ok( array() === fx_lines_with( $out234, array( 'RT_CHASSIS_NOT_BUILT' ) ), 'no generator, no chassis -> still no row: the gate is conditioned on the generator, same as its sibling', $out234 );
 fx_rrmdir( $r234 );
+
+/* ---------------------------------------------------------------------------
+   style-catalog PR 1e (tasks.md 1e.1/1e.2/1e.3) — RT_MOCKUP_AXES_MISMATCH becomes a VALUE check,
+   not only a LABEL check. mockup-guide.md:455-458 admitted the gap in prose: a `scale: contained`
+   marker beside a hand-typed `--fs-h1-max: 53` used to pass, because the label agreed with the
+   anchor and nothing read the number. r235 is that exact fixture — genuinely RED against the
+   unmodified audit (see apply-progress for the stash/un-stash proof), GREEN once
+   axis_token_values()/root_token_value() compare the two. r236 is the explicit positive control:
+   label AND value agree, stays silent.
+   --------------------------------------------------------------------------- */
+
+echo "--- label agrees with the anchor, value does not: the gap the row used to have ---\n";
+$r235 = fx_tmp_root();
+fx_base( $r235 );
+fx( $r235, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup( array(), array(), array(), array(), null, '53' ) );
+list( , $out235 ) = fx_run_ok( $audit, $r235 );
+ok( 'FAIL' === fx_row_level( $out235, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'scale `contained` beside --fs-h1-max:53 FAILs even though the label matches PERS-INSTITUTIONAL', fx_row_level( $out235, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ) );
+/* Naming the disagreeing token is the requirement (client-chassis-generation spec, "Label agrees,
+   value does not"): both the actual 53 and the table's own 48 must appear, or the message sends
+   the reader back to diff design-system.md by eye — exactly what this row exists to avoid. */
+ok( array() !== fx_lines_with( $out235, array( 'RT_MOCKUP_AXES_MISMATCH', '--fs-h1-max', '`53`' ) ), 'and names the actual wrong value', $out235 );
+ok( array() !== fx_lines_with( $out235, array( 'RT_MOCKUP_AXES_MISMATCH', '`48`' ) ), 'and the value contained actually holds, per design-system.md', $out235 );
+/* The OTHER four axes still agree in this fixture, so they must not be swept into the count: a
+   message over-reporting "5 of 5" here would misdirect the reader to re-check axes that are fine. */
+ok( array() === fx_lines_with( $out235, array( 'RT_MOCKUP_AXES_MISMATCH', 'ground `cool`' ) ), 'and an axis whose label AND value both agree is not reported', $out235 );
+fx_rrmdir( $r235 );
+
+echo "--- label and value both agree: the row stays silent ---\n";
+$r236 = fx_tmp_root();
+fx_base( $r236 );
+fx( $r236, 'skills/html-mockup/assets/corporate-mockup.html', fx_mockup() );
+list( $code236, $out236 ) = fx_run_ok( $audit, $r236 );
+ok( array() === fx_lines_with( $out236, array( 'RT_MOCKUP_AXES_MISMATCH' ) ), 'a conforming mockup does not FAIL the value check', $out236 );
+ok( 0 === $code236, 'and the tree exits code 0', $code236 );
+fx_rrmdir( $r236 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of

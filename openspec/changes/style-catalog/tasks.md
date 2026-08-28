@@ -216,11 +216,44 @@ reverse-order only (see Chain topology).
 > reproduced attempt 2's failure with new nouns — which is the one outcome the proposal names
 > as disqualifying.
 
-- [ ] 1e.1 RED: fixture — label `scale: contained` beside `--fs-h1-max: 53` (wrong value) → confirm
-      `RT_MOCKUP_AXES_MISMATCH` does NOT fire today (the gap).
-- [ ] 1e.2 Implement `axis_token_values()` over `axis_rows_for()` (`:1498`); rewrite
-      `RT_MOCKUP_AXES_MISMATCH` (region `:2090-2122`) to compare token value, not label.
-- [ ] 1e.3 GREEN: mismatch fixture FAILs; label-and-value-agree fixture stays silent; full chain green.
+- [x] 1e.1 RED: fixture — label `scale: contained` beside `--fs-h1-max: 53` (wrong value) → confirm
+      `RT_MOCKUP_AXES_MISMATCH` does NOT fire today (the gap). **Verified genuinely red**: r235
+      (label agrees, `--fs-h1-max: 53`) run against the unmodified audit (`git stash` of just
+      `framework-audit.php`, test fixtures kept) FAILed its 3 own assertions exactly as expected —
+      `<0 rows matched, expected exactly 1>` — then `git stash pop` restored the implementation and
+      the same fixture went GREEN.
+- [x] 1e.2 Implemented `axis_token_props()`/`axis_token_values()` over `axis_rows_for()`
+      (`framework-audit.php:1415`) and `root_token_value()` for the `:root` side; rewrote
+      `RT_MOCKUP_AXES_MISMATCH` (`:2189-2219` after the new functions land at `:1483-1545`) to
+      compare, per axis whose LABEL already agrees with the anchor, one representative token's
+      VALUE against `design-system.md`'s own row for that position: scale's `--fs-h1-max` (the
+      exact token design.md's own "Value check" paragraph names), ground's `--c-bg`, density's
+      `--sp-scale`, elevation's `--elev-rest`. `--elev-hover` and scale's other two columns
+      (`--type-ratio`/`--display-lh`) are read for correct column alignment but not independently
+      compared — one token per axis is enough to catch a mis-typed position and keeps the checked
+      surface to exactly what `fx_mockup()`'s real-value fixtures and the real repo's six
+      Anchor-declaring files actually exercise; `--elev-hover` specifically rides on the same label
+      as `--elev-rest` and is not independently re-pointed. A label mismatch (already FAILing)
+      short-circuits the value check for that axis, so one `$mockup_wrong` entry stays per axis and
+      "N of 5 axes disagree" keeps counting axes, not tokens.
+      **Cross-cutting fixture fix, discovered mid-implementation, not pre-declared in this task**:
+      `tests/test-framework-audit.php`'s shared `fx_ds_conforming()` (the base `design-system.md`
+      EVERY `fx_base()`-rooted scenario in the suite uses) previously emitted a neutral placeholder
+      value (`1`) for every axis position, correct for `RT_AXIS_VALUE_MISSING`'s "does some value
+      exist" check but wrong for a VALUE-equality check — it made the new value check FAIL against
+      the framework's OWN passing fixtures (`fx_mockup()`'s real production numbers never equalled
+      the placeholder `1`), an 18-assertion regression across dozens of scenarios. Fixed by
+      transcribing `design-system.md`'s real per-position values into `fx_ds_conforming()` (column
+      shape matching `axis_token_props()`), which is the same trap this fixture's own comment
+      already named once for `RT_AXIS_VALUE_MISSING`. Not a design gap — a necessary consequence of
+      making the value check real anywhere it runs, including fixtures.
+- [x] 1e.3 GREEN: r235 (mismatch) FAILs, naming `--fs-h1-max` `53` against `contained`'s `48`;
+      r236 (label-and-value-agree, plain `fx_mockup()`) stays silent, exit 0; full chain green (see
+      apply-progress for the verbatim run). Real-repo audit unchanged at 0 FAIL/4 WARN — all six
+      `Anchor:`-declaring files (`corporate-mockup.html`, `ecommerce-mockup.html`, both generated
+      chassis, both proof mockups) verified by hand against `design-system.md`'s real table before
+      implementing, and confirmed silent by the real audit run after: no pre-existing label/value
+      disagreement found in any shipped asset.
 - [ ] 1f.1 Confirm full chain is green with generator chassis in place, BEFORE deleting anything
       (Slice 1's own rollback constraint: deletion is the last step).
 - [ ] 1f.2 Delete `html-mockup/assets/corporate-mockup.html`, `ecommerce-mockup.html`.

@@ -1479,6 +1479,74 @@ function axis_value_kind( $cell ) {
 	return array( '', '' );
 }
 
+/**
+ * The custom properties design-system.md's per-axis table names, in COLUMN ORDER — a cell at
+ * index $i in axis_rows_for()'s output is that property's value for the row's position (scale's
+ * table is `| Position | --type-ratio | --display-lh | --fs-h1-max |`, so index 2 is --fs-h1-max).
+ * Composition names none here: its positions are a layout blueprint id, and the marker comment
+ * (parsed by axis_signature_of_block()/the mismatch loop below) already IS that value, so the
+ * label check is also the value check for that one axis and nothing further belongs here.
+ * Elevation names only --elev-rest, not its --elev-hover sibling: the two ride on ONE label and
+ * the rest value alone is enough to catch a mis-typed position, which keeps this row from also
+ * having to police a second, easily-derived shadow nobody re-points independently.
+ */
+function axis_token_props( $axis ) {
+	$props = array(
+		'scale'     => array( '--type-ratio', '--display-lh', '--fs-h1-max' ),
+		'ground'    => array( '--c-bg', '--c-bg-alt', '--c-text' ),
+		'density'   => array( '--sp-scale' ),
+		'elevation' => array( '--elev-rest' ),
+	);
+	return isset( $props[ $axis ] ) ? $props[ $axis ] : array();
+}
+
+/**
+ * design-system.md's own value for one axis position, keyed by the custom property it belongs to.
+ *
+ * axis_value_kind() decides whether a cell HAS a token worth reading — RT_AXIS_VALUE_MISSING's own
+ * gate, reused here rather than duplicated — but its payload is not reused directly: that function
+ * only has to prove a token EXISTS, so a backticked cell holding several space-separated words (an
+ * elevation box-shadow) is deliberately truncated to its first word there. Correct for "is there a
+ * value", wrong for "what is the value", so this reads the cell itself: the full backticked run
+ * when the cell opens with one (the closing backtick ends it, same prefix match axis_value_kind()
+ * uses, so trailing prose like "`none` — separation is whitespace" stops at `none`), or the bare
+ * cell text for an unbackticked one (scale's and density's plain numbers).
+ */
+function axis_token_values( $src, $axis, $pos ) {
+	$props = axis_token_props( $axis );
+	$out   = array();
+	foreach ( axis_rows_for( $src, $pos ) as $cells ) {
+		foreach ( $cells as $i => $cell ) {
+			if ( ! isset( $props[ $i ] ) || isset( $out[ $props[ $i ] ] ) ) {
+				continue;
+			}
+			list( $kind ) = axis_value_kind( $cell );
+			if ( '' === $kind ) {
+				continue;
+			}
+			$full = trim( $cell );
+			if ( preg_match( '/^`([^`]+)`/', $full, $bm ) ) {
+				$full = $bm[1];
+			}
+			$out[ $props[ $i ] ] = strtolower( trim( preg_replace( '/\s+/', ' ', $full ) ) );
+		}
+	}
+	return $out;
+}
+
+/**
+ * One custom property's value out of a `:root` block, normalised the same way
+ * axis_token_values() normalises design-system.md's side, so the two are comparable one for one.
+ * Same (?![\w-]) boundary axis_signature_of_block() needs for --c-bg vs --c-bg-alt, generalised to
+ * any property name so it also guards --elev-rest against a longer neighbour.
+ */
+function root_token_value( $block, $prop ) {
+	if ( preg_match( '/' . preg_quote( $prop, '/' ) . '(?![\w-])\s*:\s*([^;}]+)/', $block, $m ) ) {
+		return strtolower( trim( preg_replace( '/\s+/', ' ', $m[1] ) ) );
+	}
+	return null;
+}
+
 /* Top level, not inside the `else` above: the axes $PERS_AXES declares exist whether or not the
    catalog file does, so a missing catalog must not also silence this check.
    A position with no value is an adjective. The old catalog was entirely adjectives, which is
@@ -1933,11 +2001,14 @@ foreach ( $mockup_assets as $mockup_path ) {
 	 * the same` since the axes landed, and nothing read it: writing the explanation is not installing
 	 * the gate.
 	 *
-	 * WHAT IT DOES NOT CHECK, said plainly: the LABEL, not the value. A `scale: contained` marker
-	 * beside a hand-typed `--fs-h1-max: 53` still passes, because the label agrees with the anchor.
-	 * Value-level agreement belongs to design-system.md's token table and is a different row. This one
-	 * catches the axis that was never re-pointed AT ALL, which is the one that survives a re-point
-	 * because nobody diffs a comment.
+	 * BOTH THE LABEL AND THE VALUE, not the label alone (style-catalog PR 1e closed the gap this
+	 * comment used to admit here: a `scale: contained` marker beside a hand-typed `--fs-h1-max: 53`
+	 * used to pass, because the label agreed with the anchor and nothing read the number).
+	 * axis_token_values() reads design-system.md's own token table for the position the label
+	 * claims and root_token_value() reads the same property back out of `:root`; the two must
+	 * agree or the row FAILs, naming the token and both values. This still catches the axis that
+	 * was never re-pointed AT ALL — the label mismatch below fires first and the value check is
+	 * skipped for that axis, since a wrong label already says everything the value would.
 	 *
 	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The six
 	 * named files must DECLARE an anchor -- a missing declaration there is the file going quiet, and a
@@ -2123,6 +2194,26 @@ foreach ( $mockup_assets as $mockup_path ) {
 			$mockup_got  = isset( $mockup_labels[ $mockup_axis ] ) ? $mockup_labels[ $mockup_axis ] : '(none)';
 			if ( $mockup_got !== $mockup_want ) {
 				$mockup_wrong[] = $mockup_axis . ' `' . $mockup_got . '` (' . $mockup_pid . ' holds `' . $mockup_want . '`)';
+				continue;
+			}
+			/* The label agrees with the anchor — now does the :root TOKEN agree with what
+			   design-system.md's own table gives that position? One $mockup_wrong entry per axis,
+			   not per token, so "N of 5 axes disagree" below still counts axes: scale alone has
+			   three columns, and a run of three PROPERTY-level entries for one axis would inflate
+			   that count past 5 and misreport how many axes actually need fixing. */
+			$mockup_want_values = axis_token_values( $ds_src, $mockup_axis, $mockup_want );
+			$mockup_bad_tokens  = array();
+			foreach ( axis_token_props( $mockup_axis ) as $mockup_prop ) {
+				if ( ! isset( $mockup_want_values[ $mockup_prop ] ) ) {
+					continue;
+				}
+				$mockup_actual = root_token_value( $mockup_root, $mockup_prop );
+				if ( null !== $mockup_actual && $mockup_actual !== $mockup_want_values[ $mockup_prop ] ) {
+					$mockup_bad_tokens[] = $mockup_prop . ' `' . $mockup_actual . '` (' . $mockup_want . ' holds `' . $mockup_want_values[ $mockup_prop ] . '`)';
+				}
+			}
+			if ( array() !== $mockup_bad_tokens ) {
+				$mockup_wrong[] = $mockup_axis . ' label `' . $mockup_got . '` matches ' . $mockup_pid . ' but its token(s) do not: ' . implode( ', ', $mockup_bad_tokens );
 			}
 		}
 		if ( array() !== $mockup_wrong ) {
