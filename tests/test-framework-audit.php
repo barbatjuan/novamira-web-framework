@@ -3380,6 +3380,81 @@ ok( array() === fx_lines_with( $out143, array( 'RT_MOCKUP_DISCLOSURE_STATE' ) ),
 fx_rrmdir( $r143 );
 
 /* ---------------------------------------------------------------------------
+   style-catalog PR 1c (tasks.md 1c.1) — el chasis de ecommerce, `assets/chassis/ecommerce.html`.
+
+   VERIFICADO EN VIVO ANTES DE ESCRIBIR ESTE BLOQUE (misma disciplina que 1b.1, ver el informe de
+   esta fase): `html_assets_deep()` (:1609) es un glob recursivo por EXTENSION, ciego al nombre de
+   archivo, y `RT_GALLERY_NOT_DISTINCT`/`RT_MOCKUP_NO_AXES`/`RT_MOCKUP_ANCHOR_UNDECLARED`/
+   `RT_MOCKUP_AXES_MISMATCH` no leen el nombre del fichero en ningun punto de su logica — el
+   mecanismo que r140/r141 fijaron para `corporate.html` ya cubre `ecommerce.html` por construccion,
+   asi que repetir ese par aqui no fijaria ningun comportamiento nuevo del auditor. Y la afirmacion
+   literal de 1c.1 (RT_MOCKUP_NO_AXES en rojo antes de escribir el cuerpo) tampoco se sostiene por la
+   misma razon que en 1b.1: el `:root` del chasis hereda de `$css` desde el shell de PR 1a, axis-
+   completo independientemente de si el `<body>` tiene contenido — confirmado corriendo
+   framework-audit.php contra el repo real en el estado shell-only de este PR (0 FAIL / 4 WARN, el
+   placeholder `<!-- chassis body markup (site type: ecommerce): not yet generated -->` no produce
+   ninguna fila RT_MOCKUP_*).
+
+   LO QUE SI ESTA GENUINAMENTE SIN CUBRIR: `assets/chassis/ecommerce.html` no tiene NINGUNA fixture
+   propia en esta suite — cero regresion sintetica en esa ruta especifica — y la forma EXACTA que
+   1c.2 emite para el acordeon de PDP es DISTINTA de la de 1b (tres `<details>` bajo `class="qas"`,
+   no dos bajo `class="faqlist"` — `disclosure_list_html()` (:13155) trata ambos wrappers igual, pero
+   ningun test hasta ahora ejercito tres filas ni la ruta `ecommerce.html`). Estas cuatro
+   comprobaciones fijan ambas cosas: silencio en la ruta correcta para el fichero hermano, y un par
+   RED→GREEN genuino contra la forma real de tres filas. */
+
+echo "--- el chasis de ecommerce en la ruta correcta tambien calla en las cuatro filas RT_MOCKUP_*/RT_GALLERY_NOT_DISTINCT ---\n";
+$r144 = fx_tmp_root();
+fx_base( $r144 );
+fx( $r144, 'skills/html-mockup/assets/chassis/ecommerce.html', fx_mockup() );
+list( , $out144 ) = fx_run_ok( $audit, $r144 );
+ok( array() === fx_lines_with( $out144, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'ecommerce.html es el mismo hermano de assets/gallery/ que corporate.html: tampoco lo evalua esa fila', $out144 );
+ok( array() === fx_lines_with( $out144, array( 'RT_MOCKUP_NO_AXES' ) ), 'y hereda el :root completo de $css igual que el chasis corporativo', $out144 );
+ok( array() === fx_lines_with( $out144, array( 'RT_MOCKUP_ANCHOR_UNDECLARED' ) ), 'declara su ancla', $out144 );
+ok( array() === fx_lines_with( $out144, array( 'RT_MOCKUP_AXES_MISMATCH' ) ), 'y sus posiciones concuerdan con la que declara', $out144 );
+fx_rrmdir( $r144 );
+
+/* La forma EXACTA que `chassis_ecom_page_pdp()` emite via `disclosure_list_html($P['acc'],'qas')`
+   (mockup-guide.md § COMP-ACCORDION): tres `<details>`, solo la primera abierta — no dos, como en
+   el FAQ corporativo. Se rompe a proposito para probar que la fila vigila esta forma tambien, no
+   solo la de dos filas que 1b ya fijo. */
+echo "--- y un acordeon PDP roto (tres <details>, ninguna abierta) EN EL CHASIS DE ECOMMERCE tambien FALLA ---\n";
+$r145 = fx_tmp_root();
+fx_base( $r145 );
+fx(
+	$r145,
+	'skills/html-mockup/assets/chassis/ecommerce.html',
+	str_replace(
+		'</style>',
+		"</style>\n<div class=\"qas\"><details><summary>Descripción</summary><p>a</p></details>"
+			. '<details><summary>Envíos</summary><p>b</p></details>'
+			. '<details><summary>Devoluciones</summary><p>c</p></details></div>',
+		fx_mockup()
+	)
+);
+list( , $out145 ) = fx_run_ok( $audit, $r145 );
+ok( 'FAIL' === fx_row_level( $out145, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ), 'un acordeon PDP de tres filas que no abre ninguna FALLA igual que el FAQ corporativo de dos', fx_row_level( $out145, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ) );
+fx_rrmdir( $r145 );
+
+echo "--- y la forma correcta (tres <details>, solo la primera abierta) no produce fila ---\n";
+$r146 = fx_tmp_root();
+fx_base( $r146 );
+fx(
+	$r146,
+	'skills/html-mockup/assets/chassis/ecommerce.html',
+	str_replace(
+		'</style>',
+		"</style>\n<div class=\"qas\"><details open><summary>Descripción</summary><p>a</p></details>"
+			. '<details><summary>Envíos</summary><p>b</p></details>'
+			. '<details><summary>Devoluciones</summary><p>c</p></details></div>',
+		fx_mockup()
+	)
+);
+list( , $out146 ) = fx_run_ok( $audit, $r146 );
+ok( array() === fx_lines_with( $out146, array( 'RT_MOCKUP_DISCLOSURE_STATE' ) ), 'la forma que realmente genera chassis_ecom_page_pdp() (primera de tres abierta) no produce fila', $out146 );
+fx_rrmdir( $r146 );
+
+/* ---------------------------------------------------------------------------
    RT_GALLERY_NOT_DISTINCT / RT_GALLERY_NO_MANIFEST, and the RECURSIVE glob the first of them
    needed. A gallery is many TPL-* x PERS-* cards in ONE document: RT_MOCKUP_NO_AXES asks each FILE
    whether it can express an axis and RT_PROOF_NOT_DISTINCT compares exactly two hardcoded files,

@@ -17542,6 +17542,337 @@ function chassis_corporate_body( $brand ) {
 	return implode( "\n", $o );
 }
 
+// ── Ecommerce chassis (tasks.md 1c) ───────────────────────────────────────────────────────────
+//
+// SAME CONSTRAINT AS CORPORATE, ABOVE: `head_ecommerce()` (:10698), `crumbs_html()` (:10715),
+// `footer_html()` (:14170) and `product_html()`/`card_html()` all route through `ihref_for_label()`
+// or `img()`, neither of which a standalone chassis can satisfy (see the banner above
+// `chassis_ph()`, :17230). Everything reused here is the same four dependency-free helpers plus
+// `chassis_ph()`/`chassis_card_html()`/`chassis_crumb_html()` from the corporate section — none of
+// them are corporate-specific, all six were written generic on purpose (apply-progress, PR 1b's
+// cross-PR note). Only the header/footer need an ecommerce-specific variant: a cart icon + count
+// badge replaces the corporate CTA button, per mockup-guide.md's header/footer contract.
+//
+// SECTION VOCABULARY IS THE GALLERY'S OWN, NOT `ecommerce-mockup.html`'s: `.mini`/`.prods`/
+// `.carousel`/`.bar`/`.bens`/`.faq`/`.acc`/`.pdp`/`.pdp-gal`/`.pdp-buy`/`.opts`/`.band contactblock`/
+// `.directlist` are the classes `strip_ecommerce()` (:14221) and `page_pdp()` (:10864) already style
+// in `$css` — reusing them means the chassis renders styled from the FIRST run, with zero new CSS
+// (unlike the standalone `ecommerce-mockup.html`, which carries its own separate, hand-written
+// stylesheet nothing here shares). Cart and checkout have no `strip_*`/`page_*` precedent in the
+// gallery corpus (WooCommerce builds the functional versions; mockup-guide.md calls checkout
+// "LAYOUT ONLY"), so both reuse the closing-band/lead-form vocabulary (`.band closing sober`,
+// `.formwrap`, `.leadform`, `.field`) that `page_contact_enquiry()`-shaped pages already carry,
+// rather than inventing a class nothing else in $css defines.
+function chassis_product_html( $h3, $price ) {
+	return '<article class="card prod">' . chassis_ph( '1/1' ) . '<div class="body"><h3>' . h( $h3 ) . '</h3>'
+		. '<p class="price">€' . h( $price ) . '</p>'
+		. '<button class="btn btn-primary btn-sm" type="button">Añadir</button></div></article>';
+}
+
+/** COMP-HEADER, ecommerce variant: cart icon + count badge instead of the corporate CTA button
+    (mockup-guide.md § "Shared" header/footer rule). Global, OUTSIDE every `.page`, same as
+    `chassis_head_html()` (:17257). */
+function chassis_head_ecommerce_html( $brand, $nav ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<a class="logo" data-t="home" aria-label="' . h( $brand ) . ' — inicio">' . h( $brand ) . '</a>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $nav as $n ) {
+		$o .= '<a data-t="' . h( $n[1] ) . '">' . h( $n[0] ) . '</a>';
+	}
+	return $o . '</nav><a class="cart" data-t="cart" aria-label="Carrito, 3 productos">Carrito <b>3</b></a>'
+		. '</div></div></header>';
+}
+
+/** COMP-FOOTER, ecommerce nav items. Same shape as `chassis_foot_html()` (:17268). */
+function chassis_foot_ecommerce_html( $brand ) {
+	return '<footer class="site-foot"><div class="canvas"><div class="fnav">'
+		. '<span class="muted small">' . h( $brand ) . '</span>'
+		. '<a data-t="shop">Tienda</a><a data-t="about">Nosotros</a><a data-t="contact">Contacto</a></div>'
+		. '<p class="legal">Maqueta estructural — sin datos ni fotografías finales.</p></div></footer>';
+}
+
+$CHASSIS_NAV_ECOM = array( array( 'Tienda', 'shop' ), array( 'Nosotros', 'about' ), array( 'Contacto', 'contact' ) );
+
+/** HOME · TPL-E-01 shape — `strip_ecommerce()`'s (:14221) section order minus the announcement bar
+    (no real cart/session to announce anything about yet): hero, categorías, destacados, garantías,
+    newsletter. Header/footer are NOT here; `chassis_ecommerce_body()` emits them once. */
+function chassis_ecom_page_home() {
+	$o   = array();
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Colección"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Colección Otoño</span>'
+		. '<h1>La forma sigue al cuerpo</h1>'
+		. '<p class="lede muted">Fibras naturales, moldería atemporal. Texto de maqueta.</p>'
+		. '<div class="ctas"><a class="btn btn-outline" data-t="shop">Ver colección</a></div></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec cats grid-sec bg-alt" aria-label="Categorías"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Explorar</span><h2>Categorías</h2></div>'
+		. '<div class="items cols-4">'
+		. chassis_card_html( 'Remeras', 'Ver colección' )
+		. chassis_card_html( 'Pantalones', 'Ver colección' )
+		. chassis_card_html( 'Abrigos', 'Ver colección' )
+		. chassis_card_html( 'Accesorios', 'Ver colección' )
+		. '</div></div></section>';
+	$o[] = '<section class="sec prods grid-sec" aria-label="Destacados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Selección</span><h2>Destacados</h2></div>'
+		. '<div class="items grid-prod">'
+		. chassis_product_html( 'Camisa lino crudo', '68,00' )
+		. chassis_product_html( 'Pantalón sastrero', '94,00' )
+		. chassis_product_html( 'Trench algodón', '145,00' )
+		. chassis_product_html( 'Sweater lana', '82,00' )
+		. '</div></div></section>';
+	$o[] = '<section class="sec bar" aria-label="Garantías"><div class="canvas"><div class="items bens">';
+	foreach (
+		array(
+			array( 'Envío a todo el país', 'Gratis desde €90' ),
+			array( 'Cambios sin costo', '30 días' ),
+			array( 'Pago seguro', 'Protección total' ),
+		) as $b
+	) {
+		$o[] = '<div class="ben"><span class="bicon" aria-hidden="true">'
+			. '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"'
+			. ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+			. '<path d="M20 6 9 17l-5-5"/></svg></span>'
+			. '<b>' . h( $b[0] ) . '</b><span class="muted small">' . h( $b[1] ) . '</span></div>';
+	}
+	$o[] = '</div></div></section>';
+	$o[] = '<section class="sec band closing sober" aria-label="Newsletter"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Comunidad MARCA</span>'
+		. '<h2>10% en tu primera compra</h2><p class="muted">Sumate y recibí lanzamientos antes que nadie.</p>'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">'
+		. '<div class="field"><label for="chassis-e-news">Email</label><input id="chassis-e-news" name="mail" type="email"></div>'
+		. '<button class="btn btn-primary" type="submit">Suscribirme</button></form></div></div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** TIENDA · `strip_ecommerce()`'s COMP-PRODUCT-GRID (:14245), as a full catalog listing rather than
+    a mini-hero teaser — `page_head_html()` reused verbatim, `.items grid-prod cols-4` reused from
+    `page_pdp()`'s related-carousel (:10937). */
+function chassis_ecom_page_shop() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Tienda' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Catálogo',
+			'h1'      => 'Tienda',
+			'lede'    => 'Edición corta, fibras naturales. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec prods grid-sec" aria-label="Productos"><div class="canvas"><div class="items grid-prod cols-4">';
+	foreach (
+		array(
+			array( 'Camisa lino crudo', '68,00' ),
+			array( 'Pantalón sastrero', '94,00' ),
+			array( 'Trench algodón', '145,00' ),
+			array( 'Sweater lana', '82,00' ),
+			array( 'Camisa oxford', '59,00' ),
+			array( 'Vestido midi', '110,00' ),
+			array( 'Blazer lino', '135,00' ),
+			array( 'Falda plisada', '72,00' ),
+		) as $p
+	) {
+		$o[] = chassis_product_html( $p[0], $p[1] );
+	}
+	$o[] = '</div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** FICHA DE PRODUCTO · `page_pdp()`'s (:10864) shape: `.pdp-gal`/`.pdp-buy`/`.opts`/`.field.qty`
+    reused verbatim, `chassis_ph()` where `img()` would fail. The `.acc`/`qas` accordion is the
+    exact shape `tests/test-framework-audit.php`'s new PR 1c fixtures lock (r145/r146): three
+    `<details>`, only the first `open`. */
+function chassis_ecom_page_pdp() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Camisa lino crudo' );
+	$o[] = '<main>';
+	$o[] = '<section class="sec pdp" aria-label="Camisa lino crudo"><div class="canvas">'
+		. '<div class="pdp-gal">' . chassis_ph( '1/1' )
+		. '<ul class="pdp-thumbs"><li>' . chassis_ph( '1/1' ) . '</li><li>' . chassis_ph( '1/1' ) . '</li></ul></div>'
+		. '<div class="pdp-buy"><h1>Camisa lino crudo</h1>'
+		. '<p class="price pdp-price">€68,00</p>'
+		. '<p class="muted">Lino europeo, corte holgado, botones de coco. Texto de maqueta.</p>'
+		. '<fieldset class="opts"><legend>Talle</legend>'
+		. '<label class="opt" for="chassis-pdp-op0"><input type="radio" id="chassis-pdp-op0" name="chassis-pdp-talle" checked><span>S</span></label>'
+		. '<label class="opt" for="chassis-pdp-op1"><input type="radio" id="chassis-pdp-op1" name="chassis-pdp-talle"><span>M</span></label>'
+		. '<label class="opt" for="chassis-pdp-op2"><input type="radio" id="chassis-pdp-op2" name="chassis-pdp-talle"><span>L</span></label>'
+		. '</fieldset>'
+		. '<div class="field qty"><label for="chassis-pdp-qty">Cantidad</label><input id="chassis-pdp-qty" type="number" value="1" min="1"></div>'
+		. '<button class="btn btn-primary" type="button">Agregar al carrito</button>'
+		. '<p class="small muted pdp-ship">Envío sin cargo desde €90 · 3 cuotas sin interés</p></div></div></section>';
+	$o[] = '<section class="sec acc grid-sec bg-alt" aria-label="Detalle"><div class="canvas">';
+	$o[] = disclosure_list_html(
+		array(
+			array( 'Descripción', '100% lino. Corte relajado. Texto de maqueta.' ),
+			array( 'Envíos', '24–72 h en península. Gratis desde €90.' ),
+			array( 'Devoluciones', '30 días, sin costo.' ),
+		),
+		'qas'
+	);
+	$o[] = '</div></section>';
+	$o[] = '<section class="sec carousel grid-sec" aria-label="Relacionados"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Completá el look</span><h2>También te puede gustar</h2></div>'
+		. '<div class="items grid-prod cols-4">'
+		. chassis_product_html( 'Pantalón sastrero', '94,00' )
+		. chassis_product_html( 'Trench algodón', '145,00' )
+		. chassis_product_html( 'Sweater lana', '82,00' )
+		. chassis_product_html( 'Camisa oxford', '59,00' )
+		. '</div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** CARRITO — no `strip_*`/`page_*` precedent in the gallery corpus (same "genuinely new page shape"
+    situation `chassis_page_cases()` (:17427-17429) documented for corporate). Reuses `.items cols-3`
+    for the line items and the closing-band vocabulary (`.sec band closing sober`/`.ctas`) for the
+    summary + CTA, so no chassis-only CSS is needed. */
+function chassis_ecom_page_cart() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Carrito' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Tu carrito',
+			'h1'      => 'Carrito (3)',
+			'lede'    => 'Revisá tu pedido antes de continuar. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec cart grid-sec" aria-label="Productos en el carrito"><div class="canvas">'
+		. '<div class="items cols-3">'
+		. chassis_product_html( 'Camisa lino crudo', '68,00' )
+		. chassis_product_html( 'Pantalón sastrero', '94,00' )
+		. chassis_product_html( 'Sweater lana', '82,00' )
+		. '</div></div></section>';
+	$o[] = '<section class="sec band closing sober" aria-label="Resumen"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Resumen</span><h2>Total €244,00</h2>'
+		. '<p class="muted">Envío gratis en este pedido.</p>'
+		. '<div class="ctas"><a class="btn btn-primary" data-t="checkout">Finalizar compra</a>'
+		. '<a class="btn btn-outline" data-t="shop">Seguir comprando</a></div></div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** CHECKOUT — "LAYOUT ONLY" per mockup-guide.md and `ecommerce-mockup.html`'s own note:
+    WooCommerce builds the functional one. Reuses `page_contact_enquiry()`'s form/direct-list
+    vocabulary (`.band contactblock`/`.formwrap`/`.leadform`/`.field`/`.directlist`/`.dlabel` —
+    the exact classes `chassis_page_contact()` (:17493) already proved pass every mockup rule)
+    instead of inventing a checkout-specific stylesheet nothing in $css defines. */
+function chassis_ecom_page_checkout() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Checkout' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Checkout',
+			'h1'      => 'Finalizar compra',
+			'lede'    => 'Solo estructura de layout — el checkout funcional (pagos, envío, validación) lo construye WooCommerce nativo.',
+		)
+	);
+	$o[] = '<section class="sec band contactblock" aria-label="Datos de envío y pago"><div class="canvas">'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">'
+		. '<div class="field"><label for="chassis-co-name">Nombre y apellido</label><input id="chassis-co-name" name="name" type="text"></div>'
+		. '<div class="field"><label for="chassis-co-mail">Email</label><input id="chassis-co-mail" name="mail" type="email"></div>'
+		. '<div class="field"><label for="chassis-co-addr">Dirección</label><input id="chassis-co-addr" name="addr" type="text"></div>'
+		. '<div class="field"><label for="chassis-co-city">Ciudad</label><input id="chassis-co-city" name="city" type="text"></div>'
+		. '<div class="field"><label for="chassis-co-pay">Pago</label>' . chassis_ph( '16/9' ) . '</div>'
+		. '<button class="btn btn-primary" type="submit">Pagar €244,00</button></form></div>'
+		. '<div class="head stack"><span class="eyebrow">Resumen</span><h2>Tu pedido</h2><ul class="directlist">'
+		. '<li><span class="dlabel">Camisa lino crudo ×1</span><span class="muted small">€68,00</span></li>'
+		. '<li><span class="dlabel">Pantalón sastrero ×1</span><span class="muted small">€94,00</span></li>'
+		. '<li><span class="dlabel">Sweater lana ×1</span><span class="muted small">€82,00</span></li>'
+		. '<li><span class="dlabel">Total</span><span class="muted small">€244,00</span></li>'
+		. '</ul></div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** NOSOTROS — `chassis_page_about()`'s (:17454) shape, ecommerce-flavored copy (marca/colección
+    instead of empresa/servicios): hero, historia, valores, cifras, CTA closing. */
+function chassis_ecom_page_about() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Nosotros' );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Nosotros"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Nosotros</span>'
+		. '<h1>Menos, pero mejor</h1>'
+		. '<p class="lede muted">Ropa atemporal, ediciones cortas. Texto de maqueta.</p></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec about bg-alt" aria-label="Historia"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Desde 2019</span><h2>Ropa que no pasa de moda</h2>'
+		. '<p class="muted">Fibras naturales, moldería atemporal, producción local. Texto de maqueta.</p></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec features grid-sec" aria-label="Valores"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Valores</span><h2>Lo que nos guía</h2></div><ul class="feats">';
+	foreach ( array( 'Fibras naturales', 'Producción local', 'Ediciones cortas' ) as $vl ) {
+		$o[] = '<li><b>' . h( $vl ) . '</b><span>Una línea de maqueta.</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+	$o[] = '<section class="sec stats bg-alt" aria-label="Cifras"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">En números</span></div><dl class="figs">';
+	foreach ( array( array( '6', 'años' ), array( '+12k', 'clientas' ), array( '100%', 'local' ) ) as $st ) {
+		$o[] = '<div class="fig"><dt>' . h( $st[0] ) . '</dt><dd>' . h( $st[1] ) . '</dd></div>';
+	}
+	$o[] = '</dl></div></section>';
+	$o[] = '<section class="sec band closing sober" aria-label="CTA"><div class="canvas">'
+		. '<div class="head stack"><h2>Conocé la colección</h2>'
+		. '<div class="ctas"><a class="btn btn-primary" data-t="shop">Ver tienda</a></div></div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** CONTACTO — `chassis_page_contact()`'s (:17493) shape verbatim, ecommerce-flavored channels
+    (showroom instead of office). */
+function chassis_ecom_page_contact() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Contacto' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Hablemos',
+			'h1'      => 'Contacto',
+			'lede'    => 'Te respondemos dentro de las 24 h hábiles. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec band contactblock" aria-label="Escríbenos"><div class="canvas">'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">'
+		. '<div class="field"><label for="chassis-ec-name">Nombre</label><input id="chassis-ec-name" name="name" type="text"></div>'
+		. '<div class="field"><label for="chassis-ec-mail">Email</label><input id="chassis-ec-mail" name="mail" type="email"></div>'
+		. '<div class="field"><label for="chassis-ec-msg">Mensaje</label><textarea id="chassis-ec-msg" name="msg" rows="4"></textarea></div>'
+		. '<button class="btn btn-primary" type="submit">Enviar</button></form></div>'
+		. '<div class="head stack"><span class="eyebrow">Directo</span><h2>Otras formas de escribir</h2><ul class="directlist">'
+		. '<li><span class="dlabel">Showroom</span><span class="muted small">Dirección 000 · Ciudad</span></li>'
+		. '<li><span class="dlabel">Email</span><span class="muted small">hola@marca.com</span></li>'
+		. '<li><span class="dlabel">Teléfono</span><span class="muted small">+34 600 000 000</span></li>'
+		. '</ul></div></div></section>';
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** Assembles the whole `<body>`: header once, seven `<div class="page">`s (`number_heads()`
+    applied per page, matching `chassis_corporate_body()` (:17525)), footer once, the switcher. */
+function chassis_ecommerce_body( $brand ) {
+	global $CHASSIS_NAV_ECOM, $CHASSIS_JS;
+	$o     = array( chassis_head_ecommerce_html( $brand, $CHASSIS_NAV_ECOM ) );
+	$pages = array(
+		'home'     => chassis_ecom_page_home(),
+		'shop'     => chassis_ecom_page_shop(),
+		'pdp'      => chassis_ecom_page_pdp(),
+		'cart'     => chassis_ecom_page_cart(),
+		'checkout' => chassis_ecom_page_checkout(),
+		'about'    => chassis_ecom_page_about(),
+		'contact'  => chassis_ecom_page_contact(),
+	);
+	foreach ( $pages as $pid => $inner ) {
+		$cls = ( 'home' === $pid ) ? 'page active' : 'page';
+		$o[] = '<div class="' . $cls . '" id="' . $pid . '">' . number_heads( $inner ) . '</div>';
+	}
+	$o[] = chassis_foot_ecommerce_html( $brand );
+	$o[] = $CHASSIS_JS;
+	return implode( "\n", $o );
+}
+
 $chassis_css = $css;
 unset( $chassis_css['gallery-chrome'] );
 // `.ph`/`.page`+`.active` are NOT part of `$css`: the gallery always embeds real stock photography
@@ -17589,10 +17920,9 @@ if ( ! is_dir( $CHASSIS_DIR ) && ! mkdir( $CHASSIS_DIR, 0777, true ) && ! is_dir
 // html-mockup asset and nobody mistakes it for a file to hand-edit. The two names are the two site
 // types this generator already knows (`$CONTENT[*]['site']`, used throughout above).
 foreach ( array( 'corporate', 'ecommerce' ) as $chassis_site ) {
-	// Ecommerce body markup is the next PR (tasks.md 1c) — same shell-only placeholder PR 1a shipped.
 	$chassis_body = ( 'corporate' === $chassis_site )
 		? chassis_corporate_body( 'MARCA' )
-		: '<!-- chassis body markup (site type: ecommerce): not yet generated -->';
+		: chassis_ecommerce_body( 'MARCA' );
 	$chassis_html = "<!DOCTYPE html>\n"
 		. '<html lang="es" data-anchor="institutional">' . "\n"
 		. "<head>\n"

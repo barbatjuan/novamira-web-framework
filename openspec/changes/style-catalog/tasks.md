@@ -132,9 +132,38 @@ reverse-order only (see Chain topology).
       confirmed byte-identical past line 1, same total length (9,068,304 bytes), against the
       pre-PR-1b baseline. Diff stat: 2 files changed, 422 insertions(+), 6 deletions(-) — within
       the ~450-line `size:exception` budget.
-- [ ] 1c.1 RED: same fixture pattern for ecommerce chassis.
-- [ ] 1c.2 Implement ecommerce chassis body markup, 7 pages.
-- [ ] 1c.3 GREEN: fixture passes; full chain green. **size:exception** (see reason above).
+- [x] 1c.1 `fx_mockup()`-based coverage in `tests/test-framework-audit.php` (r144-r146, 6 new
+      assertions): verified empirically, same discipline as 1b.1 — `html_assets_deep()` is a
+      filename-agnostic recursive glob and none of `RT_GALLERY_NOT_DISTINCT`/`RT_MOCKUP_NO_AXES`/
+      `RT_MOCKUP_ANCHOR_UNDECLARED`/`RT_MOCKUP_AXES_MISMATCH` read the file name, so the mechanism
+      r140/r141 already locked for `corporate.html` covers `ecommerce.html` by construction —
+      repeating that pair would fix no new audit behaviour. What genuinely had zero coverage:
+      `assets/chassis/ecommerce.html` had no fixture of its own at all, and the PDP accordion shape
+      1c.2 emits (three `<details>` under `class="qas"`) is a different shape than 1b's two-item
+      `faqlist`. r144 locks correct-path silence for the sibling file (RT_GALLERY_NOT_DISTINCT/
+      NO_AXES/ANCHOR_UNDECLARED/AXES_MISMATCH); r145/r146 are a genuine RED→GREEN pair for the
+      three-row shape (broken: none open, FAILs; correct: first of three open, silent).
+- [x] 1c.2 Implemented ecommerce chassis body markup, 7 pages (home, shop, pdp, cart, checkout,
+      about, contact), reusing `page_head_html()`/`disclosure_list_html()`/`number_heads()` verbatim
+      plus the corporate section's generic `chassis_ph()`/`chassis_card_html()`/`chassis_crumb_html()`
+      (none are corporate-specific, per 1b's cross-PR note), and writing ecommerce-specific
+      `chassis_head_ecommerce_html()`/`chassis_foot_ecommerce_html()` (cart icon + count badge
+      instead of the corporate CTA) plus a new `chassis_product_html()`. Every page reuses the
+      GALLERY's own `$css` vocabulary from `strip_ecommerce()`/`page_pdp()` (`.mini`/`.prods`/
+      `.carousel`/`.bar`/`.bens`/`.acc`/`.pdp-gal`/`.pdp-buy`/`.opts`) rather than
+      `ecommerce-mockup.html`'s own separate hand-written stylesheet, so the chassis renders styled
+      with **zero new CSS** — `.ph`/`.page`/`.active` were already added unconditionally in PR 1b.
+      Cart and checkout have no `strip_*`/`page_*` precedent (WooCommerce builds the functional
+      versions; mockup-guide.md calls checkout "LAYOUT ONLY"), so both reuse the closing-band/
+      lead-form vocabulary (`.band closing sober`, `.formwrap`, `.leadform`, `.field`,
+      `.directlist`/`.dlabel`) `page_contact_enquiry()`-shaped pages already carry.
+- [x] 1c.3 GREEN: fixture passes; full chain green. **size:exception** (see reason above).
+      `php skills/framework-audit/assets/framework-audit.php` → 0 FAIL / 4 WARN / 0 JUDGE (the 4
+      pre-existing word-budget WARNs only). Full chain: container-hygiene 81 + framework-audit
+      684 (675 + 9 new) + audit-signals 22 + write-path 428 = **1215/1215, 0 FAIL**. `index.html`
+      confirmed byte-identical past line 1, same total length (9,068,304 bytes), against the
+      pre-PR-1c baseline. Diff stat: 2 files changed, 407 insertions(+), 2 deletions(-) — within
+      the ~500-line `size:exception` budget.
 - [ ] 1d.1 RED: fixture — generator present, chassis output absent → assert `RT_CHASSIS_NOT_BUILT`
       FAILs (no such row exists yet).
 - [ ] 1d.2 Implement `RT_CHASSIS_NOT_BUILT` mirroring `RT_GALLERY_NOT_BUILT`
