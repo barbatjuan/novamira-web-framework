@@ -2767,6 +2767,89 @@ ok( array() !== fx_lines_with( $out92c, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-EDI
 fx_rrmdir( $r92c );
 
 /* ---------------------------------------------------------------------------
+   style-catalog PR 4b (tasks.md 4b.2) — RT_STYLE_TOO_SIMILAR AT CATALOG SCALE. r92c above proves
+   the comparator's boundary (2/8 passes, 3/8 FAILs) over THREE anchors; the v1 catalog ships EIGHT,
+   which is C(8,2) = 28 pairs, not 3 — an O(n^2) loop that is correct at n=3 is not automatically
+   correct at n=8 (an off-by-one in the `array_slice($ids,$i+1)` walk, for instance, would only ever
+   miss a pair involving the LAST id). This is "value, not novelty" RED, same discipline as
+   3b.1/3b.3/4a.1: the comparator itself is untouched by PR 4b, so the mechanism is already correct
+   before this fixture runs — its purpose is locking the specific claim design.md's own testing
+   strategy names ("4: RT_STYLE_TOO_SIMILAR over all 8") into a real assertion at the real scale.
+
+   THIS FIXTURE IS SYNTHETIC, NOT THE REAL CATALOG, for one disclosed reason: `nm_axes()`
+   (`framework-audit.php:1037-1083`) still lists only 4 ground positions (`paper`, `warm`, `cool`,
+   `ink`) — it was never widened to the 9 `design-system.md`'s own Ground table has carried since
+   style-catalog PR 3a. `RT_STYLE_TOO_SIMILAR` does not read `STY-*.md` yet (it still parses
+   `design-personalities.md`, PR 4a's own `_README.md` says so plainly), so this gap does not FAIL
+   the real repo today — but a fixture using `ink-cool`/`ink-warm`/`saturated` as a GROUND value
+   would trip `RT_PERS_BAD_AXIS` and get silently EXCLUDED from the comparison, which would prove
+   nothing. So entries 1-5 below are the five real ported anchors' real axis positions (paper/warm/
+   cool/ink only, already inside `nm_axes()`'s current domain); entries 6-8 are placeholder anchors
+   standing in for the shape of a full 8-entry catalog, built from axis values ALREADY inside the
+   current registry — not `STY-TECH-SAAS`/`STY-DARK-LUXURY`/`STY-NEO-BRUTALIST`'s own real positions,
+   which are authored in the real `.md` files and are a separate, disclosed finding (see this PR's
+   apply-progress and `_README.md` "Known gap"). Every one of the 28 pairs below was computed and
+   re-verified by hand before being written down. */
+
+echo "--- style-catalog PR 4b: RT_STYLE_TOO_SIMILAR sobre 8 anclas -- la entrada #8 comparte 4 de 8 con la #3 FALLA ---\n";
+$r92d = fx_tmp_root();
+fx_base( $r92d );
+fx(
+	$r92d,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# P\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow', 'metallic', 'soft-carded', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
+	/* Placeholder #6/#7: well-separated from 1-5 and from each other, max 2/8 every pair -- filler
+	   for "a catalog of eight", not a stand-in for any one real PR 4b entry. */
+	. fx_pers( 'PERS-FILLER-ONE', 'contained', 'cool', 'compact', 'broken-grid', 'hairline', 'duotone', 'layered', 'pattern' )
+	. fx_pers( 'PERS-FILLER-TWO', 'monumental', 'paper', 'generous', 'centered', 'accent-glow', 'polychrome', 'bordered', 'illustration' )
+	/* Placeholder #8, DELIBERATELY corrupted: scale/ground/density/composition all copy PERS-MATTER
+	   (classic/warm/standard/strict-grid), elevation/accent/chassis/ornament all differ from it --
+	   exactly the spec's own "entry #8 shares 4 of 8 positions with entry #3" scenario, at the
+	   position in the id list (last) an off-by-one in the pairwise walk is most likely to miss.
+	   Named with a word, not a digit -- `nm_axes()`'s own id regex is `PERS-[A-Z-]+`, so `PERS-
+	   FILLER-8` would silently fail to parse as a block at all and vanish from the comparison. */
+	. fx_pers( 'PERS-FILLER-THREE', 'classic', 'warm', 'standard', 'strict-grid', 'accent-glow', 'duotone', 'layered', 'rule' )
+);
+list( , $out92d ) = fx_run_ok( $audit, $r92d );
+ok( 'FAIL' === fx_row_level( $out92d, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER', 'PERS-FILLER-THREE' ) ), 'la entrada #8 (ultima) contra la #3 (media) FALLA en un catalogo de ocho', fx_row_level( $out92d, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER', 'PERS-FILLER-THREE' ) ) );
+ok( array() !== fx_lines_with( $out92d, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER', 'PERS-FILLER-THREE', 'share 4' ) ), 'y la fila dice que comparten 4', $out92d );
+/* Las otras 27 parejas se quedan calladas -- confirmado por conteo, no solo por la pareja que
+   interesa: un comparador roto que disparara de mas tambien "encontraria" la pareja #8/#3. */
+ok( 1 === count( fx_lines_with( $out92d, array( 'RT_STYLE_TOO_SIMILAR' ) ) ), 'y ninguna otra de las 28 parejas dispara la fila', count( fx_lines_with( $out92d, array( 'RT_STYLE_TOO_SIMILAR' ) ) ) );
+fx_rrmdir( $r92d );
+
+/* GREEN companion (tasks.md 4b.4's own "full catalog passes" scenario, at the same n=8 scale):
+   entries 1-7 UNCHANGED from $r92d above; only placeholder #8 is corrected -- scale/ground stay
+   classic/warm (each alone is legal, 1 of 8), but density and composition move off PERS-MATTER's
+   own standard/strict-grid, dropping the shared count from 4 to 2. Proves the SAME mechanism clears
+   a genuinely distinct 8-entry catalog with zero FAILs, not only that it can be made to fire. */
+echo "--- style-catalog PR 4b: un catalogo de 8 bien separado no dispara RT_STYLE_TOO_SIMILAR en ninguna de las 28 parejas ---\n";
+$r92e = fx_tmp_root();
+fx_base( $r92e );
+fx(
+	$r92e,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# P\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow', 'metallic', 'soft-carded', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
+	. fx_pers( 'PERS-FILLER-ONE', 'contained', 'cool', 'compact', 'broken-grid', 'hairline', 'duotone', 'layered', 'pattern' )
+	. fx_pers( 'PERS-FILLER-TWO', 'monumental', 'paper', 'generous', 'centered', 'accent-glow', 'polychrome', 'bordered', 'illustration' )
+	. fx_pers( 'PERS-FILLER-THREE', 'classic', 'ink', 'standard', 'centered', 'accent-glow', 'duotone', 'layered', 'rule' )
+);
+list( $code92e, $out92e ) = fx_run_ok( $audit, $r92e );
+ok( array() === fx_lines_with( $out92e, array( 'RT_STYLE_TOO_SIMILAR' ) ), 'las 28 parejas quedan en silencio: ninguna comparte mas de 2 de 8', $out92e );
+ok( 0 === $code92e, 'y el catalogo de 8 conforme sale con codigo 0', $code92e );
+fx_rrmdir( $r92e );
+
+/* ---------------------------------------------------------------------------
    RT_PROOF_NOT_DISTINCT — the axis proof is a gate, not a claim.
    fx_base() already writes a conforming pair (all five axes apart); each scenario below
    overwrites one or both files, so the only variable is the axis values.
@@ -3493,6 +3576,79 @@ list( $code112c, $out112c ) = fx_run_ok( $audit, $r112c );
 ok( array() === fx_lines_with( $out112c, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una familia embebida reutilizada a otro peso/stretch no produce fila', $out112c );
 ok( 0 === $code112c, 'y el arbol conforme sale con codigo 0', $code112c );
 fx_rrmdir( $r112c );
+
+/* ---------------------------------------------------------------------------
+   style-catalog PR 4b (tasks.md 4b.1) — r112b/r112c above lock the mechanism against ONE reuse pair
+   (Archivo/Archivo Expanded) and ONE absent family (Canela Deck), both invented for the spec's own
+   worked examples. This is the same "value, not novelty" RED: `RT_MOCKUP_FONT_NOT_EMBEDDED` needs no
+   new code for PR 4b either, so the value here is locking PR 4b's OWN concrete font decisions — real
+   choices this PR actually ships, not a second copy of 4a's examples — into a real assertion.
+   `STY-TECH-SAAS` reuses `Inter Tight` as a PRIMARY for the first time in the catalog (every prior
+   use was secondary, `STY-EDITORIAL`/`STY-VITRINE`); `STY-NEO-BRUTALIST` reuses `Archivo` (not
+   `Archivo Expanded`) as a primary for the first time (its only prior use was `STY-DIRECT`'s
+   secondary). Both are real `--font-primary`/`--font-secondary` pairs from this PR's own `.md`
+   files, not synthetic stand-ins. */
+
+echo "--- style-catalog PR 4b: STY-TECH-SAAS reincrusta Inter Tight como primary (antes solo secondary) NO FALLA ---\n";
+$r112d = fx_tmp_root();
+fx_base( $r112d );
+fx(
+	$r112d,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Inter Tight', system-ui, sans-serif",
+			'rule'  => "'Source Sans 3', system-ui, sans-serif",
+			'faces' => array(
+				'Inter Tight'   => 'data:font/woff2;base64,d09GMgABAAAAAA',
+				'Source Sans 3' => 'data:font/woff2;base64,d09GMgABAAAAAA',
+			),
+		)
+	)
+);
+list( $code112d, $out112d ) = fx_run_ok( $audit, $r112d );
+ok( array() === fx_lines_with( $out112d, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'Inter Tight como primary + Source Sans 3 como secondary, ambos incrustados, no producen fila', $out112d );
+ok( 0 === $code112d, 'y el arbol conforme sale con codigo 0', $code112d );
+fx_rrmdir( $r112d );
+
+echo "--- style-catalog PR 4b: STY-NEO-BRUTALIST reincrusta Archivo (no Expanded) como primary NO FALLA ---\n";
+$r112e = fx_tmp_root();
+fx_base( $r112e );
+fx(
+	$r112e,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Archivo', system-ui, sans-serif",
+			'rule'  => "'DM Sans', system-ui, sans-serif",
+			'faces' => array(
+				'Archivo' => 'data:font/woff2;base64,d09GMgABAAAAAA',
+				'DM Sans' => 'data:font/woff2;base64,d09GMgABAAAAAA',
+			),
+		)
+	)
+);
+list( $code112e, $out112e ) = fx_run_ok( $audit, $r112e );
+ok( array() === fx_lines_with( $out112e, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'Archivo (no Expanded) como primary + DM Sans como secondary, ambos incrustados, no producen fila', $out112e );
+ok( 0 === $code112e, 'y el arbol conforme sale con codigo 0', $code112e );
+fx_rrmdir( $r112e );
+
+echo "--- style-catalog PR 4b: una segunda familia fuera del presupuesto, distinta de Canela Deck, FALLA igual ---\n";
+$r112f = fx_tmp_root();
+fx_base( $r112f );
+fx(
+	$r112f,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup( array(), array(), array( 'stack' => "'GT Walsheim', system-ui, sans-serif" ) )
+);
+list( , $out112f ) = fx_run_ok( $audit, $r112f );
+ok( 'FAIL' === fx_row_level( $out112f, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'nombrar una familia ausente distinta de la ya fijada en 4a tambien FALLA', fx_row_level( $out112f, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ) );
+ok( array() !== fx_lines_with( $out112f, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'GT Walsheim' ) ), 'y nombra la familia -- el mecanismo no esta atado a un solo nombre fijado por 4a', $out112f );
+fx_rrmdir( $r112f );
 
 /* ---------------------------------------------------------------------------
    style-catalog PR 1b (tasks.md 1b.1) — el chasis del cliente vive en `assets/chassis/`, NUNCA

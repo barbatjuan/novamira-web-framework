@@ -609,14 +609,49 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       the session's explicit instruction to state any overshoot and why: catalog-authoring prose
       (5 `STY-*.md` + `_README.md` + `_backlog.md`) genuinely needed slightly more room than the
       estimate to state each style's toggle precharge with a real (not decorative) rationale.
-- [ ] 4b.1 RED: fixture — reused embedded family (`Archivo`/`Archivo Expanded` pattern) →
-      `RT_MOCKUP_FONT_NOT_EMBEDDED` does not FAIL.
-- [ ] 4b.2 RED: fixture — 8-entry catalog, entry #8 shares 4/8 with entry #3 →
-      `RT_STYLE_TOO_SIMILAR` FAILs.
-- [ ] 4b.3 Author 3 new `STY-*.md` entries (8 total); each clears ≤2/8 shared against every other
-      entry; budget SIL OFL faces / re-weighted embedded families per style.
-- [ ] 4b.4 GREEN: full 8-entry catalog passes `RT_STYLE_TOO_SIMILAR` pairwise at max 2/8; fonts
-      pass; full chain green.
+- [x] 4b.1 RED: two new `fx_mockup()` scenarios (r112d/r112e) lock PR 4b's OWN concrete font
+      decisions, not a second copy of 4a's examples: `STY-TECH-SAAS` reuses `Inter Tight` as a
+      PRIMARY for the first time (every prior use was secondary) paired with `Source Sans 3`;
+      `STY-NEO-BRUTALIST` reuses `Archivo` (not `Archivo Expanded`) as a primary for the first time
+      paired with `DM Sans`. Both confirmed NOT to FAIL. A third scenario (r112f) names `GT
+      Walsheim` — a second absent family, distinct from 4a's `Canela Deck` — and confirms it FAILs
+      the same way, proving the mechanism is not accidentally special-cased to one string.
+      "Value, not novelty" RED, same discipline as 4a.1: `RT_MOCKUP_FONT_NOT_EMBEDDED` needs no new
+      code.
+- [x] 4b.2 RED: `RT_STYLE_TOO_SIMILAR` AT CATALOG SCALE (r92d), not just the 3-entry boundary r92c
+      already proved — an 8-entry synthetic fixture (28 pairs) with a deliberately corrupted last
+      entry sharing exactly 4/8 with the third (`scale`/`ground`/`density`/`composition` all copy
+      `PERS-MATTER`) FAILs, naming "share 4"; all other 27 pairs confirmed silent by count, not
+      just by the one assertion that matters. **Disclosed why this fixture is synthetic, not the
+      real 8 `STY-*.md` files**: `RT_STYLE_TOO_SIMILAR` still parses `design-personalities.md`
+      (unchanged since PR 4a), and `nm_axes()`'s ground positions are still stuck at the original 4
+      (`paper`/`warm`/`cool`/`ink`) — using `ink-cool`/`ink-warm`/`saturated` in a fixture would
+      trip `RT_PERS_BAD_AXIS` and silently exclude the anchor from comparison. See `_README.md`
+      "Known gap" for the full disclosure and why it does not block this PR.
+- [x] 4b.3 Authored `STY-TECH-SAAS`, `STY-DARK-LUXURY`, `STY-NEO-BRUTALIST` (8 total). Chosen from
+      the proposal's remaining candidates to maximise separation from the 5 ported entries under
+      the 8-axis gate; each clears ≤2/8 shared against every OTHER of the 7 entries (all 28 pairs,
+      re-verified by hand, table in `_README.md`). Each spends one of PR 3a's 5 previously-unused
+      ground families (`ink-cool`, `ink-warm`, `saturated` — `cream`/`earth` stay unclaimed) and
+      reuses one of the 7 embedded faces in a role it has not carried before in this catalog —
+      **no new SIL OFL face embedded**, decided explicitly and disclosed: verified provenance
+      (source URL, sha256, copyright — `_fonts.php`'s own header requirement) needs a network fetch
+      this apply session does not have, so reuse was the only path this session could execute
+      honestly, not a stylistic default. Each entry declares all 8 axes, Fits/Typography/Motion/
+      Imagery/Card-recipe prose, and a 5-row toggle precharge table, the same shape PR 4a's ports
+      established.
+- [x] 4b.4 GREEN: real-repo audit 0 FAIL/4 WARN (same 4 pre-existing word-budget WARNs); full chain
+      1350 OK/0 FAIL (was 1334 at PR 4a, +16 net new — the 4b.1/4b.2 fixtures' own assertions).
+      `RT_STYLE_TOO_SIMILAR` mechanism confirmed clean at n=8 scale via a GREEN companion fixture
+      (r92e, same 8-entry shape as r92d with only the corrupted entry corrected): all 28 pairs
+      silent. The 8 real `STY-*.md` entries' own 28-pair table (`_README.md`) is the authoritative
+      claim for the real catalog — maximum shared across all 28 pairs is 2, several pairs at the
+      2/8 boundary, none over. `php -l` clean on `tests/test-framework-audit.php`. Diff: 2 files
+      modified (`_README.md` +137/-10, `tests/test-framework-audit.php` +156/-0) + 3 new `STY-*.md`
+      files (126 lines) = 419 changed lines, 139 over the ~280 estimate, NOT `size:exception`
+      (reported per instruction) — the mandatory 28-pair table plus the font-decision rationale
+      table in `_README.md`, and two full RED/GREEN fixture pairs at real n=8 scale (28 pairs each,
+      not a toy 2-3 entry test), needed the room.
 - [ ] 4c.1 Confirm full chain green with the catalog complete, BEFORE deleting
       `design-personalities.md` (same deletion-last discipline as Slice 1).
 - [ ] 4c.2 Delete `design-personalities.md`; update `SKILL.md` (fix stale "Four anchors" at `:22`),
