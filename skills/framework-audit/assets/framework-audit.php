@@ -121,6 +121,7 @@ const ROW_TYPES = array(
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
 	'RT_STYLE_REPEATS_RECENT'    => 'WARN  — shipped-log.md: the newest delivery\'s style also appears among the 4 before it, within the last 5',
 	'RT_STYLE_UNRESOLVED_DEFAULT' => 'FAIL  — shipped-log.md: a delivery names its chassis default but no resolved style — nobody was asked, or the answer never reached the ledger',
+	'RT_STYLE_PRECHARGE_UNSHIPPED' => 'FAIL  — shipped-log.md: a delivery\'s resolved style declares a toggle precharge the ledger does not show shipped at that value',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1557,6 +1558,51 @@ function ledger_table_rows( $src ) {
 			$row[ $col_name ] = isset( $cells[ $col_ix ] ) ? $cells[ $col_ix ] : '';
 		}
 		$out[] = $row;
+	}
+	return $out;
+}
+
+/* One STY-*.md's own "## Toggle precharge" (English) / "## Precarga de toggles" (Spanish) table,
+ * keyed by toggle id => declared precharge value (style-catalog PR 5c). Reuses
+ * ledger_table_rows()'s generic pipe-table parser rather than a third hand-rolled one; "Precharge"
+ * and "Precarga" are read interchangeably because STY-VITRINE.md's own table header is Spanish —
+ * the language contract already established elsewhere in this catalog, not a new exception. Both
+ * the toggle id and its value are typed as inline code (`` `TGL-IMAGERY` ``, `` `foto` ``); the
+ * surrounding backticks are stripped so a comparison against the ledger's own plain-text cell is
+ * exact.
+ */
+function style_precharge_rows( $sty_src ) {
+	if ( ! preg_match( '/^##\s+(?:Toggle precharge|Precarga de toggles)\b[^\n]*\n(.*?)(?=\n## |\z)/ms', $sty_src, $m ) ) {
+		return array();
+	}
+	$out = array();
+	foreach ( ledger_table_rows( $m[1] ) as $row ) {
+		$tgl = isset( $row['Toggle'] ) ? trim( $row['Toggle'], "` \t" ) : '';
+		if ( '' === $tgl ) {
+			continue;
+		}
+		$val         = isset( $row['Precharge'] ) ? $row['Precharge'] : ( isset( $row['Precarga'] ) ? $row['Precarga'] : '' );
+		$out[ $tgl ] = trim( $val, "` \t" );
+	}
+	return $out;
+}
+
+/* shipped-log.md's own "Toggles" cell: "TGL-ID=value; TGL-ID2=value2" (style-catalog PR 5c),
+ * chosen so a value itself may hold a bare "=" or spaces (values are prose like "imagen fija")
+ * without colliding with the delimiter — only ";" and "|" are reserved, both already claimed by
+ * the row this cell lives inside.
+ */
+function ledger_toggle_map( $cell ) {
+	$out = array();
+	foreach ( explode( ';', $cell ) as $pair ) {
+		$eq = strpos( $pair, '=' );
+		if ( false === $eq ) {
+			continue;
+		}
+		$k = trim( substr( $pair, 0, $eq ) );
+		if ( '' !== $k ) {
+			$out[ $k ] = trim( substr( $pair, $eq + 1 ) );
+		}
 	}
 	return $out;
 }
@@ -3860,6 +3906,52 @@ if ( file_exists( $ledger_file ) ) {
 				'shipped-log.md: ' . $ldg_client . ' (' . $ldg_date . ') shipped on the "' . $ldg_chassis
 					. '" chassis default with no Style recorded — nobody was asked, or the answer never reached the ledger'
 			);
+		}
+	}
+
+	/* ---- RT_STYLE_PRECHARGE_UNSHIPPED ----
+	 * FAIL, root cause 6 (proposal): "structure varied, look varied, CONFIGURATION never did" — the
+	 * demo gallery moved exactly one toggle off default across 67 strips. Every STY-*.md now
+	 * declares its own "## Toggle precharge" table (PR 4a); this asks whether a REAL delivery
+	 * shipped what ITS OWN resolved style declared, read from the same offline ledger
+	 * RT_STYLE_UNRESOLVED_DEFAULT above already reads. NO UNIVERSAL FLOOR, rejected by design: the
+	 * comparison is always against the RESOLVED style's own declared list, never a fixed count — a
+	 * style declaring 2 toggles is exactly as satisfied by 2 shipped as a style declaring 6 is by 6,
+	 * since nothing here ever asks "how many", only "does THIS style's own list match".
+	 */
+	foreach ( $ledger_rows as $ldg_prow ) {
+		$ldg_pstyle = trim( isset( $ldg_prow['Style'] ) ? $ldg_prow['Style'] : '' );
+		if ( '' === $ldg_pstyle ) {
+			continue; // RT_STYLE_UNRESOLVED_DEFAULT's own case -- nothing declared to check here.
+		}
+		$sty_file = $root . '/skills/ux-design-system/references/style-catalog/' . $ldg_pstyle . '.md';
+		if ( ! file_exists( $sty_file ) ) {
+			continue; // an id naming no catalog entry names nothing this rule can check against.
+		}
+		$ldg_declared = style_precharge_rows( slurp( $sty_file ) );
+		if ( array() === $ldg_declared ) {
+			continue;
+		}
+		$ldg_shipped = ledger_toggle_map( isset( $ldg_prow['Toggles'] ) ? $ldg_prow['Toggles'] : '' );
+		$ldg_pclient = ( isset( $ldg_prow['Client'] ) && '' !== trim( $ldg_prow['Client'] ) ) ? trim( $ldg_prow['Client'] ) : 'an unnamed delivery';
+		foreach ( $ldg_declared as $ldg_tgl => $ldg_want ) {
+			$ldg_got = array_key_exists( $ldg_tgl, $ldg_shipped ) ? $ldg_shipped[ $ldg_tgl ] : null;
+			/* PRESENCE, NOT EQUALITY, and the difference is the whole point. A precharge is a
+			   SUGGESTION the client confirms or overrides, which is what toggles.md offers them.
+			   An exact-match check would FAIL a client for exercising exactly that choice, turning
+			   a gate against sameness into a gate enforcing uniformity: the defect this change
+			   exists to remove, rebuilt inside its own cure. This asks only whether the toggle was
+			   DECIDED. An override is a decision; a blank is not. */
+			if ( null === $ldg_got || '' === $ldg_got ) {
+				add(
+					'RT_STYLE_PRECHARGE_UNSHIPPED',
+					'FAIL',
+					'ux-design-system',
+					'shipped-log.md: ' . $ldg_pclient . ' resolved "' . $ldg_pstyle . '", which precharges `' . $ldg_tgl
+						. '` = "' . $ldg_want . '", but the ledger shows no shipped value for it at all'
+						. ' - a precharged toggle may be OVERRIDDEN by the client, never left undecided'
+				);
+			}
 		}
 	}
 }

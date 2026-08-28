@@ -6,7 +6,7 @@ Two files, one event, one write moment, never a third.
 | | Measures | Written by | Read offline by |
 |---|---|---|---|
 | `corpus.md` | what a delivery LOOKED like — three screenshots plus Judge B's eight perceptual attributes | the orchestrator, after both verdicts land | Judge A only, over `corpus/` |
-| `shipped-log.md` (here) | what a delivery WAS, structurally — the resolved `STY-*` id and the axes it shipped with | the orchestrator, after both verdicts land — same moment | `RT_STYLE_REPEATS_RECENT`, `RT_STYLE_UNRESOLVED_DEFAULT` |
+| `shipped-log.md` (here) | what a delivery WAS, structurally — the resolved `STY-*` id, the axes it shipped with, and the toggles its style precharged | the orchestrator, after both verdicts land — same moment | `RT_STYLE_REPEATS_RECENT`, `RT_STYLE_UNRESOLVED_DEFAULT`, `RT_STYLE_PRECHARGE_UNSHIPPED` |
 
 **The judges never write here either.** Both judges are read-only over `corpus/` — `corpus.md`'s
 own rule. Neither one opens this file at all. The orchestrator is the only writer, for both files,
@@ -42,13 +42,14 @@ live `design` section on purpose — that section only needs to say what is true
 | Accent | a coarse hue bucket ("warm", "cool", "olive", …), not the literal hex — the same grain as `corpus.md`'s own `Accent` attribute |
 | Scale | the resolved scale position |
 | Chassis | which starting chassis this delivery built from: `corporate` or `ecommerce` |
+| Toggles | `TGL-ID=value; TGL-ID2=value2; …` — every toggle the resolved `STY-*` precharges (`web-templates/references/toggles.md`), at the value it actually shipped with, `;`-joined. Only the style's OWN declared list, never the full 39-toggle catalogue — a style declaring 2 writes 2 |
 
 ## Who writes a row, and when
 
 The orchestrator, after both judge verdicts land — never a judge, never mid-build. Identical
 discipline to `corpus.md`'s own index, in the same pass, so the two histories cannot drift apart.
 
-## Two audit rules read this file
+## Three audit rules read this file
 
 - **`RT_STYLE_REPEATS_RECENT` (WARN, `house-rules.md:31`)** — takes the last 5 rows; WARNs if the
   newest row's `Style` also appears in the 4 before it. Five matches the window `corpus.md`'s Judge
@@ -61,10 +62,17 @@ discipline to `corpus.md`'s own index, in the same pass, so the two histories ca
   recorded — every corporate site shipped `PERS-INSTITUTIONAL` "not because anyone chose them but
   because nobody was asked to." A blank `Style` here means the intake's answer either never
   happened or never reached this ledger; either way, the project shipped on the untouched default.
+- **`RT_STYLE_PRECHARGE_UNSHIPPED` (FAIL)** — for a row WITH a resolved `Style`, reads that
+  `STY-*.md`'s own "Toggle precharge" table and FAILs, naming the toggle and the style, for every
+  declared toggle this row's `Toggles` column does not show shipped at the declared value. Root
+  cause 6 (proposal): the demo gallery varied structure and look but moved exactly one toggle off
+  default across 67 strips — "configuration never did." **No universal floor, on purpose**: the
+  check is always against the RESOLVED style's own declared list, never a fixed count — a style
+  declaring 2 toggles is exactly as satisfied by 2 shipped as a style declaring 6 is by 6.
 
 ## Empty ledger
 
 No delivery has been recorded yet.
 
-| Date | Client | Style | Ground | Accent | Scale | Chassis |
-|---|---|---|---|---|---|---|
+| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles |
+|---|---|---|---|---|---|---|---|

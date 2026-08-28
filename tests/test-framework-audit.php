@@ -365,18 +365,39 @@ function fx_sty_catalog_clear( $root ) {
 		unlink( $fx_sty_f );
 	}
 }
-/* style-catalog PR 5b: writes skills/ux-design-system/references/shipped-log.md, the real ledger's
-   exact column order (Date | Client | Style | Ground | Accent | Scale | Chassis). $rows is a list
-   of 7-cell arrays, appended in the order given -- the real file is append-only, newest last, so a
+/* style-catalog PR 5b/5c: writes skills/ux-design-system/references/shipped-log.md, the real
+   ledger's exact column order (Date | Client | Style | Ground | Accent | Scale | Chassis |
+   Toggles). $rows is a list of 7- or 8-cell arrays, appended in the order given -- the 8th
+   (Toggles, PR 5c) is optional per row, exactly like the real file's own optional cell for a
+   delivery that precharges nothing; a 7-cell row simply reads back as an empty Toggles column
+   (ledger_table_rows()'s own isset() fallback). The real file is append-only, newest last, so a
    scenario's own row order IS its delivery order. */
 function fx_ledger( $root, array $rows ) {
 	$out = "# Shipped log fixture\n\n"
-		. "| Date | Client | Style | Ground | Accent | Scale | Chassis |\n"
-		. "|---|---|---|---|---|---|---|\n";
+		. "| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles |\n"
+		. "|---|---|---|---|---|---|---|---|\n";
 	foreach ( $rows as $fx_lr ) {
 		$out .= '| ' . implode( ' | ', $fx_lr ) . " |\n";
 	}
 	fx( $root, 'skills/ux-design-system/references/shipped-log.md', $out );
+}
+
+/* style-catalog PR 5c: one NEW STY-*.md fixture entry (not one of fx_base()'s 5 defaults) carrying
+   a real "## Toggle precharge" table -- RT_STYLE_PRECHARGE_UNSHIPPED's own real input, since
+   fx_pers()'s plain block (every other scenario in this suite) declares no precharge at all. Axes
+   are reused VERBATIM from an existing $FX_PERS_AXES entry ($axes_from) so every position is one
+   the registry already knows -- RT_PERS_BAD_AXIS is not this scenario's concern, and neither is
+   RT_STYLE_TOO_SIMILAR (a fixture-only id, disclosed here rather than hidden, since diversifying
+   the axes would add lines this rule's own test has no use for). $tgl_rows is a list of
+   [id, value] pairs, written in the exact backticked shape the real STY-*.md catalog uses. */
+function fx_sty_precharge( $root, $id, $axes_from, array $tgl_rows ) {
+	global $FX_PERS_AXES;
+	$block = call_user_func_array( 'fx_pers', array_merge( array( $id ), $FX_PERS_AXES[ $axes_from ] ) );
+	$table = "## Toggle precharge\n\n| Toggle | Precharge | Why |\n|---|---|---|\n";
+	foreach ( $tgl_rows as $tr ) {
+		$table .= '| `' . $tr[0] . '` | `' . $tr[1] . "` | fixture |\n";
+	}
+	fx( $root, 'skills/ux-design-system/references/style-catalog/' . $id . '.md', $block . $table );
 }
 
 /* A minimal write-capable SKILL.md: frontmatter + a passing build gate + the given "## Hard
@@ -5320,6 +5341,103 @@ fx_ledger( $r154, array( array( '2026-08-21', 'eta', 'STY-INSTITUTIONAL', 'cool'
 list( , $out154 ) = fx_run_ok( $audit, $r154 );
 ok( array() === fx_lines_with( $out154, array( 'RT_STYLE_UNRESOLVED_DEFAULT' ) ), 'a resolved style beside its chassis never FAILs -- naming a chassis is not itself the defect, an unanswered one is', $out154 );
 fx_rrmdir( $r154 );
+
+echo "--- style-catalog PR 5c: RT_STYLE_PRECHARGE_UNSHIPPED -- a style declares 6 toggles, the ledger shows only 5 shipped at the declared value ---\n";
+/* Root cause 6 (proposal): the demo gallery varied structure and look but moved exactly one
+   toggle off default across 67 strips -- "configuration never did". This is the offline check
+   that a REAL delivery ships what ITS OWN resolved style declares, read from the same ledger
+   RT_STYLE_UNRESOLVED_DEFAULT above already reads. */
+$r155 = fx_tmp_root();
+fx_base( $r155 );
+fx_sty_precharge(
+	$r155,
+	'STY-FIX-SIX',
+	'PERS-EDITORIAL',
+	array(
+		array( 'TGL-A', 'on' ),
+		array( 'TGL-B', 'off' ),
+		array( 'TGL-C', 'slider' ),
+		array( 'TGL-D', 'fija' ),
+		array( 'TGL-E', 'medio' ),
+		array( 'TGL-F', 'grande' ),
+	)
+);
+fx_ledger(
+	$r155,
+	array(
+		array( '2026-08-22', 'theta', 'STY-FIX-SIX', 'paper', 'warm', 'editorial', 'corporate', 'TGL-A=on; TGL-B=off; TGL-C=slider; TGL-D=fija; TGL-E=medio' ),
+	)
+);
+list( $code155, $out155 ) = fx_run_ok( $audit, $r155 );
+ok( 'FAIL' === fx_row_level( $out155, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-F', 'STY-FIX-SIX' ) ), 'a style declaring 6 toggles FAILs when the ledger shows only 5 shipped at the declared value, naming the missing toggle and the style', fx_row_level( $out155, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-F', 'STY-FIX-SIX' ) ) );
+ok( 1 === $code155, 'unlike a repeat, an unshipped precharge blocks the audit -- this is a completeness check, not a judgment call', $code155 );
+fx_rrmdir( $r155 );
+
+echo "--- there is no universal floor: style A declares 2, style B declares 6, a project on A shipping exactly 2 never FAILs ---\n";
+/* The locked decision this scenario exists to prove: the gate is never "did it ship at least N",
+   only "did it ship what ITS OWN style declared". STY-FIX-SIX-B (6 toggles) sits in the same
+   catalog and is never delivered against in this fixture -- its larger count must not leak into
+   STY-FIX-TWO's own, smaller, fully-satisfied check. */
+$r156 = fx_tmp_root();
+fx_base( $r156 );
+fx_sty_precharge( $r156, 'STY-FIX-TWO', 'PERS-MATTER', array( array( 'TGL-X', 'on' ), array( 'TGL-Y', 'off' ) ) );
+fx_sty_precharge(
+	$r156,
+	'STY-FIX-SIX-B',
+	'PERS-DIRECT',
+	array(
+		array( 'TGL-A', 'on' ),
+		array( 'TGL-B', 'off' ),
+		array( 'TGL-C', 'slider' ),
+		array( 'TGL-D', 'fija' ),
+		array( 'TGL-E', 'medio' ),
+		array( 'TGL-F', 'grande' ),
+	)
+);
+fx_ledger(
+	$r156,
+	array(
+		array( '2026-08-23', 'iota', 'STY-FIX-TWO', 'warm', 'olive', 'classic', 'ecommerce', 'TGL-X=on; TGL-Y=off' ),
+	)
+);
+list( , $out156 ) = fx_run_ok( $audit, $r156 );
+ok( array() === fx_lines_with( $out156, array( 'RT_STYLE_PRECHARGE_UNSHIPPED' ) ), 'a style declaring only 2 toggles, fully shipped, is never FAILed for "too few" against a fixed count or a bigger catalog sibling -- the gate is per-style, never universal', $out156 );
+fx_rrmdir( $r156 );
+
+/* Un toggle precargado que el cliente SOBRESCRIBE sigue siendo un toggle decidido. La precarga
+   es una sugerencia que toggles.md le ofrece al cliente para confirmar o cambiar, asi que una
+   regla que exigiera el valor exacto reprobaria al cliente por ejercer justo esa eleccion, y
+   convertiria un gate contra la monotonia en un gate que impone uniformidad. La primera version
+   de esta fila comparaba por igualdad y lo habria hecho. */
+echo "--- un toggle precargado y SOBRESCRITO por el cliente no es un toggle sin decidir ---
+";
+$r157 = fx_tmp_root();
+fx_base( $r157 );
+fx_sty_precharge( $r157, 'STY-FIX-OVR', 'PERS-MATTER', array( array( 'TGL-X', 'on' ), array( 'TGL-Y', 'off' ) ) );
+fx_ledger(
+	$r157,
+	array(
+		array( '2026-08-24', 'kappa', 'STY-FIX-OVR', 'warm', 'olive', 'classic', 'ecommerce', 'TGL-X=off; TGL-Y=off' ),
+	)
+);
+list( , $out157 ) = fx_run_ok( $audit, $r157 );
+ok( array() === fx_lines_with( $out157, array( 'RT_STYLE_PRECHARGE_UNSHIPPED' ) ), 'TGL-X precargado en `on` y entregado en `off` no dispara la fila: una sobrescritura es una decision', $out157 );
+fx_rrmdir( $r157 );
+
+echo "--- pero un toggle precargado y dejado VACIO si la dispara ---
+";
+$r158 = fx_tmp_root();
+fx_base( $r158 );
+fx_sty_precharge( $r158, 'STY-FIX-BLK', 'PERS-MATTER', array( array( 'TGL-X', 'on' ), array( 'TGL-Y', 'off' ) ) );
+fx_ledger(
+	$r158,
+	array(
+		array( '2026-08-25', 'lambda', 'STY-FIX-BLK', 'warm', 'olive', 'classic', 'ecommerce', 'TGL-Y=off' ),
+	)
+);
+list( , $out158 ) = fx_run_ok( $audit, $r158 );
+ok( 'FAIL' === fx_row_level( $out158, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-X' ) ), 'TGL-X precargado y ausente del registro si dispara: un blanco no es una decision', fx_row_level( $out158, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-X' ) ) );
+fx_rrmdir( $r158 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

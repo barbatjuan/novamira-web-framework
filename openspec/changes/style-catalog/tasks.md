@@ -909,13 +909,55 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       on top of the 3 originally-specified WARN fixtures, plus `shipped-log.md`'s own prose
       documenting how it docks onto `corpus.md` rather than duplicating it, which the session
       explicitly required stating in the file itself.
-- [ ] 5c.1 RED: fixture — style declares 6 toggles, project ships only 5 at declared value → new
-      precharge rule FAILs, naming the toggle and style.
-- [ ] 5c.2 RED: fixture — style A declares 2, style B declares 6, project on A ships exactly 2 →
-      audit does not FAIL for "too few" (no universal floor).
-- [ ] 5c.3 Each `STY-*.md` declares its precharge list; implement the per-style precharge rule;
-      extend `web-templates/references/toggles.md` intake wiring.
-- [ ] 5c.4 GREEN: both precharge fixtures pass exactly; full chain green.
+- [x] 5c.1 RED: fixture (`r155`) — `STY-FIX-SIX` declares 6 toggles (`fx_sty_precharge()`, new
+      fixture helper), a ledger row resolved to it ships 5 at the declared value, 1 (`TGL-F`)
+      absent from the `Toggles` cell entirely. **Verified genuinely red before implementing**:
+      stashed `framework-audit.php` + `CONTRIBUTING.md` back to PR 5b's HEAD, reran the suite —
+      744 OK / 1 FAIL, isolated to exactly the one assertion that reads the new rule's own FAIL
+      row (`<0 rows matched, expected exactly 1>`); the companion exit-code assertion was already
+      true pre-implementation for an unrelated reason (`STY-FIX-SIX` reuses `PERS-EDITORIAL`'s own
+      axes verbatim, so `RT_STYLE_TOO_SIMILAR` already forces exit 1 — disclosed, not hidden, same
+      "value not novelty" discipline PR 4a/4b/5b used), and r156's silence-only assertion was
+      trivially true too (the rule not existing is one honest way to stay silent). Un-stashed,
+      confirmed GREEN.
+- [x] 5c.2 RED: fixture (`r156`) — `STY-FIX-TWO` declares 2, `STY-FIX-SIX-B` declares 6 (same
+      catalog, no delivery ever resolves to the second), a ledger row resolved to `STY-FIX-TWO`
+      ships exactly its 2 at declared value → the audit does not FAIL for "too few" against
+      either a fixed count or the bigger catalog sibling. Same RED run as 5c.1 above.
+- [x] 5c.3 Verified all 8 `STY-*.md`'s precharge tables (PR 4a/4b's own work): each already
+      declares 5 rows with genuinely varied values across styles (motion-intensity: `default`×3,
+      `sutil`×2, `audaz`×2; hero-type: `imagen fija`×6, `slider`×1; cta-strength: `suave`×3,
+      `fuerte`×2, `medio`×2; card-style: `imagen grande`×3, `compacta con datos`×3) — nothing to
+      complete, no edits needed to any real `STY-*.md`. Implemented `RT_STYLE_PRECHARGE_UNSHIPPED`
+      (FAIL) in `framework-audit.php`: two new helpers, `style_precharge_rows()` (parses a
+      `STY-*.md`'s own "## Toggle precharge" / "## Precarga de toggles" table via the existing
+      `ledger_table_rows()` generic pipe-table parser — no third hand-rolled one) and
+      `ledger_toggle_map()` (parses the ledger's new `Toggles` cell, `TGL-ID=value; …`); a new rule
+      block reads, for every ledger row WITH a resolved `Style`, that style's own declared
+      precharge list and FAILs — naming the toggle and the style — for each declared toggle the
+      row's `Toggles` column does not show shipped at the declared value. **No universal floor,
+      by construction**: the comparison is always against the resolved style's OWN file, never a
+      fixed count or another style's list. Extended `shipped-log.md`'s row shape with the new
+      `Toggles` column (documented in its own "Row shape" table and a new third bullet under
+      "Three audit rules read this file") and `web-templates/references/toggles.md`'s intake
+      wiring with a new paragraph naming the second precharge source (`STY-*`, alongside CAPA 2)
+      and where the confirmed-or-changed value is recorded for the audit to read.
+      `CONTRIBUTING.md` documents the new row (`RT_ROWTYPE_UNDOCUMENTED`'s own gate).
+- [x] 5c.4 GREEN: both fixtures pass exactly (see 5c.1's verbatim RED→GREEN run); full chain green.
+      `tests/test-framework-audit.php`: **745 OK / 0 FAIL** (was 740 at PR 5b close; +5 net new —
+      3 assertions across 2 scenarios + 2 "subprocess launched" checks). Real-repo audit: **0 FAIL
+      / 4 WARN** — the same 4 pre-existing word-budget WARNs, unchanged (elementor-core 588,
+      html-mockup 567, web-templates 559 confirmed via `--word-report`, woocommerce 597). Full
+      chain: `test-container-hygiene` 81 + `test-framework-audit` 745 + `test-audit-signals` 22 +
+      `test-write-path` 523 = **1371 OK / 0 FAIL** (was 1366 at PR 5b close). `php -l` clean on
+      both touched PHP files. `git status`: exactly 5 tracked files modified (`CONTRIBUTING.md`,
+      `framework-audit.php`, `shipped-log.md`, `toggles.md`, `test-framework-audit.php`); the 5
+      DO-NOT-TOUCH paths confirmed exactly as inherited (untouched by this session). **Diff: 198
+      insertions / 9 deletions = 207 changed lines, 57 over the ~150-line estimate**, reported per
+      instruction: `framework-audit.php`'s two new helpers plus the rule block (87 lines) and the
+      test file's new `fx_sty_precharge()` fixture helper plus two full RED/GREEN scenarios with a
+      6-row and a 2-row precharge table each (93 lines) needed the room, at the same
+      documentation density every prior PR in this change used.
 
 ## Slice 6 — `ROUTE-BESPOKE` (`bespoke-route`)
 

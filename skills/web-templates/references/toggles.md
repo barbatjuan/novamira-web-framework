@@ -5,6 +5,16 @@ intercambia un bloque modular. El agente NO pregunta lo que la plantilla ya resu
 
 Los defaults llegan precargados desde el intake de referencias (CAPA 2). El cliente confirma o cambia.
 
+**Segunda fuente de precarga, desde `art-direction-ledger`.** El estilo `STY-*` que el cliente
+elige en el intake de `recommender.md` trae su propia tabla "Toggle precharge" — solo toggles de
+la lista transversal de este archivo, porque `STY-*` es ortogonal a `TPL-*` y solo un toggle que
+toda plantilla reconoce puede precargarse desde el estilo por sí solo. El valor final (confirmado
+o cambiado) se registra en la columna `Toggles` de `shipped-log.md`; el audit offline
+(`RT_STYLE_PRECHARGE_UNSHIPPED`) verifica que cada toggle que el estilo resuelto declara haya
+llegado a esa columna con el valor declarado — nunca contra un piso universal, siempre contra la
+propia lista del estilo resuelto: un estilo que declara 2 queda tan cumplido con 2 como uno que
+declara 6 con 6.
+
 > **Este archivo es la copia, no el original.** La autoridad sobre qué toggles admite una plantilla
 > es la tabla "§ 4 Toggles admitidos" de su propio `TPL-*.md`. La columna "Aplica en" de abajo está
 > transcrita de esas tablas y se vuelve a transcribir cuando cambian — nunca al revés. Ya se
