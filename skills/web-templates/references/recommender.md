@@ -66,6 +66,15 @@ Con las tres respuestas resueltas, `elementor-core` las graba en el manifiesto
 (`es_record_style_resolution()`, `references/knowledge.md`) antes de construir — si falta una,
 la grabación falla cerrada y no arranca el build con una resolución a medias.
 
+### Ruta bespoke: si ningún `STY-*` alcanza (`ROUTE-BESPOKE`)
+
+Si ningún candidato del catálogo expresa el proyecto, ofrecer `ROUTE-BESPOKE`
+(`ux-design-system/references/style-catalog/_bespoke-route.md`) — deliberadamente MÁS cara, no un
+atajo: precarga cero, las 8 preguntas de eje respondidas una por una antes de construir, más un
+wireframe declarado, sin ninguna excepción de accesibilidad. Se registra en `shipped-log.md` como
+cualquier entrega, y si funciona se propone como `STY-*` nuevo — sujeto a la misma distancia contra
+el catálogo que cualquier entrada.
+
 ## 3. Mapa señal → plantilla (ecommerce)
 
 ### Familia A — por PERFIL (`TPL-E-01..05`)

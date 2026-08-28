@@ -43,6 +43,7 @@ live `design` section on purpose — that section only needs to say what is true
 | Scale | the resolved scale position |
 | Chassis | which starting chassis this delivery built from: `corporate` or `ecommerce` |
 | Toggles | `TGL-ID=value; TGL-ID2=value2; …` — every toggle the resolved `STY-*` precharges (`web-templates/references/toggles.md`), at the value it actually shipped with, `;`-joined. Only the style's OWN declared list, never the full 39-toggle catalogue — a style declaring 2 writes 2 |
+| Route | `bespoke` for a `ROUTE-BESPOKE` delivery (style-catalog PR 6), blank for a catalog delivery. The one cell that tells a deliberate zero-precharge build apart from an unresolved default — both leave `Style` blank |
 
 ## Who writes a row, and when
 
@@ -62,6 +63,10 @@ discipline to `corpus.md`'s own index, in the same pass, so the two histories ca
   recorded — every corporate site shipped `PERS-INSTITUTIONAL` "not because anyone chose them but
   because nobody was asked to." A blank `Style` here means the intake's answer either never
   happened or never reached this ledger; either way, the project shipped on the untouched default.
+  **Exception (style-catalog PR 6):** a row whose `Route` reads `bespoke` never trips this row even
+  with `Style` blank — `ROUTE-BESPOKE`'s own first requirement is zero precharge, so a resolved
+  `STY-*` id is never expected there; its own gate is `RT_BESPOKE_UNDECLARED` before build, not
+  this one after delivery.
 - **`RT_STYLE_PRECHARGE_UNSHIPPED` (FAIL)** — for a row WITH a resolved `Style`, reads that
   `STY-*.md`'s own "Toggle precharge" table and FAILs, naming the toggle and the style, for every
   declared toggle this row's `Toggles` column does not show shipped at the declared value. Root
@@ -74,5 +79,5 @@ discipline to `corpus.md`'s own index, in the same pass, so the two histories ca
 
 No delivery has been recorded yet.
 
-| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles |
-|---|---|---|---|---|---|---|---|
+| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles | Route |
+|---|---|---|---|---|---|---|---|---|

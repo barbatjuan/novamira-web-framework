@@ -199,3 +199,10 @@ half of the exact "nobody was asked" defect this section already documented. See
 ## Backlog
 
 `_backlog.md` records the movements deferred from v1, with the reason each is deferred.
+
+## PR 6 — `ROUTE-BESPOKE`, the from-scratch escape hatch
+
+`_bespoke-route.md` documents the route for a project none of the 8 entries can express: zero
+precharge, a `BSP-*.md` declaration (8 axes + wireframe, `RT_BESPOKE_UNDECLARED`) before
+builder-core, no accessibility exemption, mandatory ledger registration, and a promotion path back
+into this directory as a new `STY-*.md` — subject to `RT_STYLE_TOO_SIMILAR` like any other entry.

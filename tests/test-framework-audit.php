@@ -365,17 +365,18 @@ function fx_sty_catalog_clear( $root ) {
 		unlink( $fx_sty_f );
 	}
 }
-/* style-catalog PR 5b/5c: writes skills/ux-design-system/references/shipped-log.md, the real
+/* style-catalog PR 5b/5c/6: writes skills/ux-design-system/references/shipped-log.md, the real
    ledger's exact column order (Date | Client | Style | Ground | Accent | Scale | Chassis |
-   Toggles). $rows is a list of 7- or 8-cell arrays, appended in the order given -- the 8th
-   (Toggles, PR 5c) is optional per row, exactly like the real file's own optional cell for a
-   delivery that precharges nothing; a 7-cell row simply reads back as an empty Toggles column
-   (ledger_table_rows()'s own isset() fallback). The real file is append-only, newest last, so a
-   scenario's own row order IS its delivery order. */
+   Toggles | Route). $rows is a list of 7-, 8- or 9-cell arrays, appended in the order given --
+   the 8th (Toggles, PR 5c) and 9th (Route, PR 6) are both optional per row, exactly like the real
+   file's own optional cells; a shorter row simply reads back with the missing columns empty
+   (ledger_table_rows()'s own isset() fallback -- unchanged by widening the header, since it maps
+   by NAME, not by cell count). The real file is append-only, newest last, so a scenario's own row
+   order IS its delivery order. */
 function fx_ledger( $root, array $rows ) {
 	$out = "# Shipped log fixture\n\n"
-		. "| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles |\n"
-		. "|---|---|---|---|---|---|---|---|\n";
+		. "| Date | Client | Style | Ground | Accent | Scale | Chassis | Toggles | Route |\n"
+		. "|---|---|---|---|---|---|---|---|---|\n";
 	foreach ( $rows as $fx_lr ) {
 		$out .= '| ' . implode( ' | ', $fx_lr ) . " |\n";
 	}
@@ -398,6 +399,23 @@ function fx_sty_precharge( $root, $id, $axes_from, array $tgl_rows ) {
 		$table .= '| `' . $tr[0] . '` | `' . $tr[1] . "` | fixture |\n";
 	}
 	fx( $root, 'skills/ux-design-system/references/style-catalog/' . $id . '.md', $block . $table );
+}
+
+/* style-catalog PR 6: a ROUTE-BESPOKE intake declaration -- shares fx_pers()'s exact axes-line
+   shape (parsed by the same pers_axes() RT_PERS_BAD_AXIS uses) plus a wireframe block in
+   fx_tpl()'s exact shape (parsed by the same tpl_wireframe_comps() RT_TPL_NO_WIREFRAME uses).
+   $ornament === null (fx_pers()'s own omission convention) writes an incomplete manifest --
+   RT_BESPOKE_UNDECLARED's own RED case; $comps === null omits the wireframe heading entirely. */
+function fx_bsp( $root, $id, $scale, $ground, $density, $composition, $elevation, $accent = null, $chassis = null, $ornament = null, $comps = array( 'HERO' ) ) {
+	$block = fx_pers( $id, $scale, $ground, $density, $composition, $elevation, $accent, $chassis, $ornament );
+	if ( null !== $comps ) {
+		$block .= "## 2. Wireframe\n\n```\n";
+		foreach ( $comps as $c ) {
+			$block .= 'COMP-' . $c . "\n";
+		}
+		$block .= "```\n";
+	}
+	fx( $root, 'skills/ux-design-system/references/style-catalog/BSP-' . $id . '.md', $block );
 }
 
 /* A minimal write-capable SKILL.md: frontmatter + a passing build gate + the given "## Hard
@@ -5438,6 +5456,54 @@ fx_ledger(
 list( , $out158 ) = fx_run_ok( $audit, $r158 );
 ok( 'FAIL' === fx_row_level( $out158, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-X' ) ), 'TGL-X precargado y ausente del registro si dispara: un blanco no es una decision', fx_row_level( $out158, array( 'RT_STYLE_PRECHARGE_UNSHIPPED', 'TGL-X' ) ) );
 fx_rrmdir( $r158 );
+
+echo "--- style-catalog PR 6: RT_BESPOKE_UNDECLARED -- a BSP-*.md missing the ornament answer FAILs, naming it ---\n";
+/* Zero precharge is ROUTE-BESPOKE's own first requirement: every one of the 8 axes gets an
+   explicit answer before builder-core, none inherited. $ornament omitted (fx_pers()'s own
+   omission convention, the same one RT_PERS_BAD_AXIS's r92b uses for STY-*.md) is the RED case --
+   no rule reading BSP-*.md existed before this PR. */
+$r159 = fx_tmp_root();
+fx_base( $r159 );
+fx_bsp( $r159, 'client-alpha', 'contained', 'paper', 'standard', 'centered', 'none', 'none', 'bare' );
+list( $code159, $out159 ) = fx_run_ok( $audit, $r159 );
+ok( 'FAIL' === fx_row_level( $out159, array( 'RT_BESPOKE_UNDECLARED', 'ornament' ) ), 'a bespoke manifest missing the ornament answer FAILs, naming the missing axis', fx_row_level( $out159, array( 'RT_BESPOKE_UNDECLARED', 'ornament' ) ) );
+ok( 1 === $code159, 'an undeclared axis blocks the audit -- zero precharge means every axis is answered, not most', $code159 );
+fx_rrmdir( $r159 );
+
+echo "--- a complete BSP-*.md -- all 8 axes plus a declared wireframe -- never trips the same row ---\n";
+$r160 = fx_tmp_root();
+fx_base( $r160 );
+fx_bsp( $r160, 'client-beta', 'contained', 'paper', 'standard', 'centered', 'none', 'none', 'bare', 'none', array( 'HERO', 'FOOTER' ) );
+list( , $out160 ) = fx_run_ok( $audit, $r160 );
+ok( array() === fx_lines_with( $out160, array( 'RT_BESPOKE_UNDECLARED' ) ), 'a complete manifest -- 8 axes and a declared wireframe -- never FAILs', $out160 );
+fx_rrmdir( $r160 );
+
+echo "--- promotion grants no exemption: a promoted STY-* sharing 3 of 8 axes with an existing entry FAILs RT_STYLE_TOO_SIMILAR, unmodified ---\n";
+/* No new mechanism: promotion means writing the bespoke build's 8-axis answers as an ORDINARY
+   STY-*.md, so the existing, unmodified RT_STYLE_TOO_SIMILAR (the PR 2b/4c gate above) already
+   applies to it exactly as it applies to any of the 8 real entries -- proving that is this
+   scenario's whole job. Shares scale/ground/composition (3) with the fixture catalog's
+   PERS-EDITORIAL entry, hand-verified to share at most 1 with each of the other four. */
+$r161 = fx_tmp_root();
+fx_base( $r161 );
+fx( $r161, 'skills/ux-design-system/references/style-catalog/STY-PROMOTED.md', fx_pers( 'STY-PROMOTED', 'editorial', 'paper', 'standard', 'asymmetric', 'accent-glow', 'duotone', 'layered', 'pattern' ) );
+list( $code161, $out161 ) = fx_run_ok( $audit, $r161 );
+ok( 'FAIL' === fx_row_level( $out161, array( 'RT_STYLE_TOO_SIMILAR', 'STY-PROMOTED' ) ), 'a promoted entry sharing 3 of 8 axes with an existing catalog entry FAILs -- promotion buys no exemption from distinctness', fx_row_level( $out161, array( 'RT_STYLE_TOO_SIMILAR', 'STY-PROMOTED' ) ) );
+ok( 1 === $code161, 'the collision blocks the audit, the same as any other catalog pair', $code161 );
+fx_rrmdir( $r161 );
+
+echo "--- necessary, disclosed: a ROUTE-BESPOKE delivery's blank Style never trips RT_STYLE_UNRESOLVED_DEFAULT -- Route tells the two apart ---\n";
+/* Without this exception, EVERY ROUTE-BESPOKE delivery -- Style legitimately blank by its own
+   Zero Precharge requirement -- would FAIL the ledger forever, since a blank Style beside a
+   filled Chassis is exactly r153's own trigger above. That would make the very route this PR
+   implements undeliverable, discovered while wiring "Ledger Registration Is Mandatory" and fixed
+   here rather than shipped broken. */
+$r162 = fx_tmp_root();
+fx_base( $r162 );
+fx_ledger( $r162, array( array( '2026-08-26', 'mu', '', 'saturated', 'magenta', 'monumental', 'ecommerce', '', 'bespoke' ) ) );
+list( , $out162 ) = fx_run_ok( $audit, $r162 );
+ok( array() === fx_lines_with( $out162, array( 'RT_STYLE_UNRESOLVED_DEFAULT' ) ), 'Route=bespoke with a blank Style is a deliberate zero-precharge build, not the untended default the gate exists to catch', $out162 );
+fx_rrmdir( $r162 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

@@ -961,17 +961,42 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 
 ## Slice 6 — `ROUTE-BESPOKE` (`bespoke-route`)
 
-- [ ] 6.1 RED: fixture — bespoke manifest missing `ornament` → `RT_BESPOKE_UNDECLARED` FAILs,
-      naming the missing axis (no such rule exists yet).
-- [ ] 6.2 RED: fixture — complete manifest (8 axes + wireframe) → `RT_BESPOKE_UNDECLARED` does not FAIL.
-- [ ] 6.3 RED: fixture — promoted entry shares 3/8 with an existing entry → `RT_STYLE_TOO_SIMILAR`
-      FAILs (promotion grants no exemption).
-- [ ] 6.4 Implement zero-precharge intake (8 explicit axis answers + wireframe) before
-      builder-core; `RT_BESPOKE_UNDECLARED`; confirm no accessibility gate is skipped (AA, AAA 7:1,
-      4.5:1 eyebrow, one `<h1>`, Lighthouse ≥90, touch targets, `RT_MOCKUP_DISCLOSURE_STATE`); wire
-      ledger registration and the promotion path into `STY-*`.
-- [ ] 6.5 GREEN: all 3 fixtures pass exactly; full chain green — this PR is the tracker's final
-      candidate for merge to `main`.
+- [x] 6.1 RED: fixture — bespoke manifest missing `ornament` → `RT_BESPOKE_UNDECLARED` FAILs,
+      naming the missing axis (no such rule exists yet). **Verified genuinely red**: restored
+      `framework-audit.php` to its pre-PR-6 HEAD (`040a3b1`) with the new fixtures already in
+      place — `<0 rows matched, expected exactly 1>` for the row-level assertion, exit code 0 not
+      1 (3 FAIL total, isolated to this scenario plus its own exit-code companion and the ledger
+      scenario below). Restored the implementation, reran: green.
+- [x] 6.2 RED: fixture — complete manifest (8 axes + wireframe) → `RT_BESPOKE_UNDECLARED` does not
+      FAIL. Trivially true pre-implementation (a rule that does not exist cannot FAIL), same
+      "value, not novelty" discipline PR 4a/4b/5b/5c used — its real value is locking the complete
+      case once the rule exists, confirmed still silent after.
+- [x] 6.3 RED: fixture — promoted entry shares 3/8 with an existing entry → `RT_STYLE_TOO_SIMILAR`
+      FAILs (promotion grants no exemption). **No new mechanism needed, proven not assumed**: this
+      scenario was ALREADY green against the pre-PR-6 audit — promotion means writing the bespoke
+      build's 8 axes as an ordinary `STY-*.md`, so the existing, unmodified PR 2b/4c
+      `RT_STYLE_TOO_SIMILAR` gate already applies to it. `STY-PROMOTED` (scale `editorial` ·
+      ground `paper` · density `standard` · composition `asymmetric` · elevation `accent-glow` ·
+      accent `duotone` · chassis `layered` · ornament `pattern`) shares exactly 3 of 8 with
+      `PERS-EDITORIAL` (scale, ground, composition), hand-verified ≤2 with the other four fixture
+      anchors.
+- [x] 6.4 Implemented zero-precharge intake (8 explicit axis answers + wireframe) before
+      builder-core; `RT_BESPOKE_UNDECLARED`; confirmed no accessibility gate is skipped (AA, AAA
+      7:1, 4.5:1 eyebrow, one `<h1>`, Lighthouse ≥90, touch targets,
+      `RT_MOCKUP_DISCLOSURE_STATE` — verified by reading each gate's own code, all route-agnostic:
+      Lighthouse/H1/disclosure gates read whatever HTML was actually delivered and name no route
+      or `STY-*` id anywhere; AAA/4.5:1 contrast is a property of the ground family chosen,
+      inherited by construction whichever axis path reached it); wired ledger registration
+      (`shipped-log.md` gained a `Route` column) and the promotion path into `STY-*`
+      (`references/style-catalog/_bespoke-route.md`). **Cross-cutting fix, discovered mid-
+      implementation, disclosed not hidden**: a `ROUTE-BESPOKE` row's blank `Style` (its own Zero
+      Precharge requirement) would otherwise FAIL `RT_STYLE_UNRESOLVED_DEFAULT` forever — the
+      exact trigger PR 5b's r153 already locks — making the route this PR implements
+      undeliverable. Fixed by reading the new `Route` column: `RT_STYLE_UNRESOLVED_DEFAULT` skips
+      only when `Route === 'bespoke'`, unchanged otherwise (r153/r154 confirmed unaffected).
+- [x] 6.5 GREEN: all 3 required fixtures (6.1–6.3) pass exactly, plus the disclosed ledger-fix
+      fixture; full chain green — this PR is the tracker's final candidate for merge to `main`.
+      See `sdd/style-catalog/apply-progress` (Engram) for the verbatim run.
 
 ## Re-baselining tasks (explicit, per proposal/design)
 

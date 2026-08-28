@@ -122,6 +122,7 @@ const ROW_TYPES = array(
 	'RT_STYLE_REPEATS_RECENT'    => 'WARN  — shipped-log.md: the newest delivery\'s style also appears among the 4 before it, within the last 5',
 	'RT_STYLE_UNRESOLVED_DEFAULT' => 'FAIL  — shipped-log.md: a delivery names its chassis default but no resolved style — nobody was asked, or the answer never reached the ledger',
 	'RT_STYLE_PRECHARGE_UNSHIPPED' => 'FAIL  — shipped-log.md: a delivery\'s resolved style declares a toggle precharge the ledger does not show shipped at that value',
+	'RT_BESPOKE_UNDECLARED'      => 'FAIL  — a BSP-*.md ROUTE-BESPOKE declaration names no position for one of the 8 axes, or declares no wireframe',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1207,6 +1208,47 @@ if ( array() === $sty_files ) {
 				);
 			}
 		}
+	}
+}
+
+/* --------------------------------------- ROUTE-BESPOKE intake declarations (style-catalog PR 6)
+ *
+ * `ux-design-system/SKILL.md`'s own axis step precharges every axis from an industry or a gallery
+ * card, on purpose -- that IS the fast path. ROUTE-BESPOKE is the escape hatch for when the
+ * catalog cannot express a project, and its whole contract is ZERO precharge: every one of the 8
+ * axes gets its own explicit answer before builder-core, none inherited (`recommender.md`'s
+ * intake asks it). The orchestrator writes what was answered into a `BSP-*.md` file -- structural
+ * metadata (axis labels, a wireframe section inventory), the same class of receipt
+ * `shipped-log.md` already is, never the client's actual site (`shipped-log.md`: "client work
+ * does not belong in this repository"). Filed beside the catalog it may feed
+ * (references/style-catalog/, `BSP-*.md` -- a different glob prefix than `STY-*.md`, so it never
+ * enters `RT_STYLE_TOO_SIMILAR`'s own comparison above), because "promotion feeds the catalog,
+ * never bypasses it" is easiest to keep true when the escape hatch and the thing it escapes share
+ * one directory. On the real repo this glob is empty until a first bespoke project ships --
+ * silent, same as `RT_TPL_NO_WIREFRAME` before any `TPL-*.md` exists.
+ *
+ * Reuses `pers_axes()` (the exact `**Axes:**` parser `STY-*.md` uses above) and
+ * `tpl_wireframe_comps()` (the exact "## 2. Wireframe" parser `RT_TPL_NO_WIREFRAME` uses below)
+ * rather than a third pair of parsers for a third document shape -- a `BSP-*.md` is a
+ * `STY-*.md`'s axis declaration plus a `TPL-*.md`'s wireframe declaration, nothing new to read.
+ */
+$bsp_files = glob( $sty_dir . '/BSP-*.md' );
+if ( ! is_array( $bsp_files ) ) {
+	$bsp_files = array();
+}
+sort( $bsp_files );
+foreach ( $bsp_files as $bsp_file ) {
+	$bsp_base  = basename( $bsp_file );
+	$bsp_block = slurp( $bsp_file );
+	$bsp_axes  = pers_axes( $bsp_block );
+	foreach ( $PERS_AXES as $bsp_axis => $bsp_positions ) {
+		if ( ! isset( $bsp_axes[ $bsp_axis ] ) ) {
+			add( 'RT_BESPOKE_UNDECLARED', 'FAIL', 'ux-design-system', $bsp_base . ' names no position for axis "' . $bsp_axis . '" -- ROUTE-BESPOKE answers every axis explicitly, none inherited' );
+		}
+	}
+	$bsp_wire = tpl_wireframe_comps( $bsp_block );
+	if ( null === $bsp_wire || array() === $bsp_wire[0] ) {
+		add( 'RT_BESPOKE_UNDECLARED', 'FAIL', 'ux-design-system', $bsp_base . ' declares no wireframe under "## 2. Wireframe" -- ROUTE-BESPOKE still owes QA a declared inventory to build against' );
 	}
 }
 
@@ -3892,11 +3934,17 @@ if ( file_exists( $ledger_file ) ) {
 	 * no resolved Style beside it is the offline-visible shadow of a delivered mockup that still
 	 * carries the untouched chassis default with no style resolution ever recorded — the one fact
 	 * the live es_manifest_read()['design'] would hold and this audit cannot read directly.
+	 *
+	 * style-catalog PR 6 exception: a ROUTE-BESPOKE delivery legitimately carries no Style at all
+	 * -- "Zero Precharge" is its own first requirement, not the untended default this rule exists
+	 * to catch. `Route` is the one cell offline evidence can read to tell the two apart; a blank
+	 * Route beside a blank Style is still the original, unrelated defect.
 	 */
 	foreach ( $ledger_rows as $ldg_row ) {
 		$ldg_style   = trim( isset( $ldg_row['Style'] ) ? $ldg_row['Style'] : '' );
 		$ldg_chassis = trim( isset( $ldg_row['Chassis'] ) ? $ldg_row['Chassis'] : '' );
-		if ( '' !== $ldg_chassis && '' === $ldg_style ) {
+		$ldg_route   = trim( isset( $ldg_row['Route'] ) ? $ldg_row['Route'] : '' );
+		if ( '' !== $ldg_chassis && '' === $ldg_style && 'bespoke' !== $ldg_route ) {
 			$ldg_client = ( isset( $ldg_row['Client'] ) && '' !== trim( $ldg_row['Client'] ) ) ? trim( $ldg_row['Client'] ) : 'an unnamed delivery';
 			$ldg_date   = ( isset( $ldg_row['Date'] ) && '' !== trim( $ldg_row['Date'] ) ) ? trim( $ldg_row['Date'] ) : 'an undated row';
 			add(
