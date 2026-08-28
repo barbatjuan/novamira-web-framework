@@ -418,20 +418,77 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 
 ## Slice 3 — Colour and photographic tone (`colour-and-tone-system`)
 
-- [ ] 3a.1 **RED (free)**: extend `tests/test-write-path.php` ground whitelist (`:2327`) from
+- [x] 3a.1 **RED (free)**: extend `tests/test-write-path.php` ground whitelist (`:2327`) from
       `paper/warm/cool/ink` to 9 names, and `4 === count($suelos)` (`:2339`) to `9 ===` — FAILs
       immediately against the still-4-row `design-system.md`.
-- [ ] 3a.2 RED: extend the AAA 7:1 loop (`:654-669`, today iterates `$BRANDS` only — verified gap:
-      the 4 tabled house grounds are never body-contrast-gated) to also run over `$GROUND`'s 4 base
-      positions.
-- [ ] 3a.3 RED: add the ~20-line `$GROUND` drift assertion (in scope per Engram #353) comparing
-      `_build-gallery.php`'s `$GROUND` literal (`:238-243`) against `design-system.md`'s parsed
-      ground table (`:304-316`).
-- [ ] 3a.4 Add 5 ground rows to `design-system.md`; recompute every derived ratio (`:335-394`) per
-      family: body ≥4.5:1, inverse surface ≥3:1, hairline 1.05–2.5:1, ground 7:1.
-- [ ] 3a.5 Widen `$GROUND` and `$ACCENT_BY_GROUND` to 9 families in `_build-gallery.php`; each
-      accent clears 4.5:1 on bg and bg-alt (`:677-688`).
-- [ ] 3a.6 GREEN: whitelist/count/AAA-loop/drift assertions all pass at 9; full chain green.
+      **Verified genuinely red**: ran immediately after the edit, before touching design-system.md
+      or `_build-gallery.php` — `FAIL las nueve posiciones de ground se leen de design-system.md:
+      paper, warm, cool, ink` (only 4 keys parsed), 441 OK / 1 FAIL, isolated to this one assertion.
+      `ink` kept its name rather than becoming `ink-neutral`: `framework-audit.php`'s `nm_axes()`
+      (`ground` positions, `:1044-1048`) and all five anchors' `**Axes:**` lines in
+      design-personalities.md already declare `ink`, and renaming it with those two files untouched
+      would desync `RT_MOCKUP_AXES_MISMATCH`'s label against the emitted marker for zero benefit —
+      that rename is Slice 4's job, not this PR's. Final 9: `paper/warm/cool/cream/earth/saturated/
+      ink/ink-warm/ink-cool`.
+- [x] 3a.2 RED: extend the AAA 7:1 loop (`:671-686` in the current checkout — design cited `:654-669`,
+      shifted by PR 1e/2a/2b; today iterates `$BRANDS` only — verified gap: the 4 tabled house
+      grounds are never body-contrast-gated) to also run over `$GROUND`'s base positions.
+      Implemented as a dedicated loop right after `$GROUND`'s own literal, same `fail()` message
+      shape as the brand loop. **Empirically confirmed the gap first**: the unmodified generator
+      ran clean with no complaint about the 4 tabled grounds' contrast before this loop existed.
+- [x] 3a.3 RED: add the `$GROUND` drift assertion (in scope per Engram #353) comparing
+      `_build-gallery.php`'s `$GROUND` literal (`:238-243` at design time, unchanged in the current
+      checkout) against `design-system.md`'s parsed ground table (`:310-316`), via regex extraction
+      of the literal array (no `require`, since the generator has file-write side effects).
+      **RED/GREEN proved by deliberate mutation, per the Definition of Done**: changed
+      `ink-warm`'s documented `--c-text` from `#F7EFE2` to `#F7EFE9` in design-system.md alone,
+      re-ran `test-write-path.php` → `FAIL $GROUND['ink-warm']['text'] coincide con
+      design-system.md: #F7EFE2` (491 OK / 1 FAIL), then restored → 492 OK / 0 FAIL.
+- [x] 3a.4 Added 5 ground rows to `design-system.md` (Ground table `:310-318` + Derived-token table
+      widened from 4 to 9 position-columns, `:356-361`); recomputed every derived ratio per family:
+      body ≥4.5:1, inverse surface ≥3:1, hairline 1.05–2.5:1, ground 7:1 AAA. Fixed stale "four
+      rows"/"all four positions" prose in the same section (now "nine"). **Deviation, disclosed**:
+      `earth` could not ship as a genuinely medium-luminance ground — proved geometrically (a
+      `--c-bg` luminance of 0.20 tops out at 4.75:1/5.03:1 against pure black/white text, both
+      under the 7:1 AAA floor), so `earth` sits near-white like the others, distinguished by a
+      deeper, more saturated ochre hue rather than by lightness. `earth` and `saturated` also
+      needed a SUBTLER `--c-bg-alt` step than the original 4 families: at the first-chosen alt
+      values, `--c-text-muted` (blended toward bg-alt, the harder bar this file's own Spanish
+      paragraph at `:378-387` argues for) measured 4.08:1/4.33:1 — under 4.5. Found by literally
+      recomputing the doc's own "against bg-alt" convention, not just the runtime gate (which
+      measures against bg and would have passed silently); re-picked both families' `bg-alt` closer
+      to `bg` until the harder bar cleared too (earth 4.53:1, saturated 4.59:1), keeping the
+      file's own stated invariant — "a muted that passes over bg-alt passes over bg too" — true for
+      all 9 families, not just the original 4.
+- [x] 3a.5 Widened `$GROUND` and `$ACCENT_BY_GROUND` to 9 families in `_build-gallery.php`; each
+      accent independently clears 4.5:1 on bg and bg-alt (`:695-706` in the current checkout).
+      **Went beyond the bare task text on explicit instruction** (non-negotiable per the session
+      brief): `paper`/`warm`/`cool` no longer share one literal (`#8C3A1F` on 3 of 4 grounds was
+      named as half the defect this PR exists to remove) — `paper` keeps it, `warm`/`cool` get
+      independently-measured hexes. Stale prose making the old "one hue family for the whole
+      gallery" claim fixed at 3 sites (`:456-462`, `:783-786` current line numbers, the closing-field
+      comment at `:6667-6670`) since it became false.
+      **Two genuine cross-PR couplings found and resolved, both real, neither touching PR 3b's ink
+      mechanism**: `$ACCENT_BY_GROUND[$ground]` is `ink_ends()`'s THIRD parameter for the two
+      anchors that own `warm`/`cool` (`matter`/`institutional`), so changing the accent changes
+      those anchors' derived shadow ink as an INPUT effect, not a mechanism change.
+      (1) The channel-spread ≥20 gate (`:938-952`, PR 3b's own gate, unmodified): a first candidate
+      teal-green for `warm` (`#1F5C4D`) measured spread 17 — FAIL. Searched and replaced with
+      `#0F5C1A` (forest green, spread 26).
+      (2) The swatch-separation ≥10 gate (`:9492-9510`, unmodified, pixel-based — real photographs
+      of `sq-marmol`/`sq-pizarra`): EVERY blue/violet candidate tried for `cool` (7 measured,
+      `#1B4F7A`..`#2B6CA3`, spread 2.6–4.8) passed the other two gates but collapsed this one under
+      the 10.0 bar — a hue-family effect, not a shade-tuning one. Resolved empirically (this gate
+      has no offline formula — it reads real image pixels through `ink_curve()`/`ink_mean()`) by
+      running the actual generator against candidate hexes directly: crimson (`#8C1A28`) is the
+      hue family that clears all three gates at once (8.37:1/7.78:1 eyebrow, spread 38, swatch gap
+      clears with room). Documented inline at the array entry, house idiom (LUMIÈRE/TUESTE NORTE
+      pattern).
+      5 new positions each get an independently-measured, non-repeating accent: `cream` `#3F4E1A`
+      olive, `earth` `#3A2560` indigo, `saturated` `#8A2450` magenta-plum, `ink-warm` `#E8B93A`
+      amber-gold, `ink-cool` `#4FA8E0` sky blue.
+- [x] 3a.6 GREEN: whitelist/count/AAA-loop/drift assertions all pass at 9; full chain green (see
+      Work Unit Evidence below).
 - [ ] 3b.1 RED: fixture — style A `$INK_TINT=0.30`, style B `0.60` → differing hues, both within
       `ink_quant_bound()` of `ink_ends()`'s convergence assertion (`:895`).
 - [ ] 3b.2 RED: fixture — style declares ink position `none` → no `filter:url()` emitted (`:9342`);

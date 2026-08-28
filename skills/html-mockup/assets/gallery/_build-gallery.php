@@ -234,13 +234,42 @@ $DENSITY = array(
 	'monumental' => '1.7',
 );
 
-/* § Ground — --c-bg, --c-bg-alt, --c-text (+ that row's own measured contrast) */
+/* § Ground — --c-bg, --c-bg-alt, --c-text (+ that row's own measured contrast). NINE positions,
+   not four — style-catalog PR 3a. `paper`/`warm`/`cool`/`ink` are BYTE-IDENTICAL to what shipped
+   before; `cream`/`earth`/`saturated`/`ink-warm`/`ink-cool` are new. `ink` keeps its name rather
+   than becoming `ink-neutral`: framework-audit.php's `nm_axes()` (`ground` positions) and all five
+   `**Axes:**` lines in design-personalities.md already declare `ink` by that word, and repointing
+   either is style-catalog's Slice 4, not this one — renaming here with those two files untouched
+   would desync `RT_MOCKUP_AXES_MISMATCH`'s label against the emitted marker for zero benefit. */
 $GROUND = array(
-	'paper' => array( 'bg' => '#FFFFFF', 'alt' => '#F6F7F8', 'text' => '#15181A' ),
-	'warm'  => array( 'bg' => '#FFF3E3', 'alt' => '#F7E8D4', 'text' => '#241C14' ),
-	'cool'  => array( 'bg' => '#F2F5F8', 'alt' => '#E8EDF3', 'text' => '#141C24' ),
-	'ink'   => array( 'bg' => '#0E1113', 'alt' => '#171B1E', 'text' => '#F4F6F7' ),
+	'paper'     => array( 'bg' => '#FFFFFF', 'alt' => '#F6F7F8', 'text' => '#15181A' ),
+	'warm'      => array( 'bg' => '#FFF3E3', 'alt' => '#F7E8D4', 'text' => '#241C14' ),
+	'cool'      => array( 'bg' => '#F2F5F8', 'alt' => '#E8EDF3', 'text' => '#141C24' ),
+	'cream'     => array( 'bg' => '#FBF4DD', 'alt' => '#F3E7C4', 'text' => '#221D0E' ),
+	'earth'     => array( 'bg' => '#F3E4C8', 'alt' => '#EEDBB8', 'text' => '#2B1608' ),
+	'saturated' => array( 'bg' => '#F6D8DC', 'alt' => '#F3D0D5', 'text' => '#2B1015' ),
+	'ink'       => array( 'bg' => '#0E1113', 'alt' => '#171B1E', 'text' => '#F4F6F7' ),
+	'ink-warm'  => array( 'bg' => '#171008', 'alt' => '#221808', 'text' => '#F7EFE2' ),
+	'ink-cool'  => array( 'bg' => '#0B0F1C', 'alt' => '#141B2E', 'text' => '#EAF0FF' ),
 );
+
+/* THE 7:1 AAA FLOOR, RUN OVER THESE NINE POSITIONS TOO — style-catalog PR 3a's own finding: the
+   loop that registers $BRANDS below already grounds every brand's type at 7:1 (a ground is what
+   every paragraph on the page is painted on), but it runs ONLY over $BRANDS. The four positions
+   this axis tabled were never gated by it — verified empirically before this loop existed, by
+   dropping `earth`'s text to a value that measures under 7:1 and confirming the unmodified build
+   said nothing. Same bar, same message shape, run once per axis position before a single brand
+   is registered. */
+foreach ( $GROUND as $gr_k => $gr_v ) {
+	if ( contrast( $gr_v['text'], $gr_v['bg'] ) < 7.0 ) {
+		fail( "ground `$gr_k` grounds its type at " . ratio_str( $gr_v['text'], $gr_v['bg'] )
+			. ' — below the 7:1 every ground in this file has to clear' );
+	}
+	if ( contrast( $gr_v['text'], $gr_v['alt'] ) < 7.0 ) {
+		fail( "ground `$gr_k` grounds its type at " . ratio_str( $gr_v['text'], $gr_v['alt'] )
+			. ' on --c-bg-alt — below 7:1' );
+	}
+}
 
 /* § Elevation — --elev-rest, --elev-hover. `label` is for the strip's own axis readout. */
 $ELEVATION = array(
@@ -438,10 +467,12 @@ $ANCHORS = array(
 //
 // design-system.md: "the accent is not an axis", and "the accent has to be re-derived to clear
 // 4.5:1 against #0E1113, because an accent that passed on `paper` will usually fail here."
-// So: one hue family for the whole gallery — cut-face orange, which is what a stone workshop
-// looks like — and exactly one re-derivation, on the ground that forces it. The assertions below
-// are the point: change any of these four and the build stops rather than shipping a failing
-// label. `#8C3A1F` measures 2.47:1 on `ink`, which is the rule proving itself.
+// UPDATED, style-catalog PR 3a: this used to read "one hue family for the whole gallery", which
+// was itself half the defect the change exists to fix — three of four grounds sharing one literal
+// is a re-derivation that never had to prove it worked on a SECOND hue. Now: nine grounds, nine
+// independently-measured accents (`$ACCENT_BY_GROUND` below). The assertions below are still the
+// point: change any of these nine and the build stops rather than shipping a failing label.
+// `#8C3A1F` (still `paper`'s own) measures 2.47:1 on `ink`'s bg, which is the rule proving itself.
 
 // ─────────────────────────────────────────────────────────────── 4b · a brand is not an anchor
 //
@@ -656,11 +687,34 @@ $BRANDS = array(
 	),
 );
 
+/* NINE ACCENTS, ONE PER GROUND — style-catalog PR 3a. Before this PR three of the four positions
+   shared one literal, `#8C3A1F`, which is half of the sameness this change exists to remove: the
+   eyebrow gate below only ever proved the SHARED hex cleared 4.5:1 on three surfaces, never that
+   nine independently-chosen hues could. `paper` and `ink` are untouched — they already had their
+   own re-derivation reason (`ink`'s bg is near-black, so the same rust fails there, verified
+   `:1724`). `warm` and `cool` get NEW hexes, each measured against its OWN bg/bg-alt AND against
+   two gates this table's input already fed before this PR touched it — `ink_ends()`'s spread ≥20
+   (`matter`/`institutional` are the anchors that own these grounds) and the swatch-separation ≥10
+   bar (`:9492`) their shared ink-grading pipeline also runs. Both are a change to the INPUT, not to
+   the mechanism PR 3b owns:
+     warm #0F5C1A  7.47:1 bg / 6.80:1 alt — forest green, spread 26, swatch gap clears with room
+     cool #8C1A28  8.37:1 bg / 7.78:1 alt — crimson,      spread 38, see the comment on this row
+   The five new positions get hues no other row uses, each independently measured: */
 $ACCENT_BY_GROUND = array(
-	'paper' => '#8C3A1F',
-	'warm'  => '#8C3A1F',
-	'cool'  => '#8C3A1F',
-	'ink'   => '#FF6A1A',
+	'paper'     => '#8C3A1F',
+	'warm'      => '#0F5C1A',
+	'cool'      => '#8C1A28', // 8.37:1 bg / 7.78:1 alt, spread 38 — crimson, NOT blue: every blue and
+	                          // violet candidate tried (7 measured, `#1B4F7A`..`#2B6CA3`, spread 2.6-4.8)
+	                          // broke a DIFFERENT gate this table doesn't run — the swatch-separation
+	                          // bar at `:9492` — because institutional's ink is `matter`'s neighbour in
+	                          // the same grading pipeline and a blue accent collapsed sq-marmol/
+	                          // sq-pizarra's chroma gap under 10.0. Measured, not decorative.
+	'cream'     => '#3F4E1A', // 8.24:1 bg / 7.36:1 alt — olive, distinct from warm's own green
+	'earth'     => '#3A2560', // 10.38:1 bg / 9.58:1 alt — indigo
+	'saturated' => '#8A2450', // 6.44:1 bg / 6.04:1 alt — magenta-plum
+	'ink'       => '#FF6A1A',
+	'ink-warm'  => '#E8B93A', // 10.26:1 bg / 9.51:1 alt — amber-gold
+	'ink-cool'  => '#4FA8E0', // 7.29:1 bg / 6.53:1 alt — sky blue
 );
 
 /* REGISTERED, NOT SPECIAL-CASED. A brand that appended its colours to a parallel table would be a
@@ -766,9 +820,10 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 //     never the problem: `warm`'s #F6EADB is a cream and `cool`'s #E9ECF0 is a cold white, and they
 //     carry the ground's own temperature, which is exactly what should reach the photograph.
 //   · THE SHADOW INK IS THE ANCHOR'S ACCENT, laid onto the ground's dark extreme. The accent is the
-//     one thing on this page that HAS chroma and is already per-ground — `#8C3A1F` on three grounds
-//     and re-derived to `#FF6A1A` on `ink`, because design-system.md makes it re-derive there. Cut
-//     face orange in the shadows of a stone workshop is the material's own colour; it puts the
+//     one thing on this page that HAS chroma and is already per-ground — `$ACCENT_BY_GROUND` gives
+//     each of the five anchors' grounds its own hex (style-catalog PR 3a widened this from three
+//     grounds sharing `#8C3A1F` to nine independently-measured accents). Cut face orange in the
+//     shadows of a stone workshop is the material's own colour; it puts the
 //     page's single hue into the photographs without spending an accent MARK on them, which is the
 //     distinction the accent budget one section down is about.
 //   · THE TINT NEVER CHANGES THE SHADOW'S WEIGHT — `ink_tint()` puts the tinted ink back on the
@@ -6614,9 +6669,10 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
 // The other two have a fill and a shadow already and close with those, in block 7; nothing here.
 //
 // EVERY COLOUR BELOW IS MEASURED AND THE BUILD DIES ON A FAILURE, because a painted band is where
-// contrast quietly goes wrong: `--c-accent` is #8C3A1F on three grounds and measures 2.47:1 on
-// near-black, which this file already says out loud. An inverted editorial band painted with the
-// paper accent would be an eyebrow nobody can read, and it would look deliberate.
+// contrast quietly goes wrong: `--c-accent` is `paper`'s own #8C3A1F and measures 2.47:1 on
+// `ink`'s near-black bg, which is why `ink` re-derives to its own accent instead (this file already
+// says so out loud). An inverted editorial band painted with the paper accent would be an eyebrow
+// nobody can read, and it would look deliberate.
 /* THE FULL-BLEED HERO IS MEASURED PER TEMPLATE, NOT ONCE FOR THE ARCHETYPE THAT INTRODUCED IT.
    § 5c already sweeps TPL-C-03's `hero-taller` across the four anchor inks at this exact alpha.
    TPL-C-06 puts the same `.hero-visual` gradient over a DIFFERENT photograph under a DIFFERENT

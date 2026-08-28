@@ -2294,7 +2294,7 @@ function wcag_ratio( $a, $b ) {
 	return round( ( max( $x, $y ) + 0.05 ) / ( min( $x, $y ) + 0.05 ), 2 );
 }
 
-/* Las cuatro posiciones se LEEN de design-system.md, no se copian aqui. Copiarlas
+/* Las nueve posiciones se LEEN de design-system.md, no se copian aqui. Copiarlas
    seria clavar los mismos numeros en dos sitios y perder justo la pregunta que
    importa: ¿sigue el build en la posicion que la referencia documenta? Asi es
    como bg_alt se habia ido a #F4F5F3, que no esta en ninguna fila de esa tabla. */
@@ -2322,9 +2322,16 @@ foreach ( explode( "\n", (string) file_get_contents( $ds_ruta ) ) as $linea ) {
 	   en las tres columnas habria redefinido el ground EN SILENCIO y el bucle de
 	   abajo habria medido contra una referencia que no es la del eje.
 	   La tabla del eje tiene tres colores seguidos; ninguna otra del fichero los
-	   tiene, y esa es la forma que se exige aqui. */
+	   tiene, y esa es la forma que se exige aqui.
+	   NUEVE posiciones, no cuatro —— style-catalog PR 3a: `paper`/`warm`/`cool` se
+	   quedan donde estaban, `ink` tambien, y se suman `cream`/`earth`/`saturated`
+	   (claras) y `ink-warm`/`ink-cool` (oscuras). El hueco que este axis tapaba —
+	   tres de cuatro fondos casi blancos — se cierra con posiciones nuevas, no
+	   renombrando las viejas: `ink` sigue siendo `ink` porque framework-audit.php's
+	   `nm_axes()` y los cinco anchors de design-personalities.md ya lo declaran por
+	   ese nombre, y tocarlo es trabajo de Slice 4, no de este PR. */
 	if ( count( $celdas ) >= 4
-		&& in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'ink' ), true )
+		&& in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'cream', 'earth', 'saturated', 'ink', 'ink-warm', 'ink-cool' ), true )
 		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[1] )
 		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[2] )
 		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[3] ) ) {
@@ -2333,10 +2340,48 @@ foreach ( explode( "\n", (string) file_get_contents( $ds_ruta ) ) as $linea ) {
 }
 /* Sin esto, un cambio de formato en la tabla dejaria $suelos vacio y TODO el
    bucle de abajo pasaria sin comprobar ni una posicion.
-   NO basta con contar cuatro: la tabla intrusa de arriba dejaba las cuatro
-   claves puestas y esta linea seguia verde. Por eso lo que se comprueba debajo
-   es que las celdas `paper` son las del build, y despues el CONTRASTE. */
-ok( 4 === count( $suelos ), 'las cuatro posiciones de ground se leen de design-system.md: ' . implode( ', ', array_keys( $suelos ) ) );
+   NO basta con contar nueve: la tabla intrusa de arriba dejaba las cuatro
+   claves puestas y esta linea seguia verde con el whitelist viejo. Por eso lo
+   que se comprueba debajo es que las celdas `paper` son las del build, y
+   despues el CONTRASTE. */
+ok( 9 === count( $suelos ), 'las nueve posiciones de ground se leen de design-system.md: ' . implode( ', ', array_keys( $suelos ) ) );
+
+/* ---------------------------------------------------------------------------
+ * DERIVA: $GROUND en _build-gallery.php es un espejo A MANO de esta misma
+ * tabla (su propio comentario en el array lo dice), y nada comprobaba que los
+ * dos siguieran de acuerdo. style-catalog PR 2a encontro exactamente este
+ * hueco en $ANCHORS; $GROUND tiene la misma forma y el mismo riesgo, y a
+ * nueve familias en vez de cuatro el coste de que se desincronicen crece.
+ * ------------------------------------------------------------------------- */
+$bg_ruta = dirname( __DIR__ ) . '/skills/html-mockup/assets/gallery/_build-gallery.php';
+$bg_src  = (string) file_get_contents( $bg_ruta );
+$gr_literal = array();
+if ( preg_match( '/\$GROUND\s*=\s*array\s*\(\s*\n(.*?)\n\);/s', $bg_src, $gm )
+	&& preg_match_all(
+		"/'([a-z-]+)'\s*=>\s*array\(\s*'bg'\s*=>\s*'(#[0-9A-Fa-f]{6})',\s*'alt'\s*=>\s*'(#[0-9A-Fa-f]{6})',\s*'text'\s*=>\s*'(#[0-9A-Fa-f]{6})'\s*\)/",
+		$gm[1],
+		$glm,
+		PREG_SET_ORDER
+	) ) {
+	foreach ( $glm as $g ) {
+		$gr_literal[ $g[1] ] = array( 'bg' => strtoupper( $g[2] ), 'alt' => strtoupper( $g[3] ), 'text' => strtoupper( $g[4] ) );
+	}
+}
+ok( array() !== $gr_literal, '_build-gallery.php tiene un array $GROUND reconocible para comparar contra design-system.md' );
+ok(
+	count( $gr_literal ) === count( $suelos ),
+	'$GROUND en _build-gallery.php declara el mismo numero de posiciones que design-system.md: '
+		. count( $gr_literal ) . ' vs ' . count( $suelos )
+);
+foreach ( $suelos as $sp => $sv ) {
+	if ( ! isset( $gr_literal[ $sp ] ) ) {
+		ok( false, "design-system.md documenta el ground `$sp` y \$GROUND en _build-gallery.php no lo tiene — el espejo se desincronizo" );
+		continue;
+	}
+	ok( $sv['bg'] === $gr_literal[ $sp ]['bg'], "\$GROUND['$sp']['bg'] coincide con design-system.md: " . $gr_literal[ $sp ]['bg'] );
+	ok( $sv['bg_alt'] === $gr_literal[ $sp ]['alt'], "\$GROUND['$sp']['alt'] coincide con design-system.md: " . $gr_literal[ $sp ]['alt'] );
+	ok( $sv['text'] === $gr_literal[ $sp ]['text'], "\$GROUND['$sp']['text'] coincide con design-system.md: " . $gr_literal[ $sp ]['text'] );
+}
 
 /* Los tres tokens que el eje DOCUMENTA tienen que ser, en el build, los de la
    fila `paper`. Nada comprobaba esto, y por eso bg_alt llevaba un cuarto ground

@@ -312,7 +312,28 @@ pair was contrast-checked against its OWN `--c-bg`, not against white. "very lig
 | `paper` | `#FFFFFF` | `#F6F7F8` | `#15181A` | 17.8:1 |
 | `warm` | `#FFF3E3` | `#F7E8D4` | `#241C14` | 15.3:1 |
 | `cool` | `#F2F5F8` | `#E8EDF3` | `#141C24` | 15.7:1 |
+| `cream` | `#FBF4DD` | `#F3E7C4` | `#221D0E` | 15.3:1 |
+| `earth` | `#F3E4C8` | `#EEDBB8` | `#2B1608` | 13.7:1 |
+| `saturated` | `#F6D8DC` | `#F3D0D5` | `#2B1015` | 13.3:1 |
 | `ink` | `#0E1113` | `#171B1E` | `#F4F6F7` | 17.5:1 |
+| `ink-warm` | `#171008` | `#221808` | `#F7EFE2` | 16.5:1 |
+| `ink-cool` | `#0B0F1C` | `#141B2E` | `#EAF0FF` | 16.7:1 |
+
+**Nine positions, not four (style-catalog PR 3a).** The hue anchor moves; the floors do not — every
+row still clears the same 7:1 AAA this axis has always required (`_build-gallery.php` now gates it
+for these nine directly, not only for the brands appended below). `paper`/`warm`/`cool`/`ink` are
+unchanged. `cream` and `earth` are warm without being `warm`'s own peach — a pale butter and a
+deeper sandy ochre. **Neither is a medium-value ground, and that is geometry, not timidity**: the
+7:1 AAA floor forces `--c-bg` toward one extreme or the other — a mid-luminance ground clears
+neither a dark nor a light text at 7:1 (measured: at `--c-bg` luminance 0.20, black text tops out
+at 4.75:1 and white text at 5.03:1, both under the bar) — so every position in this table, old or
+new, sits near-white or near-black by construction. `earth`'s own headroom is tighter than the
+other light rows for the same reason: its `--c-text-muted` (blended toward `--c-bg-alt`, the
+row two tables down) only clears 4.5:1 at 13.7:1 because `--c-bg-alt` was pulled closer to
+`--c-bg` than the other rows' — a visibly subtler band, not a design choice. `saturated` is a
+genuinely chromatic rose rather than a tinted neutral. `ink-warm` and `ink-cool` split what `ink`
+alone used to carry: an amber-black and a navy-black, so a dark project stops defaulting to one
+hue the way three of the four light positions used to default to near-white.
 
 `ink` inverts the derivation, and that is the one that bites: the accent has to be re-derived to
 clear 4.5:1 against `#0E1113`, because an accent that passed on `paper` will usually fail here.
@@ -328,17 +349,17 @@ paragraphs up and enforced for `--c-text` alone: `muted` **3.70:1**, `text_soft`
 **15.24:1**, a near-white hairline slashed across a near-black page.
 
 They are now blended out of `--c-text` and `--c-bg` rather than tabled per position, and the reason
-is coverage: this table has four rows and a client's ground is whatever their brand is. A derived
-neutral is right on grounds nobody has thought of yet; a tabled one is right on four. It also
+is coverage: this table has nine rows and a client's ground is whatever their brand is. A derived
+neutral is right on grounds nobody has thought of yet; a tabled one is right on nine. It also
 follows `design-tokens.md` step 4, which already said to derive neutrals off the contrast colour.
 
-| Derived token | Recipe | paper | warm | cool | ink |
-|---|---|---|---|---|---|
-| `--c-text-soft` | text → bg, 23% | 8.49:1 | 7.55:1 | 7.71:1 | 10.50:1 |
-| `--c-text-muted` | text → **bg-alt**, 36.6% | 5.08:1 | 4.60:1 | 4.78:1 | 7.08:1 |
-| `--c-border` | text → bg, 89% | 1.25:1 | 1.25:1 | 1.25:1 | 1.31:1 |
-| `--c-surface-inverse` | text (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
-| `--c-on-inverse` | bg (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 17.48:1 |
+| Derived token | Recipe | paper | warm | cool | cream | earth | saturated | ink | ink-warm | ink-cool |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `--c-text-soft` | text → bg, 23% | 8.49:1 | 7.55:1 | 7.71:1 | 7.53:1 | 7.20:1 | 7.15:1 | 10.50:1 | 10.00:1 | 10.07:1 |
+| `--c-text-muted` | text → **bg-alt**, 36.6% | 5.08:1 | 4.60:1 | 4.78:1 | 4.58:1 | 4.53:1 | 4.59:1 | 7.08:1 | 6.76:1 | 6.72:1 |
+| `--c-border` | text → bg, 89% | 1.25:1 | 1.25:1 | 1.25:1 | 1.25:1 | 1.24:1 | 1.24:1 | 1.31:1 | 1.31:1 | 1.30:1 |
+| `--c-surface-inverse` | text (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 15.27:1 | 13.71:1 | 13.28:1 | 17.48:1 | 16.52:1 | 16.74:1 |
+| `--c-on-inverse` | bg (0%) | 17.84:1 | 15.33:1 | 15.71:1 | 15.27:1 | 13.71:1 | 13.28:1 | 17.48:1 | 16.52:1 | 16.74:1 |
 
 Every cell is a **measured contrast against that position's own `--c-bg`** — except the last row,
 which is measured against `--c-surface-inverse`, since that is what that ink sits on. The two 0%
@@ -351,7 +372,7 @@ are not backticked.** `RT_AXIS_VALUE_MISSING` reads any table row containing a b
 name and requires a token-shaped value beside it; a contrast ratio is not one, so backticking them
 here would fail the audit on correct documentation. The verifier for a derived token is not a column
 in this file — it is `tests/test-write-path.php`, which recomputes every ratio above on every run
-against all four positions and requires body copy ≥ 4.5:1 and the inverse surface ≥ 3:1. That is
+against all nine positions and requires body copy ≥ 4.5:1 and the inverse surface ≥ 3:1. That is
 strictly stronger than a documented literal, which is only ever as true as the day it was typed.
 
 **`--c-text-muted` se mezcla hacia `--c-bg-alt`, y su celda se mide contra `--c-bg-alt`.**
