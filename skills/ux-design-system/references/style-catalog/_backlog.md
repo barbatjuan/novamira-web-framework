@@ -16,7 +16,7 @@ ornament axis (`design-system.md` § "Ornament") defines exactly 5 positions —
 | Y2K | needs a chrome/gradient-mesh ornament and a non-monotone type system this catalog's axes do not model. |
 | Retro | needs a grain/halftone print-texture treatment closer to a paper-stock simulation than `ORN-TEXTURE`'s low-contrast surface grain. |
 | Playful | needs a bouncy/elastic (spring) easing curve outside the documented calm `cubic-bezier(.22,1,.36,1)`. |
-| Feminine | is a named vibe, not a set of axis positions — exactly the "a position with no value is an adjective" failure `design-personalities.md`'s own opening rule warns against. Belongs in the catalog only once it is resolved into concrete positions on all 8 axes, like every other entry here. |
+| Feminine | is a named vibe, not a set of axis positions — exactly the "a position with no value is an adjective" failure `web-templates/references/design-system.md` warns against (Ground § and elsewhere). Belongs in the catalog only once it is resolved into concrete positions on all 8 axes, like every other entry here. |
 | Editorial Fashion | needs a large-format, video/cinemagraph-forward imagery system beyond the static photo-editorial framing the Imagery line models today. |
 | Experimental | names no fixed axis position by definition, which is what `RT_PERS_BAD_AXIS` (and its widened `RT_STYLE_*` siblings) exist to refuse. An undecided-by-design style is `ROUTE-BESPOKE`'s job (Slice 6), not a catalog entry. |
 

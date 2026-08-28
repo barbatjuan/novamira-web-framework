@@ -87,17 +87,16 @@ const ROW_TYPES = array(
 	'RT_NO_OFFLINE_TESTS'        => 'FAIL  — no offline test suite under tests/',
 	'RT_GATE_LINE_UNREGISTERED'  => 'FAIL  — a tests/test-*.php file is absent from the CONTRIBUTING.md gate line',
 	'RT_ROWTYPE_UNDOCUMENTED'    => 'FAIL  — a ROW_TYPES ID is not listed in CONTRIBUTING.md',
-	'RT_PERS_CATALOG_MISSING'    => 'FAIL  — ux-design-system/references/design-personalities.md is missing',
-	'RT_PERS_MISSING_FIELD'      => 'FAIL  — a personality block in design-personalities.md is missing a required field',
-	'RT_PERS_ID_MISSING'         => 'FAIL  — a required personality ID is absent from design-personalities.md',
-	'RT_PERS_DUPLICATE_ID'       => 'FAIL  — design-personalities.md declares the same personality ID twice',
-	'RT_STYLE_TOO_SIMILAR'       => 'FAIL  — two personality anchors share more than two axis positions',
-	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
+	'RT_PERS_CATALOG_MISSING'    => 'FAIL  — ux-design-system/references/style-catalog/ has no STY-*.md entries',
+	'RT_PERS_MISSING_FIELD'      => 'FAIL  — a STY-*.md entry is missing a required field',
+	'RT_PERS_DUPLICATE_ID'       => 'FAIL  — two STY-*.md files declare the same style ID',
+	'RT_STYLE_TOO_SIMILAR'       => 'FAIL  — two catalog entries share more than two axis positions',
+	'RT_PERS_BAD_AXIS'           => 'FAIL  — a style names an axis position no axis defines',
 	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
 	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
 	'RT_TPL_UNROUTABLE'          => 'FAIL  — a TPL-*.md exists that recommender.md or its folder _README.md never names, so nothing can route a client to it',
 	'RT_TOKENS_HARDCODED_FONT'   => 'FAIL  — design-tokens.md still hardcodes an example font pairing',
-	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions design-personalities.md',
+	'RT_CATALOG_UNMENTIONED'     => 'FAIL  — ux-design-system/SKILL.md never mentions the style-catalog/ directory',
 	'RT_UXDS_NO_AXIS_STEP'       => 'FAIL  — ux-design-system/SKILL.md has no axis-resolving dialogue step',
 	'RT_AXIS_VALUE_MISSING'      => 'FAIL  — an axis position\'s own table row in design-system.md carries no token-shaped value',
 	'RT_AXIS_BLUEPRINT_MISSING'  => 'FAIL  — an axis position names a blueprint layout-patterns.md never defines',
@@ -1000,15 +999,18 @@ if ( file_exists( $hr_file ) ) {
 	add( 'RT_HOUSERULES_MISSING', 'FAIL', 'qa-review', 'references/house-rules.md is missing — the house rules have no gate' );
 }
 
-/* --------------------------------------- ux-design-system personality catalog */
+/* --------------------------------------- ux-design-system style catalog */
 
-/* Every anchor the catalog ships, and the list is REQUIRED-EXISTENCE, not merely descriptive.
-   The other PERS rows below read whatever blocks the file happens to contain, so a deleted anchor
-   fails nothing they check: PERS-VITRINE shipped with its block, its five axis positions, its
-   $ANCHORS entry and three gallery strips while THIS line still named four anchors, which means
-   deleting its block returned the audit to 0 FAIL. Same shape as RT_TPL_UNROUTABLE: built, correct,
-   and with nothing obliging it to keep existing. An anchor added anywhere is added here too. */
-$PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL', 'PERS-VITRINE' );
+/* style-catalog PR 4c retired `design-personalities.md` (the single multi-block file this section
+   used to split on `### `PERS-*`` headings) in favour of one `STY-*.md` file per entry under
+   `references/style-catalog/`, matching what the real catalog has looked like since PR 4a. There
+   is NO required-membership list here, unlike the old $PERS_IDS before it: the style-catalog spec
+   ("Exactly 8 `STY-*` Entries Ship In V1", scenario "No automated size floor/ceiling") states
+   plainly that catalog SIZE has no verifier by design -- "count is trivially satisfied without
+   being true" -- so the load-bearing gate stays RT_STYLE_TOO_SIMILAR below, never a count of ids.
+   Rule ids below keep their `RT_PERS_*` names: renaming them is not this PR's job, and
+   RT_STYLE_TOO_SIMILAR (style-catalog PR 2b) already proves a rule can outlive the noun in its own
+   name once a decision is made deliberately rather than by drift. */
 /* Color mood and "Radius & shadow" are gone as prose fields: ground and elevation are AXES now,
    and a field that repeats an axis in adjectives is how the old catalog drifted from its own
    values. Motion stays prose on purpose — the distance rule below is about what a still frame
@@ -1041,8 +1043,15 @@ function nm_axes() {
 			'prop'      => '--type-ratio',
 			'marker'    => false,
 		),
+		/* Nine positions, not four (style-catalog PR 3a widened design-system.md's own Ground table
+		   at :304-333 the same way; this registry was never widened alongside it -- style-catalog
+		   PR 4b found the gap and disclosed it rather than fixing it, since nothing gated STY-*.md
+		   against nm_axes() yet. PR 4c repoints RT_STYLE_TOO_SIMILAR to STY-*.md, and three shipped
+		   styles (`ink-cool`, `ink-warm`, `saturated`) would FAIL RT_PERS_BAD_AXIS the moment that
+		   repoint landed with this list still at four -- so the widening has to land FIRST, same
+		   ordering discipline design.md's D2 established for the original 5->8 axis widening. */
 		'ground'      => array(
-			'positions' => array( 'paper', 'warm', 'cool', 'ink' ),
+			'positions' => array( 'paper', 'warm', 'cool', 'cream', 'earth', 'saturated', 'ink', 'ink-warm', 'ink-cool' ),
 			'prop'      => '--c-bg',
 			'marker'    => false,
 		),
@@ -1090,13 +1099,22 @@ foreach ( nm_axes() as $nm_axis => $nm_def ) {
 /**
  * The axis positions one anchor block declares.
  *
- * Parsed from a single `**Axes:**` line so the contract is one line a human can read and a
- * machine can compare. Returns `axis => position`, omitting anything the line does not name —
- * a missing axis surfaces as RT_PERS_MISSING_FIELD or as an unnamed axis, never as a silent
- * default, because an axis nobody sets is exactly how every project lands on the same value.
+ * Parsed from a single `**Axes:**` PARAGRAPH -- not a single LINE, since style-catalog PR 4c's
+ * STY-*.md files wrap it across two physical lines for human readability (8 axes no longer fit
+ * design-personalities.md's old one-liner width) while design-personalities.md's own blocks never
+ * did. `(.+)$` under `/m` alone (no `/s`) stops at the first `\n`, so it silently read only the
+ * FIRST four axes of every wrapped block -- caught by running the suite against the real 8-entry
+ * catalog for the first time this PR (all 8 FAILed "names no position for axis elevation/accent/
+ * chassis/ornament", not a fixture, the real files), the same "run it, don't assume it parses"
+ * discipline style-catalog PR 4b's own r92 fixture bug was caught by. Bounded to the paragraph
+ * (up to the next blank line, or end of file) rather than opened to `/s` unbounded, so a stray
+ * `**Axes:**`-shaped string later in the same file cannot bleed into this capture. Returns
+ * `axis => position`, omitting anything the paragraph does not name — a missing axis surfaces as
+ * RT_PERS_MISSING_FIELD or as an unnamed axis, never as a silent default, because an axis nobody
+ * sets is exactly how every project lands on the same value.
  */
 function pers_axes( $block ) {
-	if ( ! preg_match( '/^\*\*Axes:\*\*(.+)$/m', $block, $m ) ) {
+	if ( ! preg_match( '/^\*\*Axes:\*\*(.+?)(?:\n[ \t]*\n|\z)/ms', $block, $m ) ) {
 		return array();
 	}
 	$out = array();
@@ -1109,35 +1127,45 @@ function pers_axes( $block ) {
 	return $out;
 }
 
-$pers_file = $root . '/skills/ux-design-system/references/design-personalities.md';
-if ( ! file_exists( $pers_file ) ) {
-	add( 'RT_PERS_CATALOG_MISSING', 'FAIL', 'ux-design-system', 'references/design-personalities.md is missing — the personality catalog has no file' );
+$sty_dir   = $root . '/skills/ux-design-system/references/style-catalog';
+$sty_files = glob( $sty_dir . '/STY-*.md' );
+if ( ! is_array( $sty_files ) ) {
+	$sty_files = array();
+}
+/* Sorted, same reason every other glob() consumer in this file sorts: the order a row reports a
+   pair in must not depend on the filesystem's own directory-entry order. */
+sort( $sty_files );
+if ( array() === $sty_files ) {
+	add( 'RT_PERS_CATALOG_MISSING', 'FAIL', 'ux-design-system', 'references/style-catalog/ has no STY-*.md entries — the style catalog has no files' );
 } else {
-	$pers_src = slurp( $pers_file );
-	$blocks   = preg_split( '/(?=^### `PERS-[A-Z-]+`)/m', $pers_src );
-	$found    = array();
-	$axes_of  = array();
-	foreach ( $blocks as $block ) {
-		if ( ! preg_match( '/^### `(PERS-[A-Z-]+)`/', $block, $hm ) ) {
+	$found   = array();
+	$axes_of = array();
+	foreach ( $sty_files as $sty_file ) {
+		$block = slurp( $sty_file );
+		/* The id pattern does NOT hardcode `STY-` the way the old `PERS-[A-Z-]+` split regex hardcoded
+		   `PERS-`: catalog MEMBERSHIP is already decided by the glob above (only `STY-*.md` filenames
+		   are ever read here), so the heading only needs to name SOME id, the same "matched on the
+		   bare id, never the filename" independence `RT_TPL_UNROUTABLE` already relies on one level
+		   up. Every real entry still reads `STY-*` because that is what its own heading says. */
+		if ( ! preg_match( '/^#+\s*`([A-Z][A-Z-]*)`/m', $block, $hm ) ) {
 			continue;
 		}
 		$pid = $hm[1];
-		/* Both $found and $axes_of are keyed by ID, so a SECOND `### `PERS-X`` heading used to
-		   overwrite the first with no complaint. Proven on this checkout: make PERS-MATTER share
-		   three axes with PERS-EDITORIAL (RT_STYLE_TOO_SIMILAR FAILs, 1 FAIL), then append one more
-		   `### `PERS-EDITORIAL`` block carrying a distant axis set — the audit returns to 0 FAIL,
-		   because the real anchor's positions were replaced by the copy's before the comparison ran.
-		   A stray duplicate heading was a silent off switch for the flagship check.
-		   The FIRST block stays authoritative and the copy is reported, never merged: keeping the
-		   last one would preserve exactly the shadowing this row exists to make impossible. */
+		/* One file, one entry now -- there is no second `### `STY-X`` heading inside a single file
+		   to shadow the first the way design-personalities.md's blocks could. The failure mode
+		   this row still guards is the FILE-level equivalent: two DIFFERENT files whose headings
+		   both claim the same id (a copy-pasted entry that never got its own heading updated),
+		   which would silently drop one style out of the distinctness comparison below exactly the
+		   way a duplicate `### `PERS-X`` heading used to. The FIRST file (sorted) stays
+		   authoritative, same "report, never merge" discipline as before. */
 		if ( isset( $found[ $pid ] ) ) {
-			add( 'RT_PERS_DUPLICATE_ID', 'FAIL', 'ux-design-system', 'design-personalities.md declares "' . $pid . '" more than once — the later block silently replaced the first, which is enough to switch RT_STYLE_TOO_SIMILAR off for the real anchor' );
+			add( 'RT_PERS_DUPLICATE_ID', 'FAIL', 'ux-design-system', basename( $sty_file ) . ' declares "' . $pid . '", already claimed by ' . $found[ $pid ] . ' — the later file is excluded from RT_STYLE_TOO_SIMILAR rather than silently replacing the first' );
 			continue;
 		}
-		$found[ $pid ] = true;
+		$found[ $pid ] = basename( $sty_file );
 		foreach ( $PERS_FIELDS as $field ) {
 			if ( false === strpos( $block, '**' . $field . ':**' ) ) {
-				add( 'RT_PERS_MISSING_FIELD', 'FAIL', 'ux-design-system', 'design-personalities.md: ' . $pid . ' is missing required field "' . $field . '"' );
+				add( 'RT_PERS_MISSING_FIELD', 'FAIL', 'ux-design-system', basename( $sty_file ) . ': ' . $pid . ' is missing required field "' . $field . '"' );
 			}
 		}
 		$axes = pers_axes( $block );
@@ -1151,8 +1179,8 @@ if ( ! file_exists( $pers_file ) ) {
 				$ok = false;
 			}
 		}
-		/* Only fully valid anchors enter the comparison. An invalid position is not a coincidence,
-		   and counting it would report two anchors as "too similar" over a typo. */
+		/* Only fully valid entries enter the comparison. An invalid position is not a coincidence,
+		   and counting it would report two entries as "too similar" over a typo. */
 		if ( $ok ) {
 			$axes_of[ $pid ] = $axes;
 		}
@@ -1175,11 +1203,6 @@ if ( ! file_exists( $pers_file ) ) {
 						. ') — two anchors may share at most two of the eight, or they ship as the same site with a different accent'
 				);
 			}
-		}
-	}
-	foreach ( $PERS_IDS as $pid ) {
-		if ( ! isset( $found[ $pid ] ) ) {
-			add( 'RT_PERS_ID_MISSING', 'FAIL', 'ux-design-system', 'design-personalities.md is missing personality "' . $pid . '"' );
 		}
 	}
 }
@@ -1375,7 +1398,7 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
  * not once. Every documented path into the catalog runs through that file, so seven templates were
  * built and none of them could be recommended. Nothing failed; the audit was green the whole time.
  *
- * This is the same class of finding as `RT_CATALOG_UNMENTIONED` one level up ("the personality
+ * This is the same class of finding as `RT_CATALOG_UNMENTIONED` one level up ("the style
  * catalog is unreachable from the skill"), applied to the layer below it, and it is a FAIL for the
  * same reason: an unreachable catalog entry is indistinguishable from one that does not exist,
  * except that somebody paid to build it.
@@ -1954,12 +1977,15 @@ function proof_visible_strings( $src ) {
    converging on the same tokens, not evidence that they render differently; that evidence is a
    human looking at them side by side.
 
-   Hardcoded paths, like house-rules.md and design-personalities.md above, and for the same
-   reason: a missing proof file must FAIL rather than silently skip the check. "The gate passes
-   because the evidence is gone" is the failure mode these rows exist to make impossible. */
+   Hardcoded paths, like house-rules.md above, and for the same reason: a missing proof file must
+   FAIL rather than silently skip the check. "The gate passes because the evidence is gone" is the
+   failure mode these rows exist to make impossible. Keys renamed `PERS-*` -> `STY-*` alongside
+   the two files' own `Anchor:` markers, style-catalog PR 4c -- these are LABELS this row prints,
+   not a lookup into $axes_of, but a label that disagreed with what the file itself now declares
+   would read as a second, competing catalog. */
 $PROOF_MOCKUPS = array(
-	'PERS-EDITORIAL' => 'skills/html-mockup/assets/proof-editorial-mockup.html',
-	'PERS-DIRECT'    => 'skills/html-mockup/assets/proof-direct-mockup.html',
+	'STY-EDITORIAL' => 'skills/html-mockup/assets/proof-editorial-mockup.html',
+	'STY-DIRECT'    => 'skills/html-mockup/assets/proof-direct-mockup.html',
 );
 $proof_sigs    = array();
 $proof_copy    = array();
@@ -2140,7 +2166,9 @@ foreach ( $mockup_assets as $mockup_path ) {
 	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The four
 	 * named files must DECLARE an anchor -- a missing declaration there is the file going quiet, and a
 	 * glob alone would let deleting the marker switch the check off, which is exactly how PERS-VITRINE
-	 * shipped outside $PERS_IDS. Every OTHER asset the walk finds is checked only IF it declares one,
+	 * once shipped outside the catalog's own required-membership list ($PERS_IDS, retired by
+	 * style-catalog PR 4c along with design-personalities.md itself -- the lesson holds regardless
+	 * of which structure the catalog lives in). Every OTHER asset the walk finds is checked only IF it declares one,
 	 * because assets/gallery/index.html renders every anchor at once and belongs to no single one.
 	 */
 	/* THE TWO STARTING ASSETS, and only those (tasks.md 1f.2 — the two hand-maintained originals,
@@ -2283,17 +2311,24 @@ foreach ( $mockup_assets as $mockup_path ) {
 		'chassis/corporate.html',
 		'chassis/ecommerce.html',
 	);
-	$mockup_declares = preg_match( '/Anchor:\s*(PERS-[A-Z-]+)/', $mockup_root, $mockup_anm );
+	/* style-catalog PR 4c: catalog ids moved from `PERS-*` to `STY-*` (design-personalities.md
+	   retired for references/style-catalog/). Every real asset this row polices was re-stamped in
+	   the same PR -- the two generated chassis (_build-gallery.php) and the two hand-authored proof
+	   mockups all declare `Anchor: STY-*` now. Like the catalog's own id-extraction regex (see
+	   $sty_files' foreach above), this one does NOT hardcode the `STY-` prefix either: the id just
+	   has to match whatever `$axes_of` (built from the SAME regex) is keyed by, and hardcoding two
+	   independent copies of a prefix string is exactly how the two could quietly drift apart. */
+	$mockup_declares = preg_match( '/Anchor:\s*([A-Z][A-Z-]*)/', $mockup_root, $mockup_anm );
 	if ( ! $mockup_declares ) {
 		if ( in_array( $mockup_name, $anchored_required, true ) ) {
-			add( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' does not say which anchor it is pointed at — without `Anchor: PERS-*` in its :root nothing can check that its eight axis positions belong together' );
+			add( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' does not say which anchor it is pointed at — without `Anchor: STY-*` in its :root nothing can check that its eight axis positions belong together' );
 		}
 	} elseif ( ! isset( $axes_of ) ) {
 		/* No catalog at all is RT_PERS_CATALOG_MISSING's row, already FAILing above. Reporting the
 		   same absence a second time here would send the reader to the wrong file. */
 		$mockup_declares = 0;
 	} elseif ( ! isset( $axes_of[ $mockup_anm[1] ] ) ) {
-		add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' is pointed at "' . $mockup_anm[1] . '", which design-personalities.md does not define as a valid anchor' );
+		add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' is pointed at "' . $mockup_anm[1] . '", which the style catalog (references/style-catalog/) does not define as a valid anchor' );
 	} else {
 		$mockup_pid    = $mockup_anm[1];
 		$mockup_labels = array();
@@ -3014,7 +3049,7 @@ foreach ( $mockup_assets as $gal_path ) {
 	}
 
 	/* ≥6 of 8, the same bar RT_STYLE_TOO_SIMILAR and RT_PROOF_NOT_DISTINCT hold, and
-	   design-personalities.md states the reason in as many words: two anchors that agree on more
+	   the style catalog states the reason in as many words: two anchors that agree on more
 	   than two axes are the same site with a different accent colour, not two personalities. Only
 	   same-archetype pairs are compared — two cards of DIFFERENT archetypes are already separated by
 	   their section inventory, which is the axis the eight perceptual ones do not carry. */
@@ -3689,7 +3724,7 @@ if ( file_exists( $dt_file ) ) {
 	$dt_src = slurp( $dt_file );
 	foreach ( array( 'Space Grotesk', 'Manrope' ) as $hardcoded ) {
 		if ( false !== strpos( $dt_src, $hardcoded ) ) {
-			add( 'RT_TOKENS_HARDCODED_FONT', 'FAIL', 'ux-design-system', 'design-tokens.md still hardcodes "' . $hardcoded . '" as an example font — move concrete pairings into design-personalities.md' );
+			add( 'RT_TOKENS_HARDCODED_FONT', 'FAIL', 'ux-design-system', 'design-tokens.md still hardcodes "' . $hardcoded . '" as an example font — move concrete pairings into references/style-catalog/' );
 		}
 	}
 }
@@ -3697,8 +3732,8 @@ if ( file_exists( $dt_file ) ) {
 $uxds_skill = $root . '/skills/ux-design-system/SKILL.md';
 if ( file_exists( $uxds_skill ) ) {
 	$uxds_src = slurp( $uxds_skill );
-	if ( false === strpos( $uxds_src, 'design-personalities.md' ) ) {
-		add( 'RT_CATALOG_UNMENTIONED', 'FAIL', 'ux-design-system', 'SKILL.md never mentions design-personalities.md — the personality catalog is unreachable from the skill' );
+	if ( false === strpos( $uxds_src, 'style-catalog' ) ) {
+		add( 'RT_CATALOG_UNMENTIONED', 'FAIL', 'ux-design-system', 'SKILL.md never mentions style-catalog/ — the style catalog is unreachable from the skill' );
 	}
 	/* Scoped to "## Execution Steps" alone (same slicing shape collect_skill_steps() already uses
 	   above for the same heading), and matched case-insensitively for BOTH "axis" and "axes": a

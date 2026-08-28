@@ -14,8 +14,10 @@
  * input set: whatever the generator hashed, the audit hashes.
  *
  * WHAT COUNTS AS AN INPUT: a file whose BYTES the generator reads. That is the whole test, and
- * it is why `design-personalities.md` is absent below — `_build-gallery.php` asserts it exists
- * and then transcribes from it BY HAND, so its bytes never reach the output. A change there
+ * it is why `references/style-catalog/` is absent below — `_build-gallery.php` asserts at least
+ * one `STY-*.md` file exists there and then transcribes anchor positions BY HAND (style-catalog
+ * PR 4c, `design-personalities.md`'s retirement did not change this architecture, only the
+ * source's own shape), so its bytes never reach the output. A change there
  * leaves the output stale in the ordinary sense of the word but identical in the mechanical one,
  * and a fingerprint that claimed otherwise would be reporting a defect it cannot actually see.
  * Transcription drift is a different rule with a different verifier; this one does not pretend

@@ -37,10 +37,10 @@ variant instead of adding a second color.
 
 ## Typography roles
 - `--font-primary` — headings + UI. Heavy weight and tight line-height read premium, but the
-  family itself comes from the chosen personality (`design-personalities.md`) — never copy an
+  family itself comes from the chosen style (`references/style-catalog/`) — never copy an
   illustrative example verbatim as a default.
 - `--font-secondary` — body. Normal weight, open line-height. May equal `--font-primary`. Never
-  a third family. See `design-personalities.md` for the four concrete pairings — one per anchor.
+  a third family. See `references/style-catalog/` for the concrete pairings — one per style.
 - Hierarchy per section: eyebrow (`--fs-eyebrow`, uppercase, letter-spaced) → heading → paragraph.
   One `--fs-h1` per page.
 - The scale is fluid (`clamp()`), so sizes come from the token, never from a per-section override.
@@ -52,7 +52,7 @@ variant instead of adding a second color.
   outside the scale.
 - Radii carry meaning: containers are the softest, then cards; buttons, inputs and images share
   the smallest step. Separate tokens are what let one anchor go sharp and another soft without
-  touching a single module — each anchor's Card recipe in `design-personalities.md` says which.
+  touching a single module — each style's Card recipe in `references/style-catalog/` says which.
 - Audit margins as a dedicated pass — inconsistent spacing is the #1 tell of a cheap template.
 
 ## Imagery
@@ -60,8 +60,9 @@ variant instead of adding a second color.
   gradient scrims over hero/CTA photos so white text stays legible.
 
 ## Perceptual axes
-Five axes carry what makes two sites feel different; the accent colour is NOT one of them, it
-derives from the brand. Values live in `web-templates/references/design-system.md`.
+Eight axes carry what makes two sites feel different; the accent COLOUR is NOT one of them, it
+derives from the brand (the accent's POLICY — reserved, duotone, gradient… — is the axis).
+Values live in `web-templates/references/design-system.md`.
 - **Scale** — the RANGE between body and display, and how tight the display leads. The single
   largest perceptual difference between two sites, and the one the framework never varied.
 - **Ground** — what the page is made of. Choosing white is a decision and is recorded as one;
@@ -72,3 +73,9 @@ derives from the brand. Values live in `web-templates/references/design-system.m
   names one blueprint in `references/layout-patterns.md`; that blueprint, not a sentence, is the
   value. Apply it to every section.
 - **Elevation** — how separation is expressed: air, a hairline, a shadow, or an accent glow.
+- **Accent policy** — how the one accent colour is spent: reserved to CTAs, a tinted field, a
+  duotone photo grade, a gradient, metallic, or polychrome. Never the colour itself.
+- **Chassis** — how a content block is physically bounded: bare, carded, bordered, a hard
+  shadow, layered, or nothing at all.
+- **Ornament** — the one optional texture a style permits: a rule, a pattern, an illustration,
+  or none.

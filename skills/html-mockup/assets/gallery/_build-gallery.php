@@ -18,7 +18,7 @@
  *
  * WHAT IS COPIED AND WHAT IS DERIVED. Every axis VALUE is transcribed from
  * `web-templates/references/design-system.md` § "Perceptual axes — token values", and every axis
- * POSITION from `ux-design-system/references/design-personalities.md`. Nothing in either category
+ * POSITION from `ux-design-system/references/style-catalog/`. Nothing in either category
  * is computed here. The accent is NOT an axis (design-system.md says so in as many words), so it
  * is chosen per ground and its contrast is MEASURED below by the same WCAG 2.1 formula the rest
  * of the repo uses — and the build dies if a measurement fails, rather than shipping a number
@@ -45,12 +45,23 @@ require_once $DIR . '/_gallery-fingerprint.php';
    a copy of this directory outside the repository would otherwise fail much later, inside a regex
    that came back empty, and an empty quotation reads exactly like a rule nobody wrote. */
 $SKILLS = dirname( $DIR, 3 );
-foreach ( array( 'ux-design-system/references/design-tokens.md', 'ux-design-system/references/design-personalities.md' ) as $ref_rel ) {
+foreach ( array( 'ux-design-system/references/design-tokens.md' ) as $ref_rel ) {
 	if ( ! is_file( $SKILLS . '/' . $ref_rel ) ) {
 		fail( "cannot find $ref_rel from $SKILLS — this file quotes that reference for rules it does"
 			. ' not get to invent, and a quotation whose source is missing is an invention with a'
 			. ' citation on it' );
 	}
+}
+/* style-catalog PR 4c retired `ux-design-system/references/design-personalities.md` — one file,
+   checkable with is_file() like the token reference above — for one `STY-*.md` file per entry
+   under `references/style-catalog/`. There is no longer a single path whose existence proves the
+   source this generator transcribes anchor positions from is there, only a directory that must
+   hold at least one entry — checked by glob() for the same reason framework-audit.php's own
+   RT_PERS_CATALOG_MISSING moved off a single hardcoded path in the same PR. */
+if ( array() === glob( $SKILLS . '/ux-design-system/references/style-catalog/STY-*.md' ) ) {
+	fail( "cannot find any references/style-catalog/STY-*.md from $SKILLS — this file quotes that"
+		. ' catalog for the anchor positions it does not get to invent, and a quotation whose'
+		. ' source is missing is an invention with a citation on it' );
 }
 
 /** Die loudly. A generator that limps produces a page whose defects look like design. */
@@ -238,8 +249,10 @@ $DENSITY = array(
    not four — style-catalog PR 3a. `paper`/`warm`/`cool`/`ink` are BYTE-IDENTICAL to what shipped
    before; `cream`/`earth`/`saturated`/`ink-warm`/`ink-cool` are new. `ink` keeps its name rather
    than becoming `ink-neutral`: framework-audit.php's `nm_axes()` (`ground` positions) and all five
-   `**Axes:**` lines in design-personalities.md already declare `ink` by that word, and repointing
-   either is style-catalog's Slice 4, not this one — renaming here with those two files untouched
+   `**Axes:**` lines in style-catalog/ already declare `ink` by that word, and repointing
+   either was style-catalog's Slice 4, not PR 3a; style-catalog PR 4c widened `nm_axes()`'s ground
+	list to these same nine positions before repointing the catalog parser at all, so both sides
+	now agree. Renaming here with those two files untouched
    would desync `RT_MOCKUP_AXES_MISMATCH`'s label against the emitted marker for zero benefit. */
 $GROUND = array(
 	'paper'     => array( 'bg' => '#FFFFFF', 'alt' => '#F6F7F8', 'text' => '#15181A' ),
@@ -315,7 +328,7 @@ $COMPOSITION = array(
 
 // ─────────────────────────────────────────────────────────────── 4 · the anchors
 //
-// Positions and typefaces COPIED from ux-design-system/references/design-personalities.md.
+// Positions and typefaces COPIED from ux-design-system/references/style-catalog/.
 // Motion durations come from ux-design-system/references/motion.md (".35s colour, .5s lift,
 // .7s image zoom", lift -4px), read through each anchor's stated intensity.
 //
@@ -348,7 +361,7 @@ $ANCHORS = array(
 		'density'     => 'generous',
 		'composition' => 'asymmetric',
 		'elevation'   => 'none',
-		/* style-catalog PR 2b: the three new marker axes, per design-personalities.md's own
+		/* style-catalog PR 2b: the three new marker axes, per style-catalog/'s own
 		   **Axes:** line -- accent none, chassis rule-divided, ornament rule. */
 		'accent'      => 'none',
 		'chassis'     => 'rule-divided',
@@ -841,7 +854,7 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
 //     that got LIGHTER is a lifted black, and a lifted black is a faded print. Measured R−B spread
 //     of the shadow ink now: 31 / 38 / 41 / 28, against 5 / 5 / 16 / 17 before.
 //
-// HOW MUCH OF EACH IS READ OFF THE ANCHOR, NOT CHOSEN HERE. `design-personalities.md` § Imagery
+// HOW MUCH OF EACH IS READ OFF THE ANCHOR, NOT CHOSEN HERE. `style-catalog/` § Imagery
 // names a treatment for exactly two of the four, in as many words:
 //     PERS-DIRECT         "high-contrast, tightly cropped"             → the deepest curve
 //     PERS-MATTER         "the product shot straight on, WARM-GRADED"  → the most colour kept
@@ -864,7 +877,7 @@ foreach ( $ACCENT_BY_GROUND as $g => $hex ) {
    from a fifth table of hand-set weights. Its floor is asserted below rather than trusted. */
 $INK_TINT = 0.45;
 
-/* HOW MUCH GRADE, PER ANCHOR — transcribed from design-personalities.md § Imagery. `sat` is the
+/* HOW MUCH GRADE, PER ANCHOR — transcribed from style-catalog/ § Imagery. `sat` is the
    `feColorMatrix type="saturate"` value and it is about HOW MUCH COLOUR; `gamma` is the depth of
    the S-curve the table describes and it is about TONALITY. `default` is not an anchor: it is what
    an anchor whose § Imagery says nothing gets.
@@ -1208,7 +1221,7 @@ foreach ( $INK as $ink_mk => $ink_mv ) {
 
 /* A GRADE TABLE ENTRY THAT MATCHES NO ANCHOR IS A TYPO, AND A SILENT ONE. `$INK_GRADE['drect']`
    would leave `direct` on the default and nothing anywhere would say so — the page would simply
-   stop being the page design-personalities.md describes. */
+   stop being the page style-catalog/ describes. */
 foreach ( $INK_GRADE as $ink_gk => $ink_gv ) {
 	if ( 'default' !== $ink_gk && ! isset( $ANCHORS[ $ink_gk ] ) ) {
 		fail( "\$INK_GRADE names `$ink_gk`, which is not an anchor — a grade keyed to a name no"
@@ -6289,7 +6302,7 @@ foreach ( $STRIPS as $s ) {
 		fail( "no content set for {$s['tpl']}" );
 	}
 	if ( ! isset( $ANCHORS[ $s['anchor'] ] ) ) {
-		fail( "no anchor `{$s['anchor']}` in design-personalities.md" );
+		fail( "no anchor `{$s['anchor']}` in style-catalog/" );
 	}
 	if ( ! isset( $TOGGLES[ $CONTENT[ $s['tpl'] ]['arch'] ] ) ) {
 		fail( "no toggle table for {$CONTENT[ $s['tpl'] ]['arch']} — an archetype that has not declared"
@@ -6529,15 +6542,28 @@ $css[] = <<<'CSS'
 CSS;
 
 // ── block 1 · :root — the document default, and it is used ─────────────────────────────────────
-$root_anchor = $ANCHORS['institutional'];
-$root_sc     = $SCALE[ $root_anchor['scale'] ];
-$root_gr     = $GROUND[ $root_anchor['ground'] ];
-$root_el     = $ELEVATION[ $root_anchor['elevation'] ];
-$root_ac     = $ACCENT[ $root_anchor['ground'] ];
+/**
+ * The `:root{...}` CSS block for one anchor, `$css[]`-ready. Extracted into a function
+ * (style-catalog PR 4c) so the chassis loop below can call it once per SITE TYPE with its own
+ * resolved anchor instead of the single hardcoded `institutional` this block was frozen at from
+ * PR 1a through PR 4b -- the marker-only fix `RT_MOCKUP_AXES_MISMATCH`'s own VALUE check
+ * (style-catalog PR 1e) would have caught the moment a chassis's `Anchor:` comment ever disagreed
+ * with its `:root`'s actual tokens. The huge measured-derivation comments inside are NOT
+ * anchor-specific -- "shared chrome: identical at every anchor" is what the comment beside
+ * `--fs-base` below already says -- so they read identically regardless of which anchor is
+ * passed; only the axis-derived values above them change.
+ */
+function root_css_for( $anchor_key ) {
+	global $SCALE, $GROUND, $ELEVATION, $ACCENT, $DENSITY, $COMPOSITION, $ANCHORS;
+	$root_anchor = $ANCHORS[ $anchor_key ];
+	$root_sc     = $SCALE[ $root_anchor['scale'] ];
+	$root_gr     = $GROUND[ $root_anchor['ground'] ];
+	$root_el     = $ELEVATION[ $root_anchor['elevation'] ];
+	$root_ac     = $ACCENT[ $root_anchor['ground'] ];
 
-$css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a tool\'s chrome should not
-      compete with its samples. Every declaration here is READ by the gallery shell, so this is
-      the document default rather than a copy kept alive to satisfy a check. ── */
+	return '/* ── :root — STY-' . strtoupper( $anchor_key ) . ', transcribed from the style catalog.
+      Every declaration here is READ by whichever page embeds this block, so this is a document
+      default rather than a copy kept alive to satisfy a check. ── */
 :root{
   /* scale: ' . $root_anchor['scale'] . ' */
   --type-ratio:' . $root_sc['ratio'] . '; --display-lh:' . $root_sc['lh'] . '; --fs-h1-max:' . $root_sc['h1max'] . ';
@@ -6710,6 +6736,21 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
   --fs-small:.875rem; --fs-eyebrow:.75rem; --fs-button:1rem; --fs-nav:.95rem;
   --fs-price:clamp(1.1rem, 1.6vw, 1.35rem);
 }';
+}
+
+/* `institutional`, unchanged from PR 1a — "the calmest anchor, because a tool's chrome should not
+   compete with its samples." This one call is the gallery's own document default. `$root_css_ix`
+   records the NUMERIC index this push lands at (plain `$css[] =`, not a string key like
+   'gallery-chrome' below): block 2 (:7099-7103) does `$css[ count( $css ) - 1 ]` twice more to
+   patch the immediately-preceding push in place, a pattern that silently assumes every existing
+   key up to that point is sequential-numeric-from-zero. A string key inserted THIS early breaks
+   that count on first contact (found by running the generator, not by reasoning about it — it
+   FAILed on an undefined array key at :7102, the exact "run it, don't assume it parses" discipline
+   style-catalog PR 4b's own r92 fixture bug was caught by). Recording the index instead lets the
+   chassis loop below swap this ONE push for its own resolved anchor without disturbing the
+   sequential numbering block 2 depends on — index.html's bytes are unaffected either way. */
+$root_css_ix = count( $css );
+$css[]       = root_css_for( 'institutional' );
 
 // ── block 1b · THE TWO CLOSING FIELDS, and every colour on them MEASURED ───────────────────────
 //
@@ -7014,7 +7055,7 @@ $css[] = <<<'CSS'
   --col: calc((var(--content-width) - 11 * var(--sp-m)) / 12);
 
   /* ══ THE OPTICAL TRACKING RAMP — the anchor sets the tracking, the SIZE STEP tunes it.
-        design-personalities.md § "Display tracking" already contains the whole argument and then
+        style-catalog/ § "Display tracking" already contains the whole argument and then
         stops one level short of applying it: "tracking that closes the counters at 120px opens
         holes at 48px". That sentence is used there to decide which ANCHORS tighten (those whose
         h1 cap clears ~80px) and which do not. Inside one anchor it is left unapplied — a single
@@ -7089,7 +7130,7 @@ body{font-family:var(--font-secondary);background:var(--c-bg);color:var(--c-text
 @media(max-width:1023px){ body{overflow-wrap:anywhere} }
 
 /* Weights are design-system.md's type table (h1/h2 700, h3 600). Only letter-spacing is
-   anchor-scoped — design-personalities.md § Typography. */
+   anchor-scoped — style-catalog/ § Typography. */
 h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance}
 h1,h2{line-height:var(--display-lh)}
 h1{font-size:var(--fs-h1);letter-spacing:var(--track-h1)}
@@ -8585,7 +8626,7 @@ CSS;
 
 /**
  * The five axis positions plus the anchor's own typography, motion and imagery.
- * Card recipes are quoted from design-personalities.md § "Card recipe" beside the rules.
+ * Card recipes are quoted from style-catalog/ § "Card recipe" beside the rules.
  */
 function anchor_block( $key, $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSITION, $ACCENT ) {
 	$sc = $SCALE[ $A['scale'] ];
@@ -14527,7 +14568,7 @@ function pad( $s, $n ) {
  * origin, so the block that precharges the dialogue is also the block that demands the dialogue.
  *
  * WHAT IT DOES NOT CARRY: typefaces and motion. Those belong to the anchor and live in
- * design-personalities.md, and copying them here would be one more place for them to drift. The
+ * style-catalog/, and copying them here would be one more place for them to drift. The
  * anchor id is the pointer, which is the same discipline the axis VALUES follow in reverse — those
  * are transcribed because a pasted spec that says "read another file for the numbers" is not a spec.
  */
@@ -14559,7 +14600,7 @@ function handoff_text( $C, $A, $rows, $tgl_rows ) {
 	}
 
 	$L[] = '';
-	$L[] = 'Tipografía y motion del ancla: ux-design-system/references/design-personalities.md.';
+	$L[] = 'Tipografía y motion del ancla: ux-design-system/references/style-catalog/.';
 	$L[] = '';
 	$L[] = 'PRECARGA, NO DECISIÓN. Esto entra en ux-design-system paso 1 en el sitio donde hoy entra';
 	$L[] = '"el sector": el diálogo sigue preguntando en términos de negocio y el cliente confirma o';
@@ -16155,7 +16196,7 @@ $head = '<!--
 
   NO EDITAR ESTE FICHERO. La siguiente ejecución del generador lo sobrescribe entero. Todo lo
   que hay aquí — tokens, secciones, copy, contraste medido — sale de tablas transcritas en el
-  generador desde design-system.md, design-personalities.md, layout-patterns.md y los TPL-*.md.
+  generador desde design-system.md, style-catalog/, layout-patterns.md y los TPL-*.md.
 
   Cada tira es un par TPL-* × PERS-*. El arquetipo aporta el inventario de secciones; el ancla
   aporta los cinco ejes. El copy y las fotos son la CONSTANTE dentro de cada arquetipo, así que
@@ -17061,8 +17102,8 @@ $ACCENT_ROLES = array(
 	   buttons, which are eight instances of one role and not eight marks. */
 	'CTAs'             => array( 'btn-primary' ),
 
-	/* "action icons". One class, and it is not this file's decision: design-personalities.md gives
-	   PERS-INSTITUTIONAL "chip de icono en accent" in as many words, and an anchor's own card
+	/* "action icons". One class, and it is not this file's decision: style-catalog/ gives
+	   STY-INSTITUTIONAL "chip de icono en accent" in as many words, and an anchor's own card
 	   recipe outranks a rule written here. `.cart b` is the badge on the cart control —
 	   html-mockup/SKILL.md step 2 names it as TPL-E-02 DNA, and a badge that does not stand out
 	   has failed at its only job. `.bicon`, the benefits-bar tick, is NOT here: a confirmation
@@ -17335,7 +17376,7 @@ $ramp_seen  = array();
 foreach ( $ramp_steps as $ramp_tag => $ramp_tok ) {
 	if ( ! preg_match( '/(?:^|\n)' . $ramp_tag . '\{[^}]*letter-spacing:var\(' . preg_quote( $ramp_tok, '/' ) . '\)/', $html ) ) {
 		fail( '`' . str_replace( '\\', '', $ramp_tag ) . "` does not read `$ramp_tok` — the optical ramp has collapsed"
-			. ' back to one value for four sizes, which is design-personalities.md § "Display tracking"'
+			. ' back to one value for four sizes, which is style-catalog/ § "Display tracking"'
 			. ' applied to the anchor and then not applied inside it' );
 	}
 	$ramp_seen[ $ramp_tok ] = true;
@@ -18060,37 +18101,67 @@ if ( ! is_dir( $CHASSIS_DIR ) && ! mkdir( $CHASSIS_DIR, 0777, true ) && ! is_dir
 	fail( "cannot create $CHASSIS_DIR — the chassis artifact has nowhere to write" );
 }
 
+// THE OPEN RISK style-catalog's own proposal named at Slice 4's exit criterion
+// (mockup-guide.md:436-447 — "the tamest corner of the system, and every client site started
+// there"): from PR 1a through PR 4b both chassis were STAMPED `Anchor: PERS-INSTITUTIONAL` AND
+// ACTUALLY BUILT from `$ANCHORS['institutional']` unconditionally, for both site types alike, so
+// every corporate demo and every ecommerce demo started identical. style-catalog PR 4c closes the
+// marker/value half of that: each site type now resolves to its OWN catalog anchor, chosen from
+// exactly the historical evidence the proposal itself cites (corporate shipped on
+// `PERS-INSTITUTIONAL`, ecommerce on `PERS-MATTER`) rather than a fresh, undisclosed pick.
+// EXPLICITLY NOT DONE HERE, and why: this map is a static, code-level default for the ONE demo
+// chassis per site type this generator produces, not the manifest-driven, per-PROJECT resolution
+// `art-direction-ledger` (Slice 5) is scoped to build — there is no intake dialogue, no client
+// input and no `es_manifest_record('design', …)` call this generator could reach, only two fixed
+// demo pages. A real project's chassis is still expected to be RE-POINTED to its own resolved
+// style once Slice 5's writer exists, exactly as `RT_MOCKUP_AXES_MISMATCH` already polices for any
+// hand-edit today. Deferred, not swept under the rug: disclosed here, in `_README.md`'s "Known
+// gap" note, and in this PR's own report.
+$CHASSIS_STYLE_BY_SITE = array(
+	'corporate' => 'institutional',
+	'ecommerce' => 'matter',
+);
+
 // Gitignored like index.html (.gitignore), so the audit walks it (html_assets_deep) like any other
 // html-mockup asset and nobody mistakes it for a file to hand-edit. The two names are the two site
 // types this generator already knows (`$CONTENT[*]['site']`, used throughout above).
 foreach ( array( 'corporate', 'ecommerce' ) as $chassis_site ) {
+	$chassis_anchor_key                = $CHASSIS_STYLE_BY_SITE[ $chassis_site ];
+	$chassis_css_this                  = $chassis_css;
+	$chassis_css_this[ $root_css_ix ]  = root_css_for( $chassis_anchor_key );
 	$chassis_body = ( 'corporate' === $chassis_site )
 		? chassis_corporate_body( 'MARCA' )
 		: chassis_ecommerce_body( 'MARCA' );
+	// `data-anchor` matters here, not just decoration: the full stylesheet still carries every
+	// anchor's `[data-anchor="…"] …` override block (§ shell, § card recipes, § ink filters), so
+	// this attribute is what selects WHICH anchor's overrides apply on top of `:root` — leaving it
+	// at a stale value while `:root` resolves to a different anchor would mix one anchor's tokens
+	// with another's card/chip/ink treatment, which is a worse defect than the hardcoded marker
+	// this PR fixes.
 	$chassis_html = "<!DOCTYPE html>\n"
-		. '<html lang="es" data-anchor="institutional">' . "\n"
+		. '<html lang="es" data-anchor="' . $chassis_anchor_key . '">' . "\n"
 		. "<head>\n"
 		. "<meta charset=\"utf-8\">\n"
 		. "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
 		. '<!-- GENERATED by _build-gallery.php — client chassis, site type: ' . $chassis_site
 		. ". Not hand-edited: the next run overwrites it entire. -->\n"
-		. "<style>\n" . implode( "\n", $chassis_css ) . "\n</style>\n"
+		. "<style>\n" . implode( "\n", $chassis_css_this ) . "\n</style>\n"
 		. "</head>\n"
 		. "<body>\n"
 		. $chassis_body . "\n"
 		. "</body>\n"
 		. "</html>\n";
 	// framework-audit.php's RT_MOCKUP_ANCHOR_UNDECLARED / RT_MOCKUP_AXES_MISMATCH pair
-	// (:1921-1953) reads an `Anchor: PERS-*` comment out of the FIRST `:root{…}` block — the same
+	// (:1921-1953) reads an `Anchor: STY-*` comment out of the FIRST `:root{…}` block — the same
 	// marker every hand-authored mockup already carries, and the one `$anchored_required`
 	// (tasks.md 1d.3) now demands from this file too. Stamped into `$chassis_html` ONLY, never
 	// into `$css`/`$chassis_css` themselves, which `index.html`'s own `implode()` (:16621) also
 	// reads unmodified — `index.html` declares no Anchor today and is not in `$anchored_required`,
-	// so it must not gain one by accident. `institutional` states what `:root` above ALREADY is —
-	// `$root_anchor` is `$ANCHORS['institutional']` unconditionally for both site types, unchanged
-	// since PR 1a — truthfully, not a resolved-per-site-type claim: wiring each site type to its
-	// own anchor is a later slice's job (manifest-driven style resolution, Slice 5), not this row's.
-	$chassis_html = str_replace( ':root{', ":root{\n  /* Anchor: PERS-INSTITUTIONAL */", $chassis_html );
+	// so it must not gain one by accident. RESOLVED FROM THE CATALOG, not hardcoded: the id is
+	// built from `$chassis_anchor_key`, the same key `root_css_for()` just built `:root` from
+	// above, so the marker and the tokens cannot independently drift out of step the way a second,
+	// hand-typed copy of the string always eventually does.
+	$chassis_html = str_replace( ':root{', ":root{\n  /* Anchor: STY-" . strtoupper( $chassis_anchor_key ) . ' */', $chassis_html );
 	file_put_contents( $CHASSIS_DIR . '/' . $chassis_site . '.html', $chassis_html );
 }
 

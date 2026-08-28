@@ -435,8 +435,8 @@ dialogue with the client. Nothing connects the two: a bakery and a law firm can 
 anchor, and two law firms can want different ones.
 
 The two starting assets each ship pointed at one anchor **only so they render** — an HTML file
-has to carry values. `chassis/corporate.html` ships at `PERS-INSTITUTIONAL`, `chassis/ecommerce.html`
-at `PERS-MATTER`. Neither is a recommendation.
+has to carry values. `chassis/corporate.html` ships at `STY-INSTITUTIONAL`, `chassis/ecommerce.html`
+at `STY-MATTER`. Neither is a recommendation.
 
 **Generated, never hand-copied.** `_build-gallery.php` (`../gallery/_build-gallery.php`) writes
 both from the exact same in-memory CSS tables the gallery renders — one run, two files, everything
@@ -447,17 +447,29 @@ hand-maintained originals this section used to describe, `corporate-mockup.html`
 
 **Why this needed saying.** Until it did, step 1 read *pick the starting asset by site type* and
 stopped there, and the `:root` comment read *Default anchor* — so every corporate project shipped
-`PERS-INSTITUTIONAL` and every commerce one `PERS-MATTER`, not because anyone chose them but
+`STY-INSTITUTIONAL` and every commerce one `STY-MATTER`, not because anyone chose them but
 because nobody was asked to. Measured against the other assets in the repo, those two are also the
 quietest of the four: h1 caps of 48 and 64 against 88 and 120, type ratios of 1.200 and 1.333
 against 1.500 and 1.618, and `--sp-scale: 1.0` on both — the only two with no density move at all.
 So the default was not merely arbitrary; it was the tamest corner of the system, and every client
 site started there.
 
+**style-catalog PR 4c closed the marker-vs-value half of this, not the whole of it.** The generated
+chassis now resolves each site type's `Anchor:` marker AND its `:root` tokens from the SAME lookup
+(`$CHASSIS_STYLE_BY_SITE` in `_build-gallery.php`), so the two can no longer independently drift —
+before this PR the marker was a hand-typed string that would have stayed `STY-INSTITUTIONAL` even
+if `:root` were repointed to something else, silently. The lookup itself is still the same two
+fixed defaults named above: there is no client, no project and no manifest at generation time for
+this code to resolve against, so every corporate demo still starts on `STY-INSTITUTIONAL` and every
+ecommerce one on `STY-MATTER` until `art-direction-ledger` (Slice 5) gives a real project's chassis
+somewhere else to resolve FROM. That remaining gap is `art-direction-ledger`'s scope, not this
+section's — a generated project's actual style comes from the `ux-design-system` dialogue above,
+never from these two demo files.
+
 **Re-pointing is six edits, and five out of six is the failure mode.** The block holds five token
 lines plus the `composition` marker, which has no custom property of its own to ride on and is
 therefore the one most easily forgotten. `RT_MOCKUP_AXES_MISMATCH` reads the labels against
-`design-personalities.md` and names each axis that disagrees with both positions, so a half-done
+`references/style-catalog/` and names each axis that disagrees with both positions, so a half-done
 re-point FAILs instead of shipping as a site that is neither anchor.
 
 That row also checks the VALUE: a `scale: contained` label beside a hand-typed `--fs-h1-max: 53`

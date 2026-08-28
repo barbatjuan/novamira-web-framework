@@ -1,13 +1,16 @@
 # `STY-INSTITUTIONAL` — Institutional
 
 > Ported from `design-personalities.md`'s `PERS-INSTITUTIONAL` (style-catalog PR 4a, `tasks.md`
-> 4a.2). Format only — the 8 axis positions and every prose claim below are unchanged from the
-> source; see `_README.md` for what a port means and what still lives in the old file until PR 4c.
+> 4a.2). The source file was retired in style-catalog PR 4c (`tasks.md` 4c.1-4c.3) once this
+> catalog cleared `RT_STYLE_TOO_SIMILAR` on its own; the 8 axis positions and every prose claim
+> below remain unchanged from the ported source.
 >
-> **This is the anchor both generated chassis are stamped with today** (`_build-gallery.php`, PR
-> 1d) — not a resolved per-project choice, a hardcoded one. Slice 4 does not close until that
-> hardcode reads from the selected `STY-*` instead; see `_README.md` § "The open risk this port
-> does not close."
+> **This is the anchor the generated CORPORATE chassis is stamped with** (`_build-gallery.php`,
+> `$CHASSIS_STYLE_BY_SITE`, style-catalog PR 4c) — the generated ECOMMERCE chassis resolves to
+> `STY-MATTER` instead, both from a static per-site-type map disclosed and reasoned in
+> `_README.md` § "The open risk this port did not close alone — closed here, partially." That
+> map is still not a per-project choice; a real project's chassis is expected to be re-pointed
+> once `art-direction-ledger` (Slice 5) gives it a manifest to resolve from.
 
 **Axes:** scale `contained` · ground `cool` · density `standard` · composition `centered` ·
 elevation `soft-shadow` · accent `reserved` · chassis `carded` · ornament `illustration`

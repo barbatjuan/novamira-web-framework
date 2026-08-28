@@ -24,10 +24,10 @@
 
   TIER 2 — the anchor's typography and detail choices. NOT axes, gated by nothing, listed here in
   full so the next reader can see the boundary rather than trust a sentence:
-    · typefaces ........... Fraunces / Inter Tight          (design-personalities.md § Typography)
+    · typefaces ........... Fraunces / Inter Tight          (STY-EDITORIAL.md § Typography)
     · tracking ............ -0.015em on h1-h3, .16em wordmark   (§ Typography — the one of the six
                             below that earned a per-anchor value instead of being unified)
-    · motion .............. .5s / .7s, lift capped at -4px  (design-personalities.md § Motion intensity)
+    · motion .............. .5s / .7s, lift capped at -4px  (STY-EDITORIAL.md § Motion intensity)
     · card recipe ......... hairline rule, no fill; .attrib the same   (§ Card recipe)
     · imagery ratios ...... 4/5 hero, 3/2 proceso, 16/11 card    (§ Imagery)
     · --c-accent .......... #8C3A1F, derived for `paper`    (ratios below)
@@ -47,7 +47,7 @@
   carried -.02em on it against nothing here, a third value matching neither anchor's documented
   display tracking (-0.015em here, -0.025em there, both scoped to h1–h3), so it was removed there
   rather than invented into the catalogue here. Tracking on h1–h3 was the one of the seven worth
-  keeping per anchor, so it was written down in design-personalities.md rather than left implicit. The `«»` this file used to paint through
+  keeping per anchor, so it was written down in STY-EDITORIAL.md rather than left implicit. The `«»` this file used to paint through
   `.quote::before/::after` went with them: `_axis-proof-content.md` is the authority on every
   rendered string and its Cita row carries no guillemets, so a CSS `content:` that puts glyphs on
   one page and not the other is a copy difference wearing a stylesheet's clothes — and it is the
@@ -76,7 +76,7 @@
   /* NM-FONTS:END */
   :root{
     /* ══ AXIS TOKENS — copied verbatim from design-system.md § Perceptual axes ══ */
-    /* Anchor: PERS-EDITORIAL. NOT a starting asset — this file and its sibling are the axis proof
+    /* Anchor: STY-EDITORIAL. NOT a starting asset — this file and its sibling are the axis proof
        (same copy, two anchors), gated by RT_PROOF_NOT_DISTINCT and RT_PROOF_COPY_DIFFERS on
        hardcoded paths. Its five axis labels must be the ones PERS-EDITORIAL holds:
        RT_MOCKUP_AXES_MISMATCH reads them. */
@@ -89,7 +89,7 @@
     /* chassis: rule-divided */
     /* ornament: rule */
 
-    /* ── Typefaces: design-personalities.md names them; this file only spells the stack.
+    /* ── Typefaces: STY-EDITORIAL.md names them; this file only spells the stack.
           Real families FIRST, then honest system fallbacks. No webfont request is made. ── */
     --font-primary: 'Fraunces', Georgia, 'Times New Roman', serif;
     --font-secondary: 'Inter Tight', system-ui, sans-serif;
@@ -198,7 +198,7 @@
   @media(max-width:1023px){ body{overflow-wrap:anywhere} }
   /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice.
      `text-wrap:balance` is a legibility default, identical in both files.
-     Only `letter-spacing` is anchor-scoped here — see design-personalities.md § Typography.
+     Only `letter-spacing` is anchor-scoped here — see STY-EDITORIAL.md § Typography.
      The reflow guard lives on `body`; see the comment there. */
   h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:-.015em}
   /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25, body 1.6 (design-system.md) */

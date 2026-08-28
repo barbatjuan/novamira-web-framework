@@ -20,7 +20,7 @@ y hay un arquetipo hermano que sí: `TPL-PDP-02` a `TPL-PDP-05`.
 **Estándar y editorial son la misma arquitectura.** Hubo un `TPL-PDP-02 Editorial` con galería a
 sangre y más aire, y medido contra ésta compartía SIETE de sus ocho secciones: no era otra
 arquitectura, era ésta con la foto más grande. El tamaño de la foto, el aire y el registro visual
-los mueven las cinco anclas de `design-personalities.md` y el toggle `TGL-PDP-LAYOUT`, que es donde
+los mueven las ocho anclas de `ux-design-system/references/style-catalog/` y el toggle `TGL-PDP-LAYOUT`, que es donde
 viven las decisiones de aspecto. Un arquetipo es un ESQUELETO; si dos esqueletos coinciden, hay uno.
 
 ## 2. Wireframe (top → bottom)

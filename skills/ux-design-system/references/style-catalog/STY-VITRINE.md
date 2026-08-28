@@ -1,9 +1,10 @@
 # `STY-VITRINE` — Vitrine
 
 > Ported from `design-personalities.md`'s `PERS-VITRINE` (style-catalog PR 4a, `tasks.md` 4a.2).
-> Format only — the 8 axis positions and every prose claim below are unchanged from the source; see
-> `_README.md` for what a port means and what still lives in the old file until PR 4c. The source
-> anchor's own prose is Spanish, so this port keeps it Spanish rather than translating it.
+> The source file was retired in style-catalog PR 4c (`tasks.md` 4c.1-4c.3) once this catalog
+> cleared `RT_STYLE_TOO_SIMILAR` on its own; the 8 axis positions and every prose claim below
+> remain unchanged from the ported source. That source anchor's own prose is Spanish, so this
+> port keeps it Spanish rather than translating it.
 
 **Axes:** scale `editorial` · ground `ink` · density `monumental` · composition `strict-grid` ·
 elevation `soft-shadow` · accent `metallic` · chassis `soft-carded` · ornament `none`

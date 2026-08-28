@@ -17,10 +17,10 @@ Run after `web-templates`, before `html-mockup`. Never hand straight to builder-
 the mockup approval gate sits between this skill and any WordPress write.
 
 ## The Design Space
-- **Five axes** (`references/design-tokens.md`): scale, ground, density, composition,
-  elevation — a spectrum of values, never an adjective.
-- **Four anchors** (`references/design-personalities.md`): `PERS-EDITORIAL`, `PERS-MATTER`,
-  `PERS-DIRECT`, `PERS-INSTITUTIONAL` — positions on all five axes. Land on one, or between two.
+- **Eight axes** (`references/design-tokens.md`): scale, ground, density, composition,
+  elevation, accent, chassis, ornament — a spectrum of values, never an adjective.
+- **Eight styles** (`references/style-catalog/`): full positions on all eight axes plus a
+  toggle precharge. Land on the closest.
 
 ## Hard Rules
 - Every typography/color/motion choice traces to a brand signal, client reference, or resolved
@@ -38,9 +38,9 @@ the mockup approval gate sits between this skill and any WordPress write.
 - Mobile-first: centered hero on small screens, real breakpoints, full-width CTAs, equal-height product cards.
 
 ## Execution Steps
-1. Resolve the FIVE AXES with 3–5 questions in business terms, never "which personality do you
+1. Resolve the EIGHT AXES with 3–5 questions in business terms, never "which style do you
    want". Precharge each from the industry `web-templates` reported, or from the spec of a strip
-   picked in `html-mockup/assets/gallery/index.html`, which precharges archetype and all five;
+   picked in `html-mockup/assets/gallery/index.html`, which precharges archetype and all eight;
    the client confirms or overrides. One answer usually moves several axes: "material catalogue
    or gallery of finished work?" moves ground, composition and density at once. **Every axis must
    end resolved**: ask explicitly for any the answers did not reach — an axis nobody sets, or one
@@ -61,7 +61,7 @@ Return a short spec: resolved axis positions, palette + roles, type pair, spacin
 timings, sections/patterns, per-breakpoint notes — no builder-specific code.
 
 ## References
-- `references/design-personalities.md` — four anchors, positions on all five axes.
-- `references/design-tokens.md` — palette roles, type, spacing, radii, five axes.
+- `references/style-catalog/` — eight styles, positions on all eight axes.
+- `references/design-tokens.md` — palette roles, type, spacing, radii, eight axes.
 - `references/motion.md` — hover timings, premium card recipe, glass, button system.
 - `references/layout-patterns.md` — section blueprints + responsive rules.

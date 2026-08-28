@@ -1,8 +1,9 @@
 # `STY-EDITORIAL` — Editorial
 
 > Ported from `design-personalities.md`'s `PERS-EDITORIAL` (style-catalog PR 4a, `tasks.md` 4a.2).
-> Format only — the 8 axis positions and every prose claim below are unchanged from the source; see
-> `_README.md` for what a port means and what still lives in the old file until PR 4c.
+> The source file was retired in style-catalog PR 4c (`tasks.md` 4c.1-4c.3) once this catalog
+> cleared `RT_STYLE_TOO_SIMILAR` on its own; the 8 axis positions and every prose claim below
+> remain unchanged from the ported source.
 
 **Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` ·
 elevation `none` · accent `none` · chassis `rule-divided` · ornament `rule`

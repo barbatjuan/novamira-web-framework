@@ -24,10 +24,10 @@
 
   TIER 2 — the anchor's typography and detail choices. NOT axes, gated by nothing, listed here in
   full so the next reader can see the boundary rather than trust a sentence:
-    · typefaces ........... Archivo Expanded / Archivo      (design-personalities.md § Typography)
+    · typefaces ........... Archivo Expanded / Archivo      (STY-DIRECT.md § Typography)
     · tracking ............ -0.025em on h1-h3, .1em wordmark    (§ Typography — the one of the six
                             below that earned a per-anchor value instead of being unified)
-    · motion .............. .35s, glow instead of lift      (design-personalities.md § Motion intensity)
+    · motion .............. .35s, glow instead of lift      (STY-DIRECT.md § Motion intensity)
     · card recipe ......... dark surface + glow; .attrib an accent slab   (§ Card recipe)
     · imagery ratios ...... 4/3 hero, 16/10 card            (§ Imagery)
     · --c-accent .......... #FF6A1A, re-derived for `ink`   (derivation below)
@@ -47,7 +47,7 @@
   -.02em against the twin's nothing, a third value matching neither anchor's documented display
   tracking (-0.025em here, -0.015em there, both scoped to h1–h3), so it was removed rather than
   invented into the catalogue. Tracking on h1–h3 was the one of the seven worth keeping per
-  anchor, so it was written down in design-personalities.md rather than left implicit.
+  anchor, so it was written down in STY-DIRECT.md rather than left implicit.
 
   This file is deliberately NOT theme-aware: it pins the `ink` ground on purpose. Making it
   follow the reader's colour scheme would erase the ground axis, which is one of the five
@@ -73,7 +73,7 @@
   /* NM-FONTS:END */
   :root{
     /* ══ AXIS TOKENS — copied verbatim from design-system.md § Perceptual axes ══ */
-    /* Anchor: PERS-DIRECT. NOT a starting asset — this file and its sibling are the axis proof
+    /* Anchor: STY-DIRECT. NOT a starting asset — this file and its sibling are the axis proof
        (same copy, two anchors), gated by RT_PROOF_NOT_DISTINCT and RT_PROOF_COPY_DIFFERS on
        hardcoded paths. Its five axis labels must be the ones PERS-DIRECT holds:
        RT_MOCKUP_AXES_MISMATCH reads them. */
@@ -110,7 +110,7 @@
        other's ground, which is the ground axis doing its job rather than a palette preference. */
     --c-accent: #FF6A1A;
 
-    /* ── Typefaces: design-personalities.md names them; this file only spells the stack.
+    /* ── Typefaces: STY-DIRECT.md names them; this file only spells the stack.
           Real families FIRST, then honest system fallbacks. No webfont request is made. ── */
     --font-primary: 'Archivo Expanded', 'Arial Black', system-ui, sans-serif;
     --font-secondary: 'Archivo', system-ui, sans-serif;
@@ -224,7 +224,7 @@
   @media(max-width:1023px){ body{overflow-wrap:anywhere} }
   /* Weights are design-system.md's type table (h1/h2 700, h3 600), not a per-anchor choice — 800
      was a number no table gives. `text-wrap:balance` is a legibility default, identical in both
-     files. Only `letter-spacing` is anchor-scoped here — design-personalities.md § Typography.
+     files. Only `letter-spacing` is anchor-scoped here — STY-DIRECT.md § Typography.
      The reflow guard these headings used to carry now lives on `body`; see the comment there. */
   h1,h2,h3{font-family:var(--font-primary);font-weight:700;text-wrap:balance;letter-spacing:-.025em}
   /* h1/h2 take the display leading the scale axis fixes; h3 stays 1.25, body 1.6 (design-system.md) */
@@ -356,7 +356,7 @@
      an anchor signature, so it may not differ from the twin. */
   /* No `letter-spacing` here. It used to carry -.02em, a value that matched NOTHING: this anchor's
      documented display tracking is -0.025em and the twin's is -0.015em, both scoped to h1–h3 in
-     design-personalities.md, and `.quote` is neither. A third invented number with no axis and no
+     STY-DIRECT.md, and `.quote` is neither. A third invented number with no axis and no
      anchor behind it is the same defect as the six properties the header lists as removed, so it
      went the same way and the twin's `.quote` — which never had one — is now identical. */
   .quote{font-family:var(--font-primary);font-size:calc(var(--fs-h3) * .95);text-wrap:balance;

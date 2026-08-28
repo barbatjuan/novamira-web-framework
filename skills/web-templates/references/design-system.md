@@ -10,7 +10,7 @@ y con la skill `html-mockup` (variables `--*` en `:root`).
 Este archivo es la **autoridad sobre NOMBRES y VALORES de token**, incluidos los valores de cada
 posición de eje (`--type-ratio`, `--display-lh`, `--fs-h1-max`, `--sp-scale`, `--c-bg`,
 `--c-bg-alt`, `--c-text`, `--elev-rest`, `--elev-hover`): ver "Perceptual axes — token values" al
-final. `design-personalities.md` es la autoridad sobre QUÉ POSICIÓN toma cada ancla en cada eje y
+final. `ux-design-system/references/style-catalog/` es la autoridad sobre QUÉ POSICIÓN toma cada ancla en cada eje y
 sobre los nombres concretos de tipografía; no define valores de token.
 `ux-design-system/references/motion.md` manda sobre la curva y los rangos de duración/lift.
 `ux-design-system/references/design-tokens.md` explica los ROLES (para qué sirve cada token, cómo
@@ -190,7 +190,7 @@ párrafo era pagar ese párrafo con la página entera.
 | Containers | `--radius-container` | `16px` |
 
 Estos son los defaults. El ancla resuelta puede moverlos cuando su **Card recipe** en
-`design-personalities.md` lo pide (p. ej. `PERS-MATTER` pone la imagen al radio del contenedor);
+`ux-design-system/references/style-catalog/` lo pide (p. ej. `STY-MATTER` pone la imagen al radio del contenedor);
 donde la receta calla, manda la tabla. Los NOMBRES de token no cambian nunca.
 
 ## Notas de implementación
@@ -483,9 +483,9 @@ Three exclusions are part of the rule rather than holes in it:
 - **`box-shadow` is not a mark.** `--elev-rest: 0 0 0 1px …accent…` is the elevation axis spending
   its own token, which this file tables as `accent-glow`.
 
-**An anchor's card recipe outranks this whitelist.** `design-personalities.md` gives
-`PERS-INSTITUTIONAL` "chip de icono en accent" in as many words; a rule written here does not get
-to overrule a personality's own definition. Name the exception under a role and move on.
+**An anchor's card recipe outranks this whitelist.** `references/style-catalog/` gives
+`STY-INSTITUTIONAL` "chip de icono en accent" in as many words; a rule written here does not get
+to overrule a style's own definition. Name the exception under a role and move on.
 
 **Where the biggest spend goes: the close.** A whitelist is only interesting because it lets you
 spend loudly somewhere. The closing band is that somewhere — see
@@ -662,7 +662,7 @@ the "a position with no value is an adjective" failure in new clothes.
 #### `ACC-POLYCHROME`
 - The ONE-colour rule is suspended for exactly one named, bounded set — a tag list, a category
   swatch grid — and the exception is written down beside the set it covers, the same discipline
-  `design-personalities.md` already asks of an anchor's own card-recipe exception.
+  `references/style-catalog/` already asks of an anchor's own card-recipe exception.
 - Every mark outside that named set still answers to the ordinary whitelist; polychrome is scoped,
   never ambient.
 

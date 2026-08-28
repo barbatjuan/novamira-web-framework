@@ -135,43 +135,56 @@ established at 2/8 in PR 2b. This table is the authoritative claim for the real 
 mechanism itself is locked at n=8 scale by a separate, disclosed-synthetic fixture (see "Known gap"
 below for why it cannot yet run against these files directly).
 
-### Known gap: `nm_axes()`'s ground positions are stale, found this session
+### Closed gap: `nm_axes()`'s ground positions were stale, fixed in PR 4c (Task Zero)
 
-`framework-audit.php`'s `nm_axes()` (`:1037-1083`) still lists only 4 ground positions — `paper`,
-`warm`, `cool`, `ink` — never widened to the 9 `design-system.md`'s own Ground table has carried
-since style-catalog PR 3a. This does **not** FAIL the real repo today: `RT_STYLE_TOO_SIMILAR` still
-parses `design-personalities.md`, not `STY-*.md` (unchanged since PR 4a — see "PR 4c" below), and
-`design-personalities.md`'s 5 anchors only ever used the original 4 ground positions.
+`framework-audit.php`'s `nm_axes()` (`:1037-1083`) listed only 4 ground positions — `paper`,
+`warm`, `cool`, `ink` — never widened to the 9 `design-system.md`'s own Ground table carried since
+style-catalog PR 3a. It never FAILed the real repo before PR 4c: `RT_STYLE_TOO_SIMILAR` still parsed
+`design-personalities.md`, not `STY-*.md`, and `design-personalities.md`'s 5 anchors only ever used
+the original 4 ground positions — flagged first in PR 4b's own apply-progress, carried forward here
+so it would not be lost before the repoint that would have tripped it.
 
-It **will** FAIL the moment a future PR repoints `RT_STYLE_TOO_SIMILAR`/`RT_PERS_BAD_AXIS` to read
-`STY-*.md` instead: 3 of these 8 entries (`STY-TECH-SAAS`, `STY-DARK-LUXURY`, `STY-NEO-BRUTALIST`)
-name a ground position (`ink-cool`, `ink-warm`, `saturated`) `nm_axes()` does not yet recognise, and
-`RT_PERS_BAD_AXIS` would FAIL all three and silently exclude them from every distinctness gate.
-Widening `nm_axes()`'s ground list to the 9 real positions is not itemised in any remaining
-`tasks.md` entry (Slice 4's 4c.2 lists `SKILL.md`/`design-tokens.md`/`layout-patterns.md`/
-`motion.md`, not `framework-audit.php` itself) — flagged here, the same way PR 4a carried forward
-the chassis-anchor hardcode, so it is not lost before whichever PR performs that repoint.
+style-catalog PR 4c widened `nm_axes()`'s ground list to all 9 real positions BEFORE repointing
+`RT_STYLE_TOO_SIMILAR`/`RT_PERS_BAD_AXIS` to `STY-*.md` — the same audit-before-style ordering PR 2a/
+2b already established for the axis registry itself, and the exact ordering that would have FAILed
+3 of these 8 entries (`STY-TECH-SAAS`, `STY-DARK-LUXURY`, `STY-NEO-BRUTALIST` — `ink-cool`,
+`ink-warm`, `saturated`) had the repoint landed first. Verified by running the real audit against
+all 8 `STY-*.md` files with the widened registry: `RT_PERS_BAD_AXIS` silent, `RT_STYLE_TOO_SIMILAR`
+clean.
 
-## PR 4c — retiring `design-personalities.md` (not in this PR)
+## PR 4c — `design-personalities.md` retired
 
-`design-personalities.md` is deleted only after the 8-entry catalog is complete and passes
-`RT_STYLE_TOO_SIMILAR` pairwise (`tasks.md` 4c.1–4c.3). `SKILL.md`'s stale "Four anchors" line
-(`:22`) and the 5→8-axis references in `design-tokens.md`/`layout-patterns.md`/`motion.md` are
-fixed in that PR too, not this one.
+Deleted after the 8-entry catalog cleared `RT_STYLE_TOO_SIMILAR` pairwise, parsed directly from
+`STY-*.md` rather than the old file (`tasks.md` 4c.1–4c.3). Every `RT_PERS_*`/`RT_STYLE_TOO_SIMILAR`/
+`RT_CATALOG_UNMENTIONED` rule that used to parse `design-personalities.md` now globs
+`style-catalog/STY-*.md` instead; `SKILL.md`'s stale "Four anchors" line (`:22`), the 5→8-axis gap
+in `design-tokens.md`, and the two hand-authored proof mockups' `Anchor:`/citation text were all
+repointed in the same PR. `layout-patterns.md` and `motion.md` were checked and needed no change —
+their "four positions" mentions are about `composition`/`elevation`'s own position counts (still 4
+each), not the total axis count.
 
-## The open risk this port does not close
+## The open risk this port did not close alone — closed here, partially
 
-Both generated chassis (`assets/chassis/corporate.html`, `assets/chassis/ecommerce.html`) are
-stamped `/* Anchor: PERS-INSTITUTIONAL */` (PR 1d). The marker is truthful — their `:root`
-genuinely resolves to `contained` + `standard`, `PERS-INSTITUTIONAL`'s own axis line — but **a
-chassis pinned to one anchor is the defect this entire change exists to kill**
-(`mockup-guide.md:436-447`: every corporate project shipped `PERS-INSTITUTIONAL` because nobody was
-asked). Porting `PERS-INSTITUTIONAL` to `STY-INSTITUTIONAL` in this PR does not touch that
-hardcode — the stamp still names the old id, not a resolved-per-project choice.
+Both generated chassis (`assets/chassis/corporate.html`, `assets/chassis/ecommerce.html`) were
+stamped `/* Anchor: PERS-INSTITUTIONAL */` unconditionally for BOTH site types from PR 1a through
+PR 4b — truthful for `corporate.html`, but ALSO the value `ecommerce.html` shipped, silently, since
+`:root` was built from the exact same call for both. `mockup-guide.md:436-447` recorded the same
+pattern for the two hand-maintained originals this generator replaced: every corporate project
+shipped `PERS-INSTITUTIONAL` and every commerce one `PERS-MATTER`, "the tamest corner of the system,
+and every client site started there."
 
-**Slice 4 does not close until the chassis anchor is resolved from the selected `STY-*` rather than
-hardcoded.** PR 4b (this PR) did not touch it either — it is not itemised in `tasks.md` 4b.1–4b.4 or
-4c.1–4c.3, so it remains open past PR 4c too, carried forward here again so it is not lost.
+style-catalog PR 4c resolves each site type's chassis anchor from `$CHASSIS_STYLE_BY_SITE` in
+`_build-gallery.php` — a static, disclosed map (`corporate => institutional`, `ecommerce => matter`,
+chosen from the exact historical evidence above) — and builds BOTH the `Anchor: STY-*` marker and
+the `:root` tokens from that SAME resolved key, so the two can no longer independently drift the way
+a hand-typed marker string always eventually does. The two site types now resolve to two DIFFERENT
+styles, which alone breaks the "every corporate site starts identical" pattern this section used to
+describe. **What remains explicitly open, past PR 4c:** this is still a fixed default per site TYPE,
+not a per-PROJECT resolution — there is no client, no project and no manifest at generation time for
+`_build-gallery.php` to resolve against, only two demo pages. `art-direction-ledger` (Slice 5) is
+where `es_manifest_record('design', …)` persists a real project's resolved style; a real project's
+chassis is still expected to be re-pointed once that writer exists, exactly as
+`RT_MOCKUP_AXES_MISMATCH` already polices for any hand-edit today.
 
 ## Backlog
 

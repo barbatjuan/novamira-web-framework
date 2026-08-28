@@ -2328,8 +2328,12 @@ foreach ( explode( "\n", (string) file_get_contents( $ds_ruta ) ) as $linea ) {
 	   (claras) y `ink-warm`/`ink-cool` (oscuras). El hueco que este axis tapaba —
 	   tres de cuatro fondos casi blancos — se cierra con posiciones nuevas, no
 	   renombrando las viejas: `ink` sigue siendo `ink` porque framework-audit.php's
-	   `nm_axes()` y los cinco anchors de design-personalities.md ya lo declaran por
-	   ese nombre, y tocarlo es trabajo de Slice 4, no de este PR. */
+	   `nm_axes()` y los cinco anchors de design-personalities.md ya lo declaraban por
+	   ese nombre cuando se escribio este comentario, y tocarlo era trabajo de Slice 4,
+	   no de PR 3a. style-catalog PR 4c ya hizo ese trabajo: `nm_axes()` ahora declara
+	   estas mismas nueve posiciones y el catalogo (ocho `STY-*.md`, design-personalities.md
+	   retirado) las usa por el mismo nombre, asi que renombrar `ink` seguiria sin tener
+	   beneficio -- esa es la parte de este razonamiento que no caduca. */
 	if ( count( $celdas ) >= 4
 		&& in_array( $celdas[0], array( 'paper', 'warm', 'cool', 'cream', 'earth', 'saturated', 'ink', 'ink-warm', 'ink-cool' ), true )
 		&& preg_match( '/^#[0-9A-Fa-f]{6}$/', $celdas[1] )

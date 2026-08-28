@@ -1,8 +1,14 @@
 # `STY-MATTER` — Matter
 
 > Ported from `design-personalities.md`'s `PERS-MATTER` (style-catalog PR 4a, `tasks.md` 4a.2).
-> Format only — the 8 axis positions and every prose claim below are unchanged from the source; see
-> `_README.md` for what a port means and what still lives in the old file until PR 4c.
+> The source file was retired in style-catalog PR 4c (`tasks.md` 4c.1-4c.3) once this catalog
+> cleared `RT_STYLE_TOO_SIMILAR` on its own; the 8 axis positions and every prose claim below
+> remain unchanged from the ported source.
+>
+> **This is the anchor the generated ECOMMERCE chassis is stamped with** (`_build-gallery.php`,
+> `$CHASSIS_STYLE_BY_SITE`, style-catalog PR 4c) — see `STY-INSTITUTIONAL.md` and `_README.md`
+> § "The open risk this port did not close alone — closed here, partially" for what that map does
+> and does not resolve.
 
 **Axes:** scale `classic` · ground `warm` · density `standard` · composition `strict-grid` ·
 elevation `hairline` · accent `tinted-field` · chassis `bordered` · ornament `texture`

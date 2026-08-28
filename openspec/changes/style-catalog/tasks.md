@@ -652,11 +652,76 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       (reported per instruction) — the mandatory 28-pair table plus the font-decision rationale
       table in `_README.md`, and two full RED/GREEN fixture pairs at real n=8 scale (28 pairs each,
       not a toy 2-3 entry test), needed the room.
-- [ ] 4c.1 Confirm full chain green with the catalog complete, BEFORE deleting
-      `design-personalities.md` (same deletion-last discipline as Slice 1).
-- [ ] 4c.2 Delete `design-personalities.md`; update `SKILL.md` (fix stale "Four anchors" at `:22`),
-      `design-tokens.md`, `layout-patterns.md`, `motion.md` for 5→8 axes.
-- [ ] 4c.3 GREEN: zero references to the deleted file remain; full chain green.
+- [x] 4c.1 Confirmed full chain green with the catalog complete BEFORE deleting
+      `design-personalities.md` (1350 OK/0 FAIL, PR 4b baseline, file still present). TASK ZERO
+      done first, in the same commit-ordering discipline as PR 2a/2b: `nm_axes()`'s `ground`
+      positions widened from 4 (`paper`/`warm`/`cool`/`ink`) to the real 9 `design-system.md`'s own
+      table carries (adds `cream`/`earth`/`saturated`/`ink-warm`/`ink-cool`), verified against
+      `design-system.md:304-333` directly rather than trusted from PR 4b's own disclosure — widening
+      alone re-verified 0 FAIL/4 WARN before any parser repoint landed, so `RT_PERS_BAD_AXIS` never
+      saw a style name a ground position the registry did not yet define.
+- [x] 4c.2 Repointed every `design-personalities.md` reader found (RT_PERS_CATALOG_MISSING/
+      MISSING_FIELD/DUPLICATE_ID/BAD_AXIS, `pers_axes()`, RT_STYLE_TOO_SIMILAR, RT_CATALOG_UNMENTIONED,
+      RT_MOCKUP_AXES_MISMATCH's Anchor-marker regex, RT_TOKENS_HARDCODED_FONT's message,
+      `_build-gallery.php`'s startup existence-assertion and every citation comment,
+      `_gallery-fingerprint.php`'s exclusion-list comment) at `references/style-catalog/STY-*.md`,
+      glob-matched, id read generically (no hardcoded `PERS-`/`STY-` prefix — catalog membership is
+      the glob's job). Found and fixed a genuine latent bug the repoint exposed: `pers_axes()`'s
+      `**Axes:**` capture assumed one physical LINE (true for design-personalities.md's own
+      unwrapped blocks) but every `STY-*.md` file wraps the Axes line across two — caught by running
+      the real 8-file catalog through the repointed parser and getting 64 spurious `RT_PERS_BAD_AXIS`
+      FAILs, not assumed; fixed by bounding the capture to the paragraph (next blank line or EOF)
+      instead of the line. Deleted `design-personalities.md`; updated `SKILL.md` (fixed stale "Four
+      anchors" at `:22`, now "Eight styles" pointing at `references/style-catalog/`, word count
+      re-verified at exactly 498 both before and after — PR 4a's own 524/5th-WARN failure mode
+      avoided by trimming trailing clauses rather than guessing) and `design-tokens.md` (5→8 axes:
+      "Five axes" → "Eight axes", three missing axis bullets added). `layout-patterns.md` and
+      `motion.md` checked and found to need NO change: their "four positions" mentions are
+      `composition`/`elevation`'s own position counts (genuinely still 4 each), not the total axis
+      count — confirmed by direct read, not assumed from the task line's wording.
+      **THE OPEN RISK CLOSED**: both generated chassis were stamped `Anchor: PERS-INSTITUTIONAL`
+      unconditionally for BOTH site types since PR 1a (`_README.md`'s own carried-forward note).
+      `_build-gallery.php`'s `:root{...}` block (`root_css_for()`, extracted from inline top-level
+      code into a function) is now resolved per site type from `$CHASSIS_STYLE_BY_SITE`
+      (`corporate => institutional`, `ecommerce => matter` — the exact historical pair
+      `mockup-guide.md:436-447` recorded, not a fresh guess), and the `Anchor:` marker is built from
+      the SAME resolved key as the `:root` tokens, so the two cannot independently drift. Verified:
+      `chassis/corporate.html` now declares `Anchor: STY-INSTITUTIONAL` with `data-anchor="institutional"`;
+      `chassis/ecommerce.html` declares `Anchor: STY-MATTER` with `data-anchor="matter"` — two
+      DIFFERENT styles, breaking the "every site starts identical" pattern. Found and fixed a real
+      regression while wiring this: keying `$css['root']` broke `count($css)-1`-based in-place
+      patching used twice later in the file (block 2's `%%FIELD_SELECTORS%%` substitution) — caught
+      by running the generator and getting `Undefined array key 3`, not assumed safe; fixed by
+      recording the plain numeric push's own index (`$root_css_ix`) instead of keying the array.
+      **Explicitly still open, disclosed, not swept under the rug**: this is a static per-SITE-TYPE
+      default, not a per-PROJECT resolution — `art-direction-ledger` (Slice 5) is where a real
+      project's chassis gets re-pointed from an actual manifest.
+- [x] 4c.3 GREEN: zero live references to the deleted file remain (verified by repo-wide grep,
+      re-checked after every edit); historical citations in `docs/superpowers/`,
+      `openspec/changes/archive/`, and this change's own `proposal.md`/`design.md`/`specs/` are kept
+      as the recorded history they are, per the PR 1f discipline this task inherits. One reference
+      could not be repointed: `skills/_novamira-framework.md:103` still names
+      `design-personalities.md` in a reference table, but that file carries the user's own separate
+      uncommitted edits this session was explicitly instructed not to touch — disclosed, not fixed,
+      not blocking (the audit does not read that file). Full chain confirmed green WITH THE FILE
+      ABSENT (not merely before deleting it): `test-container-hygiene` 81 + `test-framework-audit`
+      727 + `test-audit-signals` 22 + `test-write-path` 514 = **1344 OK / 0 FAIL**. Real-repo audit:
+      **0 FAIL / 4 WARN** (same 4 pre-existing word-budget WARNs — elementor-core 588, html-mockup
+      567, web-templates 559, woocommerce 597). All 8 `STY-*.md` entries gated by the repointed
+      `RT_STYLE_TOO_SIMILAR` directly (no longer a synthetic fixture standing in for the real files):
+      all 28 pairs re-verified, maximum shared 2/8, table in apply-progress. `RT_PERS_ID_MISSING`
+      retired along with `$PERS_IDS` (style-catalog spec's own "no verifier for catalog SIZE by
+      design" scenario) — its two fixtures removed rather than left asserting a row that no longer
+      exists; net test count is 727 (was 733 at PR 4b), the 6-assertion difference is exactly the
+      retired fixtures plus one vacuous absence-check that had nothing left to assert against.
+      Diff: 20 files modified + 1 deleted, 969 changed lines (496 insertions + 317 deletions across
+      the 20 modified files, +156 for the deletion), 619 over the ~350 estimate — not
+      `size:exception` (Work Units table lists 4c budget "OK"), reported per instruction: the true
+      scope spanned two production files (framework-audit.php's parser repoint AND
+      _build-gallery.php's existence-assertion fix AND its chassis per-site-type refactor, the
+      latter genuinely required to close the open risk honestly rather than a marker-only patch),
+      ~250 lines of test-file repointing across every `design-personalities.md`-writing fixture, and
+      9 documentation files carrying live pointers to the deleted file.
 
 ## Slice 5 — Intake, persistence, ledger (`art-direction-ledger`, `manifest-section-contract`)
 

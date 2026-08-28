@@ -189,20 +189,24 @@ function fx_row_type_doc() {
 	return "## Row types\n" . $lines;
 }
 
-/* Mirrors framework-audit.php's own $PERS_IDS / $PERS_FIELDS (never imported — the audit is a
-   subprocess, see the file header) so a fixture catalog is built to the exact shape the parser
-   expects: one "### `PERS-ID`" heading per personality, each followed by every required
-   "**Field:**" bullet. */
+/* Mirrors framework-audit.php's own (retired, style-catalog PR 4c) $PERS_IDS / current
+   $PERS_FIELDS (never imported — the audit is a subprocess, see the file header) so a fixture
+   catalog is built to the exact shape the parser expects: one "### `ID`" heading per entry
+   (still `PERS-*`, unchanged — see fx_sty_catalog()'s own comment for why), each followed by
+   every required "**Field:**" bullet. $FX_PERS_IDS itself still names the same 5 fixture ids;
+   only the ROW MEANING behind $PERS_IDS changed (no required-membership list exists in
+   framework-audit.php any more), not this array's shape. */
 $FX_PERS_IDS    = array(
 	'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INSTITUTIONAL', 'PERS-VITRINE',
 );
 $FX_PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
 /* One well-separated axis position per fixture ID, mirroring the real catalog's own anchors (see
-   design-personalities.md) so a "conforming" fixture catalog is actually conforming under
+   references/style-catalog/) so a "conforming" fixture catalog is actually conforming under
    RT_STYLE_TOO_SIMILAR too -- a fixture catalog that shared axes wholesale would fail every
    fx_base()-rooted scenario on a check that scenario has nothing to do with. */
 /* Trailing 3 (accent, chassis, ornament -- style-catalog PR 2b) transcribed verbatim from the real
-   design-personalities.md anchor table, same discipline as the original five. */
+   anchor table (design-personalities.md when this comment was written; references/style-catalog/
+   since style-catalog PR 4c), same discipline as the original five. */
 $FX_PERS_AXES = array(
 	'PERS-EDITORIAL'     => array( 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' ),
 	'PERS-MATTER'        => array( 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' ),
@@ -218,7 +222,7 @@ $FX_PERS_AXES = array(
 /* Mirrors framework-audit.php's own $PERS_AXES (never imported -- the audit is a subprocess, see
    the file header), so fx_base()'s design-system.md can be built to carry a value for every
    position every axis defines. Task 2's RT_AXIS_VALUE_MISSING check runs at TOP LEVEL, unconditional
-   on whether design-personalities.md exists, so it also runs unconditionally over every one of this
+   on whether the style catalog exists, so it also runs unconditionally over every one of this
    suite's fx_base()-rooted fixtures -- the same shape as RT_PERS_CATALOG_MISSING before it, and the
    same trap: without a conforming design-system.md in the skeleton, every fixture in this entire
    file would carry 20 fresh FAILs that have nothing to do with what it actually tests. */
@@ -228,7 +232,12 @@ $FX_PERS_AXES = array(
    anyway (axis_token_props() returns none for a marker axis). */
 $FX_AXIS_POSITIONS = array(
 	'scale'       => array( 'contained', 'classic', 'editorial', 'monumental' ),
-	'ground'      => array( 'paper', 'warm', 'cool', 'ink' ),
+	/* Nine, not four (style-catalog PR 3a widened design-system.md's own Ground table; PR 4c
+	   widened framework-audit.php's nm_axes() to match -- RT_AXIS_VALUE_MISSING runs unconditional
+	   over nm_axes()'s OWN list, in the real subprocess, so this mirror has to carry all nine or
+	   every fx_base()-rooted fixture in this file fails a check that has nothing to do with what
+	   it tests). */
+	'ground'      => array( 'paper', 'warm', 'cool', 'cream', 'earth', 'saturated', 'ink', 'ink-warm', 'ink-cool' ),
 	'density'     => array( 'compact', 'standard', 'generous', 'monumental' ),
 	'composition' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
 	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
@@ -259,10 +268,15 @@ function fx_ds_conforming() {
 			'monumental' => '1.618 | 0.82 | 120',
 		),
 		'ground'    => array(
-			'paper' => '#FFFFFF | #F6F7F8 | #15181A',
-			'warm'  => '#FFF3E3 | #F7E8D4 | #241C14',
-			'cool'  => '#F2F5F8 | #E8EDF3 | #141C24',
-			'ink'   => '#0E1113 | #171B1E | #F4F6F7',
+			'paper'     => '#FFFFFF | #F6F7F8 | #15181A',
+			'warm'      => '#FFF3E3 | #F7E8D4 | #241C14',
+			'cool'      => '#F2F5F8 | #E8EDF3 | #141C24',
+			'cream'     => '#FBF4DD | #F3E7C4 | #221D0E',
+			'earth'     => '#F3E4C8 | #EEDBB8 | #2B1608',
+			'saturated' => '#F6D8DC | #F3D0D5 | #2B1015',
+			'ink'       => '#0E1113 | #171B1E | #F4F6F7',
+			'ink-warm'  => '#171008 | #221808 | #F7EFE2',
+			'ink-cool'  => '#0B0F1C | #141B2E | #EAF0FF',
 		),
 		'density'   => array(
 			'compact'    => '0.8',
@@ -321,6 +335,35 @@ function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field =
 		$out .= "\n";
 	}
 	return $out;
+}
+
+/* style-catalog PR 4c: the real catalog moved from one design-personalities.md file (multiple
+   `### `ID`` blocks in one file) to one file per entry under references/style-catalog/, glob-
+   matched on `STY-*.md`. framework-audit.php's ID-extraction regex does NOT hardcode a `PERS-`/
+   `STY-` prefix (catalog MEMBERSHIP is the glob's job, not the heading's), so the fixture ids
+   below stay the historical `PERS-*` vocabulary unchanged -- none of the ~80 existing assertions
+   naming them had to move. Only the FILENAME needs the real `STY-` prefix, to satisfy the glob
+   framework-audit.php itself hardcodes; `STY-` is prepended to the id for the filename only, never
+   written into the file's own heading, so `has($out, 'PERS-EDITORIAL')` keeps matching the row
+   text exactly as before. Splits the SAME concatenated-block string fx_pers_catalog()/fx_pers()
+   already built for the old single-file shape, so every existing caller keeps building the exact
+   block text it always did; this function is the only thing that needed to change to follow the
+   real repoint. */
+function fx_sty_catalog( $root, $blocks ) {
+	foreach ( preg_split( '/(?=^### `[A-Z][A-Z-]*`)/m', $blocks, -1, PREG_SPLIT_NO_EMPTY ) as $fx_sty_block ) {
+		if ( ! preg_match( '/^### `([A-Z][A-Z-]*)`/m', $fx_sty_block, $fx_sty_m ) ) {
+			continue;
+		}
+		fx( $root, 'skills/ux-design-system/references/style-catalog/STY-' . $fx_sty_m[1] . '.md', $fx_sty_block );
+	}
+}
+/* The r26 "no catalog at all" scenario needs the inverse: every STY-*.md file gone, so the
+   directory has zero entries -- RT_PERS_CATALOG_MISSING's real trigger post-PR-4c, since a single
+   `unlink()` no longer means anything once the catalog is N files, not one. */
+function fx_sty_catalog_clear( $root ) {
+	foreach ( glob( $root . '/skills/ux-design-system/references/style-catalog/STY-*.md' ) as $fx_sty_f ) {
+		unlink( $fx_sty_f );
+	}
 }
 
 /* A minimal write-capable SKILL.md: frontmatter + a passing build gate + the given "## Hard
@@ -983,9 +1026,9 @@ function fx_house_rules( $extra_rows = '' ) {
 
 /* A conforming skeleton every fixture starts from: one skill (qa-review, which the audit checks
    by a HARDCODED path regardless of whether the skill exists) plus its house-rules file, an
-   offline test file, a conforming ux-design-system skill carrying a conforming
-   design-personalities.md (RT_PERS_CATALOG_MISSING is checked the same unconditional way as
-   RT_HOUSERULES_MISSING — see framework-audit.php — so it needs the same treatment here), a
+   offline test file, a conforming ux-design-system skill carrying a conforming style catalog
+   (RT_PERS_CATALOG_MISSING is checked the same unconditional way as RT_HOUSERULES_MISSING — see
+   framework-audit.php — so it needs the same treatment here), a
    conforming web-templates skill carrying a conforming design-system.md (RT_AXIS_VALUE_MISSING is
    checked the same unconditional way, at TOP LEVEL, for the same reason), and CONTRIBUTING.md
    documenting every row type. Without this every fixture would carry FAILs that have nothing to
@@ -1023,9 +1066,9 @@ function fx_base( $root ) {
 		"  author: fixture\n" .
 		"  version: \"1.0\"\n" .
 		"---\n\n" .
-		"## Execution Steps\n1. Resolves every perceptual axis via a dialogue step; see design-personalities.md for the anchor catalog.\n"
+		"## Execution Steps\n1. Resolves every perceptual axis via a dialogue step; see references/style-catalog/ for the style catalog.\n"
 	);
-	fx( $root, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
+	fx_sty_catalog( $root, fx_pers_catalog() );
 	fx(
 		$root,
 		'skills/web-templates/SKILL.md',
@@ -1694,23 +1737,31 @@ ok( has( $out25, 'RT_NOT_IN_THE_REGISTRY' ), 'the message names the offending ID
 ok( has( $out25, 'ROW_TYPES' ), 'the message says where to register it', $out25 );
 fx_rrmdir( $r25 );
 
-/* --------------------------------------------- ux-design-system personality catalog fixtures
+/* --------------------------------------------- ux-design-system style catalog fixtures
  *
- * The six checks this pairing adds all follow the row-type-registry shape above; each gets the
- * smallest tree that makes ONE check fire, matching the retrofit fixtures. Two of the six —
- * catalog-missing and hardcoded-font — also prove the conforming shape produces NO row, because
- * both call sites sit next to a sibling check (RT_PERS_MISSING_FIELD / RT_PERS_ID_MISSING share
- * the else-branch; RT_TOKENS_HARDCODED_FONT loops two literals) where an assertion that only ever
- * fires can never prove the check discriminates rather than always firing. */
+ * Style-catalog PR 4c retired `$PERS_IDS`/`RT_PERS_ID_MISSING` along with design-personalities.md
+ * itself: the style-catalog spec ("Exactly 8 `STY-*` Entries Ship In V1", scenario "No automated
+ * size floor/ceiling") states there is deliberately no required-membership-list verifier any more
+ * — count is trivially satisfied without being true, `RT_STYLE_TOO_SIMILAR` is the real floor. The
+ * two fixtures that used to prove RT_PERS_ID_MISSING (r28, missing PERS-DIRECT; r28b, missing the
+ * fifth anchor PERS-VITRINE — the exact anchor whose real omission from `$PERS_IDS` once returned
+ * the audit to 0 FAIL) are removed rather than left asserting a row that no longer exists.
+ *
+ * The remaining checks below all follow the row-type-registry shape above; each gets the smallest
+ * tree that makes ONE check fire, matching the retrofit fixtures. catalog-missing and
+ * hardcoded-font also prove the conforming shape produces NO row, because both call sites sit next
+ * to a sibling check (RT_PERS_MISSING_FIELD; RT_TOKENS_HARDCODED_FONT loops two literals) where an
+ * assertion that only ever fires can never prove the check discriminates rather than always
+ * firing. */
 
-echo "--- ux-design-system: missing design-personalities.md is RT_PERS_CATALOG_MISSING, and a conforming catalog clears it ---\n";
+echo "--- ux-design-system: an empty style catalog is RT_PERS_CATALOG_MISSING, and a conforming catalog clears it ---\n";
 $r26 = fx_tmp_root();
 fx_base( $r26 );
-unlink( $r26 . '/skills/ux-design-system/references/design-personalities.md' );
+fx_sty_catalog_clear( $r26 );
 list( , $out26a ) = fx_run_ok( $audit, $r26 );
-ok( has( $out26a, 'RT_PERS_CATALOG_MISSING' ), 'a missing design-personalities.md is RT_PERS_CATALOG_MISSING', $out26a );
+ok( has( $out26a, 'RT_PERS_CATALOG_MISSING' ), 'a style catalog with no STY-*.md files is RT_PERS_CATALOG_MISSING', $out26a );
 
-fx( $r26, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog() );
+fx_sty_catalog( $r26, fx_pers_catalog() );
 list( , $out26b ) = fx_run_ok( $audit, $r26 );
 ok( ! has( $out26b, 'RT_PERS_CATALOG_MISSING' ), 'restoring a conforming catalog clears the row', $out26b );
 fx_rrmdir( $r26 );
@@ -1718,7 +1769,7 @@ fx_rrmdir( $r26 );
 echo "--- ux-design-system: a personality block missing a required field is RT_PERS_MISSING_FIELD ---\n";
 $r27 = fx_tmp_root();
 fx_base( $r27 );
-fx( $r27, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( null, 'PERS-EDITORIAL', 'Motion intensity' ) );
+fx_sty_catalog( $r27, fx_pers_catalog( null, 'PERS-EDITORIAL', 'Motion intensity' ) );
 list( , $out27 ) = fx_run_ok( $audit, $r27 );
 ok(
 	has( $out27, 'RT_PERS_MISSING_FIELD' ) && has( $out27, 'PERS-EDITORIAL' ) && has( $out27, 'Motion intensity' ),
@@ -1726,38 +1777,6 @@ ok(
 	$out27
 );
 fx_rrmdir( $r27 );
-
-echo "--- ux-design-system: a declared personality ID absent from the catalog is RT_PERS_ID_MISSING ---\n";
-$r28 = fx_tmp_root();
-fx_base( $r28 );
-fx( $r28, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-DIRECT' ) );
-list( , $out28 ) = fx_run_ok( $audit, $r28 );
-ok(
-	has( $out28, 'RT_PERS_ID_MISSING' ) && has( $out28, 'PERS-DIRECT' ),
-	'a catalog missing PERS-DIRECT entirely is RT_PERS_ID_MISSING naming it',
-	$out28
-);
-fx_rrmdir( $r28 );
-
-/* La quinta ancla es la que probo que esta lista podia quedarse corta. PERS-VITRINE se entrego
-   con su bloque, sus cinco posiciones, su entrada en $ANCHORS y tres tiras de galeria mientras
-   $PERS_IDS seguia nombrando cuatro: borrar su bloque devolvia el audit a 0 FAIL. Las demas filas
-   PERS leen los bloques que el fichero TRAE, asi que ninguna nota una ausencia -- forma, ejes y
-   distancia se le comprobaban, existencia no. Esta asercion es la unica que cae si alguien
-   devuelve la lista a cuatro anclas. */
-echo "--- y la quinta ancla esta en la lista: omitir PERS-VITRINE tambien FALLA ---
-";
-$r28b = fx_tmp_root();
-fx_base( $r28b );
-fx( $r28b, 'skills/ux-design-system/references/design-personalities.md', fx_pers_catalog( 'PERS-VITRINE' ) );
-list( , $out28b ) = fx_run_ok( $audit, $r28b );
-ok(
-	has( $out28b, 'RT_PERS_ID_MISSING' ) && has( $out28b, 'PERS-VITRINE' ),
-	'un catalogo sin PERS-VITRINE es RT_PERS_ID_MISSING nombrandola: un ancla construida sigue siendo obligatoria',
-	$out28b
-);
-ok( 1 === count( fx_lines_with( $out28b, array( 'RT_PERS_ID_MISSING' ) ) ), 'y solo por ella: las otras cuatro siguen presentes', $out28b );
-fx_rrmdir( $r28b );
 
 echo "--- ux-design-system: design-tokens.md hardcoding an example font pairing is RT_TOKENS_HARDCODED_FONT, and dropping it clears the row ---\n";
 $r29 = fx_tmp_root();
@@ -1775,7 +1794,7 @@ list( , $out29b ) = fx_run_ok( $audit, $r29 );
 ok( ! has( $out29b, 'RT_TOKENS_HARDCODED_FONT' ), 'a design-tokens.md with no hardcoded example font clears the row', $out29b );
 fx_rrmdir( $r29 );
 
-echo "--- ux-design-system: SKILL.md never mentioning design-personalities.md is RT_CATALOG_UNMENTIONED ---\n";
+echo "--- ux-design-system: SKILL.md never mentioning style-catalog/ is RT_CATALOG_UNMENTIONED ---\n";
 $r30 = fx_tmp_root();
 fx_base( $r30 );
 fx(
@@ -1785,7 +1804,7 @@ fx(
 	. "## Execution Steps\n1. Resolve every axis with the client before anything else.\n\nFixture skill body. Its Execution Steps DO resolve the axes, so this scenario isolates the catalog-pointer check alone; it simply never points at the catalog itself.\n"
 );
 list( , $out30 ) = fx_run_ok( $audit, $r30 );
-ok( has( $out30, 'RT_CATALOG_UNMENTIONED' ), 'a SKILL.md never mentioning design-personalities.md is RT_CATALOG_UNMENTIONED', $out30 );
+ok( has( $out30, 'RT_CATALOG_UNMENTIONED' ), 'a SKILL.md never mentioning style-catalog/ is RT_CATALOG_UNMENTIONED', $out30 );
 fx_rrmdir( $r30 );
 
 echo "--- ux-design-system: SKILL.md with no axis-resolving step at all is RT_UXDS_NO_AXIS_STEP ---\n";
@@ -1795,7 +1814,7 @@ fx(
 	$r31,
 	'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture skill.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "Fixture skill body. Points at design-personalities.md, but carries no \"## Execution Steps\" section at all.\n"
+	. "Fixture skill body. Points at references/style-catalog/, but carries no \"## Execution Steps\" section at all.\n"
 );
 list( , $out31 ) = fx_run_ok( $audit, $r31 );
 ok( has( $out31, 'RT_UXDS_NO_AXIS_STEP' ), 'a SKILL.md with no Execution Steps section is RT_UXDS_NO_AXIS_STEP', $out31 );
@@ -1806,7 +1825,7 @@ $r86 = fx_tmp_root();
 fx_base( $r86 );
 fx( $r86, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "## Execution Steps\n1. Pick something.\n\n## References\n- `references/design-personalities.md`\n" );
+	. "## Execution Steps\n1. Pick something.\n\n## References\n- `references/style-catalog/`\n" );
 list( , $out86 ) = fx_run_ok( $audit, $r86 );
 ok( 'FAIL' === fx_row_level( $out86, array( 'RT_UXDS_NO_AXIS_STEP' ) ), 'una SKILL.md sin los ejes FALLA', fx_row_level( $out86, array( 'RT_UXDS_NO_AXIS_STEP' ) ) );
 fx_rrmdir( $r86 );
@@ -1820,7 +1839,7 @@ $r87 = fx_tmp_root();
 fx_base( $r87 );
 fx( $r87, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture. Flexbox has a main axis and a cross axis; CSS also calls it the x-axis.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "## Hard Rules\n- Praxis over theory: ship something real. See `references/design-personalities.md`.\n\n"
+	. "## Hard Rules\n- Praxis over theory: ship something real. See `references/style-catalog/`.\n\n"
 	. "## Execution Steps\n1. Pick something and hand it off.\n" );
 list( , $out87 ) = fx_run_ok( $audit, $r87 );
 ok( 'FAIL' === fx_row_level( $out87, array( 'RT_UXDS_NO_AXIS_STEP' ) ), '"axis" solo fuera de Execution Steps sigue FALLANDO', fx_row_level( $out87, array( 'RT_UXDS_NO_AXIS_STEP' ) ) );
@@ -1834,7 +1853,7 @@ $r88 = fx_tmp_root();
 fx_base( $r88 );
 fx( $r88, 'skills/ux-design-system/SKILL.md',
 	"---\nname: ux-design-system\ndescription: \"Trigger: fixture.\"\nlicense: MIT\nmetadata:\n  author: fixture\n  version: \"1.0\"\n---\n\n"
-	. "## Execution Steps\n1. Resolve the five axes with the client, then land on an anchor from `references/design-personalities.md`.\n" );
+	. "## Execution Steps\n1. Resolve the eight axes with the client, then land on an anchor from `references/style-catalog/`.\n" );
 list( , $out88 ) = fx_run_ok( $audit, $r88 );
 ok( ! has( $out88, 'RT_UXDS_NO_AXIS_STEP' ), 'Execution Steps con solo "axes" (plural) limpia el check', $out88 );
 fx_rrmdir( $r88 );
@@ -2457,9 +2476,8 @@ echo "--- las anclas de personalidad no pueden parecerse entre si ---\n";
 $r80 = fx_tmp_root();
 fx_base( $r80 );
 /* Un ancla que comparte CUATRO ejes con otra: comparten 4 > 1, tiene que FALLAR. */
-fx(
+fx_sty_catalog(
 	$r80,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none', 'tinted-field', 'bordered', 'texture' )
@@ -2474,9 +2492,8 @@ fx_rrmdir( $r80 );
 echo "--- una posicion de eje inventada no pasa en silencio ---\n";
 $r81 = fx_tmp_root();
 fx_base( $r81 );
-fx(
+fx_sty_catalog(
 	$r81,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
@@ -2497,9 +2514,8 @@ fx_rrmdir( $r81 );
 echo "--- cuatro anclas bien separadas no levantan nada ---\n";
 $r82 = fx_tmp_root();
 fx_base( $r82 );
-fx(
+fx_sty_catalog(
 	$r82,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
@@ -2514,14 +2530,15 @@ fx_rrmdir( $r82 );
 echo "--- una posicion de eje sin valor de token no sirve para nada ---\n";
 $r83 = fx_tmp_root();
 fx_base( $r83 );
-fx( $r83, 'skills/ux-design-system/references/design-personalities.md',
+fx_sty_catalog( $r83,
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' ) );
-/* NEGATIVE CONTROL. design-system.md aqui define TODAS las posiciones -- las 36 unicas (style-
-   catalog PR 2b widened this from 19), contando que `monumental` cubre a la vez el eje de escala y
+/* NEGATIVE CONTROL. design-system.md aqui define TODAS las posiciones -- las 41 unicas (style-
+   catalog PR 2b widened this from 19 to 36; style-catalog PR 4c's nm_axes() ground widening from
+   4 to 9 pushes it from 36 to 41), contando que `monumental` cubre a la vez el eje de escala y
    el de densidad, `none` cubre elevation/accent/ornament y `strict-grid` cubre composition/chassis,
    por eso cada una aparece una sola vez -- y cada una con un valor token-shaped en su propia fila.
    Nada tiene que sonar: esta es la mitad silenciosa del par, y prueba que el check no dispara sobre
@@ -2529,7 +2546,8 @@ fx( $r83, 'skills/ux-design-system/references/design-personalities.md',
 fx( $r83, 'skills/web-templates/references/design-system.md',
 	"# Tokens\n\n| position | value |\n|---|---|\n"
 	. "| `contained` | 1 |\n| `classic` | 1 |\n| `editorial` | 1 |\n| `monumental` | 1 |\n"
-	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `cream` | 1 |\n| `earth` | 1 |\n"
+	. "| `saturated` | 1 |\n| `ink` | 1 |\n| `ink-warm` | 1 |\n| `ink-cool` | 1 |\n"
 	. "| `compact` | 1 |\n| `standard` | 1 |\n| `generous` | 1 |\n"
 	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
 	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n"
@@ -2544,7 +2562,7 @@ fx_rrmdir( $r83 );
    posiciones se quedan sin fila y RT_AXIS_VALUE_MISSING tiene que nombrarlas. */
 $r84 = fx_tmp_root();
 fx_base( $r84 );
-fx( $r84, 'skills/ux-design-system/references/design-personalities.md',
+fx_sty_catalog( $r84,
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
@@ -2565,7 +2583,7 @@ fx_rrmdir( $r84 );
    against a correct implementation. */
 $r85 = fx_tmp_root();
 fx_base( $r85 );
-fx( $r85, 'skills/ux-design-system/references/design-personalities.md',
+fx_sty_catalog( $r85,
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
@@ -2602,12 +2620,13 @@ fx( $r89, 'skills/web-templates/references/design-system.md',
 	. "| `none` |  |\n| `hairline` |  |\n| `soft-shadow` |  |\n| `accent-glow` |  |\n" );
 list( , $out89 ) = fx_run_ok( $audit, $r89 );
 ok( 'FAIL' === fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'la celda de valor vacia FALLA: el nombre entre backticks no es el valor', fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
-/* 40 = 8 ejes x (4,4,4,4,4,7,8,5) posiciones sumadas (style-catalog PR 2b widened this from 20).
+/* 45 = 8 ejes x (4,9,4,4,4,7,8,5) posiciones sumadas (style-catalog PR 2b widened this from 20 to
+   40; style-catalog PR 4c's nm_axes() ground widening from 4 to 9 pushes it from 40 to 45).
    `monumental` aparece dos veces a proposito: es posicion del eje de escala Y del de densidad, y
-   cada eje reclama su valor por separado -- accent/chassis/ornament's 3 new positions this table
-   never mentions (`reserved`, `tinted-field`, ...) FAIL the SAME way, as "no table row of its own
+   cada eje reclama su valor por separado -- accent/chassis/ornament's 3 new positions (and ground's
+   5 new positions) this table never mentions FAIL the SAME way, as "no table row of its own
    anywhere", so the count is unaffected by this fixture not listing them explicitly. */
-ok( 40 === count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y FALLA para las 40 parejas eje/posicion, no solo para una', count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ) );
+ok( 45 === count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y FALLA para las 45 parejas eje/posicion, no solo para una', count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ) );
 fx_rrmdir( $r89 );
 
 /* Una frase en la celda tampoco es un valor. Es EXACTAMENTE lo que shippeaba la tabla de
@@ -2685,7 +2704,8 @@ fx( $r93, 'skills/web-templates/references/design-system.md',
 	. "### Density\n| Position | `--sp-scale` |\n|---|---|\n"
 	. "| `compact` | 0.8 |\n| `standard` | 1.0 |\n| `generous` | 1.35 |\n| `monumental` |  |\n\n"
 	. "### Rest\n| Position | Value |\n|---|---|\n"
-	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
+	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `cream` | 1 |\n| `earth` | 1 |\n"
+	. "| `saturated` | 1 |\n| `ink` | 1 |\n| `ink-warm` | 1 |\n| `ink-cool` | 1 |\n"
 	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
 	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n"
 	. "| `reserved` | 1 |\n| `tinted-field` | 1 |\n| `duotone` | 1 |\n| `gradient` | 1 |\n| `metallic` | 1 |\n| `polychrome` | 1 |\n"
@@ -2710,21 +2730,28 @@ fx_rrmdir( $r93 );
 echo "--- un ID de personalidad declarado dos veces no puede tapar al primero ---\n";
 $r92 = fx_tmp_root();
 fx_base( $r92 );
-fx( $r92, 'skills/ux-design-system/references/design-personalities.md',
+fx_sty_catalog( $r92,
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none', 'tinted-field', 'bordered', 'texture' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
 	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
-	/* Presente porque $PERS_IDS lo exige, y con sus posiciones reales: un eje con EDITORIAL
-	   (scale), uno con DIRECT (ground), uno con INSTITUTIONAL (elevation), cero con MATTER. Cero
-	   ruido sobre el par EDITORIAL/MATTER que este escenario existe para provocar. */
+	/* Presente porque un ancla construida sigue siendo obligatoria, y con sus posiciones reales: un
+	   eje con EDITORIAL (scale), uno con DIRECT (ground), uno con INSTITUTIONAL (elevation), cero
+	   con MATTER. Cero ruido sobre el par EDITORIAL/MATTER que este escenario existe para provocar. */
 	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow', 'metallic', 'soft-carded', 'none' )
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline', 'none', 'rule-divided', 'rule' ) );
+);
+/* style-catalog PR 4c: "duplicate ID" now means two DIFFERENT FILES whose headings both claim the
+   same id, not a second `### `PERS-X`` block inside one file (design-personalities.md is gone).
+   Written directly, not through fx_sty_catalog(): that helper derives its filename FROM the id, so
+   two calls with the same id would collide at the FILESYSTEM level before the audit ever ran,
+   proving nothing. `STY-ZZ-DUPLICATE-EDITORIAL.md` is named to sort AFTER `STY-PERS-EDITORIAL.md`
+   (fx_sty_catalog()'s own naming, `STY-` + id) alphabetically, so the glob's sort keeps the REAL
+   block first and this copy second -- the exact ordering the second assertion below depends on. */
+fx( $r92, 'skills/ux-design-system/references/style-catalog/STY-ZZ-DUPLICATE-EDITORIAL.md', fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline', 'none', 'rule-divided', 'rule' ) );
 list( , $out92 ) = fx_run_ok( $audit, $r92 );
 ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ), 'un ID declarado dos veces FALLA, nombrandolo', fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ) );
-ok( 'FAIL' === fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_STYLE_TOO_SIMILAR: manda el PRIMER bloque', fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ) );
-ok( array() === fx_lines_with( $out92, array( 'RT_PERS_ID_MISSING' ) ), 'y el duplicado no se cuenta como ausencia del ID', $out92 );
+ok( 'FAIL' === fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_STYLE_TOO_SIMILAR: manda el PRIMER bloque (el fichero cuyo nombre ordena primero)', fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ) );
 fx_rrmdir( $r92 );
 
 /* style-catalog PR 2b RED test (tasks.md 2b.1): fx_pers() called with ornament UNDEFINED --
@@ -2733,9 +2760,8 @@ fx_rrmdir( $r92 );
 echo "--- style-catalog PR 2b: un eje sin definir (ornament) FALLA con RT_PERS_BAD_AXIS ---\n";
 $r92b = fx_tmp_root();
 fx_base( $r92b );
-fx(
+fx_sty_catalog(
 	$r92b,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered' )
@@ -2750,9 +2776,8 @@ fx_rrmdir( $r92b );
 echo "--- style-catalog PR 2b: el limite ancho -- 2 de 8 pasa, 3 de 8 FALLA ---\n";
 $r92c = fx_tmp_root();
 fx_base( $r92c );
-fx(
+fx_sty_catalog(
 	$r92c,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	/* Comparte EXACTAMENTE 2 de 8 con EDITORIAL (ground, accent). */
@@ -2776,27 +2801,25 @@ fx_rrmdir( $r92c );
    before this fixture runs — its purpose is locking the specific claim design.md's own testing
    strategy names ("4: RT_STYLE_TOO_SIMILAR over all 8") into a real assertion at the real scale.
 
-   THIS FIXTURE IS SYNTHETIC, NOT THE REAL CATALOG, for one disclosed reason: `nm_axes()`
-   (`framework-audit.php:1037-1083`) still lists only 4 ground positions (`paper`, `warm`, `cool`,
-   `ink`) — it was never widened to the 9 `design-system.md`'s own Ground table has carried since
-   style-catalog PR 3a. `RT_STYLE_TOO_SIMILAR` does not read `STY-*.md` yet (it still parses
-   `design-personalities.md`, PR 4a's own `_README.md` says so plainly), so this gap does not FAIL
-   the real repo today — but a fixture using `ink-cool`/`ink-warm`/`saturated` as a GROUND value
-   would trip `RT_PERS_BAD_AXIS` and get silently EXCLUDED from the comparison, which would prove
-   nothing. So entries 1-5 below are the five real ported anchors' real axis positions (paper/warm/
-   cool/ink only, already inside `nm_axes()`'s current domain); entries 6-8 are placeholder anchors
-   standing in for the shape of a full 8-entry catalog, built from axis values ALREADY inside the
-   current registry — not `STY-TECH-SAAS`/`STY-DARK-LUXURY`/`STY-NEO-BRUTALIST`'s own real positions,
-   which are authored in the real `.md` files and are a separate, disclosed finding (see this PR's
-   apply-progress and `_README.md` "Known gap"). Every one of the 28 pairs below was computed and
+   THIS FIXTURE STAYS SYNTHETIC, NOT THE REAL CATALOG, though the reason it was written synthetic
+   no longer applies: at the time this comment was first written, `nm_axes()` still listed only 4
+   ground positions and `RT_STYLE_TOO_SIMILAR` still parsed design-personalities.md, so a fixture
+   using `ink-cool`/`ink-warm`/`saturated` as a GROUND value would have tripped `RT_PERS_BAD_AXIS`
+   and been silently excluded from the comparison. style-catalog PR 4c closed both halves of that
+   gap (`nm_axes()` widened to 9 ground positions BEFORE the repoint landed, `RT_STYLE_TOO_SIMILAR`
+   now reads `STY-*.md`) — this fixture is kept synthetic anyway, on purpose, so the mechanism check
+   stays independent of whatever the real catalog's 8 entries happen to be at any given moment; the
+   REAL 8 `STY-*.md` files' own 28-pair table is the authoritative claim for the real catalog, and
+   lives in `_README.md`, re-verified by hand every time a new entry lands. Entries 1-5 below are
+   the five ported anchors' real axis positions; entries 6-8 are placeholder anchors standing in for
+   the shape of a full 8-entry catalog. Every one of the 28 pairs below was computed and
    re-verified by hand before being written down. */
 
 echo "--- style-catalog PR 4b: RT_STYLE_TOO_SIMILAR sobre 8 anclas -- la entrada #8 comparte 4 de 8 con la #3 FALLA ---\n";
 $r92d = fx_tmp_root();
 fx_base( $r92d );
-fx(
+fx_sty_catalog(
 	$r92d,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
@@ -2811,8 +2834,10 @@ fx(
 	   (classic/warm/standard/strict-grid), elevation/accent/chassis/ornament all differ from it --
 	   exactly the spec's own "entry #8 shares 4 of 8 positions with entry #3" scenario, at the
 	   position in the id list (last) an off-by-one in the pairwise walk is most likely to miss.
-	   Named with a word, not a digit -- `nm_axes()`'s own id regex is `PERS-[A-Z-]+`, so `PERS-
-	   FILLER-8` would silently fail to parse as a block at all and vanish from the comparison. */
+	   Named with a word, not a digit -- the catalog parser's own id regex is `[A-Z][A-Z-]*` (style-
+	   catalog PR 4c widened this from the old `PERS-[A-Z-]+`, still letters/hyphens only, still no
+	   digits), so `PERS-FILLER-8` would silently fail to parse as a block at all and vanish from
+	   the comparison -- the exact bug this fixture was renamed to avoid reproducing. */
 	. fx_pers( 'PERS-FILLER-THREE', 'classic', 'warm', 'standard', 'strict-grid', 'accent-glow', 'duotone', 'layered', 'rule' )
 );
 list( , $out92d ) = fx_run_ok( $audit, $r92d );
@@ -2831,9 +2856,8 @@ fx_rrmdir( $r92d );
 echo "--- style-catalog PR 4b: un catalogo de 8 bien separado no dispara RT_STYLE_TOO_SIMILAR en ninguna de las 28 parejas ---\n";
 $r92e = fx_tmp_root();
 fx_base( $r92e );
-fx(
+fx_sty_catalog(
 	$r92e,
-	'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
 	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
 	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
@@ -2893,7 +2917,7 @@ fx_base( $r95 );
 unlink( $r95 . '/skills/html-mockup/assets/proof-direct-mockup.html' );
 list( , $out95 ) = fx_run_ok( $audit, $r95 );
 ok( 'FAIL' === fx_row_level( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'proof-direct-mockup.html' ) ), 'borrar un proof mockup FALLA, nombrando el fichero', fx_row_level( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'proof-direct-mockup.html' ) ) );
-ok( array() !== fx_lines_with( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'PERS-DIRECT' ) ), 'y dice de que ancla era la mitad que falta', $out95 );
+ok( array() !== fx_lines_with( $out95, array( 'RT_PROOF_NOT_DISTINCT', 'STY-DIRECT' ) ), 'y dice de que ancla era la mitad que falta', $out95 );
 fx_rrmdir( $r95 );
 
 echo "--- un eje que NINGUNO declara cuenta como coincidencia, no como diferencia ---\n";
