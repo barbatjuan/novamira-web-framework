@@ -119,6 +119,8 @@ const ROW_TYPES = array(
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
 	'RT_FONT_NO_SERVING_PATH'    => 'FAIL  — a builder asset names a font family and nothing warns or documents how it gets served',
+	'RT_STYLE_REPEATS_RECENT'    => 'WARN  — shipped-log.md: the newest delivery\'s style also appears among the 4 before it, within the last 5',
+	'RT_STYLE_UNRESOLVED_DEFAULT' => 'FAIL  — shipped-log.md: a delivery names its chassis default but no resolved style — nobody was asked, or the answer never reached the ledger',
 );
 
 /* --emit-row-types is static introspection of the script, not of an audited tree: it needs no
@@ -1516,6 +1518,46 @@ function axis_rows_for( $src, $pos ) {
 		$out[] = array_slice( $cells, $at + 1 );
 	}
 
+	return $out;
+}
+
+/* Generic pipe-table parser for shipped-log.md (style-catalog PR 5b): the FIRST pipe-starting line
+ * of $src becomes the header (column name => cell index) — true by construction, since the whole
+ * file is exactly one table. Every following non-separator row becomes an assoc array keyed by
+ * that header, so a column can be read by name (`Style`, `Chassis`, …) rather than by a hardcoded
+ * position, the same resilience axis_rows_for() above buys by matching a header token instead of a
+ * column count. A separator row ("|---|---|", or any row whose cells hold only "-", ":" or
+ * whitespace) is recognised and skipped, never mistaken for a delivery.
+ */
+function ledger_table_rows( $src ) {
+	$header = null;
+	$out    = array();
+	foreach ( explode( "\n", $src ) as $line ) {
+		$line = trim( $line );
+		if ( '' === $line || '|' !== $line[0] ) {
+			continue;
+		}
+		$cells = array_map( 'trim', explode( '|', trim( $line, '|' ) ) );
+		if ( null === $header ) {
+			$header = $cells;
+			continue;
+		}
+		$is_sep = true;
+		foreach ( $cells as $cell ) {
+			if ( '' !== trim( $cell, "-: \t" ) ) {
+				$is_sep = false;
+				break;
+			}
+		}
+		if ( $is_sep ) {
+			continue;
+		}
+		$row = array();
+		foreach ( $header as $col_ix => $col_name ) {
+			$row[ $col_name ] = isset( $cells[ $col_ix ] ) ? $cells[ $col_ix ] : '';
+		}
+		$out[] = $row;
+	}
 	return $out;
 }
 
@@ -3746,6 +3788,79 @@ if ( file_exists( $uxds_skill ) ) {
 	}
 	if ( null === $uxds_steps || ( false === stripos( $uxds_steps, 'axis' ) && false === stripos( $uxds_steps, 'axes' ) ) ) {
 		add( 'RT_UXDS_NO_AXIS_STEP', 'FAIL', 'ux-design-system', 'SKILL.md Execution Steps never mention the axes — the personality dialogue is unreachable from the skill' );
+	}
+}
+
+/* -------------------------------------------------- art-direction ledger (style-catalog PR 5b)
+ *
+ * shipped-log.md is the measured half of a memory skills/blind-judges/references/corpus.md
+ * already half-built (the seen half): both are written by the ORCHESTRATOR after both verdicts
+ * land, same moment, never by a judge — corpus.md states that rule for itself; this file follows
+ * it. Read here, offline, because it is the only surface either question below CAN be asked
+ * against: es_manifest_read() is a live WordPress option this static tree walk cannot reach, and a
+ * delivered mockup's own HTML is never stored in this repo at all (corpus.md: "client work does
+ * not belong in this repository"). Both rows below answer their question from THIS table, exactly
+ * the way RT_GALLERY_STALE above answers its own offline-reachable question instead of one only a
+ * live build could answer.
+ */
+$ledger_file = $root . '/skills/ux-design-system/references/shipped-log.md';
+if ( file_exists( $ledger_file ) ) {
+	$ledger_rows = ledger_table_rows( slurp( $ledger_file ) );
+
+	/* ---- RT_STYLE_REPEATS_RECENT ----
+	 * WARN, never FAIL: house-rules.md:31 — "a gate that always fails is a gate everyone learns to
+	 * skip." Repetition is a judgment call the JUDGES make (blind-judges), over the identical
+	 * 5-delivery window (corpus.md "Retention": "Five matches the window RT_STYLE_REPEATS_RECENT
+	 * uses, so the measured half and the seen half never disagree about what 'recent' means") —
+	 * this row only advises. WARN when the NEWEST row's Style also appears among the 4 before it in
+	 * that same 5-row window; a match further back than that is invisible by design, same as an
+	 * entry Judge A is never shown.
+	 */
+	$ldg_window = array_slice( $ledger_rows, -5 );
+	$ldg_n      = count( $ldg_window );
+	if ( $ldg_n >= 2 ) {
+		$ldg_newest_style = trim( isset( $ldg_window[ $ldg_n - 1 ]['Style'] ) ? $ldg_window[ $ldg_n - 1 ]['Style'] : '' );
+		if ( '' !== $ldg_newest_style ) {
+			for ( $ldg_i = 0; $ldg_i < $ldg_n - 1; $ldg_i++ ) {
+				$ldg_prior_style = trim( isset( $ldg_window[ $ldg_i ]['Style'] ) ? $ldg_window[ $ldg_i ]['Style'] : '' );
+				if ( $ldg_prior_style === $ldg_newest_style ) {
+					add(
+						'RT_STYLE_REPEATS_RECENT',
+						'WARN',
+						'ux-design-system',
+						'shipped-log.md: "' . $ldg_newest_style . '" was also shipped ' . ( $ldg_n - 1 - $ldg_i )
+							. ' delivery(ies) ago, within the last 5 — worth a second look, not a block'
+					);
+					break;
+				}
+			}
+		}
+	}
+
+	/* ---- RT_STYLE_UNRESOLVED_DEFAULT ----
+	 * FAIL, not a judgment call: mockup-guide.md:436-447 recorded the real defect this closes —
+	 * every corporate project shipped PERS-INSTITUTIONAL "not because anyone chose them but because
+	 * nobody was asked to." PR 5a made the intake ask and persist the answer
+	 * (es_record_style_resolution()); this row is what makes the SILENCE audible when that answer
+	 * never reaches the ledger. A row naming which chassis a delivery started from (Chassis) with
+	 * no resolved Style beside it is the offline-visible shadow of a delivered mockup that still
+	 * carries the untouched chassis default with no style resolution ever recorded — the one fact
+	 * the live es_manifest_read()['design'] would hold and this audit cannot read directly.
+	 */
+	foreach ( $ledger_rows as $ldg_row ) {
+		$ldg_style   = trim( isset( $ldg_row['Style'] ) ? $ldg_row['Style'] : '' );
+		$ldg_chassis = trim( isset( $ldg_row['Chassis'] ) ? $ldg_row['Chassis'] : '' );
+		if ( '' !== $ldg_chassis && '' === $ldg_style ) {
+			$ldg_client = ( isset( $ldg_row['Client'] ) && '' !== trim( $ldg_row['Client'] ) ) ? trim( $ldg_row['Client'] ) : 'an unnamed delivery';
+			$ldg_date   = ( isset( $ldg_row['Date'] ) && '' !== trim( $ldg_row['Date'] ) ) ? trim( $ldg_row['Date'] ) : 'an undated row';
+			add(
+				'RT_STYLE_UNRESOLVED_DEFAULT',
+				'FAIL',
+				'ux-design-system',
+				'shipped-log.md: ' . $ldg_client . ' (' . $ldg_date . ') shipped on the "' . $ldg_chassis
+					. '" chassis default with no Style recorded — nobody was asked, or the answer never reached the ledger'
+			);
+		}
 	}
 }
 

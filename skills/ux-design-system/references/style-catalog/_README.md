@@ -186,6 +186,16 @@ where `es_manifest_record('design', …)` persists a real project's resolved sty
 chassis is still expected to be re-pointed once that writer exists, exactly as
 `RT_MOCKUP_AXES_MISMATCH` already polices for any hand-edit today.
 
+## PR 5b — the ledger, `references/shipped-log.md`
+
+`art-direction-ledger` (Slice 5) closes the open risk above one step further: every delivery now
+gets a row in `references/shipped-log.md`, the measured half of the two-part memory
+`skills/blind-judges/references/corpus.md` half-built. `RT_STYLE_REPEATS_RECENT` reads it to WARN
+on a style repeating within the last 5 deliveries; `RT_STYLE_UNRESOLVED_DEFAULT` reads it to FAIL a
+delivery that names its starting chassis with no style ever resolved for it — the offline-visible
+half of the exact "nobody was asked" defect this section already documented. See
+`references/shipped-log.md` itself for the row shape and who writes it.
+
 ## Backlog
 
 `_backlog.md` records the movements deferred from v1, with the reason each is deferred.

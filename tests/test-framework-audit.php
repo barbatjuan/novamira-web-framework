@@ -365,6 +365,19 @@ function fx_sty_catalog_clear( $root ) {
 		unlink( $fx_sty_f );
 	}
 }
+/* style-catalog PR 5b: writes skills/ux-design-system/references/shipped-log.md, the real ledger's
+   exact column order (Date | Client | Style | Ground | Accent | Scale | Chassis). $rows is a list
+   of 7-cell arrays, appended in the order given -- the real file is append-only, newest last, so a
+   scenario's own row order IS its delivery order. */
+function fx_ledger( $root, array $rows ) {
+	$out = "# Shipped log fixture\n\n"
+		. "| Date | Client | Style | Ground | Accent | Scale | Chassis |\n"
+		. "|---|---|---|---|---|---|---|\n";
+	foreach ( $rows as $fx_lr ) {
+		$out .= '| ' . implode( ' | ', $fx_lr ) . " |\n";
+	}
+	fx( $root, 'skills/ux-design-system/references/shipped-log.md', $out );
+}
 
 /* A minimal write-capable SKILL.md: frontmatter + a passing build gate + the given "## Hard
    Rules" body, plus an optional $extra section (e.g. a custom "## Execution Steps"). $skill MUST
@@ -5228,6 +5241,85 @@ ok( array() === fx_lines_with( $out140, array( 'RT_TPL_TOO_SIMILAR', 'TPL-ABOUT-
 ok( 'FAIL' === fx_row_level( $out140, array( 'RT_TPL_NO_WIREFRAME', 'TPL-CONTACT-01-fixture.md' ) ), 'y una fila en prosa dentro de una pagina interna tambien FALLA', fx_row_level( $out140, array( 'RT_TPL_NO_WIREFRAME', 'TPL-CONTACT-01-fixture.md' ) ) );
 ok( array() !== fx_lines_with( $out140, array( 'RT_TPL_NO_WIREFRAME', 'pages/contact/TPL-CONTACT-01-fixture.md' ) ), 'nombrando el ROL dentro de la ruta, para que el lector sepa que carpeta abrir', $out140 );
 fx_rrmdir( $r140 );
+
+echo "--- style-catalog PR 5b: shipped-log.md is the ledger RT_STYLE_REPEATS_RECENT reads ---\n";
+/* design.md D5's exact algorithm: take the last 5 data rows; WARN if the NEWEST row's Style also
+   appears among the 4 before it. A fresh pick that matches nothing in the window stays silent --
+   this scenario's real value lands once 5b.4 implements the rule (before that, "silent" is also
+   true because the rule does not exist), same "value, not novelty" discipline PR 4a/4b used. */
+$r150 = fx_tmp_root();
+fx_base( $r150 );
+fx_ledger(
+	$r150,
+	array(
+		array( '2026-08-01', 'alpha', 'STY-EDITORIAL', 'paper', 'warm', 'editorial', 'corporate' ),
+		array( '2026-08-05', 'beta', 'STY-MATTER', 'warm', 'olive', 'classic', 'ecommerce' ),
+		array( '2026-08-09', 'gamma', 'STY-DIRECT', 'ink', 'orange', 'monumental', 'corporate' ),
+		array( '2026-08-13', 'delta', 'STY-VITRINE', 'ink', 'metallic', 'editorial', 'ecommerce' ),
+		array( '2026-08-17', 'epsilon', 'STY-QUARRY', 'saturated', 'magenta', 'compact', 'corporate' ),
+	)
+);
+list( , $out150 ) = fx_run_ok( $audit, $r150 );
+ok( array() === fx_lines_with( $out150, array( 'RT_STYLE_REPEATS_RECENT' ) ), 'a fresh pick matching none of the 4 deliveries before it stays silent', $out150 );
+ok( array() === fx_lines_with( $out150, array( 'RT_STYLE_UNRESOLVED_DEFAULT' ) ), 'every row here names both a chassis and a resolved style, so the unresolved-default gate has nothing to say either', $out150 );
+fx_rrmdir( $r150 );
+
+echo "--- a repeat WITHIN the 5-row window WARNs, and the audit still exits 0 unstrict ---\n";
+$r151 = fx_tmp_root();
+fx_base( $r151 );
+fx_ledger(
+	$r151,
+	array(
+		array( '2026-08-01', 'alpha', 'STY-EDITORIAL', 'paper', 'warm', 'editorial', 'corporate' ),
+		array( '2026-08-05', 'beta', 'STY-MATTER', 'warm', 'olive', 'classic', 'ecommerce' ),
+		array( '2026-08-09', 'gamma', 'STY-QUARRY', 'saturated', 'magenta', 'compact', 'corporate' ),
+		array( '2026-08-13', 'delta', 'STY-VITRINE', 'ink', 'metallic', 'editorial', 'ecommerce' ),
+		array( '2026-08-17', 'epsilon', 'STY-QUARRY', 'saturated', 'magenta', 'compact', 'corporate' ),
+	)
+);
+list( $code151, $out151 ) = fx_run_ok( $audit, $r151 );
+ok( 'WARN' === fx_row_level( $out151, array( 'RT_STYLE_REPEATS_RECENT', 'STY-QUARRY' ) ), 'STY-QUARRY repeating at row 3 of the last 5 WARNs, naming the style', fx_row_level( $out151, array( 'RT_STYLE_REPEATS_RECENT', 'STY-QUARRY' ) ) );
+ok( 0 === $code151, 'a WARN alone never blocks the unstrict audit -- repetition is a judgment call, not a defect (house-rules.md:31)', $code151 );
+fx_rrmdir( $r151 );
+
+echo "--- the same style, one delivery further back than row 6, stays silent -- the window is exact ---\n";
+$r152 = fx_tmp_root();
+fx_base( $r152 );
+fx_ledger(
+	$r152,
+	array(
+		array( '2026-07-01', 'zero', 'STY-QUARRY', 'saturated', 'magenta', 'compact', 'corporate' ),
+		array( '2026-08-01', 'alpha', 'STY-EDITORIAL', 'paper', 'warm', 'editorial', 'corporate' ),
+		array( '2026-08-05', 'beta', 'STY-MATTER', 'warm', 'olive', 'classic', 'ecommerce' ),
+		array( '2026-08-09', 'gamma', 'STY-DIRECT', 'ink', 'orange', 'monumental', 'corporate' ),
+		array( '2026-08-13', 'delta', 'STY-VITRINE', 'ink', 'metallic', 'editorial', 'ecommerce' ),
+		array( '2026-08-17', 'epsilon', 'STY-QUARRY', 'saturated', 'magenta', 'compact', 'corporate' ),
+	)
+);
+list( , $out152 ) = fx_run_ok( $audit, $r152 );
+ok( array() === fx_lines_with( $out152, array( 'RT_STYLE_REPEATS_RECENT' ) ), 'the earlier STY-QUARRY sits at row 1 of 6, outside the last-5 window -- not "roughly recent", exactly the last 5', $out152 );
+fx_rrmdir( $r152 );
+
+echo "--- style-catalog PR 5b: RT_STYLE_UNRESOLVED_DEFAULT -- a delivery that names its chassis but no resolved style FAILs ---\n";
+/* This closes the real defect mockup-guide.md:436-447 recorded: every corporate site shipped
+   PERS-INSTITUTIONAL "not because anyone chose them but because nobody was asked to". A row with
+   Chassis filled and Style blank is the offline-visible shadow of exactly that -- the audit cannot
+   read es_manifest_read() (a live WP option), so this is the one place it CAN see the same fact. */
+$r153 = fx_tmp_root();
+fx_base( $r153 );
+fx_ledger( $r153, array( array( '2026-08-20', 'zeta', '', '', '', '', 'corporate' ) ) );
+list( $code153, $out153 ) = fx_run_ok( $audit, $r153 );
+ok( 'FAIL' === fx_row_level( $out153, array( 'RT_STYLE_UNRESOLVED_DEFAULT', 'zeta' ) ), 'a row naming its chassis with no Style FAILs, naming the client', fx_row_level( $out153, array( 'RT_STYLE_UNRESOLVED_DEFAULT', 'zeta' ) ) );
+ok( 1 === $code153, 'unlike a repeat, an unresolved default blocks the audit -- this is a completeness check, not a judgment call', $code153 );
+fx_rrmdir( $r153 );
+
+echo "--- a delivery with BOTH a chassis and a resolved style never trips the same gate ---\n";
+$r154 = fx_tmp_root();
+fx_base( $r154 );
+fx_ledger( $r154, array( array( '2026-08-21', 'eta', 'STY-INSTITUTIONAL', 'cool', 'blue', 'contained', 'corporate' ) ) );
+list( , $out154 ) = fx_run_ok( $audit, $r154 );
+ok( array() === fx_lines_with( $out154, array( 'RT_STYLE_UNRESOLVED_DEFAULT' ) ), 'a resolved style beside its chassis never FAILs -- naming a chassis is not itself the defect, an unanswered one is', $out154 );
+fx_rrmdir( $r154 );
 
 echo "--- fixture coverage: declared - observed - exempt must be empty ---\n";
 $fx_observed = array_keys( $GLOBALS['fx_observed_ids'] );

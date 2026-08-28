@@ -840,13 +840,75 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 > months. A default that survives because nobody chose is exactly what this change exists to
 > make impossible, so the gate belongs with the ledger.
 
-- [ ] 5b.1 RED: fixture — no `STY-QUARRY` in last 5 rows → `RT_STYLE_REPEATS_RECENT` silent (rule
-      doesn't exist yet).
-- [ ] 5b.2 RED: fixture — `STY-QUARRY` at row 3 of last 5 → WARN, audit still exits 0.
-- [ ] 5b.3 RED: fixture — `STY-QUARRY` at row 6 (outside window) → stays silent.
-- [ ] 5b.4 Create `shipped-log.md` (empty ledger); implement `RT_STYLE_REPEATS_RECENT` over the
-      last 5 rows, WARN-only (`house-rules.md:31`).
-- [ ] 5b.5 GREEN: all 3 ledger fixtures pass exactly; full chain green.
+- [x] 5b.1 RED: fixture — no `STY-QUARRY` in last 5 rows → `RT_STYLE_REPEATS_RECENT` silent (rule
+      doesn't exist yet). **Verified genuinely red before implementing**: added `fx_ledger()` and 5
+      scenarios (r150–r154) to `tests/test-framework-audit.php`, ran the suite against the
+      unmodified audit — 3 of the new assertions FAILed exactly as expected (`<0 rows matched,
+      expected exactly 1>` for the WARN- and FAIL-presence checks, wrong exit code for the FAIL
+      case), 737 OK / 3 FAIL. This scenario's own two assertions (silence) were already true in
+      that RED state — the rule not existing is one honest way to be silent — its real value lands
+      with 5b.5's GREEN run below, same "value, not novelty" discipline PR 4a/4b used.
+- [x] 5b.2 RED: fixture — `STY-QUARRY` at row 3 of last 5 → WARN, audit still exits 0. Genuinely
+      red in the same run above: `fx_row_level($out151, ['RT_STYLE_REPEATS_RECENT', 'STY-QUARRY'])`
+      matched zero rows before implementation.
+- [x] 5b.3 RED: fixture — `STY-QUARRY` at row 6 (outside window) → stays silent. Same "silent
+      because the rule doesn't exist yet" honesty as 5b.1; real value lands with 5b.5.
+- [x] 5b.4 Created `skills/ux-design-system/references/shipped-log.md` (empty ledger — header row
+      `Date | Client | Style | Ground | Accent | Scale | Chassis` + separator, zero data rows).
+      Implemented `RT_STYLE_REPEATS_RECENT` (WARN, `house-rules.md:31`) over the last 5 rows via a
+      new generic pipe-table parser `ledger_table_rows()` (`framework-audit.php`, mirrors
+      `axis_rows_for()`'s header-token-matching resilience) — WARNs when the newest row's `Style`
+      also appears among the 4 rows before it in that same 5-row window, silent otherwise. Gated on
+      `file_exists($ledger_file)`, same pattern `RT_GALLERY_STALE` uses, so a fixture root without
+      the file never sees the check at all.
+      **Designed to dock onto `skills/blind-judges/references/corpus.md` (read, not edited, per
+      instruction), not compete with it**: `shipped-log.md` states explicitly that it is the
+      measured half of the same two-part memory `corpus.md` is the seen half of — same write
+      moment (the orchestrator, after both verdicts land, never a judge — `corpus.md`'s own rule,
+      restated here so nobody builds a third memory), same 5-row window (`corpus.md`'s own
+      "Retention" section already anticipated this: "Five matches the window
+      `RT_STYLE_REPEATS_RECENT` uses"), joined by `Date`+`Client` here to `Date`+`Project` there.
+      `RT_ORPHAN_FILE` closed WITHOUT touching `SKILL.md` (498/500 words, no headroom — PR 4a's own
+      lesson): a pointer paragraph added to `references/style-catalog/_README.md` instead, already
+      transitively reachable from `SKILL.md`'s `references/style-catalog/` mention.
+      **ALSO REQUIRED IN THIS PR, per the corrected criterion block immediately above 5b.1**:
+      implemented `RT_STYLE_UNRESOLVED_DEFAULT` (FAIL) alongside `RT_STYLE_REPEATS_RECENT`, closing
+      "nothing yet FAILS when a project's delivered mockup still carries the chassis default and no
+      style resolution was ever recorded." **The honest offline signal, found by investigation, not
+      assumed to exist**: the audit cannot read `es_manifest_read()` (live WP option) and cannot see
+      a delivered mockup's own HTML either — `corpus.md` states plainly why none is stored in this
+      repo ("client work does not belong in this repository"). The one signal the repo CAN see is
+      the ledger row itself: a row whose `Chassis` names which site type a delivery started from
+      but whose `Style` is blank is exactly a delivery that shipped on the untouched default with
+      no resolution ever recorded — reading the SAME file `RT_STYLE_REPEATS_RECENT` reads, the same
+      technique design.md D5 established for that row. FAIL, not WARN (unlike its sibling): this is
+      a completeness check, not a judgment call — `mockup-guide.md:436-447`'s "not because anyone
+      chose them but because nobody was asked to" is the defect this whole change exists to make
+      impossible, so silence here is not acceptable the way a repeat is.
+      2 new `ROW_TYPES` entries + `CONTRIBUTING.md` rows (both, `RT_ROWTYPE_UNDOCUMENTED`'s own
+      gate — verified 0 FAIL after adding both).
+- [x] 5b.5 GREEN: all 5 ledger fixtures pass exactly (the 3 originally specified plus the 2 for the
+      additional required gate); full chain green. `tests/test-framework-audit.php`: **740 OK / 0
+      FAIL** (was 727 at PR 5a close; +13 net new — 8 assertions across 5 scenarios + 5
+      "subprocess launched" checks the shared harness adds per scenario). Real-repo audit: **0 FAIL
+      / 4 WARN** — the same 4 pre-existing word-budget WARNs, unchanged (elementor-core 588,
+      html-mockup 567, web-templates 559, woocommerce 597; `ux-design-system` confirmed still 498
+      words via `--word-report`). Full chain: `test-container-hygiene` 81 + `test-framework-audit`
+      740 + `test-audit-signals` 22 + `test-write-path` 523 = **1366 OK / 0 FAIL** (was 1353 at PR
+      5a close). `php -l` clean on both touched PHP files. `git status`: only the 4 intended tracked
+      files (`CONTRIBUTING.md`, `framework-audit.php`, `_README.md`, `test-framework-audit.php`)
+      plus 1 new untracked file (`shipped-log.md`); the 5 DO-NOT-TOUCH paths (`corpus.md` and the
+      rest of `skills/blind-judges/`, both `agents/blind-judge-*.md`, the user's own uncommitted
+      edits to `agents/novamira-web-orchestrator.md` and `skills/_novamira-framework.md`) confirmed
+      untouched — `corpus.md` does not appear in the diff at all. **Diff: 219 insertions across 4
+      tracked files + 70 lines for the new `shipped-log.md` = 289 changed lines, 109 over the
+      ~180-line estimate, reported per instruction**: the Work Units table's ~180 figure covered
+      only `RT_STYLE_REPEATS_RECENT` and the empty ledger; it could not have anticipated
+      `RT_STYLE_UNRESOLVED_DEFAULT`, which the corrected criterion block above 5b.1 added to this
+      PR's scope after that estimate was written — a second FAIL-level rule with its own 2 fixtures,
+      on top of the 3 originally-specified WARN fixtures, plus `shipped-log.md`'s own prose
+      documenting how it docks onto `corpus.md` rather than duplicating it, which the session
+      explicitly required stating in the file itself.
 - [ ] 5c.1 RED: fixture — style declares 6 toggles, project ships only 5 at declared value → new
       precharge rule FAILs, naming the toggle and style.
 - [ ] 5c.2 RED: fixture — style A declares 2, style B declares 6, project on A ships exactly 2 →
