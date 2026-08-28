@@ -17216,10 +17216,11 @@ file_put_contents( $OUT, $html );
 //
 // THE SECOND ARTIFACT, FROM THE SAME RUN. One run, N artifacts (design.md D1): the client chassis
 // is not a mode flag and not an extraction — it is this same `$css` and the same axis/colour
-// tables, written to a second file instead of hand-copied and re-pointed from
-// `corporate-mockup.html` / `ecommerce-mockup.html`. `$html` above is already written and this
-// section reads no variable it would change, so `index.html` cannot drift by one byte from adding
-// this — `cmp` is the whole regression proof.
+// tables, written to a second file instead of hand-copied and re-pointed the way
+// `corporate-mockup.html` / `ecommerce-mockup.html` used to require, before style-catalog PR 1f
+// retired both. `$html` above is already written and this section reads no variable it would
+// change, so `index.html` cannot drift by one byte from adding this — `cmp` is the whole
+// regression proof.
 //
 // ONLY `gallery-chrome` IS EXCLUDED. Typefaces, `:root`, the shared derived chain, the shared
 // component chrome (`.btn`, `.site-head`, `.nav`, `.card`, …), every per-anchor block, every
@@ -17553,12 +17554,13 @@ function chassis_corporate_body( $brand ) {
 // cross-PR note). Only the header/footer need an ecommerce-specific variant: a cart icon + count
 // badge replaces the corporate CTA button, per mockup-guide.md's header/footer contract.
 //
-// SECTION VOCABULARY IS THE GALLERY'S OWN, NOT `ecommerce-mockup.html`'s: `.mini`/`.prods`/
-// `.carousel`/`.bar`/`.bens`/`.faq`/`.acc`/`.pdp`/`.pdp-gal`/`.pdp-buy`/`.opts`/`.band contactblock`/
-// `.directlist` are the classes `strip_ecommerce()` (:14221) and `page_pdp()` (:10864) already style
-// in `$css` — reusing them means the chassis renders styled from the FIRST run, with zero new CSS
-// (unlike the standalone `ecommerce-mockup.html`, which carries its own separate, hand-written
-// stylesheet nothing here shares). Cart and checkout have no `strip_*`/`page_*` precedent in the
+// SECTION VOCABULARY IS THE GALLERY'S OWN, NOT the retired `ecommerce-mockup.html`'s: `.mini`/
+// `.prods`/`.carousel`/`.bar`/`.bens`/`.faq`/`.acc`/`.pdp`/`.pdp-gal`/`.pdp-buy`/`.opts`/
+// `.band contactblock`/`.directlist` are the classes `strip_ecommerce()` (:14221) and `page_pdp()`
+// (:10864) already style in `$css` — reusing them means the chassis renders styled from the FIRST
+// run, with zero new CSS (unlike the retired `ecommerce-mockup.html`, which had carried its own
+// separate, hand-written stylesheet nothing here shared). Cart and checkout have no `strip_*`/`page_*`
+// precedent in the
 // gallery corpus (WooCommerce builds the functional versions; mockup-guide.md calls checkout
 // "LAYOUT ONLY"), so both reuse the closing-band/lead-form vocabulary (`.band closing sober`,
 // `.formwrap`, `.leadform`, `.field`) that `page_contact_enquiry()`-shaped pages already carry,
@@ -17754,7 +17756,7 @@ function chassis_ecom_page_cart() {
 	return implode( "\n", $o );
 }
 
-/** CHECKOUT — "LAYOUT ONLY" per mockup-guide.md and `ecommerce-mockup.html`'s own note:
+/** CHECKOUT — "LAYOUT ONLY" per mockup-guide.md and the now-retired `ecommerce-mockup.html`'s own note:
     WooCommerce builds the functional one. Reuses `page_contact_enquiry()`'s form/direct-list
     vocabulary (`.band contactblock`/`.formwrap`/`.leadform`/`.field`/`.directlist`/`.dlabel` —
     the exact classes `chassis_page_contact()` (:17493) already proved pass every mockup rule)
@@ -17886,7 +17888,7 @@ $chassis_css['chassis-shell'] = <<<'CSS'
 .page{display:none} .page.active{display:block}
 CSS;
 
-// corporate-mockup.html's own switcher (:1061-1069), reused verbatim: `[data-t]` click → `show()`
+// the retired `corporate-mockup.html`'s own switcher, reused verbatim: `[data-t]` click → `show()`
 // → toggle `.active` + `aria-current` on the matching nav link. One script, shared by every page.
 $CHASSIS_JS = <<<'JS'
 <script>

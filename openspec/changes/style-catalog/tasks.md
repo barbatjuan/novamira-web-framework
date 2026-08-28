@@ -254,12 +254,64 @@ reverse-order only (see Chain topology).
       chassis, both proof mockups) verified by hand against `design-system.md`'s real table before
       implementing, and confirmed silent by the real audit run after: no pre-existing label/value
       disagreement found in any shipped asset.
-- [ ] 1f.1 Confirm full chain is green with generator chassis in place, BEFORE deleting anything
-      (Slice 1's own rollback constraint: deletion is the last step).
-- [ ] 1f.2 Delete `html-mockup/assets/corporate-mockup.html`, `ecommerce-mockup.html`.
-- [ ] 1f.3 Update `html-mockup/SKILL.md` and `mockup-guide.md` to run the generator, never copy.
-- [ ] 1f.4 GREEN: repo-wide search confirms zero references to deleted files; full chain green.
-      **size:exception** (see reason above).
+- [x] 1f.1 Confirmed full chain green with the generated chassis in place, BEFORE deleting anything:
+      real-repo audit 0 FAIL/4 WARN (identical to PR 1e's close-state); `test-container-hygiene` 81,
+      `test-framework-audit` 704, `test-audit-signals` 22, `test-write-path` 428 — all 0 FAIL;
+      `chassis/corporate.html` (631,610 bytes) and `chassis/ecommerce.html` (629,884 bytes) present
+      on disk. Recorded before touching anything else, per Slice 1's own rollback constraint.
+- [x] 1f.2 Deleted `html-mockup/assets/corporate-mockup.html` (1073 lines) and
+      `ecommerce-mockup.html` (721 lines) via `git rm`. Ran the real audit immediately after,
+      BEFORE any of 1f.3's edits, to see what a bare deletion does on its own: `$anchored_required`
+      (unpruned at that point) produced no FAIL — it only gates files the glob DISCOVERS, and a
+      deleted file can never be discovered, so those two entries silently went dead rather than
+      demanding a missing anchor. The real signal was a different, genuine FAIL:
+      `html-mockup: points at "assets/ecommerce-mockup.html", which does not exist` /
+      `...corporate-mockup.html...` — `SKILL.md`'s own References section link-checks its targets,
+      confirming 1f.3 is load-bearing, not cosmetic.
+- [x] 1f.3 Updated `html-mockup/SKILL.md` (Execution Steps + References — "run the generator, never
+      copy" replaces the two-file copy-and-re-point instruction) and `mockup-guide.md` ("Chassis and
+      anchor" section rewritten: `chassis/*.html` are what a real project starts from now, generated
+      never hand-copied; the two hand-maintained originals are gone). Also resolved the remaining 21
+      references across the reference surface (`framework-audit.php`, `_embed-fonts.php`,
+      `_fonts.md`, `_build-gallery.php`, `_novamira-framework.md`, `novamira-web-orchestrator.md`,
+      `CONTRIBUTING.md`, `_axis-proof-content.md`) — each judged prose-to-rewrite vs.
+      historical-narrative-to-preserve individually; see apply-progress for the per-file
+      disposition. **Trap 2, `$anchored_required`, pruned from 4 entries back to 2**
+      (`chassis/corporate.html`, `chassis/ecommerce.html`) in `framework-audit.php`, with its
+      surrounding comment block and CONTRIBUTING.md's two rows updated from "six files" /
+      "the four starting assets" language to match. **Necessary, disclosed test-fixture fix**: this
+      pruning would have broken `tests/test-framework-audit.php`'s r132 scenario (the
+      `RT_MOCKUP_ANCHOR_UNDECLARED` fixture pointed at `corporate-mockup.html`, one of the two
+      pruned entries) — retargeted to `chassis/corporate.html`, the fixture's actual intent
+      (a required starting asset without an anchor marker FAILs) unchanged. **Trap 1, the SKILL.md
+      word ceiling**: iterated three times against `--word-report` — first rewrite landed at 628
+      (over 600), trimmed to 588, trimmed again to **567** — a genuine 15-word reduction from the
+      582-word baseline, replacing the six-step copy-and-re-point procedure with one command.
+      `_build-gallery.php`'s own source changed (comment edits), which shifted its input digest and
+      correctly FAILed `RT_GALLERY_STALE` until regenerated — `_build-gallery.php` was re-run,
+      restoring `index.html` to byte-identical (past line 1) with the pre-PR baseline.
+- [x] 1f.4 GREEN: repo-wide search (`corporate-mockup.html` / `ecommerce-mockup.html`) confirms zero
+      live/operative references — the 14 files still matching are either deliberate historical
+      narrative (tense-lightly-corrected, filename kept as the recorded lesson: `framework-audit.php`
+      ×2, `CONTRIBUTING.md` ×1, `_build-gallery.php` ×4, `_embed-fonts.php` ×1, `_fonts.md` ×1,
+      `mockup-guide.md` ×1 confirming the retirement itself), pure non-operative comments in files
+      explicitly outside this PR's given reference surface (`proof-direct-mockup.html`,
+      `proof-editorial-mockup.html`), synthetic test-fixture filenames unaffected by the code change
+      (`tests/test-framework-audit.php`), or SDD planning/spec record (`proposal.md`, `tasks.md`
+      itself, `specs/client-chassis-generation/spec.md` — whose own acceptance criteria REQUIRE the
+      two files not exist, `docs/superpowers/*`). `skills/_novamira-framework.md`,
+      `agents/novamira-web-orchestrator.md`, `skills/html-mockup/SKILL.md` and
+      `_axis-proof-content.md` are now fully clean (zero hits). Full chain green:
+      `test-container-hygiene` 81, `test-framework-audit` 704, `test-audit-signals` 22,
+      `test-write-path` 428 — **1235 OK / 0 FAIL, identical total to the pre-PR baseline** (the r132
+      fixture was retargeted, not removed, so no assertion was lost). Real-repo audit: 0 FAIL / 4
+      WARN (html-mockup's WARN now reads 567 words, down from 582). `index.html` confirmed
+      byte-identical past line 1 against the session-start baseline, 9,068,304 bytes, both before
+      regeneration (unaffected by the deletion, since the two legacy files were never generator
+      inputs) and after (comment-only generator source changes, `cmp` exit 0 on both tails).
+      **size:exception** (see reason above) — diff: 10 prose/code files, 78 insertions(+) / 72
+      deletions(-), plus the two deleted files' 1073 + 721 = 1794 removed lines; total 1944 changed
+      lines, almost all deletion as declared.
 
 ## Slice 2 — One axis registry (`style-axes`)
 

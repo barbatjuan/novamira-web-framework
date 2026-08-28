@@ -144,9 +144,10 @@ licence requires beside it. `_fonts.md` is the manifest: family, file, axes, lic
 sha256 and source URL per row, and the reasoning behind each. Read it before adding a family.
 
 - `_fonts.php` holds the registry and emits the `@font-face` block.
-- `_embed-fonts.php` writes that block into the four static mockups, between `NM-FONTS:BEGIN` and
+- `_embed-fonts.php` writes that block into the two proof mockups, between `NM-FONTS:BEGIN` and
   `NM-FONTS:END`. Re-runnable; `--check` reports staleness without writing.
-- `../gallery/_build-gallery.php` calls the same registry when it generates its page.
+- `../gallery/_build-gallery.php` calls the same registry when it generates its page and the
+  chassis — the chassis needs no separate embedding step.
 
 Rules that are checked rather than trusted (`RT_MOCKUP_FONT_NOT_EMBEDDED`):
 
@@ -434,17 +435,15 @@ dialogue with the client. Nothing connects the two: a bakery and a law firm can 
 anchor, and two law firms can want different ones.
 
 The two starting assets each ship pointed at one anchor **only so they render** — an HTML file
-has to carry values. `corporate-mockup.html` ships at `PERS-INSTITUTIONAL`, `ecommerce-mockup.html`
+has to carry values. `chassis/corporate.html` ships at `PERS-INSTITUTIONAL`, `chassis/ecommerce.html`
 at `PERS-MATTER`. Neither is a recommendation.
 
-**A generated chassis is landing alongside them, in `assets/chassis/`.** `_build-gallery.php`
-(`../gallery/_build-gallery.php`) now also writes `assets/chassis/corporate.html` and
-`assets/chassis/ecommerce.html` from the exact same in-memory CSS tables the gallery renders —
-one run, two more files, everything reused verbatim except the gallery's own chrome (`.gal-top`,
-`.strip`, `.axis`). Generated, not hand-edited: the next run overwrites each entire, same
-discipline as `index.html`. It ships in stages — the `:root` and shell first, page bodies next —
-and `corporate-mockup.html` / `ecommerce-mockup.html` stay the ones this section describes until
-the generated pair covers everything they do; deleting them is a later, separate step.
+**Generated, never hand-copied.** `_build-gallery.php` (`../gallery/_build-gallery.php`) writes
+both from the exact same in-memory CSS tables the gallery renders — one run, two files, everything
+reused verbatim except the gallery's own chrome (`.gal-top`, `.strip`, `.axis`). Generated, not
+hand-edited: the next run overwrites each entire, same discipline as `index.html`. The two
+hand-maintained originals this section used to describe, `corporate-mockup.html` /
+`ecommerce-mockup.html`, are gone (style-catalog PR 1f) — run the generator, never copy a file.
 
 **Why this needed saying.** Until it did, step 1 read *pick the starting asset by site type* and
 stopped there, and the `:root` comment read *Default anchor* — so every corporate project shipped

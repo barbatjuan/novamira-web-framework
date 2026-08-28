@@ -2926,12 +2926,16 @@ fx_rrmdir( $r131 );
 echo "--- y un asset de arranque sin marcador de ancla FALLA ---\n";
 $r132 = fx_tmp_root();
 fx_base( $r132 );
-fx( $r132, 'skills/html-mockup/assets/corporate-mockup.html', str_replace( '/* Anchor: PERS-INSTITUTIONAL */', '', fx_mockup() ) );
+/* style-catalog PR 1f: `corporate-mockup.html` (the hand-maintained original) is deleted and
+   pruned out of $anchored_required, so this scenario moved to `chassis/corporate.html` — one of
+   the two remaining required starting assets — to keep testing the same thing: a required asset
+   without an anchor marker FAILs. */
+fx( $r132, 'skills/html-mockup/assets/chassis/corporate.html', str_replace( '/* Anchor: PERS-INSTITUTIONAL */', '', fx_mockup() ) );
 list( , $out132 ) = fx_run_ok( $audit, $r132 );
-ok( 'FAIL' === fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'corporate-mockup.html' ) ), 'un asset de arranque que no dice a que ancla apunta FALLA', fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'corporate-mockup.html' ) ) );
+ok( 'FAIL' === fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'chassis/corporate.html' ) ), 'un asset de arranque que no dice a que ancla apunta FALLA', fx_row_level( $out132, array( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'chassis/corporate.html' ) ) );
 /* Y no se le acusa ADEMAS de incoherencia: sin ancla declarada no hay contra que comparar, y dos
    filas por un hecho mandan al lector a arreglar dos cosas donde solo hay una. */
-ok( array() === fx_lines_with( $out132, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'y no se le acusa tambien de incoherencia: sin ancla no hay contra que comparar', $out132 );
+ok( array() === fx_lines_with( $out132, array( 'RT_MOCKUP_AXES_MISMATCH', 'chassis/corporate.html' ) ), 'y no se le acusa tambien de incoherencia: sin ancla no hay contra que comparar', $out132 );
 fx_rrmdir( $r132 );
 
 /* ---- Las tres formas de equivocarse con una lista desplegable ----

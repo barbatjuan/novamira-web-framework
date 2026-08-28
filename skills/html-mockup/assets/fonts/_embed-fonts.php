@@ -1,20 +1,23 @@
 <?php
 /**
- * _embed-fonts.php — write the `@font-face` block into the four static mockups.
+ * _embed-fonts.php — write the `@font-face` block into the two proof mockups.
  *
  * Run:  php skills/html-mockup/assets/fonts/_embed-fonts.php
  *       php skills/html-mockup/assets/fonts/_embed-fonts.php --check   (writes nothing, exits 1 if stale)
  *
- * The gallery does NOT go through here: `../gallery/index.html` is generated, so it calls
- * `nm_font_faces()` from `_build-gallery.php` directly. These four are hand-maintained files, so
- * the block is written INTO them and marked, rather than regenerated around them.
+ * The gallery does NOT go through here: `../gallery/index.html` (and the generated
+ * `../chassis/*.html`) are generated, so they call `nm_font_faces()` from `_build-gallery.php`
+ * directly. These two are hand-maintained files, so the block is written INTO them and marked,
+ * rather than regenerated around them. (`corporate-mockup.html` / `ecommerce-mockup.html` used to
+ * be hand-maintained targets here too, until style-catalog PR 1f retired both in favour of the
+ * generated chassis.)
  *
  * IDEMPOTENT ON PURPOSE. The managed region is delimited, so a second run replaces it instead of
  * stacking a second copy — and `--check` is what a reviewer runs to find out whether the committed
- * files still match the committed woff2. Without that, a font swap would leave four HTML files
+ * files still match the committed woff2. Without that, a font swap would leave two HTML files
  * carrying the old bytes and nothing would say so.
  *
- * LINE ENDINGS ARE PER-FILE AND ARE NOT ASSUMED. These four are CRLF while everything under
+ * LINE ENDINGS ARE PER-FILE AND ARE NOT ASSUMED. These two are CRLF while everything under
  * `../gallery/` is LF, in a tree with `core.autocrlf=true` and no `.gitattributes`. Writing "\n"
  * into a CRLF file turns a six-line insertion into a whole-file diff, so the ending is measured
  * from the file being edited. (Measure it by counting CR BYTES — `grep -c $'\r$'` reports CRLF for
@@ -28,8 +31,6 @@ $END   = '  /* NM-FONTS:END */';
 
 $check   = in_array( '--check', $argv, true );
 $targets = array(
-	'corporate-mockup.html',
-	'ecommerce-mockup.html',
 	'proof-direct-mockup.html',
 	'proof-editorial-mockup.html',
 );

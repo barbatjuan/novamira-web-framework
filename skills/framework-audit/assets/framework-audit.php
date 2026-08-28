@@ -2010,25 +2010,24 @@ foreach ( $mockup_assets as $mockup_path ) {
 	 * was never re-pointed AT ALL — the label mismatch below fires first and the value check is
 	 * skipped for that axis, since a wrong label already says everything the value would.
 	 *
-	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The six
+	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The four
 	 * named files must DECLARE an anchor -- a missing declaration there is the file going quiet, and a
 	 * glob alone would let deleting the marker switch the check off, which is exactly how PERS-VITRINE
 	 * shipped outside $PERS_IDS. Every OTHER asset the walk finds is checked only IF it declares one,
 	 * because assets/gallery/index.html renders every anchor at once and belongs to no single one.
 	 */
-	/* THE FOUR STARTING ASSETS, and only those (tasks.md 1d.3 — PR 1f prunes this list back to two
-	   once the two hand-maintained files below are deleted). `chassis/corporate.html` and
-	   `chassis/ecommerce.html` join the original pair here for the identical reason the pair was on
-	   it: each is a file a real project starts from — generated, not hand-copied, but no less a
-	   starting asset for that, and generator output earns no exemption from the row it exists to
-	   police (client-chassis-generation spec, "Generated Chassis Is Not Exempt From Any Mockup
-	   Rule"). They are the files a real project is copied from and therefore the only ones anybody
-	   ever RE-POINTS, which is the act this pair exists to police. The two proof-*-mockup.html are
-	   fixed by contract — their whole job is to stand at two named anchors over one copy set — and
-	   RT_PROOF_NOT_DISTINCT already measures them against EACH OTHER on all five axes. They still
-	   declare `Anchor:` and are still checked below, because the glob checks whatever declares one;
-	   they are simply not required to, since a demand nothing would ever violate is a row that only
-	   ever fires on fixtures. */
+	/* THE TWO STARTING ASSETS, and only those (tasks.md 1f.2 — the two hand-maintained originals,
+	   `corporate-mockup.html` / `ecommerce-mockup.html`, are deleted; `chassis/corporate.html` and
+	   `chassis/ecommerce.html` are what a real project starts from now). Generated, not hand-copied,
+	   but no less a starting asset for that, and generator output earns no exemption from the row it
+	   exists to police (client-chassis-generation spec, "Generated Chassis Is Not Exempt From Any
+	   Mockup Rule"). They are the files a real project starts from — run the generator, never copy —
+	   and therefore the only ones anybody ever RE-POINTS, which is the act this pair exists to
+	   police. The two proof-*-mockup.html are fixed by contract — their whole job is to stand at two
+	   named anchors over one copy set — and RT_PROOF_NOT_DISTINCT already measures them against EACH
+	   OTHER on all five axes. They still declare `Anchor:` and are still checked below, because the
+	   glob checks whatever declares one; they are simply not required to, since a demand nothing
+	   would ever violate is a row that only ever fires on fixtures. */
 
 
 	/* ---- RT_MOCKUP_GRID_AUTOFILL ----
@@ -2082,8 +2081,10 @@ foreach ( $mockup_assets as $mockup_path ) {
 	 *
 	 * A RUN OF SIBLINGS, NOT A LIST OF WRAPPER CLASSES, and the first draft of this row got that
 	 * wrong. Keying on `faqlist`/`qas` — the two classes the GALLERY happens to use — left every
-	 * other asset unchecked, including `corporate-mockup.html`, which holds nine `<details>` under a
-	 * wrapper called `faq` and IS the file a real project is copied from. A rule that only inspects
+	 * other asset unchecked, including `corporate-mockup.html`, which held nine `<details>` under a
+	 * wrapper called `faq` and was the file a real project was copied from (style-catalog PR 1f
+	 * retired it; the generated `chassis/*.html` are what a real project starts from now). A rule
+	 * that only inspects
 	 * the tool and not the product is worse than none, because the tool is the part nobody ships.
 	 * So: two or more `<details>` separated by nothing but whitespace are one list, whatever wraps
 	 * them. A SINGLE `<details>` is not a list and is not judged — that is `.handoff`, the spec
@@ -2152,8 +2153,6 @@ foreach ( $mockup_assets as $mockup_path ) {
 		}
 	}
 	$anchored_required = array(
-		'corporate-mockup.html',
-		'ecommerce-mockup.html',
 		'chassis/corporate.html',
 		'chassis/ecommerce.html',
 	);

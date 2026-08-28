@@ -233,10 +233,11 @@ nothing to notice.
   global elements OUTSIDE the page containers; never split pages across Artifacts with `target="_top"`
   links. Detail: `html-mockup/references/mockup-guide.md`.
   (no verifier: nothing inspects a published Artifact's page switching; a mockup split across two Artifacts only shows up when the user clicks a dead link.)
-- **Site type picks the mockup CHASSIS** — `html-mockup/assets/ecommerce-mockup.html` for commerce,
-  `corporate-mockup.html` for corporate. Chassis means which pages exist and whether there is a
-  cart. Never start a corporate site from the ecommerce asset: it carries cart, prices and shop
-  pages a corporate site must not inherit.
+- **Site type picks the mockup CHASSIS.** Run `html-mockup/assets/gallery/_build-gallery.php` — it
+  writes `html-mockup/assets/chassis/ecommerce.html` for commerce and `chassis/corporate.html` for
+  corporate, never hand-copy either. Chassis means which pages exist and whether there is a cart.
+  Never start a corporate site from the ecommerce asset: it carries cart, prices and shop pages a
+  corporate site must not inherit.
   (no verifier: nothing checks which asset a mockup started from; a corporate site built on the commerce one only shows up when a human opens it.)
 - **The ANCHOR picks the look, and it is a second decision.** Re-point the `AXIS POSITIONS` block
   at the anchor `ux-design-system` resolved — five token lines and the `Anchor:` marker, together.

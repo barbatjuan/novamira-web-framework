@@ -115,9 +115,10 @@ paste code inline. What exists:
   dependency.
 - `woocommerce/assets/es-shop-template.example.php`,
   `woocommerce/assets/es-product-single.example.php`.
-- `html-mockup/assets/ecommerce-mockup.html` and `html-mockup/assets/corporate-mockup.html` —
-  the brand-neutral reference CHASSIS; the orchestrator mandates starting from the one matching
-  the SITE TYPE. Never start a corporate site from the ecommerce one. Copying is half the step:
+- `html-mockup/assets/gallery/_build-gallery.php` generates `html-mockup/assets/chassis/ecommerce.html`
+  and `html-mockup/assets/chassis/corporate.html` — the brand-neutral reference CHASSIS; the
+  orchestrator mandates running the generator and starting from the one matching the SITE TYPE.
+  Never start a corporate site from the ecommerce one. Running the generator is half the step:
   each ships pointed at one anchor so it renders, and the `AXIS POSITIONS` block must then be
   re-pointed at the anchor the dialogue resolved (`RT_MOCKUP_AXES_MISMATCH` gates it).
 - `qa-review/assets/lighthouse-audit.mjs` — the server-side evidence script other skills' gates

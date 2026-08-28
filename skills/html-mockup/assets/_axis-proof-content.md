@@ -13,8 +13,8 @@ comparison honest: it is the constant, and the five axes are the only variable.
 Client profile: a stone fabricator (marmolería). Chosen because it is one of the real client
 profiles this framework serves — alongside law firms and voice actors — and because it is the
 opposite of the SaaS aesthetic the anchors must not collapse back into. Copy is Spanish, matching
-`corporate-mockup.html`; the client profile is Spanish. Placeholder imagery only, per the
-`.ph` recipe in `corporate-mockup.html` — no photo is part of the comparison.
+the client profiles this framework serves; the client profile is Spanish. Placeholder imagery
+only, per the `.ph` recipe in `references/mockup-guide.md` — no photo is part of the comparison.
 
 Neither file is a client mockup. They are single-page axis proofs, so the one-Artifact multi-page
 contract in `SKILL.md` does not apply to them; they are read side by side, not navigated.

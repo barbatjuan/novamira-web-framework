@@ -37,10 +37,10 @@ Its approved output is the visual contract `qa-review` checks the build against.
 - **Do not proceed to builder-core until the user approves.** Capture changes, iterate, republish.
 
 ## Execution Steps
-1. Two decisions, not one. **Chassis by site type** — which pages exist, cart or no cart; never
-   start a corporate site from the ecommerce one. Then **re-point the `AXIS POSITIONS` block at
-   the resolved anchor**: five token lines and the `Anchor:` marker, together
-   (`RT_MOCKUP_AXES_MISMATCH` gates it). Read `references/mockup-guide.md` first.
+1. Two decisions, not one. **Run the generator** (`assets/gallery/_build-gallery.php`), never copy —
+   it writes both chassis; use the one matching SITE TYPE, never corporate from the ecommerce one.
+   Then **re-point `AXIS POSITIONS`** at the resolved anchor: five token lines + `Anchor:`, together
+   (`RT_MOCKUP_AXES_MISMATCH` gates it). Detail: `references/mockup-guide.md`.
 2. Build ONE responsive file: semantic `header/main/section/footer`, one `.page` per page, only
    the sections resolved as kept/on. **Ecommerce only**: € prices, cart badge.
 3. Publish as ONE **Artifact** (title `<brand> — maqueta`, favicon emoji, one-line description).
@@ -54,10 +54,9 @@ Return the Artifact URL, the per-page section inventory and the toggle states ba
 iteration, report what changed.
 
 ## References
-- `assets/ecommerce-mockup.html` — chassis, 7 pages (home · shop · pdp · cart · checkout · about ·
-  contact), € prices, cart badge. Ships at `PERS-MATTER`.
-- `assets/corporate-mockup.html` — chassis, no commerce, 6 pages (home · services · service
-  detail `TPL-SERVICE-01` · about · cases · contact). Ships at `PERS-INSTITUTIONAL`.
+- `assets/gallery/_build-gallery.php` — the generator; one run writes
+  `assets/chassis/corporate.html` (`PERS-INSTITUTIONAL`) and `assets/chassis/ecommerce.html`
+  (`PERS-MATTER`). Generated, never hand-edited.
 - `references/mockup-guide.md` — governing detail: HTML shell, token block, typefaces +
   `assets/fonts/`, multi-page contract, section blueprints, placeholders, responsive rules.
 - `assets/_axis-proof-content.md` — one copy set, rendered by both proof files below: the
