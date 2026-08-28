@@ -164,16 +164,58 @@ reverse-order only (see Chain topology).
       confirmed byte-identical past line 1, same total length (9,068,304 bytes), against the
       pre-PR-1c baseline. Diff stat: 2 files changed, 407 insertions(+), 2 deletions(-) — within
       the ~500-line `size:exception` budget.
-- [ ] 1d.1 RED: fixture — generator present, chassis output absent → assert `RT_CHASSIS_NOT_BUILT`
-      FAILs (no such row exists yet).
-- [ ] 1d.2 Implement `RT_CHASSIS_NOT_BUILT` mirroring `RT_GALLERY_NOT_BUILT`
-      (`framework-audit.php:2604-2615`); document the row in `CONTRIBUTING.md` (`RT_ROWTYPE_UNDOCUMENTED`, `:89`).
-- [ ] 1d.3 Extend `$anchored_required` (`:2076-2079`) to the new chassis paths; confirm
-      `RT_GALLERY_STALE` covers them via the existing input digest.
-- [ ] 1d.4 Verify every `RT_MOCKUP_*` row against generated chassis output (NO_AXES,
-      ANCHOR_UNDECLARED, DISCLOSURE_STATE, GRID_AUTOFILL, FONT_NOT_EMBEDDED, BLEED_FIXED_BAND,
-      BLEED_NOT_MEDIA).
-- [ ] 1d.5 GREEN: fixture passes; full chain green.
+- [x] 1d.1 RED: fixture — generator present, chassis output absent → assert `RT_CHASSIS_NOT_BUILT`
+      FAILs (no such row exists yet). **Verified genuinely red**, not already-passing: stashed the
+      PR's own `framework-audit.php` edit back to HEAD, re-ran the new r231-r234 fixtures against
+      the unmodified real audit — the 3 assertions that read `RT_CHASSIS_NOT_BUILT`'s own text FAILed
+      as expected (row does not exist yet); the row-absence assertions stayed green in both states,
+      same shape as `RT_GALLERY_NOT_BUILT`'s own r225. Then un-stashed and confirmed GREEN.
+- [x] 1d.2 Implemented `RT_CHASSIS_NOT_BUILT` mirroring `RT_GALLERY_NOT_BUILT`
+      (`framework-audit.php:2604-2615`), gated on the generator's presence, checked per site type
+      (`chassis/corporate.html` / `chassis/ecommerce.html`) so an interrupted build that wrote one
+      and not the other still FAILs, naming only the missing one. Documented in `CONTRIBUTING.md`
+      (`RT_ROWTYPE_UNDOCUMENTED`, `:89`) and added to the `ROW_TYPES` registry.
+- [x] 1d.3 Extended `$anchored_required` (`:2076-2079`) to `chassis/corporate.html` and
+      `chassis/ecommerce.html` (now 4 entries; PR 1f prunes back to 2 once the hand-maintained pair
+      is deleted). **Empirically verified this alone regressed the real audit to 2 FAIL**
+      (`RT_MOCKUP_ANCHOR_UNDECLARED` on both chassis files — the generated `:root` never declared
+      `Anchor: PERS-*`, unlike the hand-authored files) before implementing the fix: `_build-gallery.php`
+      now stamps `/* Anchor: PERS-INSTITUTIONAL */` into the chassis-only HTML string (never into
+      `$css`/`$chassis_css`, so `index.html` cannot gain one byte) — truthful to what `:root` already
+      is (`$root_anchor = $ANCHORS['institutional']` unconditionally for both site types, unchanged
+      since PR 1a), not a resolved-per-site-type claim. Confirmed `RT_GALLERY_STALE` covers the
+      chassis via the existing input digest **without new code**: `nm_gallery_input_manifest()`
+      already hashes `_build-gallery.php`'s own source, and both artifacts are written by the same
+      single invocation, so index.html can never read fresh while the chassis it was regenerated
+      alongside reads stale — there is no code path where the two diverge.
+- [x] 1d.4 Verified every `RT_MOCKUP_*` row against generated chassis output: NO_AXES,
+      ANCHOR_UNDECLARED, AXES_MISMATCH (label-only, pre-1e) all confirmed silent by the real-repo
+      0 FAIL/4 WARN run plus PR 1b/1c's r140/r141/r144 fixtures; DISCLOSURE_STATE locked by PR
+      1b/1c's r142/r143/r145/r146; GRID_AUTOFILL, FONT_NOT_EMBEDDED, BLEED_FIXED_BAND,
+      BLEED_NOT_MEDIA all already applied to the chassis via the glob-based walk since PR 1a/1b/1c
+      and stayed silent throughout — this PR added no new markup, so none newly apply.
+- [x] 1d.5 GREEN: r231-r234 fixtures pass; full chain green (see apply-progress for the verbatim
+      run). `CONTRIBUTING.md`'s `RT_MOCKUP_ANCHOR_UNDECLARED`/`RT_MOCKUP_AXES_MISMATCH` rows'
+      file-count prose updated from four/four to six/six to match the extended list — prose only,
+      the AXES_MISMATCH mechanism itself (1e's job) is untouched.
+> ### CARRIED FORWARD FROM PR 1d — a Slice 4 exit criterion, not a footnote
+>
+> PR 1d stamps `Anchor: PERS-INSTITUTIONAL` into BOTH generated chassis, because that is what
+> their `:root` numerically is today (`--type-ratio:1.200` / `--fs-h1-max:48` / `--sp-scale:1.0`
+> = `contained` + `standard`, PERS-INSTITUTIONAL's own axis line). The marker is truthful and
+> the row that demanded it is right to demand it.
+>
+> **But a hardcoded PERS-INSTITUTIONAL chassis IS the defect this entire change exists to kill.**
+> `mockup-guide.md:436-447`: *"every corporate project shipped `PERS-INSTITUTIONAL` and every
+> commerce one `PERS-MATTER`, not because anyone chose them but because nobody was asked to...
+> it was the tamest corner of the system, and every client site started there."*
+>
+> This is acceptable ONLY as an intermediate state. **Slice 4 does not close until the chassis
+> anchor is resolved from the selected `STY-*`, not hardcoded**, and Slice 5's manifest writer
+> persists that choice. If the change ships with the marker still pinned to one anchor, it has
+> reproduced attempt 2's failure with new nouns — which is the one outcome the proposal names
+> as disqualifying.
+
 - [ ] 1e.1 RED: fixture — label `scale: contained` beside `--fs-h1-max: 53` (wrong value) → confirm
       `RT_MOCKUP_AXES_MISMATCH` does NOT fire today (the gap).
 - [ ] 1e.2 Implement `axis_token_values()` over `axis_rows_for()` (`:1498`); rewrite

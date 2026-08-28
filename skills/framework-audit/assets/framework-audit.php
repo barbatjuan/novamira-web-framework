@@ -115,6 +115,7 @@ const ROW_TYPES = array(
 	'RT_GALLERY_NO_MANIFEST'     => 'FAIL  — a gallery asset renders an image no manifest row carries a slug and a licence for',
 	'RT_GALLERY_ONE_SHOOT'       => 'FAIL  — one photo shoot supplies more of the image set than the manifest\'s own register table claims distinct looks',
 	'RT_GALLERY_NOT_BUILT'       => 'FAIL  — the gallery generator is present but its index.html output is not: the tree was never built',
+	'RT_CHASSIS_NOT_BUILT'       => 'FAIL  — the gallery generator is present but a client chassis output is not: the tree was never built',
 	'RT_GALLERY_STALE'           => 'FAIL  — the gallery output records no input fingerprint, or one that no longer matches the inputs on disk',
 	'RT_BUILDER_NO_TOKENS'       => 'FAIL  — a builder asset has no es_tokens() block a scan can be bounded by',
 	'RT_BUILDER_HARDCODED_TOKEN' => 'FAIL  — a builder asset types a visual literal outside its token block',
@@ -1938,19 +1939,25 @@ foreach ( $mockup_assets as $mockup_path ) {
 	 * catches the axis that was never re-pointed AT ALL, which is the one that survives a re-point
 	 * because nobody diffs a comment.
 	 *
-	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The four
+	 * HARDCODED LIST **AND** GLOB, deliberately, for the two different failures they catch. The six
 	 * named files must DECLARE an anchor -- a missing declaration there is the file going quiet, and a
 	 * glob alone would let deleting the marker switch the check off, which is exactly how PERS-VITRINE
 	 * shipped outside $PERS_IDS. Every OTHER asset the walk finds is checked only IF it declares one,
 	 * because assets/gallery/index.html renders every anchor at once and belongs to no single one.
 	 */
-	/* THE TWO STARTING ASSETS, and only those. They are the files a real project is copied from and
-	   therefore the only ones anybody ever RE-POINTS, which is the act this pair exists to police. The
-	   two proof-*-mockup.html are fixed by contract — their whole job is to stand at two named anchors
-	   over one copy set — and RT_PROOF_NOT_DISTINCT already measures them against EACH OTHER on all
-	   five axes. They still declare `Anchor:` and are still checked below, because the glob checks
-	   whatever declares one; they are simply not required to, since a demand nothing would ever
-	   violate is a row that only ever fires on fixtures. */
+	/* THE FOUR STARTING ASSETS, and only those (tasks.md 1d.3 — PR 1f prunes this list back to two
+	   once the two hand-maintained files below are deleted). `chassis/corporate.html` and
+	   `chassis/ecommerce.html` join the original pair here for the identical reason the pair was on
+	   it: each is a file a real project starts from — generated, not hand-copied, but no less a
+	   starting asset for that, and generator output earns no exemption from the row it exists to
+	   police (client-chassis-generation spec, "Generated Chassis Is Not Exempt From Any Mockup
+	   Rule"). They are the files a real project is copied from and therefore the only ones anybody
+	   ever RE-POINTS, which is the act this pair exists to police. The two proof-*-mockup.html are
+	   fixed by contract — their whole job is to stand at two named anchors over one copy set — and
+	   RT_PROOF_NOT_DISTINCT already measures them against EACH OTHER on all five axes. They still
+	   declare `Anchor:` and are still checked below, because the glob checks whatever declares one;
+	   they are simply not required to, since a demand nothing would ever violate is a row that only
+	   ever fires on fixtures. */
 
 
 	/* ---- RT_MOCKUP_GRID_AUTOFILL ----
@@ -2076,6 +2083,8 @@ foreach ( $mockup_assets as $mockup_path ) {
 	$anchored_required = array(
 		'corporate-mockup.html',
 		'ecommerce-mockup.html',
+		'chassis/corporate.html',
+		'chassis/ecommerce.html',
 	);
 	$mockup_declares = preg_match( '/Anchor:\s*(PERS-[A-Z-]+)/', $mockup_root, $mockup_anm );
 	if ( ! $mockup_declares ) {
@@ -2612,6 +2621,31 @@ if ( file_exists( $gal_gen ) && ! file_exists( $gal_out ) ) {
 			. ' generated output and is no longer tracked, so a fresh clone has none until it is'
 			. ' built: php skills/html-mockup/assets/gallery/_build-gallery.php'
 	);
+}
+
+/* ---- RT_CHASSIS_NOT_BUILT ----
+ * Mirrors RT_GALLERY_NOT_BUILT immediately above, for the SECOND artifact the same generator run
+ * writes (design.md D1): the client chassis. Same reasoning, same shape — discovery here is by
+ * glob (html_assets_deep()), and a MISSING file is unreachable by discovery, so a missing chassis
+ * must FAIL rather than silently skip the check. Gated on the generator's own presence so this can
+ * never fire inside a fixture root that writes only index.html (fx_gal()) and never the generator
+ * — see tests/test-framework-audit.php. Two files, not one: `_build-gallery.php` writes both site
+ * types in the same run, so a build that produced one and not the other is the interrupted-write
+ * case the generator's own "cannot create $CHASSIS_DIR" fail() cannot see once the directory does
+ * exist. */
+foreach ( array( 'corporate', 'ecommerce' ) as $chassis_site ) {
+	$chassis_out = $mockup_asset_root . '/chassis/' . $chassis_site . '.html';
+	if ( file_exists( $gal_gen ) && ! file_exists( $chassis_out ) ) {
+		add(
+			'RT_CHASSIS_NOT_BUILT',
+			'FAIL',
+			'html-mockup',
+			'assets/chassis/' . $chassis_site . '.html is missing while its generator sits beside'
+				. ' it (the same generator as the gallery). The chassis is generated output and is'
+				. ' not tracked, so a fresh clone has none until it is built:'
+				. ' php skills/html-mockup/assets/gallery/_build-gallery.php'
+		);
+	}
 }
 
 /* ---- RT_GALLERY_STALE ----

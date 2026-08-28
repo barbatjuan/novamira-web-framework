@@ -17936,6 +17936,17 @@ foreach ( array( 'corporate', 'ecommerce' ) as $chassis_site ) {
 		. $chassis_body . "\n"
 		. "</body>\n"
 		. "</html>\n";
+	// framework-audit.php's RT_MOCKUP_ANCHOR_UNDECLARED / RT_MOCKUP_AXES_MISMATCH pair
+	// (:1921-1953) reads an `Anchor: PERS-*` comment out of the FIRST `:root{…}` block — the same
+	// marker every hand-authored mockup already carries, and the one `$anchored_required`
+	// (tasks.md 1d.3) now demands from this file too. Stamped into `$chassis_html` ONLY, never
+	// into `$css`/`$chassis_css` themselves, which `index.html`'s own `implode()` (:16621) also
+	// reads unmodified — `index.html` declares no Anchor today and is not in `$anchored_required`,
+	// so it must not gain one by accident. `institutional` states what `:root` above ALREADY is —
+	// `$root_anchor` is `$ANCHORS['institutional']` unconditionally for both site types, unchanged
+	// since PR 1a — truthfully, not a resolved-per-site-type claim: wiring each site type to its
+	// own anchor is a later slice's job (manifest-driven style resolution, Slice 5), not this row's.
+	$chassis_html = str_replace( ':root{', ":root{\n  /* Anchor: PERS-INSTITUTIONAL */", $chassis_html );
 	file_put_contents( $CHASSIS_DIR . '/' . $chassis_site . '.html', $chassis_html );
 }
 

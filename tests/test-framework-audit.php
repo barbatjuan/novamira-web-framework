@@ -4094,6 +4094,11 @@ if ( function_exists( 'nm_gallery_input_digest' ) && function_exists( 'nm_galler
 	   and if it ever could, this scenario is where that shows up. */
 	$fp229 = nm_gallery_input_digest( $r229 . '/skills/html-mockup/assets/gallery' );
 	fx_gal( $r229, nm_gallery_fingerprint_line( $fp229 ) . "\n" . fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ) );
+	/* style-catalog PR 1d: RT_CHASSIS_NOT_BUILT is gated on the same generator presence as
+	   RT_GALLERY_NOT_BUILT, so this "exits code 0" positive control needs both chassis files too,
+	   same reason r232 below needs them for its own clean-exit claim. */
+	fx( $r229, 'skills/html-mockup/assets/chassis/corporate.html', fx_mockup() );
+	fx( $r229, 'skills/html-mockup/assets/chassis/ecommerce.html', fx_mockup() );
 	list( $code229, $out229 ) = fx_run_ok( $audit, $r229 );
 	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_STALE' ) ), 'matching fingerprint -> no staleness row', $out229 );
 	ok( array() === fx_lines_with( $out229, array( 'RT_GALLERY_' ) ), 'and no other gallery row either: the stamp is inert scenery to every rule but this one', $out229 );
@@ -4113,6 +4118,60 @@ fx_gal( $r230, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_G
 list( , $out230 ) = fx_run_ok( $audit, $r230 );
 ok( array() === fx_lines_with( $out230, array( 'RT_GALLERY_STALE' ) ), 'generator + index.html but no fingerprint definition -> still no row: the gate is conditioned on the definition', $out230 );
 fx_rrmdir( $r230 );
+
+/* ---------------------------------------------------------------------------
+   style-catalog PR 1d (tasks.md 1d.1/1d.2) — RT_CHASSIS_NOT_BUILT, RT_GALLERY_NOT_BUILT's sibling
+   for the SECOND artifact the same generator run writes (design.md D1). No row of this shape
+   existed before this PR — verified against the real repo before writing anything here (see the
+   apply-progress report for the live run): with the row absent, a chassis-less tree audited clean.
+
+   Writes the chassis .html directly with fx() rather than through the generator, same as
+   fx_gal_generator()/fx_gal() split its own sibling: presence is the whole signal here too, and
+   content is never read by this row. Four scenarios, not three, because this row checks TWO paths
+   from ONE generator -- the interrupted-build case (one site type written, the other not) has no
+   analogue in RT_GALLERY_NOT_BUILT's single-artifact test and is the one genuinely new shape here.
+   --------------------------------------------------------------------------- */
+
+echo "--- the generator present with NEITHER chassis built FAILs twice, naming each site type ---\n";
+$r231 = fx_tmp_root();
+fx_base( $r231 );
+fx_gal_generator( $r231 );
+list( $code231, $out231 ) = fx_run_ok( $audit, $r231 );
+ok( 'FAIL' === fx_row_level( $out231, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/corporate.html' ) ), 'generator present, no corporate chassis built -> FAIL naming corporate', fx_row_level( $out231, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/corporate.html' ) ) );
+ok( 'FAIL' === fx_row_level( $out231, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/ecommerce.html' ) ), 'and no ecommerce chassis built -> FAIL naming ecommerce, same row twice', fx_row_level( $out231, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/ecommerce.html' ) ) );
+ok( array() !== fx_lines_with( $out231, array( 'RT_CHASSIS_NOT_BUILT', 'php skills/html-mockup/assets/gallery/_build-gallery.php' ) ), 'and the message names the exact fix command', $out231 );
+ok( 1 === $code231, 'and the tree exits code 1', $code231 );
+fx_rrmdir( $r231 );
+
+echo "--- the generator present with BOTH chassis built stays silent -- a built pair is not accused ---\n";
+$r232 = fx_tmp_root();
+fx_base( $r232 );
+/* index.html joins the fixture too, same as RT_GALLERY_NOT_BUILT's own positive control (r225):
+   omitting it would make RT_GALLERY_NOT_BUILT itself FAIL and confound this row's own isolation. */
+fx_gal_generator( $r232 );
+fx_gal( $r232, fx_gallery( $FX_GAL_STRIPS, $FX_GAL_FAR, array( 'images' => $FX_GAL_IMGS ) ), $FX_GAL_MAN );
+fx( $r232, 'skills/html-mockup/assets/chassis/corporate.html', fx_mockup() );
+fx( $r232, 'skills/html-mockup/assets/chassis/ecommerce.html', fx_mockup() );
+list( , $out232 ) = fx_run_ok( $audit, $r232 );
+ok( array() === fx_lines_with( $out232, array( 'RT_CHASSIS_NOT_BUILT' ) ), 'generator + both chassis built -> no RT_CHASSIS_NOT_BUILT row', $out232 );
+fx_rrmdir( $r232 );
+
+echo "--- an INTERRUPTED build -- one chassis written, the other not -- FAILs only for the missing one ---\n";
+$r233 = fx_tmp_root();
+fx_base( $r233 );
+fx_gal_generator( $r233 );
+fx( $r233, 'skills/html-mockup/assets/chassis/corporate.html', fx_mockup() );
+list( , $out233 ) = fx_run_ok( $audit, $r233 );
+ok( 'FAIL' === fx_row_level( $out233, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/ecommerce.html' ) ), 'corporate written, ecommerce missing -> FAIL naming only ecommerce', fx_row_level( $out233, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/ecommerce.html' ) ) );
+ok( array() === fx_lines_with( $out233, array( 'RT_CHASSIS_NOT_BUILT', 'chassis/corporate.html' ) ), 'and the site type that WAS written is not named -- the row is per file, not per generator', $out233 );
+fx_rrmdir( $r233 );
+
+echo "--- no generator at all never produces RT_CHASSIS_NOT_BUILT -- the gate never fires in a bare fixture root ---\n";
+$r234 = fx_tmp_root();
+fx_base( $r234 );
+list( , $out234 ) = fx_run_ok( $audit, $r234 );
+ok( array() === fx_lines_with( $out234, array( 'RT_CHASSIS_NOT_BUILT' ) ), 'no generator, no chassis -> still no row: the gate is conditioned on the generator, same as its sibling', $out234 );
+fx_rrmdir( $r234 );
 
 /* ---------------------------------------------------------------------------
    RT_BUILDER_NO_TOKENS / RT_BUILDER_HARDCODED_TOKEN — the same question RT_MOCKUP_NO_AXES asks of
