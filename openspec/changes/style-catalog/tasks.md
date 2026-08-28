@@ -105,10 +105,33 @@ reverse-order only (see Chain topology).
       `references/mockup-guide.md` pointers. `php tests/test-container-hygiene.php` 81 OK/0 FAIL;
       `php tests/test-framework-audit.php` 664 OK/0 FAIL; `php tests/test-audit-signals.php`
       22 OK/0 FAIL; `php tests/test-write-path.php` 428 OK/0 FAIL — **1195/1195, full chain green.**
-- [ ] 1b.1 RED: `fx_mockup()` fixture asserting `RT_MOCKUP_NO_AXES` stays silent on generated
-      corporate chassis (fails until body markup exists).
-- [ ] 1b.2 Implement corporate chassis body markup, 6 pages, from the shared in-memory tables.
-- [ ] 1b.3 GREEN: fixture passes; full chain green. **size:exception** (see reason above).
+- [x] 1b.1 `fx_mockup()`-based coverage in `tests/test-framework-audit.php` (4 new scenarios, 11
+      assertions): the literal claim — RT_MOCKUP_NO_AXES stays silent on the generated corporate
+      chassis — was verified empirically to already hold at PR 1a's close (the chassis `:root`
+      inherits from `$css`, axis-complete since the shell landed), so it is not a red-before-green
+      test in the literal sense; see apply-progress for the live audit run that established this.
+      What genuinely had zero synthetic coverage was PR 1a's own path-correction: a chassis under
+      `assets/gallery/chassis/` FAILs `RT_GALLERY_NOT_DISTINCT`, only `assets/chassis/` does not —
+      proved here for the first time, paired with `RT_MOCKUP_NO_AXES`/`ANCHOR_UNDECLARED`/
+      `AXES_MISMATCH` staying silent at the correct path, plus a genuine RED→GREEN pair for
+      `RT_MOCKUP_DISCLOSURE_STATE` against the exact `disclosure_list_html()`-shaped FAQ markup
+      1b.2 emits (broken shape FAILs, correct shape stays silent).
+- [x] 1b.2 Implemented corporate chassis body markup, 6 pages (home, services, service, cases,
+      about, contact), reusing `page_head_html()`/`faq_block_html()`/`disclosure_list_html()`/
+      `band_closing_html()`/`number_heads()` verbatim and writing chassis-scoped equivalents of
+      `head_corporate()`/`crumbs_html()`/`footer_html()`/`page_cta_html()`/`card_html()` because
+      those originals route through `ihref_for_label()` (gallery-card routing context this file
+      never sets) and `img()` (a real-photography manifest lookup a starting chassis has nothing to
+      supply yet). Added `.ph` (mockup-guide.md's own placeholder recipe) and `.page`/`.active` +
+      the `show()` switcher (mockup-guide.md's binding multi-page-preview contract) to
+      `$chassis_css`, since neither existed in `$css` — the gallery never needed either.
+- [x] 1b.3 GREEN: fixture passes; full chain green. **size:exception** (see reason above).
+      `php skills/framework-audit/assets/framework-audit.php` → 0 FAIL / 4 WARN / 0 JUDGE (the 4
+      pre-existing word-budget WARNs only). Full chain: container-hygiene 81 + framework-audit
+      675 (664 + 11 new) + audit-signals 22 + write-path 428 = **1206/1206, 0 FAIL**. `index.html`
+      confirmed byte-identical past line 1, same total length (9,068,304 bytes), against the
+      pre-PR-1b baseline. Diff stat: 2 files changed, 422 insertions(+), 6 deletions(-) — within
+      the ~450-line `size:exception` budget.
 - [ ] 1c.1 RED: same fixture pattern for ecommerce chassis.
 - [ ] 1c.2 Implement ecommerce chassis body markup, 7 pages.
 - [ ] 1c.3 GREEN: fixture passes; full chain green. **size:exception** (see reason above).

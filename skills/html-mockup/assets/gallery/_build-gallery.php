@@ -17226,11 +17226,352 @@ file_put_contents( $OUT, $html );
 // brand, the ink filters, the composition layers, every per-template rule — none of it is
 // gallery-specific, so none of it is re-typed here; it is the same array, minus one key.
 //
-// SHELL ONLY, IN THIS PR. Page bodies for corporate (6 pages) and ecommerce (7) are the next two
-// PRs (tasks.md 1b/1c) — a placeholder comment marks where each site type's markup lands. This PR
-// proves the seam: same tables, second file, `index.html` byte-identical.
+// CORPORATE BODY LANDS HERE (tasks.md 1b); ecommerce (1c) still ships a shell. `$CONTENT`,
+// `$ANCHORS` and every strip_*()/page_*() function above are wired to ONE resolved brand and its
+// own real photography — reusing them here would make the neutral starting chassis look like a
+// copy of a specific gallery entry, and every one of them resolves `href`s through
+// `ihref_for_label()`, which reads GLOBAL routing context a gallery card sets for itself
+// (`ihref_set_context()`, :15893) that this file never sets, so every link would silently degrade
+// to `#`. So the functions just below are new, and deliberately small: they share the same class
+// vocabulary `$css` already styles (`.sec`, `.canvas`, `.head.stack`, `.card`, `.btn`, `.site-head`,
+// `.crumbs`, `.band.closing`, …) but route through `data-t="<page id>"` + the in-page `show()`
+// switcher mockup-guide.md's "Multi-page preview" section already makes binding, and stand in
+// placeholder copy instead of a resolved brand's — exactly what a project that has not chosen a
+// brand yet needs to start from. Four helpers ARE reused as-is because neither problem touches
+// them: `disclosure_list_html()`/`faq_block_html()` (:13155/:13169) take no href, `page_head_html()`
+// (:10984) takes no href, `band_closing_html()` (:10735) takes no href, and `number_heads()`
+// (:10610) just numbers whatever `.head.stack` blocks it is handed.
+function chassis_ph( $ratio ) {
+	return '<div class="ph" style="aspect-ratio:' . $ratio . '">imagen</div>';
+}
+
+/** One card, `chassis_ph()` where `card_html()` (:10623) would call `img()`: a starting chassis has
+    no real client photography to embed yet — mockup-guide.md's own "Placeholder recipe". */
+function chassis_card_html( $h3, $p, $ratio = '4/3' ) {
+	return '<article class="card">' . chassis_ph( $ratio ) . '<div class="body"><h3>' . h( $h3 ) . '</h3>'
+		. '<p class="muted small">' . h( $p ) . '</p></div></article>';
+}
+
+/** COMP-HEADER, global, OUTSIDE every `.page` (mockup-guide.md's binding rule) — emitted ONCE by
+    `chassis_corporate_body()`, never per page. `data-t`, not `href`: see the banner above. */
+function chassis_head_html( $brand, $nav ) {
+	$o = '<header class="site-head"><div class="canvas"><div class="nav">'
+		. '<a class="logo" data-t="home" aria-label="' . h( $brand ) . ' — inicio">' . h( $brand ) . '</a>'
+		. '<nav class="mainnav" aria-label="Principal">';
+	foreach ( $nav as $n ) {
+		$o .= '<a data-t="' . h( $n[1] ) . '">' . h( $n[0] ) . '</a>';
+	}
+	return $o . '</nav><a class="btn btn-primary btn-sm" data-t="contact">Contactar</a></div></div></header>';
+}
+
+/** COMP-FOOTER, global, OUTSIDE every `.page` — same reason as the header above. */
+function chassis_foot_html( $brand ) {
+	return '<footer class="site-foot"><div class="canvas"><div class="fnav">'
+		. '<span class="muted small">' . h( $brand ) . '</span>'
+		. '<a data-t="services">Servicios</a><a data-t="about">Nosotros</a><a data-t="contact">Contacto</a></div>'
+		. '<p class="legal">Maqueta estructural — sin datos ni fotografías finales.</p></div></footer>';
+}
+
+/** Every interior page opens with one; home never does — same rule `crumbs_html()` (:10715)
+    states, without its `ihref_for_label()` links: a single-file page set has nowhere else to
+    send a breadcrumb but `home`, so only that one crumb is a link. */
+function chassis_crumb_html( $label ) {
+	return '<nav class="crumbs" aria-label="Migas"><div class="canvas"><ol>'
+		. '<li><a data-t="home">Inicio</a></li><li aria-current="page">' . h( $label ) . '</li></ol></div></nav>';
+}
+
+/** COMP-CTA, sober, one button — `page_cta_html()`'s (:10974) shape without its second
+    `ihref_for_label()`-bound link. */
+function chassis_close_html( $eyebrow, $h2, $lede, $cta, $page ) {
+	return '<section class="sec band closing sober" aria-label="' . h( $h2 ) . '"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">' . h( $eyebrow ) . '</span>'
+		. '<h2>' . h( $h2 ) . '</h2><p class="muted">' . h( $lede ) . '</p>'
+		. '<div class="ctas"><a class="btn btn-primary" data-t="' . h( $page ) . '">' . h( $cta ) . '</a></div>'
+		. '</div></div></section>';
+}
+
+$CHASSIS_NAV  = array( array( 'Servicios', 'services' ), array( 'Nosotros', 'about' ), array( 'Casos', 'cases' ) );
+/** Shaped for `band_closing_html()` (:10735); `$uid` differs per call site so the two forms this
+    page set renders (home's close, the service detail's close) never collide on a field `id`. */
+$CHASSIS_LEAD = array(
+	'eyebrow' => 'Siguiente paso',
+	'h2'      => 'Contanos qué necesitás',
+	'lede'    => 'Una llamada breve para entender el contexto y decir si podemos ayudar. Texto de maqueta.',
+	'fields'  => array( array( 'name', 'Nombre', 'text' ), array( 'mail', 'Email', 'email' ) ),
+	'msg'     => 'Mensaje',
+	'submit'  => 'Enviar',
+);
+/** Reused across services/service/contact — real per-page questions are a content pass, not a
+    structural one, and the structural pass is this PR's job. */
+$CHASSIS_FAQ = array(
+	array( '¿Cómo empieza una colaboración?', 'Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.' ),
+	array( '¿Cuánto dura un proyecto típico?', 'Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.' ),
+	array( '¿Trabajan en remoto o presencial?', 'Respuesta de maqueta en una o dos líneas. Se reemplaza por el contenido real.' ),
+);
+
+/** HOME · TPL-C-01 shape — same section order as `strip_corporate()` (:14071): hero, services,
+    process, cases, closing lead form. Header/footer are NOT here; `chassis_corporate_body()`
+    emits them once, outside every `.page`. */
+function chassis_page_home() {
+	global $CHASSIS_LEAD;
+	$o   = array();
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Propuesta de valor"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Servicios profesionales</span>'
+		. '<h1>Titular principal: el problema que resolvemos</h1>'
+		. '<p class="lede muted">A quién ayudamos, con qué método y qué resultado esperar. Texto de maqueta.</p>'
+		. '<div class="ctas"><a class="btn btn-primary" data-t="contact">Solicitar propuesta</a>'
+		. '<a class="btn btn-outline" data-t="services">Ver servicios</a></div></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec services grid-sec bg-alt" aria-label="Servicios"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Qué hacemos</span><h2>Servicios</h2></div>'
+		. '<div class="items cols-3">'
+		. chassis_card_html( 'Consultoría estratégica', 'Qué incluye y qué problema resuelve. Texto de maqueta.' )
+		. chassis_card_html( 'Diseño de servicio', 'Qué incluye y qué problema resuelve. Texto de maqueta.' )
+		. chassis_card_html( 'Implementación', 'Qué incluye y qué problema resuelve. Texto de maqueta.' )
+		. '</div></div></section>';
+	$o[] = '<section class="sec process grid-sec" aria-label="Cómo trabajamos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Método</span><h2>Cómo trabajamos</h2></div><ol class="steps">';
+	foreach ( array( 'Diagnóstico', 'Propuesta', 'Ejecución', 'Medición' ) as $i => $st ) {
+		$o[] = '<li class="step"><span class="n">' . sprintf( '%02d', $i + 1 ) . '</span>'
+			. '<h3>' . h( $st ) . '</h3><p>Qué pasa en esta etapa, en una línea de maqueta.</p></li>';
+	}
+	$o[] = '</ol></div></section>';
+	$o[] = '<section class="sec cases grid-sec bg-alt" aria-label="Casos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Resultados</span><h2>Casos de éxito</h2></div>'
+		. '<div class="items cols-3">'
+		. chassis_card_html( 'Nombre del caso', 'Sector · resultado principal en una línea. Contenido de maqueta.', '16/9' )
+		. chassis_card_html( 'Nombre del caso', 'Sector · resultado principal en una línea. Contenido de maqueta.', '16/9' )
+		. chassis_card_html( 'Nombre del caso', 'Sector · resultado principal en una línea. Contenido de maqueta.', '16/9' )
+		. '</div></div></section>';
+	$o[] = band_closing_html( $CHASSIS_LEAD, 'chassis-home' );
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** SERVICIOS · index — `page_services_index()`'s (:15129) shape: `page_head_html()` reused
+    verbatim, a full card grid, `faq_block_html()` reused verbatim, a sober close. */
+function chassis_page_services() {
+	global $CHASSIS_FAQ;
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Servicios' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Qué hacemos',
+			'h1'      => 'Servicios',
+			'lede'    => 'Alcance, a quién se dirige y cómo se contrata. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec services grid-sec" aria-label="Servicios"><div class="canvas"><div class="items cols-3">';
+	foreach (
+		array(
+			array( 'Consultoría estratégica', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+			array( 'Diseño de servicio', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+			array( 'Implementación', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+			array( 'Automatización de procesos', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+			array( 'Analítica y reporting', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+			array( 'Soporte y evolución', 'Alcance del servicio en dos líneas, sin promesas concretas.' ),
+		) as $sv
+	) {
+		$o[] = chassis_card_html( $sv[0], $sv[1] );
+	}
+	$o[] = '</div></div></section>';
+	$o[] = faq_block_html(
+		array( 'eyebrow' => 'Dudas', 'h2' => 'Preguntas frecuentes', 'items' => $CHASSIS_FAQ ),
+		' bg-alt'
+	);
+	$o[] = chassis_close_html( 'Siguiente paso', '¿Empezamos por un diagnóstico?', 'Una llamada breve para decidir el primer paso.', 'Solicitar propuesta', 'contact' );
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** SERVICIO · detalle — `page_service()`'s (:10763) shape (TPL-SERVICE-01): hero, qué resolvemos,
+    alcance, FAQ, the sibling cross-link block mockup-guide.md marks FIXED (never a toggle — a
+    service page with no links to its siblings hangs off the home alone), closing lead form. */
+function chassis_page_service() {
+	global $CHASSIS_FAQ, $CHASSIS_LEAD;
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Consultoría estratégica' );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero svc-head" aria-label="Consultoría estratégica"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Servicio</span><h1>Consultoría estratégica</h1>'
+		. '<p class="lede muted">El H1 es el nombre del servicio tal como lo busca el cliente. Texto de maqueta.</p>'
+		. '<div class="ctas"><a class="btn btn-primary" data-t="contact">Solicitar propuesta</a></div></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec problems grid-sec bg-alt" aria-label="Qué resolvemos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Qué resolvemos</span><h2>Situaciones que atiende este servicio</h2></div>'
+		. '<ul class="items cols-3">';
+	foreach ( array( 'Situación 1', 'Situación 2', 'Situación 3' ) as $pb ) {
+		$o[] = '<li class="prob"><h3>' . h( $pb ) . '</h3><p>El problema concreto, en el lenguaje del cliente. Texto de maqueta.</p></li>';
+	}
+	$o[] = '</ul></div></section>';
+	$o[] = '<section class="sec features grid-sec" aria-label="Alcance"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Alcance</span><h2>Qué incluye este servicio</h2></div><ul class="feats">';
+	foreach ( array( 'Equipo asignado', 'Plan de trabajo', 'Reportes periódicos', 'Traspaso y formación' ) as $ft ) {
+		$o[] = '<li><b>' . h( $ft ) . '</b><span>Detalle de maqueta.</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+	$o[] = faq_block_html( array( 'eyebrow' => 'Dudas', 'h2' => 'Preguntas frecuentes', 'items' => $CHASSIS_FAQ ) );
+	$o[] = '<section class="sec others grid-sec bg-alt" aria-label="Otros servicios"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Seguí explorando</span><h2>Otros servicios</h2></div>'
+		. '<div class="items cols-2">'
+		. chassis_card_html( 'Diseño de servicio', 'Alcance del servicio en dos líneas. Texto de maqueta.' )
+		. chassis_card_html( 'Implementación', 'Alcance del servicio en dos líneas. Texto de maqueta.' )
+		. '</div></div></section>';
+	$o[] = band_closing_html( $CHASSIS_LEAD, 'chassis-svc' );
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** CASOS · index — no `strip_*`/`page_*` precedent renders a standalone cases listing (COMP-CASES
+    is a section inside the home strip, :14136); this is the one genuinely new page shape. Same
+    `.card` recipe as everywhere else, metric as a plain `<b>` rather than an invented class. */
+function chassis_page_cases() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Casos' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Resultados',
+			'h1'      => 'Casos de éxito',
+			'lede'    => 'Selección de proyectos, con el resultado principal en una línea. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec cases grid-sec bg-alt" aria-label="Casos"><div class="canvas"><div class="items cols-3">';
+	foreach ( array( '+00 %', '−00 %', '00×', '+00 %', '−00 %', '00×' ) as $metric ) {
+		$o[] = '<article class="card">' . chassis_ph( '16/9' ) . '<div class="body"><b>' . h( $metric ) . '</b>'
+			. '<h3>Nombre del caso</h3><p class="muted small">Sector · resultado principal en una línea. Contenido de maqueta.</p></div></article>';
+	}
+	$o[] = '</div></div></section>';
+	$o[] = chassis_close_html( 'Siguiente paso', '¿Hablamos de tu proyecto?', 'Contanos el contexto y vemos si podemos ayudar.', 'Solicitar propuesta', 'contact' );
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** NOSOTROS · `page_about_company()`'s (:11004) shape: hero, historia, compromisos, cifras,
+    equipo, closing. */
+function chassis_page_about() {
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Nosotros' );
+	$o[] = '<main>';
+	$o[] = '<section class="sec hero" aria-label="Quiénes somos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Quiénes somos</span>'
+		. '<h1>Titular sobre el equipo y su forma de trabajar</h1>'
+		. '<p class="lede muted">Una frase que resume el porqué de la empresa. Texto de maqueta.</p></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec about bg-alt" aria-label="Historia"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Historia</span><h2>Cómo empezamos</h2>'
+		. '<p class="muted">Un párrafo breve de origen y misión. Texto de maqueta.</p></div>'
+		. '<div class="media">' . chassis_ph( '4/3' ) . '</div></div></section>';
+	$o[] = '<section class="sec features grid-sec" aria-label="Compromisos"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Compromisos</span><h2>Lo que nos guía</h2></div><ul class="feats">';
+	foreach ( array( 'Transparencia', 'Cercanía', 'Rigor técnico' ) as $vl ) {
+		$o[] = '<li><b>' . h( $vl ) . '</b><span>Una línea de maqueta.</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+	$o[] = '<section class="sec stats bg-alt" aria-label="Cifras"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">En números</span></div><dl class="figs">';
+	foreach ( array( array( '00', 'años de trayectoria' ), array( '+000', 'proyectos entregados' ), array( '+00', 'especialistas' ) ) as $st ) {
+		$o[] = '<div class="fig"><dt>' . h( $st[0] ) . '</dt><dd>' . h( $st[1] ) . '</dd></div>';
+	}
+	$o[] = '</dl></div></section>';
+	$o[] = '<section class="sec team grid-sec" aria-label="Equipo"><div class="canvas">'
+		. '<div class="head stack"><span class="eyebrow">Equipo</span><h2>Quiénes lo llevan adelante</h2></div>'
+		. '<ul class="items cols-3">';
+	foreach ( array( array( 'Nombre Apellido', 'Rol' ), array( 'Nombre Apellido', 'Rol' ), array( 'Nombre Apellido', 'Rol' ) ) as $tm ) {
+		$o[] = '<li class="member">' . chassis_ph( '1/1' ) . '<b>' . h( $tm[0] ) . '</b><span>' . h( $tm[1] ) . '</span></li>';
+	}
+	$o[] = '</ul></div></section>';
+	$o[] = chassis_close_html( 'Siguiente paso', 'Contanos qué necesitás', 'Una llamada breve para decidir el primer paso.', 'Solicitar propuesta', 'contact' );
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** CONTACTO — `page_contact_enquiry()`'s (:11175) shape: `page_head_html()` reused, a form beside
+    the direct channels in one block, `faq_block_html()` reused. */
+function chassis_page_contact() {
+	global $CHASSIS_FAQ;
+	$o   = array();
+	$o[] = chassis_crumb_html( 'Contacto' );
+	$o[] = '<main>';
+	$o[] = page_head_html(
+		array(
+			'eyebrow' => 'Hablemos',
+			'h1'      => 'Contacto',
+			'lede'    => 'Contanos brevemente el contexto y te respondemos en 24 h hábiles. Texto de maqueta.',
+		)
+	);
+	$o[] = '<section class="sec band contactblock" aria-label="Escríbenos"><div class="canvas">'
+		. '<div class="formwrap"><form class="leadform" onsubmit="return false">'
+		. '<div class="field"><label for="chassis-c-name">Nombre</label><input id="chassis-c-name" name="name" type="text"></div>'
+		. '<div class="field"><label for="chassis-c-mail">Email</label><input id="chassis-c-mail" name="mail" type="email"></div>'
+		. '<div class="field"><label for="chassis-c-msg">Mensaje</label><textarea id="chassis-c-msg" name="msg" rows="4"></textarea></div>'
+		. '<button class="btn btn-primary" type="submit">Enviar</button></form></div>'
+		. '<div class="head stack"><span class="eyebrow">Directo</span><h2>Otras formas de escribir</h2><ul class="directlist">'
+		. '<li><span class="dlabel">Email</span><span class="muted small">hola@marca.com</span></li>'
+		. '<li><span class="dlabel">Teléfono</span><span class="muted small">+34 600 000 000</span></li>'
+		. '</ul></div></div></section>';
+	$o[] = faq_block_html(
+		array( 'eyebrow' => 'Dudas', 'h2' => 'Preguntas frecuentes', 'items' => $CHASSIS_FAQ ),
+		' bg-alt'
+	);
+	$o[] = '</main>';
+	return implode( "\n", $o );
+}
+
+/** Assembles the whole `<body>`: header once, six `<div class="page">`s (`number_heads()` applied
+    per page, matching every `page_*()`/`strip_*()` function above), footer once, the switcher. */
+function chassis_corporate_body( $brand ) {
+	global $CHASSIS_NAV, $CHASSIS_JS;
+	$o     = array( chassis_head_html( $brand, $CHASSIS_NAV ) );
+	$pages = array(
+		'home'     => chassis_page_home(),
+		'services' => chassis_page_services(),
+		'service'  => chassis_page_service(),
+		'cases'    => chassis_page_cases(),
+		'about'    => chassis_page_about(),
+		'contact'  => chassis_page_contact(),
+	);
+	foreach ( $pages as $pid => $inner ) {
+		$cls = ( 'home' === $pid ) ? 'page active' : 'page';
+		$o[] = '<div class="' . $cls . '" id="' . $pid . '">' . number_heads( $inner ) . '</div>';
+	}
+	$o[] = chassis_foot_html( $brand );
+	$o[] = $CHASSIS_JS;
+	return implode( "\n", $o );
+}
+
 $chassis_css = $css;
 unset( $chassis_css['gallery-chrome'] );
+// `.ph`/`.page`+`.active` are NOT part of `$css`: the gallery always embeds real stock photography
+// (never a placeholder) and lays every strip out sequentially (never switches a page), so neither
+// rule was ever needed there. `.ph` is mockup-guide.md's own placeholder recipe, copied verbatim;
+// `.page`/`.active` is the multi-page-preview contract the same file makes binding.
+$chassis_css['chassis-shell'] = <<<'CSS'
+.ph{background:var(--c-bg-alt);border:1px dashed var(--c-border);border-radius:var(--radius-image);
+    display:grid;place-items:center;color:var(--c-text-muted);font-size:var(--fs-small);
+    width:100%;max-width:100%;min-width:0}
+.page{display:none} .page.active{display:block}
+CSS;
+
+// corporate-mockup.html's own switcher (:1061-1069), reused verbatim: `[data-t]` click → `show()`
+// → toggle `.active` + `aria-current` on the matching nav link. One script, shared by every page.
+$CHASSIS_JS = <<<'JS'
+<script>
+function show(id){
+  var p=document.getElementById(id); if(!p||!p.classList.contains('page'))return;
+  document.querySelectorAll('.page').forEach(function(x){x.classList.toggle('active',x.id===id);});
+  document.querySelectorAll('.mainnav a').forEach(function(a){
+    a.dataset.t===id?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current');
+  });
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-t]').forEach(function(el){
+  el.addEventListener('click',function(e){e.preventDefault();show(el.dataset.t);});
+});
+</script>
+JS;
 
 // OUT OF `gallery/` ON PURPOSE. framework-audit.php's RT_GALLERY_NOT_DISTINCT walk
 // (`#(^|/)gallery/#`) treats any `.html` under a `gallery/` path as a candidate for the multi-strip
@@ -17248,18 +17589,21 @@ if ( ! is_dir( $CHASSIS_DIR ) && ! mkdir( $CHASSIS_DIR, 0777, true ) && ! is_dir
 // html-mockup asset and nobody mistakes it for a file to hand-edit. The two names are the two site
 // types this generator already knows (`$CONTENT[*]['site']`, used throughout above).
 foreach ( array( 'corporate', 'ecommerce' ) as $chassis_site ) {
+	// Ecommerce body markup is the next PR (tasks.md 1c) — same shell-only placeholder PR 1a shipped.
+	$chassis_body = ( 'corporate' === $chassis_site )
+		? chassis_corporate_body( 'MARCA' )
+		: '<!-- chassis body markup (site type: ecommerce): not yet generated -->';
 	$chassis_html = "<!DOCTYPE html>\n"
 		. '<html lang="es" data-anchor="institutional">' . "\n"
 		. "<head>\n"
 		. "<meta charset=\"utf-8\">\n"
 		. "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
 		. '<!-- GENERATED by _build-gallery.php — client chassis, site type: ' . $chassis_site
-		. ". Not hand-edited: the next run overwrites it entire. Body markup lands in a later PR;\n"
-		. "     this file proves the second-artifact seam only. -->\n"
+		. ". Not hand-edited: the next run overwrites it entire. -->\n"
 		. "<style>\n" . implode( "\n", $chassis_css ) . "\n</style>\n"
 		. "</head>\n"
 		. "<body>\n"
-		. '<!-- chassis body markup (site type: ' . $chassis_site . "): not yet generated -->\n"
+		. $chassis_body . "\n"
 		. "</body>\n"
 		. "</html>\n";
 	file_put_contents( $CHASSIS_DIR . '/' . $chassis_site . '.html', $chassis_html );

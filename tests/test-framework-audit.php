@@ -3308,6 +3308,78 @@ ok( 0 === $code112, 'y el arbol sale con codigo 0', $code112 );
 fx_rrmdir( $r112 );
 
 /* ---------------------------------------------------------------------------
+   style-catalog PR 1b (tasks.md 1b.1) — el chasis del cliente vive en `assets/chassis/`, NUNCA
+   en `assets/gallery/chassis/`. design.md D1's rejected path collided with RT_GALLERY_NOT_DISTINCT
+   (:2683 — any `.html` under a `gallery/` segment renders zero `<section class="strip">` and FAILs
+   as a catalog-page candidate), which PR 1a caught and corrected during apply but never locked into
+   this suite: every assertion for it so far only ran against the real repo, once, by hand. These
+   four scenarios are that missing lock, using the SAME PERS-INSTITUTIONAL/cool default `fx_mockup()`
+   already stands at, because that is the anchor `corporate-mockup.html` — and now the generated
+   corporate chassis — is actually pointed at.
+   --------------------------------------------------------------------------- */
+
+echo "--- el chasis EN LA RUTA RECHAZADA (assets/gallery/chassis/) SI cae bajo RT_GALLERY_NOT_DISTINCT ---\n";
+$r140 = fx_tmp_root();
+fx_base( $r140 );
+fx( $r140, 'skills/html-mockup/assets/gallery/chassis/corporate.html', fx_mockup() );
+list( , $out140 ) = fx_run_ok( $audit, $r140 );
+ok( 'FAIL' === fx_row_level( $out140, array( 'RT_GALLERY_NOT_DISTINCT', 'gallery/chassis/corporate.html' ) ), 'un chasis de un solo sitio bajo gallery/ FALLA: no puede rendir ninguna .strip', fx_row_level( $out140, array( 'RT_GALLERY_NOT_DISTINCT', 'gallery/chassis/corporate.html' ) ) );
+fx_rrmdir( $r140 );
+
+echo "--- el mismo chasis en la ruta REAL (assets/chassis/) no cae bajo esa fila ---\n";
+$r141 = fx_tmp_root();
+fx_base( $r141 );
+fx( $r141, 'skills/html-mockup/assets/chassis/corporate.html', fx_mockup() );
+list( , $out141 ) = fx_run_ok( $audit, $r141 );
+ok( array() === fx_lines_with( $out141, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'assets/chassis/ es hermano de assets/gallery/, no un hijo: la fila nunca lo evalua', $out141 );
+/* La afirmacion literal de 1b.1: RT_MOCKUP_NO_AXES calla sobre el chasis generado. Se cumple ya
+   desde PR 1a — el `:root` que hereda de `$css` declara los cinco ejes desde el shell — así que esto
+   fija la garantía a la ruta nueva en vez de reproducir un rojo que ya no existe; ver el informe de
+   esta fase para la verificación en vivo que descartó ese rojo literal. */
+ok( array() === fx_lines_with( $out141, array( 'RT_MOCKUP_NO_AXES' ) ), 'y tampoco produce fila de ejes: hereda el :root completo de $css', $out141 );
+ok( array() === fx_lines_with( $out141, array( 'RT_MOCKUP_ANCHOR_UNDECLARED' ) ), 'declara su ancla (la fila lo revisa por glob, no solo los dos ficheros de arranque)', $out141 );
+ok( array() === fx_lines_with( $out141, array( 'RT_MOCKUP_AXES_MISMATCH' ) ), 'y sus posiciones concuerdan con la que declara', $out141 );
+fx_rrmdir( $r141 );
+
+/* La forma EXACTA que faq_block_html()/disclosure_list_html() (:13155/:13169) emiten para las
+   páginas del chasis: dos `<details>`, solo la primera abierta. Aquí se rompe esa forma a propósito
+   para probar que la fila realmente vigila el chasis en su ruta nueva, y no solo los dos ficheros de
+   arranque de siempre. */
+echo "--- y una lista desplegable rota EN EL CHASIS (no en los dos ficheros de siempre) tambien FALLA ---\n";
+$r142 = fx_tmp_root();
+fx_base( $r142 );
+fx(
+	$r142,
+	'skills/html-mockup/assets/chassis/corporate.html',
+	str_replace(
+		'</style>',
+		"</style>\n<div class=\"faqlist\"><details><summary>A</summary><p>a</p></details>"
+			. '<details><summary>B</summary><p>b</p></details></div>',
+		fx_mockup()
+	)
+);
+list( , $out142 ) = fx_run_ok( $audit, $r142 );
+ok( 'FAIL' === fx_row_level( $out142, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ), 'un chasis cuyo FAQ no abre ninguna fila FALLA igual que cualquier otro mockup', fx_row_level( $out142, array( 'RT_MOCKUP_DISCLOSURE_STATE', 'open no row' ) ) );
+fx_rrmdir( $r142 );
+
+echo "--- y la forma correcta (solo la primera fila abierta) no produce fila ---\n";
+$r143 = fx_tmp_root();
+fx_base( $r143 );
+fx(
+	$r143,
+	'skills/html-mockup/assets/chassis/corporate.html',
+	str_replace(
+		'</style>',
+		"</style>\n<div class=\"faqlist\"><details open><summary>A</summary><p>a</p></details>"
+			. '<details><summary>B</summary><p>b</p></details></div>',
+		fx_mockup()
+	)
+);
+list( , $out143 ) = fx_run_ok( $audit, $r143 );
+ok( array() === fx_lines_with( $out143, array( 'RT_MOCKUP_DISCLOSURE_STATE' ) ), 'la forma que realmente genera este PR (primera fila abierta, solo una) no produce fila', $out143 );
+fx_rrmdir( $r143 );
+
+/* ---------------------------------------------------------------------------
    RT_GALLERY_NOT_DISTINCT / RT_GALLERY_NO_MANIFEST, and the RECURSIVE glob the first of them
    needed. A gallery is many TPL-* x PERS-* cards in ONE document: RT_MOCKUP_NO_AXES asks each FILE
    whether it can express an axis and RT_PROOF_NOT_DISTINCT compares exactly two hardcoded files,
