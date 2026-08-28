@@ -83,6 +83,7 @@ let it run that dialogue; don't front-run it.
 | Titles, schema, metadata, sitemap | `wordpress-seo` |
 | Verify a change, review before hand-off | `qa-review` |
 | Judge a RENDER by eye — composition, alignment, proportion, responsive sweep | `visual-verification` |
+| Judge a MOCKUP blind — same studio as the last deliveries? does it look professional? | `blind-judges` |
 | Audit the FRAMEWORK itself (not a site) before merging a skill change | `framework-audit` |
 
 Not a skill: **`novamira-copywriter`** is a sibling SUBAGENT for writing the real copy. Reach it
@@ -92,8 +93,8 @@ the word "texto" mid-deploy would start rewriting a live site's content over a c
 ## Order that works
 **New site (greenfield) — no WordPress touched until the build gate:**
 `new/existing?` (new) → `web-templates` (site type → recommend a `TPL-*` + references + toggles) →
-`ux-design-system` (look/tokens) → `html-mockup` (approve) → **build gate** →
-`project-context` (now, to confirm the connected WP: connector, builder, theme) →
+`ux-design-system` (look/tokens) → `html-mockup` → `blind-judges` (differentiation) → (approve) →
+**build gate** → `project-context` (now, to confirm the connected WP: connector, builder, theme) →
 `elementor-theme-parts` (header/footer FIRST, so the pages inherit them; **Elementor only** — on
 Divi the skill itself stops at step 1, no Theme Builder equivalent exists yet) →
 `elementor-core` | `divi-core` → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
@@ -101,7 +102,8 @@ if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `q
 
 **Existing site:**
 `new/existing?` (existing) → `project-context` (inspect) → `web-templates` → `ux-design-system` →
-`html-mockup` (approve) → **build gate** → `elementor-theme-parts` (Elementor only, same caveat) →
+`html-mockup` → `blind-judges` (differentiation) → (approve) → **build gate** →
+`elementor-theme-parts` (Elementor only, same caveat) →
 `elementor-core` | `divi-core` → `woocommerce` if commerce → `wordpress-legal` → `wordpress-forms`
 if the site takes enquiries → `wordpress-performance` / `wordpress-seo` → `qa-review` → `visual-verification`.
 
@@ -246,6 +248,14 @@ nothing to notice.
   one `PERS-MATTER` — not chosen, inherited — and those two are the quietest of the four assets in
   the repo: 48px and 64px h1 caps against 88 and 120, and the only two at `--sp-scale: 1.0`.
   (verifier: `RT_MOCKUP_AXES_MISMATCH` FAILs a starting asset whose five axis labels are not the ones its declared anchor holds, naming each axis and both positions, so a re-point that edits five of the six things cannot land.)
+- **A blind judge's verdict is not this thread's to overturn.** `blind-judges` runs on the mockup
+  before the build gate, and answers what no rule can: does this look like the same studio made the
+  last five deliveries. This thread holds the brief, the anchor and the axis positions — it is the
+  party being judged, so it reconciles the two verdicts and reports both, and when they contradict
+  each other it takes them to the user verbatim. Breaking the tie in here is exactly where the
+  objectivity the whole step exists for dies. The judges are read-only: they render, look and
+  report, and only this thread records the result afterwards.
+  (no verifier: which actor resolved a disagreement is a property of the conversation, and nothing in this repo can read a conversation)
 
 ## Integration + honesty
 - Keep ONE thin thread. Delegate real work; synthesize short hand-offs between skills.

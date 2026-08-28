@@ -22,7 +22,11 @@ their `assets/`.
   the other way: it verifies THIS REPO rather than a site, because everything else here checks a
   built site and nothing checked the framework. Run it before merging a skill change. `visual-verification`
   is read-only as well: it judges a RENDER by eye — inside a subagent, on a capture budget —
-  because contrast, overflow and Lighthouse cannot see composition.
+  because contrast, overflow and Lighthouse cannot see composition. `blind-judges` is read-only
+  too, and is the only check that never learns what the build intended: two judges, blind to each
+  other and to the brief, decide whether a mockup looks like the last deliveries and whether it
+  looks professional. Sameness passes every rule in this repo, which is why judging it needs an
+  actor that was never told what was aimed at.
 - **Operative** (produce output): `html-mockup` emits static HTML/CSS published as an
   Artifact and **never touches WordPress**. `elementor-core`, `divi-core`, `woocommerce`,
   `wordpress-performance`, `wordpress-seo`, `wordpress-forms`, `wordpress-legal` and
@@ -39,14 +43,14 @@ The first question is **new site or existing site?** It decides whether WordPres
 inspected at all; do not run `project-context` reflexively.
 
 **New site (greenfield)** — nothing is written to WordPress until the gate:
-`web-templates` → `ux-design-system` → `html-mockup` (client approves) → **BUILD GATE** →
+`web-templates` → `ux-design-system` → `html-mockup` → `blind-judges` (client approves) → **BUILD GATE** →
 `project-context` (now, to confirm connector / builder / theme on the real target) →
 `elementor-theme-parts` (header/footer FIRST, so pages inherit one that already exists) →
 `elementor-core` | `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` /
 `wordpress-seo` → `wordpress-legal` → `wordpress-forms` → `qa-review` + `visual-verification` → hand off.
 
 **Existing site** — inspect first, so routing is based on facts, never assumption:
-`project-context` → `web-templates` → `ux-design-system` → `html-mockup` (approve) →
+`project-context` → `web-templates` → `ux-design-system` → `html-mockup` → `blind-judges` (approve) →
 **BUILD GATE** → `elementor-theme-parts` (header/footer FIRST) → `elementor-core` |
 `divi-core` → `woocommerce` (if commerce) → `wordpress-performance` / `wordpress-seo` →
 `wordpress-legal` → `wordpress-forms` → `qa-review` + `visual-verification` → hand off.
