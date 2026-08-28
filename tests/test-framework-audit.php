@@ -3443,6 +3443,58 @@ ok( 0 === $code112, 'y el arbol sale con codigo 0', $code112 );
 fx_rrmdir( $r112 );
 
 /* ---------------------------------------------------------------------------
+   style-catalog PR 4a (tasks.md 4a.1) — the font-budget constraint the whole catalog is locked
+   to: `skills/html-mockup/assets/fonts/_fonts.php:63-69` embeds exactly 7 faces (Fraunces,
+   Instrument Serif, Inter Tight, DM Sans, Source Sans 3, Archivo, Archivo Expanded), which is WHY
+   the catalog ships 8 entries in v1 instead of the 12 first proposed. `RT_MOCKUP_FONT_NOT_EMBEDDED`
+   above is the mechanism that would catch a `STY-*.md` naming a family outside that list once it
+   is rendered into a mockup, and it needs no new code: it already reads any mockup's font stack
+   against its own `@font-face` declarations, generically, regardless of which catalog format named
+   the family. THIS IS A "VALUE, NOT NOVELTY" RED, same discipline as 3b.1/3b.3: the mechanism is
+   pre-existing (r106 above already proves the general shape with `Fraunces`), so this scenario is
+   already green before any 4a code lands — its purpose is to lock the SPECIFIC example the
+   style-catalog spec names (`Canela Deck`, `specs/style-catalog/spec.md` Scenario "Unembedded
+   family named") into a real assertion, so a future PR cannot silently widen the font-embedded
+   check without this concrete catalog-budget case noticing. */
+
+echo "--- style-catalog PR 4a: una familia fuera del presupuesto de 7 caras (Canela Deck) FALLA ---\n";
+$r112b = fx_tmp_root();
+fx_base( $r112b );
+fx(
+	$r112b,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup( array(), array(), array( 'stack' => "'Canela Deck', Georgia, serif" ) )
+);
+list( , $out112b ) = fx_run_ok( $audit, $r112b );
+ok( 'FAIL' === fx_row_level( $out112b, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'nombrar una familia ausente de nm_font_registry() FALLA', fx_row_level( $out112b, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ) );
+ok( array() !== fx_lines_with( $out112b, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED', 'Canela Deck' ) ), 'y nombra la familia que ningun STY-*.md puede pedir', $out112b );
+fx_rrmdir( $r112b );
+
+echo "--- style-catalog PR 4a: reincrustar una familia embebida a otro peso/stretch NO FALLA (Archivo / Archivo Expanded) ---\n";
+$r112c = fx_tmp_root();
+fx_base( $r112c );
+fx(
+	$r112c,
+	'skills/html-mockup/assets/corporate-mockup.html',
+	fx_mockup(
+		array(),
+		array(),
+		array(
+			'stack' => "'Archivo', system-ui, sans-serif",
+			'rule'  => "'Archivo Expanded', system-ui, sans-serif",
+			'faces' => array(
+				'Archivo'          => 'data:font/woff2;base64,d09GMgABAAAAAA',
+				'Archivo Expanded' => 'data:font/woff2;base64,d09GMgABAAAAAA',
+			),
+		)
+	)
+);
+list( $code112c, $out112c ) = fx_run_ok( $audit, $r112c );
+ok( array() === fx_lines_with( $out112c, array( 'RT_MOCKUP_FONT_NOT_EMBEDDED' ) ), 'una familia embebida reutilizada a otro peso/stretch no produce fila', $out112c );
+ok( 0 === $code112c, 'y el arbol conforme sale con codigo 0', $code112c );
+fx_rrmdir( $r112c );
+
+/* ---------------------------------------------------------------------------
    style-catalog PR 1b (tasks.md 1b.1) — el chasis del cliente vive en `assets/chassis/`, NUNCA
    en `assets/gallery/chassis/`. design.md D1's rejected path collided with RT_GALLERY_NOT_DISTINCT
    (:2683 — any `.html` under a `gallery/` segment renders zero `<section class="strip">` and FAILs

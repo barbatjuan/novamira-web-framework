@@ -561,11 +561,54 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 
 ## Slice 4 — The style catalog (`style-catalog`)
 
-- [ ] 4a.1 RED: fixture — style names `Canela Deck` (absent from `nm_font_registry()`) →
-      `RT_MOCKUP_FONT_NOT_EMBEDDED` FAILs.
-- [ ] 4a.2 Create `ux-design-system/references/style-catalog/` (`_README.md`, `_backlog.md`); port
-      the 5 existing anchors as `STY-*.md`, each declaring all 8 axis positions + toggle precharge.
-- [ ] 4a.3 GREEN: font fixture behaves as specified; full chain green.
+- [x] 4a.1 RED: fixture — style names `Canela Deck` (absent from `nm_font_registry()`) →
+      `RT_MOCKUP_FONT_NOT_EMBEDDED` FAILs. **"Value, not novelty" RED, same discipline as 3b.1/3b.3**:
+      `RT_MOCKUP_FONT_NOT_EMBEDDED` (`framework-audit.php:2538-2596`) is a generic per-mockup-file
+      font-stack-vs-`@font-face` check that needs no per-family knowlege, so it already catches an
+      out-of-registry family before any 4a code lands — the mechanism is pre-existing (r106 already
+      proves the shape with `Fraunces`). This scenario's value is locking the SPECIFIC example
+      `specs/style-catalog/spec.md`'s "Unembedded family named" scenario names (`Canela Deck`) into
+      a real assertion. Added two scenarios to `tests/test-framework-audit.php` (after r112, before
+      the "style-catalog PR 1b" section): `Canela Deck` named with no `@font-face` → FAILs, names
+      the family; `Archivo`/`Archivo Expanded` reused at different weight/stretch (the spec's other
+      scenario, "Reused embedded family") → does not FAIL. Both pass immediately (6 new assertions,
+      711→717) — confirmed by direct run, not assumed.
+- [x] 4a.2 Created `ux-design-system/references/style-catalog/` (`_README.md`, `_backlog.md`); ported
+      the 5 existing anchors as `STY-*.md` (`STY-EDITORIAL`, `STY-DIRECT`, `STY-MATTER`,
+      `STY-VITRINE`, `STY-INSTITUTIONAL`), each declaring all 8 axis positions (verbatim from
+      `design-personalities.md`, format only — no position altered) + a new "Toggle precharge"
+      section (2–5 toggles each, drawn from `toggles.md`'s cross-template shared list since `STY-*`
+      is orthogonal to `TPL-*`, values reasoned from each anchor's own ported Fits/Motion/Imagery/
+      Card-recipe prose, not arbitrary — genuinely different across styles, not a repeated default).
+      `STY-VITRINE.md` keeps its ported prose in Spanish (source anchor is Spanish) and its own
+      toggle table is Spanish to match, per the language contract. `_README.md` states which of the
+      8 v1 entries are ported here vs. still missing (PR 4b's 3 new entries), and carries forward
+      the CARRIED-FORWARD note from PR 1d verbatim in substance: both generated chassis are stamped
+      `PERS-INSTITUTIONAL` hardcoded, and porting the anchor to `STY-INSTITUTIONAL` does not resolve
+      that hardcode — Slice 4 does not close until it reads from the selected style. `_backlog.md`
+      lists all 8 named deferred movements (Kinetic, Cyberpunk, Y2K, Retro, Playful, Feminine,
+      Editorial Fashion, Experimental) each with a concrete reason grounded in what the repo
+      actually lacks (motion.md's one documented curve, the ornament axis's 5 fixed positions, the
+      one-accent-colour rule, `RT_PERS_BAD_AXIS`'s refusal of an undeclared position) — not a wish
+      list. `RT_ORPHAN_FILE` kept silent WITHOUT touching `SKILL.md`'s word budget: a directory
+      pointer (`references/style-catalog/`) was added to `design-personalities.md`'s intro prose
+      instead (already reachable from `SKILL.md`, and unlike `SKILL.md` carries no word-count gate),
+      closing transitively over all 7 new files per one `points_at_dir()` match. **Reversed one
+      approach mid-task**: a first attempt added the pointer directly to `SKILL.md`'s own References
+      section, which pushed its word count from 498 to 524 (past the ~500 `RT_BODY_OVER_500` WARN
+      threshold) — a genuine new WARN, caught by re-running `--word-report` before moving on, not
+      assumed safe. Reverted, re-routed through `design-personalities.md` instead.
+- [x] 4a.3 GREEN: font fixtures behave as specified (both pass); full chain green. Real-repo audit:
+      **0 FAIL / 4 WARN** (unchanged from baseline — elementor-core 588, html-mockup 567,
+      web-templates 559, woocommerce 597; `ux-design-system` confirmed still 498 words, unchanged).
+      Full chain: `test-container-hygiene` 81 + `test-framework-audit` 717 + `test-audit-signals` 22
+      + `test-write-path` 514 = **1334 OK / 0 FAIL** (was 1328 at PR 3b baseline, +6 net new — the
+      two 4a.1 scenarios' assertions). `php -l` clean. Diff: 9 files (2 modified, 7 new),
+      331 insertions(+) / 0 deletions(-) — 31 over the ~300 estimate, not flagged `size:exception`
+      in the Work Units table (budget "OK", well under the 400-line hard threshold), reported per
+      the session's explicit instruction to state any overshoot and why: catalog-authoring prose
+      (5 `STY-*.md` + `_README.md` + `_backlog.md`) genuinely needed slightly more room than the
+      estimate to state each style's toggle precharge with a real (not decorative) rationale.
 - [ ] 4b.1 RED: fixture — reused embedded family (`Archivo`/`Archivo Expanded` pattern) →
       `RT_MOCKUP_FONT_NOT_EMBEDDED` does not FAIL.
 - [ ] 4b.2 RED: fixture — 8-entry catalog, entry #8 shares 4/8 with entry #3 →

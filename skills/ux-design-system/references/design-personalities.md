@@ -12,6 +12,11 @@ No two anchors may share more than two axis positions: the audit's `RT_STYLE_TOO
 FAILS the build on it, but the rule belongs here too — two anchors that agree on three or more
 axes are the same site with a different accent color, not two personalities.
 
+**This file is being retired, in place.** `references/style-catalog/` (style-catalog PR 4a) ports
+these five anchors into `STY-*.md` entries, one per file, each adding a declared toggle precharge.
+Format only so far, not design — the axis positions below are still authoritative until PR 4c
+deletes this file once the 8-entry catalog is complete; see `style-catalog/_README.md`.
+
 Motion ranges below stay inside the curve those two files already define
 (`cubic-bezier(.22,1,.36,1)`, the documented duration/lift ranges) — a personality tunes where on
 that curve it lands, never invents new physics.
