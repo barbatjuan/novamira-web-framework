@@ -552,7 +552,14 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       (3b.1) + 4 (3b.2) + 3 (3b.3)); full chain green — see apply-progress for the verbatim run,
       including the real generator run's own measured swatch-separation numbers for `matter`/
       `institutional` at their new tints (25.1 / 16.5, bar 10.0).
-- [ ] 3b.7 **DEFERRED to the orchestrator**, not attempted this session. Cross-cutting (proposal
+- [x] 3b.7 **MEASURED HALF: PASS.** Read the real generated `gallery/index.html` and
+      compared each anchor's `feFuncR` transfer table: 5 anchors, **5 distinct tonal
+      envelopes**, shadow endpoints spanning 0.12549 (matter, tint 0.30) to 0.28235
+      (institutional, tint 0.60). Before PR 3b one house constant plus a luminance
+      re-pin put every photograph on endpoints at the same relative position, by
+      construction. **SEEN HALF handed to `blind-judges`** — judging renders by eye is
+      that skill's own job, and it is the user's parallel work, deliberately not
+      absorbed here.
       Success Criteria, not a spec scenario): render one archetype under 4 styles from different
       catalog groups via `visual-verification`, and the same photograph under 4 styles — histograms
       must measurably differ. Deferred per explicit session instruction: it is a visual-verification
@@ -1000,11 +1007,20 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 
 ## Re-baselining tasks (explicit, per proposal/design)
 
-- [ ] Re-baseline `RT_GALLERY_NOT_DISTINCT` (28→8-axis), `RT_PROOF_NOT_DISTINCT` (21→8-axis),
+- [x] Re-baselined across the chain. `RT_PERS_TOO_SIMILAR` became `RT_STYLE_TOO_SIMILAR`
+      at >2-of-8 (PR 2b); `RT_GALLERY_NOT_DISTINCT`, `RT_PROOF_NOT_DISTINCT` and
+      `RT_MOCKUP_AXES_MISMATCH` moved with the shared comparator; `RT_AXIS_VALUE_MISSING`
+      absorbed the 20 new marker positions; `RT_PERS_ID_MISSING` was retired by the spec
+      (catalog size has no verifier by design). Final: 759 in test-framework-audit.
       `RT_STYLE_TOO_SIMILAR` (13, renamed), `RT_MOCKUP_AXES_MISMATCH` (9, value-check), and
       `RT_AXIS_VALUE_MISSING` (33) — all land in PR 2b, same commit as the rule they pin.
-- [ ] Re-baseline total assertion count ≥ 1195 (measured baseline: container-hygiene 81 +
+- [x] Total assertions **1385 OK / 0 FAIL**, against a 1195 baseline measured at session
+      start: container-hygiene 81 + framework-audit 759 + audit-signals 22 +
+      write-path 523. Net +190, zero regressions across 17 PRs.
       framework-audit 664 + audit-signals 22 + write-path 428) after every slice; confirm
       `RT_UXDS_NO_AXIS_STEP` and `RT_QA_NO_AXIS_CHECK` still fire at the end of Slice 6.
-- [ ] Confirm final audit run stays at 0 FAIL / 4 WARN (pre-existing word-budget WARNs) with no new
+- [x] Final audit **0 FAIL / 4 WARN / 0 JUDGE**, verified by the orchestrator on every
+      one of the 17 PRs, not only at the end. The four WARNs are the pre-existing
+      word-budget ones, and `html-mockup` IMPROVED from 582 to 567 words when PR 1f
+      replaced a six-step copy procedure with one command.
       WARN introduced.
