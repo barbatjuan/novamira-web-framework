@@ -57,6 +57,12 @@
   `front_page_id`. It lives in a WordPress option and NOT beside this library, because the
   library sits in a sandbox the delivery phase deletes — state that dies with the sandbox is not
   state.
+  `es_record_style_resolution($sty_id, $negative_brief, $rejected_tone)` is `design`'s call site
+  (`art-direction-ledger`): call it once the style pick, negative brief and rejected colour
+  temperature are resolved (`web-templates/references/recommender.md`), e.g. right where Step 2
+  overrides `es_tokens()` with the same catalog entry. Fails closed — any of the three empty and
+  nothing is written, `es_manifest_record()`'s own contract, not a new one. A second resolution in
+  the same session overwrites `design`, never appends; delivery history is `shipped-log.md`'s job.
   `es_manifest_verify()` contrasts the recorded page map and front page against the LIVE site and
   returns drift lines: page gone, slug moved by hand, same slug answered by a different post id
   (the worst, because everything looks fine), front page repointed. It reports and never repairs

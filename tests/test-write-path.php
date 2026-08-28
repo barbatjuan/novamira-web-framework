@@ -1142,6 +1142,44 @@ foreach ( $secciones as $s ) {
 }
 ok( 0 < $n && array() === $mal, 'cada nombre que es_manifest_sections() declara acepta un es_manifest_record() y se relee igual' );
 
+/* art-direction-ledger (style-catalog Slice 5a): la resolucion de estilo — id, brief negativo,
+   tono rechazado — es EL llamado que 'design' no tenia (manifest-section-contract, delta). */
+echo "--- la resolucion de estilo se graba con es_record_style_resolution() ---\n";
+
+wp_fake_reset();
+ok(
+	true === es_record_style_resolution( 'STY-EDITORIAL', 'sin foto de stock, sin hero con gradiente', 'frio' ),
+	'las tres respuestas completas se graban'
+);
+$m = es_manifest_read();
+ok( 'STY-EDITORIAL' === $m['sections']['design']['data']['style'], 'el id resuelto queda en la seccion design' );
+ok( '' !== $m['sections']['design']['data']['negative_brief'], 'con su brief negativo' );
+ok( '' !== $m['sections']['design']['data']['rejected_tone'], 'y su tono rechazado' );
+
+/* Una resolucion incompleta no es progreso parcial: es exactamente el default silencioso que esta
+   funcion existe para dejar de reproducir — falla CERRADO, no graba una resolucion a medias. */
+wp_fake_reset();
+$r = grab(
+	function () {
+		return es_record_style_resolution( 'STY-EDITORIAL', '', 'frio' );
+	}
+);
+ok( false === $r['ret'], 'un brief negativo vacio no se graba' );
+ok( has( $r['out'], 'resolucion de estilo incompleta' ), 'y avisa por que' );
+ok( array() === es_manifest_read()['sections'], 'nada quedo escrito: ni siquiera el id, que si llego completo' );
+
+/* Re-resolver en la misma sesion (un cambio de diseno a mitad de build) PISA la seccion 'design',
+   nunca la acumula — el historial de entregas es shipped-log.md (Slice 5b), no esta seccion. */
+wp_fake_reset();
+es_record_style_resolution( 'STY-EDITORIAL', 'sin foto de stock', 'frio' );
+es_record_style_resolution( 'STY-MATTER', 'sin tipografia script', 'calido' );
+$m = es_manifest_read();
+ok( 'STY-MATTER' === $m['sections']['design']['data']['style'], 'la segunda resolucion reemplaza a la primera, no la acumula' );
+ok(
+	'sin tipografia script' === $m['sections']['design']['data']['negative_brief'],
+	'con TODOS sus campos pisados, no solo el id'
+);
+
 /* Escribir no es haber escrito, igual que en la portada y en el camino de escritura. */
 wp_fake_reset();
 $GLOBALS['wp']['option_ro'] = array( 'es_novamira_manifest' );

@@ -51,6 +51,21 @@ densidad (aire / info), foco (venta / CTA / branding), paleta y tipografía perc
 Estas señales alimentan la recomendación **y** precargan los toggles de CAPA 3 (llegan con
 defaults sugeridos, no en blanco).
 
+### Selección de estilo, brief negativo y tono rechazado (obligatorio, `art-direction-ledger`)
+
+Antes de pasar a CAPA 3, resolver también el estilo del catálogo (`STY-*`,
+`ux-design-system/references/style-catalog/`): mostrar 2-3 candidatos afines a las señales ya
+relevadas y que el cliente elija uno. Preguntar también, explícitamente, **qué evitar** — un
+brief negativo ("nada de foto de stock", "sin hero con gradiente", un competidor a no parecerse):
+hoy ningún intake de este framework pregunta esto, y es tan parte de la dirección de arte como lo
+que sí se quiere. Y preguntar el **tono de color rechazado** (cálido o frío, el que el cliente
+descarta), no solo el elegido — la temperatura rechazada es la que impide que el próximo proyecto
+termine en la misma zona por descarte silencioso, no por elección.
+
+Con las tres respuestas resueltas, `elementor-core` las graba en el manifiesto
+(`es_record_style_resolution()`, `references/knowledge.md`) antes de construir — si falta una,
+la grabación falla cerrada y no arranca el build con una resolución a medias.
+
 ## 3. Mapa señal → plantilla (ecommerce)
 
 ### Familia A — por PERFIL (`TPL-E-01..05`)

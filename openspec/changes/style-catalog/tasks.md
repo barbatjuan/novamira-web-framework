@@ -725,15 +725,121 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
 
 ## Slice 5 — Intake, persistence, ledger (`art-direction-ledger`, `manifest-section-contract`)
 
-- [ ] 5a.1 RED: fixture — `es_manifest_record('design', …)` called during resolution →
+- [x] 5a.1 RED: fixture — `es_manifest_record('design', …)` called during resolution →
       `es_manifest_read()['design']` holds non-empty `STY-*` id (no writer call exists yet).
-- [ ] 5a.2 Wire the call site (`es-builder.php:2440-2462`, section declared `:2429-2431`); extend
-      `recommender.md:41-52` intake for style pick, negative brief, rejected colour temperature.
-- [ ] 5a.3 Remove the stale "unfulfilled" annotation at
-      `docs/superpowers/specs/2026-08-14-perceptual-axes-design.md:172` now the claim is true.
-- [ ] 5a.4 RED: fixture — style resolved, then re-resolved same session → `design` section
-      overwrites, never appends.
-- [ ] 5a.5 GREEN: manifest fixtures pass; full chain green.
+      **Verified genuinely red**: added the fixture (`tests/test-write-path.php`) calling
+      `es_record_style_resolution()` before it existed, ran the suite — `Fatal error: Uncaught
+      Error: Call to undefined function es_record_style_resolution()`, script halted at that exact
+      line. Confirmed by repo-wide grep first: zero hits for `es_manifest_record\('design'` in any
+      production `.php` file — only in tests and doc prose, exactly what the task claims.
+- [x] 5a.2 Wire the call site — **re-verified against the checkout, drift found in the session's own
+      citation**: the path is `skills/elementor-core/assets/es-builder.php` (top-level
+      `elementor-core/` does not exist). `:2440-2462` is `es_manifest_record()`'s own definition,
+      unchanged (design's "needs no signature change" holds) — the actual new call site is
+      `es_record_style_resolution($sty_id, $negative_brief, $rejected_tone)`, added directly after
+      it: validates all three fields non-empty and fails CLOSED (same contract `es_manifest_record()`
+      itself already keeps) before delegating to `es_manifest_record('design', …)`.
+      `es_manifest_sections()`'s own docblock (`:2417-2427`), which said "`design` ... written by
+      nothing ... so the gap is countable," updated to name the new writer — leaving that line
+      standing would have planted the exact false-claim defect this PR closes, one function away
+      from its own fix. Documented at `elementor-core/references/knowledge.md`, deliberately NOT
+      `SKILL.md`: the real audit already WARNs `elementor-core` at 588/600 words (12 from the FAIL
+      ceiling), and `references/` carries no word-cap rule at all (`RT_BODY_OVER_500`/`_600` in
+      `framework-audit.php` only inspects `SKILL.md`, confirmed by reading the rule) — a new
+      Execution Step there risked flipping an existing WARN into a new FAIL for zero net benefit.
+      `web-templates/references/recommender.md:41-52` intake (citation confirmed exact, no drift)
+      extended with a new subsection asking the style pick, the negative brief, and the rejected
+      colour temperature — **new ground, confirmed before writing**: zero prior hits for
+      `evitar|avoid|competitor|mood|art direction` across every intake file in the repo.
+- [x] 5a.3 Removed the stale annotation at
+      `docs/superpowers/specs/2026-08-14-perceptual-axes-design.md` — **re-verified, drift found**:
+      cited `:172`, the annotation itself actually sits at `:174` (`:172-173` is the original claim
+      sentence, untouched). Deleted the blockquote entirely rather than replacing it with a new
+      "fulfilled" marker — the spec's own scenario is titled "removed, not left standing," and the
+      original sentence, now true, needs no annotation of any kind.
+- [x] 5a.4 RED: fixture — style resolved, then re-resolved same session → `design` section
+      overwrites, never appends. Two `es_record_style_resolution()` calls in one `wp_fake_reset()`
+      block (`STY-EDITORIAL` then `STY-MATTER`); asserted the manifest holds ONLY `STY-MATTER` and
+      its own `negative_brief`/`rejected_tone`, not a merge of both. Passes for the right reason,
+      confirmed by reading `es_manifest_record()`'s body: it replaces `sections['design']` wholesale
+      (`$manifest['sections'][$section] = array(...)`), never merges — no extra code needed beyond
+      5a.2's writer, exactly as design.md's D5 predicted.
+- [x] 5a.5 GREEN: `php tests/test-write-path.php` → **523 OK / 0 FAIL** (was 514 at PR 4c close; +9
+      new assertions — the resolution round-trip, the fail-closed validation branch and its two
+      companion assertions, the overwrite-not-append pair — 0 regressions in the surrounding manifest
+      block or anywhere else). Full chain: `test-container-hygiene` 81 + `test-framework-audit` 727
+      (unchanged — `framework-audit.php` untouched this PR) + `test-audit-signals` 22 +
+      `test-write-path` 523 = **1353 OK / 0 FAIL**. Real-repo audit: **0 FAIL / 4 WARN**, the same 4
+      pre-existing word-budget WARNs, unchanged word counts (`elementor-core` still exactly 588 —
+      `SKILL.md` deliberately left untouched, see 5a.2). `php -l` clean on both touched PHP files.
+      Diff: 5 files touched (`es-builder.php`, `knowledge.md`, `recommender.md`,
+      `perceptual-axes-design.md`, `test-write-path.php`), 100 insertions / 3 deletions = 103 changed
+      lines, well under the ~200 estimate.
+
+> ### BLOCKING REQUIREMENT — chassis anchor: does NOT close in 5a, reported per instruction, not
+> quietly left
+>
+> `_build-gallery.php`'s `$CHASSIS_STYLE_BY_SITE` (`:18120-18123`) CANNOT be made to resolve from
+> `es_manifest_read()['design']` in this PR, or in any future PR without a different generator
+> architecture. Verified, not assumed:
+> 1. `_build-gallery.php` has ZERO WordPress bootstrap — no `get_option()`, no `wp-load.php`, no
+>    `WP_CONTENT` anywhere in the file (grepped directly). It is a pure offline CLI script; there is
+>    no WordPress option table for it to read `es_manifest_read()` FROM, this session or any other,
+>    unless the generator itself grows a WP bootstrap — a materially different, unscoped change
+>    design.md's own D1 argued explicitly against ("zero lines move" was the entire point).
+> 2. It has no per-PROJECT identity: the loop that builds `$CHASSIS_STYLE_BY_SITE`'s two outputs
+>    (`:18128-18166`) produces exactly ONE demo chassis per site TYPE (`corporate`, `ecommerce`),
+>    never per client. There is no "project" at generation time to look up in ANY manifest, real or
+>    hypothetical — this is PR 4c's own already-standing disclosure (`:18104-18119`,
+>    `_README.md:180-187`), re-verified here, not new.
+> 3. The REAL per-project build path (`elementor-core`/`es-builder.php`, live WP context, genuine
+>    `es_manifest_read()` access) has NO chassis/anchor concept AT ALL to wire the new `design`
+>    section into — confirmed by grep: zero hits for `chassis`/`CHASSIS`/`anchor_key` in
+>    `es-builder.php`. Today the agent hand-fills `es_tokens()`'s override from the resolved
+>    `STY-*.md` catalog entry (SKILL.md step 2) with no automatic resolution step. Building one is
+>    real, unscoped, unestimated work — not covered by 5a.1-5a.5, and not sized anywhere in
+>    design.md's Migration/Rollout table.
+>
+> **Not touched, and why not**: adding a one-line "fallback, not a choice" label to
+> `$CHASSIS_STYLE_BY_SITE`'s comment WITHOUT any actual conditional manifest-read behind it would
+> itself be a new false claim — the map would still be the ONLY source of truth, unconditionally,
+> just wearing a different label. That is the exact defect this whole change exists to eliminate,
+> reproduced in miniature. The existing PR 4c disclosure (`:18104-18119`) already states the true
+> constraint as honestly as a static map can; it was left as is.
+>
+> What WOULD close this: a new `es_resolve_chassis_anchor()`-shaped function in `es-builder.php`
+> reading `es_manifest_read()['design']['style']` with a documented, honestly-labeled fallback for
+> the unresolved case, wired into a REAL per-project build's execution steps — this is follow-on
+> work for a future PR, not 5a.
+> ### THE SLICE 4 EXIT CRITERION WAS MIS-SPECIFIED — corrected here by the orchestrator
+>
+> It read: *"Slice 4 does not close until the chassis anchor is resolved from the selected
+> `STY-*`, not hardcoded."* PR 5a proved that is **not achievable, and not the right target**:
+>
+> - `_build-gallery.php` has ZERO WordPress bootstrap — verified, no `get_option`, no
+>   `wp-load`, no `ABSPATH`. It is a pure offline CLI generator with no option table to read.
+> - It has no per-project identity. It emits ONE demo chassis per SITE TYPE. **There is no
+>   project at generation time to resolve a style for.**
+> - `es-builder.php`, which does have live manifest access, has ZERO chassis or anchor concept
+>   — verified by grep. Building one is unscoped work this change never proposed.
+>
+> PR 5a also declined to label the static map a "fallback" without conditional logic behind
+> it, on the grounds that the label would be a new false claim — the same defect this change
+> exists to remove. That was the right call.
+>
+> **The real defect and its real closure.** `mockup-guide.md:436-447` recorded that every
+> corporate site shipped `PERS-INSTITUTIONAL` *because nobody was asked*. The cure is not a
+> dynamic chassis; it is that the question gets asked, the answer gets persisted, and the
+> delivered mockup is checked against it. Two of the three now exist: the intake asks
+> (PR 5a, including the negative brief), and `RT_MOCKUP_AXES_MISMATCH` enforces by VALUE
+> (PR 1e). `es_record_style_resolution()` persists it (PR 5a).
+>
+> **WHAT REMAINS, AND IT IS A REAL GATE — required in PR 5b:** nothing yet FAILS when a
+> project's delivered mockup still carries the chassis default and no style resolution was
+> ever recorded. That silence is the actual mechanism by which the tamest corner shipped for
+> months. A default that survives because nobody chose is exactly what this change exists to
+> make impossible, so the gate belongs with the ledger.
+
 - [ ] 5b.1 RED: fixture — no `STY-QUARRY` in last 5 rows → `RT_STYLE_REPEATS_RECENT` silent (rule
       doesn't exist yet).
 - [ ] 5b.2 RED: fixture — `STY-QUARRY` at row 3 of last 5 → WARN, audit still exits 0.
