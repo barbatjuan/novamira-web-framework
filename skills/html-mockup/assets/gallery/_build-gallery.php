@@ -310,6 +310,11 @@ $ANCHORS = array(
 		'density'     => 'generous',
 		'composition' => 'asymmetric',
 		'elevation'   => 'none',
+		/* style-catalog PR 2b: the three new marker axes, per design-personalities.md's own
+		   **Axes:** line -- accent none, chassis rule-divided, ornament rule. */
+		'accent'      => 'none',
+		'chassis'     => 'rule-divided',
+		'ornament'    => 'rule',
 		'font_1'      => "'Fraunces', Georgia, 'Times New Roman', serif",
 		'font_2'      => "'Inter Tight', system-ui, sans-serif",
 		'track_disp'  => '-.015em',
@@ -332,6 +337,9 @@ $ANCHORS = array(
 		'density'     => 'compact',
 		'composition' => 'broken-grid',
 		'elevation'   => 'accent-glow',
+		'accent'      => 'gradient',
+		'chassis'     => 'bare',
+		'ornament'    => 'none',
 		'font_1'      => "'Archivo Expanded', 'Arial Black', system-ui, sans-serif",
 		'font_2'      => "'Archivo', system-ui, sans-serif",
 		'track_disp'  => '-.025em',
@@ -354,6 +362,9 @@ $ANCHORS = array(
 		'density'     => 'standard',
 		'composition' => 'strict-grid',
 		'elevation'   => 'hairline',
+		'accent'      => 'tinted-field',
+		'chassis'     => 'bordered',
+		'ornament'    => 'texture',
 		'font_1'      => "'Instrument Serif', Georgia, 'Times New Roman', serif",
 		'font_2'      => "'DM Sans', system-ui, sans-serif",
 		'track_disp'  => '0em',
@@ -380,6 +391,9 @@ $ANCHORS = array(
 		'density'     => 'monumental',
 		'composition' => 'strict-grid',
 		'elevation'   => 'soft-shadow',
+		'accent'      => 'metallic',
+		'chassis'     => 'soft-carded',
+		'ornament'    => 'none',
 		'font_1'      => "'DM Sans', system-ui, sans-serif",
 		'font_2'      => "'Inter Tight', system-ui, sans-serif",
 		'track_disp'  => '-.02em',
@@ -402,6 +416,9 @@ $ANCHORS = array(
 		'density'     => 'standard',
 		'composition' => 'centered',
 		'elevation'   => 'soft-shadow',
+		'accent'      => 'reserved',
+		'chassis'     => 'carded',
+		'ornament'    => 'illustration',
 		'font_1'      => "'Source Sans 3', system-ui, sans-serif",
 		'font_2'      => "'Source Sans 3', system-ui, sans-serif",
 		'track_disp'  => '0em',
@@ -6424,8 +6441,11 @@ $css[] = '/* ── :root — PERS-INSTITUTIONAL, the calmest anchor, because a 
   --elev-rest:' . $root_el['rest'] . ';
   --elev-hover:' . $root_el['hover'] . ';
   /* composition: ' . $COMPOSITION[ $root_anchor['composition'] ]['lp'] . ' */
+  /* accent: ' . $root_anchor['accent'] . ' */
+  /* chassis: ' . $root_anchor['chassis'] . ' */
+  /* ornament: ' . $root_anchor['ornament'] . ' */
 
-  /* accent — not an axis; measured ' . $root_ac['r_bg'] . ' on --c-bg, ' . $root_ac['r_alt'] . ' on --c-bg-alt,
+  /* accent (colour) — not an axis; measured ' . $root_ac['r_bg'] . ' on --c-bg, ' . $root_ac['r_alt'] . ' on --c-bg-alt,
      label ' . $root_ac['r_on'] . ' on the fill */
   --c-accent:' . $root_ac['hex'] . '; --c-on-accent:' . $root_ac['on'] . ';
 
@@ -8478,6 +8498,13 @@ function anchor_block( $key, $A, $SCALE, $DENSITY, $GROUND, $ELEVATION, $COMPOSI
 	$out .= "  --elev-rest:{$el['rest']};\n";
 	$out .= "  --elev-hover:{$el['hover']};                        /* elevation: {$A['elevation']} */\n";
 	$out .= "  /* composition: $lp */\n";
+	/* style-catalog PR 2b: the three new marker axes, same shape composition uses -- bare position
+	   names, not the ACC-/CHS-/ORN- blueprint ids design-system.md values them as (the marker
+	   parsers this string feeds -- axis_signature_of_block(), RT_MOCKUP_AXES_MISMATCH's label
+	   regex -- both expect a bare position, composition's LP- prefix being the one exception). */
+	$out .= "  /* accent: {$A['accent']} */\n";
+	$out .= "  /* chassis: {$A['chassis']} */\n";
+	$out .= "  /* ornament: {$A['ornament']} */\n";
 	$out .= "  --c-accent:{$ac['hex']}; --c-on-accent:{$ac['on']};\n";
 	$out .= "  --font-primary:{$A['font_1']};\n";
 	$out .= "  --font-secondary:{$A['font_2']};\n";

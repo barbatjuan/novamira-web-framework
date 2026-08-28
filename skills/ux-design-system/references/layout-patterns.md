@@ -100,6 +100,62 @@ above, the header, motion) is shared and does not change with the position.
 - Grids: deliberately uneven columns (7/5, 4/8), with one card offset vertically by `--sp-l`.
 - Mobile: every overlap collapses to a single stacked column — a broken grid at 430px is just broken.
 
+## Chassis blueprints
+
+A different axis from composition: composition fixes the GRID, chassis fixes how each content
+BLOCK is physically bounded inside it — card, border, shadow, or nothing. Two anchors can share a
+grid and still read as different sites if one bounds its cards and the other lets content sit bare
+on the ground. `web-templates/references/design-system.md` maps each axis position to the
+blueprint id below, the same discipline the composition table already keeps.
+
+### `CHS-BARE`
+- No border, no fill distinct from the section ground, no shadow. Content sits directly on
+  `--c-bg`; only spacing (`--sp-*`) separates one block from the next.
+- A hover state may add `elevation: accent-glow`'s own token, never a border invented for chassis.
+
+### `CHS-CARDED`
+- Every content block is a rectangle filled `--c-bg-alt`, sharp corners or the shared
+  `--radius` token, no shadow at rest or on hover.
+- The fill is the whole boundary: no border is drawn in addition to it, or the block reads as
+  `CHS-BORDERED` wearing a fill.
+
+### `CHS-SOFT-CARDED`
+- Filled `--c-bg-alt` at rest, exactly like `CHS-CARDED`, but the resting state adds no shadow —
+  `elevation: soft-shadow`'s `--elev-hover` value fires only on `:hover`/`:focus-within`.
+- The surface step (`--c-bg` → `--c-bg-alt`) is what reads at rest; the shadow is reserved for the
+  moment of interaction, never present on the page as first painted.
+
+### `CHS-BORDERED`
+- A `1px` `--c-border` frame, `--c-bg` fill (not `--c-bg-alt`) — the border is the whole chrome, so
+  no shadow and no fill step accompany it.
+- Never combined with `CHS-CARDED`'s fill step: a bordered block on `--c-bg-alt` is two chassis
+  positions worn at once, and the page stops declaring which one it means.
+
+### `CHS-RULE-DIVIDED`
+- No block boundary at all — content runs edge to edge on the section ground — and adjacent
+  blocks are separated by `ORN-RULE`'s own hairline instead of a card.
+- The rule is the only chrome a block gets. A card, a border or a shadow anywhere in this
+  chassis is a second position bleeding into this one.
+
+### `CHS-HARD-SHADOW`
+- A shadow with zero blur and a visible offset — `2px 2px 0 var(--c-text)` or equivalent — cast at
+  rest, not only on hover, so blocks read as cut paper stacked on the page.
+- Distinct from `CHS-SOFT-CARDED`'s diffuse, hover-only shadow: this one is sharp-edged and always
+  on, the opposite resting state on purpose.
+
+### `CHS-STRICT-GRID`
+- No card, no border, no shadow — the same bare surface as `CHS-BARE` — but every block's edges
+  land exactly on `LP-STRICT-GRID`'s column lines, with a single fixed gutter (`--sp-m`) as the
+  only separation. Chassis and composition agree on the same grid on purpose here; that agreement,
+  not a fill or a frame, is this position's whole chrome.
+- A block whose edge falls between column lines is not this chassis, whatever else is true of it.
+
+### `CHS-LAYERED`
+- Blocks overlap by a fixed offset (`--sp-l`) with `z-index` establishing stacking order, and the
+  block on top casts `elevation: soft-shadow`'s rest value onto the one behind it.
+- Mobile collapses the stack to one column, offset removed — `LP-BROKEN-GRID`'s own mobile rule,
+  reused here because an overlap that cannot collapse is not responsive, it is broken.
+
 ## The close is a designed moment
 
 A closing section that exists is not a call to action. The template gallery shipped eight of them —

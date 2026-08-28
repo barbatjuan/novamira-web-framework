@@ -1,16 +1,16 @@
 # Design Personalities
 
-Four anchors, each a position on five perceptual axes — scale, ground, density, composition,
-elevation. Orthogonal to the structural archetype `web-templates` resolves — the SAME `TPL-*`
-can ship under any of these. `ux-design-system`'s Execution Steps resolve every axis with the
-client and land on one of these anchors, or between two. This file is the authority on WHICH
-POSITION each anchor takes and on the concrete typeface names; the VALUE behind each position
-lives in `web-templates/references/design-system.md`, and `references/design-tokens.md` explains
-what each axis is FOR without naming a number.
+Four anchors, each a position on eight perceptual axes — scale, ground, density, composition,
+elevation, accent, chassis, ornament. Orthogonal to the structural archetype `web-templates`
+resolves — the SAME `TPL-*` can ship under any of these. `ux-design-system`'s Execution Steps
+resolve every axis with the client and land on one of these anchors, or between two. This file is
+the authority on WHICH POSITION each anchor takes and on the concrete typeface names; the VALUE
+behind each position lives in `web-templates/references/design-system.md`, and
+`references/design-tokens.md` explains what each axis is FOR without naming a number.
 
-No two anchors may share more than one axis position: the audit's `RT_PERS_TOO_SIMILAR` check
-FAILS the build on it, but the rule belongs here too — two anchors that agree on two or more axes
-are the same site with a different accent color, not two personalities.
+No two anchors may share more than two axis positions: the audit's `RT_STYLE_TOO_SIMILAR` check
+FAILS the build on it, but the rule belongs here too — two anchors that agree on three or more
+axes are the same site with a different accent color, not two personalities.
 
 Motion ranges below stay inside the curve those two files already define
 (`cubic-bezier(.22,1,.36,1)`, the documented duration/lift ranges) — a personality tunes where on
@@ -83,7 +83,7 @@ over-read them, which is exactly what happened once.
 
 ### `PERS-EDITORIAL` — Editorial
 
-**Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` · elevation `none`
+**Axes:** scale `editorial` · ground `paper` · density `generous` · composition `asymmetric` · elevation `none` · accent `none` · chassis `rule-divided` · ornament `rule`
 
 **Fits:** Heritage, prestige, a story worth slowing down for — galleries, publishers, high-end services.
 
@@ -97,7 +97,7 @@ over-read them, which is exactly what happened once.
 
 ### `PERS-DIRECT` — Direct
 
-**Axes:** scale `monumental` · ground `ink` · density `compact` · composition `broken-grid` · elevation `accent-glow`
+**Axes:** scale `monumental` · ground `ink` · density `compact` · composition `broken-grid` · elevation `accent-glow` · accent `gradient` · chassis `bare` · ornament `none`
 
 **Fits:** Brands that win by being unmistakable — studios, launches, anything that must not read as safe.
 
@@ -111,7 +111,7 @@ over-read them, which is exactly what happened once.
 
 ### `PERS-MATTER` — Matter
 
-**Axes:** scale `classic` · ground `warm` · density `standard` · composition `strict-grid` · elevation `hairline`
+**Axes:** scale `classic` · ground `warm` · density `standard` · composition `strict-grid` · elevation `hairline` · accent `tinted-field` · chassis `bordered` · ornament `texture`
 
 **Fits:** Clients who sell a material or a made thing — stone, wood, food, furniture. The page should feel like the substance, not like software.
 
@@ -125,7 +125,7 @@ over-read them, which is exactly what happened once.
 
 ### `PERS-VITRINE` — Vitrine
 
-**Axes:** scale `editorial` · ground `ink` · density `monumental` · composition `strict-grid` · elevation `soft-shadow`
+**Axes:** scale `editorial` · ground `ink` · density `monumental` · composition `strict-grid` · elevation `soft-shadow` · accent `metallic` · chassis `soft-carded` · ornament `none`
 
 **Fits:** Lo que se compra mirándolo de cerca y en orden — galerías, joyería, catálogos de producto caro, showrooms, obra fotografiada. La sala a oscuras y el objeto iluminado.
 
@@ -138,7 +138,7 @@ over-read them, which is exactly what happened once.
 **Card recipe:** superficie elevada —`--c-bg-alt` sobre `--c-bg`— y la sombra guardada para el hover. **La elevación `soft-shadow` sobre un ground `ink` es casi invisible en reposo**, y esto no es un defecto que se disimula sino la razón de la receta: sobre negro una sombra no separa, lo que separa es el escalón de superficie. La sombra entra al levantar la tarjeta, donde sí tiene un borde claro contra el que leerse.
 ### `PERS-INSTITUTIONAL` — Institutional
 
-**Axes:** scale `contained` · ground `cool` · density `standard` · composition `centered` · elevation `soft-shadow`
+**Axes:** scale `contained` · ground `cool` · density `standard` · composition `centered` · elevation `soft-shadow` · accent `reserved` · chassis `carded` · ornament `illustration`
 
 **Fits:** B2B, professional services, anything selling credibility over excitement — the archetype the abogados build belongs to.
 

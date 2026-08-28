@@ -556,3 +556,118 @@ is what this table held before, were not: nothing downstream could act on them.
 | `asymmetric` | `LP-ASYMMETRIC` | copy on 7 of 12 columns, one image bleeding a viewport edge |
 | `strict-grid` | `LP-STRICT-GRID` | every element starts and ends on a column line |
 | `broken-grid` | `LP-BROKEN-GRID` | one element per section crosses the grid or overlaps a neighbour |
+
+### Chassis (one blueprint per position)
+A different axis from composition (composition fixes the grid, chassis fixes how each content
+BLOCK is bounded inside it), but the same shape: no property carries "carded" or "bordered", so
+each position names a blueprint. The blueprints are defined in
+`ux-design-system/references/layout-patterns.md` § "Chassis blueprints", beside the composition
+ones. `CHS-STRICT-GRID` is a distinct id from `LP-STRICT-GRID` even though both read "strict
+grid" in English — one fixes column alignment, the other fixes a block's own boundary — so the two
+never resolve against each other by accident.
+
+| Position | Blueprint | In one line |
+|---|---|---|
+| `bare` | `CHS-BARE` | no border, no fill, no shadow — spacing alone separates blocks |
+| `carded` | `CHS-CARDED` | a filled `--c-bg-alt` rectangle, no shadow, at rest or on hover |
+| `soft-carded` | `CHS-SOFT-CARDED` | filled at rest, `soft-shadow` reserved for hover/focus |
+| `bordered` | `CHS-BORDERED` | a hairline frame is the whole chrome, no fill step |
+| `rule-divided` | `CHS-RULE-DIVIDED` | no block boundary; a hairline rule separates content |
+| `hard-shadow` | `CHS-HARD-SHADOW` | a zero-blur offset shadow, present at rest, not just on hover |
+| `strict-grid` | `CHS-STRICT-GRID` | bare surface, but every edge lands on a fixed grid line |
+| `layered` | `CHS-LAYERED` | blocks overlap by a fixed offset, `z-index` sets the stack |
+
+### Accent (how loudly the ONE accent colour is deployed)
+`none` is a literal — the accent is spent nowhere beyond the whitelist's four roles, and a page can
+say so without a blueprint. Every other position changes HOW the accent itself is rendered, not
+where, so each one names a blueprint the same way composition does: a policy nobody wrote down is
+the "a position with no value is an adjective" failure in new clothes.
+
+| Position | Blueprint | In one line |
+|---|---|---|
+| `none` | `none` | the whitelist's four roles, nothing more |
+| `reserved` | `ACC-RESERVED` | the accent whitelist itself, spent nowhere it is not already named |
+| `tinted-field` | `ACC-TINTED-FIELD` | a bounded surface washed in a low-opacity mix of the accent |
+| `duotone` | `ACC-DUOTONE` | the accent is one of the two inks a photograph's duotone grade takes its chroma from |
+| `gradient` | `ACC-GRADIENT` | the accent runs as a two-stop fill on one bounded surface, never on text |
+| `metallic` | `ACC-METALLIC` | the accent carries a banded light/dark gradient simulating a brushed metal sheen |
+| `polychrome` | `ACC-POLYCHROME` | the ONE-colour rule is lifted, under a named exception, for a stated bounded set of marks |
+
+#### `ACC-RESERVED`
+- Is today's global accent whitelist (§ "The accent is spent by ROLE") verbatim, restated as a
+  blueprint so the axis has something to point at: CTAs, action icons, important links, active
+  states, plus anything an anchor's own card recipe names — nothing else.
+- No literal beyond the accent hex itself is introduced; this position spends what the whitelist
+  already allows and not one mark more.
+
+#### `ACC-TINTED-FIELD`
+- Exactly one bounded surface per page may carry `color-mix(in srgb, var(--c-accent) 8-14%,
+  var(--c-bg))` as its `background`. Body text inside it stays `--c-text`; the tint is a wash, not
+  a theme change.
+- The tinted surface still counts against the whitelist's roles: it earns the tint by hosting a
+  CTA, a form, or the close (`layout-patterns.md` § "The close is a designed moment"), never as
+  unclaimed decoration.
+
+#### `ACC-DUOTONE`
+- The accent supplies ONE of the duotone's two inks (see § "One treatment for the photographs" —
+  "take its inks from something that HAS chroma — the accent"); the other ink is the ground's own
+  dark neutral, never a second invented hue.
+- Applies to the photograph treatment only. Chrome, type and controls are unaffected — a duotone
+  photograph is not licence to duotone the page around it.
+
+#### `ACC-GRADIENT`
+- A `linear-gradient` between the accent and one `color-mix` step of it (never a second hue) fills
+  exactly one bounded surface per section — a button, a badge, or the close's own field.
+- Never on text and never full-bleed: a gradient across the whole viewport reads as a background,
+  not as the accent spending its one spend.
+
+#### `ACC-METALLIC`
+- A `linear-gradient` with at least three stops alternating lighter and darker `color-mix` steps of
+  the accent, simulating a brushed sheen, on the same bounded surfaces `ACC-GRADIENT` allows.
+- Reserved for surfaces the light is meant to catch — a CTA, a price tag, a badge — never a full
+  section background, which would read as foil wrap rather than a material.
+
+#### `ACC-POLYCHROME`
+- The ONE-colour rule is suspended for exactly one named, bounded set — a tag list, a category
+  swatch grid — and the exception is written down beside the set it covers, the same discipline
+  `design-personalities.md` already asks of an anchor's own card-recipe exception.
+- Every mark outside that named set still answers to the ordinary whitelist; polychrome is scoped,
+  never ambient.
+
+### Ornament (the mark that is neither type, photograph, nor chrome)
+`none` is a literal — the page carries no ornament beyond type, photography and the chassis
+itself. Every other position is a blueprint, the same discipline composition and accent already
+use: a mark with no fixed shape is a doodle wearing a design-system name.
+
+| Position | Blueprint | In one line |
+|---|---|---|
+| `none` | `none` | no ornament beyond type, photography and chassis |
+| `rule` | `ORN-RULE` | a single hairline divider, never a filled band |
+| `texture` | `ORN-TEXTURE` | a low-contrast surface grain, applied to grounds, never to type |
+| `pattern` | `ORN-PATTERN` | a repeating geometric mark, bounded to named surfaces only |
+| `illustration` | `ORN-ILLUSTRATION` | line-art icons or figures accompanying specific section kinds |
+
+#### `ORN-RULE`
+- Exactly `--c-border` at `1px`, laid between two stacked elements (image/text, or two sections) —
+  the same hairline `elevation: hairline` already tables, reused as a divider rather than a frame.
+- Never doubled and never filled: a second parallel rule or a tinted band is `ORN-TEXTURE` or a
+  chassis position wearing this one's name.
+
+#### `ORN-TEXTURE`
+- An SVG noise or grain filter (`feTurbulence` + a low-opacity `feColorMatrix`) composited onto a
+  section's own ground, contrast unaffected — `--c-text` on `--c-bg` still clears the same ratio
+  with or without it, because the grain sits in an overlay layer, not in the type's own paint.
+- Applies to grounds and photograph mounts only; a textured control (a button, an input) is a
+  material glitch, not a personality.
+
+#### `ORN-PATTERN`
+- A repeating geometric motif (stripes, a dot grid, a hatch) at low contrast, confined to ONE named
+  surface per page — a section background or a card's own ground — never the whole viewport.
+- Never behind body copy: a pattern under running text is the accessibility failure `ORN-TEXTURE`'s
+  contrast rule exists to prevent, worn by a different mechanism.
+
+#### `ORN-ILLUSTRATION`
+- Custom line-art icons or small figures, one per section of a stated kind (a process step, a
+  feature), drawn at a single stroke weight so the set reads as one hand.
+- Never a stock icon font substituted at the last minute: an inconsistent stroke weight across the
+  set is the same "adjective with a code number" failure this axis exists to prevent.

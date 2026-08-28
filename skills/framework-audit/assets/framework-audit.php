@@ -91,7 +91,7 @@ const ROW_TYPES = array(
 	'RT_PERS_MISSING_FIELD'      => 'FAIL  — a personality block in design-personalities.md is missing a required field',
 	'RT_PERS_ID_MISSING'         => 'FAIL  — a required personality ID is absent from design-personalities.md',
 	'RT_PERS_DUPLICATE_ID'       => 'FAIL  — design-personalities.md declares the same personality ID twice',
-	'RT_PERS_TOO_SIMILAR'        => 'FAIL  — two personality anchors share more than one axis position',
+	'RT_STYLE_TOO_SIMILAR'       => 'FAIL  — two personality anchors share more than two axis positions',
 	'RT_PERS_BAD_AXIS'           => 'FAIL  — a personality names an axis position no axis defines',
 	'RT_TPL_TOO_SIMILAR'         => 'FAIL  — two archetypes of one family share more than half of their combined section inventory',
 	'RT_TPL_NO_WIREFRAME'        => 'FAIL  — a TPL-*.md wireframe is not fully readable: no fenced block, no COMP-* id in it, or a row carrying no id',
@@ -1027,10 +1027,12 @@ $PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery
  * RT_MOCKUP_AXES_MISMATCH marker regex's alternation. "ONE list, two consumers" is
  * axis_matches()'s own phrase for itself; this is the same discipline applied to all four.
  *
- * 5 axes only, on purpose. PR 2b widens this to 8 (accent policy, chassis, ornament) in ONE atomic
- * commit alongside every anchor's `**Axes:**` line and the >1 similarity threshold -- widening the
- * registry alone, without those companion edits landing in the same commit, FAILs every anchor
- * instantly via RT_PERS_BAD_AXIS (a style would then name a position no axis defines).
+ * 8 axes, widened from 5 in style-catalog PR 2b, in ONE atomic commit alongside every anchor's
+ * `**Axes:**` line and the >1 -> >2 similarity threshold -- widening the registry alone, without
+ * those companion edits landing in the same commit, FAILs every anchor instantly via
+ * RT_PERS_BAD_AXIS (a style would then name a position no axis defines). `accent`, `chassis` and
+ * `ornament` are the three new axes, all MARKER axes (`prop => null`) like `composition` already
+ * was -- no custom property carries them, a `/* axis: position *\/` comment does.
  */
 function nm_axes() {
 	return array(
@@ -1058,6 +1060,24 @@ function nm_axes() {
 			'positions' => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
 			'prop'      => '--elev-rest',
 			'marker'    => false,
+		),
+		/* Named `accent`, not `accent-policy`: pers_axes() below parses the **Axes:** line's axis
+		   token with `[a-z]+` (no hyphen), so a hyphenated axis key would parse as its tail word
+		   only ("policy"). Every other axis key in this registry is one word for the same reason. */
+		'accent'      => array(
+			'positions' => array( 'none', 'reserved', 'tinted-field', 'duotone', 'gradient', 'metallic', 'polychrome' ),
+			'prop'      => null,
+			'marker'    => true,
+		),
+		'chassis'     => array(
+			'positions' => array( 'bare', 'carded', 'soft-carded', 'bordered', 'rule-divided', 'hard-shadow', 'strict-grid', 'layered' ),
+			'prop'      => null,
+			'marker'    => true,
+		),
+		'ornament'    => array(
+			'positions' => array( 'none', 'rule', 'texture', 'pattern', 'illustration' ),
+			'prop'      => null,
+			'marker'    => true,
 		),
 	);
 }
@@ -1104,14 +1124,14 @@ if ( ! file_exists( $pers_file ) ) {
 		$pid = $hm[1];
 		/* Both $found and $axes_of are keyed by ID, so a SECOND `### `PERS-X`` heading used to
 		   overwrite the first with no complaint. Proven on this checkout: make PERS-MATTER share
-		   four axes with PERS-EDITORIAL (RT_PERS_TOO_SIMILAR FAILs, 1 FAIL), then append one more
+		   three axes with PERS-EDITORIAL (RT_STYLE_TOO_SIMILAR FAILs, 1 FAIL), then append one more
 		   `### `PERS-EDITORIAL`` block carrying a distant axis set — the audit returns to 0 FAIL,
 		   because the real anchor's positions were replaced by the copy's before the comparison ran.
 		   A stray duplicate heading was a silent off switch for the flagship check.
 		   The FIRST block stays authoritative and the copy is reported, never merged: keeping the
 		   last one would preserve exactly the shadowing this row exists to make impossible. */
 		if ( isset( $found[ $pid ] ) ) {
-			add( 'RT_PERS_DUPLICATE_ID', 'FAIL', 'ux-design-system', 'design-personalities.md declares "' . $pid . '" more than once — the later block silently replaced the first, which is enough to switch RT_PERS_TOO_SIMILAR off for the real anchor' );
+			add( 'RT_PERS_DUPLICATE_ID', 'FAIL', 'ux-design-system', 'design-personalities.md declares "' . $pid . '" more than once — the later block silently replaced the first, which is enough to switch RT_STYLE_TOO_SIMILAR off for the real anchor' );
 			continue;
 		}
 		$found[ $pid ] = true;
@@ -1146,13 +1166,13 @@ if ( ! file_exists( $pers_file ) ) {
 					$shared[] = $axis . ' `' . $axes_of[ $a ][ $axis ] . '`';
 				}
 			}
-			if ( count( $shared ) > 1 ) {
+			if ( count( $shared ) > 2 ) {
 				add(
-					'RT_PERS_TOO_SIMILAR',
+					'RT_STYLE_TOO_SIMILAR',
 					'FAIL',
 					'ux-design-system',
 					$a . ' and ' . $b . ' share ' . count( $shared ) . ' axes (' . implode( ', ', $shared )
-						. ') — two anchors may share at most one, or they ship as the same site with a different accent'
+						. ') — two anchors may share at most two of the eight, or they ship as the same site with a different accent'
 				);
 			}
 		}
@@ -1219,8 +1239,8 @@ function tpl_wireframe_comps( $src ) {
 /* -------------------------------------------------- archetypes of one family must be distinct
  *
  * web-templates/SKILL.md promises "many architectures", and the personality catalog
- * already has to earn its equivalent claim: `RT_PERS_TOO_SIMILAR` above lets two anchors share at
- * most one of five axes, "or they ship as the same site with a different accent colour". The
+ * already has to earn its equivalent claim: `RT_STYLE_TOO_SIMILAR` above lets two anchors share at
+ * most two of eight axes, "or they ship as the same site with a different accent colour". The
  * archetypes made the same promise with nothing checking it, and the ecommerce family had drifted
  * to where TPL-E-01 and TPL-E-03 shared eight of their nine sections.
  *
@@ -1298,7 +1318,7 @@ foreach ( $tpl_families as $tpl_family => $tpl_dir ) {
 		/* An archetype the parser cannot read is NOT skipped quietly. Dropping it would remove it
 		   from every pair it belongs to, so a botched heading or an unclosed fence would be a
 		   silent off switch for the check — the same shape `RT_PERS_DUPLICATE_ID` exists to close
-		   one level up, where a duplicated heading switched RT_PERS_TOO_SIMILAR off for the real
+		   one level up, where a duplicated heading switched RT_STYLE_TOO_SIMILAR off for the real
 		   anchor. Report it, then leave it out: comparing an empty inventory would invent a
 		   distance nobody wrote. */
 		if ( null === $tpl_parsed ) {
@@ -1598,11 +1618,21 @@ function root_token_value( $block, $prop ) {
    why it produced one look: nothing downstream could act on "softest step of the scale". */
 $ds_file = $root . '/skills/web-templates/references/design-system.md';
 $ds_src  = file_exists( $ds_file ) ? slurp( $ds_file ) : '';
-/* Composition is the one axis whose value is a layout rule rather than a number, so its positions
-   point at named blueprints. A blueprint nobody wrote is an adjective with a code number on it —
-   the same failure in a smarter disguise — so the name has to resolve to a real heading. */
-$lp_file = $root . '/skills/ux-design-system/references/layout-patterns.md';
-$lp_src  = file_exists( $lp_file ) ? slurp( $lp_file ) : '';
+/* Composition, chassis, accent and ornament are the four axes whose value is not a number, so
+   their positions point at named blueprints. A blueprint nobody wrote is an adjective with a code
+   number on it — the same failure in a smarter disguise — so the name has to resolve to a real
+   heading. Not every marker axis's heading lives in the same file: composition and chassis are
+   layout concerns (layout-patterns.md), accent and ornament are colour/surface concerns and
+   design-system.md already holds § Ground and § Elevation, so their definitions sit beside those,
+   in design-system.md itself (the very file the blueprint id was READ from, for these two). */
+$lp_file       = $root . '/skills/ux-design-system/references/layout-patterns.md';
+$lp_src        = file_exists( $lp_file ) ? slurp( $lp_file ) : '';
+$axis_bp_lookup = array(
+	'composition' => array( $lp_src, 'layout-patterns.md', 'ux-design-system' ),
+	'chassis'     => array( $lp_src, 'layout-patterns.md', 'ux-design-system' ),
+	'accent'      => array( $ds_src, 'design-system.md', 'web-templates' ),
+	'ornament'    => array( $ds_src, 'design-system.md', 'web-templates' ),
+);
 foreach ( $PERS_AXES as $axis => $positions ) {
 	foreach ( $positions as $pos ) {
 		/* $pos_rows, not $rows: $rows is this script's global findings accumulator, and the first
@@ -1633,25 +1663,31 @@ foreach ( $PERS_AXES as $axis => $positions ) {
 		} elseif ( $blank > 0 ) {
 			add( 'RT_AXIS_VALUE_MISSING', 'FAIL', 'web-templates', 'design-system.md gives no value for axis "' . $axis . '" position "' . $pos . '" — ' . $blank . ' of its ' . count( $pos_rows ) . ' table row(s) carry no token-shaped value cell (hex, number, CSS length, var()/calc()/clamp(), none, or a backticked blueprint id)' );
 		}
+		list( $bp_src, $bp_file, $bp_skill ) = isset( $axis_bp_lookup[ $axis ] )
+			? $axis_bp_lookup[ $axis ]
+			: array( $lp_src, 'layout-patterns.md', 'ux-design-system' );
 		foreach ( array_keys( $blueprints ) as $bp ) {
-			if ( ! preg_match( '/^#{2,6}\s+`' . preg_quote( $bp, '/' ) . '`/m', $lp_src ) ) {
-				add( 'RT_AXIS_BLUEPRINT_MISSING', 'FAIL', 'ux-design-system', 'design-system.md values axis "' . $axis . '" position "' . $pos . '" as blueprint `' . $bp . '`, but layout-patterns.md defines no heading by that name — the position points at nothing' );
+			if ( ! preg_match( '/^#{2,6}\s+`' . preg_quote( $bp, '/' ) . '`/m', $bp_src ) ) {
+				add( 'RT_AXIS_BLUEPRINT_MISSING', 'FAIL', $bp_skill, 'design-system.md values axis "' . $axis . '" position "' . $pos . '" as blueprint `' . $bp . '`, but ' . $bp_file . ' defines no heading by that name — the position points at nothing' );
 			}
 		}
 	}
 }
 
 /**
- * The five axis signatures a proof mockup's `:root` block carries, normalised for comparison.
+ * The eight axis signatures a proof mockup's `:root` block carries, normalised for comparison.
  *
  * Only the `:root` block is read. Every one of these custom properties is REFERENCED dozens of
  * times further down each file (`box-shadow: var(--elev-rest)` and friends), so a whole-file scan
  * would match a use and call it a declaration — and the axis whose value the page merely consumes
  * would then look declared no matter what `:root` says.
  *
- * Composition is the one axis with no custom property, because its value is a layout rule rather
- * than a number. It travels as a CSS comment carrying "composition:" and an LP- blueprint id, the
- * marker design-system.md names, so that is what is parsed here.
+ * Composition, accent, chassis and ornament are the four axes with no custom property, because a
+ * marker axis's value is not a number. Composition travels as a CSS comment carrying
+ * "composition:" and an LP- blueprint id, the marker design-system.md names. The other three
+ * (style-catalog PR 2b) carry their position name directly on the SAME `/* axis: position *\/`
+ * shape RT_MOCKUP_AXES_MISMATCH's own marker regex parses — no blueprint indirection, since
+ * their positions are not layout rules.
  *
  * Values are lowercased and whitespace-collapsed before comparison: `#FFFFFF` against `#ffffff`
  * is a case change, not a ground, and a gate that called it an axis difference would let a
@@ -1660,12 +1696,16 @@ foreach ( $PERS_AXES as $axis => $positions ) {
  * counted as matching on it rather than as differing.
  */
 function axis_signature_of_block( $block ) {
-	$sig = array( 'scale' => '', 'ground' => '', 'density' => '', 'elevation' => '', 'composition' => '' );
+	$sig = array();
+	foreach ( nm_axes() as $nm_axis => $nm_def ) {
+		$sig[ $nm_axis ] = '';
+	}
 	if ( '' === $block ) {
 		return $sig;
 	}
-	/* Derived from nm_axes() (style-catalog PR 2a), composition excluded here the same way it
-	   always was -- it has no custom property (`'prop' => null`), and is parsed separately below. */
+	/* Derived from nm_axes() (style-catalog PR 2a), marker axes excluded here the same way
+	   composition always was -- they have no custom property (`'prop' => null`), and are parsed
+	   separately below. */
 	$props = array();
 	foreach ( nm_axes() as $nm_axis => $nm_def ) {
 		if ( null !== $nm_def['prop'] ) {
@@ -1683,6 +1723,24 @@ function axis_signature_of_block( $block ) {
 	if ( preg_match( '#/\*\s*composition\s*:\s*(LP-[A-Z0-9-]+)#i', $block, $cm ) ) {
 		$sig['composition'] = strtolower( $cm[1] );
 	}
+	/* accent, chassis, ornament (style-catalog PR 2b) -- marker axes whose position IS the value,
+	   so no blueprint id to resolve. FIRST occurrence per axis wins, same rule
+	   RT_MOCKUP_AXES_MISMATCH's own marker parsing uses, for the same reason: a repeated marker
+	   further down the file with prose after it must not silently override the real declaration. */
+	$other_markers = array();
+	foreach ( nm_axes() as $nm_axis => $nm_def ) {
+		if ( $nm_def['marker'] && 'composition' !== $nm_axis ) {
+			$other_markers[] = $nm_axis;
+		}
+	}
+	if ( array() !== $other_markers && preg_match_all( '#/\*\s*(' . implode( '|', $other_markers ) . ')\s*:\s*([A-Za-z0-9-]+)#i', $block, $mm, PREG_SET_ORDER ) ) {
+		foreach ( $mm as $one ) {
+			$m_axis = strtolower( $one[1] );
+			if ( '' === $sig[ $m_axis ] ) {
+				$sig[ $m_axis ] = strtolower( $one[2] );
+			}
+		}
+	}
 
 	return $sig;
 }
@@ -1696,11 +1754,11 @@ function proof_axis_signature( $src ) {
 }
 
 /**
- * Which of the five axes two signatures AGREE on, each named with the value they share.
+ * Which of the eight axes two signatures AGREE on, each named with the value they share.
  *
  * ONE list, two consumers, for the reason axis_declarations() is a function: RT_PROOF_NOT_DISTINCT
  * asks it of the two proof mockups' `:root` blocks and RT_GALLERY_NOT_DISTINCT asks it of two
- * gallery anchors' `[data-anchor]` blocks. A sixth axis, or a different property carrying one, has
+ * gallery anchors' `[data-anchor]` blocks. A ninth axis, or a different property carrying one, has
  * to land on both at once — and dropping an axis from this list silently INFLATES the difference
  * count on both, which is the shape of a distinctness check that stops distinguishing.
  *
@@ -1708,13 +1766,17 @@ function proof_axis_signature( $src ) {
  * enough" sends the reader back to diff two files; "both sit at --sp-scale: 1.0" is a one-line fix.
  */
 function axis_matches( $a, $b ) {
-	/* Derived from nm_axes() (style-catalog PR 2a). Order kept exactly as before (composition
-	   LAST, not in its usual fourth slot) -- this list's own order, not $PERS_AXES's, since that
-	   is what every existing "share N axes (...)" message was built from. */
+	/* Derived from nm_axes() (style-catalog PR 2a/2b). Order kept exactly as before for the
+	   original five (composition LAST, not in its usual fourth slot) -- this list's own order, not
+	   $PERS_AXES's, since that is what every existing "share N axes (...)" message was built from.
+	   accent/chassis/ornament are appended after composition, in nm_axes()'s own tail order. */
 	$nm_defs = nm_axes();
 	$labels  = array();
-	foreach ( array( 'scale', 'ground', 'density', 'elevation', 'composition' ) as $nm_axis ) {
-		$labels[ $nm_axis ] = $nm_defs[ $nm_axis ]['marker'] ? 'composition marker' : $nm_defs[ $nm_axis ]['prop'];
+	foreach ( array( 'scale', 'ground', 'density', 'elevation', 'composition', 'accent', 'chassis', 'ornament' ) as $nm_axis ) {
+		/* PR 2a hardcoded 'composition marker' here, the only marker axis that existed at the time.
+		   Widening to four marker axes turns that literal into a bug -- every marker axis would
+		   report ITSELF as "composition marker" -- so the label is now built per axis. */
+		$labels[ $nm_axis ] = $nm_defs[ $nm_axis ]['marker'] ? ( $nm_axis . ' marker' ) : $nm_defs[ $nm_axis ]['prop'];
 	}
 	$same   = array();
 	foreach ( $labels as $axis => $label ) {
@@ -1875,19 +1937,22 @@ function proof_visible_strings( $src ) {
 
 /* The falsifiable claim the whole axis system rests on: ONE content set under TWO anchors has to
    render as two unmistakably different pages. Phase A proved the anchors are far apart on paper —
-   that is what RT_PERS_TOO_SIMILAR guards. The two rows below guard the two halves of the
+   that is what RT_STYLE_TOO_SIMILAR guards. The two rows below guard the two halves of the
    criterion the proof files are supposed to demonstrate: SAME content (RT_PROOF_COPY_DIFFERS),
    UNMISTAKABLY DIFFERENT rendering (RT_PROOF_NOT_DISTINCT). Without the first, editing one
    headline contaminates the experiment with every other gate still green.
 
    What RT_PROOF_NOT_DISTINCT actually checks, stated plainly because the shape of it invites a
-   stronger reading: it compares five DECLARED TOKEN VALUES in each file's first `:root` block. It
-   does not render anything, does not look at a pixel, and does not know whether a declared token
-   is used. Four of the nine axis-carrying custom properties both files declare — --display-lh,
-   --fs-h1-max, --elev-hover and --c-bg-alt — are read by neither check, so a file could ship a
-   88px cap against a 120px one and this row would be satisfied by --type-ratio alone. It is a
-   guard against the two files quietly converging on the same tokens, not evidence that they
-   render differently; that evidence is a human looking at them side by side.
+   stronger reading: it compares eight DECLARED AXIS VALUES in each file's first `:root` block --
+   four literal custom-property values (--type-ratio, --c-bg, --sp-scale, --elev-rest) and four
+   marker-comment values (composition, accent, chassis, ornament, style-catalog PR 2b's three new
+   marker axes, none of which carry a custom property). It does not render anything, does not look
+   at a pixel, and does not know whether a declared token is used. Five of the nine axis-carrying
+   custom properties both files declare — --display-lh, --fs-h1-max, --elev-hover, --c-bg-alt and
+   --c-text — are read by neither check, so a file could ship a 88px cap against a 120px one and
+   this row would be satisfied by --type-ratio alone. It is a guard against the two files quietly
+   converging on the same tokens, not evidence that they render differently; that evidence is a
+   human looking at them side by side.
 
    Hardcoded paths, like house-rules.md and design-personalities.md above, and for the same
    reason: a missing proof file must FAIL rather than silently skip the check. "The gate passes
@@ -1912,15 +1977,15 @@ foreach ( $PROOF_MOCKUPS as $anchor => $rel ) {
 if ( $proof_all_here && 2 === count( $proof_sigs ) ) {
 	$anchors = array_keys( $proof_sigs );
 	$same    = axis_matches( $proof_sigs[ $anchors[0] ], $proof_sigs[ $anchors[1] ] );
-	$differ  = 5 - count( $same );
-	if ( $differ < 4 ) {
+	$differ  = 8 - count( $same );
+	if ( $differ < 6 ) {
 		/* Naming the matching axes is the whole point of the message. "not different enough" sends
 		   the reader back to diff two 300-line files; "both use --sp-scale: 1.0" is a one-line fix. */
 		add(
 			'RT_PROOF_NOT_DISTINCT',
 			'FAIL',
 			'html-mockup',
-			$anchors[0] . ' and ' . $anchors[1] . ' differ on only ' . $differ . ' of 5 axes — they match on '
+			$anchors[0] . ' and ' . $anchors[1] . ' differ on only ' . $differ . ' of 8 axes — they match on '
 				. implode( ', ', $same ) . '. Same content under two anchors has to render as two different pages, or the anchors are one anchor'
 		);
 	}
@@ -2087,7 +2152,7 @@ foreach ( $mockup_assets as $mockup_path ) {
 	   and therefore the only ones anybody ever RE-POINTS, which is the act this pair exists to
 	   police. The two proof-*-mockup.html are fixed by contract — their whole job is to stand at two
 	   named anchors over one copy set — and RT_PROOF_NOT_DISTINCT already measures them against EACH
-	   OTHER on all five axes. They still declare `Anchor:` and are still checked below, because the
+	   OTHER on all eight axes. They still declare `Anchor:` and are still checked below, because the
 	   glob checks whatever declares one; they are simply not required to, since a demand nothing
 	   would ever violate is a row that only ever fires on fixtures. */
 
@@ -2221,7 +2286,7 @@ foreach ( $mockup_assets as $mockup_path ) {
 	$mockup_declares = preg_match( '/Anchor:\s*(PERS-[A-Z-]+)/', $mockup_root, $mockup_anm );
 	if ( ! $mockup_declares ) {
 		if ( in_array( $mockup_name, $anchored_required, true ) ) {
-			add( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' does not say which anchor it is pointed at — without `Anchor: PERS-*` in its :root nothing can check that its five axis positions belong together' );
+			add( 'RT_MOCKUP_ANCHOR_UNDECLARED', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' does not say which anchor it is pointed at — without `Anchor: PERS-*` in its :root nothing can check that its eight axis positions belong together' );
 		}
 	} elseif ( ! isset( $axes_of ) ) {
 		/* No catalog at all is RT_PERS_CATALOG_MISSING's row, already FAILing above. Reporting the
@@ -2259,9 +2324,9 @@ foreach ( $mockup_assets as $mockup_path ) {
 			}
 			/* The label agrees with the anchor — now does the :root TOKEN agree with what
 			   design-system.md's own table gives that position? One $mockup_wrong entry per axis,
-			   not per token, so "N of 5 axes disagree" below still counts axes: scale alone has
+			   not per token, so "N of 8 axes disagree" below still counts axes: scale alone has
 			   three columns, and a run of three PROPERTY-level entries for one axis would inflate
-			   that count past 5 and misreport how many axes actually need fixing. */
+			   that count past 8 and misreport how many axes actually need fixing. */
 			$mockup_want_values = axis_token_values( $ds_src, $mockup_axis, $mockup_want );
 			$mockup_bad_tokens  = array();
 			foreach ( axis_token_props( $mockup_axis ) as $mockup_prop ) {
@@ -2280,7 +2345,7 @@ foreach ( $mockup_assets as $mockup_path ) {
 		if ( array() !== $mockup_wrong ) {
 			/* Naming the axis AND both positions is the whole value: "does not match its anchor" sends
 			   the reader to compare a :root against a catalog by eye, which is the diff nobody does. */
-			add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' says it is ' . $mockup_pid . ' but ' . count( $mockup_wrong ) . ' of 5 axes disagree: ' . implode( '; ', $mockup_wrong ) . ' — a half-finished re-point ships as a site that is neither anchor' );
+			add( 'RT_MOCKUP_AXES_MISMATCH', 'FAIL', 'html-mockup', 'assets/' . $mockup_name . ' says it is ' . $mockup_pid . ' but ' . count( $mockup_wrong ) . ' of 8 axes disagree: ' . implode( '; ', $mockup_wrong ) . ' — a half-finished re-point ships as a site that is neither anchor' );
 		}
 	}
 
@@ -2928,12 +2993,14 @@ foreach ( $mockup_assets as $gal_path ) {
 		}
 		$gal_blk = gallery_anchor_block( $gal_src, $gal_c['pers'] );
 		$gal_sig = ( null === $gal_blk ) ? null : axis_signature_of_block( $gal_blk );
-		/* "no block" and "a block declaring not one of the five axes" are the same finding, and
+		/* "no block" and "a block declaring not one of the eight axes" are the same finding, and
 		   collapsing them is what stops the comment above from becoming a loophole: taking EVERY
 		   matching block means a CSS comment quoting the selector also matches, so a file whose real
 		   block was deleted would otherwise report a declaration that is three bytes of prose — and
-		   an empty signature against a real one reads as five axes apart, which passes. */
-		if ( null === $gal_sig || array( '', '', '', '', '' ) === array_values( $gal_sig ) ) {
+		   an empty signature against a real one reads as eight axes apart, which passes. Compared
+		   against a same-length blank array rather than a hardcoded one, since nm_axes() owns the
+		   axis count now (style-catalog PR 2b widened it from 5 to 8). */
+		if ( null === $gal_sig || array_fill( 0, count( $gal_sig ), '' ) === array_values( $gal_sig ) ) {
 			add(
 				'RT_GALLERY_NOT_DISTINCT',
 				'FAIL',
@@ -2946,11 +3013,11 @@ foreach ( $mockup_assets as $gal_path ) {
 		$gal_sigs[ $gal_c['pers'] ] = $gal_sig;
 	}
 
-	/* ≥4 of 5, the same bar RT_PERS_TOO_SIMILAR and RT_PROOF_NOT_DISTINCT hold, and
-	   design-personalities.md states the reason in as many words: two anchors that agree on two or
-	   more axes are the same site with a different accent colour, not two personalities. Only
+	/* ≥6 of 8, the same bar RT_STYLE_TOO_SIMILAR and RT_PROOF_NOT_DISTINCT hold, and
+	   design-personalities.md states the reason in as many words: two anchors that agree on more
+	   than two axes are the same site with a different accent colour, not two personalities. Only
 	   same-archetype pairs are compared — two cards of DIFFERENT archetypes are already separated by
-	   their section inventory, which is the axis the five perceptual ones do not carry. */
+	   their section inventory, which is the axis the eight perceptual ones do not carry. */
 	$gal_compared = array();
 	foreach ( $gal_cards as $gal_x ) {
 		foreach ( $gal_cards as $gal_y ) {
@@ -2968,14 +3035,14 @@ foreach ( $mockup_assets as $gal_path ) {
 			}
 			$gal_compared[ $gal_key ] = true;
 			$gal_same                 = axis_matches( $gal_sigs[ $gal_x['pers'] ], $gal_sigs[ $gal_y['pers'] ] );
-			$gal_differ               = 5 - count( $gal_same );
-			if ( $gal_differ < 4 ) {
+			$gal_differ               = 8 - count( $gal_same );
+			if ( $gal_differ < 6 ) {
 				add(
 					'RT_GALLERY_NOT_DISTINCT',
 					'FAIL',
 					'html-mockup',
 					$gal_where . ': ' . $gal_x['pair'] . ' and ' . $gal_y['pair'] . ' share an archetype and their anchors differ on only '
-						. $gal_differ . ' of 5 axes — they match on ' . implode( ', ', $gal_same )
+						. $gal_differ . ' of 8 axes — they match on ' . implode( ', ', $gal_same )
 						. '. Same sections under two anchors have to read as two sites, or the catalog is one card with a different accent colour'
 				);
 			}

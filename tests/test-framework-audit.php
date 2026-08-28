@@ -199,18 +199,20 @@ $FX_PERS_IDS    = array(
 $FX_PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
 /* One well-separated axis position per fixture ID, mirroring the real catalog's own anchors (see
    design-personalities.md) so a "conforming" fixture catalog is actually conforming under
-   RT_PERS_TOO_SIMILAR too -- a fixture catalog that shared axes wholesale would fail every
+   RT_STYLE_TOO_SIMILAR too -- a fixture catalog that shared axes wholesale would fail every
    fx_base()-rooted scenario on a check that scenario has nothing to do with. */
+/* Trailing 3 (accent, chassis, ornament -- style-catalog PR 2b) transcribed verbatim from the real
+   design-personalities.md anchor table, same discipline as the original five. */
 $FX_PERS_AXES = array(
-	'PERS-EDITORIAL'     => array( 'editorial', 'paper', 'generous', 'asymmetric', 'none' ),
-	'PERS-MATTER'        => array( 'classic', 'warm', 'standard', 'strict-grid', 'hairline' ),
-	'PERS-DIRECT'        => array( 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' ),
-	'PERS-INSTITUTIONAL' => array( 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ),
+	'PERS-EDITORIAL'     => array( 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' ),
+	'PERS-MATTER'        => array( 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' ),
+	'PERS-DIRECT'        => array( 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' ),
+	'PERS-INSTITUTIONAL' => array( 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' ),
 	/* One axis with each of the other four and never two -- scale with EDITORIAL, composition with
 	   MATTER, ground with DIRECT, elevation with INSTITUTIONAL. Transcribed from the real block, not
 	   invented here: a fixture anchor placed by hand is how a fixture catalog starts failing
-	   RT_PERS_TOO_SIMILAR in every scenario that has nothing to do with it. */
-	'PERS-VITRINE'       => array( 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow' ),
+	   RT_STYLE_TOO_SIMILAR in every scenario that has nothing to do with it. */
+	'PERS-VITRINE'       => array( 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow', 'metallic', 'soft-carded', 'none' ),
 );
 
 /* Mirrors framework-audit.php's own $PERS_AXES (never imported -- the audit is a subprocess, see
@@ -220,12 +222,19 @@ $FX_PERS_AXES = array(
    suite's fx_base()-rooted fixtures -- the same shape as RT_PERS_CATALOG_MISSING before it, and the
    same trap: without a conforming design-system.md in the skeleton, every fixture in this entire
    file would carry 20 fresh FAILs that have nothing to do with what it actually tests. */
+/* accent/chassis/ornament (style-catalog PR 2b): fx_ds_conforming() below has no $real entry for
+   them, same as composition -- they fall through to the neutral literal `1`, which satisfies
+   RT_AXIS_VALUE_MISSING without asserting a value RT_MOCKUP_AXES_MISMATCH never token-checks
+   anyway (axis_token_props() returns none for a marker axis). */
 $FX_AXIS_POSITIONS = array(
 	'scale'       => array( 'contained', 'classic', 'editorial', 'monumental' ),
 	'ground'      => array( 'paper', 'warm', 'cool', 'ink' ),
 	'density'     => array( 'compact', 'standard', 'generous', 'monumental' ),
 	'composition' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
 	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
+	'accent'      => array( 'none', 'reserved', 'tinted-field', 'duotone', 'gradient', 'metallic', 'polychrome' ),
+	'chassis'     => array( 'bare', 'carded', 'soft-carded', 'bordered', 'rule-divided', 'hard-shadow', 'strict-grid', 'layered' ),
+	'ornament'    => array( 'none', 'rule', 'texture', 'pattern', 'illustration' ),
 );
 
 /* A conforming design-system.md: every position $FX_AXIS_POSITIONS names gets its OWN table row,
@@ -301,9 +310,10 @@ function fx_pers_catalog( $skip_id = null, $skip_field_pid = null, $skip_field =
 				continue;
 			}
 			if ( 'Axes' === $field ) {
-				list( $scale, $ground, $density, $composition, $elevation ) = $FX_PERS_AXES[ $pid ];
+				list( $scale, $ground, $density, $composition, $elevation, $accent, $chassis, $ornament ) = $FX_PERS_AXES[ $pid ];
 				$out .= '**Axes:** scale `' . $scale . '` · ground `' . $ground . '` · density `' . $density
-					. '` · composition `' . $composition . '` · elevation `' . $elevation . "`\n";
+					. '` · composition `' . $composition . '` · elevation `' . $elevation
+					. '` · accent `' . $accent . '` · chassis `' . $chassis . '` · ornament `' . $ornament . "`\n";
 			} else {
 				$out .= '**' . $field . ':** fixture value.' . "\n";
 			}
@@ -327,10 +337,19 @@ function fx_wc_skill( $root, $skill, $hard_rules_body, $extra = '' ) {
 	);
 }
 
-/** One anchor block in the exact shape the audit parses. */
-function fx_pers( $id, $scale, $ground, $density, $composition, $elevation ) {
+/** One anchor block in the exact shape the audit parses. style-catalog PR 2b: $accent, $chassis,
+    $ornament default to null, which OMITS that axis from the **Axes:** line entirely -- the shape
+    an undefined-axis RED fixture needs (RT_PERS_BAD_AXIS), same null-omits convention fx_proof()
+    already uses. */
+function fx_pers( $id, $scale, $ground, $density, $composition, $elevation, $accent = null, $chassis = null, $ornament = null ) {
+	$axes_line = "scale `$scale` · ground `$ground` · density `$density` · composition `$composition` · elevation `$elevation`";
+	foreach ( array( 'accent' => $accent, 'chassis' => $chassis, 'ornament' => $ornament ) as $nm_axis => $nm_val ) {
+		if ( null !== $nm_val ) {
+			$axes_line .= " · $nm_axis `$nm_val`";
+		}
+	}
 	return "### `$id` — Fixture\n\n"
-		. "**Axes:** scale `$scale` · ground `$ground` · density `$density` · composition `$composition` · elevation `$elevation`\n\n"
+		. "**Axes:** $axes_line\n\n"
 		. "**Fits:** fixture.\n\n**Typography:** fixture.\n\n**Motion intensity:** fixture.\n\n"
 		. "**Imagery:** fixture.\n\n**Card recipe:** fixture.\n\n";
 }
@@ -378,8 +397,10 @@ function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
  * layout, the placeholder recipe — is deliberately absent, so a fixture that fails fails on the
  * axis VALUES and on nothing else.
  *
- * $axes is array( scale, ground, density, elevation, composition ). Passing null for one omits
- * that declaration entirely, which is how the "neither declares it" branch gets a fixture.
+ * $axes is array( scale, ground, density, elevation, composition, accent, chassis, ornament ) --
+ * the trailing three are style-catalog PR 2b's marker axes, same shape composition already used.
+ * Passing null for one omits that declaration entirely, which is how the "neither declares it"
+ * branch gets a fixture.
  * The trailing `--c-bg-alt` is not decoration: it sits beside `--c-bg` exactly as it does in the
  * real files, so the fixture exercises the (?![\w-]) boundary that stops the ground axis from
  * reading its neighbour.
@@ -395,7 +416,7 @@ function fx_tpl( $id, array $comps, array $decoy = array(), $wire = 'fenced' ) {
  * attribute values, or compared whitespace, would fail the "same copy" scenario on this alone.
  */
 function fx_proof( array $axes, $copy = null, $noise = '' ) {
-	list( $scale, $ground, $density, $elevation, $composition ) = $axes;
+	list( $scale, $ground, $density, $elevation, $composition, $accent, $chassis, $ornament ) = $axes + array_fill( 0, 8, null );
 	$decl = '';
 	if ( null !== $scale ) {
 		$decl .= "  --type-ratio: $scale; --display-lh: 0.95; --fs-h1-max: 88;\n";
@@ -411,6 +432,11 @@ function fx_proof( array $axes, $copy = null, $noise = '' ) {
 	}
 	if ( null !== $composition ) {
 		$decl .= "  /* composition: $composition */\n";
+	}
+	foreach ( array( 'accent' => $accent, 'chassis' => $chassis, 'ornament' => $ornament ) as $nm_axis => $nm_val ) {
+		if ( null !== $nm_val ) {
+			$decl .= "  /* $nm_axis: $nm_val */\n";
+		}
 	}
 
 	$copy = ( null === $copy ) ? array( 'Fixture' ) : $copy;
@@ -497,6 +523,12 @@ function fx_mockup( array $omit = array(), array $outside = array(), array $font
 		'--sp-scale'   => '--sp-scale: 1.0;  /* density: standard */',
 		'--elev-rest'  => '--elev-rest: 0 1px 2px rgba(0,0,0,.04); --elev-hover: none;  /* elevation: soft-shadow */',
 		'composition'  => '/* composition: LP-CENTERED */',
+		/* style-catalog PR 2b: PERS-INSTITUTIONAL's own three new positions, same reasoning as
+		   composition above -- a base fixture missing them would MISMATCH every default-anchor
+		   scenario in this whole suite against $axes_of['PERS-INSTITUTIONAL']. */
+		'accent'       => '/* accent: reserved */',
+		'chassis'      => '/* chassis: carded */',
+		'ornament'     => '/* ornament: illustration */',
 	);
 	$decl = '    /* Anchor: ' . $anchor_pid . " */\n"
 		. '    --c-bg:#F2F5F8; --c-bg-alt:#E8EDF3;  /* ground: ' . $anchor_ground . " */\n";
@@ -628,7 +660,10 @@ function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
 		if ( null === $axes ) {
 			continue;
 		}
-		list( $scale, $ground, $density, $elevation, $composition ) = $axes;
+		/* style-catalog PR 2b: trailing 3 (accent, chassis, ornament) default null via the +
+		   array-union fill, same convention fx_proof() uses, so a caller that still passes a
+		   5-tuple gets those three axes simply undeclared rather than a PHP notice. */
+		list( $scale, $ground, $density, $elevation, $composition, $accent, $chassis, $ornament ) = $axes + array_fill( 0, 8, null );
 		/* --c-bg-alt sits beside --c-bg exactly as it does in the real file, so every gallery
 		   scenario also exercises the (?![\w-]) boundary that stops the ground axis reading its
 		   longer neighbour. */
@@ -637,8 +672,13 @@ function fx_gallery( array $strips, array $anchors, array $opts = array() ) {
 			. "    --c-bg: $ground; --c-bg-alt: #F6F7F8; --c-text: #15181A;\n"
 			. "    --sp-scale: $density;\n"
 			. "    --elev-rest: $elevation; --elev-hover: none;\n"
-			. "    /* composition: $composition */\n"
-			. "  }\n"
+			. "    /* composition: $composition */\n";
+		foreach ( array( 'accent' => $accent, 'chassis' => $chassis, 'ornament' => $ornament ) as $nm_axis => $nm_val ) {
+			if ( null !== $nm_val ) {
+				$css .= "    /* $nm_axis: $nm_val */\n";
+			}
+		}
+		$css .= "  }\n"
 			. '  [data-anchor="' . $anchor_key . '"] .card{border-radius:0;box-shadow:var(--elev-rest)}' . "\n";
 	}
 
@@ -1019,8 +1059,8 @@ function fx_base( $root ) {
 		"---\n\n" .
 		"The axis proof lives in `assets/proof-editorial-mockup.html` and `assets/proof-direct-mockup.html`.\n"
 	);
-	fx( $root, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
-	fx( $root, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ) ) );
+	fx( $root, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ) ) );
+	fx( $root, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ) ) );
 }
 
 /* Runs the real audit as a subprocess against $root. Returns [exit_code, combined_output,
@@ -2421,14 +2461,14 @@ fx(
 	$r80,
 	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
 );
 list( , $out80 ) = fx_run_ok( $audit, $r80 );
-ok( 'FAIL' === fx_row_level( $out80, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ), 'dos anclas que comparten mas de un eje FALLAN', fx_row_level( $out80, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ) );
-ok( array() !== fx_lines_with( $out80, array( 'RT_PERS_TOO_SIMILAR', '4' ) ), 'y la fila dice CUANTOS ejes comparten, que es lo accionable', $out80 );
+ok( 'FAIL' === fx_row_level( $out80, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ), 'dos anclas que comparten mas de un eje FALLAN', fx_row_level( $out80, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ) );
+ok( array() !== fx_lines_with( $out80, array( 'RT_STYLE_TOO_SIMILAR', '4' ) ), 'y la fila dice CUANTOS ejes comparten, que es lo accionable', $out80 );
 fx_rrmdir( $r80 );
 
 echo "--- una posicion de eje inventada no pasa en silencio ---\n";
@@ -2438,20 +2478,20 @@ fx(
 	$r81,
 	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
 	/* "medium" no existe en el eje de densidad: un typo crea una quinta posicion en silencio.
 	   ground y composition copian a PERS-MATTER a proposito -- si el guard `if ( $ok )` que
 	   excluye anclas invalidas de la comparacion se cayera, esta ancla SI compartiria mas de un
-	   eje con PERS-MATTER y RT_PERS_TOO_SIMILAR dispararia donde no debe. Sin esas dos posiciones
+	   eje con PERS-MATTER y RT_STYLE_TOO_SIMILAR dispararia donde no debe. Sin esas dos posiciones
 	   repetidas, un typo en un solo eje nunca reproduce una colision real y el guard queda sin
 	   cobertura de mutacion. */
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'warm', 'medium', 'strict-grid', 'soft-shadow' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'warm', 'medium', 'strict-grid', 'soft-shadow', 'reserved', 'carded', 'illustration' )
 );
 list( , $out81 ) = fx_run_ok( $audit, $r81 );
 ok( 'FAIL' === fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ), 'una posicion que ningun eje define FALLA, nombrandola', fx_row_level( $out81, array( 'RT_PERS_BAD_AXIS', 'medium' ) ) );
-ok( array() === fx_lines_with( $out81, array( 'RT_PERS_TOO_SIMILAR' ) ), 'y no se cuenta como parecido: una posicion invalida no es una coincidencia', $out81 );
+ok( array() === fx_lines_with( $out81, array( 'RT_STYLE_TOO_SIMILAR' ) ), 'y no se cuenta como parecido: una posicion invalida no es una coincidencia', $out81 );
 fx_rrmdir( $r81 );
 
 echo "--- cuatro anclas bien separadas no levantan nada ---\n";
@@ -2461,13 +2501,13 @@ fx(
 	$r82,
 	'skills/ux-design-system/references/design-personalities.md',
 	"# Personalities\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
 );
 list( , $out82 ) = fx_run_ok( $audit, $r82 );
-ok( array() === fx_lines_with( $out82, array( 'RT_PERS_TOO_SIMILAR' ) ), 'compartir UN eje (densidad) es legal: el limite es mas de uno', $out82 );
+ok( array() === fx_lines_with( $out82, array( 'RT_STYLE_TOO_SIMILAR' ) ), 'compartir UN eje (densidad) es legal: el limite es mas de uno', $out82 );
 ok( array() === fx_lines_with( $out82, array( 'RT_PERS_BAD_AXIS' ) ), 'y todas las posiciones son validas', $out82 );
 fx_rrmdir( $r82 );
 
@@ -2476,22 +2516,26 @@ $r83 = fx_tmp_root();
 fx_base( $r83 );
 fx( $r83, 'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
-/* NEGATIVE CONTROL. design-system.md aqui define TODAS las posiciones -- las 19, contando que
-   `monumental` cubre a la vez el eje de escala y el de densidad y por eso aparece una sola vez --
-   y cada una con un valor token-shaped en su propia fila. Nada tiene que sonar: esta es la mitad
-   silenciosa del par, y prueba que el check no dispara sobre un archivo correcto. La fila que SI
-   dispara es $r84, diez lineas mas abajo. */
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' ) );
+/* NEGATIVE CONTROL. design-system.md aqui define TODAS las posiciones -- las 36 unicas (style-
+   catalog PR 2b widened this from 19), contando que `monumental` cubre a la vez el eje de escala y
+   el de densidad, `none` cubre elevation/accent/ornament y `strict-grid` cubre composition/chassis,
+   por eso cada una aparece una sola vez -- y cada una con un valor token-shaped en su propia fila.
+   Nada tiene que sonar: esta es la mitad silenciosa del par, y prueba que el check no dispara sobre
+   un archivo correcto. La fila que SI dispara es $r84, diez lineas mas abajo. */
 fx( $r83, 'skills/web-templates/references/design-system.md',
 	"# Tokens\n\n| position | value |\n|---|---|\n"
 	. "| `contained` | 1 |\n| `classic` | 1 |\n| `editorial` | 1 |\n| `monumental` | 1 |\n"
 	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
 	. "| `compact` | 1 |\n| `standard` | 1 |\n| `generous` | 1 |\n"
 	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
-	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n" );
+	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n"
+	. "| `reserved` | 1 |\n| `tinted-field` | 1 |\n| `duotone` | 1 |\n| `gradient` | 1 |\n| `metallic` | 1 |\n| `polychrome` | 1 |\n"
+	. "| `bare` | 1 |\n| `carded` | 1 |\n| `soft-carded` | 1 |\n| `bordered` | 1 |\n| `rule-divided` | 1 |\n| `hard-shadow` | 1 |\n| `layered` | 1 |\n"
+	. "| `rule` | 1 |\n| `texture` | 1 |\n| `pattern` | 1 |\n| `illustration` | 1 |\n" );
 list( , $out83 ) = fx_run_ok( $audit, $r83 );
 ok( array() === fx_lines_with( $out83, array( 'RT_AXIS_VALUE_MISSING' ) ), 'una posicion con valor en su propia fila no levanta nada', $out83 );
 fx_rrmdir( $r83 );
@@ -2502,10 +2546,10 @@ $r84 = fx_tmp_root();
 fx_base( $r84 );
 fx( $r84, 'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' ) );
 fx( $r84, 'skills/web-templates/references/design-system.md', "# Tokens\n\n| `contained` | 1.200 |\n" );
 list( , $out84 ) = fx_run_ok( $audit, $r84 );
 ok( 'FAIL' === fx_row_level( $out84, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'una posicion sin valor en design-system.md FALLA, nombrandola', fx_row_level( $out84, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
@@ -2523,10 +2567,10 @@ $r85 = fx_tmp_root();
 fx_base( $r85 );
 fx( $r85, 'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' ) );
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' ) );
 fx( $r85, 'skills/web-templates/references/design-system.md',
 	"# Tokens\n\nThe broken-grid composition scatters elements across the grid on purpose; we write it `broken-grid` in prose here, and give it no row of its own anywhere.\n\n"
 	. "| position | value |\n|---|---|\n"
@@ -2558,9 +2602,12 @@ fx( $r89, 'skills/web-templates/references/design-system.md',
 	. "| `none` |  |\n| `hairline` |  |\n| `soft-shadow` |  |\n| `accent-glow` |  |\n" );
 list( , $out89 ) = fx_run_ok( $audit, $r89 );
 ok( 'FAIL' === fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ), 'la celda de valor vacia FALLA: el nombre entre backticks no es el valor', fx_row_level( $out89, array( 'RT_AXIS_VALUE_MISSING', 'broken-grid' ) ) );
-/* 20 = 5 ejes x 4 posiciones. `monumental` aparece dos veces a proposito: es posicion del eje de
-   escala Y del de densidad, y cada eje reclama su valor por separado. */
-ok( 20 === count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y FALLA para las 20 parejas eje/posicion, no solo para una', count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ) );
+/* 40 = 8 ejes x (4,4,4,4,4,7,8,5) posiciones sumadas (style-catalog PR 2b widened this from 20).
+   `monumental` aparece dos veces a proposito: es posicion del eje de escala Y del de densidad, y
+   cada eje reclama su valor por separado -- accent/chassis/ornament's 3 new positions this table
+   never mentions (`reserved`, `tinted-field`, ...) FAIL the SAME way, as "no table row of its own
+   anywhere", so the count is unaffected by this fixture not listing them explicitly. */
+ok( 40 === count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ), 'y FALLA para las 40 parejas eje/posicion, no solo para una', count( fx_lines_with( $out89, array( 'RT_AXIS_VALUE_MISSING' ) ) ) );
 fx_rrmdir( $r89 );
 
 /* Una frase en la celda tampoco es un valor. Es EXACTAMENTE lo que shippeaba la tabla de
@@ -2640,7 +2687,10 @@ fx( $r93, 'skills/web-templates/references/design-system.md',
 	. "### Rest\n| Position | Value |\n|---|---|\n"
 	. "| `paper` | 1 |\n| `warm` | 1 |\n| `cool` | 1 |\n| `ink` | 1 |\n"
 	. "| `centered` | 1 |\n| `asymmetric` | 1 |\n| `strict-grid` | 1 |\n| `broken-grid` | 1 |\n"
-	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n" );
+	. "| `none` | 1 |\n| `hairline` | 1 |\n| `soft-shadow` | 1 |\n| `accent-glow` | 1 |\n"
+	. "| `reserved` | 1 |\n| `tinted-field` | 1 |\n| `duotone` | 1 |\n| `gradient` | 1 |\n| `metallic` | 1 |\n| `polychrome` | 1 |\n"
+	. "| `bare` | 1 |\n| `carded` | 1 |\n| `soft-carded` | 1 |\n| `bordered` | 1 |\n| `rule-divided` | 1 |\n| `hard-shadow` | 1 |\n| `layered` | 1 |\n"
+	. "| `rule` | 1 |\n| `texture` | 1 |\n| `pattern` | 1 |\n| `illustration` | 1 |\n" );
 list( , $out93 ) = fx_run_ok( $audit, $r93 );
 ok( 'FAIL' === fx_row_level( $out93, array( 'RT_AXIS_VALUE_MISSING', '"density"' ) ), 'la fila vacia de la tabla de densidad FALLA aunque la de escala tenga valor', fx_row_level( $out93, array( 'RT_AXIS_VALUE_MISSING', '"density"' ) ) );
 /* El check indexa por POSICION, no por tabla: no sabe bajo que heading cae cada fila, asi que
@@ -2654,7 +2704,7 @@ fx_rrmdir( $r93 );
  *
  * Reproducido en el checkout real: $found y $axes_of van indexados por ID y la ultima escritura
  * ganaba, asi que un SEGUNDO bloque `### `PERS-EDITORIAL`` con un juego de ejes lejano borraba el
- * ancla de verdad antes de comparar, y RT_PERS_TOO_SIMILAR dejaba de disparar (1 FAIL -> 0 FAIL).
+ * ancla de verdad antes de comparar, y RT_STYLE_TOO_SIMILAR dejaba de disparar (1 FAIL -> 0 FAIL).
  * Aqui PERS-EDITORIAL comparte CUATRO ejes con PERS-MATTER, y el duplicado es deliberadamente
  * lejano: si el ancla que entra a la comparacion fuera la copia, la segunda asercion se cae. */
 echo "--- un ID de personalidad declarado dos veces no puede tapar al primero ---\n";
@@ -2662,20 +2712,59 @@ $r92 = fx_tmp_root();
 fx_base( $r92 );
 fx( $r92, 'skills/ux-design-system/references/design-personalities.md',
 	"# P\n\n"
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none' )
-	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow' )
-	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'generous', 'asymmetric', 'none', 'tinted-field', 'bordered', 'texture' )
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'ink', 'compact', 'broken-grid', 'accent-glow', 'gradient', 'bare', 'none' )
+	. fx_pers( 'PERS-INSTITUTIONAL', 'contained', 'cool', 'standard', 'centered', 'soft-shadow', 'reserved', 'carded', 'illustration' )
 	/* Presente porque $PERS_IDS lo exige, y con sus posiciones reales: un eje con EDITORIAL
 	   (scale), uno con DIRECT (ground), uno con INSTITUTIONAL (elevation), cero con MATTER. Cero
 	   ruido sobre el par EDITORIAL/MATTER que este escenario existe para provocar. */
-	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow' )
-	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline' ) );
+	. fx_pers( 'PERS-VITRINE', 'editorial', 'ink', 'monumental', 'strict-grid', 'soft-shadow', 'metallic', 'soft-carded', 'none' )
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'warm', 'standard', 'strict-grid', 'hairline', 'none', 'rule-divided', 'rule' ) );
 list( , $out92 ) = fx_run_ok( $audit, $r92 );
 ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ), 'un ID declarado dos veces FALLA, nombrandolo', fx_row_level( $out92, array( 'RT_PERS_DUPLICATE_ID', 'PERS-EDITORIAL' ) ) );
-ok( 'FAIL' === fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_PERS_TOO_SIMILAR: manda el PRIMER bloque', fx_row_level( $out92, array( 'RT_PERS_TOO_SIMILAR', 'PERS-MATTER' ) ) );
+ok( 'FAIL' === fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ), 'y el duplicado no apaga RT_STYLE_TOO_SIMILAR: manda el PRIMER bloque', fx_row_level( $out92, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ) );
 ok( array() === fx_lines_with( $out92, array( 'RT_PERS_ID_MISSING' ) ), 'y el duplicado no se cuenta como ausencia del ID', $out92 );
 fx_rrmdir( $r92 );
+
+/* style-catalog PR 2b RED test (tasks.md 2b.1): fx_pers() called with ornament UNDEFINED --
+   confirmed genuinely red against the pre-widening registry, where $PERS_AXES only had five
+   entries and could not have named "ornament" at all; GREEN once nm_axes() carries all 8. */
+echo "--- style-catalog PR 2b: un eje sin definir (ornament) FALLA con RT_PERS_BAD_AXIS ---\n";
+$r92b = fx_tmp_root();
+fx_base( $r92b );
+fx(
+	$r92b,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# P\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	. fx_pers( 'PERS-MATTER', 'classic', 'warm', 'standard', 'strict-grid', 'hairline', 'tinted-field', 'bordered' )
+);
+list( , $out92b ) = fx_run_ok( $audit, $r92b );
+ok( 'FAIL' === fx_row_level( $out92b, array( 'RT_PERS_BAD_AXIS', 'PERS-MATTER', 'ornament' ) ), 'un eje sin definir en el bloque FALLA, nombrando el eje', fx_row_level( $out92b, array( 'RT_PERS_BAD_AXIS', 'PERS-MATTER', 'ornament' ) ) );
+ok( array() === fx_lines_with( $out92b, array( 'RT_STYLE_TOO_SIMILAR' ) ), 'y el ancla invalida queda fuera de la comparacion', $out92b );
+fx_rrmdir( $r92b );
+
+/* style-catalog PR 2b's own boundary, stated in design.md's testing strategy: 2/8 shared passes,
+   3/8 shared FAILs (the >2 threshold PR 2b.2 wrote at :1146). */
+echo "--- style-catalog PR 2b: el limite ancho -- 2 de 8 pasa, 3 de 8 FALLA ---\n";
+$r92c = fx_tmp_root();
+fx_base( $r92c );
+fx(
+	$r92c,
+	'skills/ux-design-system/references/design-personalities.md',
+	"# P\n\n"
+	. fx_pers( 'PERS-EDITORIAL', 'editorial', 'paper', 'generous', 'asymmetric', 'none', 'none', 'rule-divided', 'rule' )
+	/* Comparte EXACTAMENTE 2 de 8 con EDITORIAL (ground, accent). */
+	. fx_pers( 'PERS-MATTER', 'classic', 'paper', 'standard', 'strict-grid', 'hairline', 'none', 'bordered', 'texture' )
+	/* Comparte EXACTAMENTE 3 de 8 con EDITORIAL (ground, composition, ornament). */
+	. fx_pers( 'PERS-DIRECT', 'monumental', 'paper', 'compact', 'asymmetric', 'accent-glow', 'gradient', 'bare', 'rule' )
+);
+list( , $out92c ) = fx_run_ok( $audit, $r92c );
+ok( array() === fx_lines_with( $out92c, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-MATTER' ) ), '2 de 8 ejes compartidos pasa: el limite es mas de dos', $out92c );
+ok( 'FAIL' === fx_row_level( $out92c, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-EDITORIAL', 'PERS-DIRECT' ) ), '3 de 8 ejes compartidos FALLA', fx_row_level( $out92c, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-EDITORIAL', 'PERS-DIRECT' ) ) );
+ok( array() !== fx_lines_with( $out92c, array( 'RT_STYLE_TOO_SIMILAR', 'PERS-EDITORIAL', 'PERS-DIRECT', 'share 3' ) ), 'y la fila dice CUANTOS ejes comparten', $out92c );
+fx_rrmdir( $r92c );
 
 /* ---------------------------------------------------------------------------
    RT_PROOF_NOT_DISTINCT — the axis proof is a gate, not a claim.
@@ -2687,11 +2776,14 @@ echo "--- dos proof mockups que solo se separan en TRES ejes FALLAN, nombrando l
 $r93 = fx_tmp_root();
 fx_base( $r93 );
 /* scale, ground and composition differ; density and elevation are identical in both files. */
-fx( $r93, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC' ) ) );
-fx( $r93, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID' ) ) );
+/* accent `none` on BOTH sides is deliberate: density+elevation already share (2 of the old 5), and
+   the widened >2-of-8 threshold needs a third match to still FAIL post-widening -- chassis and
+   ornament keep differing so the count is exactly 3, not the whole trio. */
+fx( $r93, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ) ) );
+fx( $r93, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID', 'none', 'bare', 'none' ) ) );
 list( , $out93 ) = fx_run_ok( $audit, $r93 );
-ok( 'FAIL' === fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'tres ejes distintos de cinco FALLA', fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
-ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'only 3 of 5' ) ), 'y dice CUANTOS ejes se separan', $out93 );
+ok( 'FAIL' === fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'tres ejes comparten (density, elevation, accent) de ocho FALLA', fx_row_level( $out93, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'only 5 of 8' ) ), 'y dice CUANTOS ejes se separan', $out93 );
 /* The two assertions that make the message actionable. Without them "not different enough" would
    send the reader to diff two 300-line files by eye, which is what the row exists to replace. */
 ok( array() !== fx_lines_with( $out93, array( 'RT_PROOF_NOT_DISTINCT', 'density (--sp-scale: both `1.0`)' ) ), 'y nombra el eje density con su valor compartido', $out93 );
@@ -2705,8 +2797,8 @@ fx_base( $r94 );
    and this scenario is also what proves the `--c-bg` match does not swallow the `--c-bg-alt`
    declaration sitting beside it: fx_proof() writes the SAME --c-bg-alt into both files, so a
    greedy ground match would read both grounds as #F6F7F8, drop the count to three, and fail here. */
-fx( $r94, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
-fx( $r94, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID' ) ) );
+fx( $r94, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ) ) );
+fx( $r94, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ) ) );
 list( $code94, $out94 ) = fx_run_ok( $audit, $r94 );
 ok( array() === fx_lines_with( $out94, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'cuatro ejes distintos no producen fila', $out94 );
 ok( 0 === $code94, 'y el arbol conforme sale con codigo 0', $code94 );
@@ -2727,8 +2819,8 @@ fx_base( $r96 );
 /* Neither file declares --sp-scale and both share elevation: three axes apart, so this FAILs.
    The trap it closes is treating "absent" as "different" — under that reading, deleting the
    density token from both files would have made the proof look MORE distinct, not less. */
-fx( $r96, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', null, 'none', 'LP-ASYMMETRIC' ) ) );
-fx( $r96, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', null, 'none', 'LP-BROKEN-GRID' ) ) );
+fx( $r96, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', null, 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ) ) );
+fx( $r96, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', null, 'none', 'LP-BROKEN-GRID', 'none', 'bare', 'none' ) ) );
 list( , $out96 ) = fx_run_ok( $audit, $r96 );
 ok( 'FAIL' === fx_row_level( $out96, array( 'RT_PROOF_NOT_DISTINCT' ) ), 'un eje ausente en ambos no cuenta como separacion', fx_row_level( $out96, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
 ok( array() !== fx_lines_with( $out96, array( 'RT_PROOF_NOT_DISTINCT', 'density (--sp-scale: neither declares it)' ) ), 'y lo reporta como "neither declares it", no como un valor', $out96 );
@@ -2738,8 +2830,8 @@ echo "--- cambiar la CAJA de un hex no es un eje ---\n";
 $r97 = fx_tmp_root();
 fx_base( $r97 );
 /* Same ground written two ways. If case counted, a find-and-replace would pass for a redesign. */
-fx( $r97, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ) ) );
-fx( $r97, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#ffffff', '0.8', 'none', 'LP-BROKEN-GRID' ) ) );
+fx( $r97, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ) ) );
+fx( $r97, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#ffffff', '0.8', 'none', 'LP-BROKEN-GRID', 'none', 'bare', 'none' ) ) );
 list( , $out97 ) = fx_run_ok( $audit, $r97 );
 ok( 'FAIL' === fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ), '#FFFFFF y #ffffff son el mismo ground', fx_row_level( $out97, array( 'RT_PROOF_NOT_DISTINCT' ) ) );
 ok( array() !== fx_lines_with( $out97, array( 'RT_PROOF_NOT_DISTINCT', 'ground (--c-bg: both `#ffffff`)' ) ), 'y lo nombra normalizado en minusculas', $out97 );
@@ -2759,8 +2851,8 @@ fx_base( $r98 );
    different attribute values on every element, and the first text run reflowed across two source
    lines. None of that is copy, and none of it may produce a row. */
 $fx_copy98 = array( 'Cortamos piedra que dura', 'Pedir presupuesto', 'Marta Iribarren', 'Pedir presupuesto' );
-fx( $r98, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), $fx_copy98 ) );
-fx( $r98, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), $fx_copy98, 'ruido-solo-en-b' ) );
+fx( $r98, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ), $fx_copy98 ) );
+fx( $r98, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ), $fx_copy98, 'ruido-solo-en-b' ) );
 list( $code98, $out98 ) = fx_run_ok( $audit, $r98 );
 ok( array() === fx_lines_with( $out98, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'copia identica no produce fila', $out98 );
 ok( 0 === $code98, 'y el arbol conforme sale con codigo 0', $code98 );
@@ -2772,8 +2864,8 @@ fx_base( $r99 );
 /* One headline edited: the old string vanishes from A and a new one appears in B. Two differences
    from one edit, and the count is the assertion that kills a check written in one direction
    only — such a check still fires here, but reports 1. */
-fx( $r99, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), array( 'Cortamos piedra que dura', 'Marta Iribarren' ) ) );
-fx( $r99, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), array( 'Cortamos piedra que DURA', 'Marta Iribarren' ) ) );
+fx( $r99, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ), array( 'Cortamos piedra que dura', 'Marta Iribarren' ) ) );
+fx( $r99, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ), array( 'Cortamos piedra que DURA', 'Marta Iribarren' ) ) );
 list( , $out99 ) = fx_run_ok( $audit, $r99 );
 ok( 'FAIL' === fx_row_level( $out99, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'una cadena editada FALLA', fx_row_level( $out99, array( 'RT_PROOF_COPY_DIFFERS' ) ) );
 ok( array() !== fx_lines_with( $out99, array( 'RT_PROOF_COPY_DIFFERS', '2 visible string(s) differ' ) ), 'y cuenta las DOS diferencias que produce un solo cambio', $out99 );
@@ -2785,8 +2877,8 @@ $r100 = fx_tmp_root();
 fx_base( $r100 );
 /* The added string is a DUPLICATE of one already on both pages, so it is present on both sides and
    a set comparison would see nothing. On a real page that is a whole extra CTA. */
-fx( $r100, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto' ) ) );
-fx( $r100, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto', 'Pedir presupuesto' ) ) );
+fx( $r100, 'skills/html-mockup/assets/proof-editorial-mockup.html', fx_proof( array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto' ) ) );
+fx( $r100, 'skills/html-mockup/assets/proof-direct-mockup.html', fx_proof( array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ), array( 'Cortamos piedra que dura', 'Pedir presupuesto', 'Pedir presupuesto' ) ) );
 list( , $out100 ) = fx_run_ok( $audit, $r100 );
 ok( 'FAIL' === fx_row_level( $out100, array( 'RT_PROOF_COPY_DIFFERS' ) ), 'una cadena de mas FALLA aunque exista en los dos', fx_row_level( $out100, array( 'RT_PROOF_COPY_DIFFERS' ) ) );
 ok( array() !== fx_lines_with( $out100, array( 'RT_PROOF_COPY_DIFFERS', '1 visible string(s) differ' ) ), 'y es UNA diferencia, no dos', $out100 );
@@ -2910,7 +3002,10 @@ list( , $out131 ) = fx_run_ok( $audit, $r131 );
 ok( 'FAIL' === fx_row_level( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ), 'un fichero que dice ser un ancla y lleva las posiciones de otra FALLA', fx_row_level( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'corporate-mockup.html' ) ) );
 /* Las dos aserciones que hacen accionable el mensaje. Sin ellas "no coincide con su ancla" manda al
    lector a comparar un :root contra un catalogo a ojo, que es justamente el diff que nadie hace. */
-ok( array() !== fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', '4 of 5' ) ), 'y dice CUANTOS ejes discrepan: cuatro, porque VITRINE e INSTITUTIONAL comparten elevation', $out131 );
+/* style-catalog PR 2b: the fixture's :root still carries PERS-INSTITUTIONAL's own accent/chassis/
+   ornament tokens (fx_mockup()'s defaults), so those three ALSO mismatch against VITRINE's real
+   ones -- 4 old + 3 new = 7 of 8, elevation the only survivor. */
+ok( array() !== fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', '7 of 8' ) ), 'y dice CUANTOS ejes discrepan: siete, porque VITRINE e INSTITUTIONAL comparten elevation', $out131 );
 ok( array() !== fx_lines_with( $out131, array( 'RT_MOCKUP_AXES_MISMATCH', 'composition', 'strict-grid' ) ), 'y nombra cada eje con las DOS posiciones, la que trae y la que deberia', $out131 );
 /* El eje compartido NO se reporta: una coincidencia no es un defecto, y listarla ahogaria los
    cuatro que si lo son. INSTITUTIONAL y VITRINE estan ambas en `soft-shadow`. */
@@ -3509,10 +3604,11 @@ fx_rrmdir( $r146 );
    walk back to a flat glob and it goes red on a named assertion.
    --------------------------------------------------------------------------- */
 
-/* Two anchors five axes apart — the conforming case, and the same distance the real catalog holds. */
+/* Two anchors eight axes apart (style-catalog PR 2b widened this from five) — the conforming
+   case, and the same distance the real catalog holds. */
 $FX_GAL_FAR = array(
-	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
-	'direct'    => array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID' ),
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ),
+	'direct'    => array( '1.618', '#0E1113', '0.8', '0 0 0 1px rgba(255,106,26,.22)', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ),
 );
 /* Two archetypes x two anchors: four cards, no repeated pair. */
 $FX_GAL_STRIPS = array(
@@ -3600,11 +3696,13 @@ fx_rrmdir( $r203 );
 echo "--- dos tiras del MISMO arquetipo separadas por solo TRES ejes FALLAN, nombrando los que coinciden ---\n";
 $r204 = fx_tmp_root();
 fx_base( $r204 );
-/* scale, ground and composition differ; density and elevation are identical. Three of five, and the
-   same shape RT_PROOF_NOT_DISTINCT reports, through the same axis_matches() list. */
+/* scale, ground and composition differ; density and elevation are identical, and accent is forced
+   to match too (same trick as RT_PROOF_NOT_DISTINCT's r93) so 3-of-8 shared still clears the
+   widened >2 threshold; chassis/ornament keep differing. Same shape RT_PROOF_NOT_DISTINCT reports,
+   through the same axis_matches() list. */
 $fx_gal_near = array(
-	'editorial' => array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC' ),
-	'direct'    => array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID' ),
+	'editorial' => array( '1.500', '#FFFFFF', '1.0', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ),
+	'direct'    => array( '1.618', '#0E1113', '1.0', 'none', 'LP-BROKEN-GRID', 'none', 'bare', 'none' ),
 );
 fx_gal(
 	$r204,
@@ -3619,8 +3717,8 @@ fx_gal(
 	$FX_GAL_MAN
 );
 list( , $out204 ) = fx_run_ok( $audit, $r204 );
-ok( 'FAIL' === fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'tres ejes de cinco entre dos tiras del mismo arquetipo FALLA', fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
-ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'only 3 of 5 axes' ) ), 'y dice CUANTOS ejes los separan', $out204 );
+ok( 'FAIL' === fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ), 'tres ejes comparten (density, elevation, accent) de ocho entre dos tiras del mismo arquetipo FALLA', fx_row_level( $out204, array( 'RT_GALLERY_NOT_DISTINCT' ) ) );
+ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'only 5 of 8 axes' ) ), 'y dice CUANTOS ejes los separan', $out204 );
 ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'density (--sp-scale: both `1.0`)' ) ), 'y nombra el eje density con su valor compartido', $out204 );
 ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'elevation (--elev-rest: both `none`)' ) ), 'y nombra tambien el eje elevation', $out204 );
 ok( array() !== fx_lines_with( $out204, array( 'RT_GALLERY_NOT_DISTINCT', 'share an archetype' ) ), 'y dice que lo que comparten es el arquetipo', $out204 );
@@ -3629,13 +3727,13 @@ fx_rrmdir( $r204 );
 echo "--- cuatro ejes YA bastan tambien en la galeria: no hay fila ---\n";
 $r205 = fx_tmp_root();
 fx_base( $r205 );
-/* Only elevation matches. Four is the bar, the same one RT_PERS_TOO_SIMILAR holds, and the real
+/* Only elevation matches. Four is the bar, the same one RT_STYLE_TOO_SIMILAR holds, and the real
    catalog sits exactly on it: PERS-MATTER and PERS-INSTITUTIONAL both stand at density `standard`,
    so a threshold of five would fail the shipped gallery. Raise the bar and this scenario goes red;
    lower it and r204 above goes red. */
 $fx_gal_four = array(
-	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
-	'direct'    => array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID' ),
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ),
+	'direct'    => array( '1.618', '#0E1113', '0.8', 'none', 'LP-BROKEN-GRID', 'gradient', 'bare', 'none' ),
 );
 fx_gal(
 	$r205,
@@ -3662,8 +3760,8 @@ fx_base( $r206 );
    them would demand a distance the taxonomy never promised. Both anchors here are IDENTICAL on all
    five axes: a check that compared every pair would report this, and it must not. */
 $fx_gal_same = array(
-	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
-	'direct'    => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC' ),
+	'editorial' => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ),
+	'direct'    => array( '1.500', '#FFFFFF', '1.35', 'none', 'LP-ASYMMETRIC', 'none', 'rule-divided', 'rule' ),
 );
 fx_gal(
 	$r206,

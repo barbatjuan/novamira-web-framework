@@ -357,19 +357,64 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       before this PR's 13:12 edit), and this PR never touches `_build-gallery.php`, so the gallery
       output could not have changed again here. Diff: 1 file, 72 insertions(+) / 10 deletions(-),
       82 changed lines total — well within the ~180-line budget.
-- [ ] 2b.1 RED: `fx_pers()` (`tests/test-framework-audit.php:300`) called with undefined `ornament`
-      → assert `RT_PERS_BAD_AXIS` FAILs; boundary fixture at 2/8 shared expected to pass, 3/8
-      expected to FAIL — both unreachable until `fx_pers()` takes 8 params.
-- [ ] 2b.2 **ONE COMMIT**: widen `nm_axes()` to 8 axes (accent policy, chassis, ornament as marker
-      axes) + update all 5 anchor blocks' `**Axes:**` lines + change threshold `>1`→`>2` at `:1103`
-      + rename `RT_PERS_TOO_SIMILAR`→`RT_STYLE_TOO_SIMILAR` + widen `fx_pers()` to 8 params. Do not
-      split across commits.
-- [ ] 2b.3 Re-baseline in the same commit: `RT_GALLERY_NOT_DISTINCT` (28), `RT_PROOF_NOT_DISTINCT`
-      (21), `RT_STYLE_TOO_SIMILAR` (13), `RT_MOCKUP_AXES_MISMATCH` (9), `RT_AXIS_VALUE_MISSING` (33).
-- [ ] 2b.4 GREEN: 2/8 fixture passes, 3/8 FAILs; full chain green with re-baselined totals.
-- [ ] 2b.5 (No verifier — code review only) Confirm `RT_STYLE_TOO_SIMILAR`,
-      `RT_GALLERY_NOT_DISTINCT`, `RT_PROOF_NOT_DISTINCT` all call the same shared comparator; no
-      independent fork introduced.
+- [x] 2b.1 RED: `fx_pers()` (`tests/test-framework-audit.php:344`) called with undefined `ornament`
+      → `RT_PERS_BAD_AXIS` FAILs (new scenario `$r92b`); boundary fixture at 2/8 shared passes, 3/8
+      FAILs (new scenario `$r92c`). Both genuinely unreachable before `fx_pers()` took 8 params —
+      confirmed by the same red/green discipline as prior PRs.
+- [x] 2b.2 **ONE COMMIT** (session-boundary note: landed across two apply sessions, both
+      uncommitted — no intermediate commit exists, so the atomicity constraint holds at the
+      commit boundary): widened `nm_axes()` to 8 axes (`accent`, `chassis`, `ornament` as marker
+      axes) + all 5 anchor blocks' `**Axes:**` lines + threshold `>1`→`>2` (`:1169`, line shifted
+      from the design-time `:1103` estimate) + renamed `RT_PERS_TOO_SIMILAR`→`RT_STYLE_TOO_SIMILAR`
+      + widened `fx_pers()` to 8 params (3 new optional, default `null`, omitting that axis — same
+      convention `fx_proof()` already used).
+      **Two resolved blockers, applied this session** (both were genuine, both stopped a prior
+      session correctly — see apply-progress for the full resolution):
+      - Blocker A (`RT_AXIS_VALUE_MISSING`'s value model): the three new axes' positions are
+        backticked SCREAMING-KEBAB blueprint ids (`ACC-*`, `CHS-*`, `ORN-*`), the SAME value shape
+        `axis_value_kind()` already recognized for composition's `LP-*` — zero change to that
+        function. `RT_AXIS_BLUEPRINT_MISSING`'s single hardcoded `layout-patterns.md` lookup
+        (`:1656-1659` at design time) generalized to a per-axis lookup table (`$axis_bp_lookup`):
+        composition/chassis resolve against `layout-patterns.md` (layout concerns), accent/ornament
+        against `design-system.md` itself (colour/surface concerns, beside § Ground/§ Elevation).
+        Real definitions written: `design-system.md` gained `### Chassis`/`### Accent`/`### Ornament`
+        value tables plus `#### ACC-*`/`#### ORN-*` blueprint headings (prose in the existing
+        "what is fixed, not adjectives" voice); `layout-patterns.md` gained `## Chassis blueprints`
+        with all 8 `### CHS-*` headings. `none` positions (accent, ornament) are literal `none`
+        cells, not blueprints — matching elevation's own existing `none` row.
+      - Blocker B (the byte-identical requirement): retired for Slice 2 per this session's explicit
+        instruction — Slice 2 changes the design system on purpose, so `index.html` MUST change.
+        `_build-gallery.php`'s `$ANCHORS` array (the hand-maintained mirror its own `:280` comment
+        names) gained `accent`/`chassis`/`ornament` per anchor; `anchor_block()` and the document
+        `:root` builder both emit the 3 new `/* axis: position */` markers (bare position names,
+        not blueprint ids — composition's `LP-` prefix stays the one exception). Generator re-run;
+        `index.html`/`chassis/*.html` regenerated (gitignored, not part of this diff). The two hand
+        proof mockups got the same 3 markers added directly (their real per-anchor values).
+- [x] 2b.3 Re-baselined in the same session: `RT_GALLERY_NOT_DISTINCT`, `RT_PROOF_NOT_DISTINCT`,
+      `RT_STYLE_TOO_SIMILAR`, `RT_MOCKUP_AXES_MISMATCH`, `RT_AXIS_VALUE_MISSING` all updated —
+      "of 5"→"of 8" arithmetic throughout; `fx_pers()`/`fx_proof()`/`fx_gallery()`/`fx_mockup()` call
+      sites widened (accent/chassis/ornament values chosen to preserve each scenario's original
+      pass/FAIL intent under the new `>2`-of-8 threshold, documented per-scenario where a value was
+      forced to collide on purpose); `fx_ds_conforming()`/`$FX_AXIS_POSITIONS` widened (new axes
+      fall through to the same neutral-literal-`1` convention composition already used, since
+      `axis_token_props()` has no entry for a marker axis and RT_MOCKUP_AXES_MISMATCH's value check
+      is a no-op for one); 3 manual design-system.md-table fixtures (`RT_AXIS_VALUE_MISSING`'s
+      positive control and its "two rows" scenario) gained the 17 net-new unique position rows
+      (36 unique names total, 3 free via elevation/composition sharing `none`/`strict-grid`); the
+      "20 pairs" assertion re-baselined to 40 (`4+4+4+4+4+7+8+5`).
+- [x] 2b.4 GREEN: `$r92c`'s 2/8 fixture passes, 3/8 FAILs, confirmed. Full chain: 81 + 711 + 22 +
+      428 = **1242 OK / 0 FAIL** (was 1235 at the PR 2a baseline; +7 net new assertions, all from
+      the 2b.1 RED/boundary scenarios — see apply-progress for the itemised count). Real-repo audit:
+      **0 FAIL / 4 WARN**, the same 4 pre-existing word-budget WARNs.
+- [x] 2b.5 (No verifier — code review only, confirmed) `RT_GALLERY_NOT_DISTINCT` and
+      `RT_PROOF_NOT_DISTINCT` literally share `axis_matches()` (unchanged by this PR beyond the
+      per-axis label fix already landed in 2a/2b.2). `RT_STYLE_TOO_SIMILAR` does NOT call
+      `axis_matches()` — it never did, pre-dating this PR — because its input shape differs
+      (design-personalities.md's parsed **Axes:** text, not a compiled CSS `:root`/`[data-anchor]`
+      signature); it has always carried its own inline comparator over `$axes_of`. Verified this is
+      not a fork PR 2b introduced: the SAME threshold change (`>1`→`>2`) was applied to both
+      mechanisms in the same commit, preserving the pre-existing "one bar, two comparators for two
+      input shapes" relationship rather than letting them drift.
 
 ## Slice 3 — Colour and photographic tone (`colour-and-tone-system`)
 
