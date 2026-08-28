@@ -437,6 +437,15 @@ The two starting assets each ship pointed at one anchor **only so they render** 
 has to carry values. `corporate-mockup.html` ships at `PERS-INSTITUTIONAL`, `ecommerce-mockup.html`
 at `PERS-MATTER`. Neither is a recommendation.
 
+**A generated chassis is landing alongside them, in `assets/chassis/`.** `_build-gallery.php`
+(`../gallery/_build-gallery.php`) now also writes `assets/chassis/corporate.html` and
+`assets/chassis/ecommerce.html` from the exact same in-memory CSS tables the gallery renders —
+one run, two more files, everything reused verbatim except the gallery's own chrome (`.gal-top`,
+`.strip`, `.axis`). Generated, not hand-edited: the next run overwrites each entire, same
+discipline as `index.html`. It ships in stages — the `:root` and shell first, page bodies next —
+and `corporate-mockup.html` / `ecommerce-mockup.html` stay the ones this section describes until
+the generated pair covers everything they do; deleting them is a later, separate step.
+
 **Why this needed saying.** Until it did, step 1 read *pick the starting asset by site type* and
 stopped there, and the `:root` comment read *Default anchor* — so every corporate project shipped
 `PERS-INSTITUTIONAL` and every commerce one `PERS-MATTER`, not because anyone chose them but
