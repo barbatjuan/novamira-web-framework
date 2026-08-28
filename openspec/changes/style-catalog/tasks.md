@@ -320,11 +320,43 @@ behavior-preserving refactor** (still 5 axes — safe on its own). **2b is the a
 widening to 8 axes without the 5 anchors' `**Axes:**` lines updated in the same commit FAILs every
 anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split further.
 
-- [ ] 2a.1 RED: capture `--emit-row-types` output baseline before refactor.
-- [ ] 2a.2 Introduce `nm_axes()` (5 existing axes only) consolidating `$PERS_AXES` (`:1016-1022`),
-      `axis_matches()`'s `$labels` (`:1590`), `axis_signature_of_block()`'s `$props` (`:1553`), and
-      the `RT_MOCKUP_AXES_MISMATCH` regex alternation (`:2096`) into one source.
-- [ ] 2a.3 GREEN: `--emit-row-types` output byte-identical; full chain green (pure refactor).
+- [x] 2a.1 RED: captured `--emit-row-types` output baseline before refactor (72 lines, sha256
+      `4731b2a7...8a0f9df`).
+- [x] 2a.2 Introduced `nm_axes()` (5 existing axes only) consolidating the axis list. **Line
+      numbers re-verified against the checkout (all four had shifted since design.md was
+      written)**: `$PERS_AXES` was at `:1017-1023` (design cited `:1016-1022`), `axis_matches()`'s
+      `$labels` was at `:1659` (design cited `:1590` — its function def is at `:1658`, after PR
+      1e's `axis_token_props()`/`axis_token_values()`/`root_token_value()` landed at `:1493-1548`),
+      `axis_signature_of_block()`'s `$props` was at `:1622` (design cited `:1553`), and the
+      `RT_MOCKUP_AXES_MISMATCH` regex alternation was at `:2175`, inside the per-mockup-file loop
+      (design cited `:2096`, which is now inside the unrelated `RT_MOCKUP_DISCLOSURE_STATE` run-
+      grouping logic — that row's own code grew between design and apply). `nm_axes()` returns
+      `axis => array('positions', 'prop'|null, 'marker')` exactly as design.md D2 specifies.
+      **Explicitly NOT touched, in scope discipline**: `axis_token_props()` (`:1493-1501`, PR 1e's
+      per-token-property map, a different shape — multiple props per axis — not one of the four
+      named duplicates) and `axis_declarations()` (`:956-958`, a flat 5-property list for a
+      different check, RT_MOCKUP_NO_AXES/RT_QA_NO_AXIS_CHECK). Order preserved exactly per
+      consumer: `$PERS_AXES` and the regex alternation keep nm_axes()'s own order (scale, ground,
+      density, composition, elevation); `axis_signature_of_block()`'s `$props` derives by filtering
+      out the one marker axis (composition), landing on the same scale/ground/density/elevation
+      order it always had; `axis_matches()`'s `$labels` needed an explicit reorder (composition
+      LAST, not fourth) since its original hand-typed order differed from `$PERS_AXES`'s — kept
+      byte-for-byte to avoid reordering axis names inside any existing FAIL message.
+- [x] 2a.3 GREEN: `--emit-row-types` output byte-identical (same sha256, `cmp` exit 0 — this proof
+      command is unaffected by construction, since `--emit-row-types` echoes the static `ROW_TYPES`
+      registry and `exit()`s before `$root`/`$PERS_AXES` are ever touched; it verifies the file
+      still parses and ROW_TYPES is untouched, not the axis logic itself, which the real-repo audit
+      and full chain below verify instead). Real-repo audit: 0 FAIL / 4 WARN, the same four
+      (elementor-core 588, html-mockup 567, web-templates 559, woocommerce 597). Full chain:
+      `test-container-hygiene` 81 + `test-framework-audit` 704 + `test-audit-signals` 22 +
+      `test-write-path` 428 = **1235 OK / 0 FAIL, identical totals to baseline** — a pure refactor
+      adds no assertions. `index.html`: same 9,068,304-byte length and byte-identical past line 1
+      against the session baseline (`cmp` exit 0 on both tails); line 1's fingerprint itself
+      differs from that baseline for a pre-existing reason unrelated to this PR — it already
+      reflects PR 1f's own `_build-gallery.php` comment-edit regeneration (mtime 12:44/12:48,
+      before this PR's 13:12 edit), and this PR never touches `_build-gallery.php`, so the gallery
+      output could not have changed again here. Diff: 1 file, 72 insertions(+) / 10 deletions(-),
+      82 changed lines total — well within the ~180-line budget.
 - [ ] 2b.1 RED: `fx_pers()` (`tests/test-framework-audit.php:300`) called with undefined `ornament`
       → assert `RT_PERS_BAD_AXIS` FAILs; boundary fixture at 2/8 shared expected to pass, 3/8
       expected to FAIL — both unreachable until `fx_pers()` takes 8 params.

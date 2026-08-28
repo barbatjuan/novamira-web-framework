@@ -1014,13 +1014,58 @@ $PERS_IDS    = array( 'PERS-EDITORIAL', 'PERS-MATTER', 'PERS-DIRECT', 'PERS-INST
    values. Motion stays prose on purpose — the distance rule below is about what a still frame
    shows, and motion.md already pins the curve and the ranges. */
 $PERS_FIELDS = array( 'Axes', 'Fits', 'Typography', 'Motion intensity', 'Imagery', 'Card recipe' );
-$PERS_AXES   = array(
-	'scale'       => array( 'contained', 'classic', 'editorial', 'monumental' ),
-	'ground'      => array( 'paper', 'warm', 'cool', 'ink' ),
-	'density'     => array( 'compact', 'standard', 'generous', 'monumental' ),
-	'composition' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
-	'elevation'   => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
-);
+
+/**
+ * The single source of truth for what an axis IS: which positions it may hold, which custom
+ * property carries its value inside a `:root` block (or `null` when it has none), and whether it
+ * is a MARKER axis -- declared through a CSS comment carrying `axis: position` rather than a
+ * custom property, the way composition already is.
+ *
+ * style-catalog PR 2a's whole job: before this function existed, the same axis list was hand-kept
+ * in FOUR places that had to be edited together and were never checked for agreement -- $PERS_AXES
+ * (now derived below), axis_signature_of_block()'s $props, axis_matches()'s $labels, and the
+ * RT_MOCKUP_AXES_MISMATCH marker regex's alternation. "ONE list, two consumers" is
+ * axis_matches()'s own phrase for itself; this is the same discipline applied to all four.
+ *
+ * 5 axes only, on purpose. PR 2b widens this to 8 (accent policy, chassis, ornament) in ONE atomic
+ * commit alongside every anchor's `**Axes:**` line and the >1 similarity threshold -- widening the
+ * registry alone, without those companion edits landing in the same commit, FAILs every anchor
+ * instantly via RT_PERS_BAD_AXIS (a style would then name a position no axis defines).
+ */
+function nm_axes() {
+	return array(
+		'scale'       => array(
+			'positions' => array( 'contained', 'classic', 'editorial', 'monumental' ),
+			'prop'      => '--type-ratio',
+			'marker'    => false,
+		),
+		'ground'      => array(
+			'positions' => array( 'paper', 'warm', 'cool', 'ink' ),
+			'prop'      => '--c-bg',
+			'marker'    => false,
+		),
+		'density'     => array(
+			'positions' => array( 'compact', 'standard', 'generous', 'monumental' ),
+			'prop'      => '--sp-scale',
+			'marker'    => false,
+		),
+		'composition' => array(
+			'positions' => array( 'centered', 'asymmetric', 'strict-grid', 'broken-grid' ),
+			'prop'      => null,
+			'marker'    => true,
+		),
+		'elevation'   => array(
+			'positions' => array( 'none', 'hairline', 'soft-shadow', 'accent-glow' ),
+			'prop'      => '--elev-rest',
+			'marker'    => false,
+		),
+	);
+}
+
+$PERS_AXES = array();
+foreach ( nm_axes() as $nm_axis => $nm_def ) {
+	$PERS_AXES[ $nm_axis ] = $nm_def['positions'];
+}
 
 /**
  * The axis positions one anchor block declares.
@@ -1619,7 +1664,14 @@ function axis_signature_of_block( $block ) {
 	if ( '' === $block ) {
 		return $sig;
 	}
-	$props = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest' );
+	/* Derived from nm_axes() (style-catalog PR 2a), composition excluded here the same way it
+	   always was -- it has no custom property (`'prop' => null`), and is parsed separately below. */
+	$props = array();
+	foreach ( nm_axes() as $nm_axis => $nm_def ) {
+		if ( null !== $nm_def['prop'] ) {
+			$props[ $nm_axis ] = $nm_def['prop'];
+		}
+	}
 	foreach ( $props as $axis => $prop ) {
 		/* (?![\w-]) so `--c-bg` never swallows the `--c-bg-alt` declaration that sits beside it on
 		   the same line: the ground axis is --c-bg, and matching its longer neighbour would report
@@ -1656,7 +1708,14 @@ function proof_axis_signature( $src ) {
  * enough" sends the reader back to diff two files; "both sit at --sp-scale: 1.0" is a one-line fix.
  */
 function axis_matches( $a, $b ) {
-	$labels = array( 'scale' => '--type-ratio', 'ground' => '--c-bg', 'density' => '--sp-scale', 'elevation' => '--elev-rest', 'composition' => 'composition marker' );
+	/* Derived from nm_axes() (style-catalog PR 2a). Order kept exactly as before (composition
+	   LAST, not in its usual fourth slot) -- this list's own order, not $PERS_AXES's, since that
+	   is what every existing "share N axes (...)" message was built from. */
+	$nm_defs = nm_axes();
+	$labels  = array();
+	foreach ( array( 'scale', 'ground', 'density', 'elevation', 'composition' ) as $nm_axis ) {
+		$labels[ $nm_axis ] = $nm_defs[ $nm_axis ]['marker'] ? 'composition marker' : $nm_defs[ $nm_axis ]['prop'];
+	}
 	$same   = array();
 	foreach ( $labels as $axis => $label ) {
 		if ( $a[ $axis ] === $b[ $axis ] ) {
@@ -1946,6 +2005,9 @@ if ( $proof_all_here && 2 === count( $proof_copy ) ) {
    `index.html` in two subdirectories are one message otherwise. */
 $mockup_asset_root = $root . '/skills/html-mockup/assets';
 $mockup_assets     = html_assets_deep( $mockup_asset_root );
+/* Derived from nm_axes() (style-catalog PR 2a), same order as before -- built once, outside the
+   per-file loop below, since it never varies per file. */
+$mockup_axis_alt = implode( '|', array_keys( nm_axes() ) );
 foreach ( $mockup_assets as $mockup_path ) {
 	$mockup_name = substr( $mockup_path, strlen( $mockup_asset_root ) + 1 );
 	if ( '_' === substr( basename( $mockup_path ), 0, 1 ) ) {
@@ -2172,7 +2234,7 @@ foreach ( $mockup_assets as $mockup_path ) {
 		$mockup_labels = array();
 		/* FIRST occurrence per axis wins: proof-editorial-mockup.html repeats its `elevation` marker
 		   further down with prose after it, and the one that counts is the one in the axis block. */
-		if ( preg_match_all( '#/\*\s*(scale|ground|density|composition|elevation)\s*:\s*([A-Za-z0-9-]+)#i', $mockup_root, $mockup_lm, PREG_SET_ORDER ) ) {
+		if ( preg_match_all( '#/\*\s*(' . $mockup_axis_alt . ')\s*:\s*([A-Za-z0-9-]+)#i', $mockup_root, $mockup_lm, PREG_SET_ORDER ) ) {
 			foreach ( $mockup_lm as $mockup_one ) {
 				$mockup_ax = strtolower( $mockup_one[1] );
 				if ( isset( $mockup_labels[ $mockup_ax ] ) ) {
