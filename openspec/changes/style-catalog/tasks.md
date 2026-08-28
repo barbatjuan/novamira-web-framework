@@ -489,21 +489,75 @@ anchor instantly via `RT_PERS_BAD_AXIS`, so 2b lands as one commit, not split fu
       amber-gold, `ink-cool` `#4FA8E0` sky blue.
 - [x] 3a.6 GREEN: whitelist/count/AAA-loop/drift assertions all pass at 9; full chain green (see
       Work Unit Evidence below).
-- [ ] 3b.1 RED: fixture — style A `$INK_TINT=0.30`, style B `0.60` → differing hues, both within
-      `ink_quant_bound()` of `ink_ends()`'s convergence assertion (`:895`).
-- [ ] 3b.2 RED: fixture — style declares ink position `none` → no `filter:url()` emitted (`:9342`);
-      convergence (`:895`), spread (`:925`), endpoint-collision (`:937`) never evaluated for it.
-- [ ] 3b.3 RED: fixture — channel spread of 14 (< the 20 floor at `:925`) → ink gate FAILs.
-- [ ] 3b.4 Implement `$INK_TINT_BY_STYLE` (shaped like `$INK_GRADE`, `:798-806`); read per-style at
-      the two existing call sites `ink_of()` (`:1011`) and the brand loop (`:1021`) — tint is
-      already a parameter of `ink_ends()` (`:877`) and `ink_of()` (`:991`); implement `none` as an
-      identity grade with zero new gate exemptions.
-- [ ] 3b.5 Derive `soft-shadow` `--elev-rest`/`--elev-hover` via `color-mix` off `--c-text`,
-      replacing the fixed literal (`design-system.md:543`); confirm light/dark grounds diverge.
-- [ ] 3b.6 GREEN: all ink fixtures pass; full chain green.
-- [ ] 3b.7 Cross-cutting (proposal Success Criteria, not a spec scenario): render one archetype
-      under 4 styles from different catalog groups via `visual-verification`, and the same
-      photograph under 4 styles — histograms must measurably differ.
+- [x] 3b.1 RED: fixture — style A `$INK_TINT=0.30`, style B `0.60` → differing hues, both within
+      `ink_quant_bound()` of `ink_ends()`'s convergence assertion. **Line numbers re-verified against
+      the current checkout** (design's `:895` estimate had shifted): the convergence assertion is at
+      `ink_ends()` `:966-976` (function itself `:949`). **Two things were genuinely RED**, not one:
+      (a) plumbing — before 3b.4, `_build-gallery.php` had no `$INK_TINT_BY_STYLE` and both call
+      sites passed the one shared `$INK_TINT`; proved red via 3 new structural assertions in
+      `tests/test-write-path.php` (existence + both call sites read a per-style value), confirmed
+      FAIL against a stashed pre-3b.4 generator, confirmed OK after. (b) behaviour — a genuine
+      RED→GREEN pair extracting `ink_ends()`/`ink_tint()`/`ink_quant_bound()` etc. from the real
+      `_build-gallery.php` source (balanced-brace extraction, no re-typed formula) and running them
+      in an isolated child process (`exec()`, same isolation the existing "no se muere en silencio"
+      fixture already uses, since `fail()` calls `exit(1)`). Real production values: `matter`
+      (ground `warm`, accent `#0F5C1A`) at tint 0.30 → dark ink `#202E19` (spread 21); `institutional`
+      (ground `cool`, accent `#8C1A28`) at tint 0.60 → dark ink `#481821` (spread 48) — genuinely
+      different hues, both converged, both clear the 20-floor.
+- [x] 3b.2 RED: fixture — style declares ink position `none` → no `filter:url()` emitted; convergence,
+      spread, endpoint-collision never evaluated for it. **Line numbers re-verified**: the CSS
+      emission loops are at `:9458-9481` (anchors) and `:9485-9504` (brands) in the current checkout
+      (design's `:9342` estimate had shifted). Fixture calls the real `ink_of()` (extracted, same
+      technique as 3b.1) with a grade of the literal string `'none'`: `ends` returns `NULL` (not an
+      array — `ink_ends()` genuinely never runs), `sat` is the feColorMatrix identity (`'1'`), the
+      table is the feComponentTransfer identity (`0 0.25 0.5 0.75 1`). Confirmed genuinely RED before
+      3b.4 (all 4 assertions FAIL against the pre-implementation generator).
+- [x] 3b.3 RED: fixture — channel spread of 14 (< the 20 floor) → ink gate FAILs. Real combination
+      found by sweeping the accent hex space against `paper`: `#20203A` at the house default tint
+      0.45 → dark ink `#242532`, spread exactly 14. Same extraction/subprocess technique; asserts
+      exit code 1 and the exact `fail()` message naming "channel spread of 14". This scenario was
+      ALREADY green pre-3b.4 (the spread gate itself is not new) — its value is proving `none` did
+      not soften it, per 3b.4's own constraint.
+- [x] 3b.4 Implemented `$INK_TINT_BY_STYLE` (shaped like `$INK_GRADE`), read per-style at the two
+      call sites: the anchor loop (now `ink_of( $ink_ak, $ANCHORS, $GROUND, $ACCENT_BY_GROUND,
+      $INK_GRADE, $ink_tint_v )`, current-checkout line `:1122-1124`) and the brand loop (now
+      `ink_ends( $GROUND[$ink_bg], $ACCENT_BY_GROUND[$ink_bg], $ink_tint_v )`, `:1130-1141`) — both
+      resolve `isset(...) ? ... : $INK_TINT_BY_STYLE['default']`, the same optional-override shape
+      `$ink_bv['ink']` already had. Brands additionally gained an `'ink_tint'` override key, mirroring
+      the existing `'ink'` grade override — no brand uses it yet, but the call site now supports one
+      without a further edit. `none` implemented as a short-circuit inside `ink_of()` BEFORE
+      `ink_ends()` is called: `ends => null`, `sat => '1'`, identity table, `gamma => 0`. **Zero new
+      gate exemptions, verified per-gate**: convergence/weight/spread/collision — never reached, not
+      exempted (ink_ends() not called). Split-tone ratio (`:1143-1154`->now shifted, see GREEN below)
+      — passes through its OWN pre-existing zero-deviation `continue` (`$ink_ends_dev < 1e-9`), no
+      new branch added. Swatch-separation (`ink_pixel()`/`ink_mean()`) — reads `sat`/`table` only,
+      never `ends`, so it runs on the RAW photo mean and passes wide; not touched. The only new code
+      for `none` outside `ink_of()` is a `null === $ink_o['ends']` skip in the two CSS-emission loops
+      (`:9462-9464`, `:9490-9491` current lines) — output generation, not a gate.
+- [x] 3b.5 Derived `soft-shadow`'s `--elev-rest`/`--elev-hover` via `color-mix(in srgb,var(--c-text)
+      N%,transparent)` (4% / 16%, the exact percentages the old `rgba(0,0,0,.04)` /
+      `rgba(21,24,26,.16)` literal used), same syntax `accent-glow` already established one row down.
+      Replaced in both `_build-gallery.php`'s `$ELEVATION['soft-shadow']` (`:286-297` current lines)
+      and `design-system.md`'s Elevation table (`:559-573` current lines, `:543` in the design-time
+      estimate had shifted after PR 3a's own table growth) plus a new explanatory paragraph. Fixed a
+      now-stale Spanish comment on `vitrine`'s card CSS (`:8657-8663` current lines) that had asserted
+      "black on black, invisible by construction" for `soft-shadow` on the `ink` ground — no longer
+      literally true once the colour follows `--c-text` instead of a fixed black. **Confirmed light
+      and dark grounds diverge, real values**: `institutional` (ground `cool`, `--c-text #141C24`) →
+      `color-mix(in srgb,#141C24 4%,transparent)` ≈ `rgba(20,28,36,.04)`, a genuine dark shadow;
+      `vitrine` (ground `ink`, `--c-text #F4F6F7`) → `color-mix(in srgb,#F4F6F7 4%,transparent)` ≈
+      `rgba(244,246,247,.04)`, a pale glow, not a shadow — the RGB channels flip from near-black to
+      near-white between the two real anchors that both carry `elevation: soft-shadow` today.
+- [x] 3b.6 GREEN: all ink fixtures pass (22 new assertions: 8 function-existence + 3 plumbing + 4
+      (3b.1) + 4 (3b.2) + 3 (3b.3)); full chain green — see apply-progress for the verbatim run,
+      including the real generator run's own measured swatch-separation numbers for `matter`/
+      `institutional` at their new tints (25.1 / 16.5, bar 10.0).
+- [ ] 3b.7 **DEFERRED to the orchestrator**, not attempted this session. Cross-cutting (proposal
+      Success Criteria, not a spec scenario): render one archetype under 4 styles from different
+      catalog groups via `visual-verification`, and the same photograph under 4 styles — histograms
+      must measurably differ. Deferred per explicit session instruction: it is a visual-verification
+      sweep the orchestrator runs separately, and it depends on Slice 4's catalog (8 `STY-*` entries)
+      existing, which is explicitly out of scope for PR 3b.
 
 ## Slice 4 — The style catalog (`style-catalog`)
 

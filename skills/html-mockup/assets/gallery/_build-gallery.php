@@ -283,10 +283,19 @@ $ELEVATION = array(
 		'hover' => '0 0 0 1px var(--c-text)',
 		'label' => '1px var(--c-border) → var(--c-text)',
 	),
+	/* `rgba(0,0,0,.04)` / `rgba(21,24,26,.16)` were a fixed cool near-black — `#15181A`, `paper`'s
+	   OWN `--c-text` at 16%, hardcoded for the one ground it was written against. Nine ground
+	   families later (style-catalog PR 3a) that literal reads wrong on every warm/earth ground and
+	   this file's own rule already names the fix: "Tint the shadow, never lift it." `color-mix`
+	   off `--c-text` is the SAME syntax `accent-glow` below already uses off `--c-accent`, same
+	   percentages (4% / 16%) the old literal used — style-catalog PR 3b. On a light ground
+	   `--c-text` is dark, so this still darkens; on a dark ground (`ink`/`ink-warm`/`ink-cool`)
+	   `--c-text` is light, so it lightens instead — a glow, not a shadow, which is the reading
+	   `vitrine`'s own § Imagery already gives it: "sobre negro una sombra no separa". */
 	'soft-shadow' => array(
-		'rest'  => '0 1px 2px rgba(0,0,0,.04)',
-		'hover' => '0 18px 40px -12px rgba(21,24,26,.16)',
-		'label' => '0 1px 2px → 0 18px 40px -12px',
+		'rest'  => '0 1px 2px color-mix(in srgb,var(--c-text) 4%,transparent)',
+		'hover' => '0 18px 40px -12px color-mix(in srgb,var(--c-text) 16%,transparent)',
+		'label' => '0 1px 2px → 0 18px 40px -12px, tinted off --c-text',
 	),
 	'accent-glow' => array(
 		'rest'  => '0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent)',
@@ -877,6 +886,25 @@ $INK_GRADE = array(
 	                                                            //                   único con color en la sala.
 );
 
+/* THE ACCENT'S SHARE OF THE SHADOW INK, PER STYLE — style-catalog PR 3b. Shaped exactly like
+   `$INK_GRADE` above: `default` is what a style whose grade table says nothing gets, and any other
+   key overrides it. Before this table, `$INK_TINT` was ONE constant every anchor's `ink_ends()`
+   call shared, so no two anchors could ever diverge in shadow HUE no matter how differently their
+   ground or accent were tuned — every photograph in every anchor got remapped onto endpoints at
+   the same relative position, which is the "hasta en los tonos" complaint this table exists to
+   answer. `ink_ends( $gr, $accent, $tint )` already took `$tint` as a parameter (`:949`); this is
+   the table that lets two real anchors actually pass it two different numbers.
+   `matter`/`institutional` prove the mechanism moves something real, not just something possible:
+   0.30 and 0.60 on their OWN real ground+accent (`warm`/`#0F5C1A`, `cool`/`#8C1A28`) measure
+   genuinely different dark-ink hexes — `#202E19` (spread 21) against `#481821` (spread 48) — and
+   both still clear `ink_ends()`'s own convergence, weight and spread≥20 gates with room, because
+   the gates decide whether a tint SHIPS; this table only lets it vary. */
+$INK_TINT_BY_STYLE = array(
+	'default'       => 0.45,
+	'matter'        => 0.30,
+	'institutional' => 0.60,
+);
+
 /* THE CURVE'S STOP COUNT. Five, because two cannot bend: a two-entry `tableValues` is a straight
    line from shadow ink to highlight ink, which tints the midtones as hard as it tints the ends and
    is the "faded" look this grade exists to avoid. Five interior stops is enough for the split tone
@@ -1059,13 +1087,34 @@ function ink_curve( $ends, $gamma ) {
  * stylesheet and relied on the two calls agreeing; this returns the `tableValues` strings
  * themselves, so the certificate and the filter are not two derivations of one intent but one
  * artefact used twice.
+ *
+ * `none` IS AN IDENTITY GRADE, NOT A NULL — style-catalog PR 3b. A style whose grade table entry is
+ * the literal string `'none'` short-circuits BEFORE `ink_ends()` is ever called, so its convergence,
+ * weight and spread≥20 assertions are never evaluated for it — not passed, not exempted, simply
+ * never reached, exactly as they never reach a `contrast()` call nobody made. `sat => '1'` is not a
+ * placeholder: at s=1 the saturate matrix's own formula reduces to the identity (`(0.213+0.787×1)r +
+ * (0.715−0.715×1)g + (0.072−0.072×1)b = r`), and the five-stop table below is the same identity for
+ * `feComponentTransfer` (`y = x` at every sampled stop). ZERO gates were touched to make this true:
+ * the split-tone ratio gate already `continue`s on a zero-deviation table (`$ink_ends_dev < 1e-9`),
+ * and the swatch-separation gate reads `sat`/`table` only, so it runs on the RAW, unstretched photo
+ * mean and passes wide. The only place that had to change is the CSS emission loops (§ 5a), which
+ * skip a `null` `ends` — no filter, nothing to `@supports` fall back from.
  */
 function ink_of( $anchor_key, $anchors, $grounds, $accents, $grades, $tint ) {
 	if ( ! isset( $anchors[ $anchor_key ] ) ) {
 		fail( "no anchor `$anchor_key` to resolve a house ink for" );
 	}
+	$grade = isset( $grades[ $anchor_key ] ) ? $grades[ $anchor_key ] : $grades['default'];
+	if ( 'none' === $grade ) {
+		return array(
+			'ends'   => null,
+			'sat'    => '1',
+			'gamma'  => 0,
+			'named'  => true,
+			'table'  => array( '0 0.25 0.5 0.75 1', '0 0.25 0.5 0.75 1', '0 0.25 0.5 0.75 1' ),
+		);
+	}
 	$ground_key = $anchors[ $anchor_key ]['ground'];
-	$grade      = isset( $grades[ $anchor_key ] ) ? $grades[ $anchor_key ] : $grades['default'];
 	$ends       = ink_ends( $grounds[ $ground_key ], $accents[ $ground_key ], $tint );
 	return array(
 		'ends'   => $ends,
@@ -1080,17 +1129,21 @@ function ink_of( $anchor_key, $anchors, $grounds, $accents, $grades, $tint ) {
    contrast sweep in § 6 and the stylesheet in § 5a's CSS block — index this array. */
 $INK = array();
 foreach ( $ANCHORS as $ink_ak => $ink_av ) {
-	$INK[ $ink_ak ] = ink_of( $ink_ak, $ANCHORS, $GROUND, $ACCENT_BY_GROUND, $INK_GRADE, $INK_TINT );
+	$ink_tint_v     = isset( $INK_TINT_BY_STYLE[ $ink_ak ] ) ? $INK_TINT_BY_STYLE[ $ink_ak ] : $INK_TINT_BY_STYLE['default'];
+	$INK[ $ink_ak ] = ink_of( $ink_ak, $ANCHORS, $GROUND, $ACCENT_BY_GROUND, $INK_GRADE, $ink_tint_v );
 }
 
 /* AND ONE PER BRAND, from the brand's own two colours. A brand that kept the anchor's ink would be
    grading its photographs toward a palette its page does not have — the exact failure the ink was
    built to prevent, one level up. Everything below this line — the split-tone shape check, the
-   swatch separation bar — indexes `$INK` and therefore measures these too. */
+   swatch separation bar — indexes `$INK` and therefore measures these too.
+   `ink_tint` is read the same optional-override way `ink` (the grade) already is — style-catalog
+   PR 3b — so a brand keeps `$INK_TINT_BY_STYLE['default']` unless it names its own. */
 foreach ( $BRANDS as $ink_bk => $ink_bv ) {
-	$ink_bg    = 'b-' . $ink_bk;
-	$ink_grade = isset( $ink_bv['ink'] ) ? $ink_bv['ink'] : $INK_GRADE['default'];
-	$ink_bends = ink_ends( $GROUND[ $ink_bg ], $ACCENT_BY_GROUND[ $ink_bg ], $INK_TINT );
+	$ink_bg     = 'b-' . $ink_bk;
+	$ink_grade  = isset( $ink_bv['ink'] ) ? $ink_bv['ink'] : $INK_GRADE['default'];
+	$ink_tint_v = isset( $ink_bv['ink_tint'] ) ? $ink_bv['ink_tint'] : $INK_TINT_BY_STYLE['default'];
+	$ink_bends  = ink_ends( $GROUND[ $ink_bg ], $ACCENT_BY_GROUND[ $ink_bg ], $ink_tint_v );
 	$INK[ $ink_bg ] = array(
 		'ends'  => $ink_bends,
 		'sat'   => rtrim( rtrim( sprintf( '%.4f', $ink_grade['sat'] ), '0' ), '.' ),
@@ -8596,11 +8649,14 @@ CSS;
 			break;
 		case 'vitrine':
 			$out .= <<<'CSS'
-/* LA SOMBRA EN REPOSO NO SE VE, Y ESA ES LA RECETA. `soft-shadow` sobre un ground `ink` es
-   `0 1px 2px rgba(0,0,0,.04)` sobre #0E1113: negro sobre negro, invisible por construcción. Sobre
-   un fondo oscuro lo que separa una tarjeta del papel no es una sombra, es el ESCALÓN DE
-   SUPERFICIE — `--c-bg-alt` sobre `--c-bg`. La sombra no se retira por eso: se guarda para el
-   hover, donde la tarjeta ya está levantada y tiene un borde contra el que leerse. */
+/* LA SOMBRA EN REPOSO NO SE VE, Y ESA ES LA RECETA. Sobre `paper` `soft-shadow` en reposo era
+   negro sobre casi-blanco: una sombra real, apenas perceptible. Desde style-catalog PR 3b
+   `--elev-rest` se deriva de `--c-text`, no de un negro fijo, y sobre un ground `ink` el propio
+   `--c-text` (#F4F6F7) es casi blanco — mezclarlo al 4% sobre #0E1113 no da una sombra invisible,
+   da un BRILLO tenue, que es la dirección contraria a "separación en reposo". Sobre un fondo
+   oscuro lo que separa una tarjeta del papel no es una sombra, es el ESCALÓN DE SUPERFICIE —
+   `--c-bg-alt` sobre `--c-bg`. La sombra no se retira por eso: se guarda para el hover, donde la
+   tarjeta ya está levantada y tiene un borde contra el que leerse. */
 [data-anchor="vitrine"] .card{background:var(--c-bg-alt);border-radius:var(--radius-card);
   overflow:hidden;box-shadow:none;
   transition:box-shadow var(--dur-lift) var(--ease),transform var(--dur-lift) var(--ease),
@@ -9415,7 +9471,10 @@ foreach ( $ANCHORS as $ink_k => $ink_a ) {
 	if ( ! isset( $used_anchors[ $ink_k ] ) ) {
 		continue;
 	}
-	$ink_o              = $INK[ $ink_k ];
+	$ink_o = $INK[ $ink_k ];
+	if ( null === $ink_o['ends'] ) {
+		continue;   // style-catalog PR 3b: ink `none` — nothing to filter, nothing to emit
+	}
 	$INK_ENDS[ $ink_k ] = $ink_o;
 	$ink_t              = array();
 	foreach ( array( 'R', 'G', 'B' ) as $ink_i => $ink_ch ) {

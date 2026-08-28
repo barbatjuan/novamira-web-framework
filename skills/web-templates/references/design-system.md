@@ -561,8 +561,19 @@ justifies it**, so the next person can re-take it and find out it no longer does
 |---|---|---|
 | `none` | `none` | `none` — separation is whitespace |
 | `hairline` | `0 0 0 1px var(--c-border)` | `0 0 0 1px var(--c-text)` |
-| `soft-shadow` | `0 1px 2px rgba(0,0,0,.04)` | `0 18px 40px -12px rgba(21,24,26,.16)` |
+| `soft-shadow` | `0 1px 2px color-mix(in srgb,var(--c-text) 4%,transparent)` | `0 18px 40px -12px color-mix(in srgb,var(--c-text) 16%,transparent)` |
 | `accent-glow` | `0 0 0 1px color-mix(in srgb,var(--c-accent) 22%,transparent)` | `0 14px 34px -10px color-mix(in srgb,var(--c-accent) 40%,transparent)` |
+
+**`soft-shadow` tints off `--c-text`, style-catalog PR 3b.** The row above used to read
+`rgba(0,0,0,.04)` / `rgba(21,24,26,.16)` — a fixed cool near-black, which happens to be `paper`'s
+own `--c-text` and reads wrong on any other ground: nine ground families later (PR 3a) that literal
+sits either too cold (`warm`/`earth`/`cream`, whose text is warm-black) or backwards (any `ink-*`
+ground, whose text is near-white). Same percentages the literal used, same `color-mix` syntax
+`accent-glow` already established one row down — **"tint the shadow, never lift it"** applied to
+elevation, not only to the photographic ink. On a light ground this still reads as a shadow
+(`--c-text` is dark); on a dark ground it reads as a glow (`--c-text` is light) rather than as no
+shadow at all, which is why `PERS-VITRINE` (ground `ink`, position `soft-shadow`) overrides its own
+rest state to `none` and keeps the derived value for hover only — see its § Imagery.
 
 ### Composition (one blueprint per position)
 The only axis whose value is a layout rule rather than a number, so each position names a blueprint
