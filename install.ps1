@@ -1,4 +1,4 @@
-# NovaMira Web Framework installer (Windows / PowerShell)
+# WordPress Orchestrator framework installer (Windows / PowerShell)
 # Copies agents/ and skills/ into the user's ~/.claude so Claude Code can load them.
 $ErrorActionPreference = 'Stop'
 $src = $PSScriptRoot
@@ -16,7 +16,7 @@ $agents = Get-ChildItem -Path (Join-Path $src 'agents') -Filter '*.md' -File |
 $skills = Get-ChildItem -Path (Join-Path $src 'skills') -Directory |
           Sort-Object Name | ForEach-Object { $_.Name }
 
-Write-Host "NovaMira Web Framework installed into $dest" -ForegroundColor Green
+Write-Host "WordPress Orchestrator framework installed into $dest" -ForegroundColor Green
 Write-Host ("Agents ({0}): {1}" -f $agents.Count, ($agents -join ', '))
 Write-Host ("Skills ({0}): {1}" -f $skills.Count, ($skills -join ', '))
 Write-Host ""

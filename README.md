@@ -1,6 +1,6 @@
-# NovaMira Web Framework
+# WordPress Orchestrator
 
-Modular system for building **premium WordPress sites via NovaMira**, reusable across
+Modular system for building **premium WordPress sites**, reusable across
 projects (workshop, clinic, real-estate, ecommerce…) by swapping brand config and adding
 domain skills. The orchestrator and bases stay the same. Two builder paths exist —
 **Elementor is proven; Divi is an unvalidated scaffold** (see "Use" below).
@@ -11,9 +11,9 @@ in skills and their `assets/`.
 
 ## What's inside
 ```
-agents/novamira-web-orchestrator.md   # tiny router (thinks, asks, routes)
+agents/wordpress-orchestrator.md      # tiny router (thinks, asks, routes)
 skills/
-  _novamira-framework.md              # architecture overview
+  _wordpress-orchestrator-framework.md # architecture overview
   project-context/                    # detect builder (elementor|divi), plugins, brand
   web-templates/                      # page ARCHITECTURE: home archetypes (ecommerce|corporate) + inner pages (PDP, shop, about, contact) + recommender + toggles
   ux-design-system/                   # builder-agnostic visual language (tokens, motion, layout)
@@ -27,7 +27,7 @@ skills/
   wordpress-performance/  wordpress-seo/  qa-review/
 ```
 
-Alongside the orchestrator, `agents/novamira-copywriter.md` is a subagent that writes the real
+Alongside the orchestrator, `agents/wordpress-copywriter.md` is a subagent that writes the real
 copy in its own context window. It is reached by explicit delegation only and never touches
 WordPress.
 
@@ -63,7 +63,7 @@ the gate). Only `elementor-core` and `woocommerce` currently have both a
 `references/knowledge.md` and a `references/gotchas.md`; `divi-core` has gotchas only, and
 `project-context` / `qa-review` / `wordpress-performance` / `wordpress-seo` / `wordpress-forms` /
 `wordpress-legal` have no
-`references/` yet. See `skills/_novamira-framework.md` for the full map.
+`references/` yet. See `skills/_wordpress-orchestrator-framework.md` for the full map.
 
 ## Install
 Skills and agents load from `~/.claude/` (user scope). Run one:
@@ -83,7 +83,7 @@ skill deleted from this repo keeps living in your `~/.claude/` until you remove 
 
 ## Use
 In Claude Code, ask the orchestrator to drive a build:
-> "Use the **novamira-web-orchestrator** to redesign the home and shop of this WordPress site."
+> "Use the **wordpress-orchestrator** to redesign the home and shop of this WordPress site."
 
 It asks whether the site is new or existing first. On an **existing** site it runs
 `project-context` up front (detects Elementor vs Divi, WooCommerce, theme, brand) and routes

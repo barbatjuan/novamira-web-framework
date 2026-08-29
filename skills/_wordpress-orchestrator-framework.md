@@ -1,10 +1,10 @@
-# NovaMira Web Framework — overview
+# WordPress Orchestrator — framework overview
 
-A modular system for building premium WordPress sites via NovaMira. Reusable across
+A modular system for building premium WordPress sites. Reusable across
 projects (a workshop, a clinic, a real-estate site, an ecommerce) by swapping brand config
 and adding domain skills — the orchestrator and bases stay the same.
 
-The contract lives in `agents/novamira-web-orchestrator.md`. If this overview and the agent
+The contract lives in `agents/wordpress-orchestrator.md`. If this overview and the agent
 ever disagree, **the agent wins** — fix this file.
 
 ## Principle
@@ -27,7 +27,7 @@ their `assets/`.
   `elementor-theme-parts` write to the live site — each one carries its own blocking build gate. `wordpress-forms` additionally SENDS a real message
   during its delivery test, which is an outward action and is confirmed separately.
 
-Copywriting is owned by a SUBAGENT, not a skill: `agents/novamira-copywriter.md`. Long-output
+Copywriting is owned by a SUBAGENT, not a skill: `agents/wordpress-copywriter.md`. Long-output
 work belongs in a fresh window, and it must be reached by explicit delegation — a skill firing on
 "texto" during a deploy would rewrite a live site's content over a common noun. It returns copy
 plus a FACTS NEEDED list, and never invents a credential, a number or a testimonial.

@@ -1,6 +1,6 @@
 <?php
 /**
- * NovaMira framework self-audit — the checks that need no judgement.
+ * WordPress Orchestrator framework self-audit — the checks that need no judgement.
  *
  * Run:  php skills/framework-audit/assets/framework-audit.php           (exit 0 = no FAILs)
  *         …/framework-audit.php --strict                                (WARNs also fail)
@@ -156,7 +156,7 @@ if ( ! file_exists( $root . '/CONTRIBUTING.md' ) ) {
 	fwrite(
 		STDERR,
 		"framework-audit: \"$root\" has no CONTRIBUTING.md, so it is an install directory, not a\n"
-		. "NovaMira checkout. This audits the repo. To check an install, diff it against the repo.\n"
+		. "framework checkout. This audits the repo. To check an install, diff it against the repo.\n"
 	);
 	exit( 2 );
 }

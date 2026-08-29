@@ -1,6 +1,6 @@
 # House-rules checklist (the gate for the orchestrator's defaults)
 
-The orchestrator's "House rules" (`agents/novamira-web-orchestrator.md`) had no verification
+The orchestrator's "House rules" (`agents/wordpress-orchestrator.md`) had no verification
 gate. This is it. Run every row. Report PASS / FAIL / UNVERIFIED per row — never blank.
 
 How verification works here: the sandbox domain is usually browser-blocked, so checks fetch
