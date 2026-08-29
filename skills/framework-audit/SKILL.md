@@ -1,6 +1,6 @@
 ---
 name: framework-audit
-description: "Trigger: auditar el framework, framework audit, revisar las skills, skill drift, does this rule have a verifier, self-check NovaMira, before releasing a skill change. Audit the NovaMira framework itself — every rule has a verifier, every warning reaches a human, no skill points at a file that does not exist."
+description: "Trigger: auditar el framework, framework audit, revisar las skills, skill drift, does this rule have a verifier, self-check the framework, before releasing a skill change. Audit the WordPress Orchestrator framework itself — every rule has a verifier, every warning reaches a human, no skill points at a file that does not exist."
 license: Apache-2.0
 metadata:
   author: "juan"

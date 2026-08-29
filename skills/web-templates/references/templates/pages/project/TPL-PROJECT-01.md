@@ -35,7 +35,7 @@ permiso**: sin él, "empresa del sector X" y nada más. Reutilizable: SECCIÓN.
 
 ### Métricas `[toggle TGL-PROJECT-METRICS]`
 Objetivo: prueba. Solo con **números reales y su fuente**. Un "+300%" inventado es exactamente el
-hallazgo que `novamira-copywriter` tiene prohibido rellenar y devuelve como FACTS NEEDED.
+hallazgo que `wordpress-copywriter` tiene prohibido rellenar y devuelve como FACTS NEEDED.
 Reutilizable: SECCIÓN.
 
 ### CTA `[fijo]`
