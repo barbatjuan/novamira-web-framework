@@ -10,7 +10,7 @@ images survive the hop into WordPress.
 a real photograph and hands the build nothing but base64 is a promise the build
 cannot keep: `es_img()` warns, the widget is written without an image, and the
 client gets the grey box the mockup told them they would not get.
-`agents/novamira-web-orchestrator.md` already names this failure — *"NO skill owns
+`agents/wordpress-orchestrator.md` already names this failure — *"NO skill owns
 image sourcing … the native build needs real assets or it ships grey boxes."*
 
 So each row below carries the slug the operator uploads under. **The file name IS

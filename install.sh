@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# NovaMira Web Framework installer (macOS / Linux)
+# WordPress Orchestrator framework installer (macOS / Linux)
 # Copies agents/ and skills/ into ~/.claude so Claude Code can load them.
 set -euo pipefail
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,7 +26,7 @@ for d in "$SRC"/skills/*/; do
   SKILL_COUNT=$((SKILL_COUNT + 1))
 done
 
-echo "NovaMira Web Framework installed into $DEST"
+echo "WordPress Orchestrator framework installed into $DEST"
 echo "Agents ($AGENT_COUNT): $AGENTS"
 echo "Skills ($SKILL_COUNT): $SKILLS"
 echo

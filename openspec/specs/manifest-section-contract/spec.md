@@ -62,7 +62,7 @@ against the 588-word count.
 
 ### Requirement: The Framework Does Not Contradict Itself About Persisted State
 
-`agents/novamira-web-orchestrator.md` MUST NOT claim the framework persists
+`agents/wordpress-orchestrator.md` MUST NOT claim the framework persists
 no state. The "Carry decisions across sessions" section (`:289-294`) MUST be
 removed; its guidance already exists at House rule `:182-186` with a
 verifier marker.
