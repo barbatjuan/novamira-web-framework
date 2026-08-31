@@ -63,3 +63,25 @@ with the client and copy swapped and the design untouched — the real NovaMira 
   air and accent, and converged only on silhouette and lift, which are framework constants.
 - Cost, before capture was split out: 97k–117k tokens and 27–71 tool calls per judge. Splitting
   capture into `assets/capture.mjs` is what removes most of that.
+
+## The judge model was calibrated, not assumed
+
+Both agents are pointed at a smaller model than the one that usually generates the mockup. That is
+a deliberate partial mitigation of the family rule (`judge-independence.md`), and it was measured
+rather than hoped for — an uncalibrated judge model degrades silently, which is the worst failure
+this skill could have.
+
+Run on the same three captures as the original calibration:
+
+- **Judge A: correct in both directions.** Same grouping as the larger model, same discounting of
+  the hatch placeholder, and the same finding that all three share their page skeleton, margins,
+  eyebrow convention, CTA pairing and nav set. It also named a tell the larger model missed — the
+  two-card grid reverses its wide/narrow order between the groups.
+- **Judge B: eight of eight attributes reproduced** — same cool near-white ground, same
+  high-contrast serif, same rust accent doing the same three jobs, same flat surface, same small
+  button radius. It read the hero smaller (60–70px against 78–82px) and missed the 01/02/03 numeral
+  drift the larger model caught.
+
+So it is a valid instrument, and a slightly blunter one. It separates the pair, which is the bar.
+What it does NOT do is satisfy the family rule: a smaller model in the same family is still the
+same family, so these runs remain SELF-JUDGED.

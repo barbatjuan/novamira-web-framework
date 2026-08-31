@@ -254,7 +254,10 @@ nothing to notice.
   party being judged, so it reconciles the two verdicts and reports both, and when they contradict
   each other it takes them to the user verbatim. Breaking the tie in here is exactly where the
   objectivity the whole step exists for dies. The judges are read-only: they render, look and
-  report, and only this thread records the result afterwards.
+  report, and only this thread records the result afterwards. And the judge is never the model
+  family that produced the mockup: a model rates its own family's output higher, which is measured.
+  When no outside family is reachable — today, none is — the run is reported SELF-JUDGED, which is
+  a third state beside PASS and FAIL and never reads as the first.
   (no verifier: which actor resolved a disagreement is a property of the conversation, and nothing in this repo can read a conversation)
 
 ## Integration + honesty
