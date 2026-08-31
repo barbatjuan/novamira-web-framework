@@ -2522,6 +2522,14 @@ ok( $fx_unroutable( 'fx_orphan_helper' ), 'a COMMENT naming the function is not 
 fx( $r70, '.worktrees/otra/skills/woocommerce/references/api.md', "# API de otra rama\n\n`fx_orphan_helper()` sigue documentada aqui.\n" );
 list( , $out71 ) = fx_run_ok( $audit, $r70 );
 ok( array() !== fx_lines_with( $out71, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'markdown under a hidden directory (.worktrees) does not make a helper reachable', $out71 );
+/* The same hole one directory over, and worse. `openspec/` is not dot-prefixed, so the filter
+   above walks it: an in-flight proposal, design or tasks file naming a helper would credit it as
+   routable. Planning prose describes helpers that do NOT exist yet or were never wired, so a
+   change still deciding whether to keep a helper would silence the one row that says it is
+   unreachable. Only DURABLE surfaces route: skills/, agents/, docs/, CONTRIBUTING.md, README.md. */
+fx( $r70, 'openspec/changes/fx-cambio/proposal.md', "# Proposal\n\nWire `fx_orphan_helper()` into the build.\n" );
+list( , $out72 ) = fx_run_ok( $audit, $r70 );
+ok( array() !== fx_lines_with( $out72, array( 'RT_HELPER_UNROUTABLE', 'fx_orphan_helper()' ) ), 'markdown under openspec/ (in-flight planning prose) does not make a helper reachable', $out72 );
 fx_rrmdir( $r70 );
 
 echo "--- las anclas de personalidad no pueden parecerse entre si ---\n";

@@ -901,29 +901,51 @@ foreach ( $skill_dirs as $sdir ) {
 	}
 }
 
-/* Only markdown that is PART OF THIS TREE. `SKIP_DOTS` drops `.` and `..` and nothing else, so the
-   first version walked `.git` and — the one that matters — `.worktrees/`, where a full checkout of
-   another branch lives. A helper deleted here but still named by that copy's SKILL.md would have
-   read as reachable, so the check would go quiet exactly when a helper was being removed. Hidden
-   directories and dependency trees are skipped by name, not by luck. */
+/* Only markdown that can actually ROUTE — an ALLOWLIST of durable surfaces, not the whole tree
+   minus whatever looked disposable at the time. The first version walked everything `SKIP_DOTS`
+   left, which is `.` and `..` and nothing else, so it read `.git` and — the one that mattered —
+   `.worktrees/`, a full checkout of another branch: a helper deleted here but still named by that
+   copy's SKILL.md read as reachable, and the check went quiet exactly when a helper was being
+   removed. Excluding hidden directories by name closed that hole and left a wider one open.
+   `openspec/` is not hidden, is not a dependency tree, and is not durable: it holds IN-FLIGHT
+   planning prose — proposal.md, design.md, tasks.md, specs/<capability>/spec.md — describing helpers that do
+   not exist yet or were never wired. A change still deciding whether to keep a helper would name
+   it there and silence the one row saying nothing can reach it. So the question is not "is this
+   directory disposable" but "would a model ever be told to read this file", and only these five
+   surfaces answer yes. A new durable surface is added here deliberately; a new scratch directory
+   costs nothing and is credited by nobody. */
 $prose = '';
-$dirs  = new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS );
-$walk  = new RecursiveIteratorIterator(
-	new RecursiveCallbackFilterIterator(
-		$dirs,
-		function ( $cur ) {
-			$name = $cur->getFilename();
-			if ( $cur->isDir() ) {
-				return '.' !== substr( $name, 0, 1 ) && ! in_array( $name, array( 'node_modules', 'vendor' ), true );
+foreach ( array( 'CONTRIBUTING.md', 'README.md' ) as $rel ) {
+	if ( is_file( $root . '/' . $rel ) ) {
+		$prose .= "\n" . slurp( $root . '/' . $rel );
+	}
+}
+foreach ( array( 'skills', 'agents', 'docs' ) as $rel ) {
+	$base = $root . '/' . $rel;
+	if ( ! is_dir( $base ) ) {
+		continue;
+	}
+	/* Hidden directories and dependency trees are still skipped by name INSIDE a durable surface:
+	   a `node_modules/` or a stray checkout under `skills/` is no more routable there than at the
+	   root, and the allowlist above says nothing about depth. */
+	$dirs = new RecursiveDirectoryIterator( $base, FilesystemIterator::SKIP_DOTS );
+	$walk = new RecursiveIteratorIterator(
+		new RecursiveCallbackFilterIterator(
+			$dirs,
+			function ( $cur ) {
+				$name = $cur->getFilename();
+				if ( $cur->isDir() ) {
+					return '.' !== substr( $name, 0, 1 ) && ! in_array( $name, array( 'node_modules', 'vendor' ), true );
+				}
+				return true;
 			}
-			return true;
+		),
+		RecursiveIteratorIterator::SELF_FIRST
+	);
+	foreach ( $walk as $f ) {
+		if ( $f->isFile() && 'md' === strtolower( $f->getExtension() ) ) {
+			$prose .= "\n" . slurp( $f->getPathname() );
 		}
-	),
-	RecursiveIteratorIterator::SELF_FIRST
-);
-foreach ( $walk as $f ) {
-	if ( $f->isFile() && 'md' === strtolower( $f->getExtension() ) ) {
-		$prose .= "\n" . slurp( $f->getPathname() );
 	}
 }
 
